@@ -1,0 +1,14 @@
+{
+  "name": "example-with-node",
+  "private": true,
+  "scripts": {
+    "build": "npx pagesmith build",
+    "dev": "npx pagesmith dev"
+  },
+  "dependencies": {
+    "pagesmith": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}

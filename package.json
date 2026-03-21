@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm -w packages/pagesmith run build",
+    "test": "npm -w packages/pagesmith run test",
+    "lint": "oxlint packages/",
+    "format": "dprint fmt"
+  },
+  "devDependencies": {
+    "dprint": "^0.49.0",
+    "oxlint": "^0.18.0"
+  }
+}

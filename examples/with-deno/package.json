@@ -1,0 +1,7 @@
+{
+  "name": "example-with-deno",
+  "private": true,
+  "dependencies": {
+    "pagesmith": "workspace:*"
+  }
+}

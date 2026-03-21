@@ -1,0 +1,13 @@
+{
+  "name": "create-pagesmith",
+  "version": "0.1.0",
+  "description": "Scaffold a new Pagesmith site",
+  "type": "module",
+  "bin": {
+    "create-pagesmith": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "templates/"
+  ]
+}

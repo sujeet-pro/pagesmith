@@ -1,0 +1,6 @@
+{
+  displayName: "Articles",
+  layout: "Listing",
+  itemLayout: "Article",
+  series: [],
+}

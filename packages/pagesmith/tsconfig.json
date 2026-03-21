@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "outDir": "dist"
+  },
+  "include": [
+    "src/**/*.ts",
+    "schemas/**/*.ts",
+    "theme/**/*.tsx",
+    "theme/**/*.ts",
+    "cli/**/*.ts"
+  ]
+}
