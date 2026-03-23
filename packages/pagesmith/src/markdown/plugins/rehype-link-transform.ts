@@ -8,8 +8,8 @@
  * `/articles/slug/#section`).
  */
 
-import type { Element, Root, } from 'hast'
-import { visit, } from 'unist-util-visit'
+import type { Element, Root } from 'hast'
+import { visit } from 'unist-util-visit'
 
 export interface LinkTransformOptions {
   /** The URL prefix for the current content type, e.g. '/articles' */
@@ -28,26 +28,26 @@ export interface LinkTransformOptions {
  */
 const RELATIVE_MD_LINK = /^\.\.\/([^/]+)\/(?:README|index)\.md(#.*)?$/
 
-export function rehypeLinkTransform(options: LinkTransformOptions = {},) {
-  const { urlPrefix = '', } = options
+export function rehypeLinkTransform(options: LinkTransformOptions = {}) {
+  const { urlPrefix = '' } = options
 
-  return (tree: Root,) => {
-    visit(tree, 'element', (node: Element,) => {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element) => {
       if (node.tagName !== 'a') return
 
       const href = node.properties?.href
       if (typeof href !== 'string') return
 
       // Skip external URLs
-      if (href.startsWith('http://',) || href.startsWith('https://',)) return
+      if (href.startsWith('http://') || href.startsWith('https://')) return
 
       // Skip non-markdown relative links
-      if (!href.includes('.md',)) return
+      if (!href.includes('.md')) return
 
       // Skip self-links like ./README.md
-      if (href.startsWith('./',)) return
+      if (href.startsWith('./')) return
 
-      const match = href.match(RELATIVE_MD_LINK,)
+      const match = href.match(RELATIVE_MD_LINK)
       if (!match) return
 
       const slug = match[1]
@@ -56,6 +56,6 @@ export function rehypeLinkTransform(options: LinkTransformOptions = {},) {
       // Build the transformed URL: /articles/slug/ + optional #fragment
       node.properties = node.properties || {}
       node.properties.href = `${urlPrefix}/${slug}/${hash}`
-    },)
+    })
   }
 }

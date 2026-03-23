@@ -1,11 +1,14 @@
-import { z, } from 'zod'
+import { MarkdownConfigSchema } from '@pagesmith/core/schemas'
+import { z } from 'zod'
+
+export { type MarkdownConfig, MarkdownConfigSchema } from '@pagesmith/core/schemas'
 
 // ── Navigation ──
 
 export const NavItemSchema = z.object({
   path: z.string(),
   label: z.string(),
-},)
+})
 
 export type NavItem = z.infer<typeof NavItemSchema>
 
@@ -14,28 +17,9 @@ export type NavItem = z.infer<typeof NavItemSchema>
 export const SocialLinkSchema = z.object({
   handle: z.string(),
   url: z.string().url(),
-},)
+})
 
 export type SocialLink = z.infer<typeof SocialLinkSchema>
-
-// ── Markdown config ──
-
-export const MarkdownConfigSchema = z.object({
-  remarkPlugins: z.array(z.any(),).optional(),
-  rehypePlugins: z.array(z.any(),).optional(),
-  shiki: z
-    .object({
-      themes: z.object({
-        light: z.string(),
-        dark: z.string(),
-      },),
-      langAlias: z.record(z.string(), z.string(),).optional(),
-      defaultShowLineNumbers: z.boolean().optional(),
-    },)
-    .optional(),
-},)
-
-export type MarkdownConfig = z.infer<typeof MarkdownConfigSchema>
 
 // ── Content type definition (NEW) ──
 
@@ -44,9 +28,9 @@ export const ContentTypeDefSchema = z.object({
   datasource: z.object({
     markdown: z.boolean(),
     json: z.boolean(),
-  },),
-  orderBy: z.enum(['manual', 'publishedDate',],),
-},)
+  }),
+  orderBy: z.enum(['manual', 'publishedDate']),
+})
 
 export type ContentTypeDef = z.infer<typeof ContentTypeDefSchema>
 
@@ -57,16 +41,16 @@ export const SingletonPageSchema = z.object({
   layout: z.string(),
   contentFile: z.string(),
   datasource: z.string().optional(),
-},)
+})
 
 export type SingletonPage = z.infer<typeof SingletonPageSchema>
 
 // ── CSS config (NEW) ──
 
 export const CssConfigSchema = z.object({
-  entries: z.array(z.string(),),
+  entries: z.array(z.string()),
   minify: z.boolean(),
-},)
+})
 
 export type CssConfig = z.infer<typeof CssConfigSchema>
 
@@ -78,14 +62,14 @@ export const GeneratorsConfigSchema = z.object({
     .object({
       enabled: z.boolean(),
       maxItems: z.number().optional(),
-    },)
+    })
     .optional(),
   agents: z
     .object({
       enabled: z.boolean(),
-    },)
+    })
     .optional(),
-},)
+})
 
 export type GeneratorsConfig = z.infer<typeof GeneratorsConfigSchema>
 
@@ -99,9 +83,9 @@ export const HomeConfigSchema = z.object({
     title: z.string(),
     bio: z.string(),
     imageAlt: z.string(),
-  },),
-  profileActions: z.record(z.string(), z.string(),),
-},)
+  }),
+  profileActions: z.record(z.string(), z.string()),
+})
 
 export type HomeConfig = z.infer<typeof HomeConfigSchema>
 
@@ -118,57 +102,63 @@ export const SiteConfigSchema = z.object({
   // Build config
   baseUrl: z.string(),
   defaultLayout: z.string(),
-  styles: z.array(z.string(),),
+  styles: z.array(z.string()),
   markdown: MarkdownConfigSchema,
 
   // Navigation
-  navItems: z.array(NavItemSchema,),
-  footerLinks: z.array(NavItemSchema,),
+  navItems: z.array(NavItemSchema),
+  footerLinks: z.array(NavItemSchema),
 
   // Social & copyright
   social: z.object({
     twitter: SocialLinkSchema,
     github: SocialLinkSchema,
     linkedin: SocialLinkSchema,
-  },),
+  }),
   copyright: z.object({
     holder: z.string(),
     startYear: z.number(),
-  },),
+  }),
 
   // Featured content
-  featuredArticles: z.array(z.string(),),
-  featuredSeries: z.array(z.string(),),
+  featuredArticles: z.array(z.string()),
+  featuredSeries: z.array(z.string()),
 
   // Page types
-  pageTypes: z.array(z.string(),),
+  pageTypes: z.array(z.string()),
 
   // Home page config
   home: HomeConfigSchema,
 
   // Analytics
-  analytics: z.object({
-    googleAnalytics: z.string().optional(),
-  },).optional(),
+  analytics: z
+    .object({
+      googleAnalytics: z.string().optional(),
+    })
+    .optional(),
 
   // SEO
-  seo: z.object({
-    locale: z.string().optional(),
-    twitterHandle: z.string().optional(),
-    defaultOgType: z.string().optional(),
-  },).optional(),
+  seo: z
+    .object({
+      locale: z.string().optional(),
+      twitterHandle: z.string().optional(),
+      defaultOgType: z.string().optional(),
+    })
+    .optional(),
 
   // Theme colors
-  theme: z.object({
-    lightColor: z.string(),
-    darkColor: z.string(),
-  },).optional(),
+  theme: z
+    .object({
+      lightColor: z.string(),
+      darkColor: z.string(),
+    })
+    .optional(),
 
   // NEW optional fields for forward compatibility
-  contentTypes: z.record(z.string(), ContentTypeDefSchema,).optional(),
+  contentTypes: z.record(z.string(), ContentTypeDefSchema).optional(),
   css: CssConfigSchema.optional(),
-  pages: z.array(SingletonPageSchema,).optional(),
+  pages: z.array(SingletonPageSchema).optional(),
   generators: GeneratorsConfigSchema.optional(),
-},)
+})
 
 export type SiteConfig = z.infer<typeof SiteConfigSchema>

@@ -1,0 +1,37 @@
+/* ═══════════════════════════════════════════════════════════════
+   Light/dark mode image switching for diagrams and figures.
+
+   Two strategies:
+   1. <picture> with <source media="..."> — browser handles it, no CSS needed.
+   2. Class-based — two <img> tags with .only-light / .only-dark,
+      CSS controls visibility based on active theme.
+
+   Supports: OS preference, data-theme attribute (JS toggle),
+   and CSS-only radio toggle (body:has(#theme-*:checked)).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Default: light visible, dark hidden ─── */
+.only-light { display: block; }
+.only-dark { display: none; }
+
+/* ─── OS preference (auto) ─── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .only-light { display: none; }
+  :root:not([data-theme="light"]) .only-dark { display: block; }
+}
+
+/* ─── JS-driven theme toggle (data-theme attribute) ─── */
+[data-theme="dark"] .only-light { display: none; }
+[data-theme="dark"] .only-dark { display: block; }
+[data-theme="light"] .only-light { display: block; }
+[data-theme="light"] .only-dark { display: none; }
+
+/* ─── CSS-only radio toggle (no JS needed) ─── */
+body:has(#theme-dark:checked) .only-light { display: none; }
+body:has(#theme-dark:checked) .only-dark { display: block; }
+body:has(#theme-light:checked) .only-dark { display: none; }
+body:has(#theme-light:checked) .only-light { display: block; }
+
+/* ─── Centering within figure elements ─── */
+figure .only-light,
+figure .only-dark { margin: 0 auto; }

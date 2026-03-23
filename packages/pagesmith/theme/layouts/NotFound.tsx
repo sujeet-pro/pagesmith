@@ -1,13 +1,13 @@
-import type { BaseLayoutProps, } from '../../schemas/layout-props'
-import { h, } from '../../src/jsx-runtime'
-import { Footer, } from './components/Footer'
-import { Header, } from './components/Header'
-import { Html, } from './components/Html'
+import { h } from '@pagesmith/core/jsx-runtime'
+import type { BaseLayoutProps } from '../../schemas/layout-props'
+import { Footer } from './components/Footer'
+import { Header } from './components/Header'
+import { Html } from './components/Html'
 
-export { BaseLayoutPropsSchema as propsSchema, } from '../../schemas/layout-props'
+export { BaseLayoutPropsSchema as propsSchema } from '../../schemas/layout-props'
 
-export default function NotFound(props: BaseLayoutProps,) {
-  const { site, } = props
+export default function NotFound(props: BaseLayoutProps) {
+  const { site } = props
 
   return (
     <Html
@@ -27,8 +27,12 @@ export default function NotFound(props: BaseLayoutProps,) {
               or head back home.
             </p>
             <div class="not-found-actions">
-              <a href="/articles" class="not-found-btn not-found-btn-primary">All Articles</a>
-              <a href="/" class="not-found-btn not-found-btn-outline">Home</a>
+              <a href="/articles" class="not-found-btn not-found-btn-primary">
+                All Articles
+              </a>
+              <a href="/" class="not-found-btn not-found-btn-outline">
+                Home
+              </a>
             </div>
           </div>
         </section>

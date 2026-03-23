@@ -1,0 +1,75 @@
+{
+  "name": "@pagesmith/core",
+  "version": "0.1.0",
+  "description": "Standalone markdown-to-HTML engine with code highlighting, TOC extraction, and custom JSX runtime",
+  "bin": {
+    "pagesmith-core": "./cli/bin.js"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "cli/"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "bun": "./src/index.ts",
+      "deno": "./src/index.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./jsx-runtime": {
+      "bun": "./src/jsx-runtime/index.ts",
+      "deno": "./src/jsx-runtime/index.ts",
+      "import": "./dist/jsx-runtime/index.mjs"
+    },
+    "./markdown": {
+      "bun": "./src/markdown/index.ts",
+      "deno": "./src/markdown/index.ts",
+      "import": "./dist/markdown/index.mjs"
+    },
+    "./css": {
+      "bun": "./src/css/index.ts",
+      "deno": "./src/css/index.ts",
+      "import": "./dist/css/index.mjs"
+    },
+    "./css/content": {
+      "default": "./src/styles/content.css"
+    },
+    "./css/diagrams": {
+      "default": "./src/styles/diagrams.css"
+    },
+    "./css/viewport": {
+      "default": "./src/styles/viewport.css"
+    },
+    "./schemas": {
+      "bun": "./src/schemas/index.ts",
+      "deno": "./src/schemas/index.ts",
+      "import": "./dist/schemas/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "vp pack",
+    "test": "vp test run"
+  },
+  "dependencies": {
+    "@shikijs/rehype": "^3.0.0",
+    "gray-matter": "^4.0.3",
+    "hast": "^1.0.0",
+    "lightningcss": "^1.32.0",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-mathjax": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.1",
+    "unified": "^11.0.5",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "vite-plus": "^0.1.13"
+  }
+}

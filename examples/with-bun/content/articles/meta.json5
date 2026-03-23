@@ -1,17 +1,17 @@
 {
-  displayName: "Articles",
-  description: "Example articles built with Pagesmith.",
-  layout: "Listing",
-  itemLayout: "Article",
-  orderBy: "manual",
+  displayName: 'Articles',
+  description: 'Example articles built with Pagesmith.',
+  layout: 'Listing',
+  itemLayout: 'Article',
+  orderBy: 'manual',
 
   series: [
     {
-      slug: "getting-started",
-      displayName: "Getting Started",
-      shortName: "Start",
-      description: "Your first steps with Pagesmith.",
-      articles: ["hello-world"],
+      slug: 'getting-started',
+      displayName: 'Getting Started',
+      shortName: 'Start',
+      description: 'Your first steps with Pagesmith.',
+      articles: ['hello-world'],
     },
   ],
 }

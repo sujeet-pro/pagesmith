@@ -1,124 +1,80 @@
-/**
- * Modular diagram rendering pipeline.
- *
- * Finds diagram source files, checks manifest for staleness,
- * dispatches to the appropriate renderer, and updates manifests.
- */
-
-import { watch, } from 'chokidar'
-import { basename, dirname, join, } from 'path'
-import { filterByType, findDiagramFiles, } from './discovery'
-import { filterStaleFiles, updateManifests, } from './manifest'
-import { createRenderers, } from './renderers'
-import type { DiagramFile, } from './renderers/types'
-
-/* ── Public options ── */
+import {
+  createRenderers,
+  getExtensionMap,
+  getMatchedExtension,
+  loadConfig,
+  renderAll,
+  watchDiagrams as watchWithDiagramkit,
+  updateManifest,
+  type DiagramFile,
+  type DiagramkitConfig,
+  type DiagramType,
+  type OutputFormat,
+} from 'diagramkit'
+import { basename, dirname, join } from 'path'
 
 export type DiagramOptions = {
   contentDir?: string
   watch?: boolean
   force?: boolean
   file?: string
-  type?: 'mermaid' | 'excalidraw'
+  type?: DiagramType
+  format?: OutputFormat
+  config?: Partial<DiagramkitConfig>
 }
 
-/* ── Helpers ── */
+function toDiagramFile(path: string, config?: Partial<DiagramkitConfig>): DiagramFile | null {
+  const extensionMap = getExtensionMap(config?.extensionMap)
+  const ext = getMatchedExtension(basename(path), extensionMap)
+  if (!ext) return null
 
-function toDiagramFile(path: string,): DiagramFile {
-  const ext = path.endsWith('.mermaid',) ? '.mermaid' : '.excalidraw'
   return {
     path,
-    name: basename(path, ext,),
-    dir: dirname(path,),
+    name: basename(path, ext),
+    dir: dirname(path),
     ext,
   }
 }
 
-function getRendererForExt(ext: string,) {
-  const renderers = createRenderers()
-  return renderers.find((r,) => r.extensions.includes(ext,))
-}
+export async function renderDiagrams(opts: DiagramOptions = {}): Promise<void> {
+  const contentDir = opts.contentDir ?? join(process.cwd(), 'content')
 
-/* ── Main entry points ── */
-
-export async function renderDiagrams(opts: DiagramOptions = {},): Promise<void> {
-  const contentDir = opts.contentDir ?? join(process.cwd(), 'content',)
-
-  // Single file mode
   if (opts.file) {
-    const path = opts.file
-    console.log(`Force rendering: ${path}`,)
-
-    const file = toDiagramFile(path,)
-    const renderer = getRendererForExt(file.ext,)
-
-    if (!renderer) {
-      console.error('Unknown file type. Must be .mermaid or .excalidraw',)
-      return
+    const config = loadConfig(opts.config, dirname(opts.file))
+    const file = toDiagramFile(opts.file, config)
+    if (!file) {
+      throw new Error(`Unknown diagram type for file: ${opts.file}`)
     }
 
-    await renderer.renderSingle(file,)
-    updateManifests([file,],)
+    const renderer = createRenderers().find((candidate) => candidate.extensions.includes(file.ext))
+    if (!renderer) {
+      throw new Error(`No diagram renderer registered for extension: ${file.ext}`)
+    }
+
+    const format = opts.format ?? config.defaultFormat ?? 'svg'
+    await renderer.renderSingle(file, { force: true, format, config })
+    updateManifest([file], format, config)
     return
   }
 
-  // Batch mode
-  const allFiles = findDiagramFiles(contentDir,)
-  let filtered = allFiles
-
-  // Filter by type
-  if (opts.type) {
-    filtered = filterByType(filtered, opts.type,)
-  }
-
-  // Filter stale (unless force)
-  const stale = filterStaleFiles(filtered, opts.force ?? false,)
-
-  if (stale.length === 0) {
-    console.log(`All ${filtered.length} diagrams up-to-date (skipped)`,)
-  } else {
-    if (!opts.force && stale.length < filtered.length) {
-      console.log(
-        `${filtered.length - stale.length} diagrams up-to-date, ${stale.length} need rendering`,
-      )
-    }
-
-    const renderers = createRenderers()
-    for (const renderer of renderers) {
-      const batch = stale.filter((f,) => renderer.extensions.includes(f.ext,))
-      await renderer.renderBatch(batch,)
-    }
-
-    // Update manifests
-    updateManifests(stale,)
-  }
+  await renderAll({
+    dir: contentDir,
+    force: opts.force,
+    type: opts.type,
+    format: opts.format,
+    config: opts.config,
+  })
 }
 
-export function watchDiagrams(contentDir?: string,): void {
-  const dir = contentDir ?? join(process.cwd(), 'content',)
-  console.log('Watching for diagram changes...\n',)
-
-  const watcher = watch(
-    [join(dir, '**/*.mermaid',), join(dir, '**/*.excalidraw',),],
-    { ignoreInitial: true, ignored: /node_modules|dist|dev/, },
-  )
-
-  const handle = async (path: string,) => {
-    const file = toDiagramFile(path,)
-    const renderer = getRendererForExt(file.ext,)
-    if (renderer) {
-      await renderer.renderSingle(file,)
-    }
-    updateManifests([file,],)
-  }
-
-  watcher.on('change', async (path,) => {
-    console.log(`Changed: ${path}`,)
-    await handle(path,)
-  },)
-
-  watcher.on('add', async (path,) => {
-    console.log(`Added: ${path}`,)
-    await handle(path,)
-  },)
+export function watchDiagrams(
+  contentDir?: string,
+  options?: { onChange?: (file: string) => void; config?: Partial<DiagramkitConfig> },
+): () => void {
+  return watchWithDiagramkit({
+    dir: contentDir ?? join(process.cwd(), 'content'),
+    onChange: options?.onChange,
+    config: options?.config,
+  })
 }
+
+export type { DiagramFile, DiagramkitConfig, DiagramType, OutputFormat }

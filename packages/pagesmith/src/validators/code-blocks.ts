@@ -6,39 +6,39 @@
  * - invalid range syntax
  */
 
-import { readFileSync, } from 'fs'
-import type { Issue, ValidationContext, Validator, } from './types'
+import { readFileSync } from 'fs'
+import type { Issue, ValidationContext, Validator } from './types'
 
 /** Parse collapse ranges from meta string, same logic as shiki-transformers. */
-function parseCollapseRanges(meta: string,): number[][] {
-  const match = meta.match(/collapse=\{([^}]+)\}/,)
+function parseCollapseRanges(meta: string): number[][] {
+  const match = meta.match(/collapse=\{([^}]+)\}/)
   if (!match) return []
-  return match[1].split(',',).map((part,) => {
+  return match[1].split(',').map((part) => {
     const trimmed = part.trim()
-    if (trimmed.includes('-',)) {
-      const [a, b,] = trimmed.split('-',).map(Number,)
-      return [a, b,]
+    if (trimmed.includes('-')) {
+      const [a, b] = trimmed.split('-').map(Number)
+      return [a, b]
     }
-    const n = Number(trimmed,)
-    return [n, n,]
-  },)
+    const n = Number(trimmed)
+    return [n, n]
+  })
 }
 
 export const codeBlocksValidator: Validator = {
   name: 'code-blocks',
 
-  async validate(ctx: ValidationContext,): Promise<Issue[]> {
+  async validate(ctx: ValidationContext): Promise<Issue[]> {
     const issues: Issue[] = []
 
     for (const page of ctx.pageMetas) {
-      const raw = readFileSync(page.filePath, 'utf-8',)
-      const lines = raw.split('\n',)
+      const raw = readFileSync(page.filePath, 'utf-8')
+      const lines = raw.split('\n')
 
       // Find fenced code blocks: ```lang meta ... ```
       let i = 0
       while (i < lines.length) {
         const line = lines[i]
-        const openMatch = line.match(/^(`{3,})(\w*)\s*(.*?)\s*$/,)
+        const openMatch = line.match(/^(`{3,})(\w*)\s*(.*?)\s*$/)
         if (!openMatch) {
           i++
           continue
@@ -50,7 +50,7 @@ export const codeBlocksValidator: Validator = {
 
         // Find closing fence
         let j = i + 1
-        while (j < lines.length && !lines[j].startsWith(fence,)) {
+        while (j < lines.length && !lines[j].startsWith(fence)) {
           j++
         }
 
@@ -62,7 +62,7 @@ export const codeBlocksValidator: Validator = {
             severity: 'error',
             rule: 'code-blocks/unclosed-fence',
             message: 'Fenced code block is never closed',
-          },)
+          })
           i = j
           continue
         }
@@ -71,8 +71,8 @@ export const codeBlocksValidator: Validator = {
         const bodyLines = j - i - 1
 
         // Check collapse ranges
-        const collapseRanges = parseCollapseRanges(meta,)
-        for (const [start, end,] of collapseRanges) {
+        const collapseRanges = parseCollapseRanges(meta)
+        for (const [start, end] of collapseRanges) {
           if (start < 1) {
             issues.push({
               file: page.filePath,
@@ -80,7 +80,7 @@ export const codeBlocksValidator: Validator = {
               severity: 'error',
               rule: 'code-blocks/invalid-collapse-range',
               message: `Collapse range start ${start} is less than 1`,
-            },)
+            })
           }
           if (end > bodyLines) {
             issues.push({
@@ -88,9 +88,8 @@ export const codeBlocksValidator: Validator = {
               line: openLine,
               severity: 'warn',
               rule: 'code-blocks/collapse-exceeds-lines',
-              message:
-                `Collapse range ${start}-${end} exceeds line count (${bodyLines} lines). Will be clamped to ${start}-${bodyLines}`,
-            },)
+              message: `Collapse range ${start}-${end} exceeds line count (${bodyLines} lines). Will be clamped to ${start}-${bodyLines}`,
+            })
           }
           if (start > end) {
             issues.push({
@@ -99,7 +98,7 @@ export const codeBlocksValidator: Validator = {
               severity: 'error',
               rule: 'code-blocks/invalid-collapse-range',
               message: `Collapse range start (${start}) is greater than end (${end})`,
-            },)
+            })
           }
           if (start > bodyLines) {
             issues.push({
@@ -107,14 +106,13 @@ export const codeBlocksValidator: Validator = {
               line: openLine,
               severity: 'warn',
               rule: 'code-blocks/collapse-exceeds-lines',
-              message:
-                `Collapse range ${start}-${end} starts beyond line count (${bodyLines} lines). Will be skipped`,
-            },)
+              message: `Collapse range ${start}-${end} starts beyond line count (${bodyLines} lines). Will be skipped`,
+            })
           }
         }
 
         // Check for overlapping collapse ranges
-        const sorted = [...collapseRanges,].sort((a, b,) => a[0] - b[0])
+        const sorted = [...collapseRanges].sort((a, b) => a[0] - b[0])
         for (let k = 1; k < sorted.length; k++) {
           const prev = sorted[k - 1]
           const curr = sorted[k]
@@ -125,7 +123,7 @@ export const codeBlocksValidator: Validator = {
               severity: 'error',
               rule: 'code-blocks/overlapping-collapse',
               message: `Collapse ranges ${prev[0]}-${prev[1]} and ${curr[0]}-${curr[1]} overlap`,
-            },)
+            })
           }
         }
 

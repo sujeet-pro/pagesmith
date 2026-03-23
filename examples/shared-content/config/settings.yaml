@@ -1,0 +1,36 @@
+site:
+  title: 'Pagesmith Documentation'
+  description: 'A zero-runtime static site generator'
+  baseUrl: 'https://docs.example.com'
+  language: 'en'
+  author: 'Pagesmith Team'
+
+build:
+  outDir: 'dist'
+  parallel: true
+  validate: true
+  cleanBeforeBuild: true
+
+dev:
+  port: 3000
+  open: false
+  watchDebounceMs: 100
+
+markdown:
+  shiki:
+    themes:
+      light: 'github-light'
+      dark: 'github-dark'
+    defaultShowLineNumbers: true
+  remarkPlugins: []
+  rehypePlugins: []
+
+assets:
+  hashLength: 8
+  publicDir: 'public'
+  copyExtensions:
+    - '.png'
+    - '.jpg'
+    - '.svg'
+    - '.ico'
+    - '.woff2'

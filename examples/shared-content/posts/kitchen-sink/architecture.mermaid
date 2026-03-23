@@ -1,0 +1,12 @@
+graph TD
+    A[Content Files] --> B[Loader]
+    B --> C[Validator]
+    B --> F[Schema Check]
+    F --> C
+    C --> D[Markdown Pipeline]
+    D --> E[HTML Output]
+    D --> G[Heading Extraction]
+    G --> H[TOC Data]
+    E --> I[Layout Renderer]
+    H --> I
+    I --> J[Static HTML Pages]

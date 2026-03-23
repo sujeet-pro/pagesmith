@@ -21,7 +21,7 @@ export interface ValidationContext {
 
 export interface Validator {
   name: string
-  validate(ctx: ValidationContext,): Promise<Issue[]>
+  validate(ctx: ValidationContext): Promise<Issue[]>
 }
 
 export interface ValidationResult {

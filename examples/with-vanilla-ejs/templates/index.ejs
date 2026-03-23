@@ -1,0 +1,14 @@
+<h1>Blog</h1>
+<ul style="list-style: none; padding: 0;">
+  <% for (const post of posts) { %>
+    <li style="margin-bottom: 2rem;">
+      <h2 style="margin-bottom: 0.25rem;">
+        <a href="<%= basePath %>posts/<%= post.slug %>/"><%= post.title %></a>
+      </h2>
+      <time style="color: #666; font-size: 0.875rem;">
+        <%= new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+      </time>
+      <p style="margin-top: 0.5rem; color: #444;"><%= post.description %></p>
+    </li>
+  <% } %>
+</ul>

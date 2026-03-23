@@ -10,11 +10,12 @@
  * of spawning workers would outweigh the parallelism benefit.
  */
 
-import { cpus, } from 'os'
-import { fileURLToPath, } from 'url'
-import { Worker, } from 'worker_threads'
-import type { GlobalIndex, ProcessedPage, } from '../../schemas/build-types'
-import { renderPage, } from './renderer'
+import { existsSync } from 'fs'
+import { cpus } from 'os'
+import { fileURLToPath } from 'url'
+import { Worker } from 'worker_threads'
+import type { GlobalIndex, ProcessedPage } from '../../schemas/build-types'
+import { renderPage } from './renderer'
 
 /** Minimum number of pages before the pool bothers spawning workers. */
 const MIN_PAGES_FOR_WORKERS = 16
@@ -39,8 +40,8 @@ export class WorkerPool {
   private workers: Worker[] = []
   private size: number
 
-  constructor(size?: number,) {
-    this.size = size ?? Math.max(1, cpus().length - 1,)
+  constructor(size?: number) {
+    this.size = size ?? Math.max(1, cpus().length - 1)
   }
 
   /**
@@ -60,26 +61,25 @@ export class WorkerPool {
     // For small batches, serial rendering is faster than worker overhead
     if (tasks.length < MIN_PAGES_FOR_WORKERS) {
       for (const task of tasks) {
-        await renderPage(task, globalIndex, outDir, layoutsDir,)
+        await renderPage(task, globalIndex, outDir, layoutsDir)
       }
       return
     }
 
-    const serialized = serializeGlobalIndex(globalIndex,)
+    const serialized = serializeGlobalIndex(globalIndex)
 
-    // Spawn workers
-    const workerFile = fileURLToPath(new URL('./worker.ts', import.meta.url,),)
-    this.workers = Array.from(
-      { length: this.size, },
-      () => new Worker(workerFile,),
-    )
+    // Spawn workers — resolve .ts for dev (Bun/Deno/Node strip-types), .js for compiled dist/
+    const tsPath = fileURLToPath(new URL('./worker.ts', import.meta.url))
+    const jsPath = fileURLToPath(new URL('./worker.js', import.meta.url))
+    const workerFile = existsSync(tsPath) ? tsPath : jsPath
+    this.workers = Array.from({ length: this.size }, () => new Worker(workerFile))
 
-    return new Promise<void>((resolve, reject,) => {
+    return new Promise<void>((resolve, reject) => {
       let completed = 0
       const errors: Error[] = []
       let taskIndex = 0
 
-      const dispatchNext = (worker: Worker,) => {
+      const dispatchNext = (worker: Worker) => {
         if (taskIndex >= tasks.length) return
         const task = tasks[taskIndex++]
         worker.postMessage({
@@ -88,48 +88,50 @@ export class WorkerPool {
           globalIndex: serialized,
           outDir,
           layoutsDir,
-        },)
+        })
       }
 
       for (const worker of this.workers) {
-        worker.on('message', (data: WorkerResult,) => {
-          const { type, slug, error, } = data
+        worker.on('message', (data: WorkerResult) => {
+          const { type, slug, error } = data
           if (type === 'error') {
-            errors.push(new Error(`Failed to render ${slug}: ${error}`,),)
+            errors.push(new Error(`Failed to render ${slug}: ${error}`))
           }
           completed++
 
           if (completed === tasks.length) {
             this.dispose()
             if (errors.length > 0) {
-              reject(new AggregateError(errors, `${errors.length} page(s) failed to render`,),)
+              reject(new AggregateError(errors, `${errors.length} page(s) failed to render`))
             } else {
               resolve()
             }
           } else {
-            dispatchNext(worker,)
+            dispatchNext(worker)
           }
-        },)
+        })
 
-        worker.on('error', (err,) => {
-          errors.push(new Error(`Worker error: ${err.message}`,),)
+        worker.on('error', (err) => {
+          errors.push(
+            new Error(`Worker error: ${err instanceof Error ? err.message : String(err)}`),
+          )
           completed++
           if (completed === tasks.length) {
             this.dispose()
-            reject(new AggregateError(errors, `${errors.length} page(s) failed to render`,),)
+            reject(new AggregateError(errors, `${errors.length} page(s) failed to render`))
           }
-        },)
+        })
 
         // Seed each worker with one task
-        dispatchNext(worker,)
+        dispatchNext(worker)
       }
-    },)
+    })
   }
 
   /** Terminate all workers and release resources. */
   dispose(): void {
     for (const worker of this.workers) {
-      worker.terminate()
+      void worker.terminate()
     }
     this.workers = []
   }
@@ -140,12 +142,12 @@ export class WorkerPool {
  * Maps do not survive postMessage — they must be serialized as
  * Record<string, V> and reconstructed on the worker side.
  */
-function serializeGlobalIndex(index: GlobalIndex,): SerializedGlobalIndex {
+function serializeGlobalIndex(index: GlobalIndex): SerializedGlobalIndex {
   return {
     config: index.config,
     pageList: index.pageList,
-    pageTypeData: Object.fromEntries(index.pageTypeData,),
-    tagIndex: Object.fromEntries(index.tagIndex,),
-    pageTypeMetas: Object.fromEntries(index.pageTypeMetas,),
+    pageTypeData: Object.fromEntries(index.pageTypeData),
+    tagIndex: Object.fromEntries(index.tagIndex),
+    pageTypeMetas: Object.fromEntries(index.pageTypeMetas),
   }
 }

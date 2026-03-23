@@ -1,5 +1,5 @@
-import type { SiteConfig, } from '../../../schemas/config'
-import { Fragment, h, } from '../../../src/jsx-runtime'
+import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import type { SiteConfig } from '../../../schemas/config'
 
 type Props = {
   title: string
@@ -23,8 +23,8 @@ export function Html({
   hasLeftSidebar,
   site,
   children,
-}: Props,) {
-  const origin = site.origin.replace(/\/$/, '',)
+}: Props) {
+  const origin = site.origin.replace(/\/$/, '')
   const canonicalUrl = url ? `${origin}${url}` : undefined
   const locale = site.seo?.locale || 'en_US'
   const twitterHandle = site.seo?.twitterHandle
@@ -51,14 +51,12 @@ export function Html({
         {canonicalUrl ? <meta property="og:url" content={canonicalUrl} /> : null}
         <meta property="og:title" content={title} />
         {description ? <meta property="og:description" content={description} /> : null}
-        {image
-          ? (
-            <meta
-              property="og:image"
-              content={image.startsWith('http',) ? image : `${origin}${image}`}
-            />
-          )
-          : null}
+        {image ? (
+          <meta
+            property="og:image"
+            content={image.startsWith('http') ? image : `${origin}${image}`}
+          />
+        ) : null}
         <meta property="og:locale" content={locale} />
         <meta property="og:site_name" content={site.name} />
 
@@ -67,14 +65,12 @@ export function Html({
         {twitterHandle ? <meta name="twitter:site" content={twitterHandle} /> : null}
         <meta name="twitter:title" content={title} />
         {description ? <meta name="twitter:description" content={description} /> : null}
-        {image
-          ? (
-            <meta
-              name="twitter:image"
-              content={image.startsWith('http',) ? image : `${origin}${image}`}
-            />
-          )
-          : null}
+        {image ? (
+          <meta
+            name="twitter:image"
+            content={image.startsWith('http') ? image : `${origin}${image}`}
+          />
+        ) : null}
 
         {/* Theme color */}
         <meta name="theme-color" content={lightColor} media="(prefers-color-scheme: light)" />
@@ -130,16 +126,14 @@ export function Html({
         <script innerHTML="(function(){var d=document.documentElement;d.classList.remove('no-js');try{var t=localStorage.getItem('pagesmith-theme');if(t==='light'||t==='dark'){d.setAttribute('data-theme',t);var r=document.getElementById('theme-'+t);if(r)r.checked=true}}catch(e){}})()" />
 
         {/* Google Analytics */}
-        {gaId
-          ? (
-            <Fragment>
-              <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
-              <script
-                innerHTML={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`}
-              />
-            </Fragment>
-          )
-          : null}
+        {gaId ? (
+          <Fragment>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
+            <script
+              innerHTML={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`}
+            />
+          </Fragment>
+        ) : null}
       </head>
       <body>
         <input type="radio" id="theme-auto" name="theme" class="sr-only" checked />

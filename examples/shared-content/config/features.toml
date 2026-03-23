@@ -1,0 +1,38 @@
+# Feature flags for the documentation site.
+# Toggle capabilities on and off without code changes.
+
+[search]
+enabled = true
+provider = "pagefind"
+indexOnBuild = true
+
+[analytics]
+enabled = false
+provider = "plausible"
+endpoint = "https://analytics.example.com"
+
+[comments]
+enabled = false
+provider = "giscus"
+repo = "example/pagesmith"
+
+[rss]
+enabled = true
+feedPath = "/feed.xml"
+maxItems = 20
+
+[sitemap]
+enabled = true
+changeFreq = "weekly"
+priority = 0.7
+
+[diagrams]
+mermaid = true
+excalidraw = true
+renderOnBuild = true
+watchInDev = true
+
+[darkMode]
+enabled = true
+defaultTheme = "system"
+storageKey = "theme-preference"

@@ -5,8 +5,8 @@
  * to merge user config with defaults and resolve all paths to absolute.
  */
 
-import { resolve, } from 'path'
-import { DEFAULTS, } from './defaults'
+import { resolve } from 'path'
+import { DEFAULTS } from './defaults'
 
 /** User-provided Pagesmith configuration (all fields optional). */
 export type PagesmithConfig = {
@@ -59,42 +59,40 @@ export type ResolvedConfig = {
 }
 
 /** Type-safe config helper. Returns the config as-is for use with `resolveConfig`. */
-export function defineConfig(config: PagesmithConfig,): PagesmithConfig {
+export function defineConfig(config: PagesmithConfig): PagesmithConfig {
   return config
 }
 
 /** Merge user config with defaults and resolve all paths to absolute. */
-export function resolveConfig(userConfig: PagesmithConfig = {},): ResolvedConfig {
-  const rootDir = resolve(userConfig.rootDir ?? process.cwd(),)
-  const abs = (p: string,) => resolve(rootDir, p,)
+export function resolveConfig(userConfig: PagesmithConfig = {}): ResolvedConfig {
+  const rootDir = resolve(userConfig.rootDir ?? process.cwd())
+  const abs = (p: string) => resolve(rootDir, p)
 
-  const layoutsDirs = Array.isArray(userConfig.layoutsDir,)
-    ? userConfig.layoutsDir.map(abs,)
-    : [abs(userConfig.layoutsDir ?? DEFAULTS.layoutsDir,),]
+  const layoutsDirs = Array.isArray(userConfig.layoutsDir)
+    ? userConfig.layoutsDir.map(abs)
+    : [abs(userConfig.layoutsDir ?? DEFAULTS.layoutsDir)]
 
   return {
     rootDir,
-    contentDir: abs(userConfig.contentDir ?? DEFAULTS.contentDir,),
+    contentDir: abs(userConfig.contentDir ?? DEFAULTS.contentDir),
     layoutsDirs,
-    stylesDir: abs(userConfig.stylesDir ?? DEFAULTS.stylesDir,),
-    publicDir: abs(userConfig.publicDir ?? DEFAULTS.publicDir,),
-    outDir: abs(userConfig.outDir ?? DEFAULTS.outDir,),
+    stylesDir: abs(userConfig.stylesDir ?? DEFAULTS.stylesDir),
+    publicDir: abs(userConfig.publicDir ?? DEFAULTS.publicDir),
+    outDir: abs(userConfig.outDir ?? DEFAULTS.outDir),
     css: {
-      entries: (userConfig.css?.entries ?? DEFAULTS.css.entries).map(abs,),
+      entries: (userConfig.css?.entries ?? DEFAULTS.css.entries).map(abs),
       minify: userConfig.css?.minify ?? DEFAULTS.css.minify,
     },
     runtime: {
-      entries: (userConfig.runtime?.entries ?? DEFAULTS.runtime.entries).map(abs,),
+      entries: (userConfig.runtime?.entries ?? DEFAULTS.runtime.entries).map(abs),
       target: userConfig.runtime?.target ?? DEFAULTS.runtime.target,
       minify: userConfig.runtime?.minify ?? DEFAULTS.runtime.minify,
     },
     generators: {
       tagListingLayout:
         userConfig.generators?.tagListingLayout ?? DEFAULTS.generators.tagListingLayout,
-      tagIndexLayout:
-        userConfig.generators?.tagIndexLayout ?? DEFAULTS.generators.tagIndexLayout,
-      notFoundLayout:
-        userConfig.generators?.notFoundLayout ?? DEFAULTS.generators.notFoundLayout,
+      tagIndexLayout: userConfig.generators?.tagIndexLayout ?? DEFAULTS.generators.tagIndexLayout,
+      notFoundLayout: userConfig.generators?.notFoundLayout ?? DEFAULTS.generators.notFoundLayout,
     },
     parallel: userConfig.parallel ?? DEFAULTS.parallel,
   }

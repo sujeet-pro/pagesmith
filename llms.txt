@@ -1,0 +1,32 @@
+# Pagesmith
+
+> File-based CMS centered on `@pagesmith/content`.
+
+## Summary
+
+- Typed filesystem collections for markdown and structured data
+- Lazy markdown rendering with headings and read-time metadata
+- Diagram rendering through `diagramkit`
+- Installable assistant context for Claude, Codex, Gemini CLI, and `llms.txt`
+
+## Quick Start
+
+```ts
+import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/content'
+
+const posts = defineCollection({
+  loader: 'markdown',
+  directory: 'content/posts',
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+  }),
+})
+
+const layer = createContentLayer(
+  defineConfig({
+    collections: { posts },
+    diagrams: { enabled: true, displayMode: 'picture' },
+  }),
+)
+```

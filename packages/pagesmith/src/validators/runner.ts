@@ -5,19 +5,19 @@
  * and prints formatted results grouped by file.
  */
 
-import { existsSync, readdirSync, readFileSync, } from 'fs'
+import { existsSync, readdirSync, readFileSync } from 'fs'
 import matter from 'gray-matter'
-import { join, relative, } from 'path'
-import { loadAllPageTypeMetas, loadSiteConfig, } from '../config'
-import { assetsValidator, } from './assets'
-import { codeBlocksValidator, } from './code-blocks'
-import { configValidator, } from './config'
-import { frontmatterValidator, } from './frontmatter'
-import { headingsValidator, } from './headings'
-import { linksValidator, } from './links'
-import { metaValidator, } from './meta'
-import { orphansValidator, } from './orphans'
-import type { Issue, ValidationContext, ValidationResult, Validator, } from './types'
+import { join, relative } from 'path'
+import { loadAllPageTypeMetas, loadSiteConfig } from '../config'
+import { assetsValidator } from './assets'
+import { codeBlocksValidator } from './code-blocks'
+import { configValidator } from './config'
+import { frontmatterValidator } from './frontmatter'
+import { headingsValidator } from './headings'
+import { linksValidator } from './links'
+import { metaValidator } from './meta'
+import { orphansValidator } from './orphans'
+import type { Issue, ValidationContext, ValidationResult, Validator } from './types'
 
 // ── ANSI colors ──
 
@@ -43,45 +43,43 @@ const ALL_VALIDATORS: Validator[] = [
 
 // ── Context builder ──
 
-const ROOT = process.cwd()
-const CONTENT_DIR = join(ROOT, 'content',)
-
 /** Recursively collect all README.md / index.md files under a directory. */
-function collectContentFiles(dir: string,): string[] {
+function collectContentFiles(dir: string): string[] {
   const results: string[] = []
-  function walk(d: string,) {
-    if (!existsSync(d,)) return
-    for (const entry of readdirSync(d, { withFileTypes: true, },)) {
-      const full = join(d, entry.name,)
-      if (entry.isDirectory()) walk(full,)
+  function walk(d: string) {
+    if (!existsSync(d)) return
+    for (const entry of readdirSync(d, { withFileTypes: true })) {
+      const full = join(d, entry.name)
+      if (entry.isDirectory()) walk(full)
       else if (entry.name === 'README.md' || entry.name === 'index.md') {
-        results.push(full,)
+        results.push(full)
       }
     }
   }
-  walk(dir,)
+  walk(dir)
   return results
 }
 
-function buildContext(): ValidationContext {
-  const config = loadSiteConfig(CONTENT_DIR,)
-  const pageTypeMetas = loadAllPageTypeMetas(CONTENT_DIR, config.pageTypes,)
+function buildContext(contentDir: string): ValidationContext {
+  const config = loadSiteConfig(contentDir)
+  const pageTypeMetas = loadAllPageTypeMetas(contentDir, config.pageTypes)
 
-  const files = collectContentFiles(CONTENT_DIR,)
-  const pageMetas = files.map((filePath,) => {
-    const raw = readFileSync(filePath, 'utf-8',)
-    const { data, } = matter(raw,)
-    const relPath = relative(CONTENT_DIR, filePath,)
+  const files = collectContentFiles(contentDir)
+  const pageMetas = files.map((filePath) => {
+    const raw = readFileSync(filePath, 'utf-8')
+    const { data } = matter(raw)
+    const relPath = relative(contentDir, filePath)
     // Derive slug from directory name or 'index' for root files
-    const parts = relPath.split('/',)
-    const slug = parts.length >= 2
-      ? parts[parts.length - 2]!
-      : relPath.replace(/\/README\.md$/, '',).replace(/\/index\.md$/, '',)
-    return { slug, filePath, frontmatter: data, }
-  },)
+    const parts = relPath.split('/')
+    const slug =
+      parts.length >= 2
+        ? parts[parts.length - 2]!
+        : relPath.replace(/\/README\.md$/, '').replace(/\/index\.md$/, '')
+    return { slug, filePath, frontmatter: data }
+  })
 
   return {
-    contentDir: CONTENT_DIR,
+    contentDir,
     config,
     pageMetas,
     pageTypeMetas,
@@ -90,7 +88,7 @@ function buildContext(): ValidationContext {
 
 // ── Formatting ──
 
-function severityColor(severity: Issue['severity'],): string {
+function severityColor(severity: Issue['severity']): string {
   switch (severity) {
     case 'error':
       return RED
@@ -101,7 +99,7 @@ function severityColor(severity: Issue['severity'],): string {
   }
 }
 
-function severityLabel(severity: Issue['severity'],): string {
+function severityLabel(severity: Issue['severity']): string {
   switch (severity) {
     case 'error':
       return 'error'
@@ -112,16 +110,16 @@ function severityLabel(severity: Issue['severity'],): string {
   }
 }
 
-function printResults(result: ValidationResult,): void {
+function printResults(result: ValidationResult): void {
   // Group all issues by file
   const byFile = new Map<string, Issue[]>()
   for (const v of result.validators) {
     for (const issue of v.issues) {
-      const existing = byFile.get(issue.file,)
+      const existing = byFile.get(issue.file)
       if (existing) {
-        existing.push(issue,)
+        existing.push(issue)
       } else {
-        byFile.set(issue.file, [issue,],)
+        byFile.set(issue.file, [issue])
       }
     }
   }
@@ -135,25 +133,23 @@ function printResults(result: ValidationResult,): void {
     return
   }
 
-  console.log(
-    `\n${BOLD}Validated ${result.totalFiles} files in ${result.duration}ms${RESET}\n`,
-  )
+  console.log(`\n${BOLD}Validated ${result.totalFiles} files in ${result.duration}ms${RESET}\n`)
 
   // Sort files alphabetically
-  const sortedFiles = [...byFile.keys(),].sort()
+  const sortedFiles = [...byFile.keys()].sort()
 
   for (const file of sortedFiles) {
-    const issues = byFile.get(file,)!
+    const issues = byFile.get(file)!
     // Sort: errors first, then warns, then info
-    issues.sort((a, b,) => {
-      const order = { error: 0, warn: 1, info: 2, }
+    issues.sort((a, b) => {
+      const order = { error: 0, warn: 1, info: 2 }
       return order[a.severity] - order[b.severity]
-    },)
+    })
 
-    console.log(`${BOLD}${file}${RESET}`,)
+    console.log(`${BOLD}${file}${RESET}`)
     for (const issue of issues) {
-      const color = severityColor(issue.severity,)
-      const label = severityLabel(issue.severity,)
+      const color = severityColor(issue.severity)
+      const label = severityLabel(issue.severity)
       const lineStr = issue.line != null ? `${GRAY}:${issue.line}${RESET}` : ''
       console.log(
         `  ${color}${label}${RESET}${lineStr}  ${issue.message}  ${GRAY}${issue.rule}${RESET}`,
@@ -165,14 +161,14 @@ function printResults(result: ValidationResult,): void {
   // Summary
   const parts: string[] = []
   if (result.errors > 0) {
-    parts.push(`${RED}${result.errors} error${result.errors !== 1 ? 's' : ''}${RESET}`,)
+    parts.push(`${RED}${result.errors} error${result.errors !== 1 ? 's' : ''}${RESET}`)
   }
   if (result.warnings > 0) {
-    parts.push(`${YELLOW}${result.warnings} warning${result.warnings !== 1 ? 's' : ''}${RESET}`,)
+    parts.push(`${YELLOW}${result.warnings} warning${result.warnings !== 1 ? 's' : ''}${RESET}`)
   }
-  if (result.info > 0) parts.push(`${CYAN}${result.info} info${RESET}`,)
+  if (result.info > 0) parts.push(`${CYAN}${result.info} info${RESET}`)
   console.log(
-    `${BOLD}Summary:${RESET} ${parts.join(', ',)} across ${byFile.size} file${
+    `${BOLD}Summary:${RESET} ${parts.join(', ')} across ${byFile.size} file${
       byFile.size !== 1 ? 's' : ''
     }\n`,
   )
@@ -185,24 +181,25 @@ export interface RunOptions {
   validators?: string[]
   /** Watch for changes and re-validate. Default: false. */
   watch?: boolean
+  /** Content directory. Default: `${cwd}/content`. */
+  contentDir?: string
 }
 
-export async function runValidation(
-  options: RunOptions = {},
-): Promise<ValidationResult> {
+export async function runValidation(options: RunOptions = {}): Promise<ValidationResult> {
   const start = Date.now()
+  const contentDir = options.contentDir ?? join(process.cwd(), 'content')
 
-  const ctx = buildContext()
+  const ctx = buildContext(contentDir)
 
   // Select validators
   let validators = ALL_VALIDATORS
   if (options.validators && options.validators.length > 0) {
-    const requested = new Set(options.validators,)
-    validators = ALL_VALIDATORS.filter((v,) => requested.has(v.name,))
-    const found = new Set(validators.map((v,) => v.name),)
+    const requested = new Set(options.validators)
+    validators = ALL_VALIDATORS.filter((v) => requested.has(v.name))
+    const found = new Set(validators.map((v) => v.name))
     for (const name of requested) {
-      if (!found.has(name,)) {
-        console.warn(`Warning: unknown validator "${name}", skipping`,)
+      if (!found.has(name)) {
+        console.warn(`Warning: unknown validator "${name}", skipping`)
       }
     }
   }
@@ -211,27 +208,27 @@ export async function runValidation(
   const validatorResults: Array<{ name: string; issues: Issue[] }> = []
   for (const validator of validators) {
     try {
-      const issues = await validator.validate(ctx,)
-      validatorResults.push({ name: validator.name, issues, },)
+      const issues = await validator.validate(ctx)
+      validatorResults.push({ name: validator.name, issues })
     } catch (err) {
       console.error(
         `${RED}Validator "${validator.name}" failed:${RESET}`,
         err instanceof Error ? err.message : err,
       )
-      validatorResults.push({ name: validator.name, issues: [], },)
+      validatorResults.push({ name: validator.name, issues: [] })
     }
   }
 
   const errors = validatorResults.reduce(
-    (sum, v,) => sum + v.issues.filter((i,) => i.severity === 'error').length,
+    (sum, v) => sum + v.issues.filter((i) => i.severity === 'error').length,
     0,
   )
   const warnings = validatorResults.reduce(
-    (sum, v,) => sum + v.issues.filter((i,) => i.severity === 'warn').length,
+    (sum, v) => sum + v.issues.filter((i) => i.severity === 'warn').length,
     0,
   )
   const info = validatorResults.reduce(
-    (sum, v,) => sum + v.issues.filter((i,) => i.severity === 'info').length,
+    (sum, v) => sum + v.issues.filter((i) => i.severity === 'info').length,
     0,
   )
 
@@ -244,19 +241,19 @@ export async function runValidation(
     duration: Date.now() - start,
   }
 
-  printResults(result,)
+  printResults(result)
 
   // Watch mode: re-validate on file changes
   if (options.watch) {
-    const { watch: chokidarWatch, } = await import('chokidar',)
-    console.log(`\n${BOLD}Watching for changes...${RESET}\n`,)
+    const { watch: chokidarWatch } = await import('chokidar')
+    console.log(`\n${BOLD}Watching for changes...${RESET}\n`)
 
     const watcher = chokidarWatch(
       [
-        join(CONTENT_DIR, '**/*.md',),
-        join(CONTENT_DIR, '**/*.json5',),
-        join(CONTENT_DIR, '**/*.mermaid',),
-        join(CONTENT_DIR, '**/*.excalidraw',),
+        join(contentDir, '**/*.md'),
+        join(contentDir, '**/*.json5'),
+        join(contentDir, '**/*.mermaid'),
+        join(contentDir, '**/*.excalidraw'),
       ],
       {
         ignoreInitial: true,
@@ -266,13 +263,13 @@ export async function runValidation(
 
     let debounce: ReturnType<typeof setTimeout> | null = null
     watcher.on('all', () => {
-      if (debounce) clearTimeout(debounce,)
+      if (debounce) clearTimeout(debounce)
       debounce = setTimeout(async () => {
         console.clear()
-        await runValidation({ ...options, watch: false, },)
-        console.log(`\n${BOLD}Watching for changes...${RESET}\n`,)
-      }, 100,)
-    },)
+        await runValidation({ ...options, watch: false })
+        console.log(`\n${BOLD}Watching for changes...${RESET}\n`)
+      }, 100)
+    })
   }
 
   return result

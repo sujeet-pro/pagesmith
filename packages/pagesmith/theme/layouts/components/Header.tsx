@@ -1,5 +1,5 @@
-import type { SiteConfig, } from '../../../schemas/config'
-import { Fragment, h, } from '../../../src/jsx-runtime'
+import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import type { SiteConfig } from '../../../schemas/config'
 
 type Props = {
   site: SiteConfig
@@ -16,28 +16,28 @@ const sunIcon =
 const moonIcon =
   '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.003 8.003 0 1010.586 10.586z"/></svg>'
 
-export function Header({ site, slug, hasLeftSidebar, }: Props,) {
+export function Header({ site, slug, hasLeftSidebar }: Props) {
   return (
     <header class="site-header">
       <div class="header-inner">
         <div class="header-nav-group">
-          {hasLeftSidebar
-            ? (
-              <label
-                for="sidebar-toggle"
-                class="sidebar-toggle-label"
-                role="button"
-                aria-label="Toggle navigation"
-                innerHTML={hamburgerIcon}
-              />
-            )
-            : null}
-          <a href="/" class="site-logo">{site.name}</a>
+          {hasLeftSidebar ? (
+            <label
+              for="sidebar-toggle"
+              class="sidebar-toggle-label"
+              role="button"
+              aria-label="Toggle navigation"
+              innerHTML={hamburgerIcon}
+            />
+          ) : null}
+          <a href="/" class="site-logo">
+            {site.name}
+          </a>
         </div>
         <div class="header-nav-group">
           <nav class="site-nav">
-            {site.navItems.map((item,) => (
-              <a href={item.path} class={slug.startsWith(item.path,) ? 'active' : ''}>
+            {site.navItems.map((item) => (
+              <a href={item.path} class={slug.startsWith(item.path) ? 'active' : ''}>
                 {item.label}
               </a>
             ))}

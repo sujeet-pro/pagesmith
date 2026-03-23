@@ -5,25 +5,25 @@
  * a search index in the output directory.
  */
 
-import type { SearchPlugin, } from './types'
+import type { SearchPlugin } from './types'
 
 export interface PagefindOptions {
   /** Path to the pagefind binary (default: "pagefind") */
   binary?: string
 }
 
-export function pagefindPlugin(options?: PagefindOptions,): SearchPlugin {
+export function pagefindPlugin(options?: PagefindOptions): SearchPlugin {
   return {
     name: 'pagefind',
 
-    async afterBuild(ctx,) {
-      const { execSync, } = await import('child_process',)
+    async afterBuild(ctx) {
+      const { execFileSync } = await import('child_process')
       const binary = options?.binary ?? 'pagefind'
 
       try {
-        execSync(`${binary} --site "${ctx.outDir}"`, { stdio: 'inherit', },)
+        execFileSync(binary, ['--site', ctx.outDir], { stdio: 'inherit' })
       } catch (err: any) {
-        console.warn(`Pagefind indexing failed: ${err.message}`,)
+        console.warn(`Pagefind indexing failed: ${err.message}`)
       }
     },
 

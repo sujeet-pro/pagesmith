@@ -1,5 +1,9 @@
 node_modules/
 dist/
 dev/
+.air/
+.diagrams/
+.temp/
+gh-pages/
 *.tsbuildinfo
 .DS_Store

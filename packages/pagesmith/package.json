@@ -2,29 +2,8 @@
   "name": "pagesmith",
   "version": "0.1.0",
   "description": "Runtime-agnostic static site generator with default theme, diagrams, and custom JSX runtime",
-  "type": "module",
   "bin": {
     "pagesmith": "./cli/bin.js"
-  },
-  "exports": {
-    ".": {
-      "bun": "./src/index.ts",
-      "deno": "./src/index.ts",
-      "import": "./dist/index.js"
-    },
-    "./jsx-runtime": {
-      "bun": "./src/jsx-runtime/index.ts",
-      "import": "./dist/jsx-runtime/index.js"
-    },
-    "./schemas": {
-      "bun": "./schemas/index.ts",
-      "import": "./dist/schemas/index.js"
-    },
-    "./schemas/*": {
-      "bun": "./schemas/*.ts",
-      "import": "./dist/schemas/*.js"
-    },
-    "./theme/styles/*": "./theme/styles/*"
   },
   "files": [
     "dist/",
@@ -33,18 +12,40 @@
     "theme/",
     "cli/"
   ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "bun": "./src/index.ts",
+      "deno": "./src/index.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./jsx-runtime": {
+      "types": "./dist/jsx-runtime/index.d.mts",
+      "bun": "./src/jsx-runtime/index.ts",
+      "deno": "./src/jsx-runtime/index.ts",
+      "import": "./dist/jsx-runtime/index.mjs"
+    },
+    "./schemas": {
+      "bun": "./schemas/index.ts",
+      "deno": "./schemas/index.ts",
+      "import": "./dist/schemas/index.mjs"
+    },
+    "./theme/styles/*": "./theme/styles/*"
+  },
   "scripts": {
-    "build": "tsup",
-    "test": "vitest"
+    "build": "vp pack",
+    "test": "vp test run"
   },
   "dependencies": {
+    "@pagesmith/core": "*",
     "@shikijs/rehype": "^3.0.0",
     "chokidar": "^4.0.3",
+    "diagramkit": "file:../../../diagramkit",
     "gray-matter": "^4.0.3",
     "hast": "^1.0.0",
     "json5": "^2.2.3",
     "lightningcss": "^1.32.0",
-    "mermaid-isomorphic": "^3.1.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-mathjax": "^7.1.0",
     "rehype-slug": "^6.0.0",
@@ -60,21 +61,11 @@
     "ws": "^8.19.0",
     "zod": "^4.3.6"
   },
-  "optionalDependencies": {
-    "playwright": "^1.58.2"
-  },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@types/ws": "^8.18.1",
-    "tsup": "^8.0.0",
-    "vitest": "^4.1.0"
+    "vite-plus": "^0.1.13"
   },
-  "peerDependencies": {
-    "tsx": ">=4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "tsx": {
-      "optional": true
-    }
-  }
+  "peerDependencies": {},
+  "peerDependenciesMeta": {}
 }

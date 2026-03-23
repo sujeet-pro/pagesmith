@@ -1,2 +1,2 @@
-export { startDev, } from './dev'
-export { startPreview, } from './preview'
+export { startDev } from './dev'
+export { startPreview } from './preview'

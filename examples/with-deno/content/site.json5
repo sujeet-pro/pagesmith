@@ -1,57 +1,55 @@
 {
   // Site metadata
-  origin: "https://example.com",
-  name: "Example Site",
-  title: "Example Site",
-  description: "A minimal Pagesmith example site.",
-  language: "en-US",
+  origin: 'https://example.com',
+  name: 'Example Site',
+  title: 'Example Site',
+  description: 'A minimal Pagesmith example site.',
+  language: 'en-US',
 
   // Build config
-  baseUrl: "/",
-  defaultLayout: "Page",
+  baseUrl: '/',
+  defaultLayout: 'Page',
   styles: [],
   markdown: {
     shiki: {
-      themes: { light: "github-light", dark: "github-dark" },
+      themes: { light: 'github-light', dark: 'github-dark' },
     },
   },
 
   // Navigation
-  navItems: [
-    { path: "/articles", label: "Articles" },
-  ],
+  navItems: [{ path: '/articles', label: 'Articles' }],
   footerLinks: [],
 
   // Social & copyright
   social: {
-    twitter: { handle: "@example", url: "https://twitter.com/example" },
-    github: { handle: "example", url: "https://github.com/example" },
-    linkedin: { handle: "example", url: "https://www.linkedin.com/in/example/" },
+    twitter: { handle: '@example', url: 'https://twitter.com/example' },
+    github: { handle: 'example', url: 'https://github.com/example' },
+    linkedin: { handle: 'example', url: 'https://www.linkedin.com/in/example/' },
   },
   copyright: {
-    holder: "Example Author",
+    holder: 'Example Author',
     startYear: 2026,
   },
 
   // Featured content
-  featuredArticles: ["hello-world"],
-  featuredSeries: ["getting-started"],
+  featuredArticles: ['hello-world'],
+  featuredSeries: ['getting-started'],
 
   // Page types
-  pageTypes: ["articles"],
+  pageTypes: ['articles'],
 
   // Home page config
   home: {
-    pageTitle: "Example Site",
-    pageDescription: "A minimal Pagesmith example site.",
+    pageTitle: 'Example Site',
+    pageDescription: 'A minimal Pagesmith example site.',
     profile: {
-      name: "Example Author",
-      title: "Developer",
-      bio: "Building with Pagesmith.",
-      imageAlt: "Example Author",
+      name: 'Example Author',
+      title: 'Developer',
+      bio: 'Building with Pagesmith.',
+      imageAlt: 'Example Author',
     },
     profileActions: {
-      allArticles: "All Articles",
+      allArticles: 'All Articles',
     },
   },
 }

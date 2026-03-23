@@ -1,6 +1,6 @@
-import type { SiteConfig, } from '../../../schemas/config'
-import type { PageTypeData, } from '../../../schemas/page-data'
-import { Fragment, h, } from '../../../src/jsx-runtime'
+import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import type { SiteConfig } from '../../../schemas/config'
+import type { PageTypeData } from '../../../schemas/page-data'
 
 type Props = {
   site: SiteConfig
@@ -14,26 +14,27 @@ const linkedinIcon =
 const twitterIcon =
   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
 
-export function Footer({ site, pageType, }: Props,) {
+export function Footer({ site, pageType }: Props) {
   const year = new Date().getFullYear()
-  const yearDisplay = site.copyright.startYear < year
-    ? `${site.copyright.startYear}–${year}`
-    : `${year}`
+  const yearDisplay =
+    site.copyright.startYear < year ? `${site.copyright.startYear}–${year}` : `${year}`
 
   const series = pageType?.series || []
 
   return (
     <footer class="site-footer">
-      {series.length > 0
-        ? (
-          <nav class="footer-series" aria-label="Series">
-            {series.map((s,) => <a href={`/articles#${s.slug}`}>{s.shortName || s.displayName}</a>)}
-          </nav>
-        )
-        : null}
+      {series.length > 0 ? (
+        <nav class="footer-series" aria-label="Series">
+          {series.map((s) => (
+            <a href={`/articles#${s.slug}`}>{s.shortName || s.displayName}</a>
+          ))}
+        </nav>
+      ) : null}
       <div class="footer-bar">
         <nav class="footer-links">
-          {site.footerLinks.map((link,) => <a href={link.path}>{link.label}</a>)}
+          {site.footerLinks.map((link) => (
+            <a href={link.path}>{link.label}</a>
+          ))}
         </nav>
         <div class="footer-social">
           <a

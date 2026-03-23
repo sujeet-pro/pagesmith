@@ -9,13 +9,13 @@
  * its slug, frontmatter, and page type meta configuration.
  */
 
-import { existsSync, } from 'fs'
-import { join, } from 'path'
-import type { PageTypeMeta, SiteConfig, } from '../../schemas'
-import type { BaseLayoutProps, } from '../../schemas/layout-props'
+import { existsSync } from 'fs'
+import { join } from 'path'
+import type { PageTypeMeta, SiteConfig } from '../../schemas'
+import type { BaseLayoutProps } from '../../schemas/layout-props'
 type LayoutProps = BaseLayoutProps & Record<string, any>
 
-const layoutCache = new Map<string, (props: LayoutProps,) => any>()
+const layoutCache = new Map<string, (props: LayoutProps) => any>()
 
 /**
  * Load a layout by name (cached).
@@ -26,23 +26,23 @@ const layoutCache = new Map<string, (props: LayoutProps,) => any>()
 export async function getLayout(
   name: string,
   layoutsDir: string | string[],
-): Promise<(props: LayoutProps,) => any> {
-  if (layoutCache.has(name,)) return layoutCache.get(name,)!
+): Promise<(props: LayoutProps) => any> {
+  if (layoutCache.has(name)) return layoutCache.get(name)!
 
-  const dirs = Array.isArray(layoutsDir,) ? layoutsDir : [layoutsDir,]
+  const dirs = Array.isArray(layoutsDir) ? layoutsDir : [layoutsDir]
   for (const dir of dirs) {
-    const path = join(dir, `${name}.tsx`,)
-    if (existsSync(path,)) {
-      const mod = await import(path,)
-      layoutCache.set(name, mod.default,)
+    const path = join(dir, `${name}.tsx`)
+    if (existsSync(path)) {
+      const mod = await import(path)
+      layoutCache.set(name, mod.default)
       return mod.default
     }
   }
 
   // Fallback: try first dir (will throw a useful error on import failure)
-  const path = join(dirs[0], `${name}.tsx`,)
-  const mod = await import(path,)
-  layoutCache.set(name, mod.default,)
+  const path = join(dirs[0], `${name}.tsx`)
+  const mod = await import(path)
+  layoutCache.set(name, mod.default)
   return mod.default
 }
 
@@ -61,10 +61,10 @@ export function resolveLayout(
   if (frontmatter.layout) return frontmatter.layout
 
   // Determine layout from page type meta
-  const parts = slug.split('/',).filter(Boolean,)
+  const parts = slug.split('/').filter(Boolean)
   if (parts.length >= 1) {
     const type = parts[0]
-    const meta = pageTypeMetas.get(type,)
+    const meta = pageTypeMetas.get(type)
     if (meta) {
       // Listing page (e.g., /articles, /blogs, /projects)
       if (parts.length === 1) return meta.layout

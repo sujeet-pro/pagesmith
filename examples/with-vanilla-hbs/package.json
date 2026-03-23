@@ -1,0 +1,14 @@
+{
+  "name": "example-with-vanilla-hbs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node --experimental-strip-types build.ts",
+    "dev": "node --experimental-strip-types --watch build.ts"
+  },
+  "dependencies": {
+    "@pagesmith/content": "*",
+    "handlebars": "^4.7.8"
+  }
+}

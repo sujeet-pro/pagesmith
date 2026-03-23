@@ -6,11 +6,11 @@ export const DEFAULTS = {
   publicDir: './public',
   outDir: './dist',
   css: {
-    entries: ['./styles/main.css',],
+    entries: ['./styles/main.css'],
     minify: true,
   },
   runtime: {
-    entries: ['./runtime/main.ts',],
+    entries: ['./runtime/main.ts'],
     target: 'browser' as const,
     minify: true,
   },

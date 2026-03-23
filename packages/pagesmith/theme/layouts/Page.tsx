@@ -1,14 +1,14 @@
-import type { PageLayoutProps, } from '../../schemas/layout-props'
-import { h, } from '../../src/jsx-runtime'
-import { Footer, } from './components/Footer'
-import { Header, } from './components/Header'
-import { Html, } from './components/Html'
-import { TOC, } from './components/TOC'
+import { h } from '@pagesmith/core/jsx-runtime'
+import type { PageLayoutProps } from '../../schemas/layout-props'
+import { Footer } from './components/Footer'
+import { Header } from './components/Header'
+import { Html } from './components/Html'
+import { TOC } from './components/TOC'
 
-export { PageLayoutPropsSchema as propsSchema, } from '../../schemas/layout-props'
+export { PageLayoutPropsSchema as propsSchema } from '../../schemas/layout-props'
 
-export default function Page(props: PageLayoutProps,) {
-  const { content, frontmatter, headings, slug, site, } = props
+export default function Page(props: PageLayoutProps) {
+  const { content, frontmatter, headings, slug, site } = props
 
   return (
     <Html

@@ -5,10 +5,10 @@
  * Uses the NotFound layout rendered with the site config.
  */
 
-import { writeFileSync, } from 'fs'
-import { join, } from 'path'
-import type { SiteConfig, } from '../../schemas'
-import { getLayout, } from '../build/layout-loader'
+import { writeFileSync } from 'fs'
+import { join } from 'path'
+import type { SiteConfig } from '../../schemas'
+import { getLayout } from '../build/layout-loader'
 
 /** Generate the 404 page and write it to dist/404.html. */
 export async function generateNotFoundPage(
@@ -17,13 +17,13 @@ export async function generateNotFoundPage(
   layoutsDir: string | string[],
   layoutName?: string,
 ): Promise<void> {
-  const layout = await getLayout(layoutName ?? 'NotFound', layoutsDir,)
+  const layout = await getLayout(layoutName ?? 'NotFound', layoutsDir)
   const output = layout({
     content: '',
     frontmatter: {},
     headings: [],
     slug: '/404',
     site: config,
-  },)
-  writeFileSync(join(outDir, '404.html',), `<!DOCTYPE html>\n${String(output,)}`,)
+  })
+  writeFileSync(join(outDir, '404.html'), `<!DOCTYPE html>\n${String(output)}`)
 }

@@ -1,16 +1,36 @@
 {
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/with-vanilla-ejs",
+    "examples/with-vanilla-hbs",
+    "examples/with-react",
+    "examples/with-solid",
+    "examples/with-svelte",
+    "examples/with-ssg",
+    "docs"
   ],
+  "type": "module",
   "scripts": {
-    "build": "npm -w packages/pagesmith run build",
-    "test": "npm -w packages/pagesmith run test",
-    "lint": "oxlint packages/",
-    "format": "dprint fmt"
+    "build": "node --experimental-strip-types scripts/build-packages.ts",
+    "build:examples": "node --experimental-strip-types scripts/build-examples.ts",
+    "build:docs": "vp exec vitepress build docs",
+    "build:site": "node --experimental-strip-types scripts/build-gh-pages.ts",
+    "preview": "node --experimental-strip-types scripts/preview.ts",
+    "test": "vp test run",
+    "test:watch": "vp test",
+    "test:coverage": "vp test run --coverage",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
+    "prepare": "vp config"
   },
   "devDependencies": {
-    "dprint": "^0.49.0",
-    "oxlint": "^0.18.0"
-  }
+    "typescript": "^5.9.0",
+    "vite-plus": "^0.1.13"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.13",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.13"
+  },
+  "packageManager": "npm@11.12.0"
 }

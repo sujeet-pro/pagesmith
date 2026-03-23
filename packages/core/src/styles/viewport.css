@@ -1,0 +1,20 @@
+/* ═══════════════════════════════════════════════════════════════
+   Viewport overflow prevention.
+
+   Targets common overflow culprits in prose content:
+   tables, code blocks, images, figures, and embeds.
+   Ensures nothing exceeds the viewport width on small screens.
+   ═══════════════════════════════════════════════════════════════ */
+
+.prose pre,
+.prose table,
+.prose img,
+.prose figure,
+.prose iframe {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.prose pre code {
+  display: block;
+  overflow-x: auto;
+}

@@ -1,9 +1,9 @@
-import { writeFileSync, } from 'fs'
-import { join, } from 'path'
-import type { SiteConfig, } from '../../schemas'
+import { writeFileSync } from 'fs'
+import { join } from 'path'
+import type { SiteConfig } from '../../schemas'
 
 /** Generate browserconfig.xml for MS tile configuration. */
-export function generateBrowserconfig(config: SiteConfig, outDir: string,): void {
+export function generateBrowserconfig(config: SiteConfig, outDir: string): void {
   const tileColor = config.theme?.darkColor || '#020617'
   const xml = `<?xml version="1.0" encoding="utf-8"?>
 <browserconfig>
@@ -17,5 +17,5 @@ export function generateBrowserconfig(config: SiteConfig, outDir: string,): void
   </msapplication>
 </browserconfig>
 `
-  writeFileSync(join(outDir, 'browserconfig.xml',), xml,)
+  writeFileSync(join(outDir, 'browserconfig.xml'), xml)
 }

@@ -1,0 +1,26 @@
+/* ═══════════════════════════════════════════════════════════════
+   Content rendering CSS — all-in-one for styled markdown output.
+
+   Import this single file to get everything needed for rendering
+   processed markdown: typography, code blocks, tabs, diagrams,
+   and viewport constraints. Does NOT include layout (grid/sidebar)
+   or site-level components (header, footer, theme toggle).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Foundations */
+@import "./foundations/reset.css";
+@import "./foundations/tokens.css";
+
+/* Prose content */
+@import "./content/prose.css";
+
+/* Code */
+@import "./code/inline.css";
+@import "./code/block.css";
+@import "./code/tabs.css";
+@import "./code/line-features.css";
+@import "./code/lang-icons.css";
+
+/* Diagrams & viewport */
+@import "./diagrams.css";
+@import "./viewport.css";

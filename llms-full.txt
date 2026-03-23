@@ -1,0 +1,62 @@
+# Pagesmith - Full LLM Reference
+
+Pagesmith is a file-based CMS centered on `@pagesmith/content`.
+
+## Package Layout
+
+- `@pagesmith/content`: collections, loaders, validation, lazy rendering, diagramkit integration, AI installer APIs
+- `@pagesmith/core`: markdown pipeline, JSX runtime, runtime CSS exports
+- `pagesmith`: optional SSG built on top of the content layer
+
+## Core APIs
+
+- `defineCollection(...)`
+- `defineConfig(...)`
+- `createContentLayer(config)`
+- `layer.getCollection(name)`
+- `layer.getEntry(collection, slug)`
+- `layer.validate()`
+- `layer.renderDiagrams()`
+- `entry.render()`
+
+## Diagram Handling
+
+Pagesmith delegates diagram rendering and manifests to `diagramkit`.
+
+CLI:
+
+```bash
+pagesmith-content diagrams content/
+pagesmith-content diagrams content/ --watch
+pagesmith-content diagrams content/ --type drawio
+```
+
+## Assistant Installs
+
+CLI:
+
+```bash
+pagesmith-content ai install --assistant all --scope project
+```
+
+API:
+
+```ts
+import { installAiArtifacts } from '@pagesmith/content/ai'
+
+installAiArtifacts({
+  assistants: ['claude', 'codex', 'gemini'],
+  scope: 'project',
+})
+```
+
+Installed project files:
+
+- `CLAUDE.md`
+- `AGENTS.md`
+- `GEMINI.md`
+- `.claude/commands/pagesmith.md`
+- `.codex/skills/pagesmith/SKILL.md`
+- `.gemini/commands/pagesmith.toml`
+- `llms.txt`
+- `llms-full.txt`

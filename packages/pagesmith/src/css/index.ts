@@ -1,1 +1,1 @@
-export { buildCss, } from './builder'
+export { buildCss } from '@pagesmith/core/css'

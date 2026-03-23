@@ -1,4 +1,4 @@
-import type { PageMeta, SiteConfig, TagPageData, } from '../../schemas'
+import type { PageMeta, SiteConfig, TagPageData } from '../../schemas'
 
 export interface GeneratorContext {
   outDir: string

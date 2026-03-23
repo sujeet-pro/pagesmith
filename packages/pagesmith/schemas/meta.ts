@@ -1,4 +1,4 @@
-import { z, } from 'zod'
+import { z } from 'zod'
 
 // ── Series definition (from meta.json5) ──
 
@@ -7,8 +7,8 @@ export const SeriesDefSchema = z.object({
   displayName: z.string(),
   shortName: z.string(),
   description: z.string().optional(),
-  articles: z.array(z.string(),),
-},)
+  articles: z.array(z.string()),
+})
 
 export type SeriesDef = z.infer<typeof SeriesDefSchema>
 
@@ -19,10 +19,10 @@ export const PageTypeMetaSchema = z.object({
   description: z.string(),
   layout: z.string(),
   itemLayout: z.string(),
-  orderBy: z.enum(['manual', 'publishedDate',],),
-  series: z.array(SeriesDefSchema,).optional(),
-  items: z.array(z.string(),).optional(),
-  frontmatterExtensions: z.record(z.string(), z.any(),).optional(),
-},)
+  orderBy: z.enum(['manual', 'publishedDate']),
+  series: z.array(SeriesDefSchema).optional(),
+  items: z.array(z.string()).optional(),
+  frontmatterExtensions: z.record(z.string(), z.any()).optional(),
+})
 
 export type PageTypeMeta = z.infer<typeof PageTypeMetaSchema>

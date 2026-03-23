@@ -1,6 +1,6 @@
 {
-  displayName: "Articles",
-  layout: "Listing",
-  itemLayout: "Article",
+  displayName: 'Articles',
+  layout: 'Listing',
+  itemLayout: 'Article',
   series: [],
 }

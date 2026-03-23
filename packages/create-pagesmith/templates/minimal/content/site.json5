@@ -1,46 +1,46 @@
 {
   // Site metadata
-  origin: "https://example.com",
-  name: "My Site",
-  title: "My Site",
-  description: "A site built with Pagesmith",
-  language: "en",
+  origin: 'https://example.com',
+  name: 'My Site',
+  title: 'My Site',
+  description: 'A site built with Pagesmith',
+  language: 'en',
 
   // Build
-  baseUrl: "/",
-  defaultLayout: "Page",
+  baseUrl: '/',
+  defaultLayout: 'Page',
   styles: [],
   markdown: {},
 
   // Navigation
   navItems: [
-    { path: "/", label: "Home" },
-    { path: "/articles", label: "Articles" },
+    { path: '/', label: 'Home' },
+    { path: '/articles', label: 'Articles' },
   ],
   footerLinks: [],
 
   // Social
   social: {
-    twitter: { handle: "", url: "" },
-    github: { handle: "", url: "" },
-    linkedin: { handle: "", url: "" },
+    twitter: { handle: '', url: '' },
+    github: { handle: '', url: '' },
+    linkedin: { handle: '', url: '' },
   },
-  copyright: { holder: "Your Name", startYear: 2026 },
+  copyright: { holder: 'Your Name', startYear: 2026 },
 
   // Content
   featuredArticles: [],
   featuredSeries: [],
-  pageTypes: ["articles"],
+  pageTypes: ['articles'],
 
   // Home
   home: {
-    pageTitle: "Welcome",
-    pageDescription: "Welcome to my site",
+    pageTitle: 'Welcome',
+    pageDescription: 'Welcome to my site',
     profile: {
-      name: "Your Name",
-      title: "Your Title",
-      bio: "A short bio about yourself.",
-      imageAlt: "Profile photo",
+      name: 'Your Name',
+      title: 'Your Title',
+      bio: 'A short bio about yourself.',
+      imageAlt: 'Profile photo',
     },
     profileActions: {},
   },

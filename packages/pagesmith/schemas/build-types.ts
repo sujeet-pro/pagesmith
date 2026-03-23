@@ -1,7 +1,7 @@
-import type { PageMeta, PageTypeData, TagPageData, } from './page-data'
-import type { PageTypeMeta, } from './meta'
-import type { SiteConfig, } from './config'
-import type { Heading, } from './heading'
+import type { SiteConfig } from './config'
+import type { Heading } from './heading'
+import type { PageTypeMeta } from './meta'
+import type { PageMeta, PageTypeData, TagPageData } from './page-data'
 
 export type PageTask = {
   slug: string

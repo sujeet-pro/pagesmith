@@ -2,6 +2,8 @@
 export {
   type BaseFrontmatter,
   BaseFrontmatterSchema,
+  type BlogFrontmatter,
+  BlogFrontmatterSchema,
   type ProjectFrontmatter,
   ProjectFrontmatterSchema,
 } from './frontmatter'
@@ -29,7 +31,7 @@ export {
 } from './config'
 
 // Meta schemas & types
-export { type PageTypeMeta, PageTypeMetaSchema, type SeriesDef, SeriesDefSchema, } from './meta'
+export { type PageTypeMeta, PageTypeMetaSchema, type SeriesDef, SeriesDefSchema } from './meta'
 
 // Page data schemas & types
 export {
@@ -82,7 +84,7 @@ export {
 } from './redirects'
 
 // Heading schema & type
-export { type Heading, HeadingSchema, } from './heading'
+export { type Heading, HeadingSchema } from './heading'
 
 // Engine build types
 export {

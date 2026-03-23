@@ -1,17 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@pagesmith/core": ["../core/src/index.ts"],
+      "@pagesmith/core/*": ["../core/src/*/index.ts"],
+      "diagramkit": ["../../../diagramkit/src/index.ts"]
     },
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["node"]
   },
-  "include": [
-    "src/**/*.ts",
-    "schemas/**/*.ts",
-    "theme/**/*.tsx",
-    "theme/**/*.ts",
-    "cli/**/*.ts"
-  ]
+  "include": ["src/**/*.ts", "schemas/**/*.ts", "theme/**/*.tsx", "theme/**/*.ts", "cli/**/*.ts"]
 }

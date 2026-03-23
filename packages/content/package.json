@@ -1,0 +1,79 @@
+{
+  "name": "@pagesmith/content",
+  "version": "0.1.0",
+  "description": "Content CMS library — schema-validated collections, markdown rendering, diagrams, and asset hashing",
+  "bin": {
+    "pagesmith-content": "./dist/cli/bin.mjs"
+  },
+  "files": [
+    "cli/",
+    "dist/",
+    "src/"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "bun": "./src/index.ts",
+      "deno": "./src/index.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./ai": {
+      "bun": "./src/ai/index.ts",
+      "deno": "./src/ai/index.ts",
+      "import": "./dist/ai/index.mjs"
+    },
+    "./schemas": {
+      "bun": "./src/schemas/index.ts",
+      "deno": "./src/schemas/index.ts",
+      "import": "./dist/schemas/index.mjs"
+    },
+    "./loaders": {
+      "bun": "./src/loaders/index.ts",
+      "deno": "./src/loaders/index.ts",
+      "import": "./dist/loaders/index.mjs"
+    },
+    "./diagrams": {
+      "bun": "./src/diagrams/index.ts",
+      "deno": "./src/diagrams/index.ts",
+      "import": "./dist/diagrams/index.mjs"
+    },
+    "./assets": {
+      "bun": "./src/assets/index.ts",
+      "deno": "./src/assets/index.ts",
+      "import": "./dist/assets/index.mjs"
+    },
+    "./runtime": {
+      "bun": "./src/runtime/index.ts",
+      "deno": "./src/runtime/index.ts",
+      "import": "./dist/runtime/index.mjs"
+    },
+    "./ssg": {
+      "bun": "./src/ssg/index.ts",
+      "deno": "./src/ssg/index.ts",
+      "import": "./dist/ssg/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "vp pack",
+    "test": "vp test run"
+  },
+  "dependencies": {
+    "@pagesmith/core": "*",
+    "chokidar": "^4.0.3",
+    "diagramkit": "file:../../../diagramkit",
+    "fast-glob": "^3.3.0",
+    "gray-matter": "^4.0.3",
+    "json5": "^2.2.3",
+    "remark-parse": "^11.0.0",
+    "smol-toml": "^1.3.0",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0",
+    "yaml": "^2.7.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/hast": "^3.0.4",
+    "@types/node": "^25.5.0",
+    "vite-plus": "^0.1.13"
+  }
+}
