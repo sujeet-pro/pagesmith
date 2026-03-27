@@ -10,10 +10,10 @@ export function Layout(props: { children: JSX.Element }) {
           'border-bottom': '1px solid #eee',
         }}
       >
-        <a href="#/" style={{ 'margin-right': '1rem' }}>
+        <a href="/" style={{ 'margin-right': '1rem' }}>
           Home
         </a>
-        <a href="#/about">About</a>
+        <a href="/about">About</a>
       </nav>
       <main>{props.children}</main>
     </div>

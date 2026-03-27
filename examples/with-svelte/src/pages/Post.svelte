@@ -1,50 +1,49 @@
 <script lang="ts">
   import posts from 'virtual:content/posts'
 
-  let { slug, }: { slug: string } = $props()
+  let { slug }: { slug: string } = $props()
 
-  let post = $derived(posts.find((p,) => p.slug === slug,),)
+  let post = $derived(posts.find((entry) => entry.contentSlug === slug))
 </script>
 
 {#if post}
   <article class="post">
     <header>
-      <h1>{post.data.title}</h1>
+      <h1>{post.frontmatter.title}</h1>
       <div class="meta">
-        <time datetime={post.data.date}>
-          {new Date(post.data.date).toLocaleDateString('en-US', {
+        <time datetime={post.frontmatter.date.toISOString()}>
+          {post.frontmatter.date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
           })}
         </time>
-        {#if post.data.author}
-          <span class="author">by {post.data.author}</span>
+        {#if post.frontmatter.author}
+          <span class="author">by {post.frontmatter.author}</span>
         {/if}
-        <span>{post.readTime} min read</span>
       </div>
-      {#if post.data.tags?.length}
+      {#if post.frontmatter.tags?.length}
         <div class="tags">
-          {#each post.data.tags as tag (tag)}
+          {#each post.frontmatter.tags as tag (tag)}
             <span class="tag">{tag}</span>
           {/each}
         </div>
       {/if}
     </header>
 
-    <div class="content">
+    <div class="prose">
       {@html post.html}
     </div>
 
     <footer>
-      <a href="#/">&larr; Back to posts</a>
+      <a href="/">&larr; Back to posts</a>
     </footer>
   </article>
 {:else}
   <div class="not-found">
     <h1>Post not found</h1>
     <p>No post with slug "{slug}" exists.</p>
-    <a href="#/">&larr; Back to posts</a>
+    <a href="/">&larr; Back to posts</a>
   </div>
 {/if}
 
@@ -86,41 +85,6 @@
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
     font-size: 0.75rem;
-  }
-
-  .content {
-    line-height: 1.75;
-  }
-
-  .content :global(h2) {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 2rem 0 1rem;
-  }
-
-  .content :global(h3) {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 1.5rem 0 0.75rem;
-  }
-
-  .content :global(p) {
-    margin: 0 0 1rem;
-  }
-
-  .content :global(pre) {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    overflow-x: auto;
-  }
-
-  .content :global(code) {
-    font-size: 0.875em;
-  }
-
-  .content :global(a) {
-    color: #3182ce;
   }
 
   .post footer {

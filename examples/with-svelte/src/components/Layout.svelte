@@ -1,16 +1,16 @@
 <script lang="ts">
-  import type { Snippet, } from 'svelte'
+  import type { Snippet } from 'svelte'
 
-  let { children, }: { children: Snippet } = $props()
+  let { children }: { children: Snippet } = $props()
 </script>
 
 <div class="layout">
   <header>
     <nav>
-      <a href="#/" class="logo">Pagesmith + Svelte</a>
+      <a href="/" class="logo">Pagesmith + Svelte</a>
       <ul>
-        <li><a href="#/">Home</a></li>
-        <li><a href="#/about">About</a></li>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About</a></li>
       </ul>
     </nav>
   </header>
@@ -20,7 +20,7 @@
   </main>
 
   <footer>
-    <p>Built with <a href="https://github.com/pagesmiths/pagesmith">Pagesmith</a> &amp; Svelte</p>
+    <p>Built with <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a> &amp; Svelte</p>
   </footer>
 </div>
 

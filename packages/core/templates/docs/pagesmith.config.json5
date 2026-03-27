@@ -1,0 +1,15 @@
+{
+  name: 'My Docs',
+  title: 'My Docs',
+  description: 'Documentation built with @pagesmith/docs',
+  origin: 'https://example.com',
+  contentDir: './content',
+  outDir: './dist',
+  footerLinks: [
+    { label: 'Guide', path: '/guide' },
+    { label: 'Reference', path: '/reference' },
+  ],
+  search: {
+    enabled: true,
+  },
+}

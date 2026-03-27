@@ -1,14 +1,16 @@
+import { useParams, Link } from 'react-router'
 import posts from 'virtual:content/posts'
 
-export function Post({ slug }: { slug: string }) {
-  const post = posts.find((p) => p.slug === slug)
+export function Post() {
+  const { slug } = useParams<{ slug: string }>()
+  const post = posts.find((entry) => entry.contentSlug === `posts/${slug}`)
 
   if (!post) {
     return (
       <div>
         <h1>Post not found</h1>
         <p>
-          No post with slug &quot;{slug}&quot;. <a href="#/">Go back home</a>.
+          No post with slug &quot;{slug}&quot;. <Link to="/">Go back home</Link>.
         </p>
       </div>
     )
@@ -17,22 +19,19 @@ export function Post({ slug }: { slug: string }) {
   return (
     <article>
       <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ marginBottom: '0.5rem' }}>{post.data.title}</h1>
+        <h1 style={{ marginBottom: '0.5rem' }}>{post.frontmatter.title}</h1>
         <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-          <time dateTime={post.data.date}>
-            {new Date(post.data.date).toLocaleDateString('en-US', {
+          <time dateTime={post.frontmatter.date.toISOString()}>
+            {post.frontmatter.date.toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
             })}
           </time>
-          {post.readTime > 0 && (
-            <span style={{ marginLeft: '1rem' }}>{post.readTime} min read</span>
-          )}
         </div>
-        {post.data.tags.length > 0 && (
+        {post.frontmatter.tags.length > 0 && (
           <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
-            {post.data.tags.map((tag) => (
+            {post.frontmatter.tags.map((tag) => (
               <span
                 key={tag}
                 style={{
@@ -51,9 +50,9 @@ export function Post({ slug }: { slug: string }) {
       </header>
       <div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} />
       <footer style={{ marginTop: '3rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-        <a href="#/" style={{ color: '#6b7280' }}>
+        <Link to="/" style={{ color: '#6b7280' }}>
           &larr; Back to all posts
-        </a>
+        </Link>
       </footer>
     </article>
   )

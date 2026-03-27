@@ -102,8 +102,18 @@ const processorCache = new WeakMap<MarkdownConfig, ReturnType<typeof createProce
 export async function processMarkdown(
   raw: string,
   config?: MarkdownConfig,
+  preExtracted?: { content: string; frontmatter: Record<string, unknown> },
 ): Promise<MarkdownResult> {
-  const { data: frontmatter, content } = matter(raw)
+  let frontmatter: Record<string, unknown>
+  let content: string
+  if (preExtracted) {
+    frontmatter = preExtracted.frontmatter
+    content = preExtracted.content
+  } else {
+    const parsed = matter(raw)
+    frontmatter = parsed.data
+    content = parsed.content
+  }
   const resolvedConfig = config && Object.keys(config).length > 0 ? config : DEFAULT_MARKDOWN_CONFIG
   let processor = processorCache.get(resolvedConfig)
   if (!processor) {

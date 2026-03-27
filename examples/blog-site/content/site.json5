@@ -1,0 +1,43 @@
+{
+  origin: 'https://example.com',
+  name: 'My Blog',
+  title: 'My Blog — Thoughts on Software',
+  description: 'A blog about software engineering, architecture, and best practices.',
+  language: 'en',
+
+  navItems: [
+    { label: 'Articles', href: '/articles' },
+    { label: 'Blogs', href: '/blogs' },
+    { label: 'Projects', href: '/projects' },
+  ],
+
+  social: {
+    github: 'https://github.com/example',
+    twitter: 'https://twitter.com/example',
+  },
+
+  copyright: '© 2026 Example Author',
+
+  pageTypes: {
+    articles: {
+      displayName: 'Articles',
+      layout: 'Listing',
+      itemLayout: 'Article',
+    },
+    blogs: {
+      displayName: 'Blogs',
+      layout: 'Listing',
+      itemLayout: 'Blog',
+    },
+    projects: {
+      displayName: 'Projects',
+      layout: 'Listing',
+      itemLayout: 'Project',
+    },
+  },
+
+  featured: {
+    articles: ['understanding-system-design'],
+    series: ['web-fundamentals'],
+  },
+}

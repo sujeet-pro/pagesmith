@@ -4,33 +4,18 @@
   import Post from './pages/Post.svelte'
   import About from './pages/About.svelte'
 
-  let hash = $state(window.location.hash || '#/')
+  let { url = typeof window !== 'undefined' ? window.location.pathname : '/' }: { url?: string } =
+    $props()
 
-  function onHashChange() {
-    hash = window.location.hash || '#/'
+  function parseRoute(path: string): { page: string; slug?: string } {
+    if (!path || path === '/') return { page: 'home' }
+    if (path === '/about') return { page: 'about' }
+    const match = path.match(/^\/posts\/(.+)$/)
+    if (match) return { page: 'post', slug: `posts/${match[1]}` }
+    return { page: 'home' }
   }
 
-  $effect(() => {
-    window.addEventListener('hashchange', onHashChange,)
-    return () => window.removeEventListener('hashchange', onHashChange,)
-  })
-
-  function parseRoute(h: string,): { page: string; slug?: string } {
-    const path = h.replace(/^#\/?/, '',)
-    if (!path || path === '/') {
-      return { page: 'home', }
-    }
-    if (path === 'about') {
-      return { page: 'about', }
-    }
-    const postMatch = path.match(/^posts\/(.+)$/,)
-    if (postMatch) {
-      return { page: 'post', slug: postMatch[1], }
-    }
-    return { page: 'home', }
-  }
-
-  let route = $derived(parseRoute(hash,))
+  let route = $derived(parseRoute(url))
 </script>
 
 <Layout>

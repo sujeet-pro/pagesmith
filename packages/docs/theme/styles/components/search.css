@@ -1,0 +1,36 @@
+.doc-search {
+  min-width: 240px;
+  margin-left: 1rem;
+}
+
+.doc-search .pagefind-ui {
+  --pagefind-ui-scale: 0.85;
+  --pagefind-ui-primary: var(--color-text);
+  --pagefind-ui-text: var(--color-text);
+  --pagefind-ui-background: var(--color-bg-elevated);
+  --pagefind-ui-border: var(--color-border-subtle);
+  --pagefind-ui-tag: var(--color-bg-hover);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: var(--radius-md);
+  --pagefind-ui-font: inherit;
+}
+
+.doc-search .pagefind-ui__search-input {
+  min-height: 40px;
+}
+
+.doc-search .pagefind-ui__drawer {
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.16);
+}
+
+@media (max-width: 1100px) {
+  .doc-search {
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 800px) {
+  .doc-search {
+    display: none;
+  }
+}

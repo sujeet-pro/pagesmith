@@ -1,9 +1,10 @@
 # Pagesmith
 
-> File-based CMS centered on `@pagesmith/content`.
+> File-based CMS and documentation tool, organized as a multi-package workspace under the `@pagesmith/` npm scope.
 
 ## Summary
 
+- Two main packages: `@pagesmith/core` for custom layout sites plus the Vite content plugin, `@pagesmith/docs` for convention-based documentation with built-in Pagefind search
 - Typed filesystem collections for markdown and structured data
 - Lazy markdown rendering with headings and read-time metadata
 - Diagram rendering through `diagramkit`
@@ -11,22 +12,27 @@
 
 ## Quick Start
 
-```ts
-import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/content'
+```bash
+npm add @pagesmith/core diagramkit
+```
 
-const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
-  schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
+```ts
+import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { defineConfig } from 'vite-plus'
+
+const content = defineCollections({
+  posts: defineCollection({
+    loader: 'markdown',
+    directory: 'content/posts',
+    schema: z.object({
+      title: z.string(),
+      date: z.coerce.date(),
+    }),
   }),
 })
 
-const layer = createContentLayer(
-  defineConfig({
-    collections: { posts },
-    diagrams: { enabled: true, displayMode: 'picture' },
-  }),
-)
+export default defineConfig({
+  plugins: [pagesmithContent({ collections: content })],
+})
 ```

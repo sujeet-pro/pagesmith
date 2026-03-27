@@ -1,0 +1,13 @@
+{
+  "name": "@pagesmith/example-doc-site",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pagesmith dev",
+    "build": "pagesmith build"
+  },
+  "dependencies": {
+    "@pagesmith/docs": "*"
+  }
+}

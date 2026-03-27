@@ -6,8 +6,8 @@
     "noEmit": true,
     "types": ["node"],
     "paths": {
-      "@pagesmith/content": ["../../packages/content/src/index.ts"],
-      "@pagesmith/content/*": ["../../packages/content/src/*/index.ts"]
+      "@pagesmith/core": ["../../packages/core/src/index.ts"],
+      "@pagesmith/core/*": ["../../packages/core/src/*/index.ts"]
     }
   },
   "include": ["build.ts", "ejs.d.ts", "../shared-content/content.config.ts"]

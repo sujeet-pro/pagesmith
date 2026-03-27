@@ -34,12 +34,9 @@ export function Document({
         {css && cssMode === 'inline' ? <style innerHTML={css} /> : null}
         {css && cssMode === 'reference' ? <link rel="stylesheet" href={css} /> : null}
         {head ? <Fragment innerHTML={head} /> : null}
-        <script innerHTML="(function(){var d=document.documentElement;d.classList.remove('no-js');try{var t=localStorage.getItem('pagesmith-theme');if(t==='light'||t==='dark'){d.setAttribute('data-theme',t);var r=document.getElementById('theme-'+t);if(r)r.checked=true}}catch(e){}})()" />
+        <script innerHTML="document.documentElement.classList.remove('no-js')" />
       </head>
       <body>
-        <input type="radio" id="theme-auto" name="theme" class="sr-only" checked />
-        <input type="radio" id="theme-light" name="theme" class="sr-only" />
-        <input type="radio" id="theme-dark" name="theme" class="sr-only" />
         {children}
         {js && jsMode === 'inline' ? <script innerHTML={js} /> : null}
         {js && jsMode === 'reference' ? <script src={js} defer /> : null}

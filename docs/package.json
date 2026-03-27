@@ -1,15 +1,16 @@
 {
-  "name": "@pagesmith/docs",
+  "name": "@pagesmith/docs-site",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vp exec vitepress build .",
-    "dev": "vp exec vitepress dev .",
-    "preview": "vp exec vitepress preview ."
+    "dev": "pagesmith dev",
+    "build": "pagesmith build"
+  },
+  "dependencies": {
+    "@pagesmith/docs": "*"
   },
   "devDependencies": {
-    "vite-plus": "^0.1.13",
-    "vitepress": "^1.6.0"
+    "pagefind": "^1.3.0"
   }
 }

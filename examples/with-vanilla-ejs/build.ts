@@ -1,12 +1,12 @@
 /**
  * Vanilla Node.js + EJS build script.
  *
- * Demonstrates using @pagesmith/content with plain EJS templates
+ * Demonstrates using pagesmith with plain EJS templates
  * — no framework, no bundler, just content + templates -> HTML.
  */
 
-import { createContentLayer, defineConfig } from '@pagesmith/content'
-import { getContentCSS, getContentJS } from '@pagesmith/content/runtime'
+import { createContentLayer, defineConfig } from '@pagesmith/core'
+import { getContentCSS, getContentJS } from '@pagesmith/core/runtime'
 import ejs from 'ejs'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, join, resolve } from 'path'
@@ -14,9 +14,9 @@ import { fileURLToPath } from 'url'
 import { pages, posts } from '../shared-content/content.config.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const distDir = resolve(__dirname, 'dist')
+const distDir = resolve(__dirname, '../../gh-pages/examples/vanilla-ejs')
 const templatesDir = resolve(__dirname, 'templates')
-const basePath = process.env.BASE_URL || '/'
+const basePath = '/pagesmith/examples/vanilla-ejs/'
 
 // ── Content layer ──
 

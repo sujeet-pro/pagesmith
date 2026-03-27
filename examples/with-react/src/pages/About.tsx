@@ -1,7 +1,7 @@
 import pages from 'virtual:content/pages'
 
 export function About() {
-  const about = pages.find((p) => p.slug === 'about')
+  const about = pages.find((page) => page.contentSlug === 'pages/about')
 
   if (!about) {
     return (

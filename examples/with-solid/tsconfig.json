@@ -13,9 +13,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "paths": {
-      "@pagesmith/content": ["../../packages/content/src/index.ts"],
-      "@pagesmith/content/*": ["../../packages/content/src/*/index.ts"]
+      "@pagesmith/core/css/content": ["../../packages/core/src/styles/content.css"],
+      "@pagesmith/core": ["../../packages/core/src/index.ts"],
+      "@pagesmith/core/*": ["../../packages/core/src/*/index.ts"]
     }
   },
-  "include": ["src", "vite-plugin-content.ts", "vite.config.ts"]
+  "include": ["src", "vite.config.ts"]
 }

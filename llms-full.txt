@@ -1,18 +1,19 @@
 # Pagesmith - Full LLM Reference
 
-Pagesmith is a file-based CMS centered on `@pagesmith/content`.
+Pagesmith is a file-based CMS and documentation tool, organized as a multi-package workspace under the `@pagesmith/` npm scope.
 
-## Package Layout
+## Packages
 
-- `@pagesmith/content`: collections, loaders, validation, lazy rendering, diagramkit integration, AI installer APIs
-- `@pagesmith/core`: markdown pipeline, JSX runtime, runtime CSS exports
-- `pagesmith`: optional SSG built on top of the content layer
+- `@pagesmith/core`: content layer, markdown pipeline, JSX runtime, CSS builder, schemas, loaders, validation, diagrams, SSG builder, dev server, runtime CSS exports, `@pagesmith/core/vite`, diagramkit integration, AI installer APIs, and built-in `pagesmith create`
+- `@pagesmith/docs`: convention-based documentation built on `@pagesmith/core` with Pagefind search, nav/sidebar generation from `content/`, and a docs-specific theme
 
 ## Core APIs
 
 - `defineCollection(...)`
+- `defineCollections(...)`
 - `defineConfig(...)`
 - `createContentLayer(config)`
+- `pagesmithContent({ collections })`
 - `layer.getCollection(name)`
 - `layer.getEntry(collection, slug)`
 - `layer.validate()`
@@ -26,9 +27,9 @@ Pagesmith delegates diagram rendering and manifests to `diagramkit`.
 CLI:
 
 ```bash
-pagesmith-content diagrams content/
-pagesmith-content diagrams content/ --watch
-pagesmith-content diagrams content/ --type drawio
+pagesmith diagrams content/
+pagesmith diagrams content/ --watch
+pagesmith diagrams content/ --type drawio
 ```
 
 ## Assistant Installs
@@ -36,13 +37,14 @@ pagesmith-content diagrams content/ --type drawio
 CLI:
 
 ```bash
-pagesmith-content ai install --assistant all --scope project
+pagesmith ai install --assistant all --scope project
+pagesmith ai install --assistant codex --scope project --docs
 ```
 
 API:
 
 ```ts
-import { installAiArtifacts } from '@pagesmith/content/ai'
+import { installAiArtifacts } from '@pagesmith/core/ai'
 
 installAiArtifacts({
   assistants: ['claude', 'codex', 'gemini'],

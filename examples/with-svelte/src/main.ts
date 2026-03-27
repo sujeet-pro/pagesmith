@@ -1,9 +1,11 @@
-import 'virtual:content/styles'
-import { mount } from 'svelte'
+import '@pagesmith/core/css/content'
+import { mount, hydrate } from 'svelte'
 import App from './App.svelte'
 
-const app = mount(App, {
-  target: document.getElementById('app')!,
-})
+const target = document.getElementById('app')!
 
-export default app
+if (target.childNodes.length > 0) {
+  hydrate(App, { target, props: { url: window.location.pathname } })
+} else {
+  mount(App, { target, props: { url: window.location.pathname } })
+}

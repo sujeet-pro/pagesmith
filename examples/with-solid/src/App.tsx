@@ -1,42 +1,33 @@
-import { createMemo, createSignal, onCleanup } from 'solid-js'
+import { Match, Switch } from 'solid-js'
 import { Layout } from './components/Layout'
-import { About } from './pages/About'
 import { Home } from './pages/Home'
 import { Post } from './pages/Post'
+import { About } from './pages/About'
 
-function getHash(): string {
-  return window.location.hash.slice(1) || '/'
+function parseRoute(path: string): { page: string; slug?: string } {
+  if (!path || path === '/') return { page: 'home' }
+  if (path === '/about') return { page: 'about' }
+  const match = path.match(/^\/posts\/(.+)$/)
+  if (match) return { page: 'post', slug: `posts/${match[1]}` }
+  return { page: 'home' }
 }
 
-export function App() {
-  const [hash, setHash] = createSignal(getHash())
-
-  const onHashChange = () => setHash(getHash())
-  window.addEventListener('hashchange', onHashChange)
-  onCleanup(() => window.removeEventListener('hashchange', onHashChange))
-
-  const route = createMemo(() => {
-    const h = hash()
-    if (h === '/' || h === '') return { page: 'home' as const }
-    if (h === '/about') return { page: 'about' as const }
-    const postMatch = h.match(/^\/posts\/(.+)$/)
-    if (postMatch) return { page: 'post' as const, slug: postMatch[1] }
-    return { page: 'home' as const }
-  })
+export function App(props: { url: string }) {
+  const route = () => parseRoute(props.url)
 
   return (
     <Layout>
-      {(() => {
-        const r = route()
-        switch (r.page) {
-          case 'home':
-            return <Home />
-          case 'post':
-            return <Post slug={r.slug!} />
-          case 'about':
-            return <About />
-        }
-      })()}
+      <Switch fallback={<Home />}>
+        <Match when={route().page === 'home'}>
+          <Home />
+        </Match>
+        <Match when={route().page === 'post'}>
+          <Post slug={route().slug!} />
+        </Match>
+        <Match when={route().page === 'about'}>
+          <About />
+        </Match>
+      </Switch>
     </Layout>
   )
 }

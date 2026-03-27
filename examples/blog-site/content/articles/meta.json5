@@ -1,0 +1,11 @@
+{
+  displayName: 'Articles',
+  layout: 'Article',
+  series: {
+    'web-fundamentals': {
+      title: 'Web Fundamentals',
+      description: 'Core concepts every web developer should know',
+      items: ['understanding-system-design', 'api-design-patterns'],
+    },
+  },
+}

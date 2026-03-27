@@ -1,8 +1,8 @@
 <script lang="ts">
   import posts from 'virtual:content/posts'
 
-  const sortedPosts = [...posts,].sort(
-    (a, b,) => new Date(b.data.date,).getTime() - new Date(a.data.date,).getTime(),
+  const sortedPosts = [...posts].sort(
+    (a, b) => b.frontmatter.date.getTime() - a.frontmatter.date.getTime(),
   )
 </script>
 
@@ -13,22 +13,21 @@
     <p class="empty">No posts yet. Add markdown files to <code>content/posts/</code> to get started.</p>
   {:else}
     <ul class="post-list">
-      {#each sortedPosts as post (post.slug)}
+      {#each sortedPosts as post (post.id)}
         <li>
-          <a href="#/posts/{post.slug}">
-            <h2>{post.data.title}</h2>
-            {#if post.data.description}
-              <p class="description">{post.data.description}</p>
+          <a href="/{post.contentSlug}">
+            <h2>{post.frontmatter.title}</h2>
+            {#if post.frontmatter.description}
+              <p class="description">{post.frontmatter.description}</p>
             {/if}
             <div class="meta">
-              <time datetime={post.data.date}>
-                {new Date(post.data.date).toLocaleDateString('en-US', {
+              <time datetime={post.frontmatter.date.toISOString()}>
+                {post.frontmatter.date.toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
                 })}
               </time>
-              <span>{post.readTime} min read</span>
             </div>
           </a>
         </li>

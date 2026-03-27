@@ -1,36 +1,52 @@
-// JSX runtime
+/**
+ * pagesmith — File-based CMS library.
+ *
+ * Schema-validated collections, lazy markdown rendering, diagrams,
+ * asset hashing, and runtime CSS/JS exports.
+ */
+
+// ── Config ──
+export { defineCollection, defineCollections, defineConfig } from './config'
+
+// ── Content Layer ──
+export { type ContentLayer, type LayerConvertOptions, createContentLayer } from './content-layer'
+
+// ── Entry ──
+export { ContentEntry, type RenderedContent } from './entry'
+
+// ── JSX Runtime ──
 export { Fragment, h, HtmlString } from './jsx-runtime'
 
-// Markdown processing
+// ── Markdown Processing ──
 export { processMarkdown } from './markdown'
 export type { MarkdownResult } from './markdown'
 
-// Markdown plugins
+// ── Markdown Plugins ──
 export { codeBlockTransformers, rehypeCodeTabs } from './markdown/plugins'
 
-// CSS builder
+// ── CSS Builder ──
 export { buildCss } from './css'
 
-// Frontmatter
+// ── Frontmatter ──
 export { extractFrontmatter, validateFrontmatter } from './frontmatter'
 export type { FrontmatterResult } from './frontmatter'
 
-// TOC extraction
+// ── TOC Extraction ──
 export { extractToc } from './toc'
 
-// Document generation
+// ── Document Generation ──
 export { generateDocument } from './document'
 export type { DocumentOptions } from './document'
 
-// Layout engine
+// ── Layout Engine ──
 export { applyLayout } from './layout-engine'
 export type { CoreLayoutProps } from './layout-engine'
 
-// Convert API
+// ── Convert API ──
 export { convert } from './convert'
 export type { ConvertOptions, ConvertResult } from './convert'
 
-// Schemas
+// ── Schemas & Types ──
 export {
   type BaseFrontmatter,
   BaseFrontmatterSchema,
@@ -43,3 +59,47 @@ export {
   type ProjectFrontmatter,
   ProjectFrontmatterSchema,
 } from './schemas'
+export type { CollectionDef, RawEntry } from './schemas/collection'
+export type {
+  CollectionComputed,
+  CollectionMap,
+  InferCollectionData,
+  InferCollectionLoaderKind,
+} from './schemas/collection'
+export type { ContentLayerConfig, ContentPlugin } from './schemas/content-config'
+
+// ── Validation ──
+export type {
+  ContentValidator,
+  ValidationEntryResult,
+  ValidationIssue,
+  ValidationResult,
+  ValidatorContext,
+} from './validation'
+export {
+  builtinMarkdownValidators,
+  codeBlockValidator,
+  headingValidator,
+  linkValidator,
+  runValidators,
+} from './validation'
+
+// ── Loaders ──
+export { JsoncLoader, JsonLoader, MarkdownLoader, TomlLoader, YamlLoader } from './loaders'
+export type { Loader, LoaderResult, LoaderType } from './loaders/types'
+
+// ── AI Companion Files ──
+export {
+  getAiArtifactContent,
+  getAiArtifacts,
+  installAiArtifacts,
+  type AiArtifact,
+  type AiArtifactKind,
+  type AiAssistant,
+  type AiInstallOptions,
+  type AiInstallResult,
+  type AiInstallScope,
+} from './ai/index'
+
+// ── Re-export zod for consumer convenience ──
+export { z } from 'zod'

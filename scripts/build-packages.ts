@@ -4,7 +4,7 @@ import { execSync } from 'child_process'
 import { join } from 'path'
 
 const ROOT = process.cwd()
-const packages = ['core', 'content', 'pagesmith']
+const packages = ['core', 'docs']
 
 for (const pkg of packages) {
   console.log(`\n> vp pack (${pkg})`)

@@ -39,7 +39,9 @@ function readBundledAsset(filename: string): string {
   for (const dir of ['dist', 'src']) {
     try {
       return readFileSync(join(pkgDir, dir, filename), 'utf-8')
-    } catch {}
+    } catch (err: any) {
+      if (err?.code !== 'ENOENT') console.warn(`Failed to read bundled asset: ${err?.message}`)
+    }
   }
   return ''
 }

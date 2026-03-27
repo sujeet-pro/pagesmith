@@ -20,6 +20,3 @@
 /* Layout */
 @import "./layout/grid.css";
 @import "./layout/sidebar.css";
-
-/* Components */
-@import "./components/theme-toggle.css";

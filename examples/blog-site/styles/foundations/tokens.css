@@ -1,0 +1,66 @@
+/* -- Design Tokens -- */
+
+:root {
+  color-scheme: light dark;
+
+  /* Colors */
+  --color-bg: light-dark(#ffffff, #111111);
+  --color-bg-alt: light-dark(#fafafa, #1a1a1a);
+  --color-bg-elevated: light-dark(#ffffff, #1e1e1e);
+  --color-bg-code: light-dark(#f8f8f8, #1a1a1a);
+  --color-bg-hover: light-dark(#f4f4f5, #252525);
+
+  --color-text: light-dark(#111111, #e5e5e5);
+  --color-text-secondary: light-dark(#333333, #cccccc);
+  --color-text-muted: light-dark(#999999, #888888);
+
+  --color-border: light-dark(#e5e5e5, #2a2a2a);
+  --color-border-subtle: light-dark(#f0f0f0, #222222);
+  --color-border-hover: light-dark(#e0e0e0, #3a3a3a);
+
+  --color-accent: light-dark(#000000, #e5e5e5);
+  --color-accent-hover: light-dark(#1a1a1a, #cccccc);
+  --color-accent-subtle: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.06));
+
+  --color-code-bg: light-dark(#f8f8f8, #1a1a1a);
+  --color-code-text: light-dark(#333333, #cccccc);
+
+  --color-blockquote-border: light-dark(#e0e0e0, #333333);
+  --color-blockquote-bg: light-dark(#fafafa, #1a1a1a);
+
+  --color-overlay-bg: light-dark(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5));
+  --color-header-bg: light-dark(rgba(255, 255, 255, 0.85), rgba(17, 17, 17, 0.85));
+  --color-text-inverse: light-dark(#ffffff, #111111);
+
+  /* Shadows -- split color since light-dark() returns <color> */
+  --shadow-color: light-dark(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.2));
+  --shadow-color-md: light-dark(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.25));
+  --shadow-color-lg: light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.3));
+  --shadow-sm: 0 1px 2px var(--shadow-color);
+  --shadow-md: 0 4px 6px var(--shadow-color-md);
+  --shadow-lg: 0 10px 25px var(--shadow-color-lg);
+
+  /* Typography */
+  --font-sans: "Open Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+
+  /* Spacing */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout */
+  --header-height: 60px;
+}

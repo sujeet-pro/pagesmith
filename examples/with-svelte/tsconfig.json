@@ -12,9 +12,10 @@
     "verbatimModuleSyntax": true,
     "types": ["vite/client"],
     "paths": {
-      "@pagesmith/content": ["../../packages/content/src/index.ts"],
-      "@pagesmith/content/*": ["../../packages/content/src/*/index.ts"]
+      "@pagesmith/core/css/content": ["../../packages/core/src/styles/content.css"],
+      "@pagesmith/core": ["../../packages/core/src/index.ts"],
+      "@pagesmith/core/*": ["../../packages/core/src/*/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte", "vite-plugin-content.ts"]
+  "include": ["src/**/*.ts", "src/**/*.svelte", "vite.config.ts"]
 }

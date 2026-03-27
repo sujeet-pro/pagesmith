@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": [".vitepress/**/*.ts"]
+  "include": ["content/**/*.ts", "pagesmith.config.json5"]
 }

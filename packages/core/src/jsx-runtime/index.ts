@@ -94,6 +94,21 @@ export function Fragment(props: { children?: unknown; innerHTML?: string }): Htm
   return new HtmlString(renderChild(props.children))
 }
 
+// Automatic JSX transform compat — react-jsx mode calls jsx/jsxs instead of h
+export function jsx(
+  tag: string | ((props: any) => HtmlString),
+  props: Record<string, unknown>,
+): HtmlString {
+  const { children, ...rest } = props
+  if (children != null) {
+    if (Array.isArray(children)) return h(tag, rest, ...children)
+    return h(tag, rest, children)
+  }
+  return h(tag, rest)
+}
+
+export { jsx as jsxs }
+
 declare global {
   namespace JSX {
     type Element = HtmlString

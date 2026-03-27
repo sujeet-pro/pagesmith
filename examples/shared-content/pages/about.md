@@ -1,11 +1,11 @@
 ---
 title: About
-description: About this example site built with @pagesmith/content
+description: About this example site built with @pagesmith/core
 ---
 
 # About
 
-This site demonstrates **@pagesmith/content** — a framework-agnostic content CMS library that transforms markdown and structured data into validated, renderable content.
+This site demonstrates **@pagesmith/core** — a framework-agnostic content CMS library that transforms markdown and structured data into validated, renderable content.
 
 ## Features
 
@@ -17,4 +17,4 @@ This site demonstrates **@pagesmith/content** — a framework-agnostic content C
 
 ## Source
 
-Built as an example for the [pagesmith](https://github.com/sujeet/pagesmith) project.
+Built as an example for the [@pagesmith/core](https://github.com/sujeet/pagesmith) project.

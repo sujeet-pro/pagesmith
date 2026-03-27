@@ -1,50 +1,99 @@
 {
   "name": "@pagesmith/core",
   "version": "0.1.0",
-  "description": "Standalone markdown-to-HTML engine with code highlighting, TOC extraction, and custom JSX runtime",
+  "description": "File-based CMS — schema-validated collections, lazy markdown rendering, diagram integration, and runtime CSS/JS exports",
+  "keywords": [
+    "cms",
+    "collections",
+    "content",
+    "content-layer",
+    "markdown",
+    "static-site"
+  ],
+  "homepage": "https://github.com/sujeet-pro/pagesmith/tree/main/packages/core",
+  "bugs": {
+    "url": "https://github.com/sujeet-pro/pagesmith/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sujeet-pro/pagesmith.git",
+    "directory": "packages/core"
+  },
   "bin": {
-    "pagesmith-core": "./cli/bin.js"
+    "pagesmith": "./cli/bin.ts"
   },
   "files": [
     "dist/",
-    "src/",
-    "cli/"
+    "cli/",
+    "src/styles/",
+    "templates/"
   ],
   "type": "module",
   "exports": {
     ".": {
-      "bun": "./src/index.ts",
-      "deno": "./src/index.ts",
+      "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
     "./jsx-runtime": {
-      "bun": "./src/jsx-runtime/index.ts",
-      "deno": "./src/jsx-runtime/index.ts",
+      "types": "./dist/jsx-runtime/index.d.mts",
       "import": "./dist/jsx-runtime/index.mjs"
     },
     "./markdown": {
-      "bun": "./src/markdown/index.ts",
-      "deno": "./src/markdown/index.ts",
+      "types": "./dist/markdown/index.d.mts",
       "import": "./dist/markdown/index.mjs"
     },
     "./css": {
-      "bun": "./src/css/index.ts",
-      "deno": "./src/css/index.ts",
+      "types": "./dist/css/index.d.mts",
       "import": "./dist/css/index.mjs"
     },
     "./css/content": {
+      "types": "./css.d.ts",
       "default": "./src/styles/content.css"
     },
     "./css/diagrams": {
+      "types": "./css.d.ts",
       "default": "./src/styles/diagrams.css"
     },
     "./css/viewport": {
+      "types": "./css.d.ts",
       "default": "./src/styles/viewport.css"
     },
     "./schemas": {
-      "bun": "./src/schemas/index.ts",
-      "deno": "./src/schemas/index.ts",
+      "types": "./dist/schemas/index.d.mts",
       "import": "./dist/schemas/index.mjs"
+    },
+    "./loaders": {
+      "types": "./dist/loaders/index.d.mts",
+      "import": "./dist/loaders/index.mjs"
+    },
+    "./diagrams": {
+      "types": "./dist/diagrams/index.d.mts",
+      "import": "./dist/diagrams/index.mjs"
+    },
+    "./assets": {
+      "types": "./dist/assets/index.d.mts",
+      "import": "./dist/assets/index.mjs"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.mts",
+      "import": "./dist/runtime/index.mjs"
+    },
+    "./ai": {
+      "types": "./dist/ai/index.d.mts",
+      "import": "./dist/ai/index.mjs"
+    },
+    "./ssg": {
+      "types": "./dist/ssg/index.d.mts",
+      "import": "./dist/ssg/index.mjs"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.mts",
+      "import": "./dist/vite/index.mjs"
+    },
+    "./create": {
+      "types": "./dist/create/index.d.mts",
+      "import": "./dist/create/index.mjs"
     }
   },
   "scripts": {
@@ -53,8 +102,12 @@
   },
   "dependencies": {
     "@shikijs/rehype": "^3.0.0",
+    "chokidar": "^4.0.3",
+    "devalue": "^5.1.1",
+    "diagramkit": "^0.0.1",
+    "fast-glob": "^3.3.0",
     "gray-matter": "^4.0.3",
-    "hast": "^1.0.0",
+    "json5": "^2.2.3",
     "lightningcss": "^1.32.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-mathjax": "^7.1.0",
@@ -65,11 +118,18 @@
     "remark-math": "^6.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.1",
+    "rolldown": "^1.0.0-rc.10",
+    "smol-toml": "^1.3.0",
     "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0",
+    "ws": "^8.19.0",
+    "yaml": "^2.7.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/hast": "^3.0.4",
     "@types/node": "^25.5.0",
+    "@types/ws": "^8.18.1",
     "vite-plus": "^0.1.13"
   }
 }

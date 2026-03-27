@@ -2,7 +2,7 @@ import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
   test: {
-    projects: ['packages/core', 'packages/content', 'packages/pagesmith'],
+    projects: ['packages/core', 'packages/docs', 'tests/e2e'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

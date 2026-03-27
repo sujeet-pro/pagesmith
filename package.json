@@ -1,28 +1,49 @@
 {
   "private": true,
   "workspaces": [
-    "packages/*",
+    "packages/core",
+    "packages/docs",
     "examples/with-vanilla-ejs",
     "examples/with-vanilla-hbs",
     "examples/with-react",
     "examples/with-solid",
     "examples/with-svelte",
-    "examples/with-ssg",
+    "examples/blog-site",
+    "examples/doc-site",
     "docs"
   ],
   "type": "module",
   "scripts": {
-    "build": "node --experimental-strip-types scripts/build-packages.ts",
-    "build:examples": "node --experimental-strip-types scripts/build-examples.ts",
-    "build:docs": "vp exec vitepress build docs",
-    "build:site": "node --experimental-strip-types scripts/build-gh-pages.ts",
-    "preview": "node --experimental-strip-types scripts/preview.ts",
+    "build": "npm run clean && npm run build:library && npm run build:docs && npm run build:examples && npm run build:landing",
+    "build:library": "node --experimental-strip-types scripts/build-packages.ts",
+    "build:docs": "npm run -w @pagesmith/docs-site build",
+    "build:examples": "npm run build:eg:blog-site && npm run build:eg:doc-site && npm run build:eg:vanilla-ejs && npm run build:eg:vanilla-hbs && npm run build:eg:react && npm run build:eg:solid && npm run build:eg:svelte",
+    "build:eg:blog-site": "npm run -w @pagesmith/example-blog-site build",
+    "build:eg:doc-site": "npm run -w @pagesmith/example-doc-site build",
+    "build:eg:vanilla-ejs": "npm run -w example-with-vanilla-ejs build",
+    "build:eg:vanilla-hbs": "npm run -w example-with-vanilla-hbs build",
+    "build:eg:react": "npm run -w example-with-react build",
+    "build:eg:solid": "npm run -w example-with-solid build",
+    "build:eg:svelte": "npm run -w example-with-svelte build",
+    "build:landing": "node --experimental-strip-types scripts/build.ts",
+    "dev:docs": "npm run -w @pagesmith/docs-site dev",
+    "dev:eg:blog-site": "npm run -w @pagesmith/example-blog-site dev",
+    "dev:eg:doc-site": "npm run -w @pagesmith/example-doc-site dev",
+    "dev:eg:vanilla-ejs": "npm run -w example-with-vanilla-ejs dev",
+    "dev:eg:vanilla-hbs": "npm run -w example-with-vanilla-hbs dev",
+    "dev:eg:react": "npm run -w example-with-react dev",
+    "dev:eg:solid": "npm run -w example-with-solid dev",
+    "dev:eg:svelte": "npm run -w example-with-svelte dev",
+    "clean": "rm -rf gh-pages packages/*/dist docs/dist examples/*/dist",
+    "preview": "node --experimental-strip-types scripts/preview-gh-pages.ts",
+    "validate:examples": "node --experimental-strip-types scripts/validate-examples.ts",
     "test": "vp test run",
     "test:watch": "vp test",
     "test:coverage": "vp test run --coverage",
     "check": "vp check",
     "check:fix": "vp check --fix",
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "link:diagramkit": "bash scripts/link-diagramkit.sh"
   },
   "devDependencies": {
     "typescript": "^5.9.0",
@@ -31,6 +52,9 @@
   "overrides": {
     "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.13",
     "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.13"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "packageManager": "npm@11.12.0"
 }

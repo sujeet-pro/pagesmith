@@ -1,0 +1,90 @@
+/* ─── TOC ─── */
+.doc-toc {
+  font-size: var(--font-size-sm);
+}
+.doc-toc-title {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+.doc-toc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border-left: 2px solid var(--color-border-subtle);
+  padding-left: 0;
+}
+.doc-toc-item a {
+  display: block;
+  padding: 0.2rem 0 0.2rem 0.75rem;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  line-height: 1.4;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+}
+.doc-toc-item a:hover {
+  color: var(--color-text);
+}
+.doc-toc-item.active a {
+  color: var(--color-text);
+  border-left-color: var(--color-accent);
+}
+.doc-toc-item.depth-2 a {
+  padding-left: 0.75rem;
+}
+.doc-toc-item.depth-3 a {
+  padding-left: 1.5rem;
+  font-size: 0.8125rem;
+}
+
+/* ─── Mobile TOC accordion ─── */
+.doc-toc-mobile {
+  display: none;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-alt);
+}
+.doc-toc-mobile summary {
+  padding: 0.75rem 1rem;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.doc-toc-mobile summary::-webkit-details-marker {
+  display: none;
+}
+.doc-toc-mobile summary::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  clip-path: polygon(25% 20%, 75% 50%, 25% 80%);
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+.doc-toc-mobile[open] summary::after {
+  transform: rotate(90deg);
+}
+.doc-toc-mobile .doc-toc {
+  padding: 0 1rem 0.75rem;
+}
+.doc-toc-mobile .doc-toc-title {
+  display: none;
+}
+.doc-toc-mobile .doc-toc-list {
+  border-left: none;
+}
+.doc-toc-mobile .doc-toc-item a {
+  border-left: none;
+  margin-left: 0;
+}

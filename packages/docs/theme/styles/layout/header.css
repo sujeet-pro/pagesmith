@@ -1,0 +1,118 @@
+/* ═══════════════════════════════════════════════════════════════
+   Doc header — sticky top bar with blur backdrop
+   ═══════════════════════════════════════════════════════════════ */
+
+.doc-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--header-height);
+  background: var(--color-header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.doc-header-inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  gap: 1.5rem;
+}
+
+/* ─── Left section: hamburger + logo ─── */
+.doc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* ─── Hamburger button — hidden on desktop ─── */
+.doc-sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.doc-sidebar-toggle:hover {
+  color: var(--color-text);
+  background: var(--color-bg-hover);
+}
+.doc-sidebar-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ─── Logo / site name ─── */
+.doc-logo {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.doc-logo:hover {
+  color: var(--color-text-secondary);
+}
+
+/* ─── Top navigation links ─── */
+.doc-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+.doc-nav a {
+  padding: 0.4rem 0.75rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  white-space: nowrap;
+}
+.doc-nav a:hover {
+  color: var(--color-text);
+  background: var(--color-bg-hover);
+}
+.doc-nav a.active {
+  color: var(--color-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Tablet + mobile: show hamburger */
+@media (max-width: 800px) {
+  .doc-sidebar-toggle {
+    display: flex;
+  }
+
+  .doc-header-inner {
+    padding: 0 1rem;
+  }
+
+  .doc-nav {
+    gap: 0;
+  }
+
+  .doc-nav a {
+    padding: 0.4rem 0.5rem;
+    font-size: var(--font-size-xs);
+  }
+}

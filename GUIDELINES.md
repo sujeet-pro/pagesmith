@@ -11,11 +11,11 @@ Actionable implementation guide for all changes identified in the multi-model co
 **Problem**: Each of the 3 built-in validators independently parses the markdown to MDAST via `unified().use(remarkParse).parse()`. For every markdown entry, the same content is parsed 3 times.
 
 **Files**:
-- `packages/content/src/validation/types.ts` (line 11-22) — add `mdast` to context
-- `packages/content/src/validation/runner.ts` (line 23-44) — parse once before loop
-- `packages/content/src/validation/link-validator.ts` (line 70) — use pre-parsed tree
-- `packages/content/src/validation/heading-validator.ts` (line 58) — use pre-parsed tree
-- `packages/content/src/validation/code-block-validator.ts` (line 81) — use pre-parsed tree
+- `packages/core/src/validation/types.ts` (line 11-22) — add `mdast` to context
+- `packages/core/src/validation/runner.ts` (line 23-44) — parse once before loop
+- `packages/core/src/validation/link-validator.ts` (line 70) — use pre-parsed tree
+- `packages/core/src/validation/heading-validator.ts` (line 58) — use pre-parsed tree
+- `packages/core/src/validation/code-block-validator.ts` (line 81) — use pre-parsed tree
 
 **Changes**:
 
@@ -88,7 +88,7 @@ Same pattern for `heading-validator.ts` line 58 and `code-block-validator.ts` li
 
 **Problem**: In `store.ts`, Zod `safeParse` runs twice per entry — once at line 108 via `validateSchema()` for error reporting, and again at line 138 for data coercion. Both calls do the same work.
 
-**File**: `packages/content/src/store.ts` (lines 107-139)
+**File**: `packages/core/src/store.ts` (lines 107-139)
 
 **Change**: Replace the two calls with a single `safeParse`, extract both errors and coerced data from one result:
 
@@ -160,10 +160,10 @@ export function validateSchema(data: Record<string, any>, schema: ZodType): {
 **Problem**: `ContentPlugin` is defined in `schemas/config.ts` (lines 41-49) with `rehypePlugin`, `remarkPlugin`, and `validate` hooks. Helper functions exist in `plugins/index.ts` (`collectRemarkPlugins`, `collectRehypePlugins`, `runPluginValidators`). But none of these are called from `store.ts` or `entry.ts`. The plugin system is dead code.
 
 **Files**:
-- `packages/content/src/schemas/config.ts` (lines 37-49) — plugin type definition
-- `packages/content/src/plugins/index.ts` (lines 1-31) — helper functions
-- `packages/content/src/store.ts` — needs plugin integration
-- `packages/content/src/entry.ts` — needs plugin integration for rendering
+- `packages/core/src/schemas/config.ts` (lines 37-49) — plugin type definition
+- `packages/core/src/plugins/index.ts` (lines 1-31) — helper functions
+- `packages/core/src/store.ts` — needs plugin integration
+- `packages/core/src/entry.ts` — needs plugin integration for rendering
 
 **Option A (recommended): Wire plugins into the pipeline**:
 
@@ -200,7 +200,7 @@ This requires threading `config.plugins` to the ContentEntry, or merging them in
 
 **Problem**: `JsonLoader` declares `extensions = ['.json', '.json5', '.jsonc']` (json.ts line 13), and it parses `.jsonc` files via JSON5. But `JsoncLoader` also handles `.jsonc` (jsonc.ts line 54) with a different strategy (comment stripping + strict `JSON.parse`). The `resolveLoader` function routes `'jsonc'` to `JsoncLoader` while `'json'` routes to `JsonLoader` — but `JsonLoader.extensions` still includes `.jsonc`, causing confusion about which handles what.
 
-**File**: `packages/content/src/loaders/json.ts` (line 13)
+**File**: `packages/core/src/loaders/json.ts` (line 13)
 
 **Change**: Remove `.jsonc` from `JsonLoader.extensions`:
 
@@ -283,12 +283,12 @@ const processorCache = new WeakMap<MarkdownConfig, ReturnType<typeof unified>>()
 
 ### 2.2 Reuse Browser/Renderer in Diagram Renderers
 
-**Problem**: `ExcalidrawRenderer.renderSingle()` (excalidraw.ts lines 89-117) launches a new Chromium browser, builds the excalidraw bundle, renders one diagram, and closes the browser. In watch mode, every file change triggers a full browser lifecycle. `MermaidRenderer.renderSingle()` (mermaid.ts lines 180-205) creates a new mermaid renderer per call.
+**Problem**: Diagram renderers now live in `diagramkit`. This section documents the pattern that should be followed there. `ExcalidrawRenderer.renderSingle()` launches a new Chromium browser per call. `MermaidRenderer.renderSingle()` creates a new renderer per call.
 
-**Files**:
-- `packages/content/src/diagrams/renderers/excalidraw.ts` (lines 89-117)
-- `packages/content/src/diagrams/renderers/mermaid.ts` (lines 180-205)
-- `packages/content/src/diagrams/renderers/types.ts` (line 17) — `dispose?()` already exists
+**Files** (in `diagramkit`, not this repo):
+- `excalidraw.ts` — browser lifecycle per render call
+- `mermaid.ts` — renderer instance per render call
+- `types.ts` — `dispose?()` already exists in interface
 
 **Change for ExcalidrawRenderer**: Keep browser and page alive between `renderSingle` calls. The `dispose()` method already exists in the interface:
 
@@ -368,7 +368,7 @@ export class MermaidRenderer implements DiagramRenderer {
 
 **Problem**: `store.ts` `loadCollection()` (lines 59-64) processes entries sequentially in a for-of loop. Each iteration awaits `loadEntry()` before starting the next.
 
-**File**: `packages/content/src/store.ts` (lines 57-64)
+**File**: `packages/core/src/store.ts` (lines 57-64)
 
 **Change**: Use `Promise.all` for parallelism. Loaders use `readFileSync` so they're effectively sync, but validators and transforms can be async:
 
@@ -401,7 +401,7 @@ Adding `p-limit` as a dependency is optional — `Promise.all` without limiting 
 
 **Problem**: `content-layer.ts` `getEntry()` (lines 81-88) calls `getCollection()` which loads ALL entries just to find one by slug.
 
-**File**: `packages/content/src/content-layer.ts` (lines 81-88)
+**File**: `packages/core/src/content-layer.ts` (lines 81-88)
 
 **Current behavior is acceptable** because `getCollection()` is cached (second call is a no-op returning cached data). The issue only matters for the very first call. However, document this clearly:
 
@@ -436,7 +436,7 @@ if (parent.type === 'element' && (parent as Element).tagName === 'figure') {
 }
 ```
 
-**File**: `packages/content/src/diagrams/rehype-diagram-images.ts` (lines 100-105)
+**File**: `packages/core/src/diagrams/rehype-diagram-images.ts` (lines 100-105)
 
 **Change**: Remove the dead conditional:
 
@@ -450,7 +450,7 @@ if (parent.type === 'element' && (parent as Element).tagName === 'figure') {
 
 **Problem**: `computeReadTime()` in `read-time.ts` (lines 8-15) strips HTML tags with regex (`/<[^>]+>/g`), which breaks on edge cases like attributes containing `>`, `<script>` content, etc.
 
-**File**: `packages/content/src/utils/read-time.ts`
+**File**: `packages/core/src/utils/read-time.ts`
 
 **Change**: Compute from raw markdown text instead of rendered HTML. This is more accurate anyway — code blocks, frontmatter, and HTML elements shouldn't count toward reading time:
 
@@ -500,7 +500,7 @@ const readTime = computeReadTime(this.rawContent)
 
 **Problem**: A single malformed content file (bad YAML frontmatter, corrupt JSON, etc.) crashes the entire collection load. The `loadEntry` method doesn't catch loader errors.
 
-**File**: `packages/content/src/store.ts` (lines 59-64)
+**File**: `packages/core/src/store.ts` (lines 59-64)
 
 **Change**: Wrap `loadEntry` in try/catch and convert to a validation issue instead of crashing:
 
@@ -531,7 +531,7 @@ This ensures one bad file doesn't prevent the rest of the collection from loadin
 
 **Problem**: Loader parse errors surface as raw exceptions with no file context. A YAML syntax error produces a generic error message without the file path or line number.
 
-**File**: New file `packages/content/src/loaders/errors.ts`
+**File**: New file `packages/core/src/loaders/errors.ts`
 
 **Change**: Create a `LoaderError` class:
 
@@ -578,10 +578,10 @@ try {
 
 **Priority test files to create**:
 
-1. `packages/content/src/__tests__/store.test.ts` — collection loading, caching, invalidation
-2. `packages/content/src/__tests__/validation-runner.test.ts` — shared MDAST, error recovery, custom validators
-3. `packages/content/src/__tests__/slug.test.ts` — edge cases: README, index, nested, no extension
-4. `packages/content/src/__tests__/content-layer.test.ts` — full pipeline integration
+1. `packages/core/src/__tests__/store.test.ts` — collection loading, caching, invalidation
+2. `packages/core/src/__tests__/validation-runner.test.ts` — shared MDAST, error recovery, custom validators
+3. `packages/core/src/__tests__/slug.test.ts` — edge cases: README, index, nested, no extension
+4. `packages/core/src/__tests__/content-layer.test.ts` — full pipeline integration
 5. `packages/core/src/__tests__/pipeline.test.ts` — markdown rendering, heading extraction, code blocks
 
 ---
@@ -595,7 +595,7 @@ These features are not bugs or quality issues — they're competitive gaps compa
 Every competitor generates types from content schemas. Add a CLI command:
 
 ```bash
-pagesmith-content generate --config content.config.ts --output .content/types.d.ts
+pagesmith generate --config content.config.ts --output .content/types.d.ts
 ```
 
 The generator reads collection schemas, runs `z.infer<>` at build time, and writes a `.d.ts` file with typed collection accessors.
@@ -620,10 +620,10 @@ Support `single: true` in collection definition to return a single object instea
 
 ### 5.4 Content-Specific Zod Helpers (P3)
 
-Inspired by Velite's `s` object. Create `pagesmith/schemas` helpers:
+Inspired by Velite's `s` object. Create `@pagesmith/core/schemas` helpers:
 
 ```typescript
-import { ps } from '@pagesmith/content/schemas'
+import { ps } from '@pagesmith/core/schemas'
 
 const posts = defineCollection({
   schema: z.object({
@@ -637,7 +637,7 @@ const posts = defineCollection({
 ### 5.5 Sorting / Pagination Utilities (P3)
 
 ```typescript
-import { sortByDate, paginate } from '@pagesmith/content/utils'
+import { sortByDate, paginate } from '@pagesmith/core/utils'
 
 const sorted = sortByDate(posts, 'data.date', 'desc')
 const page1 = paginate(sorted, { pageSize: 10, page: 1 })
@@ -686,16 +686,15 @@ Phase 5 (P2-P3 — roadmap):
 After each phase, run:
 
 ```bash
-npm run test          # Vitest — ensure no regressions
-npm run typecheck     # tsc --noEmit — ensure type safety
-npm run lint          # oxlint — ensure code quality
+vp test run           # Vitest — ensure no regressions
+vp check              # lint, format, and TypeScript type checks
 npm run build         # Vite build — ensure packages compile
 ```
 
 For performance changes (Phase 2), add benchmarks:
 
 ```bash
-# Create packages/content/src/__bench__/loading.bench.ts
+# Create packages/core/src/__bench__/loading.bench.ts
 # Compare before/after for:
 # - Collection loading time (100 entries)
 # - Validation time per entry (with MDAST sharing)

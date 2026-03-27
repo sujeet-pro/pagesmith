@@ -1,6 +1,0 @@
-{
-  "tasks": {
-    "build": "deno run -A node_modules/.bin/pagesmith build",
-    "dev": "deno run -A node_modules/.bin/pagesmith dev"
-  }
-}

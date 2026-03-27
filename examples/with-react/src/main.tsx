@@ -1,15 +1,20 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import css from 'virtual:content/styles'
+import { hydrateRoot, createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
+import '@pagesmith/core/css/content'
 import { App } from './App'
 
-// Inject content runtime styles
-const style = document.createElement('style')
-style.textContent = css
-document.head.appendChild(style)
-
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root')!
+const app = (
   <StrictMode>
-    <App />
-  </StrictMode>,
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StrictMode>
 )
+
+if (root.childNodes.length > 0) {
+  hydrateRoot(root, app)
+} else {
+  createRoot(root).render(app)
+}

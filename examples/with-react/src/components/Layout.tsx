@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router'
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
@@ -7,8 +8,8 @@ export function Layout({ children }: { children: ReactNode }) {
         style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem', marginBottom: '2rem' }}
       >
         <nav style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <a
-            href="#/"
+          <Link
+            to="/"
             style={{
               fontWeight: 700,
               fontSize: '1.25rem',
@@ -17,13 +18,13 @@ export function Layout({ children }: { children: ReactNode }) {
             }}
           >
             Pagesmith + React
-          </a>
-          <a href="#/" style={{ textDecoration: 'none', color: '#6b7280' }}>
+          </Link>
+          <Link to="/" style={{ textDecoration: 'none', color: '#6b7280' }}>
             Home
-          </a>
-          <a href="#/about" style={{ textDecoration: 'none', color: '#6b7280' }}>
+          </Link>
+          <Link to="/about" style={{ textDecoration: 'none', color: '#6b7280' }}>
             About
-          </a>
+          </Link>
         </nav>
       </header>
       <main>{children}</main>

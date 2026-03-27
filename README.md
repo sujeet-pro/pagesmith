@@ -1,21 +1,17 @@
 # Pagesmith
 
-Pagesmith is a file-based CMS centered on `@pagesmith/content`.
+Pagesmith is a file-based CMS and documentation tool, organized as a multi-package workspace under the `@pagesmith/` npm scope.
 
-It gives you typed collections, lazy markdown rendering, AST-level validation, diagram rendering through `diagramkit`, optional runtime CSS, and installable AI companion files for Claude, Codex, Gemini CLI, and `llms.txt`.
+Two main user-facing packages: `@pagesmith/core` for typed content collections plus a first-class Vite content plugin, and `@pagesmith/docs` for convention-based static documentation with built-in Pagefind search.
 
-## Packages
-
-- `@pagesmith/content`: the primary FS-CMS package
-- `@pagesmith/core`: markdown pipeline, JSX runtime, and runtime CSS helpers
-- `pagesmith`: optional SSG that consumes the content layer
+It gives you typed collections, lazy markdown rendering, AST-level validation, diagram rendering through `diagramkit`, optional runtime CSS, Vite virtual content modules, and installable AI companion files for Claude, Codex, Gemini CLI, and `llms.txt`.
 
 ## Install
 
 Published package flow:
 
 ```bash
-npm add @pagesmith/content diagramkit
+npm add @pagesmith/core diagramkit
 ```
 
 Local monorepo development flow:
@@ -27,40 +23,35 @@ vp add diagramkit@file:../diagramkit
 ## Quick Start
 
 ```ts
-import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/content'
+import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { defineConfig } from 'vite-plus'
 
-const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
-  schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
+const content = defineCollections({
+  posts: defineCollection({
+    loader: 'markdown',
+    directory: 'content/posts',
+    schema: z.object({
+      title: z.string(),
+      date: z.coerce.date(),
+      tags: z.array(z.string()).default([]),
+    }),
   }),
 })
 
-const layer = createContentLayer(
-  defineConfig({
-    collections: { posts },
-    diagrams: {
-      enabled: true,
-      displayMode: 'picture',
-    },
-  }),
-)
-
-const entries = await layer.getCollection('posts')
-const rendered = await entries[0]?.render()
+export default defineConfig({
+  plugins: [pagesmithContent({ collections: content })],
+})
 ```
 
 ## Diagram Management
 
-Pagesmith now delegates diagram discovery, rendering, manifests, and watch mode to `diagramkit`.
+Pagesmith delegates diagram discovery, rendering, manifests, and watch mode to `diagramkit`.
 
 ```bash
-pagesmith-content diagrams content/
-pagesmith-content diagrams content/ --watch
-pagesmith-content diagrams content/ --type drawio
+pagesmith diagrams content/
+pagesmith diagrams content/ --watch
+pagesmith diagrams content/ --type drawio
 ```
 
 ## AI Companion Files
@@ -68,15 +59,16 @@ pagesmith-content diagrams content/ --type drawio
 Install Pagesmith context for Claude, Codex, Gemini CLI, and `llms.txt`:
 
 ```bash
-pagesmith-content ai install --assistant all --scope project
+pagesmith ai install --assistant all --scope project
+pagesmith ai install --assistant codex --scope project --docs
 ```
 
 Examples:
 
 ```bash
-pagesmith-content ai install --assistant claude --scope project
-pagesmith-content ai install --assistant codex --scope user
-pagesmith-content ai install --assistant gemini --scope project --skill-name content
+pagesmith ai install --assistant claude --scope project
+pagesmith ai install --assistant codex --scope user
+pagesmith ai install --assistant gemini --scope project --skill-name content
 ```
 
 Project installs create:
@@ -92,10 +84,14 @@ Project installs create:
 
 ## Docs
 
-The docs site lives in `docs/` and is built with VitePress.
+The docs site lives in `docs/` and is built with `@pagesmith/docs`.
 
-- Local dev: `vp exec vitepress dev docs`
-- Build: `vp exec vitepress build docs`
+- `pagesmith.config.json5` holds site metadata, footer links, and search settings
+- `content/README.md` is the home page
+- top-level folders under `content/` become top-level navigation sections
+- Pagefind search is built in
+
+- Build: `npm run build:docs`
 
 ## Repo Development
 

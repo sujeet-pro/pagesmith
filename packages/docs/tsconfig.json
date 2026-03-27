@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@pagesmith/core": ["../core/src/index.ts"],
+      "@pagesmith/core/*": ["../core/src/*/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "theme/**/*.ts", "theme/**/*.tsx"]
+}
