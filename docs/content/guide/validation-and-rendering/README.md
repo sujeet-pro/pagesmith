@@ -228,15 +228,18 @@ remark-parse                    Parse markdown to MDAST
   -> remark-gfm                Tables, strikethrough, task lists, autolinks
   -> remark-math               Math blocks ($...$, $$...$$)
   -> remark-frontmatter        Strip YAML frontmatter from AST
+  -> remark-github-alerts      > [!NOTE], > [!TIP], etc.
+  -> remark-smartypants        Smart quotes, dashes, ellipses
   -> [user remark plugins]     From MarkdownConfig.remarkPlugins
   -> remark-rehype             MDAST -> HAST (allowDangerousHtml: true)
   -> rehype-expressive-code    Syntax highlighting, code frames, tabs, copy buttons
   -> rehype-mathjax/svg        Render math to SVG
   -> rehype-slug               Add id="" to headings
   -> rehype-autolink-headings  Wrap heading text in anchor links (behavior: 'wrap')
+  -> rehype-external-links     target="_blank" on external URLs
+  -> rehype-accessible-emojis  aria-label on emoji characters
   -> heading extraction        Custom plugin: walk HAST, collect Heading[]
   -> [user rehype plugins]     From MarkdownConfig.rehypePlugins
-  -> [content plugins]         Remark/rehype from ContentPlugin[]
   -> rehype-stringify           Serialize HAST to HTML string
 ```
 

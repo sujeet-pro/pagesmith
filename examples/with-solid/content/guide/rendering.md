@@ -45,7 +45,7 @@ The pipeline runs:
 2. GFM tables, task lists, strikethrough
 3. Math blocks (KaTeX/MathJax)
 4. Convert to HTML (rehype)
-5. Syntax highlighting (Shiki dual themes)
+5. Syntax highlighting (Expressive Code dual themes)
 6. Code tabs for consecutive fenced blocks
 7. Heading ID generation and autolinks
 8. Custom remark/rehype plugins you add

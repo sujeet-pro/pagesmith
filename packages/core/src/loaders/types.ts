@@ -23,5 +23,5 @@ export interface Loader {
   /** File extensions this loader handles */
   extensions: string[]
   /** Parse raw file content into data + optional body */
-  load(filePath: string): LoaderResult | Promise<LoaderResult>
+  load(filePath: string): Promise<LoaderResult>
 }

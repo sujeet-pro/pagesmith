@@ -102,7 +102,7 @@ For projects that want a complete page layout with navigation, table of contents
 |---|---|
 | `getRuntimeCSS()` | Full standalone CSS as a string |
 | `getRuntimeCSSPath()` | Absolute file path to the standalone CSS file |
-| `getRuntimeJS()` | Standalone runtime JS as a string (TOC highlight + copy-code) |
+| `getRuntimeJS()` | Standalone runtime JS as a string (TOC highlight) |
 | `getRuntimeJSPath()` | Absolute file path to the standalone JS file |
 
 ### Content Tier (Markdown Rendering Only)
@@ -113,7 +113,7 @@ For projects that already have their own layout but want consistent styling for 
 |---|---|
 | `getContentCSS()` | Content-only CSS as a string |
 | `getContentCSSPath()` | Absolute file path to the content CSS file |
-| `getContentJS()` | Content-only runtime JS as a string (copy-code only) |
+| `getContentJS()` | Content-only runtime JS as a string |
 | `getContentJSPath()` | Absolute file path to the content JS file |
 
 ### Individual CSS Files
@@ -144,6 +144,9 @@ The content runtime is a minimal placeholder. Code block interactivity is handle
 The runtime JavaScript is strictly a progressive enhancement layer. All content is readable and functional without JavaScript. Copy buttons are rendered in the HTML output by Expressive Code during markdown processing, but require JavaScript to function.
 
 ## Design Tokens (CSS Custom Properties)
+
+> [!NOTE]
+> These design tokens are for `@pagesmith/core`'s standalone CSS. The `@pagesmith/docs` default theme uses its own design tokens with different values (different color palette, different font stack). See the [Docs Theme reference](/reference/docs-theme/) for docs-specific tokens.
 
 All visual properties in Pagesmith CSS are defined as CSS custom properties in `foundations/tokens.css` under `:root`. The tokens use the CSS `light-dark()` function for automatic dark mode support, with `color-scheme: light dark` on `:root`.
 

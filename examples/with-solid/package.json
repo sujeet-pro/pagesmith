@@ -1,5 +1,5 @@
 {
-  "name": "example-with-solid",
+  "name": "@pagesmith/example-with-solid",
   "version": "0.0.0",
   "private": true,
   "type": "module",

@@ -116,7 +116,8 @@ Top-level folders under `content/` automatically generate navigation sections. W
 ```json5
 // content/guide/meta.json5
 {
-  title: 'Guide',
+  displayName: 'Guide',
+  orderBy: 'manual',
   items: ['getting-started', 'configuration', 'layouts'],
 }
 ```
@@ -334,7 +335,7 @@ Layout overrides use the default `@pagesmith/docs` theme styles, bundled automat
 
 Custom layouts reference these styles through the standard `doc-*` CSS class names. You do not need to provide your own stylesheet unless you want to extend or override the theme.
 
-The runtime JavaScript (`/assets/main.js`) provides progressive enhancements: TOC highlighting, search modal, sidebar toggle, and copy-code buttons.
+The runtime JavaScript (`/assets/main.js`) provides progressive enhancements: TOC highlighting, search modal, and sidebar toggle.
 
 ## Pagefind Search
 

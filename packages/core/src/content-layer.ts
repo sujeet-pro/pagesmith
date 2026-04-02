@@ -27,7 +27,7 @@ export interface ContentLayer {
   convert(markdown: string, options?: LayerConvertOptions): Promise<ConvertResult>
 
   /** Invalidate a single entry's cache. */
-  invalidate(collection: string, slug: string): void
+  invalidate(collection: string, slug: string): Promise<void>
 
   /** Invalidate an entire collection's cache. */
   invalidateCollection(collection: string): void
@@ -84,8 +84,8 @@ class ContentLayerImpl implements ContentLayer {
     })
   }
 
-  invalidate(collection: string, slug: string): void {
-    this.store.invalidate(collection, slug)
+  async invalidate(collection: string, slug: string): Promise<void> {
+    await this.store.invalidate(collection, slug)
   }
 
   invalidateCollection(collection: string): void {

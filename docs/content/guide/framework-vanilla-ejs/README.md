@@ -18,6 +18,9 @@ Source: [`examples/with-vanilla-ejs/`](https://github.com/sujeet-pro/pagesmith/t
 - Node.js 20+
 - [vite-plus](https://github.com/nicolo-ribaudo/vite-plus) (the `vp` CLI)
 
+> [!NOTE]
+> `vp` is the `vite-plus` CLI, a thin wrapper around Vite for monorepo workflows. For standalone projects, standard `vite` / `npx vite` commands work identically -- just replace `vp dev` with `vite dev`, `vp build` with `vite build`, etc.
+
 ## Project Setup
 
 ### package.json

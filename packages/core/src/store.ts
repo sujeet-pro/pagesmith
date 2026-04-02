@@ -52,7 +52,7 @@ export class ContentStore {
     const directory = resolve(this.rootDir, def.directory)
     const include = def.include ?? defaultIncludePatterns(loader)
 
-    const files = discoverFiles({
+    const files = await discoverFiles({
       directory,
       include,
       exclude: def.exclude,
@@ -193,10 +193,38 @@ export class ContentStore {
     return result
   }
 
-  /** Invalidate a single entry (forces full collection reload on next access). */
-  invalidate(collection: string, slug: string): void {
-    this.cache.get(collection)?.delete(slug)
-    this.loaded.delete(collection)
+  /** Invalidate a single entry and reload it without reloading the entire collection. */
+  async invalidate(collection: string, slug: string): Promise<void> {
+    const def = this.config.collections[collection]
+    if (!def) return
+
+    const collectionCache = this.cache.get(collection)
+    if (!collectionCache) return
+
+    const existing = collectionCache.get(slug)
+    if (!existing) return
+
+    const loader = resolveLoader(def.loader)
+    const directory = resolve(this.rootDir, def.directory)
+
+    try {
+      const result = await this.loadEntry(
+        collection,
+        existing.entry.filePath,
+        directory,
+        loader,
+        def,
+      )
+      if (result) {
+        collectionCache.set(slug, result)
+      } else {
+        // Entry was filtered out after reload
+        collectionCache.delete(slug)
+      }
+    } catch {
+      // File may have been deleted; remove from cache
+      collectionCache.delete(slug)
+    }
   }
 
   /** Invalidate an entire collection. */

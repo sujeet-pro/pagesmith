@@ -192,15 +192,18 @@ remark-parse                    Parse markdown to MDAST
   -> remark-gfm                Tables, strikethrough, task lists, autolinks
   -> remark-math               Math blocks ($...$, $$...$$)
   -> remark-frontmatter        Strip YAML frontmatter from AST
+  -> remark-github-alerts      > [!NOTE], > [!TIP], etc.
+  -> remark-smartypants        Smart quotes, dashes, ellipses
   -> [user remark plugins]     From MarkdownConfig.remarkPlugins
   -> remark-rehype             MDAST -> HAST (allowDangerousHtml: true)
   -> rehype-expressive-code    Syntax highlighting, code frames, tabs, copy buttons
   -> rehype-mathjax/svg        Render math to SVG
   -> rehype-slug               Add id="" to headings
   -> rehype-autolink-headings  Wrap heading text in anchor links (behavior: 'wrap')
+  -> rehype-external-links     target="_blank" on external URLs
+  -> rehype-accessible-emojis  aria-label on emoji characters
   -> heading extraction        Custom plugin: walk HAST, collect Heading[]
   -> [user rehype plugins]     From MarkdownConfig.rehypePlugins
-  -> [content plugins]         Remark/rehype from ContentPlugin[]
   -> rehype-stringify           Serialize HAST to HTML string
 ```
 
@@ -261,7 +264,7 @@ The central module that implements `build()`, `startDev()`, and `preview()`. It:
 5. **Builds a site model** containing navigation items, sidebar sections (per content section), and a page map
 6. **Renders pages** using JSX theme layouts (DocHome, DocPage, DocNotFound) or custom layouts registered via `theme.layouts` in the config
 7. **Bundles CSS** using `@pagesmith/core/css` (LightningCSS)
-8. **Bundles runtime JS** for sidebar toggle, TOC highlight, copy-code, and search
+8. **Bundles runtime JS** for sidebar toggle, TOC highlight, and search
 9. **Runs Pagefind** indexing on the built output (when search is enabled)
 
 ### Layout Override System

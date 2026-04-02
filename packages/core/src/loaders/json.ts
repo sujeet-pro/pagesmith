@@ -4,7 +4,7 @@
  * Detects format from file extension and parses accordingly.
  */
 
-import { readFileSync } from 'fs'
+import { readFile } from 'fs/promises'
 import JSON5 from 'json5'
 import { LoaderError } from './errors'
 import type { Loader, LoaderResult } from './types'
@@ -14,8 +14,8 @@ export class JsonLoader implements Loader {
   kind = 'data' as const
   extensions = ['.json', '.json5']
 
-  load(filePath: string): LoaderResult {
-    const raw = readFileSync(filePath, 'utf-8')
+  async load(filePath: string): Promise<LoaderResult> {
+    const raw = await readFile(filePath, 'utf-8')
     const isJson = filePath.endsWith('.json')
 
     try {

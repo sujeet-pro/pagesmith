@@ -88,7 +88,7 @@ GFM task lists render as checkboxes, useful for tracking progress:
 
 - [x] Set up the project structure
 - [x] Configure the markdown pipeline
-- [x] Add syntax highlighting with Shiki
+- [x] Add syntax highlighting with Expressive Code
 - [ ] Implement search integration
 - [ ] Write end-to-end tests
 - [ ] Publish version 1.0
@@ -144,7 +144,7 @@ Tables with alignment:
 | :----------- | :--------------------: | ------: |
 | gray-matter  | Frontmatter extraction | Collect |
 | unified      |  Markdown processing   | Collect |
-| Shiki        |  Syntax highlighting   | Collect |
+| Expressive Code |  Syntax highlighting   | Collect |
 | LightningCSS |      CSS bundling      |  Render |
 | rolldown     |      JS bundling       |  Render |
 
@@ -152,7 +152,7 @@ Tables with alignment:
 
 ### Basic Syntax Highlighting
 
-The pipeline uses Shiki for syntax highlighting with dual-theme support (light and dark). Code blocks display line numbers by default and include a language badge and copy button.
+The pipeline uses Expressive Code for syntax highlighting with dual-theme support (light and dark). Code blocks display line numbers by default and include a language badge and copy button.
 
 ```typescript
 import rehypeStringify from 'rehype-stringify'
@@ -632,7 +632,7 @@ Internal links between content pages use relative paths. The pipeline's link tra
 External links open in the same tab by default. Always include descriptive link text rather than raw URLs:
 
 - [unified ecosystem](https://unifiedjs.com/) — the markdown processing framework
-- [Shiki syntax highlighter](https://shiki.matsu.io/) — accurate, VS Code-quality highlighting
+- [Expressive Code](https://expressive-code.com/) — accurate, VS Code-quality highlighting
 - [Zod schema validation](https://zod.dev/) — TypeScript-first schema library
 - [LightningCSS](https://lightningcss.dev/) — fast CSS bundling and minification
 
@@ -640,7 +640,7 @@ External links open in the same tab by default. Always include descriptive link 
 
 GFM autolinks automatically convert URLs and email addresses into clickable links:
 
-Visit https://github.com/example/pagesmith for the source code.
+Visit https://github.com/sujeet-pro/pagesmith for the source code.
 
 ## Blockquotes
 
@@ -666,13 +666,13 @@ Visit https://github.com/example/pagesmith for the source code.
 
 Footnotes provide supplementary information without interrupting the main text flow. The unified pipeline processes footnotes into linked references at the bottom of the page.
 
-The build pipeline processes markdown through a chain of remark and rehype plugins[^1]. Syntax highlighting uses Shiki with dual-theme support[^2], which means the correct theme is applied based on the user's color scheme preference without any runtime JavaScript.
+The build pipeline processes markdown through a chain of remark and rehype plugins[^1]. Syntax highlighting uses Expressive Code with dual-theme support[^2], which means the correct theme is applied based on the user's color scheme preference without any runtime JavaScript.
 
 Asset hashing uses SHA-256 to generate 8-character content hashes[^3], ensuring that browsers always fetch the latest version after a deploy while still caching aggressively.
 
-[^1]: The full chain is: remark-parse, remark-gfm, remark-math, remark-rehype, rehype-mathjax, rehype-slug, rehype-autolink-headings, rehype-shiki (with custom transformers), rehype-code-tabs, and rehype-stringify.
+[^1]: The full chain is: remark-parse, remark-gfm, remark-math, remark-rehype, rehype-mathjax, rehype-slug, rehype-autolink-headings, rehype-expressive-code, rehype-code-tabs, and rehype-stringify.
 
-[^2]: Shiki loads TextMate grammars for accurate tokenization. The dual-theme feature generates CSS custom properties so both light and dark themes are embedded in a single code block, with the active theme controlled by a CSS class on the root element.
+[^2]: Expressive Code loads TextMate grammars for accurate tokenization. The dual-theme feature generates CSS custom properties so both light and dark themes are embedded in a single code block, with the active theme controlled by a CSS class on the root element.
 
 [^3]: Content hashing appends a hash like `style.a1b2c3d4.css` to filenames. Only the 8-character prefix of the full SHA-256 hash is used, providing sufficient uniqueness while keeping URLs readable.
 
@@ -688,7 +688,7 @@ Use double tildes for ~~deleted text~~ inline. This is commonly used in changelo
 
 ### Autolinks
 
-GFM automatically converts bare URLs into links. For example, the repository lives at https://github.com/example/pagesmith and documentation is at https://docs.example.com.
+GFM automatically converts bare URLs into links. For example, the repository lives at https://github.com/sujeet-pro/pagesmith and documentation is at https://docs.example.com.
 
 ### Tables with Alignment
 

@@ -168,6 +168,9 @@ The page footer:
 
 ### Design Tokens
 
+> [!NOTE]
+> These design tokens are specific to the `@pagesmith/docs` default theme. They differ from `@pagesmith/core`'s standalone CSS tokens. See the [Runtime reference](/reference/runtime/) for core tokens.
+
 All visual properties are defined as CSS custom properties in `tokens.css` under the `:root` selector. The theme uses the CSS `light-dark()` function for every color value, which automatically responds to the user's `prefers-color-scheme` media query. The `:root` sets `color-scheme: light dark` to enable this behavior.
 
 #### Color Tokens

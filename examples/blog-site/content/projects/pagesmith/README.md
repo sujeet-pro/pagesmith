@@ -15,12 +15,12 @@ A file-based CMS and static site generator built with TypeScript.
 ## Features
 
 - Schema-validated content collections
-- Unified markdown pipeline with Shiki syntax highlighting
+- Unified markdown pipeline with Expressive Code syntax highlighting
 - Server-side JSX rendering
 - Zero-config static site generation
 - Built-in search (Pagefind or Algolia)
 
 ## Links
 
-- [GitHub](https://github.com/example/pagesmith)
+- [GitHub](https://github.com/sujeet-pro/pagesmith)
 - [Documentation](/guide/getting-started)

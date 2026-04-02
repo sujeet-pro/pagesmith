@@ -5,7 +5,7 @@
  * Delegates to JSON.parse after stripping (no JSON5 superset features).
  */
 
-import { readFileSync } from 'fs'
+import { readFile } from 'fs/promises'
 import { LoaderError } from './errors'
 import type { Loader, LoaderResult } from './types'
 
@@ -55,8 +55,8 @@ export class JsoncLoader implements Loader {
   kind = 'data' as const
   extensions = ['.jsonc']
 
-  load(filePath: string): LoaderResult {
-    const raw = readFileSync(filePath, 'utf-8')
+  async load(filePath: string): Promise<LoaderResult> {
+    const raw = await readFile(filePath, 'utf-8')
     try {
       const stripped = stripComments(raw)
       const data = JSON.parse(stripped)

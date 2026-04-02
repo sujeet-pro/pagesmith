@@ -29,7 +29,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'fs'
-import { dirname, extname, join, resolve } from 'path'
+import { basename, dirname, extname, join, resolve } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import { copyPublicFiles } from '../assets'
@@ -372,8 +372,9 @@ export function pagesmithSsg(options: SsgPluginOptions): Plugin[] {
         cwd: projectRoot,
       })
 
-      // Load SSR module
-      const serverEntry = join(serverDir, 'entry-server.js')
+      // Load SSR module — derive output filename from the configured entry path
+      const entryBaseName = basename(options.entry).replace(/\.(c|m)?[jt]sx?$/u, '.js')
+      const serverEntry = join(serverDir, entryBaseName)
       const ssrMod = await import(pathToFileURL(serverEntry).href)
 
       const renderConfig: SsgRenderConfig = {

@@ -17,22 +17,29 @@ import { TomlLoader } from './toml'
 import type { Loader, LoaderType } from './types'
 import { YamlLoader } from './yaml'
 
+/** Singleton loader instances (loaders are stateless). */
+const markdownLoader = new MarkdownLoader()
+const jsonLoader = new JsonLoader()
+const jsoncLoader = new JsoncLoader()
+const yamlLoader = new YamlLoader()
+const tomlLoader = new TomlLoader()
+
 /** Resolve a loader type string or custom Loader instance. */
 export function resolveLoader(loaderOrType: LoaderType | Loader): Loader {
   if (typeof loaderOrType === 'object') return loaderOrType
 
   switch (loaderOrType) {
     case 'markdown':
-      return new MarkdownLoader()
+      return markdownLoader
     case 'json':
     case 'json5':
-      return new JsonLoader()
+      return jsonLoader
     case 'jsonc':
-      return new JsoncLoader()
+      return jsoncLoader
     case 'yaml':
-      return new YamlLoader()
+      return yamlLoader
     case 'toml':
-      return new TomlLoader()
+      return tomlLoader
     default:
       throw new Error(`Unknown loader type: ${loaderOrType as string}`)
   }

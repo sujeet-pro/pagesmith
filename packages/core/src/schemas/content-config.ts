@@ -20,10 +20,6 @@ export type ContentLayerConfig = {
     /** Output directory for hashed assets */
     outputDir?: string
   }
-  /** Enable in-memory caching of loaded entries */
-  cache?: boolean
-  /** Load all entries eagerly on creation */
-  eager?: boolean
   /** Content plugins */
   plugins?: ContentPlugin[]
 }

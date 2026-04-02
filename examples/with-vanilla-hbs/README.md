@@ -101,7 +101,7 @@ The template system uses four Handlebars files with a partial-based layout patte
 - Site header with navigation links using `eq` and `startsWith` helpers for active state.
 - Conditional layout: `{{#if isHome}}` switches between home and three-column layouts.
 - Search and sidebar modal dialogs.
-- Inline JavaScript for search, sidebar toggle, TOC highlighting, and copy-to-clipboard.
+- Inline JavaScript for search, sidebar toggle, and TOC highlighting.
 
 **`templates/index.hbs`** -- extends layout via `{{#> layout}}` and defines an inline `body` partial with the hero section, blog post cards (using `{{#each sortedBlog}}`), and guide links.
 

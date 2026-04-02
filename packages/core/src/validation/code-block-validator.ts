@@ -6,16 +6,7 @@
  */
 
 import type { ValidationIssue } from './schema-validator'
-import type { ContentValidator, ValidatorContext } from './types'
-
-type MdastNode = {
-  type: string
-  lang?: string | null
-  meta?: string | null
-  value?: string
-  children?: MdastNode[]
-  position?: { start: { line: number } }
-}
+import type { ContentValidator, MdastNode, ValidatorContext } from './types'
 
 /** Known meta properties accepted by Expressive Code and its plugins. */
 const KNOWN_META_PROPS = new Set([

@@ -7,8 +7,8 @@ export const BaseFrontmatterSchema = z
     title: z.string(),
     description: z.string(),
     publishedDate: z.coerce.date(),
-    lastUpdatedOn: z.coerce.date(),
-    tags: z.array(z.string()).min(1),
+    lastUpdatedOn: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]),
     draft: z.boolean().optional().default(false),
   })
   .passthrough()

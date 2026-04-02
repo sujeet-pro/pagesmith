@@ -11,11 +11,6 @@ export default defineConfig({
     outDir: '../../gh-pages/examples/vanilla-ejs',
     emptyOutDir: true,
     rolldownOptions: {
-      external: [
-        'playwright-core',
-        'chromium-bidi/lib/cjs/bidiMapper/BidiMapper',
-        'chromium-bidi/lib/cjs/cdp/CdpConnection',
-      ],
       checks: {
         pluginTimings: false,
       },

@@ -2,7 +2,7 @@
  * YAML loader.
  */
 
-import { readFileSync } from 'fs'
+import { readFile } from 'fs/promises'
 import { parse } from 'yaml'
 import { LoaderError } from './errors'
 import type { Loader, LoaderResult } from './types'
@@ -12,8 +12,8 @@ export class YamlLoader implements Loader {
   kind = 'data' as const
   extensions = ['.yaml', '.yml']
 
-  load(filePath: string): LoaderResult {
-    const raw = readFileSync(filePath, 'utf-8')
+  async load(filePath: string): Promise<LoaderResult> {
+    const raw = await readFile(filePath, 'utf-8')
     try {
       const data = parse(raw) ?? {}
       return { data }

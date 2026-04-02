@@ -17,4 +17,4 @@ It showcases:
 - Svelte 5 components using runes such as `$props()` and `$derived(...)`
 - A base-path aware static output for GitHub Pages
 
-The result is a fully static site with progressive enhancement: Svelte renders the HTML at build time, while the runtime script adds search, code-copy, and table-of-contents behavior in the browser.
+The result is a fully static site with progressive enhancement: Svelte renders the HTML at build time, while the runtime script adds search and table-of-contents behavior in the browser.

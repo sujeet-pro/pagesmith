@@ -75,7 +75,7 @@ The build process performs the following steps:
 4. **Site model construction** -- Builds navigation items, sidebar sections (grouped by content directory), page map, and prev/next links
 5. **Page rendering** -- Renders each page through JSX theme layouts (DocHome, DocPage, DocNotFound, or custom layouts from `theme.layouts`)
 6. **CSS bundling** -- Bundles theme CSS using LightningCSS with minification (targets Chrome 100+, Firefox 100+, Safari 16+)
-7. **JS bundling** -- Bundles runtime JavaScript (sidebar toggle, TOC highlight, copy-code, search)
+7. **JS bundling** -- Bundles runtime JavaScript (sidebar toggle, TOC highlight, search)
 8. **Static file copying** -- Copies `publicDir` contents and font assets from `@pagesmith/core` to the output
 9. **Content asset copying** -- Copies companion assets (images) referenced from markdown to `output/assets/`
 10. **Pagefind indexing** -- Runs the Pagefind binary on the output HTML to generate the search index (if `search.enabled` is true)

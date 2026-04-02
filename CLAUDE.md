@@ -95,6 +95,16 @@ Code block styling is handled entirely by Expressive Code through inline styles 
 - `@pagesmith/core/css/viewport` — responsive viewport base
 - `@pagesmith/core/css/fonts` — bundled Open Sans + JetBrains Mono
 
+## AI guidelines
+
+Detailed guidelines for working with this project live in `ai-guidelines/`:
+
+- [`ai-guidelines/using-core.md`](ai-guidelines/using-core.md) — Using `@pagesmith/core` in examples and custom sites
+- [`ai-guidelines/using-docs.md`](ai-guidelines/using-docs.md) — Using `@pagesmith/docs` for documentation sites
+- [`ai-guidelines/markdown-guidelines.md`](ai-guidelines/markdown-guidelines.md) — Markdown feature support and pipeline details
+
+Read the relevant guideline before generating code or content for that area.
+
 ## Guidance
 
 - Prefer `defineCollection`, `defineCollections`, and `pagesmithContent` for the Vite content flow.
@@ -104,7 +114,7 @@ Code block styling is handled entirely by Expressive Code through inline styles 
 - Prefer folder-based markdown entries when content references sibling assets.
 - Keep schema validation and content validation in `@pagesmith/core` instead of scattering it into app code.
 - Doc-specific schemas (site config, layout props, page data) live in `@pagesmith/docs/schemas/`.
-- Keep README, docs, and assistant files aligned when public APIs or install commands change.
+- Keep README, docs, and `CLAUDE.md` aligned when user-facing behavior changes.
 - All packages use the `@pagesmith/` npm scope.
 - Top-level folders under `content/` define the main docs navigation in `@pagesmith/docs`.
 - Everything is Vite-native. No webpack, no custom bundlers.

@@ -56,12 +56,13 @@ export function validateSchema(
     }
   }
 
-  return {
-    issues: (result.error as ZodError).issues.map((issue) => ({
-      field: issue.path.length > 0 ? formatPath(issue.path) : undefined,
-      message: issue.message,
-      severity: 'error' as const,
-    })),
-    validatedData: data,
-  }
+  const issues = (result.error as ZodError).issues.map((issue) => ({
+    field: issue.path.length > 0 ? formatPath(issue.path) : undefined,
+    message: issue.message,
+    severity: 'error' as const,
+  }))
+
+  const details = issues.map((i) => (i.field ? `${i.field}: ${i.message}` : i.message)).join('; ')
+
+  throw new Error(`Schema validation failed: ${details}`)
 }

@@ -8,14 +8,7 @@
 import { existsSync } from 'fs'
 import { dirname, resolve } from 'path'
 import type { ValidationIssue } from './schema-validator'
-import type { ContentValidator, ValidatorContext } from './types'
-
-type MdastNode = {
-  type: string
-  url?: string
-  children?: MdastNode[]
-  position?: { start: { line: number } }
-}
+import type { ContentValidator, MdastNode, ValidatorContext } from './types'
 
 /** Walk MDAST tree, collecting link and image nodes. */
 function collectLinks(node: MdastNode): Array<{ url: string; line?: number }> {

@@ -1,8 +1,8 @@
-import { defineCollection, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/core'
 
 export const guide = defineCollection({
   loader: 'markdown',
-  directory: 'content/guide',
+  directory: './content/guide',
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -16,7 +16,7 @@ export const guide = defineCollection({
 
 export const blog = defineCollection({
   loader: 'markdown',
-  directory: 'content/blog',
+  directory: './content/blog',
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -27,9 +27,11 @@ export const blog = defineCollection({
 
 export const pages = defineCollection({
   loader: 'markdown',
-  directory: 'content/pages',
+  directory: './content/pages',
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
   }),
 })
+
+export default defineCollections({ guide, blog, pages })

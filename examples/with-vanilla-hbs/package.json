@@ -1,5 +1,5 @@
 {
-  "name": "example-with-vanilla-hbs",
+  "name": "@pagesmith/example-with-vanilla-hbs",
   "version": "0.0.0",
   "private": true,
   "type": "module",

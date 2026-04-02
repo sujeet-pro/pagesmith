@@ -466,10 +466,43 @@ Middleware plugin that serves `@pagesmith/core`'s bundled font files (woff2) and
 
 Lower-level utility function (not a Vite plugin) for simpler SSG scenarios where you run separate client and SSR builds. Loads the SSR entry, renders each route, and injects rendered HTML into the client template by replacing a `<!--ssr-outlet-->` placeholder.
 
+The SSR entry must export a `render(url: string): string` function.
+
 ```ts
 type PrerenderOptions = {
-  // ...pre-render configuration
+  /** Absolute path to the client build output directory (e.g., `dist/`) */
+  outDir: string
+  /** Absolute path to the built SSR entry module (e.g., `dist/.server/entry-server.js`) */
+  serverEntry: string
+  /** Routes to pre-render (e.g., `['/', '/about', '/posts/hello-world']`) */
+  routes: string[]
+  /** HTML placeholder to replace with rendered content (default: `'<!--ssr-outlet-->'`) */
+  placeholder?: string
+  /** Remove the server build directory after pre-rendering (default: true) */
+  cleanup?: boolean
 }
+```
+
+Returns `Promise<{ pages: number }>` with the count of rendered pages.
+
+**Usage:**
+
+```ts
+import { build } from 'vite'
+import { prerenderRoutes } from '@pagesmith/core/vite'
+
+// 1. Client build
+await build({ build: { outDir: 'dist' } })
+
+// 2. SSR build
+await build({ build: { ssr: 'src/entry-server.tsx', outDir: 'dist/.server' } })
+
+// 3. Pre-render
+await prerenderRoutes({
+  outDir: resolve('dist'),
+  serverEntry: resolve('dist/.server/entry-server.js'),
+  routes: ['/', '/about', '/posts/hello-world'],
+})
 ```
 
 ---
@@ -490,6 +523,55 @@ CSS and JS asset accessors for pre-built runtime bundles. See the [Runtime Refer
 | `getContentJSPath()` | Absolute file path to content JS |
 | `getViewportCSS()` | Viewport CSS as a string |
 | `getViewportCSSPath()` | Absolute file path to viewport CSS |
+
+---
+
+## `@pagesmith/core/create`
+
+Project scaffolding module for `pagesmith create`. Supports local templates (bundled) and remote templates (downloaded from GitHub examples).
+
+| Export | Description |
+|---|---|
+| `createProject(projectName, templateName)` | Scaffold a new project from a template. Creates the directory, copies files, adapts paths for standalone use, and writes `package.json`. |
+| `templates` | Array of available `Template` definitions |
+| `listTemplates()` | Returns a formatted string listing all available templates with descriptions |
+
+**Template type:**
+
+```ts
+type Template = {
+  name: string
+  description: string
+  source: 'local' | 'github'
+  path: string
+  dependency: '@pagesmith/core' | '@pagesmith/docs'
+  scripts: Record<string, string>
+}
+```
+
+**Available templates:**
+
+| Name | Description | Package |
+|---|---|---|
+| `docs` | Documentation site with @pagesmith/docs | `@pagesmith/docs` |
+| `blog` | Blog with custom layouts using @pagesmith/core | `@pagesmith/core` |
+| `react` | React SSG site with react-router | `@pagesmith/core` |
+| `solid` | SolidJS SSG site | `@pagesmith/core` |
+| `svelte` | Svelte SSG site | `@pagesmith/core` |
+| `ejs` | Vanilla Node.js + EJS templates | `@pagesmith/core` |
+| `hbs` | Vanilla Node.js + Handlebars templates | `@pagesmith/core` |
+
+**Usage:**
+
+```ts
+import { createProject, listTemplates } from '@pagesmith/core/create'
+
+// List available templates
+console.log(listTemplates())
+
+// Scaffold a new project
+await createProject('my-docs', 'docs')
+```
 
 ---
 

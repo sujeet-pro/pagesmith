@@ -5,15 +5,7 @@
  */
 
 import type { ValidationIssue } from './schema-validator'
-import type { ContentValidator, ValidatorContext } from './types'
-
-type MdastNode = {
-  type: string
-  depth?: number
-  children?: MdastNode[]
-  position?: { start: { line: number } }
-  value?: string
-}
+import type { ContentValidator, MdastNode, ValidatorContext } from './types'
 
 /** Extract plain text from a heading node's children. */
 function getTextContent(node: MdastNode): string {

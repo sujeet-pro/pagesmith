@@ -247,18 +247,6 @@
         });
       }
 
-      // Copy code button
-      document.addEventListener('click', function(e) {
-        var btn = e.target.closest('[data-copy]');
-        if (!btn) return;
-        var pre = btn.closest('pre');
-        var code = pre && pre.querySelector('code');
-        if (!code) return;
-        navigator.clipboard.writeText(code.textContent || '').then(function() {
-          btn.setAttribute('data-copied', 'true');
-          setTimeout(function() { btn.removeAttribute('data-copied'); }, 2000);
-        });
-      });
     })();
   </script>
 </body>

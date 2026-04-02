@@ -1,5 +1,5 @@
 {
-  "name": "example-with-vanilla-ejs",
+  "name": "@pagesmith/example-with-vanilla-ejs",
   "version": "0.0.0",
   "private": true,
   "type": "module",

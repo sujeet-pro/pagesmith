@@ -2,7 +2,7 @@
 title: "Markdown Features in Pagesmith"
 description: "Explore the full markdown pipeline — syntax highlighting, code tabs, math, and more."
 date: 2026-03-10
-tags: [markdown, shiki, code]
+tags: [markdown, expressive-code, code]
 ---
 
 # Markdown Features in Pagesmith
@@ -11,7 +11,7 @@ Pagesmith's markdown pipeline is built on unified (remark + rehype) with careful
 
 ## Syntax highlighting
 
-Code blocks are highlighted with Shiki using dual themes (light and dark). The theme switches automatically with your OS preference.
+Code blocks are highlighted with Expressive Code using dual themes (light and dark). The theme switches automatically with your OS preference.
 
 ```js
 function greet(name) {

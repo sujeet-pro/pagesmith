@@ -6,7 +6,18 @@
     {
       slug: 'getting-started',
       displayName: 'Getting Started',
-      articles: ['getting-started', 'collections-and-loaders', 'validation-and-rendering'],
+      articles: [
+        'choose-your-path',
+        'getting-started',
+        'collections-and-loaders',
+        'validation-and-rendering',
+      ],
+    },
+    {
+      slug: 'docs-package',
+      displayName: 'Docs Package',
+      description: 'Features specific to @pagesmith/docs.',
+      articles: ['docs-getting-started', 'meta-and-navigation', 'search', 'layout-overrides'],
     },
     {
       slug: 'core-features',
@@ -28,12 +39,6 @@
         'framework-doc-site',
         'framework-blog-site',
       ],
-    },
-    {
-      slug: 'docs-package',
-      displayName: 'Docs Package',
-      description: 'Features specific to @pagesmith/docs.',
-      articles: ['docs-getting-started', 'meta-and-navigation', 'search', 'layout-overrides'],
     },
   ],
 }

@@ -11,3 +11,4 @@ export {
   type ResolvedDocsConfig,
 } from './site'
 export { docsPreset, type DocsPreset } from './preset'
+export { Html } from '../theme/components/Html'

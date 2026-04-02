@@ -1,5 +1,5 @@
 {
-  "name": "example-with-svelte",
+  "name": "@pagesmith/example-with-svelte",
   "version": "0.0.0",
   "private": true,
   "type": "module",

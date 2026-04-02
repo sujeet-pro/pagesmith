@@ -5,7 +5,7 @@
  * Rendering is NOT done here — it's deferred to ContentEntry.render().
  */
 
-import { readFileSync } from 'fs'
+import { readFile } from 'fs/promises'
 import matter from 'gray-matter'
 import { parse as parseYaml } from 'yaml'
 import { LoaderError } from './errors'
@@ -16,8 +16,8 @@ export class MarkdownLoader implements Loader {
   kind = 'markdown' as const
   extensions = ['.md']
 
-  load(filePath: string): LoaderResult {
-    const raw = readFileSync(filePath, 'utf-8')
+  async load(filePath: string): Promise<LoaderResult> {
+    const raw = await readFile(filePath, 'utf-8')
     try {
       const { data, content } = matter(raw, { engines: { yaml: parseYaml } })
       return { data, content }

@@ -18,6 +18,9 @@ Source: [`examples/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 - Node.js 20+
 - [vite-plus](https://github.com/nicolo-ribaudo/vite-plus) (the `vp` CLI)
 
+> [!NOTE]
+> `vp` is the `vite-plus` CLI, a thin wrapper around Vite for monorepo workflows. For standalone projects, standard `vite` / `npx vite` commands work identically -- just replace `vp dev` with `vite dev`, `vp build` with `vite build`, etc.
+
 ## Project Setup
 
 ### package.json
@@ -459,24 +462,6 @@ You can either use Pagesmith's built-in styles or write your own theme from scra
 
 The site works without JavaScript. The runtime entry (`src/runtime.ts`) adds progressive enhancements:
 
-### Copy-Code Buttons
-
-Click-to-copy on code blocks:
-
-```ts
-document.addEventListener('click', (e) => {
-  const btn = (e.target as HTMLElement).closest('[data-copy]')
-  if (!btn) return
-  const code = btn.closest('pre')?.querySelector('code')
-  if (!code) return
-  void navigator.clipboard.writeText(code.textContent ?? '')
-    .then(() => {
-      btn.setAttribute('data-copied', 'true')
-      setTimeout(() => btn.removeAttribute('data-copied'), 2000)
-    })
-})
-```
-
 ### TOC Highlight on Scroll
 
 Active heading tracking in the table of contents:
@@ -624,6 +609,6 @@ During development, the `pagesmithSsg` plugin watches the `content/` directory a
 - **`pagesmithSsg`** handles the full SSG lifecycle: dev middleware, route discovery, pre-rendering, asset copying, and Pagefind indexing.
 - **`sharedAssetsPlugin`** copies bundled fonts and shared CSS into the output directory.
 - **React's `renderToStaticMarkup`** produces static HTML with no hydration overhead -- the output is pure HTML.
-- **Runtime JS** is optional and adds progressive enhancements (copy-code, TOC highlight, search, mobile sidebar).
+- **Runtime JS** is optional and adds progressive enhancements (TOC highlight, search, mobile sidebar).
 - **CSS imports** from `@pagesmith/core` provide a ready-made design system with tokens, prose styles, and code highlighting.
 - **`dangerouslySetInnerHTML`** is how you inject raw HTML (rendered markdown) into React components.

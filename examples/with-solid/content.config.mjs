@@ -1,4 +1,4 @@
-import { defineCollection, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/core'
 
 export const guide = defineCollection({
   loader: 'markdown',
@@ -33,3 +33,5 @@ export const pages = defineCollection({
     description: z.string().optional(),
   }),
 })
+
+export default defineCollections({ guide, blog, pages })

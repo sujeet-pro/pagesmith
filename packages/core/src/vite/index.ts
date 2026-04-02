@@ -288,10 +288,16 @@ export function pagesmithContent<TCollections extends CollectionMap>(
   let contentRoot = projectRoot
   let configPath = resolve(projectRoot, options.configPath ?? 'content.config.ts')
   let dtsPath = resolveDtsPath(projectRoot, options.dts)
-  let layer = createContentLayer({
-    ...options,
-    root: layerRoot,
-  })
+  let layer: ReturnType<typeof createContentLayer> | null = null
+
+  function getLayer(): ReturnType<typeof createContentLayer> {
+    if (!layer) {
+      throw new Error(
+        'pagesmith-content: ContentLayer not initialized. configResolved has not run yet.',
+      )
+    }
+    return layer
+  }
 
   const ensureDeclarations = (): void => {
     if (options.dts === false) return
@@ -353,15 +359,19 @@ export function pagesmithContent<TCollections extends CollectionMap>(
       const collectionDef = options.collections[collectionName]
       if (!collectionDef) return
 
-      return serializeCollection(layer, collectionName, collectionDef, contentRoot)
+      return serializeCollection(getLayer(), collectionName, collectionDef, contentRoot)
     },
 
     handleHotUpdate({ file, server }) {
       const resolvedFile = resolve(file)
       const touchesConfig = resolvedFile === configPath
-      const touchesContent = collectionNames.some((name) =>
+
+      // Determine which collection(s) the changed file belongs to
+      const affectedCollections = collectionNames.filter((name) =>
         isPathWithin(resolve(layerRoot, options.collections[name]!.directory), resolvedFile),
       )
+
+      const touchesContent = affectedCollections.length > 0
 
       if (!touchesConfig && !touchesContent) return
 
@@ -374,14 +384,26 @@ export function pagesmithContent<TCollections extends CollectionMap>(
         server.moduleGraph.invalidateModule(rootModule)
       }
 
-      for (const name of collectionNames) {
-        const moduleNode = server.moduleGraph.getModuleById(`${resolvedPrefix}${name}`)
-        if (moduleNode) {
-          server.moduleGraph.invalidateModule(moduleNode)
+      if (touchesContent) {
+        // Only invalidate affected collections instead of all
+        for (const name of affectedCollections) {
+          const moduleNode = server.moduleGraph.getModuleById(`${resolvedPrefix}${name}`)
+          if (moduleNode) {
+            server.moduleGraph.invalidateModule(moduleNode)
+          }
+          getLayer().invalidateCollection(name)
         }
+      } else {
+        // Config change: invalidate all collection modules
+        for (const name of collectionNames) {
+          const moduleNode = server.moduleGraph.getModuleById(`${resolvedPrefix}${name}`)
+          if (moduleNode) {
+            server.moduleGraph.invalidateModule(moduleNode)
+          }
+        }
+        getLayer().invalidateAll()
       }
 
-      layer.invalidateAll()
       server.ws.send({ type: 'full-reload' })
     },
   }

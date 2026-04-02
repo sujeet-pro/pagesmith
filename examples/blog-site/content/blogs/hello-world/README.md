@@ -9,7 +9,7 @@ tags:
 
 # Hello World
 
-Welcome to my blog! This site is built with [Pagesmith](https://github.com/example/pagesmith), a file-based CMS and static site generator.
+Welcome to my blog! This site is built with [Pagesmith](https://github.com/sujeet-pro/pagesmith), a file-based CMS and static site generator.
 
 ## Why Pagesmith?
 

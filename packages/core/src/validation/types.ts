@@ -8,6 +8,18 @@
 import type { Root } from 'mdast'
 import type { ValidationIssue } from './schema-validator'
 
+/** Shared MDAST node type used by content validators. */
+export type MdastNode = {
+  type: string
+  depth?: number
+  url?: string
+  lang?: string | null
+  meta?: string | null
+  value?: string
+  children?: MdastNode[]
+  position?: { start: { line: number } }
+}
+
 /** Context provided to each validator for a single content entry. */
 export type ValidatorContext = {
   /** Absolute path to the source file */

@@ -93,7 +93,7 @@ The template system uses four EJS files:
 - Sidebar navigation rendered via an inline function `renderSidebarContent()` that is reused in both the main sidebar and the mobile sidebar modal.
 - Search modal dialog with Pagefind UI initialization.
 - Sidebar modal dialog for mobile navigation.
-- Inline JavaScript for search, sidebar toggle, TOC highlighting, and copy-to-clipboard.
+- Inline JavaScript for search, sidebar toggle, and TOC highlighting.
 
 **`templates/index.ejs`** -- home page content with hero section, blog post cards, and guide links.
 

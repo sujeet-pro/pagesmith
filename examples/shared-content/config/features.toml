@@ -14,7 +14,7 @@ endpoint = "https://analytics.example.com"
 [comments]
 enabled = false
 provider = "giscus"
-repo = "example/pagesmith"
+repo = "sujeet-pro/pagesmith"
 
 [rss]
 enabled = true

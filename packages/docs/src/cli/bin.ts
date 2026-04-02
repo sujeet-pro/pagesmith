@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
 import { build, preview, startDev } from '../site'
 
 type ServerCliArgs = {
@@ -58,6 +60,12 @@ function parseServerArgs(argv: string[]): ServerCliArgs {
   return args
 }
 
+function getVersion(): string {
+  const pkgPath = resolve(import.meta.dirname, '..', '..', 'package.json')
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
+  return pkg.version ?? '0.0.0'
+}
+
 function printHelp(): void {
   console.log(
     `
@@ -74,6 +82,7 @@ Options:
   --out-dir <path>                    Output directory (overrides config)
   --base-path <path>                  Base URL path prefix (overrides config)
   --config <path>                     Config file path
+  -v, --version                       Print version
 `.trim(),
   )
 }
@@ -113,6 +122,7 @@ async function runPreview(argv: string[]): Promise<void> {
   await preview({
     configPath: await ensureDocsConfig(args.config),
     port: args.port,
+    open: args.open,
   })
 }
 
@@ -121,6 +131,11 @@ async function main(): Promise<void> {
 
   if (!command || command === '--help' || command === '-h') {
     printHelp()
+    return
+  }
+
+  if (command === '--version' || command === '-v') {
+    console.log(getVersion())
     return
   }
 

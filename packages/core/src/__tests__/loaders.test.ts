@@ -20,17 +20,17 @@ describe('loaders', () => {
   describe('JsonLoader', () => {
     const loader = new JsonLoader()
 
-    it('loads a .json file', () => {
+    it('loads a .json file', async () => {
       const file = join(TMP, 'test.json')
       writeFileSync(file, JSON.stringify({ title: 'Hello', count: 42 }))
 
-      const result = loader.load(file)
+      const result = await loader.load(file)
       expect(result.data.title).toBe('Hello')
       expect(result.data.count).toBe(42)
       expect(result.content).toBeUndefined()
     })
 
-    it('loads a .json5 file with comments and trailing commas', () => {
+    it('loads a .json5 file with comments and trailing commas', async () => {
       const file = join(TMP, 'test.json5')
       writeFileSync(
         file,
@@ -41,7 +41,7 @@ describe('loaders', () => {
 }`,
       )
 
-      const result = loader.load(file)
+      const result = await loader.load(file)
       expect(result.data.title).toBe('JSON5 works')
       expect(result.data.tags).toEqual(['a', 'b'])
     })
@@ -50,7 +50,7 @@ describe('loaders', () => {
   describe('YamlLoader', () => {
     const loader = new YamlLoader()
 
-    it('loads a .yaml file', () => {
+    it('loads a .yaml file', async () => {
       const file = join(TMP, 'test.yaml')
       writeFileSync(
         file,
@@ -60,7 +60,7 @@ nested:
 `,
       )
 
-      const result = loader.load(file)
+      const result = await loader.load(file)
       expect(result.data.title).toBe('YAML Test')
       expect(result.data.nested.key).toBe('value')
     })
@@ -69,7 +69,7 @@ nested:
   describe('TomlLoader', () => {
     const loader = new TomlLoader()
 
-    it('loads a .toml file', () => {
+    it('loads a .toml file', async () => {
       const file = join(TMP, 'test.toml')
       writeFileSync(
         file,
@@ -80,7 +80,7 @@ version = 1
 `,
       )
 
-      const result = loader.load(file)
+      const result = await loader.load(file)
       expect(result.data.title).toBe('TOML Test')
       expect(result.data.metadata.version).toBe(1)
     })
