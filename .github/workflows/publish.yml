@@ -1,0 +1,95 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+
+      # Compute the new version from packages/core (both packages share the same version)
+      - name: Bump version
+        id: version
+        run: |
+          OLD_VERSION=$(node -p "require('./packages/core/package.json').version")
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD_VERSION"
+          case "${{ inputs.bump }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Bumping $OLD_VERSION → $NEW_VERSION (${{ inputs.bump }})"
+
+      # Update version in both packages
+      - name: Update package versions
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          npm version "$VERSION" --no-git-tag-version --workspace=packages/core
+          npm version "$VERSION" --no-git-tag-version --workspace=packages/docs
+
+      # Build after version bump so dist files have the correct version
+      - name: Build packages
+        run: npm run build:library
+
+      # Run checks before publishing
+      - name: Check
+        run: npm run check
+
+      - name: Test
+        run: npm test
+
+      # Publish both packages with provenance (Trusted Publisher / OIDC)
+      - name: Publish @pagesmith/core
+        run: npm publish --provenance --access public --workspace=packages/core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @pagesmith/docs
+        run: npm publish --provenance --access public --workspace=packages/docs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Only commit and tag after both publishes succeed
+      - name: Commit and tag
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          TAG=${{ steps.version.outputs.tag }}
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/core/package.json packages/docs/package.json
+          git commit -m "release: ${TAG}"
+          git tag -a "$TAG" -m "Release ${TAG}"
+          git push origin HEAD:main --follow-tags

@@ -16,7 +16,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 
 ### Content Layer
 - `createContentLayer(config)` — returns a `ContentLayer` backed by `ContentStore`
-- `layer.getCollection(name)` — load all entries in a collection
+- `layer.getCollection(name)` — load all entries in a collection (cached)
 - `layer.getEntry(collection, slug)` — get a single entry by slug
 - `layer.convert(markdown, options?)` — convert raw markdown outside collections
 - `layer.validate(collection?)` — run all validators
@@ -29,49 +29,96 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 
 ### Vite Plugins
 - `pagesmithContent(collections, options?)` — virtual module plugin for framework integration
+  - Options: `collections`, `moduleId` (default: `virtual:content`), `configPath`, `dts`, `root`, `contentRoot`
+  - Auto-generates TypeScript declarations
+  - Hot reload on content/config changes
 - `pagesmithSsg(options?)` — SSG plugin with dev server, Pagefind, and asset handling
+  - Options: `entry`, `pagefind` (default: true), `contentDirs`
+  - SSR entry exports: `getRoutes(config) → string[]`, `render(url, config) → string`
+  - Config provided: `SsgRenderConfig` with `base`, `root`, `cssPath`, `jsPath`, `searchEnabled`, `isDev`
+- `sharedAssetsPlugin()` — serves bundled fonts (Open Sans, JetBrains Mono)
 
-### Markdown
+### Markdown Pipeline
 - `processMarkdown(raw, config?, preExtracted?)` → `{ html, headings, frontmatter }`
-- Pipeline: remark-parse → remark-gfm → remark-math → remark-frontmatter → remark-github-alerts → remark-smartypants → remark-rehype → rehype-expressive-code → rehype-mathjax → rehype-slug → rehype-autolink-headings → rehype-external-links → rehype-accessible-emojis → rehype-stringify
-- Expressive Code handles: syntax highlighting (dual themes), code frames, line numbers, file titles, copy button, line highlighting (mark/ins/del), collapsible sections, text wrapping
-- GitHub alerts: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`
-- External links automatically get `target="_blank" rel="noopener noreferrer"`
-- Emoji characters wrapped in accessible `<span role="img" aria-label="...">` elements
-- Smart typography: "curly quotes", em—dashes, el…lipses
+- Pipeline: remark-parse → remark-gfm → remark-math → remark-frontmatter → remark-github-alerts → remark-smartypants → (user remark plugins) → remark-rehype → rehype-expressive-code → rehype-mathjax → rehype-slug → rehype-autolink-headings → heading extraction → (user rehype plugins) → rehype-external-links → rehype-accessible-emojis → rehype-stringify
+- Processor cached per MarkdownConfig reference via WeakMap
+
+### Markdown Features
+- **GitHub Flavored Markdown** (remark-gfm): tables, strikethrough, task lists, autolinks
+- **GitHub Alerts** (remark-github-alerts): `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`
+- **Math** (remark-math + rehype-mathjax): inline `$...$` and block `$$...$$` rendered to SVG
+- **Smart Typography** (remark-smartypants): "curly quotes", em—dashes, el…lipses
+- **External Links** (rehype-external-links): auto `target="_blank" rel="noopener noreferrer"` on absolute URLs
+- **Accessible Emojis** (rehype-accessible-emojis): wrapped in `<span role="img" aria-label="...">`
+- **Heading Links** (rehype-slug + rehype-autolink-headings): auto `id` attributes and anchor links
+
+### Expressive Code Features
+Syntax highlighting via rehype-expressive-code with dual themes (default: github-light/github-dark):
+- **Dual themes**: auto-switch via `prefers-color-scheme` media query. Configure: `shiki.themes.light`, `shiki.themes.dark`
+- **Line numbers**: code block meta `showLineNumbers` or config `shiki.defaultShowLineNumbers`
+- **File titles**: code block meta `title="filename.js"`
+- **Line highlighting**: `mark={3}` (highlight), `ins={4}` (insertion/green), `del={5}` (deletion/red)
+- **Collapsible sections**: `collapse={1-5,12-14}` — lines collapsed by default, expandable
+- **Copy button**: automatic on all code blocks
+- **Language badges**: automatic language indicator
+- **Text wrapping**: handled automatically
+- **Frame styles**: multiple code frame options
+- **Inline styles**: all styles injected directly into HTML (no external CSS needed)
+- **Custom CSS variables**: respects `--ps-font-*`, `--ps-color-*`, `--ps-radius-*` tokens
+- **Combined meta example**: `` ```ts title="server.ts" showLineNumbers mark={3} ins={7-8} collapse={1-2} ``
 
 ### Schemas
 - `BaseFrontmatterSchema` — title, description, publishedDate, lastUpdatedOn, tags, draft
 - `BlogFrontmatterSchema` — extends base with category, featured, coverImage
 - `ProjectFrontmatterSchema` — extends base with gitRepo, links
 - `HeadingSchema` — depth, text, slug
-- `MarkdownConfigSchema` — remarkPlugins, rehypePlugins, shiki (themes, defaultShowLineNumbers)
+- `MarkdownConfigSchema` — remarkPlugins, rehypePlugins, shiki (themes, langAlias, defaultShowLineNumbers)
 - `z` re-exported from Zod for convenience
 
 ### Validation
 - `builtinMarkdownValidators` — linkValidator, headingValidator, codeBlockValidator
 - `runValidators(ctx, validators)` — execute validators against content
-- Custom validators: implement `ContentValidator { name, validate(ctx) }`
+- Custom validators: implement `ContentValidator { name, validate(ctx) }` with access to `ValidatorContext.mdast`
+- Disable built-ins: `disableBuiltinValidators: true` on collection definition
 
 ### Loaders
-- `MarkdownLoader` (.md), `JsonLoader` (.json), `JsoncLoader` (.json, .jsonc), `YamlLoader` (.yml, .yaml), `TomlLoader` (.toml)
+- `MarkdownLoader` (.md) — gray-matter frontmatter + body
+- `JsonLoader` (.json) — JSON.parse or json5 parse
+- `JsoncLoader` (.json, .jsonc) — JSON with comments via json5
+- `YamlLoader` (.yml, .yaml) — yaml package
+- `TomlLoader` (.toml) — smol-toml
 - Custom: implement `Loader { name, kind, extensions, load(filePath) }`
+
+### Collection Options
+- `loader` — loader type string or custom Loader instance
+- `directory` — content file directory
+- `schema` — Zod validation schema
+- `include` / `exclude` — glob patterns
+- `computed` — computed fields derived from entry data
+- `validate` — custom validation hook
+- `filter` — entry filter
+- `slugify` — custom slug generation
+- `transform` — pre-validation transform
+- `validators` — custom content validators
+- `disableBuiltinValidators` — disable link, heading, code-block validators
 
 ### JSX Runtime
 - `h(tag, props, ...children)` / `Fragment` / `HtmlString`
 - Configure: `"jsxImportSource": "@pagesmith/core"` in tsconfig.json
+- Server-side only — no browser runtime
 
-### CSS
+### CSS Builder
 - `buildCss(entryPath, { minify? })` — LightningCSS bundler
 
 ### Runtime Exports
 - `getRuntimeCSS()` / `getRuntimeJS()` — standalone tier (full site)
 - `getContentCSS()` / `getContentJS()` — content tier (markdown only)
 - `getViewportCSS()` / `getViewportCSSPath()` — responsive base
+- Path variants: `getRuntimeCSSPath()`, `getContentCSSPath()`
 
 ### CSS Export Paths
 - `@pagesmith/core/css/content` — prose + inline code styles
-- `@pagesmith/core/css/standalone` — full layout + prose
+- `@pagesmith/core/css/standalone` — full layout + prose + TOC
 - `@pagesmith/core/css/viewport` — responsive viewport base
 - `@pagesmith/core/css/fonts` — bundled Open Sans + JetBrains Mono fonts
 
@@ -80,26 +127,100 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 - `getAiArtifacts(options)` / `getAiArtifactContent(assistant, kind, options)`
 - Supports: Claude, Codex, Gemini
 - Generates: CLAUDE.md, AGENTS.md, GEMINI.md, skills, llms.txt, llms-full.txt
+- Options: `assistants`, `scope` (project/user), `profile` (default/docs), `includeLlms`, `force`, `skillName`
 
-## Docs Package APIs
+## Docs Package
 
+### Programmatic API
 - `build(options?)` — build static docs site
 - `startDev(options?)` — development server with hot reload
 - `preview(options?)` — preview built site
 - `defineDocsConfig(config)` — type-safe docs config
-- CLI: `pagesmith dev`, `pagesmith build`, `pagesmith preview`
+- `loadDocsConfig(path?)` — load config from file
+- `resolveDocsConfig(userConfig, rootDir)` — resolve with defaults
+
+### CLI
+- `pagesmith dev [--port] [--open] [--config] [--out-dir] [--base-path]`
+- `pagesmith build [--out-dir] [--base-path] [--config]`
+- `pagesmith preview [--port] [--config]`
 
 ### Docs Config (pagesmith.config.json5)
-- `name`, `title`, `description`, `origin`, `language`
-- `contentDir`, `outDir`, `publicDir`, `basePath`
-- `footerLinks`, `search`, `theme`, `analytics`, `markdown`
-- `theme.layouts` — override `home`, `page`, `notFound` with custom TSX components
+- Site: `name`, `title`, `description`, `origin`, `language`
+- Paths: `contentDir`, `outDir`, `publicDir`, `basePath`, `homeLink`
+- Navigation: `footerLinks` (array of `{ label, path }`)
+- Sidebar: `sidebar.collapsible` (boolean, default false)
+- Search: `search.enabled` (default true), `search.showImages`, `search.showSubResults`, `search.pagefindFlags`
+- Theme: `theme.lightColor`, `theme.darkColor`, `theme.layouts` (override map)
+- Analytics: `analytics.googleAnalytics`
+- Markdown: `markdown` (MarkdownConfig from core)
+- Multi-package: `packages` (maps slug to `{ label }`)
+
+### Content Structure
+- `content/README.md` → home page (DocHome layout)
+- Top-level folders → nav sections + sidebar groups
+- Subfolders with `README.md` → pages
+- `meta.json5` → section ordering, series, display names
+
+### Frontmatter (all pages)
+- `title` — page title
+- `description` — meta description
+- `navLabel` — override top nav label
+- `sidebarLabel` — override sidebar label
+- `order` — manual sort order
+- `draft` — exclude from build
+- All fields optional, additional fields passed through
+
+### Home Page Frontmatter
+- `hero` — hero section (name, text, tagline, badge, actions)
+- `install` — installation command snippet
+- `features` — feature cards (icon, title, details)
+- `packages` — package cards (name, description, href, tag, version)
+- `codeExample` — code example (label, title, code)
+- `actions` — CTA buttons (text, link, theme)
+
+### Section Meta (meta.json5)
+- `displayName` — sidebar/nav label
+- `description` — section description
+- `layout` / `itemLayout` — layout assignments
+- `orderBy` — `'manual'` | `'publishedDate'`
+- `items` — manual page order (slug array)
+- `series` — series grouping (slug, displayName, shortName, description, articles)
+- `collapsed` — start sidebar section collapsed
+- `noListing` — hide from listings
+- `firstItem` — default first item
 
 ### Layout Overrides
+- Configure via `theme.layouts` in config: `{ home, page, notFound }`
+- TSX files using `@pagesmith/core/jsx-runtime`
 - Props: `content`, `frontmatter`, `headings`, `slug`, `site`
 - Page layout gets: `sidebarSections`, `prev`, `next`
-- Use `@pagesmith/core/jsx-runtime` for TSX
-- Export: `default` or named export matching layout name
+- Export: `default` or named export matching layout name (DocPage, DocHome, DocNotFound)
+
+### Navigation
+- Top nav: auto-generated from top-level folders, override via `headerLinks` in root meta.json5
+- Sidebar: auto-generated from folder structure, ordered by meta.json5 items array
+- Prev/next: auto-generated from flattened sidebar order
+- Footer: configured via `footerLinks` in config
+
+### Search
+- Pagefind full-text search, bundled and indexed at build time
+- Keyboard shortcut: Cmd+K / Ctrl+K
+- Search modal with lazy-loaded Pagefind UI
+- Configure: `search.enabled`, `search.showImages`, `search.showSubResults`, `search.pagefindFlags`
+
+### Docs Schemas (from @pagesmith/docs/schemas)
+- `SiteConfigSchema` — full site config
+- `NavItemSchema` — navigation entry
+- `SocialLinkSchema` — social link
+- `PageTypeMetaSchema` — section meta from meta.json5
+- `SeriesDefSchema` — series definition
+- `PageMetaSchema` — collected page metadata
+- `ArticleSummarySchema` — article summary
+- `SeriesDataSchema` — resolved series data
+- `PageTypeDataSchema` — resolved listing data
+- `TagPageDataSchema` — tag page data
+- `SeriesNavSchema` — series prev/next
+- Layout props: `BaseLayoutPropsSchema`, `ArticleLayoutPropsSchema`, `BlogLayoutPropsSchema`, `ProjectLayoutPropsSchema`, `HomeLayoutPropsSchema`, `PageLayoutPropsSchema`, `ListingLayoutPropsSchema`, `TagIndexLayoutPropsSchema`, `TagListingLayoutPropsSchema`
 
 ## Export Map
 
@@ -107,6 +228,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 |---|---|
 | `@pagesmith/core` | Main API barrel |
 | `@pagesmith/core/jsx-runtime` | h, Fragment, HtmlString |
+| `@pagesmith/core/jsx-dev-runtime` | JSX dev runtime |
 | `@pagesmith/core/markdown` | processMarkdown |
 | `@pagesmith/core/css` | buildCss (LightningCSS) |
 | `@pagesmith/core/css/content` | Content CSS file |
@@ -118,5 +240,8 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 | `@pagesmith/core/assets` | Asset copying and hashing |
 | `@pagesmith/core/runtime` | Pre-built CSS/JS accessors |
 | `@pagesmith/core/ai` | AI assistant file installer |
-| `@pagesmith/core/vite` | Vite plugins (pagesmithContent, pagesmithSsg) |
+| `@pagesmith/core/vite` | Vite plugins (pagesmithContent, pagesmithSsg, sharedAssetsPlugin) |
 | `@pagesmith/core/create` | Project scaffolding |
+| `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig) |
+| `@pagesmith/docs/schemas` | Config, layout props, page data schemas |
+| `@pagesmith/docs/preset` | Docs preset |
