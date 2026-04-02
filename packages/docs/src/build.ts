@@ -1,7 +1,7 @@
 import { copyPublicFiles } from '@pagesmith/core/assets'
 import { buildCss } from '@pagesmith/core/css'
 import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'fs'
-import { dirname, join } from 'path'
+import { basename, dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import {
   getThemeRuntimeEntry,
@@ -92,6 +92,14 @@ export async function build(options: DocsBuildOptions = {}): Promise<void> {
   await renderDocs(config)
   copyPublicAssets(config)
   copyContentAssetsToOutput(config.outDir, contentAssets)
+
+  // Copy favicon to output if not already present (e.g. bundled default not in public/)
+  if (config.favicon) {
+    const faviconDest = join(config.outDir, basename(config.favicon))
+    if (!existsSync(faviconDest)) {
+      copyFileSync(config.favicon, faviconDest)
+    }
+  }
 
   if (config.search.enabled) {
     await runPagefind(config.outDir, config.search.pagefindFlags)

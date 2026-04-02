@@ -2,6 +2,7 @@ import type { MarkdownConfig } from '@pagesmith/core/markdown'
 import { existsSync, readFileSync } from 'fs'
 import JSON5 from 'json5'
 import { basename, dirname, join, resolve } from 'path'
+import { fileURLToPath } from 'url'
 
 type FooterLink = {
   label: string
@@ -43,6 +44,8 @@ export type DocsUserConfig = {
   analytics?: {
     googleAnalytics?: string
   }
+  /** Path to favicon file relative to project root. Defaults to 'public/favicon.svg'. Set to false to disable. */
+  favicon?: string | false
   markdown?: MarkdownConfig
   home?: {
     configFile?: string
@@ -81,6 +84,8 @@ export type ResolvedDocsConfig = {
   analytics?: {
     googleAnalytics?: string
   }
+  /** Resolved absolute path to favicon file, or false if disabled. */
+  favicon: string | false
   markdown?: MarkdownConfig
   homeConfigFile?: string
   packages?: Record<string, { label: string }>
@@ -125,6 +130,27 @@ export function resolveDocsConfig(
   const rawBase = overrides?.basePath ?? process.env.BASE_URL ?? userConfig.basePath ?? '/'
   const basePath = rawBase.replace(/\/+$/, '') // strip trailing slash, '/' becomes ''
 
+  // Resolve favicon path
+  let resolvedFavicon: string | false
+  if (userConfig.favicon === false) {
+    resolvedFavicon = false
+  } else if (typeof userConfig.favicon === 'string') {
+    resolvedFavicon = resolve(rootDir, userConfig.favicon)
+  } else {
+    // Default: check public/favicon.svg, then public/favicon.ico, then bundled default
+    const publicDir = resolve(rootDir, userConfig.publicDir ?? 'public')
+    const svgPath = join(publicDir, 'favicon.svg')
+    const icoPath = join(publicDir, 'favicon.ico')
+    if (existsSync(svgPath)) {
+      resolvedFavicon = svgPath
+    } else if (existsSync(icoPath)) {
+      resolvedFavicon = icoPath
+    } else {
+      const corePkgDir = dirname(fileURLToPath(import.meta.resolve('@pagesmith/core/package.json')))
+      resolvedFavicon = join(corePkgDir, 'assets', 'favicon.svg')
+    }
+  }
+
   return {
     rootDir,
     contentDir: resolve(rootDir, userConfig.contentDir ?? 'content'),
@@ -147,6 +173,7 @@ export function resolveDocsConfig(
     sidebar: {
       collapsible: userConfig.sidebar?.collapsible ?? false,
     },
+    favicon: resolvedFavicon,
     theme: userConfig.theme,
     analytics: userConfig.analytics,
     markdown: userConfig.markdown,

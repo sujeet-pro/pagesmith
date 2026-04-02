@@ -1,3 +1,4 @@
+import { basename } from 'path'
 import { toTitleCase, type ResolvedDocsConfig } from './config.js'
 import type {
   DocsPage,
@@ -366,5 +367,6 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
     sidebar: config.sidebar,
     analytics: config.analytics,
     theme: config.theme,
+    favicon: config.favicon !== false ? `${config.basePath}/${basename(config.favicon)}` : false,
   }
 }

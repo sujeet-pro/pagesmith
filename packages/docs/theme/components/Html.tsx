@@ -14,6 +14,7 @@ type Props = {
     analytics?: { googleAnalytics?: string }
     footerLinks?: Array<{ label: string; path: string }>
     search?: { enabled?: boolean; showImages?: boolean; showSubResults?: boolean }
+    favicon?: string | false
   }
   children?: any
 }
@@ -27,6 +28,7 @@ export function Html({ title, description, url, site, children }: Props) {
   const darkColor = site.theme?.darkColor || '#020617'
   const gaId = site.analytics?.googleAnalytics
   const searchEnabled = site.search?.enabled !== false
+  const favicon = site.favicon
 
   return (
     <html lang={site.language || 'en'} class="no-js">
@@ -35,6 +37,13 @@ export function Html({ title, description, url, site, children }: Props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
         <title>{title}</title>
+        {favicon !== false && favicon ? (
+          <link
+            rel="icon"
+            href={favicon}
+            type={favicon.endsWith('.svg') ? 'image/svg+xml' : 'image/x-icon'}
+          />
+        ) : null}
         {description ? <meta name="description" content={description} /> : null}
 
         {/* Canonical URL */}
