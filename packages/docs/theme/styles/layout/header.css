@@ -1,5 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════
    Doc header — sticky top bar with blur backdrop
+
+   Always visible: hamburger (if navItems), site name, search icon.
+   Inline nav links: visible when space allows, hidden on mobile.
+
+   Hamburger visibility varies by page type:
+   - Home page:  visible < 768px (inline nav takes over at 768px)
+   - Doc pages:  visible < 140ch (sidebar goes in-grid at 140ch)
    ═══════════════════════════════════════════════════════════════ */
 
 .doc-header {
@@ -10,9 +17,7 @@
   z-index: 100;
   height: var(--header-height);
   background: var(--color-header-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border);
   transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
@@ -34,9 +39,9 @@
   flex-shrink: 0;
 }
 
-/* ─── Hamburger button — hidden on desktop ─── */
+/* ─── Hamburger button — visible by default ─── */
 .doc-sidebar-toggle {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 36px;
@@ -70,16 +75,24 @@
   color: var(--color-text-secondary);
 }
 
-/* ─── Top navigation links ─── */
+/* ─── Search trigger — push to far right when nav is hidden ─── */
+.doc-search-trigger {
+  margin-left: auto;
+}
+
+/* ─── Top navigation links — hidden on mobile ─── */
 .doc-nav {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.25rem;
   margin-left: auto;
 }
 .doc-nav a {
   padding: 0.4rem 0.75rem;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
   border-radius: var(--radius-sm);
   transition: color var(--transition-fast), background var(--transition-fast);
@@ -91,28 +104,50 @@
 }
 .doc-nav a.active {
   color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Responsive
+   ≥ 768px — show inline nav, hide hamburger (home page default)
    ═══════════════════════════════════════════════════════════════ */
-
-/* Tablet + mobile: show hamburger */
-@media (max-width: 800px) {
-  .doc-sidebar-toggle {
+@media (min-width: 768px) {
+  .doc-nav {
     display: flex;
   }
 
+  .doc-sidebar-toggle {
+    display: none;
+  }
+
+  .doc-search-trigger {
+    margin-left: unset;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Doc pages (has .doc-layout): keep hamburger visible until the
+   sidebar goes in-grid at 140ch, since the sidebar has content
+   navigation beyond what the inline nav covers.
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  body:has(.doc-layout) .doc-sidebar-toggle {
+    display: flex;
+  }
+}
+
+@media (min-width: 140ch) {
+  body:has(.doc-layout) .doc-sidebar-toggle {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Small screens: tighter padding
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
   .doc-header-inner {
     padding: 0 1rem;
-  }
-
-  .doc-nav {
-    gap: 0;
-  }
-
-  .doc-nav a {
-    padding: 0.4rem 0.5rem;
-    font-size: var(--font-size-xs);
   }
 }

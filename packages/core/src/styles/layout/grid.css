@@ -1,17 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════
    Responsive layout system
 
-   Always a 3-column grid (when sidebar is present):
-     [1fr left-space] [content up to 100ch] [sidebar min 30ch, 1fr]
+   Breakpoints (ch-based):
+   < 110ch  — single column, sidebar hidden, mobile TOC shown
+   ≥ 110ch  — content + right sidebar (30ch)
+   ≥ 160ch  — centered: content (100ch max) + right sidebar (30ch)
 
-   The left column has no HTML element — it's an empty grid cell.
-   Both side columns are 1fr so the content stays centered.
-   The sidebar fills its 1fr column to the viewport edge (no gap).
-   No grid gaps — all spacing via padding.
-
-   Breakpoints:
-     ≤ 110ch: single column (content only, sidebar hidden)
-     > 110ch: 3-column grid, content centered
+   layout-two-col: content + right sidebar (blog-style)
+   layout-doc:     left sidebar + content + right sidebar (doc-style)
    ═══════════════════════════════════════════════════════════════ */
 
 /* ─── Layout variables ─── */
@@ -39,11 +35,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Three-column grid: [empty 1fr] [content] [sidebar 1fr]
-
-   Content is always centered. Left column is an empty grid cell.
-   Sidebar occupies the right 1fr all the way to the viewport edge
-   so its scrollbar sits flush with the browser scrollbar.
+   Two-column: [empty 1fr] [content] [sidebar 1fr]
    ═══════════════════════════════════════════════════════════════ */
 .layout-two-col {
   display: grid;
@@ -52,7 +44,6 @@
   min-height: calc(100vh - var(--header-height));
 }
 
-/* Place children into the correct columns (column 1 is the empty left space) */
 .layout-two-col > :first-child {
   grid-column: 2;
 }
@@ -60,13 +51,107 @@
   grid-column: 3;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   Doc-style 3-column: [left sidebar] [content] [right sidebar]
+
+   < 110ch:  single column, both sidebars hidden
+   ≥ 110ch:  content + right sidebar (30ch), left via overlay
+   ≥ 140ch:  left (30ch) + content + right (30ch)
+   ≥ 160ch:  centered: left (30ch) + content (100ch) + right (30ch)
+   ═══════════════════════════════════════════════════════════════ */
+.layout-doc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: calc(100vh - var(--header-height));
+}
+
+.layout-doc > .doc-sidebar {
+  display: none;
+}
+
+.layout-doc > .doc-aside {
+  display: none;
+}
+
+.layout-doc > .doc-main {
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
 /* ─── Mobile accordion (hidden when sidebar visible) ─── */
 .toc-mobile {
   display: none;
 }
 
+.layout-doc .toc-mobile {
+  display: block;
+}
+
 /* ═══════════════════════════════════════════════════════════════
-   Responsive: single column
+   ≥ 110ch — show right sidebar
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 110ch) {
+  /* Two-column: no change needed, already shows sidebar */
+
+  /* Doc layout: show right aside */
+  .layout-doc {
+    grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+  }
+
+  .layout-doc > .doc-aside {
+    display: block;
+    position: sticky;
+    top: var(--header-height);
+    height: fit-content;
+    max-height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+    padding: 2rem 1.5rem 2rem 0;
+    scrollbar-width: thin;
+  }
+
+  .layout-doc > .doc-main {
+    padding: 2rem 2.5rem;
+  }
+
+  .layout-doc .toc-mobile {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ≥ 140ch — show left sidebar in doc layout
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 140ch) {
+  .layout-doc {
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--sidebar-width);
+  }
+
+  .layout-doc > .doc-sidebar {
+    display: block;
+    position: sticky;
+    top: var(--header-height);
+    height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+    padding: 1.5rem 1rem 2rem 1.5rem;
+    border-right: 1px solid var(--color-border-subtle);
+    scrollbar-width: thin;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ≥ 160ch — centered layouts
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 160ch) {
+  .layout-doc {
+    grid-template-columns: var(--sidebar-width) minmax(0, var(--content-max)) var(--sidebar-width);
+    justify-content: center;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   < 110ch — single column for all layouts
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 110ch) {
   .layout-two-col {

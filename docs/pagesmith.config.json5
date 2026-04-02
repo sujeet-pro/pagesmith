@@ -4,8 +4,11 @@
   description: 'File-based CMS and static site generator',
   origin: 'https://pagesmith.dev',
   contentDir: './content',
-  outDir: '../gh-pages/docs',
-  basePath: '/pagesmith/docs',
+  outDir: '../gh-pages',
+  basePath: '/pagesmith',
+  sidebar: {
+    collapsible: true,
+  },
   footerLinks: [
     { label: 'Guide', path: '/guide' },
     { label: 'Reference', path: '/reference' },

@@ -1,38 +1,59 @@
 # Pagesmith
 
-> File-based CMS and documentation tool, organized as a multi-package workspace under the `@pagesmith/` npm scope.
+> Filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope.
 
 ## Summary
 
-- Two main packages: `@pagesmith/core` for custom layout sites plus the Vite content plugin, `@pagesmith/docs` for convention-based documentation with built-in Pagefind search
-- Typed filesystem collections for markdown and structured data
-- Lazy markdown rendering with headings and read-time metadata
-- Diagram rendering through `diagramkit`
-- Installable assistant context for Claude, Codex, Gemini CLI, and `llms.txt`
+- Two main packages: `@pagesmith/core` for the shared content/runtime layer and `@pagesmith/docs` for convention-based documentation with built-in Pagefind search
+- Typed filesystem collections for markdown and structured data (JSON, JSONC, JSON5, YAML, TOML)
+- Lazy markdown rendering with Expressive Code syntax highlighting, headings, and read-time metadata
+- Vite-native: content plugin (`pagesmithContent`) and SSG plugin (`pagesmithSsg`) for Vite
+- Docs-site defaults from `pagesmith.config.json5`, with optional layout overrides through `theme.layouts.*`
+- Assistant artifact helpers exposed from `@pagesmith/core/ai`
 
 ## Quick Start
 
+For a docs site with defaults:
+
 ```bash
-npm add @pagesmith/core diagramkit
+npm add @pagesmith/docs
+```
+
+```json5
+{
+  name: 'Acme Docs',
+  title: 'Acme Docs',
+  description: 'Team documentation',
+  contentDir: './content',
+  search: { enabled: true },
+}
+```
+
+For a custom site or framework integration:
+
+```bash
+npm add @pagesmith/core
 ```
 
 ```ts
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { defineConfig } from 'vite-plus'
+import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
 
-const content = defineCollections({
-  posts: defineCollection({
-    loader: 'markdown',
-    directory: 'content/posts',
-    schema: z.object({
-      title: z.string(),
-      date: z.coerce.date(),
-    }),
-  }),
+const posts = defineCollection({
+  loader: 'markdown',
+  directory: 'content/posts',
+  schema: z.object({ title: z.string(), date: z.coerce.date() }),
 })
 
-export default defineConfig({
-  plugins: [pagesmithContent({ collections: content })],
-})
+const layer = createContentLayer(defineConfig({ collections: { posts } }))
+const entries = await layer.getCollection('posts')
+const rendered = await entries[0]?.render()
 ```
+
+Use `@pagesmith/docs` when you want the built-in docs experience. Use `@pagesmith/core` plus `@pagesmith/core/vite` when you need custom layouts or framework-specific rendering (React, Solid, Svelte, EJS, Handlebars).
+
+## Framework Support
+
+Vite-based integration with any framework through two patterns:
+- **Virtual modules** (`pagesmithContent` plugin): `virtual:content/posts` — for React, Solid, Svelte
+- **Programmatic API** (`createContentLayer`): for EJS, Handlebars, and custom setups
+- **SSG** (`pagesmithSsg` plugin): static site generation with dev server + Pagefind search

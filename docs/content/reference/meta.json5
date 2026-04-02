@@ -1,0 +1,17 @@
+{
+  displayName: 'Reference',
+  description: 'API surface, configuration, and architecture of Pagesmith packages.',
+  orderBy: 'manual',
+  series: [
+    {
+      slug: 'core-reference',
+      displayName: 'Core (@pagesmith/core)',
+      articles: ['api', 'configuration', 'architecture', 'runtime'],
+    },
+    {
+      slug: 'docs-reference',
+      displayName: 'Docs (@pagesmith/docs)',
+      articles: ['docs-config', 'docs-cli', 'docs-theme'],
+    },
+  ],
+}

@@ -1,40 +1,32 @@
 # @pagesmith/core
 
-Core file-based CMS package. Provides the content layer, markdown pipeline, JSX runtime, CSS builder, schemas, loaders, validation, diagrams integration, and AI installer.
+Core file-based CMS package. Provides the content layer, markdown pipeline, JSX runtime, CSS builder, schemas, loaders, validation, and AI installer.
 
 Published as `@pagesmith/core` on npm. Part of the `@pagesmith/` workspace.
 
 ## Directory map
 
 ```text
-cli/
-  bin.ts                          CLI entry point (convert, toc, diagrams, ai install)
-  diagrams.ts                     Legacy diagram CLI re-export
-
 src/
   index.ts                        Main barrel — re-exports all public API
   config.ts                       defineConfig(), defineCollection() identity helpers
   content-layer.ts                ContentLayer interface + createContentLayer() factory
   entry.ts                        ContentEntry class (slug, data, lazy render())
   store.ts                        ContentStore — internal cache, file discovery, loading, validation
-  convert.ts                      convert() — full/fragment markdown-to-HTML with optional layout
-  document.ts                     generateDocument() — wrap HTML in <!DOCTYPE> shell
-  layout-engine.ts                applyLayout() — call a JSX layout function on CoreLayoutProps
+  convert.ts                      convert() — markdown-to-HTML convenience wrapper
   frontmatter.ts                  extractFrontmatter(), validateFrontmatter() via gray-matter + Zod
   toc.ts                          extractToc() — regex-based heading extraction from HTML
 
   markdown/
     index.ts                      Re-exports processMarkdown, MarkdownResult
     pipeline.ts                   Unified pipeline: remark-parse → remark-gfm → remark-math →
-                                    remark-frontmatter → (user remark plugins) → remark-rehype →
+                                    remark-frontmatter → remark-github-alerts → remark-smartypants →
+                                    (user remark plugins) → remark-rehype → rehype-expressive-code →
                                     rehype-mathjax → rehype-slug → rehype-autolink-headings →
-                                    rehype-shiki → rehype-code-tabs → heading extraction →
-                                    (user rehype plugins) → rehype-stringify
+                                    rehype-external-links → rehype-accessible-emojis →
+                                    heading extraction → (user rehype plugins) → rehype-stringify
     plugins/
-      index.ts                    Re-exports codeBlockTransformers, rehypeCodeTabs
-      shiki-transformers.ts       Custom Shiki transformers: line highlight, code frame
-                                    (lang badge, title, line numbers, copy button, collapse)
-      rehype-code-tabs.ts         Rehype plugin: merge consecutive fenced blocks into tabbed UI
+      index.ts                    (Kept for backward compat — exports nothing)
 
   jsx-runtime/
     index.ts                      h(), Fragment(), HtmlString — server-side JSX-to-HTML runtime
@@ -72,10 +64,6 @@ src/
     heading-validator.ts          Enforce single h1, sequential depth, non-empty text
     code-block-validator.ts       Warn on missing language, unknown language aliases
 
-  diagrams/
-    index.ts                      renderDiagrams(), watchDiagrams() — delegates to diagramkit
-    rehype-diagram-images.ts      rehypeDiagramImages — rewrite <img> src for rendered diagram outputs
-
   ai/
     index.ts                      installAiArtifacts(), getAiArtifacts(), getAiArtifactContent()
                                     Generates memory/skill/llms files for Claude, Codex, Gemini
@@ -91,30 +79,13 @@ src/
 
   runtime/
     index.ts                      CSS/JS asset accessors (getRuntimeCSS, getContentCSS, etc.)
-    standalone.ts                 Standalone runtime JS (copy-code, TOC highlight)
-    content.ts                    Content-only runtime JS (copy-code)
-    copy-code.ts                  Copy button click handler
+    standalone.ts                 Standalone runtime JS (TOC highlight)
+    content.ts                    Content-only runtime JS (placeholder)
     toc-highlight.ts              Active TOC heading highlight on scroll
-
-  ssg/
-    index.ts                      Re-exports buildSite, BuildSiteOptions
-    builder.ts                    buildSite() — render all entries to static HTML
-    bundler.ts                    JS/CSS bundling for SSG output
-    dev-server.ts                 Development server with live reload
-    preview-server.ts             Preview server for built output
-    types.ts                      SSG-related type definitions
-    ws-client.ts                  WebSocket client for dev server hot reload
-
-  layouts/
-    standalone.tsx                Default standalone layout (JSX)
-    components/
-      Document.tsx                <Document> shell component
-      TOCSidebar.tsx              <TOCSidebar> component
 
   styles/
     standalone.css                Full standalone bundle (imports all below)
-    content.css                   Content-only bundle (reset + prose + code + diagrams + viewport)
-    diagrams.css                  Diagram image styles (light/dark switching)
+    content.css                   Content-only bundle (reset + prose + code + viewport)
     viewport.css                  Viewport / responsive base
     foundations/
       reset.css                   CSS reset
@@ -123,11 +94,7 @@ src/
       prose.css                   Prose typography
       toc.css                     Table of contents sidebar
     code/
-      block.css                   Code block frame
-      inline.css                  Inline code
-      lang-icons.css              Language badge icons
-      line-features.css           Line numbers, highlighting, diff marks
-      tabs.css                    Code tab UI
+      inline.css                  Inline code (block code handled by Expressive Code)
     layout/
       grid.css                    Page grid
       sidebar.css                 Sidebar layout
@@ -153,7 +120,6 @@ The main API object. Created via `createContentLayer(config)`.
 - `convert(markdown, options?)` — convert raw markdown to HTML outside of collections
 - `invalidate(collection, slug)` / `invalidateCollection(name)` / `invalidateAll()` — cache busting
 - `validate(collection?)` — run all validators, return `ValidationResult[]`
-- `renderDiagrams(options?)` — render diagrams in all markdown collection directories
 - `getCollectionNames()` / `getCollectionDef(name)` — introspect configuration
 
 ### ContentEntry<T> (entry.ts)
@@ -165,7 +131,7 @@ Represents a single loaded content entry. Properties: `slug`, `collection`, `fil
 
 ### ContentLayerConfig (schemas/content-config.ts)
 
-Top-level config passed to `defineConfig()`. Fields: `collections`, `root`, `markdown`, `diagrams`, `assets`, `cache`, `eager`, `plugins`.
+Top-level config passed to `defineConfig()`. Fields: `collections`, `root`, `markdown`, `assets`, `cache`, `eager`, `plugins`.
 
 ### CollectionDef<S> (schemas/collection.ts)
 
@@ -173,7 +139,7 @@ Collection definition passed to `defineCollection()`. Fields: `loader`, `directo
 
 ### ConvertOptions / ConvertResult (convert.ts)
 
-`ConvertOptions`: `markdown`, `mode` (full/fragment), `layout`, `css`, `js`, `cssPath`, `jsPath`, `noToc`.
+`ConvertOptions`: `markdown` (MarkdownConfig).
 `ConvertResult`: `html`, `toc` (Heading[]), `frontmatter`.
 
 ### MarkdownConfig (schemas/markdown-config.ts)
@@ -201,26 +167,22 @@ remark-parse                       Parse markdown to MDAST
   -> remark-frontmatter            Strip YAML frontmatter from AST
   -> [user remark plugins]         From MarkdownConfig.remarkPlugins
   -> remark-rehype                 MDAST -> HAST (allowDangerousHtml: true)
+  -> rehype-expressive-code        Syntax highlighting + code frames + copy + tabs
   -> rehype-mathjax/svg            Render math to SVG
   -> rehype-slug                   Add id="" to headings
   -> rehype-autolink-headings      Wrap heading text in anchor links
-  -> @shikijs/rehype               Syntax highlighting with dual themes
-     (transformers: line-highlight + code-frame)
-  -> rehype-code-tabs              Merge consecutive code blocks into tabs
   -> heading extraction            Custom plugin: walk HAST, collect Heading[]
   -> [user rehype plugins]         From MarkdownConfig.rehypePlugins
-  -> [content plugins]             Remark/rehype from ContentPlugin[]
-  -> [rehype-diagram-images]       Rewrite diagram <img> src (when diagrams enabled)
   -> rehype-stringify              Serialize HAST to HTML string
 ```
 
 The processor is cached per `MarkdownConfig` object reference (WeakMap).
 
-Shiki defaults: `github-light` / `github-dark` dual themes. Custom transformers add language badges, titles, line numbers, copy buttons, collapsible sections, and line highlighting (mark/ins/del).
+Expressive Code handles all code block features: syntax highlighting with dual themes (default: github-light/github-dark), language badges, file titles, line numbers, copy buttons, collapsible sections, line highlighting (mark/ins/del), text wrapping, and frame styles. Styles and scripts are injected inline into the HTML output.
 
 Code block meta string syntax:
 ```
-```js title="app.js" hideLineNumbers collapse={1-5,12-14} mark={3} ins={4} del={5}
+```js title="app.js" showLineNumbers=false collapse={1-5,12-14} mark={3} ins={4} del={5}
 ```
 
 ## Content layer API
@@ -241,7 +203,6 @@ const posts = defineCollection({
 const config = defineConfig({
   collections: { posts },
   markdown: { shiki: { themes: { light: 'github-light', dark: 'github-dark' } } },
-  diagrams: { enabled: true, displayMode: 'picture' },
 })
 
 const layer = createContentLayer(config)
@@ -323,16 +284,10 @@ Configure in tsconfig.json:
 Import path: `@pagesmith/core/runtime`.
 
 Two tiers:
-- **Standalone** — full site: reset, prose, code, layout, theme toggle, TOC highlight, copy-code.
-- **Content** — markdown rendering only: reset, prose, code, diagrams, viewport, copy-code.
+- **Standalone** — full site: reset, prose, inline code, layout, TOC highlight.
+- **Content** — markdown rendering only: reset, prose, inline code, viewport.
 
-Accessors: `getRuntimeCSS()`, `getRuntimeJS()`, `getContentCSS()`, `getContentJS()`, plus `get*Path()` variants for file paths. Also individual: `getDiagramsCSS()`, `getTabsCSS()`, `getViewportCSS()`.
-
-## SSG builder
-
-Import path: `@pagesmith/core/ssg`.
-
-`buildSite(layer, { outDir, template, collections?, basePath? })` — iterates all entries, calls `render()`, applies a template function, writes `{outDir}/{basePath}/{slug}/index.html`.
+Accessors: `getRuntimeCSS()`, `getRuntimeJS()`, `getContentCSS()`, `getContentJS()`, plus `get*Path()` variants for file paths. Also individual: `getViewportCSS()`.
 
 ## CLI commands
 
@@ -340,15 +295,11 @@ Binary: `pagesmith` (from `cli/bin.ts`).
 
 ### `pagesmith convert <file.md> [options]`
 
-Convert markdown to HTML. Options: `-o/--output`, `-m/--mode` (full|fragment), `--css` (inline|reference|none), `--js` (inline|reference|none), `--no-toc`, `--title`, `-w/--watch`.
+Convert markdown to HTML fragment. Options: `-o/--output`, `-w/--watch`.
 
 ### `pagesmith toc <file.md|file.html>`
 
 Extract table of contents as JSON. Works on both markdown (converts first) and HTML (regex extraction).
-
-### `pagesmith diagrams [folder] [options]`
-
-Render diagrams using diagramkit. Options: `--force/-f`, `--watch/-w`, `--file <path>`, `--type/-t` (mermaid|excalidraw|drawio).
 
 ### `pagesmith ai install [options]`
 
@@ -365,15 +316,12 @@ The package exposes multiple entry points via `exports` in package.json:
 | `@pagesmith/core/markdown`     | `src/markdown/index.ts`    | processMarkdown                      |
 | `@pagesmith/core/css`          | `src/css/index.ts`         | buildCss (LightningCSS)             |
 | `@pagesmith/core/css/content`  | `src/styles/content.css`   | Content CSS file                     |
-| `@pagesmith/core/css/diagrams` | `src/styles/diagrams.css`  | Diagram CSS file                     |
 | `@pagesmith/core/css/viewport` | `src/styles/viewport.css`  | Viewport CSS file                    |
 | `@pagesmith/core/schemas`      | `src/schemas/index.ts`     | Zod schemas and types                |
 | `@pagesmith/core/loaders`      | `src/loaders/index.ts`     | Loader classes and registry          |
-| `@pagesmith/core/diagrams`     | `src/diagrams/index.ts`    | Diagram rendering via diagramkit     |
 | `@pagesmith/core/assets`       | `src/assets/index.ts`      | Asset copying and hashing            |
 | `@pagesmith/core/runtime`      | `src/runtime/index.ts`     | Pre-built CSS/JS accessors           |
 | `@pagesmith/core/ai`           | `src/ai/index.ts`          | AI assistant file installer          |
-| `@pagesmith/core/ssg`          | `src/ssg/index.ts`         | Static site builder                  |
 
 ## Coding conventions
 
@@ -386,5 +334,4 @@ The package exposes multiple entry points via `exports` in package.json:
 - **Tests** in `src/__tests__/` colocated with source, run via `vp test`.
 - **Build** via `vp pack` (vite-plus), outputs to `dist/` as ESM with source maps and declarations.
 - **CSS** bundled with LightningCSS; targets Chrome 100+, Firefox 100+, Safari 16+.
-- **Diagrams** always route through `diagramkit` — no bespoke renderers in this package.
 - **Processor caching** — the unified markdown processor is cached per `MarkdownConfig` reference via `WeakMap` to avoid rebuilding the plugin chain on every call.

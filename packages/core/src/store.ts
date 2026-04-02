@@ -14,7 +14,6 @@ import type { Loader } from './loaders/types'
 import { collectRehypePlugins, collectRemarkPlugins, runPluginValidators } from './plugins'
 import type { CollectionDef, RawEntry } from './schemas/collection'
 import type { ContentLayerConfig } from './schemas/content-config'
-import { rehypeDiagramImages } from './diagrams/rehype-diagram-images'
 import { discoverFiles } from './utils/glob'
 import { toSlug } from './utils/slug'
 import { validateSchema, type ValidationIssue } from './validation'
@@ -228,17 +227,6 @@ export class ContentStore {
     if (plugins.length > 0) {
       remarkPlugins.push(...collectRemarkPlugins(plugins))
       rehypePlugins.push(...collectRehypePlugins(plugins))
-    }
-
-    if (this.config.diagrams?.enabled !== false) {
-      rehypePlugins.push([
-        rehypeDiagramImages,
-        {
-          mode: this.config.diagrams?.displayMode ?? 'picture',
-          outputDir: this.config.diagrams?.outputDir,
-          extensionMap: this.config.diagrams?.extensionMap,
-        },
-      ])
     }
 
     return {

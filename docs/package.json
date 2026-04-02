@@ -4,13 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pagesmith dev",
-    "build": "pagesmith build"
+    "dev": "node ../packages/docs/dist/cli/bin.mjs dev --config ./pagesmith.config.json5",
+    "build": "node ../packages/docs/dist/cli/bin.mjs build --config ./pagesmith.config.json5"
   },
   "dependencies": {
     "@pagesmith/docs": "*"
-  },
-  "devDependencies": {
-    "pagefind": "^1.3.0"
   }
 }

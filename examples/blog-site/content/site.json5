@@ -18,6 +18,11 @@
 
   copyright: '© 2026 Example Author',
 
+  search: {
+    enabled: true,
+    showImages: false,
+  },
+
   pageTypes: {
     articles: {
       displayName: 'Articles',

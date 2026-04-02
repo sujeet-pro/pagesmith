@@ -2,11 +2,10 @@
  * Standalone runtime entry point — browser only.
  *
  * Progressive enhancements for the standalone layout:
- * TOC highlighting and copy-to-clipboard.
+ * TOC highlighting. Code block interactivity (copy, etc.)
+ * is handled by Expressive Code through inline scripts.
  */
 
-import { initCopyCode } from './copy-code'
 import { initTocHighlight } from './toc-highlight'
 
 initTocHighlight()
-initCopyCode()

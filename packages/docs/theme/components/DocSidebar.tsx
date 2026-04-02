@@ -16,6 +16,15 @@ type SidebarSection = {
 type Props = {
   sections?: SidebarSection[]
   currentSlug?: string
+  collapsible?: boolean
+}
+
+function isSectionActive(items: SidebarItem[], currentSlug: string): boolean {
+  for (const item of items) {
+    if (currentSlug === item.path || currentSlug.startsWith(item.path + '/')) return true
+    if (item.children && isSectionActive(item.children, currentSlug)) return true
+  }
+  return false
 }
 
 function renderItems(items: SidebarItem[], currentSlug: string, depth: number = 0): any {
@@ -45,18 +54,36 @@ function renderItems(items: SidebarItem[], currentSlug: string, depth: number = 
   )
 }
 
-export function DocSidebar({ sections, currentSlug = '/' }: Props) {
+export function DocSidebar({ sections, currentSlug = '/', collapsible = false }: Props) {
   if (!sections || sections.length === 0) return <Fragment />
 
   return (
     <aside class="doc-sidebar">
       <nav class="doc-sidebar-nav" aria-label="Documentation navigation">
-        {sections.map((section) => (
-          <div class="doc-sidebar-section">
-            <p class="doc-sidebar-heading">{section.title}</p>
-            {renderItems(section.items, currentSlug)}
-          </div>
-        ))}
+        {sections.map((section) => {
+          const sectionActive = isSectionActive(section.items, currentSlug)
+          // Section is open if: explicitly not collapsed, or contains the active page
+          const isOpen = !section.collapsed || sectionActive
+
+          if (collapsible) {
+            return (
+              <details
+                class="doc-sidebar-section doc-sidebar-collapsible"
+                open={isOpen || undefined}
+              >
+                <summary class="doc-sidebar-heading">{section.title}</summary>
+                {renderItems(section.items, currentSlug)}
+              </details>
+            )
+          }
+
+          return (
+            <div class="doc-sidebar-section">
+              <p class="doc-sidebar-heading">{section.title}</p>
+              {renderItems(section.items, currentSlug)}
+            </div>
+          )
+        })}
       </nav>
     </aside>
   )

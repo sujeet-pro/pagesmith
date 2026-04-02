@@ -3,11 +3,6 @@ declare module '@pagesmith/core/css/content' {
   export default css
 }
 
-declare module '@pagesmith/core/css/diagrams' {
-  const css: string
-  export default css
-}
-
 declare module '@pagesmith/core/css/viewport' {
   const css: string
   export default css

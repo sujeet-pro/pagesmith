@@ -1,8 +1,8 @@
 /**
  * Rehype plugin: transform relative asset references to /assets/ URLs.
  *
- * Converts references like `./diagrams/name.light.svg` or `./assets/image.png`
- * into site-relative URLs like `/assets/name.light.svg` or `/assets/image.png`.
+ * Converts references like `./image.png` or `./assets/image.png`
+ * into site-relative URLs like `/assets/image.png`.
  *
  * Special handling:
  *   - `.inline.svg` files: read from disk and embed as inline SVG (supports currentColor)

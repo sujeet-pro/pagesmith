@@ -18,7 +18,7 @@ export default defineConfig({
       eqeqeq: ['error', 'smart'],
       'unicorn/no-useless-fallback-in-spread': 'off',
     },
-    ignorePatterns: ['node_modules/', 'dist/', 'dev/', 'gh-pages/', '.diagrams/'],
+    ignorePatterns: ['node_modules/', 'dist/', 'dev/', 'gh-pages/'],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -34,7 +34,6 @@ export default defineConfig({
       'dist/',
       'dev/',
       'gh-pages/',
-      '.diagrams/',
       '**/*.hbs',
       '**/*.ejs',
       '**/*.css',

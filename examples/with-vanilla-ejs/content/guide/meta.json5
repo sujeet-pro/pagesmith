@@ -1,0 +1,16 @@
+{
+  displayName: 'Guide',
+  orderBy: 'manual',
+  series: [
+    {
+      slug: 'getting-started',
+      displayName: 'Getting Started',
+      articles: ['installation', 'collections', 'rendering'],
+    },
+    {
+      slug: 'framework-integration',
+      displayName: 'Framework Integration',
+      articles: ['vite-plugin', 'ssr-prerendering', 'search-integration'],
+    },
+  ],
+}

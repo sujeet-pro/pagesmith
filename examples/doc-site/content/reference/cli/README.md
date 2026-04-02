@@ -2,7 +2,7 @@
 title: "CLI Reference"
 description: "Command-line interface reference"
 publishedDate: 2026-03-01T00:00:00.000Z
-lastUpdatedOn: 2026-03-20T00:00:00.000Z
+lastUpdatedOn: 2026-03-27T00:00:00.000Z
 tags:
   - reference
   - cli
@@ -10,13 +10,13 @@ tags:
 
 # CLI Reference
 
-The `pagesmith` CLI provides commands for building, serving, and managing your site.
+The `pagesmith` CLI in `@pagesmith/docs` provides the docs-site commands.
 
 ## Commands
 
 ### pagesmith build
 
-Build your site for production.
+Build your docs site for production.
 
 ```bash
 pagesmith build [options]
@@ -24,42 +24,33 @@ pagesmith build [options]
 
 | Option | Description |
 |--------|-------------|
-| `--parallel` | Enable parallel rendering |
+| `--config <path>` | Path to `pagesmith.config.json5` |
+| `--out-dir <path>` | Override the output directory |
+| `--base-path <path>` | Override the configured base path |
 
 ### pagesmith dev
 
 Start the development server with hot reload.
 
 ```bash
-pagesmith dev
+pagesmith dev [options]
 ```
+
+| Option | Description |
+|--------|-------------|
+| `--config <path>` | Path to `pagesmith.config.json5` |
+| `--port <number>` | Override the dev server port |
+| `--open` | Open the browser on start |
 
 ### pagesmith preview
 
 Preview the production build locally.
 
 ```bash
-pagesmith preview
-```
-
-### pagesmith validate
-
-Run content validation checks.
-
-```bash
-pagesmith validate [options]
-```
-
-### pagesmith diagrams
-
-Render diagram files (mermaid, excalidraw, drawio).
-
-```bash
-pagesmith diagrams [folder] [options]
+pagesmith preview [options]
 ```
 
 | Option | Description |
 |--------|-------------|
-| `-f, --force` | Force re-render all |
-| `-w, --watch` | Watch for changes |
-| `-t, --type` | Filter by type |
+| `--config <path>` | Path to `pagesmith.config.json5` |
+| `--port <number>` | Override the preview server port |

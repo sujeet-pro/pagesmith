@@ -3,6 +3,7 @@ import type { BaseLayoutProps } from './types'
 import { Footer } from './components/Footer'
 import { Header } from './components/Header'
 import { Html } from './components/Html'
+import { withBase } from './utils'
 
 export default function NotFound(props: BaseLayoutProps) {
   const { site } = props
@@ -25,10 +26,10 @@ export default function NotFound(props: BaseLayoutProps) {
               or head back home.
             </p>
             <div class="not-found-actions">
-              <a href="/articles" class="not-found-btn not-found-btn-primary">
+              <a href={withBase(site, '/articles')} class="not-found-btn not-found-btn-primary">
                 All Articles
               </a>
-              <a href="/" class="not-found-btn not-found-btn-outline">
+              <a href={withBase(site, '/')} class="not-found-btn not-found-btn-outline">
                 Home
               </a>
             </div>

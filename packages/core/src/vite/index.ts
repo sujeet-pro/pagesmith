@@ -1,10 +1,12 @@
 export { prerenderRoutes } from './ssg'
 export type { PrerenderOptions } from './ssg'
+export { sharedAssetsPlugin } from './shared-assets.js'
+export { pagesmithSsg } from './ssg-plugin.js'
+export type { SsgPluginOptions, SsgRenderConfig } from './ssg-plugin.js'
 
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { dirname, relative, resolve } from 'path'
 import { uneval } from 'devalue'
-import type { Plugin } from 'vite-plus'
 import { createContentLayer } from '../content-layer'
 import { resolveLoader } from '../loaders'
 import type { Heading } from '../schemas/heading'
@@ -13,6 +15,32 @@ import type { ContentLayerConfig } from '../schemas/content-config'
 import { toSlug } from '../utils/slug'
 
 type Simplify<T> = { [K in keyof T]: T[K] } & {}
+
+type PagesmithResolvedConfig = {
+  root: string
+}
+
+type PagesmithModuleGraph = {
+  getModuleById(id: string): unknown
+  invalidateModule(module: unknown): void
+}
+
+type PagesmithDevServer = {
+  moduleGraph: PagesmithModuleGraph
+  ws: {
+    send(payload: { type: string }): void
+  }
+}
+
+export type PagesmithVitePlugin = {
+  name: string
+  enforce?: 'pre' | 'post'
+  configResolved?: (config: PagesmithResolvedConfig) => void
+  buildStart?: () => void
+  resolveId?: (id: string) => string | void
+  load?: (id: string) => Promise<string | void> | string | void
+  handleHotUpdate?: (context: { file: string; server: PagesmithDevServer }) => void
+}
 
 export type BaseContentModuleEntry = {
   id: string
@@ -154,7 +182,7 @@ function createDtsSource(
     .map(
       (name) => `declare module '${moduleId}/${name}' {
   const collection: import('@pagesmith/core/vite').ContentCollectionModule<
-    __PagesmithCollections[${JSON.stringify(name)}]
+    __PagesmithCollections['${name.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}']
   >
   export default collection
 }`,
@@ -241,14 +269,14 @@ function resolvePluginOptions<TCollections extends CollectionMap>(
 export function pagesmithContent<TCollections extends CollectionMap>(
   collections: TCollections,
   options?: Omit<PagesmithContentPluginOptions<TCollections>, 'collections'>,
-): Plugin
+): PagesmithVitePlugin
 export function pagesmithContent<TCollections extends CollectionMap>(
   options: PagesmithContentPluginOptions<TCollections>,
-): Plugin
+): PagesmithVitePlugin
 export function pagesmithContent<TCollections extends CollectionMap>(
   collectionsOrOptions: TCollections | PagesmithContentPluginOptions<TCollections>,
   maybeOptions: Omit<PagesmithContentPluginOptions<TCollections>, 'collections'> = {},
-): Plugin {
+): PagesmithVitePlugin {
   const options = resolvePluginOptions(collectionsOrOptions, maybeOptions)
   const collectionNames = Object.keys(options.collections)
   const moduleId = options.moduleId ?? DEFAULT_MODULE_ID

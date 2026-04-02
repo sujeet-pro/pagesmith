@@ -1,0 +1,11 @@
+{
+  displayName: 'Guide',
+  orderBy: 'manual',
+  series: [
+    {
+      slug: 'basics',
+      displayName: 'Basics',
+      articles: ['getting-started', 'configuration', 'layouts'],
+    },
+  ],
+}

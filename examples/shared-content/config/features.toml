@@ -26,12 +26,6 @@ enabled = true
 changeFreq = "weekly"
 priority = 0.7
 
-[diagrams]
-mermaid = true
-excalidraw = true
-renderOnBuild = true
-watchInDev = true
-
 [darkMode]
 enabled = true
 defaultTheme = "system"

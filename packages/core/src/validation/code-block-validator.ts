@@ -1,8 +1,8 @@
 /**
  * Code block validator — checks fenced code block meta syntax.
  *
- * Walks the shared MDAST for `code` nodes. Validates collapse ranges, known meta properties,
- * and language identifiers.
+ * Walks the shared MDAST for `code` nodes. Validates known meta properties
+ * and language identifiers. Meta syntax follows Expressive Code conventions.
  */
 
 import type { ValidationIssue } from './schema-validator'
@@ -17,23 +17,18 @@ type MdastNode = {
   position?: { start: { line: number } }
 }
 
-/** Known meta properties accepted by shiki-transformers and rehype-code-tabs. */
-const KNOWN_META_PROPS = new Set(['title', 'hideLineNumbers', 'collapse', 'mark', 'ins', 'del'])
-
-/** Parse collapse ranges from meta string (same syntax as shiki-transformers). */
-function parseCollapseRanges(meta: string): Array<[number, number]> {
-  const match = meta.match(/collapse=\{([^}]+)\}/)
-  if (!match) return []
-  return match[1]!.split(',').map((part) => {
-    const trimmed = part.trim()
-    if (trimmed.includes('-')) {
-      const [a, b] = trimmed.split('-').map(Number)
-      return [a!, b!] as [number, number]
-    }
-    const n = Number(trimmed)
-    return [n, n] as [number, number]
-  })
-}
+/** Known meta properties accepted by Expressive Code and its plugins. */
+const KNOWN_META_PROPS = new Set([
+  'title',
+  'showLineNumbers',
+  'startLineNumber',
+  'wrap',
+  'frame',
+  'collapse',
+  'mark',
+  'ins',
+  'del',
+])
 
 /** Extract the property name portion of a meta token (before `=` or `{`). */
 function extractMetaPropNames(meta: string): string[] {
@@ -81,7 +76,6 @@ export const codeBlockValidator: ContentValidator = {
       const line = block.position?.start.line
       const lineInfo = line ? ` (line ${line})` : ''
       const meta = block.meta ?? ''
-      const bodyLines = (block.value ?? '').split('\n').length
       const hasMeta = meta.trim().length > 0
 
       // Language required when using syntax features
@@ -103,53 +97,6 @@ export const codeBlockValidator: ContentValidator = {
             field: `code-block${lineInfo}`,
             message: `Unknown code block meta property: "${prop}"`,
             severity: 'warn',
-          })
-        }
-      }
-
-      // Validate collapse ranges
-      const collapseRanges = parseCollapseRanges(meta)
-      for (const [start, end] of collapseRanges) {
-        if (start < 1) {
-          issues.push({
-            field: `code-block${lineInfo}`,
-            message: `Collapse range start ${start} is less than 1`,
-            severity: 'error',
-          })
-        }
-        if (start > end) {
-          issues.push({
-            field: `code-block${lineInfo}`,
-            message: `Collapse range start (${start}) is greater than end (${end})`,
-            severity: 'error',
-          })
-        }
-        if (end > bodyLines) {
-          issues.push({
-            field: `code-block${lineInfo}`,
-            message: `Collapse range ${start}-${end} exceeds line count (${bodyLines} lines)`,
-            severity: 'warn',
-          })
-        }
-        if (start > bodyLines) {
-          issues.push({
-            field: `code-block${lineInfo}`,
-            message: `Collapse range ${start}-${end} starts beyond line count (${bodyLines} lines)`,
-            severity: 'warn',
-          })
-        }
-      }
-
-      // Check overlapping collapse ranges
-      const sorted = [...collapseRanges].sort((a, b) => a[0] - b[0])
-      for (let k = 1; k < sorted.length; k++) {
-        const prev = sorted[k - 1]!
-        const curr = sorted[k]!
-        if (curr[0] <= prev[1]) {
-          issues.push({
-            field: `code-block${lineInfo}`,
-            message: `Collapse ranges ${prev[0]}-${prev[1]} and ${curr[0]}-${curr[1]} overlap`,
-            severity: 'error',
           })
         }
       }

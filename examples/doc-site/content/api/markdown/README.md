@@ -10,20 +10,19 @@ tags:
 
 # Markdown Pipeline
 
-Pagesmith uses a unified-based markdown pipeline with remark and rehype plugins.
+Pagesmith uses a unified-based markdown pipeline with remark and rehype plugins, powered by Expressive Code for syntax highlighting.
 
 ## Processing Chain
 
 ```text
 remark-parse → remark-gfm → remark-math → remark-frontmatter
-→ remark-rehype → rehype-mathjax → rehype-slug
-→ rehype-autolink-headings → @shikijs/rehype
-→ rehype-code-tabs → rehype-stringify
+→ remark-rehype → rehype-expressive-code → rehype-mathjax
+→ rehype-slug → rehype-autolink-headings → rehype-stringify
 ```
 
 ## Syntax Highlighting
 
-Powered by Shiki with dual-theme support (light/dark):
+Powered by Expressive Code with dual-theme support (light/dark):
 
 ```typescript
 const config = defineConfig({
@@ -41,19 +40,17 @@ const config = defineConfig({
 
 ## Code Block Features
 
-### Tabbed Code Blocks
+Expressive Code provides these features out of the box:
 
-Consecutive fenced blocks are merged into tabs:
-
-~~~markdown
-```js
-console.log('JavaScript')
-```
-
-```python
-print('Python')
-```
-~~~
+- Syntax highlighting for 100+ languages
+- Dual themes with automatic light/dark switching
+- File titles and language badges
+- Line numbers (shown by default)
+- Line highlighting (mark, ins, del)
+- Collapsible sections
+- Copy button
+- Text wrapping
+- Terminal and editor frame styles
 
 ### Line Highlighting
 
@@ -63,3 +60,11 @@ const b = 2  // highlighted
 const c = 3  // inserted
 const d = 4  // deleted
 ```
+
+### File Titles
+
+````markdown
+```ts title="vite.config.ts"
+export default defineConfig({})
+```
+````

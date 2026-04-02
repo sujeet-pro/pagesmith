@@ -1,6 +1,6 @@
 # AI Assistants
 
-Pagesmith ships installable assistant context through `@pagesmith/core/ai` and the `pagesmith ai install` CLI.
+Pagesmith exposes installable assistant context through `@pagesmith/core/ai`.
 
 That gives you:
 
@@ -13,16 +13,13 @@ That gives you:
 
 Install everything into the current project:
 
-```bash
-pagesmith ai install --assistant all --scope project
-```
+```ts
+import { installAiArtifacts } from '@pagesmith/core/ai'
 
-Tool-specific installs:
-
-```bash
-pagesmith ai install --assistant claude --scope project
-pagesmith ai install --assistant codex --scope project
-pagesmith ai install --assistant gemini --scope project
+installAiArtifacts({
+  assistants: ['claude', 'codex', 'gemini'],
+  scope: 'project',
+})
 ```
 
 Installed files:
@@ -36,8 +33,12 @@ Installed files:
 
 Install into your user home:
 
-```bash
-pagesmith ai install --assistant all --scope user
+```ts
+installAiArtifacts({
+  assistants: ['claude', 'codex', 'gemini'],
+  scope: 'user',
+  includeLlms: false,
+})
 ```
 
 Installed locations:
@@ -46,14 +47,18 @@ Installed locations:
 - Codex: `~/.codex/AGENTS.md` and `~/.codex/skills/pagesmith/SKILL.md`
 - Gemini CLI: `~/.gemini/GEMINI.md` and `~/.gemini/commands/pagesmith.toml`
 
-Use `--skill-name <name>` if you want a custom command or skill name instead of `pagesmith`.
+Use `skillName: '<name>'` if you want a custom command or skill name instead of `pagesmith`.
 
-## CLI Flags
+## Useful Options
 
-```bash
-pagesmith ai install --assistant all --scope project --skill-name content
-pagesmith ai install --assistant codex --scope user --no-llms
-pagesmith ai install --assistant claude --scope project --force
+```ts
+installAiArtifacts({
+  assistants: ['claude', 'codex', 'gemini'],
+  scope: 'project',
+  profile: 'docs',
+  skillName: 'content',
+  force: true,
+})
 ```
 
 ## Programmatic API
@@ -69,6 +74,7 @@ const plan = getAiArtifacts({
 const results = installAiArtifacts({
   assistants: ['claude', 'codex', 'gemini'],
   scope: 'project',
+  profile: 'docs',
   force: true,
 })
 ```

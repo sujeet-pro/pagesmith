@@ -6,6 +6,7 @@ import { Header } from './components/Header'
 import { Html } from './components/Html'
 import { SeriesBlock } from './components/SeriesBlock'
 import { TOC } from './components/TOC'
+import { withBase } from './utils'
 
 export default function Project(props: ProjectLayoutProps) {
   const { content, frontmatter, headings, slug, site, seriesNav } = props
@@ -24,7 +25,7 @@ export default function Project(props: ProjectLayoutProps) {
         <div class="main-content">
           <main>
             <article>
-              <a href="/projects" class="article-back">
+              <a href={withBase(site, '/projects')} class="article-back">
                 Projects
               </a>
               <ContentMeta frontmatter={frontmatter} />

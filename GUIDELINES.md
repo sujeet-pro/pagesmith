@@ -220,25 +220,15 @@ This makes `JsoncLoader` the sole handler for `.jsonc` files. The separation is 
 
 ### 2.1 Cache the Unified Markdown Processor
 
-**Problem**: `processMarkdown()` in `pipeline.ts` builds an entirely new unified processor chain on every call. This includes initializing all remark/rehype plugins and — most expensively — the shiki highlighter. For a site with 100 markdown entries, this creates 100 separate processor instances.
+**Problem**: `processMarkdown()` in `pipeline.ts` builds an entirely new unified processor chain on every call. This includes initializing all remark/rehype plugins and — most expensively — the Expressive Code highlighter. For a site with 100 markdown entries, this creates 100 separate processor instances.
 
-**File**: `packages/core/src/markdown/pipeline.ts` (lines 47-105)
+**File**: `packages/core/src/markdown/pipeline.ts`
 
-**Change**: Cache the processor keyed by a serialized config. The shiki plugin loads themes/languages lazily but still has initialization overhead per instance.
+**Change**: Cache the processor keyed by a config reference. The current implementation uses a WeakMap keyed on the config object reference, which avoids per-call processor creation.
 
 ```typescript
-// At module level in pipeline.ts:
-const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
-
-function configKey(config: MarkdownConfig): string {
-  return JSON.stringify({
-    remarkPlugins: config.remarkPlugins?.length ?? 0,
-    rehypePlugins: config.rehypePlugins?.length ?? 0,
-    shikiThemes: config.shiki?.themes,
-    shikiLangAlias: config.shiki?.langAlias,
-    shikiLineNumbers: config.shiki?.defaultShowLineNumbers,
-  })
-}
+// Already implemented in pipeline.ts:
+const processorCache = new WeakMap<MarkdownConfig, ReturnType<typeof createProcessor>>()
 
 function createProcessor(config: MarkdownConfig): ReturnType<typeof unified> {
   const processor = unified()
@@ -281,90 +271,7 @@ const processorCache = new WeakMap<MarkdownConfig, ReturnType<typeof unified>>()
 
 ---
 
-### 2.2 Reuse Browser/Renderer in Diagram Renderers
-
-**Problem**: Diagram renderers now live in `diagramkit`. This section documents the pattern that should be followed there. `ExcalidrawRenderer.renderSingle()` launches a new Chromium browser per call. `MermaidRenderer.renderSingle()` creates a new renderer per call.
-
-**Files** (in `diagramkit`, not this repo):
-- `excalidraw.ts` — browser lifecycle per render call
-- `mermaid.ts` — renderer instance per render call
-- `types.ts` — `dispose?()` already exists in interface
-
-**Change for ExcalidrawRenderer**: Keep browser and page alive between `renderSingle` calls. The `dispose()` method already exists in the interface:
-
-```typescript
-export class ExcalidrawRenderer implements DiagramRenderer {
-  name = 'excalidraw'
-  extensions = ['.excalidraw']
-
-  private _browser?: Browser
-  private _page?: Page
-  private _bundleCode?: string
-
-  private async ensurePage(): Promise<Page> {
-    if (this._page) return this._page
-    this._bundleCode ??= await buildExcalidrawBundle() ?? undefined
-    if (!this._bundleCode) throw new Error('Excalidraw bundle unavailable')
-    this._browser = await chromium.launch()
-    this._page = await createExcalidrawPage(this._browser, this._bundleCode)
-    return this._page
-  }
-
-  async renderSingle(file: DiagramFile): Promise<void> {
-    const page = await this.ensurePage()
-    const json = readFileSync(file.path, 'utf-8')
-    const outDir = ensureDiagramsDir(file.dir)
-
-    for (const darkMode of [false, true]) {
-      const suffix = darkMode ? 'dark' : 'light'
-      try {
-        const svg: string = await page.evaluate(
-          async ({ json, darkMode }) => {
-            return await (globalThis as any).__renderExcalidraw(json, darkMode)
-          },
-          { json, darkMode },
-        )
-        writeFileSync(join(outDir, `${file.name}-${suffix}.svg`), svg)
-      } catch (err: any) {
-        console.warn(`  FAIL: ${file.name}-${suffix} -- ${err.message}`)
-      }
-    }
-    console.log(`  Rendered: ${file.name}`)
-  }
-
-  async dispose(): Promise<void> {
-    await this._browser?.close()
-    this._browser = undefined
-    this._page = undefined
-  }
-}
-```
-
-**Change for MermaidRenderer**: Cache the renderer instance:
-
-```typescript
-export class MermaidRenderer implements DiagramRenderer {
-  name = 'mermaid'
-  extensions = ['.mermaid']
-  private _renderer?: ReturnType<typeof createMermaidRenderer>
-
-  private getRenderer() {
-    this._renderer ??= createMermaidRenderer()
-    return this._renderer
-  }
-
-  async renderSingle(file: DiagramFile): Promise<void> {
-    const renderer = this.getRenderer()
-    // ... rest of current logic using `renderer` instead of creating new one
-  }
-}
-```
-
-**Important**: The diagram CLI and watch mode must call `dispose()` on shutdown to clean up browser processes.
-
----
-
-### 2.3 Parallelize Entry Loading
+### 2.2 Parallelize Entry Loading
 
 **Problem**: `store.ts` `loadCollection()` (lines 59-64) processes entries sequentially in a for-of loop. Each iteration awaits `loadEntry()` before starting the next.
 
@@ -397,7 +304,7 @@ Adding `p-limit` as a dependency is optional — `Promise.all` without limiting 
 
 ---
 
-### 2.4 Optimize getEntry to Avoid Loading Full Collection
+### 2.3 Optimize getEntry to Avoid Loading Full Collection
 
 **Problem**: `content-layer.ts` `getEntry()` (lines 81-88) calls `getCollection()` which loads ALL entries just to find one by slug.
 
@@ -424,29 +331,7 @@ async getEntry<S extends z.ZodType>(
 
 ## Phase 3: Code Quality (P1-P2)
 
-### 3.1 Remove Dead Conditional in rehype-diagram-images
-
-**Problem**: `rehype-diagram-images.ts` lines 100-105 have identical branches:
-
-```typescript
-if (parent.type === 'element' && (parent as Element).tagName === 'figure') {
-  ;(parent.children as ElementContent[])[index] = pictureNode
-} else {
-  ;(parent.children as ElementContent[])[index] = pictureNode
-}
-```
-
-**File**: `packages/core/src/diagrams/rehype-diagram-images.ts` (lines 100-105)
-
-**Change**: Remove the dead conditional:
-
-```typescript
-;(parent.children as ElementContent[])[index] = pictureNode
-```
-
----
-
-### 3.2 Compute Read Time from Raw Markdown, Not HTML
+### 3.1 Compute Read Time from Raw Markdown, Not HTML
 
 **Problem**: `computeReadTime()` in `read-time.ts` (lines 8-15) strips HTML tags with regex (`/<[^>]+>/g`), which breaks on edge cases like attributes containing `>`, `<script>` content, etc.
 
@@ -483,7 +368,7 @@ const readTime = computeReadTime(this.rawContent)
 
 ---
 
-### 3.3 Remove .d.ts Files from src/
+### 3.2 Remove .d.ts Files from src/
 
 **Problem**: Files like `packages/core/src/convert.d.ts`, `document.d.ts`, `frontmatter.d.ts`, `layout-engine.d.ts`, `toc.d.ts` and their `.d.ts.map` counterparts are checked into `src/`. These are either generated artifacts that should live in `dist/` and be gitignored, or unnecessary given the `.ts` sources.
 
@@ -496,7 +381,7 @@ const readTime = computeReadTime(this.rawContent)
 
 ---
 
-### 3.4 Add Error Boundary for Individual Entry Loading
+### 3.3 Add Error Boundary for Individual Entry Loading
 
 **Problem**: A single malformed content file (bad YAML frontmatter, corrupt JSON, etc.) crashes the entire collection load. The `loadEntry` method doesn't catch loader errors.
 
@@ -574,7 +459,7 @@ try {
 
 ### 4.3 Add Integration Tests
 
-**Problem**: Only `loaders.test.ts` and `frontmatter.test.ts` exist. No tests for the validation pipeline, diagram system, collection loading, computed fields, or slug generation.
+**Problem**: Only `loaders.test.ts` and `frontmatter.test.ts` exist. No tests for the validation pipeline, collection loading, computed fields, or slug generation.
 
 **Priority test files to create**:
 
@@ -656,15 +541,13 @@ Phase 1 (P0 — do first, no dependencies between items):
 
 Phase 2 (P1 — after Phase 1):
   2.1  Cache unified processor
-  2.2  Reuse browser/renderer in diagram renderers
-  2.3  Parallelize entry loading
-  2.4  Document getEntry behavior
+  2.2  Parallelize entry loading
+  2.3  Document getEntry behavior
 
 Phase 3 (P1-P2 — after Phase 2):
-  3.1  Remove dead conditional in rehype-diagram-images
-  3.2  Compute read time from raw markdown
-  3.3  Remove .d.ts from src/
-  3.4  Add error boundary for entry loading
+  3.1  Compute read time from raw markdown
+  3.2  Remove .d.ts from src/
+  3.3  Add error boundary for entry loading
 
 Phase 4 (P2 — after Phase 3):
   4.1  Structured loader errors

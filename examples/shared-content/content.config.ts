@@ -111,14 +111,6 @@ const content = defineCollections({
           priority: z.number().optional(),
         })
         .optional(),
-      diagrams: z
-        .object({
-          mermaid: z.boolean().optional(),
-          excalidraw: z.boolean().optional(),
-          renderOnBuild: z.boolean().optional(),
-          watchInDev: z.boolean().optional(),
-        })
-        .optional(),
       darkMode: z
         .object({
           enabled: z.boolean(),

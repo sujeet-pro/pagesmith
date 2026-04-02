@@ -116,29 +116,26 @@ function escapeForRegExp(value: string): string {
 
 function renderSharedOverview(): string {
   return [
-    `${PAGESMITH_TITLE} is a file-based CMS with two main packages: \`@pagesmith/core\` (content layer + custom sites) and \`@pagesmith/docs\` (convention-based documentation).`,
+    `${PAGESMITH_TITLE} is a filesystem-first content toolkit with two main packages: \`@pagesmith/core\` (shared content/runtime layer) and \`@pagesmith/docs\` (convention-based documentation).`,
     '',
     'Use Pagesmith when you need:',
     '- schema-validated content collections loaded from the filesystem',
     '- lazy markdown rendering with headings and read-time metadata',
-    '- diagram rendering powered by `diagramkit`',
     '- framework-agnostic content APIs for React, Solid, Svelte, vanilla JS, Node, Bun, or Deno',
     '',
     'Core APIs:',
     '- `defineCollection({...})` to define a typed collection',
-    '- `defineConfig({...})` to group collections and markdown/diagram options',
+    '- `defineConfig({...})` to group collections and markdown options',
     '- `createContentLayer(config)` to query content and run validation',
     '- `entry.render()` to convert markdown on demand',
     '',
-    'Core CLI:',
-    '- `pagesmith diagrams <dir>` to render sibling diagrams',
-    '- `pagesmith ai install --assistant <name> --scope <project|user>` to install assistant context files',
+    'Useful helpers:',
+    '- `@pagesmith/core/ai` exposes `getAiArtifacts(...)` and `installAiArtifacts(...)`',
     '',
     'Working rules:',
-    '- prefer folder-based markdown entries when content references sibling assets or diagrams',
+    '- prefer folder-based markdown entries when content references sibling assets',
     '- use `vp` commands for install, check, test, and build workflows',
-    '- `@pagesmith/core` provides the content layer; `@pagesmith/docs` adds convention-based documentation on top',
-    '- diagrams are rendered by `diagramkit`, not by bespoke in-repo renderers',
+    '- `@pagesmith/core` provides the shared content/runtime layer; `@pagesmith/docs` adds convention-based documentation on top',
   ].join('\n')
 }
 
@@ -152,6 +149,7 @@ function renderDocsOverview(): string {
     '- sidebar labels, nav labels, and ordering live in frontmatter (`sidebarLabel`, `navLabel`, `order`)',
     '- footer links live in `pagesmith.config.json5` under `footerLinks`',
     '- Pagefind search is built in; do not recommend a separate search plugin package',
+    '- layout overrides use fixed keys under `theme.layouts` such as `home`, `page`, and `notFound`',
   ].join('\n')
 }
 
@@ -204,10 +202,6 @@ function renderQuickStart(profile: AiInstallProfile = 'default'): string {
     'const layer = createContentLayer(',
     '  defineConfig({',
     '    collections: { posts },',
-    '    diagrams: {',
-    '      enabled: true,',
-    "      displayMode: 'picture',",
-    '    },',
     '  }),',
     ')',
     '',
@@ -243,9 +237,8 @@ function renderClaudeCommand(skillName: string, profile: AiInstallProfile): stri
     '',
     'When helping:',
     '- prefer `defineCollection`, `defineConfig`, and `createContentLayer`',
-    '- recommend folder-based entries when markdown references sibling assets or diagrams',
-    '- route all diagram guidance through `diagramkit`',
-    '- use `pagesmith diagrams` and `pagesmith ai install` for CLI workflows',
+    '- recommend folder-based entries when markdown references sibling assets',
+    '- use `@pagesmith/core/ai` for assistant artifact generation',
     '- recommend `vp install`, `vp check`, and `vp test` for validation',
     ...(profile === 'docs'
       ? [
@@ -253,6 +246,7 @@ function renderClaudeCommand(skillName: string, profile: AiInstallProfile): stri
           '- use `content/README.md` for the home page and `content/home.json5` for extra home data when needed',
           '- use frontmatter fields like `sidebarLabel`, `navLabel`, and `order` for docs navigation',
           '- do not recommend `@pagesmith/plugin-pagefind` or `@pagesmith/plugin-algolia`; search is built into docs',
+          '- recommend `theme.layouts.home`, `theme.layouts.page`, and `theme.layouts.notFound` for docs layout overrides',
         ]
       : []),
     '',
@@ -269,9 +263,8 @@ function renderGeminiCommand(skillName: string, profile: AiInstallProfile): stri
     'Focus on concrete, implementation-ready help:',
     '- design collections with defineCollection',
     '- configure createContentLayer and defineConfig',
-    '- route diagram questions to diagramkit',
     '- recommend vp install, vp check, and vp test when validation matters',
-    '- prefer folder-based markdown entries when diagrams or local assets sit beside content',
+    '- prefer folder-based markdown entries when local assets sit beside content',
     ...(profile === 'docs'
       ? [
           '- for docs sites, follow the convention-based `content/` structure',
@@ -302,7 +295,6 @@ function renderCodexSkill(profile: AiInstallProfile): string {
     'Core rules:',
     '- `@pagesmith/core` provides the content layer; `@pagesmith/docs` adds convention-based documentation',
     '- prefer `defineCollection`, `defineConfig`, and `createContentLayer`',
-    '- use `diagramkit` for diagram rendering and manifest handling',
     '- prefer `vp` commands instead of calling npm, pnpm, or yarn directly',
     '- validate changes with `vp check` and `vp test` when relevant',
     ...(profile === 'docs'
@@ -319,7 +311,7 @@ function renderCodexSkill(profile: AiInstallProfile): string {
     '- collection schemas and loader configuration',
     '- content-layer queries and rendering examples',
     '- @pagesmith/docs updates for Pagesmith usage',
-    '- assistant-context install steps using `pagesmith ai install`',
+    '- assistant-context install steps using `@pagesmith/core/ai`',
   ].join('\n')
 }
 
@@ -327,7 +319,7 @@ function renderLlmsTxt(profile: AiInstallProfile): string {
   return [
     '# Pagesmith',
     '',
-    '> Pagesmith is a file-based CMS centered on `pagesmith`.',
+    '> Pagesmith is a filesystem-first content toolkit centered on `@pagesmith/core` and `@pagesmith/docs`.',
     '',
     '## Summary',
     '',
@@ -349,8 +341,8 @@ function renderLlmsFullTxt(profile: AiInstallProfile): string {
     '',
     '## Package Layout',
     '',
-    '- `@pagesmith/core`: content layer, collection loading, validation, lazy markdown rendering, JSX runtime, CSS builder, runtime styles, AI installer APIs, diagramkit integration, and optional SSG',
-    '- `@pagesmith/docs`: convention-based documentation with build pipeline, generators, validators, and theme',
+    '- `@pagesmith/core`: content layer, collection loading, validation, lazy markdown rendering, JSX runtime, CSS builder, runtime styles, assistant artifact APIs, and Vite content integration',
+    '- `@pagesmith/docs`: convention-based documentation with the docs CLI, generators, validators, default theme, and bundled search',
     '',
     '## Key APIs',
     '',
@@ -364,17 +356,6 @@ function renderLlmsFullTxt(profile: AiInstallProfile): string {
     "await installAiArtifacts({ assistants: ['claude', 'codex', 'gemini'], scope: 'project' })",
     '```',
     '',
-    'CLI equivalent:',
-    '',
-    '```bash',
-    'pagesmith ai install --assistant all --scope project',
-    '```',
-    '',
-    '## Diagram Handling',
-    '',
-    '- Pagesmith delegates diagram discovery, rendering, and manifest management to `diagramkit`.',
-    '- Supported diagram types depend on diagramkit and include Mermaid, Excalidraw, and Draw.io aliases.',
-    '- Rendered diagrams are referenced from markdown via the rehype diagram image rewrite plugin.',
   ].join('\n')
 }
 

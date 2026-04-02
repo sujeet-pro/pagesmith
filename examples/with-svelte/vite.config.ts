@@ -1,25 +1,19 @@
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { resolve } from 'path'
-import content from '../shared-content/content.config'
-import { pagesmithContent } from '@pagesmith/core/vite'
 import { defineConfig } from 'vite-plus'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import collections from './content.config'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/svelte/',
+  plugins: [
+    sharedAssetsPlugin(),
+    svelte(),
+    pagesmithContent({ collections }),
+    ...pagesmithSsg({ entry: './src/entry-server.ts', contentDirs: ['./content'] }),
+  ],
   build: {
     outDir: '../../gh-pages/examples/svelte',
+    emptyOutDir: true,
+    rolldownOptions: { checks: { pluginTimings: false } },
   },
-  plugins: [
-    pagesmithContent({
-      collections: {
-        posts: content.posts,
-        authors: content.authors,
-        pages: content.pages,
-      },
-      root: resolve(import.meta.dirname, '../shared-content'),
-      configPath: '../shared-content/content.config.ts',
-      dts: 'src/pagesmith-content.d.ts',
-    }),
-    svelte(),
-  ],
 })

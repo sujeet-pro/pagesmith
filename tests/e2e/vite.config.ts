@@ -17,10 +17,6 @@ export default defineConfig({
         import.meta.dirname,
         '../../packages/core/src/loaders/index.ts',
       ),
-      '@pagesmith/core/diagrams': resolve(
-        import.meta.dirname,
-        '../../packages/core/src/diagrams/index.ts',
-      ),
       '@pagesmith/core/schemas': resolve(
         import.meta.dirname,
         '../../packages/core/src/schemas/index.ts',

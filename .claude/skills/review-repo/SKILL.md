@@ -69,7 +69,7 @@ SECTION 1 — CODE QUALITY: Review all source files in packages/core/src/, packa
 
 SECTION 3 — ARCHITECTURE: Review module boundaries and cross-package design:
 - Content layer: collections, loaders (JSON, JSON5, JSONC, YAML, TOML, Markdown), store, content-layer API (defineCollection, createContentLayer)
-- Markdown pipeline: unified chain (remark-parse → remark-gfm → remark-math → remark-frontmatter → rehype → shiki → rehype-diagram-images → rehype-code-tabs), heading extraction, processor caching
+- Markdown pipeline: unified chain (remark-parse → remark-gfm → remark-math → remark-frontmatter → rehype → shiki → rehype-code-tabs), heading extraction, processor caching
 - JSX runtime: h(), Fragment, HtmlString, document rendering
 - CSS builder: LightningCSS bundling, token system, light-dark() usage
 - Layout engine: multi-directory resolution, propsSchema exports
@@ -122,7 +122,7 @@ Core tests (packages/core/src/__tests__/):
 - slug.test.ts — edge cases: README, index, nested, no extension
 
 E2E tests (tests/e2e/):
-- CLI commands (build, dev, preview, diagrams, ai install)
+- CLI commands (build, dev, preview, ai install)
 - Content layer end-to-end (load, validate, render)
 - Markdown rendering pipeline
 - Validation pipeline
@@ -142,7 +142,6 @@ SECTION 5 — SECURITY: Review for vulnerabilities:
 - Content collector: file path handling, glob patterns — no path traversal
 - JSON5/YAML/TOML parsing: prototype pollution, injection attacks
 - CLI: argument injection in bin.ts
-- Diagram rendering: source file handling via diagramkit
 - SSG dev server: WebSocket, file serving, request validation
 - Worker pool: postMessage data — no code injection
 - Asset copier: symlink following, directory escape
@@ -217,7 +216,6 @@ SECTION 8 — DOCUMENTATION: Review every file in docs/ against the actual codeb
 Guide pages (docs/guide/):
 - getting-started.md — installation steps, prerequisites, first collection, content loading
 - ai-assistants.md — Claude, Codex, Gemini CLI setup, skill installation
-- diagramkit.md — diagram rendering integration, diagramkit usage
 - examples.md — example walkthroughs, code accuracy
 
 Reference pages (docs/reference/):
@@ -380,7 +378,7 @@ Review all source files in `packages/core/src/`, `packages/docs/src/`, `packages
 - Validators: per-validator catch in runner, convert to validation issue
 - SSG build: per-page catch in worker pool, log error, continue batch
 - Dev server: graceful error pages, WebSocket reconnect
-- Missing optional dependencies (sharp, diagramkit): warn once, skip gracefully
+- Missing optional dependencies (sharp): warn once, skip gracefully
 - No swallowed errors (empty catch blocks)
 - No unhandled promise rejections
 - Proper error messages (actionable, include context)
@@ -418,7 +416,7 @@ Review all source files in `packages/core/src/`, `packages/docs/src/`, `packages
 - Unknown commands produce helpful error messages
 - `--help` and `--version` flags work correctly
 - Exit codes: `0` for success, `1` for error
-- Sub-commands: `build`, `dev`, `preview`, `diagrams`, `ai install`
+- Sub-commands: `build`, `dev`, `preview`, `ai install`
 
 ---
 
@@ -450,7 +448,6 @@ For each module in `packages/core/src/`, verify corresponding test file exists a
 | `utils/read-time.ts` | Word counting, code block exclusion, short/long content |
 | `markdown/pipeline.ts` | Full rendering, heading extraction, code blocks, shiki highlighting |
 | `css/builder.ts` | LightningCSS bundling, minification, custom properties |
-| `diagrams/index.ts` | Diagram discovery, manifest handling |
 
 ### 2.2 E2E Test Coverage
 
@@ -461,7 +458,6 @@ Verify `tests/e2e/` tests cover:
 | CLI build | Full SSG build end-to-end, output correctness |
 | CLI dev | Dev server starts, serves pages, hot reload |
 | CLI preview | Preview server starts, serves built output |
-| CLI diagrams | Diagram discovery and rendering via diagramkit |
 | CLI ai install | Assistant context installation (Claude, Codex, Gemini) |
 | Content loading | Collections load, validate, render correctly |
 | Markdown rendering | Full pipeline: parse → transform → render → HTML output |
@@ -503,7 +499,6 @@ raw markdown → matter() (frontmatter extraction)
   → remarkParse → remarkGfm → remarkMath → remarkFrontmatter
   → remark-rehype (allowDangerousHtml)
   → rehype-shiki (syntax highlighting)
-  → rehype-diagram-images (diagram picture elements)
   → rehype-code-tabs (tabbed code blocks)
   → rehype-stringify
   → { html, headings, frontmatter }
@@ -656,29 +651,24 @@ pagesmith.config.ts (core) or pagesmith.config.json5 (docs) → Zod validation �
 - Shell command construction (if any)
 - File path arguments: sanitization before use
 
-### 5.5 Diagram Source Handling
 
-- Diagram files passed to diagramkit: verify no code execution
-- Mermaid source: no script injection
-- SVG output: sanitized before embedding in HTML
-
-### 5.6 SSG Dev Server
+### 5.5 SSG Dev Server
 
 - WebSocket: origin validation, no arbitrary message handling
 - File serving: no directory traversal, only serve from project root
 - Request validation: method, path, content-type
 - No sensitive file exposure (config, .env, credentials)
 
-### 5.7 Worker Pool
+### 5.6 Worker Pool
 
 - postMessage data: only serializable data, no code injection
 - Worker scripts: loaded from trusted paths only
 - Error messages: no sensitive data leaked
 
-### 5.8 Dependencies
+### 5.7 Dependencies
 
 - No known vulnerabilities (`npm audit` results from shared context)
-- Optional peer dependencies dynamically imported (sharp, diagramkit)
+- Optional peer dependencies dynamically imported (sharp)
 - No unnecessary runtime dependencies
 - Lock file integrity
 
@@ -767,7 +757,6 @@ Review all docs in `docs/` for:
 
 - **getting-started.md** — installation, prerequisites, first collection, content loading example
 - **ai-assistants.md** — Claude Code, Codex, Gemini CLI setup, skill installation, verification
-- **diagramkit.md** — diagram rendering integration, CLI usage, API usage, supported types
 - **examples.md** — example walkthroughs, code accuracy, links to example directories
 
 ### 8.2 Reference Pages (`docs/reference/`)
@@ -816,7 +805,6 @@ Flag if any of these are missing or incomplete:
 - Theme customization guide
 - Plugin development guide (pagefind, algolia)
 - Layout authoring guide
-- Diagram integration guide
 - Migration guide from Astro/Contentlayer/Velite
 - Contributing guide (CONTRIBUTING.md)
 - Changelog (CHANGELOG.md)
@@ -840,7 +828,7 @@ Verify existence and quality of:
 | `GEMINI.md` | Project | Gemini CLI assistant context |
 | `GUIDELINES.md` | Project | Coding conventions and implementation guide |
 | `.github/` | Required | Issue templates, PR templates, CI workflows |
-| `.gitignore` | Required | Covers node_modules, dist, .diagrams, etc. |
+| `.gitignore` | Required | Covers node_modules, dist, etc. |
 | `.editorconfig` | Recommended | Consistent formatting across editors |
 | `.node-version` | Required | Specifies Node version |
 | `package.json` | Required | Complete workspace config |

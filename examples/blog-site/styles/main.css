@@ -9,10 +9,6 @@
 
 /* Code */
 @import "./code/inline.css";
-@import "./code/block.css";
-@import "./code/tabs.css";
-@import "./code/line-features.css";
-@import "./code/lang-icons.css";
 
 /* Layout */
 @import "./layout/grid.css";

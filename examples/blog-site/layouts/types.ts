@@ -55,7 +55,7 @@ export type SiteConfig = {
   featuredArticles: string[]
   featuredSeries: string[]
   pageTypes: string[]
-  home: HomeConfig
+  home?: HomeConfig
   analytics?: {
     googleAnalytics?: string
   }
@@ -64,9 +64,17 @@ export type SiteConfig = {
     twitterHandle?: string
     defaultOgType?: string
   }
+  assets?: {
+    cssPath: string
+    jsPath?: string
+  }
   theme?: {
     lightColor: string
     darkColor: string
+  }
+  search?: {
+    enabled?: boolean
+    showImages?: boolean
   }
 }
 

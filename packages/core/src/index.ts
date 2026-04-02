@@ -1,7 +1,7 @@
 /**
  * pagesmith — File-based CMS library.
  *
- * Schema-validated collections, lazy markdown rendering, diagrams,
+ * Schema-validated collections, lazy markdown rendering,
  * asset hashing, and runtime CSS/JS exports.
  */
 
@@ -21,9 +21,6 @@ export { Fragment, h, HtmlString } from './jsx-runtime'
 export { processMarkdown } from './markdown'
 export type { MarkdownResult } from './markdown'
 
-// ── Markdown Plugins ──
-export { codeBlockTransformers, rehypeCodeTabs } from './markdown/plugins'
-
 // ── CSS Builder ──
 export { buildCss } from './css'
 
@@ -33,14 +30,6 @@ export type { FrontmatterResult } from './frontmatter'
 
 // ── TOC Extraction ──
 export { extractToc } from './toc'
-
-// ── Document Generation ──
-export { generateDocument } from './document'
-export type { DocumentOptions } from './document'
-
-// ── Layout Engine ──
-export { applyLayout } from './layout-engine'
-export type { CoreLayoutProps } from './layout-engine'
 
 // ── Convert API ──
 export { convert } from './convert'

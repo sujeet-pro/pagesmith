@@ -1,8 +1,8 @@
 # Pagesmith
 
-Pagesmith is a file-based CMS and documentation tool, organized as a multi-package workspace under the `@pagesmith/` npm scope.
+Pagesmith is a filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope.
 
-Two main user-facing packages: `@pagesmith/core` for custom layout sites (blogs, portfolios) and `@pagesmith/docs` for convention-based documentation.
+Two main user-facing packages: `@pagesmith/core` for the shared content/runtime layer and `@pagesmith/docs` for convention-based documentation built on top of core.
 
 Focus areas for this repo:
 
@@ -10,9 +10,9 @@ Focus areas for this repo:
 - the built-in Vite content plugin exposed from `@pagesmith/core/vite`
 - schema validation and AST-level content validation
 - lazy markdown rendering
-- diagram management through `diagramkit`
-- documentation built with `@pagesmith/docs` in `docs/`, with Pagefind search and navigation derived from `content/`
-- assistant installs through `pagesmith ai install`
+- docs sites powered by `@pagesmith/docs`, with bundled Pagefind search and navigation derived from `content/`
+- docs layout overrides through fixed `theme.layouts.*` slots
+- assistant artifact generation through `@pagesmith/core/ai`
 
 Useful commands:
 
@@ -20,9 +20,9 @@ Useful commands:
 vp install
 vp check
 vp test
-pagesmith diagrams content/
-pagesmith ai install --assistant gemini --scope project
-pagesmith ai install --assistant gemini --scope project --docs
+vp run build
+vp run dev:docs
+vp run build:examples
 ```
 
-Prefer folder-based markdown entries when content references sibling assets or diagrams.
+Prefer folder-based markdown entries when content references sibling assets.

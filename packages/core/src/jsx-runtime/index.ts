@@ -109,6 +109,18 @@ export function jsx(
 
 export { jsx as jsxs }
 
+// Dev mode JSX transform — same as jsx but with extra debug params we ignore
+export function jsxDEV(
+  tag: string | ((props: any) => HtmlString),
+  props: Record<string, unknown>,
+  _key?: string,
+  _isStaticChildren?: boolean,
+  _source?: unknown,
+  _self?: unknown,
+): HtmlString {
+  return jsx(tag, props)
+}
+
 declare global {
   namespace JSX {
     type Element = HtmlString

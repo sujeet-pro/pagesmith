@@ -13,7 +13,7 @@ type Props = {
     theme?: { lightColor?: string; darkColor?: string }
     analytics?: { googleAnalytics?: string }
     footerLinks?: Array<{ label: string; path: string }>
-    search?: { enabled?: boolean }
+    search?: { enabled?: boolean; showImages?: boolean; showSubResults?: boolean }
   }
   children?: any
 }
@@ -52,13 +52,6 @@ export function Html({ title, description, url, site, children }: Props) {
         <meta name="theme-color" content={lightColor} media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content={darkColor} media="(prefers-color-scheme: dark)" />
 
-        {/* Favicons */}
-        <link rel="icon" type="image/x-icon" href={`${base}/favicons/favicon.ico`} />
-        <link rel="icon" type="image/png" sizes="32x32" href={`${base}/favicons/favicon-32x32.png`} />
-
-        {/* Feeds */}
-        <link rel="sitemap" type="application/xml" href={`${base}/sitemap.xml`} />
-
         {/* CSS */}
         <link rel="stylesheet" href={`${base}/assets/style.css`} />
         {searchEnabled ? <link rel="stylesheet" href={`${base}/pagefind/pagefind-ui.css`} /> : null}
@@ -67,9 +60,9 @@ export function Html({ title, description, url, site, children }: Props) {
         <script innerHTML="document.documentElement.classList.remove('no-js')" />
         {searchEnabled ? <script src={`${base}/pagefind/pagefind-ui.js`} defer /> : null}
         {searchEnabled ? (
-          <script
-            innerHTML={`window.addEventListener('DOMContentLoaded',function(){var el=document.querySelector('[data-pagefind-search]');if(!el||typeof PagefindUI==='undefined'){return;}new PagefindUI({element:el,showSubResults:true,resetStyles:false});});`}
-          />
+          <noscript>
+            <style innerHTML=".doc-search-trigger{display:none!important}" />
+          </noscript>
         ) : null}
 
         {/* Google Analytics */}
@@ -83,8 +76,30 @@ export function Html({ title, description, url, site, children }: Props) {
         ) : null}
       </head>
       <body>
-        <input type="checkbox" id="sidebar-toggle" class="sr-only" />
         {children}
+        {searchEnabled ? (
+          <dialog
+            class="doc-search-modal"
+            id="search-modal"
+            aria-label="Search documentation"
+            data-search-show-images={site.search?.showImages ? 'true' : 'false'}
+            data-search-show-sub-results={site.search?.showSubResults !== false ? 'true' : 'false'}
+          >
+            <div class="doc-search-modal-inner">
+              <div class="doc-search-modal-header">
+                <span class="doc-search-modal-title">Search</span>
+                <button
+                  type="button"
+                  class="doc-search-modal-close"
+                  aria-label="Close search"
+                  data-search-close=""
+                  innerHTML='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
+                />
+              </div>
+              <div class="doc-search-modal-body" data-pagefind-search="" />
+            </div>
+          </dialog>
+        ) : null}
         <script src={`${base}/assets/main.js`} defer />
       </body>
     </html>

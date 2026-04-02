@@ -28,10 +28,10 @@ describe('markdown pipeline', () => {
     expect(result.html).toContain('<del>')
   })
 
-  it('highlights code blocks with shiki', async () => {
+  it('highlights code blocks with expressive code', async () => {
     const md = '```typescript\nconst x: number = 42\n```'
     const result = await processMarkdown(md)
-    expect(result.html).toContain('shiki')
+    expect(result.html).toContain('expressive-code')
     expect(result.html).toContain('42')
   })
 
@@ -51,18 +51,17 @@ describe('markdown pipeline', () => {
     expect(toc.some((h) => h.text === 'Section 1')).toBe(true)
   })
 
-  it('converts markdown in full mode with layout', async () => {
-    const md = '---\ntitle: Full Page\n---\n\n# Hello World'
-    const result = await convert(md, { mode: 'full' })
-    expect(result.html).toContain('<html')
-    expect(result.html).toContain('</html>')
+  it('converts markdown via convert() API', async () => {
+    const md = '---\ntitle: Test Page\n---\n\n# Hello World'
+    const result = await convert(md)
+    expect(result.html).not.toContain('<!DOCTYPE')
     expect(result.html).toContain('Hello World')
-    expect(result.frontmatter.title).toBe('Full Page')
+    expect(result.frontmatter.title).toBe('Test Page')
   })
 
-  it('converts markdown in fragment mode', async () => {
+  it('converts markdown fragment', async () => {
     const md = '# Fragment\n\nJust content.'
-    const result = await convert(md, { mode: 'fragment' })
+    const result = await convert(md)
     expect(result.html).not.toContain('<!DOCTYPE')
     expect(result.html).toContain('Fragment')
   })

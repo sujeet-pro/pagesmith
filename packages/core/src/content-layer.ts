@@ -6,7 +6,6 @@
  * - Convert markdown directly (convert)
  * - Invalidate cache (invalidate, invalidateCollection, invalidateAll)
  * - Validate all entries (validate)
- * - Render diagrams (renderDiagrams)
  */
 
 import type { ConvertResult } from './convert'
@@ -39,9 +38,6 @@ export interface ContentLayer {
   /** Validate all entries in a collection (or all collections). */
   validate(collection?: string): Promise<ValidationResult[]>
 
-  /** Render all diagrams in content directories. */
-  renderDiagrams(options?: { force?: boolean }): Promise<void>
-
   /** Get the names of all configured collections. */
   getCollectionNames(): string[]
 
@@ -51,7 +47,6 @@ export interface ContentLayer {
 
 export type LayerConvertOptions = {
   markdown?: MarkdownConfig
-  mode?: 'full' | 'fragment'
 }
 
 class ContentLayerImpl implements ContentLayer {
@@ -86,7 +81,6 @@ class ContentLayerImpl implements ContentLayer {
     const { convert: coreConvert } = await import('./convert.js')
     return coreConvert(markdown, {
       markdown: options?.markdown ?? this.config.markdown,
-      mode: options?.mode,
     })
   }
 
@@ -133,35 +127,6 @@ class ContentLayerImpl implements ContentLayer {
     }
 
     return results
-  }
-
-  async renderDiagrams(options?: { force?: boolean }): Promise<void> {
-    const { renderDiagrams: render } = await import('./diagrams/index.js')
-    const root = this.config.root ?? process.cwd()
-    const diagramConfig = this.config.diagrams
-      ? {
-          outputDir: this.config.diagrams.outputDir,
-          manifestFile: this.config.diagrams.manifestFile,
-          useManifest: this.config.diagrams.useManifest,
-          sameFolder: this.config.diagrams.sameFolder,
-          extensionMap: this.config.diagrams.extensionMap,
-          defaultFormat: this.config.diagrams.defaultFormat,
-          defaultTheme: this.config.diagrams.defaultTheme,
-        }
-      : undefined
-
-    // Render diagrams in each markdown collection's directory
-    for (const [, def] of Object.entries(this.config.collections)) {
-      if (typeof def.loader === 'string' && def.loader !== 'markdown') continue
-      if (typeof def.loader === 'object' && !def.loader.extensions.includes('.md')) continue
-
-      const { resolve } = await import('path')
-      await render({
-        contentDir: resolve(root, def.directory),
-        force: options?.force,
-        config: diagramConfig,
-      })
-    }
   }
 
   getCollectionNames(): string[] {

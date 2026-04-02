@@ -17,7 +17,6 @@ A file-based CMS and static site generator built with TypeScript.
 - Schema-validated content collections
 - Unified markdown pipeline with Shiki syntax highlighting
 - Server-side JSX rendering
-- Diagram support via diagramkit (Mermaid, Excalidraw, Draw.io)
 - Zero-config static site generation
 - Built-in search (Pagefind or Algolia)
 

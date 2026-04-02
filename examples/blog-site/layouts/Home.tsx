@@ -3,17 +3,20 @@ import type { HomeLayoutProps } from './types'
 import { Footer } from './components/Footer'
 import { Header } from './components/Header'
 import { Html } from './components/Html'
+import { withBase } from './utils'
 
 export default function Home(props: HomeLayoutProps) {
   const { site, featuredArticles, featuredSeries, stats, frontmatter } = props
   const hasHeroLayout = frontmatter?.hero || frontmatter?.features
+  const homeTitle = site.home?.pageTitle ?? site.title
+  const homeDescription = site.home?.pageDescription ?? site.description
 
   if (hasHeroLayout) {
     return (
       <Html
-        title={frontmatter.hero?.name || site.home.pageTitle}
-        description={frontmatter.hero?.tagline || site.home.pageDescription}
-        url="/"
+        title={frontmatter.hero?.name || homeTitle}
+        description={frontmatter.hero?.tagline || homeDescription}
+        url={withBase(site, '/')}
         site={site}
       >
         <Header site={site} slug="/" />
@@ -28,7 +31,7 @@ export default function Home(props: HomeLayoutProps) {
                 <div class="hero-actions">
                   {frontmatter.hero.actions.map((action: any) => (
                     <a
-                      href={action.link}
+                      href={withBase(site, action.link)}
                       class={`hero-action hero-action-${action.theme || 'brand'}`}
                     >
                       {action.text}
@@ -60,7 +63,12 @@ export default function Home(props: HomeLayoutProps) {
 
   if (!site.home) {
     return (
-      <Html title={frontmatter.title ?? site.title} description={frontmatter.description ?? site.description} url="/" site={site}>
+      <Html
+        title={frontmatter.title ?? site.title}
+        description={frontmatter.description ?? site.description}
+        url={withBase(site, '/')}
+        site={site}
+      >
         <Header site={site} slug="/" />
         <main class="main-content main-home">
           <Fragment innerHTML={props.content} />
@@ -73,7 +81,7 @@ export default function Home(props: HomeLayoutProps) {
   const { profile, profileActions } = site.home
 
   return (
-    <Html title={site.home.pageTitle} description={site.home.pageDescription} url="/" site={site}>
+    <Html title={homeTitle} description={homeDescription} url={withBase(site, '/')} site={site}>
       <Header site={site} slug="/" />
       <main class="main-content main-home">
         {/* ── Profile ── */}
@@ -88,12 +96,12 @@ export default function Home(props: HomeLayoutProps) {
               </a>
             ) : null}
             {profileActions.viewCv ? (
-              <a href="/cv" class="home-action">
+              <a href={withBase(site, '/cv')} class="home-action">
                 {profileActions.viewCv}
               </a>
             ) : null}
             {profileActions.allArticles ? (
-              <a href="/articles" class="home-action">
+              <a href={withBase(site, '/articles')} class="home-action">
                 {profileActions.allArticles}
               </a>
             ) : null}
@@ -118,14 +126,14 @@ export default function Home(props: HomeLayoutProps) {
             </p>
             <div class="home-series-grid">
               {featuredSeries.map((s) => (
-                <a href={`/articles#${s.slug}`} class="home-series-card">
+                <a href={withBase(site, `/articles#${s.slug}`)} class="home-series-card">
                   <span class="home-series-name">{s.displayName}</span>
                   <span class="home-series-count">{s.articles.length} articles</span>
                   {s.description ? <span class="home-series-desc">{s.description}</span> : null}
                 </a>
               ))}
             </div>
-            <a href="/articles" class="home-see-all">
+            <a href={withBase(site, '/articles')} class="home-see-all">
               Browse all articles &rarr;
             </a>
           </section>

@@ -40,23 +40,19 @@ export default function DocPage(props: Props) {
       <DocHeader
         siteName={site.name}
         basePath={site.basePath}
+        homeLink={site.homeLink}
         navItems={site.navItems}
         slug={slug}
         searchEnabled={site.search?.enabled}
       />
       <div class="doc-layout">
-        <DocSidebar sections={sidebarSections} currentSlug={slug} />
-        <main class="doc-main">
-          {frontmatter.title ? (
-            <div class="doc-page-header">
-              <h1>{frontmatter.title}</h1>
-              {frontmatter.description ? (
-                <p class="doc-page-description">{frontmatter.description}</p>
-              ) : null}
-            </div>
-          ) : null}
-
-          {/* Mobile TOC */}
+        <DocSidebar
+          sections={sidebarSections}
+          currentSlug={slug}
+          collapsible={site.sidebar?.collapsible}
+        />
+        <main class="doc-main" data-pagefind-body="">
+          {/* Mobile TOC — always at top of content area */}
           {headings.length > 0 ? (
             <details class="doc-toc-mobile">
               <summary>On this page</summary>

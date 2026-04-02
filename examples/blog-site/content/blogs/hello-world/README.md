@@ -18,7 +18,6 @@ I chose Pagesmith because:
 - **Zero config** — just write markdown and build
 - **Type-safe** — Zod schemas validate all frontmatter
 - **Fast** — parallel rendering with worker threads
-- **Diagrams** — native support for Mermaid and Excalidraw
 
 ## What's Next
 

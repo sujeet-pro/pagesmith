@@ -137,7 +137,6 @@ describe('content layer', () => {
             analytics: z.record(z.string(), z.any()).optional(),
             rss: z.record(z.string(), z.any()).optional(),
             sitemap: z.record(z.string(), z.any()).optional(),
-            diagrams: z.record(z.string(), z.any()).optional(),
             darkMode: z.record(z.string(), z.any()).optional(),
             comments: z.record(z.string(), z.any()).optional(),
           }),

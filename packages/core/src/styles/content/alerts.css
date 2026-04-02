@@ -1,0 +1,87 @@
+/* ═══════════════════════════════════════════════════════════════
+   GitHub-style alerts — > [!NOTE], > [!TIP], > [!IMPORTANT],
+   > [!WARNING], > [!CAUTION]
+   ═══════════════════════════════════════════════════════════════ */
+
+.markdown-alert {
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  border-left: 4px solid var(--alert-color, var(--color-border-subtle));
+  border-radius: var(--radius-sm);
+  background: var(--alert-bg, var(--color-bg-alt));
+}
+
+.markdown-alert > :first-child { margin-top: 0; }
+.markdown-alert > :last-child { margin-bottom: 0; }
+
+.markdown-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  color: var(--alert-color, var(--color-text));
+}
+
+/* Octicon SVG via CSS mask */
+.octicon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  background-color: currentColor;
+  mask-image: var(--oct-icon);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: var(--oct-icon);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
+
+/* ─── Alert variants ─── */
+
+.markdown-alert-note {
+  --alert-color: #0969da;
+  --alert-bg: color-mix(in srgb, #0969da 6%, transparent);
+}
+.markdown-alert-tip {
+  --alert-color: #1a7f37;
+  --alert-bg: color-mix(in srgb, #1a7f37 6%, transparent);
+}
+.markdown-alert-important {
+  --alert-color: #8250df;
+  --alert-bg: color-mix(in srgb, #8250df 6%, transparent);
+}
+.markdown-alert-warning {
+  --alert-color: #9a6700;
+  --alert-bg: color-mix(in srgb, #9a6700 6%, transparent);
+}
+.markdown-alert-caution {
+  --alert-color: #d1242f;
+  --alert-bg: color-mix(in srgb, #d1242f 6%, transparent);
+}
+
+/* ─── Dark mode ─── */
+@media (prefers-color-scheme: dark) {
+  .markdown-alert-note {
+    --alert-color: #4493f8;
+    --alert-bg: color-mix(in srgb, #4493f8 8%, transparent);
+  }
+  .markdown-alert-tip {
+    --alert-color: #3fb950;
+    --alert-bg: color-mix(in srgb, #3fb950 8%, transparent);
+  }
+  .markdown-alert-important {
+    --alert-color: #a371f7;
+    --alert-bg: color-mix(in srgb, #a371f7 8%, transparent);
+  }
+  .markdown-alert-warning {
+    --alert-color: #d29922;
+    --alert-bg: color-mix(in srgb, #d29922 8%, transparent);
+  }
+  .markdown-alert-caution {
+    --alert-color: #f85149;
+    --alert-bg: color-mix(in srgb, #f85149 8%, transparent);
+  }
+}

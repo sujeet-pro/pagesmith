@@ -1,5 +1,6 @@
 import { Fragment, h } from '@pagesmith/core/jsx-runtime'
 import type { SiteConfig } from '../types'
+import { withBase } from '../utils'
 
 type Props = {
   title: string
@@ -32,9 +33,13 @@ export function Html({
   const lightColor = site.theme?.lightColor || '#f8fafc'
   const darkColor = site.theme?.darkColor || '#020617'
   const gaId = site.analytics?.googleAnalytics
+  const cssPath = site.assets?.cssPath ?? withBase(site, '/assets/style.css')
+  const jsPath = site.assets?.jsPath
+  const searchEnabled = site.search?.enabled === true
+  const baseUrl = site.baseUrl?.replace(/\/+$/, '') ?? ''
 
   return (
-    <html lang="en" class="no-js">
+    <html lang={site.language || 'en'} class="no-js">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -77,53 +82,23 @@ export function Html({
         <meta name="theme-color" content={darkColor} media="(prefers-color-scheme: dark)" />
         <meta name="msapplication-TileColor" content={darkColor} />
 
-        {/* Favicons */}
-        <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="96x96" href="/favicons/favicon-96x96.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-icon-180x180.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/favicons/apple-icon-152x152.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/favicons/apple-icon-144x144.png" />
-        <link rel="apple-touch-icon" sizes="120x120" href="/favicons/apple-icon-120x120.png" />
-        <link rel="apple-touch-icon" sizes="114x114" href="/favicons/apple-icon-114x114.png" />
-        <link rel="apple-touch-icon" sizes="76x76" href="/favicons/apple-icon-76x76.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/favicons/apple-icon-72x72.png" />
-        <link rel="apple-touch-icon" sizes="60x60" href="/favicons/apple-icon-60x60.png" />
-        <link rel="apple-touch-icon" sizes="57x57" href="/favicons/apple-icon-57x57.png" />
-        <meta name="msapplication-TileImage" content="/favicons/ms-icon-144x144.png" />
-
-        {/* Manifest & feeds */}
-        <link rel="manifest" href="/manifest.json" />
-        <link
-          rel="alternate"
-          type="application/rss+xml"
-          title={`${site.name} RSS`}
-          href="/rss.xml"
-        />
-        <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-
-        {/* Fonts */}
-        <link
-          rel="preload"
-          href="/assets/open-sans-latin-wght-normal.woff2"
-          as="font"
-          type="font/woff2"
-          crossorigin=""
-        />
-        <link
-          rel="preload"
-          href="/assets/jetbrains-mono-latin-400-normal.woff2"
-          as="font"
-          type="font/woff2"
-          crossorigin=""
-        />
-
         {/* CSS */}
-        <link rel="stylesheet" href="/assets/style.css" />
+        <link rel="stylesheet" href={`${baseUrl}/assets/fonts.css`} />
+        <link rel="stylesheet" href={cssPath} />
+        {searchEnabled ? (
+          <link rel="stylesheet" href={`${baseUrl}/pagefind/pagefind-ui.css`} />
+        ) : null}
 
         {/* Remove no-js class */}
         <script innerHTML="document.documentElement.classList.remove('no-js')" />
+
+        {/* Pagefind JS */}
+        {searchEnabled ? <script src={`${baseUrl}/pagefind/pagefind-ui.js`} defer /> : null}
+        {searchEnabled ? (
+          <noscript>
+            <style innerHTML=".site-search-trigger{display:none!important}" />
+          </noscript>
+        ) : null}
 
         {/* Google Analytics */}
         {gaId ? (
@@ -138,7 +113,29 @@ export function Html({
       <body>
         {hasLeftSidebar ? <input type="checkbox" id="sidebar-toggle" class="sr-only" /> : null}
         {children}
-        <script src="/assets/main.js" defer />
+        {searchEnabled ? (
+          <dialog
+            class="site-search-modal"
+            id="search-modal"
+            aria-label="Search site"
+            data-search-show-images={site.search?.showImages ? 'true' : 'false'}
+          >
+            <div class="site-search-modal-inner">
+              <div class="site-search-modal-header">
+                <span class="site-search-modal-title">Search</span>
+                <button
+                  type="button"
+                  class="site-search-modal-close"
+                  aria-label="Close search"
+                  data-search-close=""
+                  innerHTML='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
+                />
+              </div>
+              <div class="site-search-modal-body" data-pagefind-search="" />
+            </div>
+          </dialog>
+        ) : null}
+        {jsPath ? <script src={jsPath} defer /> : null}
       </body>
     </html>
   )

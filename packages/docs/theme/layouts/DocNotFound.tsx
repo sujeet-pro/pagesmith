@@ -18,18 +18,22 @@ type Props = {
 }
 
 export default function DocNotFound(props: Props) {
-  const { site } = props
+  const { site, slug } = props
+  const homePath = site.homeLink || (site.basePath ? `${site.basePath}/` : '/')
 
   return (
     <Html
       title={`Page Not Found — ${site.title}`}
       description="The requested page could not be found."
+      url={`${slug}/`}
       site={site}
     >
       <DocHeader
         siteName={site.name}
+        basePath={site.basePath}
+        homeLink={site.homeLink}
         navItems={site.navItems}
-        slug="/404"
+        slug={slug}
         searchEnabled={site.search?.enabled}
       />
       <main class="doc-not-found">
@@ -40,7 +44,7 @@ export default function DocNotFound(props: Props) {
             The page you are looking for might have been moved or no longer exists.
           </p>
           <div class="doc-not-found-actions">
-            <a href="/" class="doc-not-found-btn doc-not-found-btn-primary">
+            <a href={homePath} class="doc-not-found-btn doc-not-found-btn-primary">
               Go Home
             </a>
           </div>

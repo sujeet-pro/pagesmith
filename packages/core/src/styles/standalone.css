@@ -5,16 +5,12 @@
 /* Content */
 @import "./content/prose.css";
 @import "./content/toc.css";
+@import "./content/alerts.css";
 
-/* Code */
+/* Inline code */
 @import "./code/inline.css";
-@import "./code/block.css";
-@import "./code/tabs.css";
-@import "./code/line-features.css";
-@import "./code/lang-icons.css";
 
-/* Diagrams & viewport */
-@import "./diagrams.css";
+/* Viewport */
 @import "./viewport.css";
 
 /* Layout */

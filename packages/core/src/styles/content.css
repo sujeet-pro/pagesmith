@@ -2,9 +2,9 @@
    Content rendering CSS — all-in-one for styled markdown output.
 
    Import this single file to get everything needed for rendering
-   processed markdown: typography, code blocks, tabs, diagrams,
-   and viewport constraints. Does NOT include layout (grid/sidebar)
-   or site-level components (header, footer, theme toggle).
+   processed markdown: typography and inline code styling.
+   Code block styling is handled by Expressive Code (injected inline).
+   Does NOT include layout (grid/sidebar) or site-level components.
    ═══════════════════════════════════════════════════════════════ */
 
 /* Foundations */
@@ -13,14 +13,10 @@
 
 /* Prose content */
 @import "./content/prose.css";
+@import "./content/alerts.css";
 
-/* Code */
+/* Inline code */
 @import "./code/inline.css";
-@import "./code/block.css";
-@import "./code/tabs.css";
-@import "./code/line-features.css";
-@import "./code/lang-icons.css";
 
-/* Diagrams & viewport */
-@import "./diagrams.css";
+/* Viewport */
 @import "./viewport.css";

@@ -20,37 +20,51 @@ export function initTocHighlight(): void {
 
   if (headings.length === 0) return
 
-  // Track which heading is visible
+  // Track which headings are currently visible
+  const visibleIds = new Set<string>()
   let currentId = ''
+
+  function updateActive() {
+    const prevId = currentId
+    // Pick the first heading in document order that is visible
+    currentId = ''
+    for (const id of headingIds) {
+      if (visibleIds.has(id)) {
+        currentId = id
+        break
+      }
+    }
+    // Update TOC active state
+    tocLinks.forEach((link) => {
+      const li = link.parentElement
+      if (li) {
+        li.classList.toggle('active', link.getAttribute('href') === `#${currentId}`)
+      }
+    })
+    // Scroll active TOC item into view when it changes
+    if (currentId !== prevId) {
+      const activeLi = document.querySelector(
+        '.doc-aside .doc-toc-item.active',
+      ) as HTMLElement | null
+      if (activeLi) {
+        activeLi.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      }
+    }
+  }
 
   const observer = new IntersectionObserver(
     (entries) => {
-      const prevId = currentId
       for (const entry of entries) {
         if (entry.isIntersecting) {
-          currentId = entry.target.id
-          break
+          visibleIds.add(entry.target.id)
+        } else {
+          visibleIds.delete(entry.target.id)
         }
       }
-      // Update TOC active state
-      tocLinks.forEach((link) => {
-        const li = link.parentElement
-        if (li) {
-          li.classList.toggle('active', link.getAttribute('href') === `#${currentId}`)
-        }
-      })
-      // Scroll active TOC item into view when it changes
-      if (currentId !== prevId) {
-        const activeLi = document.querySelector(
-          '.doc-aside .doc-toc-item.active',
-        ) as HTMLElement | null
-        if (activeLi) {
-          activeLi.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-        }
-      }
+      updateActive()
     },
     {
-      rootMargin: '-80px 0px -66% 0px',
+      rootMargin: '-80px 0px -40% 0px',
       threshold: 0,
     },
   )

@@ -1,0 +1,39 @@
+{
+  displayName: 'Guide',
+  description: 'Learn how to use Pagesmith — from first collection to full site.',
+  orderBy: 'manual',
+  series: [
+    {
+      slug: 'getting-started',
+      displayName: 'Getting Started',
+      articles: ['getting-started', 'collections-and-loaders', 'validation-and-rendering'],
+    },
+    {
+      slug: 'core-features',
+      displayName: 'Core Features',
+      description: 'Features available in @pagesmith/core.',
+      articles: ['markdown-features', 'code-blocks', 'ai-assistants'],
+    },
+    {
+      slug: 'framework-integrations',
+      displayName: 'Framework Integrations',
+      description: 'Self-contained example sites built on the same Pagesmith content model.',
+      articles: [
+        'frameworks',
+        'framework-react',
+        'framework-solid',
+        'framework-svelte',
+        'framework-vanilla-ejs',
+        'framework-vanilla-hbs',
+        'framework-doc-site',
+        'framework-blog-site',
+      ],
+    },
+    {
+      slug: 'docs-package',
+      displayName: 'Docs Package',
+      description: 'Features specific to @pagesmith/docs.',
+      articles: ['docs-getting-started', 'meta-and-navigation', 'search', 'layout-overrides'],
+    },
+  ],
+}

@@ -46,7 +46,7 @@ export const templates: Template[] = [
     source: 'github',
     path: 'examples/blog-site',
     dependency: '@pagesmith/core',
-    scripts: { dev: 'pagesmith dev', build: 'pagesmith build', preview: 'pagesmith preview' },
+    scripts: { dev: 'node --watch build.mjs', build: 'node build.mjs' },
   },
   {
     name: 'react',
@@ -55,9 +55,9 @@ export const templates: Template[] = [
     path: 'examples/with-react',
     dependency: '@pagesmith/core',
     scripts: {
-      dev: 'vite dev',
-      build: 'node --experimental-strip-types build.ts',
-      preview: 'vite preview',
+      dev: 'vp dev',
+      build: 'node build.mjs',
+      preview: 'vp preview',
     },
   },
   {
@@ -67,9 +67,9 @@ export const templates: Template[] = [
     path: 'examples/with-solid',
     dependency: '@pagesmith/core',
     scripts: {
-      dev: 'vite dev',
-      build: 'node --experimental-strip-types build.ts',
-      preview: 'vite preview',
+      dev: 'vp dev',
+      build: 'node build.mjs',
+      preview: 'vp preview',
     },
   },
   {
@@ -79,9 +79,9 @@ export const templates: Template[] = [
     path: 'examples/with-svelte',
     dependency: '@pagesmith/core',
     scripts: {
-      dev: 'vite dev',
-      build: 'node --experimental-strip-types build.ts',
-      preview: 'vite preview',
+      dev: 'vp dev',
+      build: 'node build.mjs',
+      preview: 'vp preview',
     },
   },
   {
@@ -91,7 +91,8 @@ export const templates: Template[] = [
     path: 'examples/with-vanilla-ejs',
     dependency: '@pagesmith/core',
     scripts: {
-      build: 'node --experimental-strip-types build.ts',
+      dev: 'node --watch build.mjs',
+      build: 'node build.mjs',
     },
   },
   {
@@ -101,7 +102,8 @@ export const templates: Template[] = [
     path: 'examples/with-vanilla-hbs',
     dependency: '@pagesmith/core',
     scripts: {
-      build: 'node --experimental-strip-types build.ts',
+      dev: 'node --watch build.mjs',
+      build: 'node build.mjs',
     },
   },
 ]
@@ -157,9 +159,9 @@ async function downloadFromGithub(templatePath: string, destination: string): Pr
       }
 
       // Copy content config
-      const configSrc = join(sharedContentPath, 'content.config.ts')
+      const configSrc = join(sharedContentPath, 'content.config.mjs')
       if (existsSync(configSrc)) {
-        cpSync(configSrc, join(destination, 'content.config.ts'))
+        cpSync(configSrc, join(destination, 'content.config.mjs'))
       }
     }
   } finally {
@@ -169,8 +171,8 @@ async function downloadFromGithub(templatePath: string, destination: string): Pr
 }
 
 function adaptForStandalone(destination: string, template: Template): void {
-  // Update content.config.ts paths (from ./posts to ./content/posts)
-  const configPath = join(destination, 'content.config.ts')
+  // Update content.config.mjs paths (from ./posts to ./content/posts)
+  const configPath = join(destination, 'content.config.mjs')
   if (existsSync(configPath)) {
     let config = readFileSync(configPath, 'utf-8')
     config = config.replace(/directory: '\.\/posts'/g, "directory: './content/posts'")
@@ -180,29 +182,33 @@ function adaptForStandalone(destination: string, template: Template): void {
     writeFileSync(configPath, config)
   }
 
-  // Update vite.config.ts (remove shared-content references)
+  // Update vite.config.ts shared-content references
   const viteConfigPath = join(destination, 'vite.config.ts')
   if (existsSync(viteConfigPath)) {
     let config = readFileSync(viteConfigPath, 'utf-8')
-    // Replace shared-content import with local import
     config = config.replace(
       /import content from '\.\.\/shared-content\/content\.config'/g,
-      "import content from './content.config'",
+      "import content from './content.config.mjs'",
     )
-    // Remove root and configPath overrides
-    config = config.replace(/\s*root:.*shared-content.*,?\n?/g, '\n')
-    config = config.replace(/\s*configPath:.*shared-content.*,?\n?/g, '\n')
+    config = config.replace(
+      /configPath:\s*'\.\.\/shared-content\/content\.config\.ts'/g,
+      "configPath: './content.config.mjs'",
+    )
+    config = config.replace(
+      /root:\s*resolve\(import\.meta\.dirname,\s*'\.\.\/shared-content'\)/g,
+      'root: import.meta.dirname',
+    )
     writeFileSync(viteConfigPath, config)
   }
 
-  // Update build.ts (remove shared-content references)
-  const buildPath = join(destination, 'build.ts')
+  // Update build.mjs (remove shared-content references)
+  const buildPath = join(destination, 'build.mjs')
   if (existsSync(buildPath)) {
     let script = readFileSync(buildPath, 'utf-8')
     // Replace shared-content imports
     script = script.replace(
-      /import .* from '\.\.\/shared-content\/content\.config\.ts'/g,
-      "import content from './content.config.ts'",
+      /import .* from '\.\.\/shared-content\/content\.config\.mjs'/g,
+      "import content from './content.config.mjs'",
     )
     // Simplify content layer setup
     script = script.replace(
@@ -211,8 +217,8 @@ function adaptForStandalone(destination: string, template: Template): void {
     )
     // Fix named imports
     script = script.replace(
-      /import \{ pages, posts \} from '\.\.\/shared-content\/content\.config\.ts'/g,
-      "import content from './content.config.ts'\nconst { pages, posts } = content",
+      /import \{ pages, posts \} from '\.\.\/shared-content\/content\.config\.mjs'/g,
+      "import content from './content.config.mjs'\nconst { pages, posts } = content",
     )
     writeFileSync(buildPath, script)
   }
@@ -255,14 +261,12 @@ function writePackageJson(destination: string, projectName: string, template: Te
   pkg.dependencies = pkg.dependencies ?? {}
   pkg.dependencies[template.dependency] = PACKAGE_VERSION
 
-  // Remove workspace-specific dev dependencies
-  if (pkg.devDependencies) {
-    delete pkg.devDependencies['vite-plus']
-    // Replace vite alias with standard vite
-    if (pkg.devDependencies.vite?.startsWith('npm:')) {
-      pkg.devDependencies.vite = '^6.0.0'
-    }
+  // Keep Vite+ in standalone examples that already use it
+  if (pkg.devDependencies?.vite && !pkg.devDependencies['vite-plus']) {
+    pkg.devDependencies['vite-plus'] = '^0.1.13'
   }
+
+  pkg.packageManager = 'npm@11.12.0'
 
   writeFileSync(existingPkg, JSON.stringify(pkg, null, 2) + '\n')
 }
@@ -296,11 +300,11 @@ export async function createProject(projectName: string, templateName: string): 
   console.log(`\nCreated "${projectName}" from the "${template.name}" template.\n`)
   console.log('Next steps:')
   console.log(`  cd ${projectName}`)
-  console.log('  npm install')
+  console.log('  vp install')
   if (template.scripts.dev) {
-    console.log(`  npm run dev`)
+    console.log(`  vp run dev`)
   } else {
-    console.log(`  npm run build`)
+    console.log(`  vp run build`)
   }
   console.log()
 }

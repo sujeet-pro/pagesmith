@@ -5,17 +5,15 @@
 /* Content */
 @import "./content/prose.css";
 @import "./content/toc.css";
-/* Code */
+@import "./content/alerts.css";
+/* Code (inline only — block styling handled by Expressive Code) */
 @import "./code/inline.css";
-@import "./code/block.css";
-@import "./code/tabs.css";
-@import "./code/line-features.css";
-@import "./code/lang-icons.css";
 /* Layout */
 @import "./layout/grid.css";
 @import "./layout/header.css";
 @import "./layout/sidebar.css";
 @import "./layout/footer.css";
+@import "./layout/home.css";
 /* Components */
 @import "./components/search.css";
 @import "./components/not-found.css";

@@ -1,19 +1,25 @@
-import rehypeShiki from '@shikijs/rehype'
 import matter from 'gray-matter'
+import { parse as parseYaml } from 'yaml'
+import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeExpressiveCode, {
+  type BundledShikiTheme,
+  type RehypeExpressiveCodeOptions,
+} from 'rehype-expressive-code'
+import rehypeExternalLinks from 'rehype-external-links'
 import rehypeMathjax from 'rehype-mathjax/svg'
 import rehypeSlug from 'rehype-slug'
 import rehypeStringify from 'rehype-stringify'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
+import remarkGithubAlerts from 'remark-github-alerts'
 import remarkMath from 'remark-math'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
+import remarkSmartypants from 'remark-smartypants'
 import { unified } from 'unified'
 import type { Heading } from '../schemas/heading'
 import type { MarkdownConfig } from '../schemas/markdown-config'
-import rehypeCodeTabs from './plugins/rehype-code-tabs'
-import { codeBlockTransformers } from './plugins/shiki-transformers'
 
 export type MarkdownResult = {
   html: string
@@ -52,6 +58,10 @@ function createProcessor(config: MarkdownConfig) {
     .use(remarkGfm)
     .use(remarkMath)
     .use(remarkFrontmatter, ['yaml'])
+    // GitHub-flavored alerts: > [!NOTE], > [!TIP], > [!IMPORTANT], > [!WARNING], > [!CAUTION]
+    .use(remarkGithubAlerts)
+    // Smart typography: "smart quotes", em—dashes, el…lipses
+    .use(remarkSmartypants)
 
   if (config.remarkPlugins) {
     for (const plugin of config.remarkPlugins) {
@@ -60,26 +70,37 @@ function createProcessor(config: MarkdownConfig) {
     }
   }
 
+  processor.use(remarkRehype, { allowDangerousHtml: true })
+
+  // Expressive Code — syntax highlighting, code frames, tabs, copy button
+  const lightTheme = (config.shiki?.themes?.light || 'github-light') as BundledShikiTheme
+  const darkTheme = (config.shiki?.themes?.dark || 'github-dark') as BundledShikiTheme
+
+  processor.use(rehypeExpressiveCode, {
+    themes: [darkTheme, lightTheme],
+    useDarkModeMediaQuery: true,
+    styleOverrides: {
+      uiFontFamily: 'var(--ps-font-sans, var(--font-family, system-ui, sans-serif))',
+      codeFontFamily: 'var(--ps-font-mono, var(--font-mono, ui-monospace, monospace))',
+      codeFontSize: 'var(--ps-font-size-sm, 0.875rem)',
+      codeLineHeight: '1.7',
+      borderRadius: 'var(--ps-radius-lg, 0.5rem)',
+      borderColor: 'var(--ps-color-border-subtle, var(--color-border-subtle, #e5e7eb))',
+    },
+  } satisfies RehypeExpressiveCodeOptions)
+
   processor
-    .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeMathjax)
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, { behavior: 'wrap' })
+    // External links: add target="_blank" rel="noopener noreferrer" to absolute URLs
+    .use(rehypeExternalLinks, {
+      target: '_blank',
+      rel: ['noopener', 'noreferrer'],
+    })
+    // Accessible emojis: wrap emoji characters in <span role="img" aria-label="...">
+    .use(rehypeAccessibleEmojis)
 
-  const themes = config.shiki?.themes || { light: 'github-light', dark: 'github-dark' }
-  const langAlias = config.shiki?.langAlias
-  const defaultShowLineNumbers = config.shiki?.defaultShowLineNumbers ?? true
-  processor.use(rehypeShiki, {
-    themes,
-    defaultColor: false,
-    ...(langAlias ? { langAlias } : {}),
-    transformers: codeBlockTransformers({ defaultShowLineNumbers }),
-    parseMetaString: (meta) => {
-      return { __raw: meta }
-    },
-  })
-
-  processor.use(rehypeCodeTabs)
   processor.use(() => (tree: any, file: any) => {
     const headings: Heading[] = []
     extractHeadings(tree, headings)
@@ -110,7 +131,7 @@ export async function processMarkdown(
     frontmatter = preExtracted.frontmatter
     content = preExtracted.content
   } else {
-    const parsed = matter(raw)
+    const parsed = matter(raw, { engines: { yaml: parseYaml } })
     frontmatter = parsed.data
     content = parsed.content
   }

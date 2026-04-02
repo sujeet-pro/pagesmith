@@ -7,6 +7,7 @@
 
 import { readFileSync } from 'fs'
 import matter from 'gray-matter'
+import { parse as parseYaml } from 'yaml'
 import { LoaderError } from './errors'
 import type { Loader, LoaderResult } from './types'
 
@@ -18,7 +19,7 @@ export class MarkdownLoader implements Loader {
   load(filePath: string): LoaderResult {
     const raw = readFileSync(filePath, 'utf-8')
     try {
-      const { data, content } = matter(raw)
+      const { data, content } = matter(raw, { engines: { yaml: parseYaml } })
       return { data, content }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)

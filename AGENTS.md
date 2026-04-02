@@ -78,16 +78,16 @@ These commands map to their corresponding tools. For example, `vp dev --port 300
 ## Pagesmith Context
 
 - Pagesmith is a multi-package workspace under the `@pagesmith/` npm scope with two main user-facing packages:
-  - `@pagesmith/core` (`packages/core/`) — Content layer, markdown pipeline, JSX runtime, CSS builder, schemas, loaders, validation, diagrams, SSG builder, dev server, preview server, AI installer, built-in `pagesmith create`, and the Vite content plugin exposed from `@pagesmith/core/vite`.
-  - `@pagesmith/docs` (`packages/docs/`) — Convention-based documentation SSG with Pagefind search, doc theme (layouts + styles + runtime), home/frontmatter conventions, and top-nav/sidebar generation from the content tree. Configured via `pagesmith.config.json5`. Built on `@pagesmith/core`.
-- Diagram management routes through `diagramkit` rather than the old in-repo renderer stack.
-- Docs live in `docs/` and are built with `@pagesmith/docs` (self-dogfooding).
-- AI companion files install through `pagesmith ai install`.
+  - `@pagesmith/core` (`packages/core/`) — Shared content/runtime layer: collections, loaders, markdown pipeline, validation, JSX runtime, CSS builder, and the Vite content plugin exposed from `@pagesmith/core/vite`.
+  - `@pagesmith/docs` (`packages/docs/`) — Convention-based documentation on top of core: default theme, top-nav/sidebar generation from the content tree, bundled Pagefind search, layout override slots, and the `pagesmith` CLI for docs `dev`, `build`, and `preview`. Configured via `pagesmith.config.json5`.
+- `@pagesmith/docs` should work for basic installs without extra peer/external packages like a separate Pagefind dependency.
+- Root `docs/` uses the default docs configuration. `examples/doc-site/` demonstrates theme layout overrides. `examples/blog-site/` is a custom site built on `@pagesmith/core` with its own layouts and Vite-powered asset build.
+- Assistant context artifacts come from the `@pagesmith/core/ai` APIs.
 
 ## Project Conventions
 
 - Prefer `defineCollection`, `defineConfig`, and `createContentLayer` when shaping APIs or examples.
 - Prefer `defineCollections(...)` and `pagesmithContent(...)` when authoring the Vite-plugin flow.
-- Prefer folder-based markdown entries when content references sibling assets or diagrams.
-- Route diagram questions to `diagramkit`, not the removed bespoke renderers.
+- Prefer `@pagesmith/docs` for convention-based docs sites and `@pagesmith/core` for fully custom sites or framework integrations.
+- Prefer folder-based markdown entries when content references sibling assets.
 - Keep README, docs, `CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, and `llms*.txt` aligned when user-facing behavior changes.

@@ -1,6 +1,6 @@
 ---
 title: "Markdown Feature Reference"
-description: "A comprehensive guide to every markdown feature supported by the rendering pipeline — from basic formatting to code tabs, math, and diagrams."
+description: "A comprehensive guide to every markdown feature supported by the rendering pipeline — from basic formatting to code tabs and math."
 date: 2026-03-20
 tags: [reference, markdown, guide, features]
 author: jane-doe
@@ -272,36 +272,31 @@ func main() {
 ```
 
 ```css
-/* Code block styling with dual-theme support */
-.code-figure {
-  --code-bg: var(--surface-code);
-  --code-border: var(--border-subtle);
+/* Prose typography customization */
+.prose {
+  --prose-max-width: 65ch;
+  --prose-line-height: 1.75;
 
-  position: relative;
-  border: 1px solid var(--code-border);
-  border-radius: 0.5rem;
-  overflow: hidden;
-  margin-block: 1.5rem;
+  max-width: var(--prose-max-width);
+  line-height: var(--prose-line-height);
+  color: var(--color-text);
 }
 
-.code-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--code-bg);
-  border-bottom: 1px solid var(--code-border);
-  font-size: 0.8125rem;
+.prose h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-block: 2rem 1rem;
+  line-height: 1.2;
 }
 
-.code-copy-btn {
-  margin-inline-start: auto;
-  opacity: 0;
-  transition: opacity 150ms ease;
+.prose a {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.code-figure:hover .code-copy-btn {
-  opacity: 1;
+.prose a:hover {
+  text-decoration-thickness: 2px;
 }
 ```
 
@@ -342,8 +337,6 @@ npm run dev -- --port 3000
 # Preview the production build locally
 npm run preview -- --port 4000
 
-# Render all diagrams (Mermaid + Excalidraw)
-npm run diagrams -- --force
 ```
 
 ```json
@@ -623,22 +616,6 @@ $$
 Images use standard markdown syntax with alt text for accessibility. The alt text is required and should meaningfully describe the image content.
 
 ![A sample placeholder image](https://placehold.co/800x400/e2e8f0/475569?text=Content+Pipeline+Overview)
-
-## Diagrams
-
-The build pipeline renders `.mermaid` and `.excalidraw` files to SVG before page generation. Reference them from markdown just like images — the asset pipeline handles the rest.
-
-### Mermaid Diagrams
-
-Mermaid diagrams are defined in `.mermaid` files and rendered to SVG through `diagramkit`:
-
-![Architecture diagram showing the content processing pipeline](./architecture.mermaid)
-
-### Excalidraw Diagrams
-
-Excalidraw diagrams provide a hand-drawn visual style. They are stored as `.excalidraw` JSON files and rendered to SVG through `diagramkit`:
-
-![Build flow diagram showing the three-phase pipeline](./flow.excalidraw)
 
 ## Links
 

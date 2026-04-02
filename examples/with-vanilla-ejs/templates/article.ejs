@@ -1,0 +1,32 @@
+<article>
+  <% if (headings && headings.length > 0) { %>
+    <% const tocItems = headings.filter(h => h.depth >= 2 && h.depth <= 3) %>
+    <% if (tocItems.length > 0) { %>
+      <details class="doc-toc-mobile">
+        <summary>On this page</summary>
+        <nav class="doc-toc">
+          <ul class="doc-toc-list">
+            <% for (const h of tocItems) { %>
+              <li class="doc-toc-item depth-<%= h.depth %>">
+                <a href="#<%= h.slug %>"><%= h.text %></a>
+              </li>
+            <% } %>
+          </ul>
+        </nav>
+      </details>
+    <% } %>
+  <% } %>
+
+  <% if (date) { %>
+    <p class="doc-page-meta" style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem;">
+      <time><%= formatDate(date) %></time>
+      <% if (typeof readTime !== 'undefined' && readTime) { %>
+        &middot; <%= readTime %> min read
+      <% } %>
+    </p>
+  <% } %>
+
+  <div class="prose">
+    <%- content %>
+  </div>
+</article>

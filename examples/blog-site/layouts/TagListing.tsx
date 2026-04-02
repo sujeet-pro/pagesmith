@@ -3,6 +3,7 @@ import type { TagListingLayoutProps } from './types'
 import { Footer } from './components/Footer'
 import { Header } from './components/Header'
 import { Html } from './components/Html'
+import { withBase } from './utils'
 
 /** Capitalize first letter of a content type name for section headings. */
 function capitalize(s: string): string {
@@ -28,7 +29,7 @@ export default function TagListing(props: TagListingLayoutProps) {
       <Header site={site} slug={slug} />
       <main class="main-content main-narrow">
         <header class="article-header">
-          <a href="/tags" class="article-back">
+          <a href={withBase(site, '/tags')} class="article-back">
             All Tags
           </a>
           <h1>Tag: {tag}</h1>

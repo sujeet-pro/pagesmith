@@ -12,6 +12,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "types": ["vite/client"],
     "paths": {
       "@pagesmith/core/css/content": ["../../packages/core/src/styles/content.css"],
       "@pagesmith/core": ["../../packages/core/src/index.ts"],

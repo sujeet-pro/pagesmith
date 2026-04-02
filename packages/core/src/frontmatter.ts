@@ -6,6 +6,7 @@
  */
 
 import matter from 'gray-matter'
+import { parse as parseYaml } from 'yaml'
 import type { ZodSchema } from 'zod'
 
 export type FrontmatterResult = {
@@ -15,7 +16,7 @@ export type FrontmatterResult = {
 
 /** Extract frontmatter from raw markdown using gray-matter. */
 export function extractFrontmatter(raw: string): FrontmatterResult {
-  const { data, content } = matter(raw)
+  const { data, content } = matter(raw, { engines: { yaml: parseYaml } })
   return { frontmatter: data, content }
 }
 

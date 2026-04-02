@@ -1,5 +1,6 @@
 import { Fragment, h } from '@pagesmith/core/jsx-runtime'
 import type { PageTypeData, SiteConfig } from '../types'
+import { withBase } from '../utils'
 
 type Props = {
   site: SiteConfig
@@ -25,7 +26,7 @@ export function Footer({ site, pageType }: Props) {
       {series.length > 0 ? (
         <nav class="footer-series" aria-label="Series">
           {series.map((s) => (
-            <a href={`/articles#${s.slug}`}>{s.shortName || s.displayName}</a>
+            <a href={withBase(site, `/articles#${s.slug}`)}>{s.shortName || s.displayName}</a>
           ))}
         </nav>
       ) : null}

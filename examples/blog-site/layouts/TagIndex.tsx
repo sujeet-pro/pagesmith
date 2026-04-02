@@ -3,6 +3,7 @@ import type { TagIndexLayoutProps } from './types'
 import { Footer } from './components/Footer'
 import { Header } from './components/Header'
 import { Html } from './components/Html'
+import { withBase } from './utils'
 
 export default function TagIndex(props: TagIndexLayoutProps) {
   const { frontmatter, slug, site, allTags } = props
@@ -17,7 +18,7 @@ export default function TagIndex(props: TagIndexLayoutProps) {
     <Html
       title={`${frontmatter.title} — ${site.title}`}
       description={frontmatter.description}
-      url="/tags/"
+      url={withBase(site, '/tags')}
       site={site}
     >
       <Header site={site} slug={slug} />
@@ -29,7 +30,7 @@ export default function TagIndex(props: TagIndexLayoutProps) {
             const count = entryCount(data)
             return (
               <li class="tag-item">
-                <a href={`/tags/${tag}`} class="tag-link">
+                <a href={withBase(site, `/tags/${tag}`)} class="tag-link">
                   {tag}
                   <span class="tag-count">{count}</span>
                 </a>

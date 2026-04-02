@@ -1,25 +1,27 @@
-import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
-import content from '../shared-content/content.config'
-import { pagesmithContent } from '@pagesmith/core/vite'
 import { defineConfig } from 'vite-plus'
+import collections from './content.config'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/react/',
+  plugins: [
+    sharedAssetsPlugin(),
+    pagesmithContent({ collections }),
+    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+  ],
   build: {
     outDir: '../../gh-pages/examples/react',
-  },
-  plugins: [
-    pagesmithContent({
-      collections: {
-        posts: content.posts,
-        authors: content.authors,
-        pages: content.pages,
+    emptyOutDir: true,
+    rolldownOptions: {
+      checks: {
+        pluginTimings: false,
       },
-      root: resolve(import.meta.dirname, '../shared-content'),
-      configPath: '../shared-content/content.config.ts',
-      dts: 'src/pagesmith-content.d.ts',
-    }),
-    react(),
-  ],
+    },
+  },
+  oxc: {
+    jsx: {
+      runtime: 'automatic',
+      importSource: 'react',
+    },
+  },
 })

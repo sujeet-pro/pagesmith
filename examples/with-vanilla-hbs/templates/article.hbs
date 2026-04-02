@@ -1,0 +1,33 @@
+{{#> layout}}
+  {{#*inline "body"}}
+    <article>
+      {{#if tocHeadings.length}}
+        <details class="doc-toc-mobile">
+          <summary>On this page</summary>
+          <nav class="doc-toc">
+            <ul class="doc-toc-list">
+              {{#each tocHeadings}}
+                <li class="doc-toc-item depth-{{this.depth}}">
+                  <a href="#{{this.slug}}">{{this.text}}</a>
+                </li>
+              {{/each}}
+            </ul>
+          </nav>
+        </details>
+      {{/if}}
+
+      {{#if date}}
+        <p class="doc-page-meta" style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem;">
+          <time>{{formatDate date}}</time>
+          {{#if readTime}}
+            &middot; {{readTime}} min read
+          {{/if}}
+        </p>
+      {{/if}}
+
+      <div class="prose">
+        {{{content}}}
+      </div>
+    </article>
+  {{/inline}}
+{{/layout}}

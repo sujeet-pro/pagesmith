@@ -4,11 +4,14 @@ export default defineConfig({
   pack: {
     entry: {
       index: 'src/index.ts',
+      'cli/bin': 'src/cli/bin.ts',
       preset: 'src/preset.ts',
       'schemas/index': 'src/schemas/index.ts',
     },
     deps: {
       alwaysBundle: ['@pagesmith/core'],
+      neverBundle: ['gray-matter'],
+      onlyBundle: false,
     },
     format: 'esm',
     dts: true,

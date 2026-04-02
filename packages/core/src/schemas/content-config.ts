@@ -3,7 +3,6 @@
  */
 
 import type { MarkdownConfig } from './markdown-config'
-import type { DiagramType, OutputFormat, Theme } from 'diagramkit'
 import type { CollectionMap } from './collection'
 
 /** Content layer configuration — passed to defineConfig(). */
@@ -14,27 +13,6 @@ export type ContentLayerConfig = {
   root?: string
   /** Markdown processing config (shared with the markdown pipeline). */
   markdown?: MarkdownConfig
-  /** Diagram rendering config */
-  diagrams?: {
-    /** Enable auto-rendering of .mermaid/.excalidraw files */
-    enabled?: boolean
-    /** Light/dark diagram output switching mode in rendered HTML. */
-    displayMode?: 'picture' | 'class'
-    /** Output directory for generated SVGs (relative to content) */
-    outputDir?: string
-    /** Manifest filename used for incremental diagram builds. */
-    manifestFile?: string
-    /** Disable manifest-based incremental diagram builds. */
-    useManifest?: boolean
-    /** Write generated outputs alongside the source file. */
-    sameFolder?: boolean
-    /** Override or extend supported diagram file extensions. */
-    extensionMap?: Record<string, DiagramType>
-    /** Default output format passed to diagramkit. */
-    defaultFormat?: OutputFormat
-    /** Default theme mode passed to diagramkit. */
-    defaultTheme?: Theme
-  }
   /** Asset hashing config */
   assets?: {
     /** Enable content-hash filenames */

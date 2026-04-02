@@ -1,67 +1,82 @@
 ---
 title: "Getting Started"
-description: "Set up your first Pagesmith site in minutes"
+description: "Install Pagesmith and create your first documentation site"
 publishedDate: 2026-03-01T00:00:00.000Z
 lastUpdatedOn: 2026-03-20T00:00:00.000Z
 tags:
-  - basics
-  - setup
+  - getting-started
+  - guide
 ---
 
-# Getting Started with Pagesmith
+# Getting Started
+
+This guide walks you through setting up a documentation site with `@pagesmith/docs`.
+
+## Prerequisites
+
+- Node.js 20 or later
+- A package manager (npm, pnpm, or yarn)
 
 ## Installation
 
+Install the docs package:
+
 ```bash
-npm create @pagesmith my-site
-cd my-site
-npm install
+npm install @pagesmith/docs
 ```
 
 ## Project Structure
 
-A typical Pagesmith site looks like this:
+Create the following directory structure:
 
 ```text
-my-site/
+my-docs/
   content/
     README.md          # Home page
     guide/
-      README.md        # Guide listing
+      README.md        # Guide section index
       getting-started/
         README.md      # This page
-    site.json5         # Global config
   pagesmith.config.json5
   package.json
 ```
 
-## Creating Content
+## Configuration
 
-Every markdown file becomes a page. Use folders to organize content into sections. Each folder can have a `README.md` that serves as the section landing page.
+Create a `pagesmith.config.json5` at the project root:
 
-### Frontmatter
-
-Add YAML frontmatter to configure each page:
-
-```yaml
----
-title: "My Page Title"
-description: "A brief description"
-publishedDate: 2026-03-01T00:00:00.000Z
-tags:
-  - example
----
+```json5
+{
+  name: 'My Docs',
+  title: 'My Documentation',
+  description: 'Documentation for my project',
+  contentDir: './content',
+  outDir: './dist',
+}
 ```
 
-## Building Your Site
+## Running the Dev Server
+
+Start the development server with hot reload:
 
 ```bash
-# Development server with hot reload
-pagesmith dev
-
-# Production build
-pagesmith build
-
-# Preview the build
-pagesmith preview
+npx pagesmith dev
 ```
+
+Your site is now running at `http://localhost:3000`.
+
+## Building for Production
+
+Build the static site:
+
+```bash
+npx pagesmith build
+```
+
+The output is written to the configured `outDir`.
+
+## Next Steps
+
+- Learn about [Configuration](/guide/configuration) options
+- Explore [Layouts](/guide/layouts) for customizing page structure
+- Browse the [API Reference](/api/content-layer) for the content layer

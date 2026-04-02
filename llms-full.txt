@@ -1,64 +1,122 @@
 # Pagesmith - Full LLM Reference
 
-Pagesmith is a file-based CMS and documentation tool, organized as a multi-package workspace under the `@pagesmith/` npm scope.
+Pagesmith is a filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope.
 
 ## Packages
 
-- `@pagesmith/core`: content layer, markdown pipeline, JSX runtime, CSS builder, schemas, loaders, validation, diagrams, SSG builder, dev server, runtime CSS exports, `@pagesmith/core/vite`, diagramkit integration, AI installer APIs, and built-in `pagesmith create`
-- `@pagesmith/docs`: convention-based documentation built on `@pagesmith/core` with Pagefind search, nav/sidebar generation from `content/`, and a docs-specific theme
+- `@pagesmith/core`: shared content/runtime layer with collections, loaders, markdown pipeline (Expressive Code), validation, JSX runtime, CSS builder, `z` re-export, runtime CSS exports, and Vite plugins (`pagesmithContent`, `pagesmithSsg`)
+- `@pagesmith/docs`: convention-based documentation built on `@pagesmith/core` with the docs CLI, nav/sidebar generation from `content/`, bundled Pagefind search, a default theme, and fixed layout override slots
 
 ## Core APIs
 
-- `defineCollection(...)`
-- `defineCollections(...)`
-- `defineConfig(...)`
-- `createContentLayer(config)`
-- `pagesmithContent({ collections })`
-- `layer.getCollection(name)`
-- `layer.getEntry(collection, slug)`
-- `layer.validate()`
-- `layer.renderDiagrams()`
-- `entry.render()`
+### Configuration
+- `defineCollection(def)` — type-safe collection definition with Zod schema inference
+- `defineCollections(map)` — define multiple collections with strong literal inference
+- `defineConfig(config)` — type-safe `ContentLayerConfig`
 
-## Diagram Handling
+### Content Layer
+- `createContentLayer(config)` — returns a `ContentLayer` backed by `ContentStore`
+- `layer.getCollection(name)` — load all entries in a collection
+- `layer.getEntry(collection, slug)` — get a single entry by slug
+- `layer.convert(markdown, options?)` — convert raw markdown outside collections
+- `layer.validate(collection?)` — run all validators
+- `layer.invalidate(collection, slug)` / `invalidateCollection(name)` / `invalidateAll()` — cache busting
 
-Pagesmith delegates diagram rendering and manifests to `diagramkit`.
+### Content Entry
+- `entry.slug` / `entry.collection` / `entry.filePath` / `entry.data` / `entry.rawContent`
+- `entry.render(options?)` → `{ html, headings, readTime }` — lazy, cached
+- `entry.clearRenderCache()` — force re-render
 
-CLI:
+### Vite Plugins
+- `pagesmithContent(collections, options?)` — virtual module plugin for framework integration
+- `pagesmithSsg(options?)` — SSG plugin with dev server, Pagefind, and asset handling
 
-```bash
-pagesmith diagrams content/
-pagesmith diagrams content/ --watch
-pagesmith diagrams content/ --type drawio
-```
+### Markdown
+- `processMarkdown(raw, config?, preExtracted?)` → `{ html, headings, frontmatter }`
+- Pipeline: remark-parse → remark-gfm → remark-math → remark-frontmatter → remark-github-alerts → remark-smartypants → remark-rehype → rehype-expressive-code → rehype-mathjax → rehype-slug → rehype-autolink-headings → rehype-external-links → rehype-accessible-emojis → rehype-stringify
+- Expressive Code handles: syntax highlighting (dual themes), code frames, line numbers, file titles, copy button, line highlighting (mark/ins/del), collapsible sections, text wrapping
+- GitHub alerts: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`
+- External links automatically get `target="_blank" rel="noopener noreferrer"`
+- Emoji characters wrapped in accessible `<span role="img" aria-label="...">` elements
+- Smart typography: "curly quotes", em—dashes, el…lipses
 
-## Assistant Installs
+### Schemas
+- `BaseFrontmatterSchema` — title, description, publishedDate, lastUpdatedOn, tags, draft
+- `BlogFrontmatterSchema` — extends base with category, featured, coverImage
+- `ProjectFrontmatterSchema` — extends base with gitRepo, links
+- `HeadingSchema` — depth, text, slug
+- `MarkdownConfigSchema` — remarkPlugins, rehypePlugins, shiki (themes, defaultShowLineNumbers)
+- `z` re-exported from Zod for convenience
 
-CLI:
+### Validation
+- `builtinMarkdownValidators` — linkValidator, headingValidator, codeBlockValidator
+- `runValidators(ctx, validators)` — execute validators against content
+- Custom validators: implement `ContentValidator { name, validate(ctx) }`
 
-```bash
-pagesmith ai install --assistant all --scope project
-pagesmith ai install --assistant codex --scope project --docs
-```
+### Loaders
+- `MarkdownLoader` (.md), `JsonLoader` (.json), `JsoncLoader` (.json, .jsonc), `YamlLoader` (.yml, .yaml), `TomlLoader` (.toml)
+- Custom: implement `Loader { name, kind, extensions, load(filePath) }`
 
-API:
+### JSX Runtime
+- `h(tag, props, ...children)` / `Fragment` / `HtmlString`
+- Configure: `"jsxImportSource": "@pagesmith/core"` in tsconfig.json
 
-```ts
-import { installAiArtifacts } from '@pagesmith/core/ai'
+### CSS
+- `buildCss(entryPath, { minify? })` — LightningCSS bundler
 
-installAiArtifacts({
-  assistants: ['claude', 'codex', 'gemini'],
-  scope: 'project',
-})
-```
+### Runtime Exports
+- `getRuntimeCSS()` / `getRuntimeJS()` — standalone tier (full site)
+- `getContentCSS()` / `getContentJS()` — content tier (markdown only)
+- `getViewportCSS()` / `getViewportCSSPath()` — responsive base
 
-Installed project files:
+### CSS Export Paths
+- `@pagesmith/core/css/content` — prose + inline code styles
+- `@pagesmith/core/css/standalone` — full layout + prose
+- `@pagesmith/core/css/viewport` — responsive viewport base
+- `@pagesmith/core/css/fonts` — bundled Open Sans + JetBrains Mono fonts
 
-- `CLAUDE.md`
-- `AGENTS.md`
-- `GEMINI.md`
-- `.claude/commands/pagesmith.md`
-- `.codex/skills/pagesmith/SKILL.md`
-- `.gemini/commands/pagesmith.toml`
-- `llms.txt`
-- `llms-full.txt`
+### AI Assistant Artifacts
+- `installAiArtifacts(options)` — generate assistant files
+- `getAiArtifacts(options)` / `getAiArtifactContent(assistant, kind, options)`
+- Supports: Claude, Codex, Gemini
+- Generates: CLAUDE.md, AGENTS.md, GEMINI.md, skills, llms.txt, llms-full.txt
+
+## Docs Package APIs
+
+- `build(options?)` — build static docs site
+- `startDev(options?)` — development server with hot reload
+- `preview(options?)` — preview built site
+- `defineDocsConfig(config)` — type-safe docs config
+- CLI: `pagesmith dev`, `pagesmith build`, `pagesmith preview`
+
+### Docs Config (pagesmith.config.json5)
+- `name`, `title`, `description`, `origin`, `language`
+- `contentDir`, `outDir`, `publicDir`, `basePath`
+- `footerLinks`, `search`, `theme`, `analytics`, `markdown`
+- `theme.layouts` — override `home`, `page`, `notFound` with custom TSX components
+
+### Layout Overrides
+- Props: `content`, `frontmatter`, `headings`, `slug`, `site`
+- Page layout gets: `sidebarSections`, `prev`, `next`
+- Use `@pagesmith/core/jsx-runtime` for TSX
+- Export: `default` or named export matching layout name
+
+## Export Map
+
+| Import path | Purpose |
+|---|---|
+| `@pagesmith/core` | Main API barrel |
+| `@pagesmith/core/jsx-runtime` | h, Fragment, HtmlString |
+| `@pagesmith/core/markdown` | processMarkdown |
+| `@pagesmith/core/css` | buildCss (LightningCSS) |
+| `@pagesmith/core/css/content` | Content CSS file |
+| `@pagesmith/core/css/standalone` | Standalone CSS file |
+| `@pagesmith/core/css/viewport` | Viewport CSS file |
+| `@pagesmith/core/css/fonts` | Bundled font faces |
+| `@pagesmith/core/schemas` | Zod schemas and types |
+| `@pagesmith/core/loaders` | Loader classes and registry |
+| `@pagesmith/core/assets` | Asset copying and hashing |
+| `@pagesmith/core/runtime` | Pre-built CSS/JS accessors |
+| `@pagesmith/core/ai` | AI assistant file installer |
+| `@pagesmith/core/vite` | Vite plugins (pagesmithContent, pagesmithSsg) |
+| `@pagesmith/core/create` | Project scaffolding |

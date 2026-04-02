@@ -1,15 +1,18 @@
 # Pagesmith
 
-Pagesmith is a file-based CMS and documentation tool, organized as a multi-package workspace under the `@pagesmith/` npm scope.
+Pagesmith is a filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope.
 
-Two main user-facing packages: `@pagesmith/core` for custom layout sites (blogs, portfolios) and `@pagesmith/docs` for convention-based documentation.
+Two main user-facing packages: `@pagesmith/core` for the shared content/runtime layer and `@pagesmith/docs` for convention-based documentation built on top of core.
 
 ## What matters most
 
-- **`@pagesmith/core`** (`packages/core/`) — Content layer, markdown pipeline, JSX runtime, CSS builder, schemas, loaders, validation, diagrams, dev server, preview server, Vite content plugin (`@pagesmith/core/vite`), AI installer, and built-in project scaffolding via `pagesmith create`.
-- **`@pagesmith/docs`** (`packages/docs/`) — Convention-based documentation: static build/dev server, Pagefind search, doc theme (layouts + styles + runtime), nav/sidebar generation from `content/`, and home/frontmatter conventions. Configured via `pagesmith.config.json5`. Built on `@pagesmith/core`.
-- Diagram discovery, rendering, manifests, and watch mode route through `diagramkit`.
-- Docs live in `docs/` and are built with `@pagesmith/docs` (self-dogfooding).
+- **`@pagesmith/core`** (`packages/core/`) — Content layer, markdown pipeline (Expressive Code for syntax highlighting), JSX runtime, CSS builder, schemas, loaders, validation, `z` re-export, and Vite plugins (`pagesmithContent`, `pagesmithSsg`) at `@pagesmith/core/vite`.
+- **`@pagesmith/docs`** (`packages/docs/`) — Docs-site implementation on top of core: build/dev/preview CLI, default theme, bundled Pagefind search, nav/sidebar generation from `content/`, and layout overrides through `theme.layouts.*` in `pagesmith.config.json5`.
+- The root docs site in [`docs/`](/Users/sujeet/personal/pagesmith/docs) uses the default docs package setup.
+- [`examples/doc-site/`](/Users/sujeet/personal/pagesmith/examples/doc-site) demonstrates docs layout overrides.
+- [`examples/blog-site/`](/Users/sujeet/personal/pagesmith/examples/blog-site) demonstrates a custom site built on `@pagesmith/core` with its own layouts and asset pipeline.
+- Framework examples in `examples/with-*` demonstrate integration with React, Solid, Svelte, EJS, and Handlebars.
+- Assistant artifact generation lives in `@pagesmith/core/ai`.
 
 ## Repo workflow
 
@@ -19,33 +22,30 @@ Use Vite+ commands:
 vp install
 vp check
 vp test
+vp run build
 ```
 
 Useful commands:
 
 ```bash
-pagesmith build
-pagesmith dev
-pagesmith preview
-pagesmith create my-docs
-pagesmith diagrams content/
-pagesmith ai install --assistant all --scope project
-pagesmith ai install --assistant codex --scope project --docs
-npm run build:docs
-npm run validate:examples
-npm run preview:example blog-site
+vp run build:docs
+vp run build:examples
+vp run validate:examples
+vp run dev:docs
+vp run dev:eg:react
+vp run dev:eg:doc-site
 ```
 
 ## Repo layout
 
 ```text
 packages/
-  core/                 @pagesmith/core — content layer + vite plugin + CLI
-  docs/                 @pagesmith/docs — convention-based documentation + Pagefind
+  core/                 @pagesmith/core — shared content/runtime layer + vite plugins
+  docs/                 @pagesmith/docs — docs implementation + docs CLI
 
 examples/
-  blog-site/            Custom layout site using @pagesmith/core (has own layouts/styles/runtime)
-  doc-site/             Convention-based docs using @pagesmith/docs
+  blog-site/            Custom site using @pagesmith/core (own layouts/styles/runtime)
+  doc-site/             @pagesmith/docs with layout overrides
   shared-content/       Content layer example (shared)
   with-react/           Content layer + React
   with-solid/           Content layer + SolidJS
@@ -53,7 +53,7 @@ examples/
   with-vanilla-ejs/     Content layer + EJS
   with-vanilla-hbs/     Content layer + Handlebars
 
-docs/                   Pagesmith's own docs (uses @pagesmith/docs)
+docs/                   Pagesmith's own docs (uses @pagesmith/docs defaults)
 
 tests/
   e2e/
@@ -68,18 +68,43 @@ tests/
 
 ## Config formats
 
-- **`@pagesmith/core`** → Vite plugin flow with root `content.config.ts` + `vite.config.ts`, or `pagesmith.config.ts` for lower-level content-layer/SSG usage
-- **`@pagesmith/docs`** → `pagesmith.config.json5` (convention-based docs SSG)
-- CLI auto-detects: `.ts` → core mode, `.json5` → docs mode
+- **`@pagesmith/core`** → Vite/plugin flow with `content.config.ts` or direct `createContentLayer(...)` usage
+- **`@pagesmith/docs`** → `pagesmith.config.json5` plus a `content/` tree
+- Docs layout overrides use fixed keys under `theme.layouts` such as `home`, `page`, and `notFound`
+
+## Markdown pipeline
+
+The markdown pipeline uses unified with Expressive Code for syntax highlighting:
+
+```
+remark-parse → remark-gfm → remark-math → remark-frontmatter
+  → remark-github-alerts → remark-smartypants → [user remark plugins]
+  → remark-rehype
+  → rehype-expressive-code (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
+  → rehype-mathjax → rehype-slug → rehype-autolink-headings
+  → rehype-external-links → rehype-accessible-emojis
+  → heading extraction → [user rehype plugins] → rehype-stringify
+```
+
+Code block styling is handled entirely by Expressive Code through inline styles and scripts injected during processing.
+
+## CSS exports
+
+- `@pagesmith/core/css/content` — prose + inline code styles
+- `@pagesmith/core/css/standalone` — full layout + prose + TOC
+- `@pagesmith/core/css/viewport` — responsive viewport base
+- `@pagesmith/core/css/fonts` — bundled Open Sans + JetBrains Mono
 
 ## Guidance
 
 - Prefer `defineCollection`, `defineCollections`, and `pagesmithContent` for the Vite content flow.
 - Prefer `createContentLayer` and `defineConfig` when working directly with the lower-level content layer.
-- Prefer folder-based markdown entries when content references sibling assets or diagrams.
+- Prefer `@pagesmith/docs` for docs sites that should work from configuration alone.
+- Prefer `@pagesmith/core` for custom sites, custom layouts, and framework integrations.
+- Prefer folder-based markdown entries when content references sibling assets.
 - Keep schema validation and content validation in `@pagesmith/core` instead of scattering it into app code.
 - Doc-specific schemas (site config, layout props, page data) live in `@pagesmith/docs/schemas/`.
-- Route diagram questions to `diagramkit`, not bespoke renderers.
 - Keep README, docs, and assistant files aligned when public APIs or install commands change.
 - All packages use the `@pagesmith/` npm scope.
 - Top-level folders under `content/` define the main docs navigation in `@pagesmith/docs`.
+- Everything is Vite-native. No webpack, no custom bundlers.

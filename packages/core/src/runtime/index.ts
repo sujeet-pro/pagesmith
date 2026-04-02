@@ -5,8 +5,12 @@
  * ready-to-use styling and interactivity for rendered content.
  *
  * Two tiers:
- * - "Runtime" (standalone): full site — reset, prose, code, layout, TOC, copy-code
- * - "Content": just markdown rendering — reset, prose, code, diagrams, viewport, copy-code
+ * - "Runtime" (standalone): full site — reset, prose, layout, TOC
+ * - "Content": just markdown rendering — reset, prose, viewport
+ *
+ * Code block styling is handled by Expressive Code (injected inline
+ * during markdown processing). The CSS bundles here cover prose,
+ * inline code, and layout only.
  */
 
 import { readFileSync } from 'fs'
@@ -16,8 +20,6 @@ import { fileURLToPath } from 'url'
 const ASSET_PATHS: Record<string, string> = {
   'standalone.css': 'styles/standalone.css',
   'content.css': 'styles/content.css',
-  'styles/diagrams.css': 'styles/diagrams.css',
-  'styles/code/tabs.css': 'styles/code/tabs.css',
   'styles/viewport.css': 'styles/viewport.css',
 }
 
@@ -93,18 +95,6 @@ export function getContentJSPath(): string {
 }
 
 // Individual CSS files
-export function getDiagramsCSS(): string {
-  return readAsset('styles/diagrams.css')
-}
-export function getDiagramsCSSPath(): string {
-  return resolveAssetPath('styles/diagrams.css')
-}
-export function getTabsCSS(): string {
-  return readAsset('styles/code/tabs.css')
-}
-export function getTabsCSSPath(): string {
-  return resolveAssetPath('styles/code/tabs.css')
-}
 export function getViewportCSS(): string {
   return readAsset('styles/viewport.css')
 }

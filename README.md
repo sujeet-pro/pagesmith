@@ -1,30 +1,50 @@
 # Pagesmith
 
-Pagesmith is a file-based CMS and documentation tool, organized as a multi-package workspace under the `@pagesmith/` npm scope.
+Pagesmith is a filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope. Everything is Vite-native.
 
-Two main user-facing packages: `@pagesmith/core` for typed content collections plus a first-class Vite content plugin, and `@pagesmith/docs` for convention-based static documentation with built-in Pagefind search.
+Two main user-facing packages:
 
-It gives you typed collections, lazy markdown rendering, AST-level validation, diagram rendering through `diagramkit`, optional runtime CSS, Vite virtual content modules, and installable AI companion files for Claude, Codex, Gemini CLI, and `llms.txt`.
+- `@pagesmith/core` for the shared content layer: collections, loaders, markdown (Expressive Code syntax highlighting), validation, JSX/runtime utilities, and Vite plugins (`pagesmithContent`, `pagesmithSsg`) exposed from `@pagesmith/core/vite`
+- `@pagesmith/docs` for convention-based documentation on top of core: default layouts, navigation from `content/`, bundled Pagefind search, and the `pagesmith` docs CLI for `dev`, `build`, and `preview`
+
+Use `@pagesmith/docs` when you want a batteries-included docs site from `pagesmith.config.json5`. Use `@pagesmith/core` when you want a custom site, a framework integration (React, Solid, Svelte, EJS, Handlebars), or full control over layouts and rendering.
 
 ## Install
 
-Published package flow:
+Docs-first install:
 
 ```bash
-npm add @pagesmith/core diagramkit
+npm add @pagesmith/docs
 ```
 
-Local monorepo development flow:
+That is enough for the basic docs flow. `@pagesmith/docs` bundles its own search integration, theme assets, and build pipeline so users do not need to add Pagefind or a separate layout package for the default experience.
+
+Core/Vite install:
 
 ```bash
-vp add diagramkit@file:../diagramkit
+npm add @pagesmith/core
 ```
 
 ## Quick Start
 
+Docs site with defaults:
+
+```json5
+{
+  name: 'Acme Docs',
+  title: 'Acme Docs',
+  description: 'Team documentation',
+  contentDir: './content',
+  basePath: '/',
+  search: { enabled: true },
+}
+```
+
+Custom site or framework integration with core:
+
 ```ts
 import { defineCollection, defineCollections, z } from '@pagesmith/core'
-import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithContent, pagesmithSsg } from '@pagesmith/core/vite'
 import { defineConfig } from 'vite-plus'
 
 const content = defineCollections({
@@ -40,58 +60,57 @@ const content = defineCollections({
 })
 
 export default defineConfig({
-  plugins: [pagesmithContent({ collections: content })],
+  plugins: [
+    pagesmithContent({ collections: content }),
+    pagesmithSsg({ entry: './src/entry-server.tsx' }),
+  ],
 })
 ```
 
-## Diagram Management
+## Framework Support
 
-Pagesmith delegates diagram discovery, rendering, manifests, and watch mode to `diagramkit`.
+| Framework | Pattern | Example |
+|---|---|---|
+| React | `pagesmithContent` + `pagesmithSsg` | `examples/with-react/` |
+| SolidJS | `pagesmithContent` + `pagesmithSsg` | `examples/with-solid/` |
+| Svelte | `pagesmithContent` + `pagesmithSsg` | `examples/with-svelte/` |
+| EJS | `createContentLayer` + `pagesmithSsg` | `examples/with-vanilla-ejs/` |
+| Handlebars | `createContentLayer` + `pagesmithSsg` | `examples/with-vanilla-hbs/` |
+| Docs | `@pagesmith/docs` CLI | `examples/doc-site/` |
+| Custom | `@pagesmith/core` JSX runtime | `examples/blog-site/` |
 
-```bash
-pagesmith diagrams content/
-pagesmith diagrams content/ --watch
-pagesmith diagrams content/ --type drawio
+## CSS Exports
+
+| Import | Contents |
+|---|---|
+| `@pagesmith/core/css/content` | Prose typography + inline code |
+| `@pagesmith/core/css/standalone` | Full layout + prose + TOC |
+| `@pagesmith/core/css/viewport` | Responsive viewport base |
+| `@pagesmith/core/css/fonts` | Bundled Open Sans + JetBrains Mono |
+
+Code block styling is handled by Expressive Code through inline styles injected during markdown processing.
+
+## Assistant Artifacts
+
+Pagesmith exposes programmatic helpers for generating checked-in assistant context such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `llms.txt`, and `llms-full.txt`:
+
+```ts
+import { installAiArtifacts } from '@pagesmith/core/ai'
+
+installAiArtifacts({
+  assistants: ['claude', 'codex', 'gemini'],
+  scope: 'project',
+})
 ```
-
-## AI Companion Files
-
-Install Pagesmith context for Claude, Codex, Gemini CLI, and `llms.txt`:
-
-```bash
-pagesmith ai install --assistant all --scope project
-pagesmith ai install --assistant codex --scope project --docs
-```
-
-Examples:
-
-```bash
-pagesmith ai install --assistant claude --scope project
-pagesmith ai install --assistant codex --scope user
-pagesmith ai install --assistant gemini --scope project --skill-name content
-```
-
-Project installs create:
-
-- `CLAUDE.md`
-- `AGENTS.md`
-- `GEMINI.md`
-- `.claude/commands/pagesmith.md`
-- `.codex/skills/pagesmith/SKILL.md`
-- `.gemini/commands/pagesmith.toml`
-- `llms.txt`
-- `llms-full.txt`
 
 ## Docs
 
-The docs site lives in `docs/` and is built with `@pagesmith/docs`.
+The repo uses both packages in different ways:
 
-- `pagesmith.config.json5` holds site metadata, footer links, and search settings
-- `content/README.md` is the home page
-- top-level folders under `content/` become top-level navigation sections
-- Pagefind search is built in
-
-- Build: `npm run build:docs`
+- [`docs/`](docs/) uses `@pagesmith/docs` with the default docs configuration
+- [`examples/doc-site/`](examples/doc-site/) shows layout overrides through `theme.layouts.*` in `pagesmith.config.json5`
+- [`examples/blog-site/`](examples/blog-site/) is a custom site built on `@pagesmith/core` with its own layouts and a Vite-powered asset build
+- The framework examples in [`examples/`](examples/) use `@pagesmith/core` with React, Solid, Svelte, EJS, and Handlebars rendering flows
 
 ## Repo Development
 
@@ -101,4 +120,7 @@ Use Vite+ commands in this repo:
 vp install
 vp check
 vp test
+vp run build
 ```
+
+Pagesmith uses the Vite+ toolchain here, so prefer `vp` and its built-in OXC-based tooling over direct `npm`, `eslint`, or `prettier` workflows.

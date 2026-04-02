@@ -1,0 +1,449 @@
+/* ═══════════════════════════════════════════════════════════════
+   Doc home — landing page sections
+   Hero, install, features, packages, code example, content
+   All sections are optional — omit the element and it's gone.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Shared section container ─── */
+.doc-home-section {
+  max-width: 84ch;
+  width: 100%;
+  padding: 0 2.5rem;
+}
+
+.doc-home-section + .doc-home-section {
+  margin-top: 5rem;
+}
+
+/* ─── Section label (Features, Packages, Quick Start) ─── */
+.doc-home-section-label {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════════════════════ */
+.doc-hero {
+  padding-top: 4rem;
+  padding-bottom: 1rem;
+}
+
+.doc-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+  padding: 0.375rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-alt);
+}
+
+.doc-hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: light-dark(#16a34a, #3fb950);
+  flex-shrink: 0;
+}
+
+.doc-hero-name {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.doc-hero-text {
+  font-size: clamp(2rem, 5.5vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin-bottom: 1.25rem;
+}
+
+.doc-hero-tagline {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  max-width: 56ch;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+
+.doc-hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ─── Action buttons ─── */
+.doc-hero-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.doc-hero-action svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.doc-hero-action-brand {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  border-color: var(--color-accent);
+}
+
+.doc-hero-action-brand:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.doc-hero-action-alt {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.doc-hero-action-alt:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-bg-hover);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INSTALL SNIPPET
+   ═══════════════════════════════════════════════════════════════ */
+.doc-home-install {
+  margin-top: 2.5rem;
+}
+
+.doc-install-bar {
+  background: light-dark(#1e1e2e, #111111);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.doc-install-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid light-dark(rgba(255,255,255,0.06), #222222);
+}
+
+.doc-install-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.doc-install-dot-r { background: #ff5f57; }
+.doc-install-dot-y { background: #febc2e; }
+.doc-install-dot-g { background: #28c840; }
+
+.doc-install-title {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: #8b949e;
+}
+
+.doc-install-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.doc-install-body code {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: #e5e5e5;
+  white-space: nowrap;
+}
+
+.doc-install-prompt {
+  color: #3fb950;
+  user-select: none;
+}
+
+.doc-install-copy {
+  background: none;
+  border: 1px solid #444444;
+  border-radius: var(--radius-md);
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: #8b949e;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.doc-install-copy:hover {
+  border-color: #3fb950;
+  color: #3fb950;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FEATURES GRID
+   ═══════════════════════════════════════════════════════════════ */
+.doc-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22ch, 1fr));
+  gap: 1px;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.doc-feature-card {
+  background: var(--color-bg);
+  padding: 1.5rem;
+  transition: background var(--transition-fast);
+}
+
+.doc-feature-card:hover {
+  background: var(--color-bg-hover);
+}
+
+.doc-feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+/* SVG icons inside feature-icon */
+.doc-feature-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.doc-feature-title {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+  color: var(--color-text);
+}
+
+.doc-feature-details {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PACKAGES
+   ═══════════════════════════════════════════════════════════════ */
+.doc-packages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22ch, 1fr));
+  gap: 1rem;
+}
+
+.doc-package-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: all var(--transition-fast);
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.doc-package-card:hover {
+  border-color: var(--color-accent);
+  background: var(--color-bg-hover);
+}
+
+.doc-package-name {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+}
+
+.doc-package-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.doc-package-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.doc-package-version {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: light-dark(#16a34a, #3fb950);
+  background: light-dark(rgba(22,163,74,0.08), rgba(63,185,80,0.1));
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+}
+
+.doc-package-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CODE EXAMPLE (terminal chrome, always dark)
+   ═══════════════════════════════════════════════════════════════ */
+.doc-home-code {
+  background: light-dark(#1e1e2e, #111111);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.doc-home-code-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid light-dark(rgba(255,255,255,0.06), #222222);
+}
+
+.doc-home-code-title {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: #8b949e;
+}
+
+.doc-home-code pre {
+  padding: 1.25rem 1.5rem;
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.85;
+  color: #e5e5e5;
+}
+
+/* Syntax highlighting — works in both themes since block bg is always dark */
+.doc-home-code .kw  { color: #ff7b72; }
+.doc-home-code .fn  { color: #d2a8ff; }
+.doc-home-code .str { color: #a5d6ff; }
+.doc-home-code .cm  { color: #484f58; }
+.doc-home-code .op  { color: #8b949e; }
+
+/* ═══════════════════════════════════════════════════════════════
+   MARKDOWN CONTENT
+   ═══════════════════════════════════════════════════════════════ */
+.doc-home-content {
+  max-width: 84ch;
+  width: 100%;
+  padding: 3rem 2.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HOME FOOTER (links + copyright, no prev/next)
+   ═══════════════════════════════════════════════════════════════ */
+.doc-home-footer {
+  max-width: 84ch;
+  width: 100%;
+  padding: 0 2.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .doc-home-section {
+    padding: 0 1.25rem;
+  }
+
+  .doc-home-section + .doc-home-section {
+    margin-top: 3.5rem;
+  }
+
+  .doc-hero {
+    padding-top: 2.5rem;
+  }
+
+  .doc-hero-text {
+    font-size: 1.75rem;
+  }
+
+  .doc-hero-tagline {
+    margin-bottom: 1.5rem;
+  }
+
+  .doc-hero-actions {
+    flex-direction: column;
+  }
+
+  .doc-hero-action {
+    justify-content: center;
+  }
+
+  .doc-install-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .doc-features {
+    grid-template-columns: 1fr;
+  }
+
+  .doc-packages {
+    grid-template-columns: 1fr;
+  }
+
+  .doc-home-content {
+    padding: 2rem 1.25rem;
+  }
+
+  .doc-home-footer {
+    padding: 0 1.25rem;
+  }
+}

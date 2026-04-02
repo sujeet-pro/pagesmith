@@ -1,18 +1,55 @@
 {{#> layout}}
   {{#*inline "body"}}
-    <h1>Blog</h1>
-    <ul style="list-style: none; padding: 0;">
-      {{#each posts}}
-        <li style="margin-bottom: 2rem;">
-          <h2 style="margin-bottom: 0.25rem;">
-            <a href="{{../basePath}}posts/{{this.slug}}/">{{this.title}}</a>
-          </h2>
-          <time style="color: #666; font-size: 0.875rem;">
-            {{formatDate this.date}}
-          </time>
-          <p style="margin-top: 0.5rem; color: #444;">{{this.description}}</p>
-        </li>
-      {{/each}}
-    </ul>
+    <section class="doc-home-section doc-hero">
+      <h1 class="doc-hero-text">Pagesmith + Handlebars</h1>
+      <p class="doc-hero-tagline">
+        A content-driven site powered by Pagesmith's content layer and Handlebars templates.
+        Browse the guide to learn the fundamentals, or check out the blog for practical insights.
+      </p>
+      <div class="doc-hero-actions">
+        <a href="{{basePath}}guide/{{firstGuideSlug}}/" class="doc-hero-action doc-hero-action-brand">
+          Read the Guide
+        </a>
+        <a href="{{basePath}}blog/{{firstBlogSlug}}/" class="doc-hero-action doc-hero-action-alt">
+          Browse the Blog
+        </a>
+      </div>
+    </section>
+
+    <section class="doc-home-section">
+      <h2>Recent Blog Posts</h2>
+      <ul style="display: flex; flex-direction: column; gap: 1rem;">
+        {{#each sortedBlog}}
+          <li style="padding: 1rem 1.25rem; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-lg);">
+            <a href="{{../basePath}}blog/{{this.slug}}/">
+              <h3 style="margin: 0; font-size: var(--font-size-lg);">{{this.title}}</h3>
+            </a>
+            {{#if this.description}}
+              <p style="margin: 0.5rem 0 0; color: var(--color-text-muted); font-size: var(--font-size-sm);">{{this.description}}</p>
+            {{/if}}
+            <p style="margin: 0.375rem 0 0; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+              <time>{{formatDate this.date}}</time>
+              {{#if this.tags.length}}
+                &middot; {{#each this.tags}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}
+              {{/if}}
+            </p>
+          </li>
+        {{/each}}
+      </ul>
+    </section>
+
+    <section class="doc-home-section">
+      <h2>Guide</h2>
+      <ul style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {{#each sortedGuide}}
+          <li>
+            <a href="{{../basePath}}guide/{{this.slug}}/" style="font-weight: 500;">{{this.title}}</a>
+            {{#if this.description}}
+              <span style="color: var(--color-text-muted); font-size: var(--font-size-sm);"> &mdash; {{this.description}}</span>
+            {{/if}}
+          </li>
+        {{/each}}
+      </ul>
+    </section>
   {{/inline}}
 {{/layout}}

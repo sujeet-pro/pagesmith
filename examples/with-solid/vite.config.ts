@@ -1,27 +1,23 @@
-import { resolve } from 'path'
-import content from '../shared-content/content.config'
-import { pagesmithContent } from '@pagesmith/core/vite'
 import { defineConfig } from 'vite-plus'
-import solidPlugin from 'vite-plugin-solid'
+import collections from './content.config'
+import solid from 'vite-plugin-solid'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/solid/',
+  plugins: [
+    sharedAssetsPlugin(),
+    solid({ ssr: true }),
+    pagesmithContent({ collections }),
+    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+  ],
   build: {
     outDir: '../../gh-pages/examples/solid',
-  },
-  plugins: [
-    pagesmithContent({
-      collections: {
-        posts: content.posts,
-        authors: content.authors,
-        pages: content.pages,
+    emptyOutDir: true,
+    rolldownOptions: {
+      checks: {
+        pluginTimings: false,
       },
-      root: resolve(import.meta.dirname, '../shared-content'),
-      configPath: '../shared-content/content.config.ts',
-      dts: 'src/pagesmith-content.d.ts',
-    }),
-    solidPlugin({
-      solid: { generate: process.env.SOLID_SSR ? 'ssr' : 'dom' },
-    }),
-  ],
+    },
+  },
 })

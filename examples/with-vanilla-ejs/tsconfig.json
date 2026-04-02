@@ -10,5 +10,12 @@
       "@pagesmith/core/*": ["../../packages/core/src/*/index.ts"]
     }
   },
-  "include": ["build.ts", "ejs.d.ts", "../shared-content/content.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "templates/**/*.ejs",
+    "content-config.d.ts",
+    "ejs.d.ts",
+    "vite.config.ts"
+  ]
 }
