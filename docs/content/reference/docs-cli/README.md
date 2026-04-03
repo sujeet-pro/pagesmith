@@ -14,6 +14,51 @@ The `pagesmith` binary is then available via `npx`, npm scripts, or direct invoc
 
 ## Commands
 
+### pagesmith init
+
+Initialize a new docs project with config, content structure, and optionally AI integrations.
+
+```bash title="Terminal"
+pagesmith init [options]
+```
+
+The init command creates:
+
+1. **`pagesmith.config.json5`** — site configuration file (uses the project name from `package.json` if available)
+2. **`content/README.md`** — home page with `DocHome` layout frontmatter
+3. **`content/guide/meta.json5`** — guide section with manual ordering
+4. **`content/guide/getting-started/README.md`** — starter getting-started page
+
+With `--ai`, it additionally installs AI assistant integrations:
+
+- `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` — assistant memory files
+- `.claude/skills/pagesmith/SKILL.md` — Claude `/pagesmith` skill
+- `.claude/skills/update-docs/SKILL.md` — Claude `/update-docs` skill
+- `.pagesmith/markdown-guidelines.md` — markdown authoring rules
+- `llms.txt` and `llms-full.txt`
+
+**Options:**
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `--ai` | boolean | `false` | Install AI integrations (skills, memory files, guidelines) |
+| `--config <path>` | string | `pagesmith.config.json5` | Path for the configuration file |
+
+**Example:**
+
+```bash title="Terminal"
+# Basic init — config + content only
+pagesmith init
+
+# Init with AI integrations
+pagesmith init --ai
+
+# Init with a custom config path
+pagesmith init --config ./docs/pagesmith.config.json5
+```
+
+The command is idempotent — it will not overwrite existing files. Run it safely on an existing project to fill in any missing files.
+
 ### pagesmith dev
 
 Start a development server with file watching and live reload.
@@ -146,11 +191,16 @@ The help output shows:
 pagesmith
 
 Commands:
-  dev [options]                       Start a docs dev server
-  build [options]                     Build a docs site
-  preview [options]                   Preview the built docs site
+  init [options]                       Initialize a docs project
+  dev [options]                        Start a docs dev server
+  build [options]                      Build a docs site
+  preview [options]                    Preview the built docs site
 
-Options:
+Init options:
+  --ai                                Install AI integrations (skills, guidelines)
+  --config <path>                     Config file path
+
+Server options:
   --port <number>                     Server port (dev: 3000, preview: 4173)
   --open                              Open browser on server start
   --out-dir <path>                    Output directory (overrides config)
@@ -266,6 +316,9 @@ The CLI wraps the top-level `main()` function in a `.catch()` handler that logs 
 ## Typical Workflow
 
 ```bash title="Terminal"
+# 0. Initialize (first time only)
+pagesmith init --ai
+
 # 1. Start development
 pagesmith dev --open
 

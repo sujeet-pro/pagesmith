@@ -99,11 +99,15 @@ Code block styling is handled entirely by Expressive Code through inline styles 
 
 Detailed guidelines for working with this project live in `ai-guidelines/`:
 
+- [`ai-guidelines/setup-core.md`](ai-guidelines/setup-core.md) — **Standalone setup guide** for `@pagesmith/core` — point any agent at this file to configure a project
+- [`ai-guidelines/setup-docs.md`](ai-guidelines/setup-docs.md) — **Standalone setup guide** for `@pagesmith/docs` — point any agent at this file to configure a project
 - [`ai-guidelines/using-core.md`](ai-guidelines/using-core.md) — Using `@pagesmith/core` in examples and custom sites
 - [`ai-guidelines/using-docs.md`](ai-guidelines/using-docs.md) — Using `@pagesmith/docs` for documentation sites
 - [`ai-guidelines/markdown-guidelines.md`](ai-guidelines/markdown-guidelines.md) — Markdown feature support and pipeline details
 
 Read the relevant guideline before generating code or content for that area.
+
+The AI installer (`@pagesmith/core/ai`) generates assistant context files including markdown guidelines (`.pagesmith/markdown-guidelines.md`) and a `/update-docs` Claude command for keeping docs in sync with implementation.
 
 ## Guidance
 

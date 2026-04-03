@@ -24,7 +24,8 @@
     "dist/",
     "src/styles/",
     "assets/",
-    "templates/"
+    "templates/",
+    "REFERENCE.md"
   ],
   "type": "module",
   "exports": {
@@ -120,7 +121,6 @@
     "remark-smartypants": "^3.0.2",
     "smol-toml": "^1.3.0",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.0.0",
     "yaml": "^2.7.0",
     "zod": "^4.3.6"
   },

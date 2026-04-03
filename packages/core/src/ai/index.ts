@@ -5,7 +5,13 @@ import { dirname, join, resolve } from 'path'
 export type AiAssistant = 'claude' | 'codex' | 'gemini'
 export type AiInstallScope = 'project' | 'user'
 export type AiInstallProfile = 'default' | 'docs'
-export type AiArtifactKind = 'memory' | 'skill' | 'llms' | 'llms-full'
+export type AiArtifactKind =
+  | 'memory'
+  | 'skill'
+  | 'llms'
+  | 'llms-full'
+  | 'markdown-guidelines'
+  | 'update-docs'
 export type AiWriteMode = 'merge' | 'replace'
 export type AiInstallStatus = 'written' | 'merged' | 'replaced' | 'unchanged'
 
@@ -114,6 +120,10 @@ function escapeForRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+// ---------------------------------------------------------------------------
+// Shared content renderers
+// ---------------------------------------------------------------------------
+
 function renderSharedOverview(): string {
   return [
     `${PAGESMITH_TITLE} is a filesystem-first content toolkit with two main packages: \`@pagesmith/core\` (shared content/runtime layer) and \`@pagesmith/docs\` (convention-based documentation).`,
@@ -129,13 +139,10 @@ function renderSharedOverview(): string {
     '- `createContentLayer(config)` to query content and run validation',
     '- `entry.render()` to convert markdown on demand',
     '',
-    'Useful helpers:',
-    '- `@pagesmith/core/ai` exposes `getAiArtifacts(...)` and `installAiArtifacts(...)`',
-    '',
     'Working rules:',
     '- prefer folder-based markdown entries when content references sibling assets',
-    '- use `vp` commands for install, check, test, and build workflows',
-    '- `@pagesmith/core` provides the shared content/runtime layer; `@pagesmith/docs` adds convention-based documentation on top',
+    '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md` when authoring content',
+    '- use fenced code blocks with a language identifier, one h1 per page, sequential heading depth',
   ].join('\n')
 }
 
@@ -153,37 +160,7 @@ function renderDocsOverview(): string {
   ].join('\n')
 }
 
-function renderQuickStart(profile: AiInstallProfile = 'default'): string {
-  if (profile === 'docs') {
-    return [
-      '```json5',
-      '{',
-      "  name: 'Acme Docs',",
-      "  title: 'Acme Docs',",
-      "  description: 'Multi-package documentation',",
-      "  contentDir: './content',",
-      "  outDir: './dist',",
-      '  footerLinks: [',
-      "    { label: 'Guide', path: '/guide' },",
-      "    { label: 'Reference', path: '/reference' },",
-      '  ],',
-      '  search: { enabled: true },',
-      '}',
-      '```',
-      '',
-      '```text',
-      'content/',
-      '  README.md',
-      '  guide/',
-      '    README.md',
-      '    getting-started/README.md',
-      '  reference/',
-      '    README.md',
-      '    api/README.md',
-      '```',
-    ].join('\n')
-  }
-
+function renderCoreQuickStart(): string {
   return [
     '```ts',
     "import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'",
@@ -211,11 +188,53 @@ function renderQuickStart(profile: AiInstallProfile = 'default'): string {
   ].join('\n')
 }
 
+function renderDocsQuickStart(): string {
+  return [
+    '```json5',
+    '// pagesmith.config.json5',
+    '{',
+    "  name: 'Acme Docs',",
+    "  title: 'Acme Docs',",
+    "  description: 'Multi-package documentation',",
+    "  contentDir: './content',",
+    "  outDir: './dist',",
+    '  footerLinks: [',
+    "    { label: 'Guide', path: '/guide' },",
+    "    { label: 'Reference', path: '/reference' },",
+    '  ],',
+    '  search: { enabled: true },',
+    '}',
+    '```',
+    '',
+    '```text',
+    'content/',
+    '  README.md                 # Home page (DocHome layout)',
+    '  guide/',
+    '    meta.json5              # Section ordering',
+    '    getting-started/',
+    '      README.md             # A page',
+    '  reference/',
+    '    api/README.md',
+    '```',
+  ].join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// Memory file renderers
+// ---------------------------------------------------------------------------
+
 function renderMemoryFile(assistant: AiAssistant, profile: AiInstallProfile): string {
   const commandHint =
     assistant === 'claude' || assistant === 'gemini'
-      ? `\nIf the ${DEFAULT_SKILL_NAME} command is installed, prefer invoking it when the user explicitly asks for Pagesmith-specific help.`
+      ? `\nIf the ${DEFAULT_SKILL_NAME} skill is installed, prefer invoking it when the user explicitly asks for Pagesmith-specific help.`
       : '\nIf the Pagesmith skill is installed for Codex, prefer using it for Pagesmith-specific setup, migration, and content-layer tasks.'
+
+  const referenceHint =
+    '\nFor the full API and configuration reference, see the REFERENCE.md file shipped with the package:\n' +
+    (profile === 'docs'
+      ? '- `node_modules/@pagesmith/docs/REFERENCE.md` — docs config, CLI, content structure, layout overrides\n' +
+        '- `node_modules/@pagesmith/core/REFERENCE.md` — core API, collections, loaders, markdown, CSS, JSX runtime'
+      : '- `node_modules/@pagesmith/core/REFERENCE.md` — core API, collections, loaders, markdown, CSS, JSX runtime')
 
   return [
     `# ${PAGESMITH_TITLE}`,
@@ -223,14 +242,29 @@ function renderMemoryFile(assistant: AiAssistant, profile: AiInstallProfile): st
     renderSharedOverview(),
     ...(profile === 'docs' ? ['', renderDocsOverview()] : []),
     commandHint,
+    referenceHint,
     '',
-    'Quick start:',
-    renderQuickStart(profile),
+    '## Quick Start — @pagesmith/core',
+    '',
+    renderCoreQuickStart(),
+    ...(profile === 'docs'
+      ? ['', '## Quick Start — @pagesmith/docs', '', renderDocsQuickStart()]
+      : []),
   ].join('\n')
 }
 
-function renderClaudeCommand(skillName: string, profile: AiInstallProfile): string {
+// ---------------------------------------------------------------------------
+// Claude skill renderers (uses .claude/skills/ format)
+// ---------------------------------------------------------------------------
+
+function renderClaudeSkill(skillName: string, profile: AiInstallProfile): string {
   return [
+    '---',
+    `name: ${skillName}`,
+    'description: Pagesmith file-based CMS helper — content collections, markdown pipeline, docs configuration, and AI artifact generation',
+    'allowed-tools: Read Grep Glob Bash Edit Write',
+    '---',
+    '',
     `# ${PAGESMITH_TITLE} Assistant`,
     '',
     'You are helping with Pagesmith, a file-based CMS with `@pagesmith/core` and `@pagesmith/docs`.',
@@ -239,22 +273,93 @@ function renderClaudeCommand(skillName: string, profile: AiInstallProfile): stri
     '- prefer `defineCollection`, `defineConfig`, and `createContentLayer`',
     '- recommend folder-based entries when markdown references sibling assets',
     '- use `@pagesmith/core/ai` for assistant artifact generation',
-    '- recommend `vp install`, `vp check`, and `vp test` for validation',
+    '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
     ...(profile === 'docs'
       ? [
           '- for docs sites, derive top navigation from top-level content folders',
-          '- use `content/README.md` for the home page and `content/home.json5` for extra home data when needed',
+          '- use `content/README.md` for the home page',
           '- use frontmatter fields like `sidebarLabel`, `navLabel`, and `order` for docs navigation',
-          '- do not recommend `@pagesmith/plugin-pagefind` or `@pagesmith/plugin-algolia`; search is built into docs',
-          '- recommend `theme.layouts.home`, `theme.layouts.page`, and `theme.layouts.notFound` for docs layout overrides',
+          '- Pagefind search is built in — do not suggest separate search plugins',
+          '- layout overrides: `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.notFound`',
         ]
       : []),
     '',
-    'Deliver concrete config, schema, and content-layer patches when possible.',
+    'For the full API reference, read the REFERENCE.md file shipped with the package:',
+    ...(profile === 'docs'
+      ? [
+          '- `node_modules/@pagesmith/docs/REFERENCE.md`',
+          '- `node_modules/@pagesmith/core/REFERENCE.md`',
+        ]
+      : ['- `node_modules/@pagesmith/core/REFERENCE.md`']),
     '',
-    `This command is installed as \`/${skillName}\`.`,
+    'Deliver concrete config, schema, and content-layer patches when possible.',
   ].join('\n')
 }
+
+function renderUpdateDocsSkill(profile: AiInstallProfile): string {
+  const docsSteps =
+    profile === 'docs'
+      ? [
+          '1. Read `pagesmith.config.json5` to understand the docs configuration',
+          '2. Read all `meta.json5` files to understand the current content structure and page ordering',
+          '3. Read the project source code to identify public APIs, types, exports, config options, and CLI commands',
+          '4. For each existing content page in `content/`:',
+          '   - Read the current content',
+          '   - Compare with the implementation',
+          '   - Update any outdated information',
+          '   - Add documentation for new features',
+          '   - Remove documentation for removed features',
+          '5. If new pages are needed:',
+          '   - Create the page folder and `README.md` with proper frontmatter (title, description)',
+          '   - Add the slug to the appropriate `meta.json5` `items` array',
+          '6. Follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
+          '7. Verify all internal links point to existing pages',
+          '8. Ensure heading hierarchy is sequential (no skipping levels)',
+        ]
+      : [
+          '1. Read `content.config.ts` or equivalent to understand the content collections',
+          '2. Read the project source code to identify what needs documentation',
+          '3. For each existing content entry:',
+          '   - Read the current content',
+          '   - Compare with the implementation',
+          '   - Update any outdated information',
+          '4. If new entries are needed:',
+          '   - Create the entry folder and `README.md` with proper frontmatter matching the collection schema',
+          '5. Follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
+          '6. Verify all internal links point to existing pages',
+        ]
+
+  return [
+    '---',
+    'name: update-docs',
+    'description: Read the project implementation and update Pagesmith-managed documentation to reflect the current state',
+    'allowed-tools: Read Grep Glob Bash Edit Write',
+    '---',
+    '',
+    '# Update Documentation',
+    '',
+    'Read the project implementation (source code, README, CHANGELOG, package.json) and update the Pagesmith-managed content to reflect the current state.',
+    '',
+    '## Steps',
+    '',
+    ...docsSteps,
+    '',
+    '## Rules',
+    '',
+    '- Preserve the existing content structure and organization',
+    '- Do not remove pages without confirming first',
+    '- Keep frontmatter fields (title, description) accurate and descriptive',
+    '- Use relative links for internal cross-references',
+    '- One h1 per page, sequential heading depth',
+    '- Use fenced code blocks with language identifiers',
+    '- Use GitHub alerts (`> [!NOTE]`, `> [!TIP]`, etc.) for important callouts',
+    '- Code block features: `title="file.js"`, `showLineNumbers`, `mark={1-3}`, `ins={4}`, `del={5}`, `collapse={1-5}`',
+  ].join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// Gemini / Codex renderers
+// ---------------------------------------------------------------------------
 
 function renderGeminiCommand(skillName: string, profile: AiInstallProfile): string {
   const prompt = [
@@ -263,8 +368,8 @@ function renderGeminiCommand(skillName: string, profile: AiInstallProfile): stri
     'Focus on concrete, implementation-ready help:',
     '- design collections with defineCollection',
     '- configure createContentLayer and defineConfig',
-    '- recommend vp install, vp check, and vp test when validation matters',
     '- prefer folder-based markdown entries when local assets sit beside content',
+    '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
     ...(profile === 'docs'
       ? [
           '- for docs sites, follow the convention-based `content/` structure',
@@ -272,6 +377,8 @@ function renderGeminiCommand(skillName: string, profile: AiInstallProfile): stri
           '- keep Pagefind as the built-in search strategy',
         ]
       : []),
+    '',
+    'For the full API reference, read the REFERENCE.md file shipped with the package.',
     '',
     'Return code, config, or documentation-ready guidance instead of vague summaries.',
   ].join('\n')
@@ -295,8 +402,7 @@ function renderCodexSkill(profile: AiInstallProfile): string {
     'Core rules:',
     '- `@pagesmith/core` provides the content layer; `@pagesmith/docs` adds convention-based documentation',
     '- prefer `defineCollection`, `defineConfig`, and `createContentLayer`',
-    '- prefer `vp` commands instead of calling npm, pnpm, or yarn directly',
-    '- validate changes with `vp check` and `vp test` when relevant',
+    '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
     ...(profile === 'docs'
       ? [
           '- when the repo uses `@pagesmith/docs`, treat `content/README.md` as the home page',
@@ -307,57 +413,350 @@ function renderCodexSkill(profile: AiInstallProfile): string {
         ]
       : []),
     '',
+    'For the full API reference, read the REFERENCE.md file shipped with the package.',
+    '',
     'Good outputs include:',
     '- collection schemas and loader configuration',
     '- content-layer queries and rendering examples',
-    '- @pagesmith/docs updates for Pagesmith usage',
+    '- documentation updates for Pagesmith usage',
     '- assistant-context install steps using `@pagesmith/core/ai`',
   ].join('\n')
 }
 
-function renderLlmsTxt(profile: AiInstallProfile): string {
+// ---------------------------------------------------------------------------
+// Markdown guidelines
+// ---------------------------------------------------------------------------
+
+function renderMarkdownGuidelines(): string {
   return [
-    '# Pagesmith',
+    '# Pagesmith Markdown Guidelines',
     '',
-    '> Pagesmith is a filesystem-first content toolkit centered on `@pagesmith/core` and `@pagesmith/docs`.',
+    'Markdown feature support for content authored with `@pagesmith/core` and `@pagesmith/docs`.',
     '',
-    '## Summary',
+    '## Pipeline Order',
     '',
-    renderSharedOverview(),
-    ...(profile === 'docs' ? ['', renderDocsOverview()] : []),
+    '```',
+    'remark-parse → remark-gfm → remark-math → remark-frontmatter',
+    '  → remark-github-alerts → remark-smartypants → [user remark plugins]',
+    '  → remark-rehype',
+    '  → rehype-expressive-code (dual themes, line numbers, titles, copy, collapse, mark/ins/del)',
+    '  → rehype-mathjax → rehype-slug → rehype-autolink-headings',
+    '  → rehype-external-links → rehype-accessible-emojis',
+    '  → heading extraction → [user rehype plugins] → rehype-stringify',
+    '```',
     '',
-    '## Quick Start',
+    '## Key Rules',
     '',
-    renderQuickStart(profile),
+    '- Use fenced code blocks with a language identifier (validator warns otherwise)',
+    '- One `# h1` per page (validator enforces)',
+    '- Sequential heading depth (no skipping from h2 to h4)',
+    '- Prefer relative links for internal content',
+    '- Do NOT add manual copy-button JS — Expressive Code handles it',
+    '- Do NOT import separate code block CSS — Expressive Code injects inline styles',
+    '',
+    '## Supported Features',
+    '',
+    '| Feature | Syntax | Notes |',
+    '|---|---|---|',
+    '| GFM tables | `\\| col \\| col \\|` | Alignment via `:---`, `:---:`, `---:` |',
+    '| Strikethrough | `~~text~~` | |',
+    '| Task lists | `- [x] done` / `- [ ] todo` | |',
+    '| Footnotes | `[^id]` + `[^id]: text` | |',
+    '| Alerts | `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` | GitHub-compatible |',
+    '| Inline math | `$E = mc^2$` | No spaces inside delimiters |',
+    '| Block math | `$$...$$` | Rendered via MathJax |',
+    '| Smart quotes | `"text"` → curly quotes | Automatic |',
+    '| Em/en dash | `---` / `--` | Automatic |',
+    '| External links | `[text](https://...)` | Auto `target="_blank"` |',
+    '| Heading anchors | Auto `id` + wrapped anchor | All headings |',
+    '| Accessible emoji | Unicode emoji | Auto `role="img"` + `aria-label` |',
+    '',
+    '## Code Block Features (Expressive Code)',
+    '',
+    '| Meta | Example | Description |',
+    '|---|---|---|',
+    '| `title="..."` | `` ```js title="app.js" `` | File title |',
+    '| `showLineNumbers` | `` ```js showLineNumbers `` | Line numbers |',
+    '| `mark={lines}` | `` ```js mark={3,5-7} `` | Highlight lines |',
+    '| `ins={lines}` | `` ```js ins={4} `` | Inserted lines (green) |',
+    '| `del={lines}` | `` ```js del={5} `` | Deleted lines (red) |',
+    '| `collapse={lines}` | `` ```js collapse={1-5} `` | Collapsible section |',
+    '| `wrap` | `` ```js wrap `` | Text wrapping |',
+    '| `frame="..."` | `` ```js frame="terminal" `` | Frame style |',
+    '',
+    '## Built-in Content Validators',
+    '',
+    '- **linkValidator** — warns on bare URLs, empty link text, suspicious protocols',
+    '- **headingValidator** — enforces single h1, sequential depth, non-empty text',
+    '- **codeBlockValidator** — warns on missing language, unknown meta properties',
+    '',
+    'Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wrap`, `frame`, `collapse`, `mark`, `ins`, `del`.',
   ].join('\n')
 }
 
-function renderLlmsFullTxt(profile: AiInstallProfile): string {
+// ---------------------------------------------------------------------------
+// llms.txt / llms-full.txt — always cover BOTH core and docs
+// ---------------------------------------------------------------------------
+
+function renderLlmsTxt(): string {
   return [
-    '# Pagesmith - Full LLM Reference',
+    '# Pagesmith',
+    '',
+    '> Pagesmith is a filesystem-first content toolkit with `@pagesmith/core` and `@pagesmith/docs`.',
+    '',
+    '## @pagesmith/core — Content Layer',
+    '',
+    'Schema-validated content collections, lazy markdown rendering (Expressive Code syntax highlighting), JSX runtime, CSS exports, and Vite plugins.',
+    '',
+    '### Basic Setup (Vite Plugin)',
+    '',
+    renderCoreQuickStart(),
+    '',
+    '### Vite Integration',
+    '',
+    '```ts',
+    "import { pagesmithContent, pagesmithSsg } from '@pagesmith/core/vite'",
+    "import collections from './content.config'",
+    '',
+    'export default defineConfig({',
+    '  plugins: [',
+    '    pagesmithContent({ collections }),',
+    "    pagesmithSsg({ entry: './src/entry-server.tsx' }),",
+    '  ],',
+    '})',
+    '```',
+    '',
+    "Import collections as virtual modules: `import posts from 'virtual:content/posts'`",
+    '',
+    '## @pagesmith/docs — Documentation Sites',
+    '',
+    'Convention-based docs with default theme, Pagefind search, sidebar generation, and layout overrides.',
+    '',
+    '### Basic Setup',
+    '',
+    renderDocsQuickStart(),
+    '',
+    '### Layout Overrides',
+    '',
+    '```json5',
+    '{',
+    '  theme: {',
+    '    layouts: {',
+    "      home: './theme/layouts/DocHome.tsx',",
+    "      page: './theme/layouts/DocPage.tsx',",
+    "      notFound: './theme/layouts/DocNotFound.tsx',",
+    '    },',
+    '  },',
+    '}',
+    '```',
+    '',
+    '### CLI',
+    '',
+    '```bash',
+    'pagesmith init      # Initialize config + content structure + AI integrations',
+    'pagesmith dev       # Development server',
+    'pagesmith build     # Production build',
+    'pagesmith preview   # Preview built site',
+    '```',
+  ].join('\n')
+}
+
+function renderLlmsFullTxt(): string {
+  return [
+    '# Pagesmith — Full LLM Reference',
     '',
     renderSharedOverview(),
-    ...(profile === 'docs' ? ['', '## Docs Sites', '', renderDocsOverview()] : []),
     '',
-    '## Package Layout',
+    '---',
     '',
-    '- `@pagesmith/core`: content layer, collection loading, validation, lazy markdown rendering, JSX runtime, CSS builder, runtime styles, assistant artifact APIs, and Vite content integration',
-    '- `@pagesmith/docs`: convention-based documentation with the docs CLI, generators, validators, default theme, and bundled search',
+    '## @pagesmith/core',
     '',
-    '## Key APIs',
+    '### Content Layer API',
     '',
-    renderQuickStart(profile),
+    '| Method | Description |',
+    '|---|---|',
+    '| `createContentLayer(config)` | Create a content layer |',
+    '| `layer.getCollection(name)` | Load all entries (cached) |',
+    '| `layer.getEntry(collection, slug)` | Get single entry by slug |',
+    '| `layer.convert(markdown, options?)` | Convert raw markdown to HTML |',
+    '| `layer.validate(collection?)` | Run all validators |',
+    '| `layer.invalidate(collection, slug)` | Cache-bust a single entry |',
+    '| `layer.invalidateAll()` | Cache-bust all collections |',
     '',
-    '## Assistant Installer',
+    '### Collection Options',
+    '',
+    '| Option | Type | Description |',
+    '|---|---|---|',
+    "| `loader` | `string \\| Loader` | `'markdown'`, `'json'`, `'json5'`, `'jsonc'`, `'yaml'`, `'toml'`, or custom |",
+    '| `directory` | `string` | Directory containing files |',
+    '| `schema` | `z.ZodType` | Zod schema for validation |',
+    '| `include` | `string[]` | Glob include patterns |',
+    '| `exclude` | `string[]` | Glob exclude patterns |',
+    '| `computed` | `Record<string, fn>` | Computed fields |',
+    '| `validate` | `fn` | Custom validation |',
+    '| `filter` | `fn` | Filter entries |',
+    '| `slugify` | `fn` | Custom slug generation |',
+    '| `transform` | `fn` | Pre-validation transform |',
+    '| `validators` | `ContentValidator[]` | Custom content validators |',
+    '| `disableBuiltinValidators` | `boolean` | Disable link/heading/code-block validators |',
+    '',
+    '### Vite Plugins',
+    '',
+    renderCoreQuickStart(),
+    '',
+    '```ts',
+    '// Vite integration',
+    "import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'",
+    "import collections from './content.config'",
+    '',
+    'export default defineConfig({',
+    '  plugins: [',
+    '    sharedAssetsPlugin(),',
+    '    pagesmithContent({ collections }),',
+    "    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),",
+    '  ],',
+    '})',
+    '```',
+    '',
+    '### JSX Runtime',
+    '',
+    'Configure tsconfig: `{ "jsx": "react-jsx", "jsxImportSource": "@pagesmith/core" }`',
+    '',
+    '- `h(tag, props, ...children)` — create HTML elements, returns `HtmlString`',
+    '- `Fragment` — render children or raw `innerHTML`',
+    '- `HtmlString` — wrapper to prevent double-escaping',
+    '',
+    '### CSS Exports',
+    '',
+    '| Import | Contents |',
+    '|---|---|',
+    '| `@pagesmith/core/css/content` | Prose + inline code |',
+    '| `@pagesmith/core/css/standalone` | Full layout + prose + TOC |',
+    '| `@pagesmith/core/css/viewport` | Responsive viewport base |',
+    '| `@pagesmith/core/css/fonts` | Bundled Open Sans + JetBrains Mono |',
+    '',
+    '### Frontmatter Schemas',
+    '',
+    '- `BaseFrontmatterSchema` — title, description, publishedDate, lastUpdatedOn, tags, draft',
+    '- `BlogFrontmatterSchema` — extends base + category, featured, coverImage',
+    '- `ProjectFrontmatterSchema` — extends base + gitRepo, links',
+    '',
+    '### Export Map',
+    '',
+    '| Import Path | Purpose |',
+    '|---|---|',
+    '| `@pagesmith/core` | Main API (defineCollection, createContentLayer, z, etc.) |',
+    '| `@pagesmith/core/jsx-runtime` | h, Fragment, HtmlString |',
+    '| `@pagesmith/core/markdown` | processMarkdown |',
+    '| `@pagesmith/core/css` | buildCss (LightningCSS) |',
+    '| `@pagesmith/core/schemas` | Zod schemas and types |',
+    '| `@pagesmith/core/loaders` | Loader classes and registry |',
+    '| `@pagesmith/core/runtime` | Pre-built CSS/JS accessors |',
+    '| `@pagesmith/core/vite` | Vite plugins |',
+    '| `@pagesmith/core/ai` | AI assistant artifact generator |',
+    '| `@pagesmith/core/create` | Project scaffolding |',
+    '',
+    '---',
+    '',
+    '## @pagesmith/docs',
+    '',
+    '### Configuration (pagesmith.config.json5)',
+    '',
+    '| Field | Type | Default | Description |',
+    '|---|---|---|---|',
+    '| `name` | `string` | — | Site name (header) |',
+    '| `title` | `string` | — | Browser tab title |',
+    '| `description` | `string` | — | Meta description |',
+    '| `origin` | `string` | — | Production URL |',
+    '| `language` | `string` | `en` | HTML lang |',
+    '| `contentDir` | `string` | `content` | Content path |',
+    '| `outDir` | `string` | `dist` | Output path |',
+    '| `basePath` | `string` | `/` | URL base |',
+    '| `footerLinks` | `array` | `[]` | Footer links |',
+    '| `sidebar.collapsible` | `boolean` | `false` | Collapsible sidebar |',
+    '| `search.enabled` | `boolean` | `true` | Pagefind search |',
+    '| `theme.layouts` | `Record` | — | Layout overrides |',
+    '| `markdown` | `MarkdownConfig` | — | Pipeline config |',
+    '',
+    '### Content Structure',
+    '',
+    renderDocsQuickStart(),
+    '',
+    '### Page Frontmatter',
+    '',
+    '| Field | Type | Description |',
+    '|---|---|---|',
+    '| `title` | `string` | Page title |',
+    '| `description` | `string` | Meta description |',
+    '| `navLabel` | `string` | Override top nav label |',
+    '| `sidebarLabel` | `string` | Override sidebar label |',
+    '| `order` | `number` | Manual sort order |',
+    '| `draft` | `boolean` | Exclude from build |',
+    '',
+    '### Home Page Frontmatter',
+    '',
+    '| Field | Type | Description |',
+    '|---|---|---|',
+    '| `layout` | `string` | Set to `DocHome` |',
+    '| `tagline` | `string` | Short description |',
+    '| `install` | `string` | Install command |',
+    "| `actions` | `array` | CTA buttons (`{ text, link, theme: 'brand' \\| 'alt' }`) |",
+    '| `features` | `array` | Feature cards (`{ icon?, title, details }`) |',
+    '| `packages` | `array` | Package cards (`{ name, description, href, tag }`) |',
+    '| `codeExample` | `object` | Code example (`{ label, title, code }`) |',
+    '',
+    '### Section Meta (meta.json5)',
+    '',
+    '| Field | Type | Description |',
+    '|---|---|---|',
+    '| `displayName` | `string` | Section label in sidebar |',
+    '| `items` | `string[]` | Manual page order (slugs) |',
+    '| `series` | `array` | Group pages into series |',
+    '| `collapsed` | `boolean` | Start sidebar collapsed |',
+    '| `orderBy` | `string` | `manual` or `publishedDate` |',
+    '',
+    '### Layout Overrides',
+    '',
+    '```json5',
+    '{ theme: { layouts: { home: "./layouts/Home.tsx", page: "./layouts/Page.tsx" } } }',
+    '```',
+    '',
+    'All layouts receive: `content`, `frontmatter`, `headings`, `slug`, `site`.',
+    'Page layout adds: `sidebarSections`, `prev`, `next`.',
+    '',
+    '### CLI',
+    '',
+    '```bash',
+    'pagesmith init [--ai] [--config path]   # Initialize project',
+    'pagesmith dev [--port N] [--open]        # Dev server',
+    'pagesmith build [--out-dir path]         # Production build',
+    'pagesmith preview [--port N]             # Preview built site',
+    '```',
+    '',
+    '---',
+    '',
+    '## Markdown Pipeline',
+    '',
+    renderMarkdownGuidelines(),
+    '',
+    '---',
+    '',
+    '## AI Assistant Installer',
     '',
     '```ts',
     "import { installAiArtifacts } from '@pagesmith/core/ai'",
     '',
-    "await installAiArtifacts({ assistants: ['claude', 'codex', 'gemini'], scope: 'project' })",
+    "installAiArtifacts({ assistants: ['claude', 'codex', 'gemini'], scope: 'project', profile: 'docs' })",
     '```',
+    '',
+    'Generates: CLAUDE.md, AGENTS.md, GEMINI.md, skills, markdown guidelines, llms.txt, llms-full.txt.',
     '',
   ].join('\n')
 }
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 export function getAiArtifactContent(
   assistant: AiAssistant | 'shared',
@@ -368,8 +767,10 @@ export function getAiArtifactContent(
   const profile = options.profile ?? 'default'
 
   if (assistant === 'shared') {
-    if (kind === 'llms') return renderLlmsTxt(profile)
-    return renderLlmsFullTxt(profile)
+    if (kind === 'llms') return renderLlmsTxt()
+    if (kind === 'llms-full') return renderLlmsFullTxt()
+    if (kind === 'markdown-guidelines') return renderMarkdownGuidelines()
+    return renderLlmsFullTxt()
   }
 
   if (kind === 'memory') {
@@ -379,7 +780,7 @@ export function getAiArtifactContent(
   if (kind === 'skill') {
     switch (assistant) {
       case 'claude':
-        return renderClaudeCommand(skillName, profile)
+        return renderClaudeSkill(skillName, profile)
       case 'codex':
         return renderCodexSkill(profile)
       case 'gemini':
@@ -387,8 +788,16 @@ export function getAiArtifactContent(
     }
   }
 
-  if (kind === 'llms') return renderLlmsTxt(profile)
-  return renderLlmsFullTxt(profile)
+  if (kind === 'markdown-guidelines') {
+    return renderMarkdownGuidelines()
+  }
+
+  if (kind === 'update-docs') {
+    return renderUpdateDocsSkill(profile)
+  }
+
+  if (kind === 'llms') return renderLlmsTxt()
+  return renderLlmsFullTxt()
 }
 
 export function getAiArtifacts(options: AiInstallOptions = {}): AiArtifact[] {
@@ -414,13 +823,18 @@ export function getAiArtifacts(options: AiInstallOptions = {}): AiArtifact[] {
         mode: 'merge',
         label: `${assistant} memory`,
       })
+      // Claude skill (uses .claude/skills/ format with SKILL.md + frontmatter)
+      const skillDir =
+        scope === 'project'
+          ? join(cwd, '.claude', 'skills', skillName)
+          : join(home, '.claude', 'skills', skillName)
       artifacts.push({
         assistant,
         kind: 'skill',
-        path: join(baseDir, 'commands', `${skillName}.md`),
+        path: join(skillDir, 'SKILL.md'),
         content: getAiArtifactContent('claude', 'skill', { profile, skillName }) + '\n',
         mode: 'replace',
-        label: `${assistant} command`,
+        label: `${assistant} skill`,
       })
     }
 
@@ -471,24 +885,42 @@ export function getAiArtifacts(options: AiInstallOptions = {}): AiArtifact[] {
     }
   }
 
+  // Markdown guidelines — always installed for project scope
+  if (scope === 'project') {
+    artifacts.push({
+      kind: 'markdown-guidelines',
+      path: join(cwd, '.pagesmith', 'markdown-guidelines.md'),
+      content: renderMarkdownGuidelines() + '\n',
+      mode: 'replace',
+      label: 'markdown guidelines',
+    })
+  }
+
+  // /update-docs Claude skill — installed when Claude is included and scope is project
+  if (scope === 'project' && assistants.includes('claude')) {
+    artifacts.push({
+      assistant: 'claude',
+      kind: 'update-docs',
+      path: join(cwd, '.claude', 'skills', 'update-docs', 'SKILL.md'),
+      content: renderUpdateDocsSkill(profile) + '\n',
+      mode: 'replace',
+      label: 'claude update-docs skill',
+    })
+  }
+
   if (shouldIncludeLlms(options)) {
     const llmsDir = scope === 'project' ? cwd : join(home, '.pagesmith')
     artifacts.push({
       kind: 'llms',
       path: join(llmsDir, 'llms.txt'),
-      content:
-        withManagedBlock('shared-llms', getAiArtifactContent('shared', 'llms', { profile })) + '\n',
+      content: withManagedBlock('shared-llms', renderLlmsTxt()) + '\n',
       mode: 'merge',
       label: 'llms.txt',
     })
     artifacts.push({
       kind: 'llms-full',
       path: join(llmsDir, 'llms-full.txt'),
-      content:
-        withManagedBlock(
-          'shared-llms-full',
-          getAiArtifactContent('shared', 'llms-full', { profile }),
-        ) + '\n',
+      content: withManagedBlock('shared-llms-full', renderLlmsFullTxt()) + '\n',
       mode: 'merge',
       label: 'llms-full.txt',
     })
