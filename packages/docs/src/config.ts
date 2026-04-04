@@ -80,6 +80,15 @@ export type DocsUserConfig = {
    * ```
    */
   assets?: Record<string, string[]>
+  /** Server port and behavior settings for dev and preview commands. */
+  server?: {
+    /** Default port for the dev server (default: 3000). */
+    devPort?: number
+    /** Default port for the preview server (default: 4000). */
+    previewPort?: number
+    /** When true, fail if the configured port is in use instead of finding the next available port (default: false). */
+    strictPort?: boolean
+  }
 }
 
 export type ResolvedDocsConfig = {
@@ -134,6 +143,12 @@ export type ResolvedDocsConfig = {
   packages?: Record<string, { label: string }>
   /** Resolved asset mappings: output path → array of resolved absolute source paths. */
   assets: Map<string, string[]>
+  /** Resolved server settings. */
+  server: {
+    devPort: number
+    previewPort: number
+    strictPort: boolean
+  }
   /** @internal Raw user config — used by validateConfig to distinguish explicit values from fallbacks. */
   _userConfig?: DocsUserConfig
 }
@@ -377,6 +392,11 @@ export function resolveDocsConfig(
       ? resolve(rootDir, userConfig.home.configFile)
       : resolve(rootDir, contentDir, 'home.json5'),
     packages: userConfig.packages,
+    server: {
+      devPort: userConfig.server?.devPort ?? 3000,
+      previewPort: userConfig.server?.previewPort ?? 4000,
+      strictPort: userConfig.server?.strictPort ?? false,
+    },
     assets,
     _userConfig: userConfig,
   }

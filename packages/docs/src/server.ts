@@ -1,6 +1,7 @@
 import { exec } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { createServer, type IncomingMessage, type ServerResponse } from 'http'
+import { createServer as createNetServer } from 'net'
 import { dirname, extname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { watch } from 'chokidar'
@@ -98,12 +99,45 @@ function openBrowser(url: string): void {
   exec(`${cmd} ${url}`)
 }
 
+function isPortAvailable(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = createNetServer()
+    server.once('error', () => resolve(false))
+    server.once('listening', () => {
+      server.close(() => resolve(true))
+    })
+    server.listen(port)
+  })
+}
+
+async function findAvailablePort(
+  startPort: number,
+  strictPort: boolean,
+  label: string,
+): Promise<number> {
+  if (await isPortAvailable(startPort)) return startPort
+  if (strictPort) {
+    throw new Error(
+      `Port ${startPort} is already in use (${label}). Disable strictPort to auto-find an available port.`,
+    )
+  }
+  const maxAttempts = 20
+  for (let port = startPort + 1; port < startPort + maxAttempts; port++) {
+    if (await isPortAvailable(port)) {
+      console.log(`  Port ${startPort} in use, using ${port}`)
+      return port
+    }
+  }
+  throw new Error(`No available port found in range ${startPort}–${startPort + maxAttempts - 1}`)
+}
+
 export async function startDev(options: DocsDevOptions = {}): Promise<void> {
   const configPath = resolve(options.configPath ?? join(process.cwd(), 'pagesmith.config.json5'))
-  const port = options.port ?? 3001
 
   await build({ configPath })
   const config = resolveDocsConfig(configPath)
+  const requestedPort = options.port ?? config.server.devPort
+  const port = await findAvailablePort(requestedPort, config.server.strictPort, 'dev')
   const themeRoot = getThemeRoot()
   const watchTargets = [config.contentDir, configPath, themeRoot]
   if (existsSync(config.publicDir)) {
@@ -272,7 +306,8 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 
 export async function preview(options: DocsDevOptions = {}): Promise<void> {
   const config = resolveDocsConfig(options.configPath)
-  const port = options.port ?? 4173
+  const requestedPort = options.port ?? config.server.previewPort
+  const port = await findAvailablePort(requestedPort, config.server.strictPort, 'preview')
   const previewBase = config.basePath.replace(/\/+$/, '')
 
   const server = createServer((req: IncomingMessage, res: ServerResponse) => {

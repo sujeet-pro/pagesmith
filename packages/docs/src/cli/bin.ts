@@ -26,7 +26,7 @@ function parseServerArgs(argv: string[]): ServerCliArgs {
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]!
 
-    if (arg === '--port') {
+    if (arg === '--port' || arg === '-p') {
       const value = argv[++index]
       if (!value) throw new Error('--port requires a number')
       args.port = parseInt(value, 10)
@@ -122,7 +122,7 @@ Init options:
   --config <path>                     Config file path
 
 Server options:
-  --port <number>                     Server port (dev: 3000, preview: 4173)
+  -p, --port <number>                 Server port (dev: 3000, preview: 4000)
   --open                              Open browser on server start
   --out-dir <path>                    Output directory (overrides config)
   --base-path <path>                  Base URL path prefix (overrides config)
