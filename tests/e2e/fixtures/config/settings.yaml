@@ -1,0 +1,15 @@
+site:
+  title: Pagesmith Documentation
+  description: A content toolkit for building static sites
+  baseUrl: https://example.com
+  language: en
+  author: Pagesmith Team
+build:
+  outDir: dist
+  minify: true
+dev:
+  port: 3000
+markdown:
+  syntaxHighlight: true
+assets:
+  copyPublic: true

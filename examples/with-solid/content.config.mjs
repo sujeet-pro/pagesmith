@@ -14,9 +14,9 @@ export const guide = defineCollection({
   }),
 })
 
-export const blog = defineCollection({
+export const features = defineCollection({
   loader: 'markdown',
-  directory: './content/blog',
+  directory: './content/features',
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -34,4 +34,4 @@ export const pages = defineCollection({
   }),
 })
 
-export default defineCollections({ guide, blog, pages })
+export default defineCollections({ guide, features, pages })

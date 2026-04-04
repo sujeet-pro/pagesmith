@@ -1,65 +1,122 @@
 ---
-title: "Adding Search"
-description: "Integrate Pagefind search into your Pagesmith site with a modal UI."
-date: 2026-03-12
-tags: [search, pagefind]
-series: framework-integration
+title: Search Integration
+description: Adding Pagefind search to your site
+date: 2026-03-15
+tags:
+  - search
+  - pagefind
+series: Framework Integration
 seriesOrder: 3
 ---
 
-# Adding Search
+# Search Integration
 
-Pagesmith examples use Pagefind for full-text search. It indexes your pre-rendered HTML at build time and provides a lightweight client-side search UI.
+Search is powered by [Pagefind](https://pagefind.app/), a static search library that indexes the generated HTML at build time and runs entirely in the browser -- no server required.
 
-## Build-time indexing
+## How indexing works
 
-After pre-rendering, run the Pagefind binary:
+The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind UI CSS and JavaScript.
 
-```js
-import { execFileSync } from 'child_process'
+Pages opt into indexing with the `data-pagefind-body` attribute. In the Handlebars example, both the home page and article pages include this attribute in the layout template:
 
-const pagefindMain = fileURLToPath(import.meta.resolve('pagefind'))
-const pagefindBin = join(dirname(pagefindMain), '..', 'lib', 'runner', 'bin.cjs')
-execFileSync(process.execPath, [pagefindBin, '--site', outDir])
+```hbs title="templates/layout.hbs (excerpt)"
+{{!-- Home page layout --}}
+<main class="doc-home">
+  <div class="doc-home-content" data-pagefind-body>
+    {{> body}}
+  </div>
+</main>
+
+{{!-- Article page layout --}}
+<main class="doc-main" data-pagefind-body>
+  {{> body}}
+</main>
 ```
 
-## Search modal
+Only content inside elements with `data-pagefind-body` is indexed, keeping navigation chrome and boilerplate out of search results.
 
-The search UI opens as a modal dialog, triggered by a button click or `Ctrl+K` / `Cmd+K`:
+## The search dialog
 
-```html
-<dialog id="search-modal">
-  <div data-pagefind-search></div>
+Search is presented in a modal dialog that overlays the page. The HTML structure is defined in the layout template:
+
+```html title="templates/layout.hbs (excerpt)"
+<dialog class="doc-search-modal" id="search-modal" aria-label="Search">
+  <div class="doc-search-modal-inner">
+    <div class="doc-search-modal-header">
+      <span class="doc-search-modal-title">Search</span>
+      <button type="button" class="doc-search-modal-close" aria-label="Close">...</button>
+    </div>
+    <div class="doc-search-modal-body" id="search-container"></div>
+  </div>
 </dialog>
 ```
 
-```js
-const modal = document.getElementById('search-modal')
-const trigger = document.querySelector('[data-search-trigger]')
+The dialog uses the native `<dialog>` element for proper modal behavior including focus trapping and backdrop handling.
 
-trigger.addEventListener('click', () => modal.showModal())
+## Keyboard shortcut
 
-document.addEventListener('keydown', (e) => {
+The layout template includes an inline script that binds the standard search shortcut:
+
+```js title="templates/layout.hbs (inline script excerpt)"
+document.addEventListener('keydown', function(e) {
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault()
-    modal.open ? modal.close() : modal.showModal()
+    e.preventDefault();
+    if (modal && modal.open) modal.close();
+    else openSearch();
   }
-})
+});
 ```
 
-## Disabling images
+Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) toggles the search dialog. The trigger button in the header also opens it.
 
-By default, Pagesmith configures `showImages: false` in the PagefindUI to keep results clean:
+## Lazy initialization
 
-```js
-new PagefindUI({
-  element: container,
-  showImages: false,
-  showSubResults: true,
-  resetStyles: false,
-})
+Pagefind UI is initialized lazily -- only when the search dialog is opened for the first time:
+
+```js title="templates/layout.hbs (inline script excerpt)"
+var initialized = false;
+
+function openSearch() {
+  if (!modal) return;
+  modal.showModal();
+  if (!initialized && typeof PagefindUI !== 'undefined') {
+    new PagefindUI({
+      element: '#search-container',
+      showImages: false,
+      showSubResults: true,
+      resetStyles: false,
+    });
+    initialized = true;
+  }
+}
 ```
 
-## Controlling what gets indexed
+This avoids loading and parsing the search index until the user actually requests it, keeping the initial page load fast.
 
-Add `data-pagefind-body` to your main content element so Pagefind only indexes article content, not navigation or footers.
+## Search trigger button
+
+The header includes a search button with a keyboard shortcut hint:
+
+```hbs title="templates/layout.hbs (excerpt)"
+<button type="button" class="doc-search-trigger" data-search-trigger aria-label="Search">
+  <span class="doc-search-icon">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" />
+    </svg>
+  </span>
+  <kbd class="doc-search-shortcut"><span class="doc-search-shortcut-key">⌘</span>K</kbd>
+</button>
+```
+
+The button is hidden via CSS when JavaScript is disabled using a `<noscript>` style rule in the layout's `<head>`.
+
+## Development vs. production
+
+During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The Pagefind CSS and JS are still referenced in the layout, but the assets do not exist until a production build runs. In production builds, the SSG plugin generates the index after writing all HTML files, and the Pagefind assets become available:
+
+```hbs title="templates/layout.hbs (excerpt)"
+<link rel="stylesheet" href="{{basePath}}pagefind/pagefind-ui.css" />
+<script src="{{basePath}}pagefind/pagefind-ui.js" defer></script>
+```
+
+The site remains fully functional without search -- it is a progressive enhancement on top of the static HTML.

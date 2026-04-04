@@ -1,6 +1,8 @@
 # Markdown Guidelines
 
-Markdown feature support for `@pagesmith/core` and `@pagesmith/docs`. Both packages share the same unified pipeline. The `@pagesmith/docs` package adds docs-specific frontmatter fields on top.
+Standalone markdown reference for both `@pagesmith/core` and `@pagesmith/docs`. This file covers all supported markdown features, the processing pipeline, code block syntax, and frontmatter schemas for both packages. Pass this single file to any AI agent regardless of which package your project uses.
+
+Both packages share the same unified pipeline. The `@pagesmith/docs` package adds docs-specific frontmatter fields on top of the core schemas.
 
 ## Pipeline Order
 

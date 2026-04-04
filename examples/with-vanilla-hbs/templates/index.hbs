@@ -4,24 +4,24 @@
       <h1 class="doc-hero-text">Pagesmith + Handlebars</h1>
       <p class="doc-hero-tagline">
         A content-driven site powered by Pagesmith's content layer and Handlebars templates.
-        Browse the guide to learn the fundamentals, or check out the blog for practical insights.
+        Browse the guide to learn the fundamentals, or browse the features showcase.
       </p>
       <div class="doc-hero-actions">
         <a href="{{basePath}}guide/{{firstGuideSlug}}/" class="doc-hero-action doc-hero-action-brand">
           Read the Guide
         </a>
-        <a href="{{basePath}}blog/{{firstBlogSlug}}/" class="doc-hero-action doc-hero-action-alt">
-          Browse the Blog
+        <a href="{{basePath}}features/{{firstFeaturesSlug}}/" class="doc-hero-action doc-hero-action-alt">
+          Browse Features
         </a>
       </div>
     </section>
 
     <section class="doc-home-section">
-      <h2>Recent Blog Posts</h2>
+      <h2>Markdown Features</h2>
       <ul style="display: flex; flex-direction: column; gap: 1rem;">
-        {{#each sortedBlog}}
+        {{#each sortedFeatures}}
           <li style="padding: 1rem 1.25rem; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-lg);">
-            <a href="{{../basePath}}blog/{{this.slug}}/">
+            <a href="{{../basePath}}features/{{this.slug}}/">
               <h3 style="margin: 0; font-size: var(--font-size-lg);">{{this.title}}</h3>
             </a>
             {{#if this.description}}

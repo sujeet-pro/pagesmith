@@ -6,6 +6,7 @@
 @import "./content/prose.css";
 @import "./content/toc.css";
 @import "./content/alerts.css";
+@import "./content/page-meta.css";
 /* Code (inline only — block styling handled by Expressive Code) */
 @import "./code/inline.css";
 /* Layout */

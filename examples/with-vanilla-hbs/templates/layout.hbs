@@ -24,8 +24,8 @@
         <li class="doc-sidebar-item{{#if (startsWith activePath '/guide')}} active{{/if}}">
           <a href="{{basePath}}guide/{{sidebar.firstGuideSlug}}/" class="doc-sidebar-link">Guide</a>
         </li>
-        <li class="doc-sidebar-item{{#if (startsWith activePath '/blog')}} active{{/if}}">
-          <a href="{{basePath}}blog/{{sidebar.firstBlogSlug}}/" class="doc-sidebar-link">Blog</a>
+        <li class="doc-sidebar-item{{#if (startsWith activePath '/features')}} active{{/if}}">
+          <a href="{{basePath}}features/{{sidebar.firstFeaturesSlug}}/" class="doc-sidebar-link">Features</a>
         </li>
         <li class="doc-sidebar-item{{#if (eq activePath '/about')}} active{{/if}}">
           <a href="{{basePath}}about/" class="doc-sidebar-link">About</a>
@@ -52,11 +52,11 @@
     </div>
 
     <div class="doc-sidebar-section">
-      <span class="doc-sidebar-heading">Blog</span>
+      <span class="doc-sidebar-heading">Features</span>
       <ul class="doc-sidebar-list">
-        {{#each sidebar.blogEntries}}
-          <li class="doc-sidebar-item{{#if (eq ../activePath (concat '/blog/' this.slug))}} active{{/if}}">
-            <a href="{{../basePath}}blog/{{this.slug}}/" class="doc-sidebar-link">{{this.title}}</a>
+        {{#each sidebar.featuresEntries}}
+          <li class="doc-sidebar-item{{#if (eq ../activePath (concat '/features/' this.slug))}} active{{/if}}">
+            <a href="{{../basePath}}features/{{this.slug}}/" class="doc-sidebar-link">{{this.title}}</a>
           </li>
         {{/each}}
       </ul>
@@ -74,7 +74,7 @@
       <nav class="doc-nav">
         <a href="{{basePath}}"{{#if (eq activePath '/')}} class="active"{{/if}}>Home</a>
         <a href="{{basePath}}guide/{{sidebar.firstGuideSlug}}/"{{#if (startsWith activePath '/guide')}} class="active"{{/if}}>Guide</a>
-        <a href="{{basePath}}blog/{{sidebar.firstBlogSlug}}/"{{#if (startsWith activePath '/blog')}} class="active"{{/if}}>Blog</a>
+        <a href="{{basePath}}features/{{sidebar.firstFeaturesSlug}}/"{{#if (startsWith activePath '/features')}} class="active"{{/if}}>Features</a>
       </nav>
       <button type="button" class="doc-search-trigger" data-search-trigger aria-label="Search">
         <span class="doc-search-icon">

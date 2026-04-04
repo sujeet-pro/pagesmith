@@ -5,8 +5,15 @@ import { dirname, extname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { watch } from 'chokidar'
 import { type WebSocket, WebSocketServer } from 'ws'
-import { getThemeRoot, resolveDocsConfig, type DocsDevOptions } from './config.js'
-import { build } from './build.js'
+import {
+  getThemeRoot,
+  resolveDocsConfig,
+  type DocsDevOptions,
+  type ResolvedDocsConfig,
+} from './config.js'
+import { loadDocsPages, loadRootMeta, loadSectionMetas, type SiteModel } from './content.js'
+import { buildSiteModel } from './navigation.js'
+import { build, rebuildContent } from './build.js'
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -60,6 +67,31 @@ function serveFile(
   res.end(body)
 }
 
+async function loadSiteModel(config: ResolvedDocsConfig): Promise<SiteModel> {
+  const rootMeta = loadRootMeta(config.contentDir)
+  const sectionMetas = loadSectionMetas(config.contentDir)
+  const pages = await loadDocsPages(config, sectionMetas)
+  return buildSiteModel(config, pages, rootMeta, sectionMetas)
+}
+
+function logStartupSummary(config: ResolvedDocsConfig, model: SiteModel, baseUrl: string): void {
+  const pageCount = model.pageByPath.size
+  const sectionCount = model.sidebarBySection.size
+
+  console.log(`  ${pageCount} pages in ${sectionCount} sections`)
+  console.log()
+
+  for (const [, sections] of model.sidebarBySection) {
+    const itemCount = sections.reduce((sum, s) => sum + s.items.length, 0)
+    const title = sections[0]?.title ?? '(unknown)'
+    const firstPath = sections[0]?.items[0]?.path ?? ''
+    const url = firstPath ? `${baseUrl.replace(/\/$/, '')}${firstPath}/` : baseUrl
+    console.log(`  ${title} (${itemCount} pages)  ${url}`)
+  }
+
+  console.log()
+}
+
 function openBrowser(url: string): void {
   const cmd =
     process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open'
@@ -72,13 +104,14 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 
   await build({ configPath })
   const config = resolveDocsConfig(configPath)
-  const watchTargets = [config.contentDir, configPath, getThemeRoot()]
+  const themeRoot = getThemeRoot()
+  const watchTargets = [config.contentDir, configPath, themeRoot]
   if (existsSync(config.publicDir)) {
     watchTargets.push(config.publicDir)
   }
 
   let rebuilding = false
-  let pending = false
+  let pending: 'full' | 'content' | false = false
   const clients = new Set<WebSocket>()
 
   const base = config.basePath.replace(/\/+$/, '')
@@ -86,6 +119,37 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
   function log(status: number, method: string, pathname: string): void {
     const color = status < 300 ? '\x1b[32m' : status < 400 ? '\x1b[36m' : '\x1b[33m'
     console.log(`  ${color}${status}\x1b[0m ${method} ${pathname}`)
+  }
+
+  function notifyClients(): void {
+    const payload = JSON.stringify({ type: 'reload' })
+    for (const client of clients) {
+      client.send(payload)
+    }
+  }
+
+  /**
+   * Determine rebuild type based on changed file path.
+   * Config/theme changes require full rebuild; content changes only need content rebuild.
+   */
+  function getChangeType(changedPath: string): 'full' | 'content' {
+    const resolved = resolve(changedPath)
+    if (resolved === resolve(configPath)) return 'full'
+    if (resolved.startsWith(resolve(themeRoot))) return 'full'
+    return 'content'
+  }
+
+  async function doRebuild(type: 'full' | 'content'): Promise<void> {
+    const start = performance.now()
+    if (type === 'full') {
+      await build({ configPath })
+    } else {
+      await rebuildContent({ configPath })
+    }
+    const elapsed = Math.round(performance.now() - start)
+    console.log(
+      `  \x1b[36m${type === 'full' ? 'Full rebuild' : 'Content rebuild'} in ${elapsed}ms\x1b[0m`,
+    )
   }
 
   const server = createServer((req: IncomingMessage, res: ServerResponse) => {
@@ -159,30 +223,48 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
   })
 
   const devUrl = `http://localhost:${port}${base}/`
+
+  // Load site model for startup summary
+  const model = await loadSiteModel(config)
+
   server.listen(port, () => {
-    console.log(`\nDocs dev server: ${devUrl}\n`)
+    console.log()
+    console.log(`  Docs dev: ${devUrl}`)
+    console.log()
+    logStartupSummary(config, model, devUrl)
     if (options.open) openBrowser(devUrl)
   })
 
   const watcher = watch(watchTargets, { ignoreInitial: true })
-  watcher.on('all', async () => {
+  watcher.on('all', async (_event, changedPath) => {
+    const changeType = getChangeType(changedPath)
+
     if (rebuilding) {
-      pending = true
+      // Escalate to full if any pending change requires it
+      pending = pending === 'full' || changeType === 'full' ? 'full' : 'content'
       return
     }
 
     rebuilding = true
     try {
-      await build({ configPath })
-      const payload = JSON.stringify({ type: 'reload' })
-      for (const client of clients) {
-        client.send(payload)
-      }
+      await doRebuild(changeType)
+      notifyClients()
+    } catch (err) {
+      console.error('Rebuild failed:', err instanceof Error ? err.message : err)
     } finally {
       rebuilding = false
       if (pending) {
+        const nextType = pending
         pending = false
-        await build({ configPath })
+        rebuilding = true
+        try {
+          await doRebuild(nextType)
+          notifyClients()
+        } catch (err) {
+          console.error('Rebuild failed:', err instanceof Error ? err.message : err)
+        } finally {
+          rebuilding = false
+        }
       }
     }
   })
@@ -230,8 +312,15 @@ export async function preview(options: DocsDevOptions = {}): Promise<void> {
   })
 
   const previewUrl = `http://localhost:${port}${previewBase}/`
+
+  // Load site model for startup summary
+  const model = await loadSiteModel(config)
+
   server.listen(port, () => {
-    console.log(`\nDocs preview: ${previewUrl}\n`)
+    console.log()
+    console.log(`  Docs preview: ${previewUrl}`)
+    console.log()
+    logStartupSummary(config, model, previewUrl)
     if (options.open) openBrowser(previewUrl)
   })
 }

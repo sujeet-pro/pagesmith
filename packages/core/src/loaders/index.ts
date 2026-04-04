@@ -24,9 +24,20 @@ const jsoncLoader = new JsoncLoader()
 const yamlLoader = new YamlLoader()
 const tomlLoader = new TomlLoader()
 
+/** Custom loader registry for user-registered loaders. */
+const customLoaders = new Map<string, Loader>()
+
+/** Register a custom loader by name. */
+export function registerLoader(name: string, loader: Loader): void {
+  customLoaders.set(name, loader)
+}
+
 /** Resolve a loader type string or custom Loader instance. */
 export function resolveLoader(loaderOrType: LoaderType | Loader): Loader {
   if (typeof loaderOrType === 'object') return loaderOrType
+
+  const custom = customLoaders.get(loaderOrType)
+  if (custom) return custom
 
   switch (loaderOrType) {
     case 'markdown':

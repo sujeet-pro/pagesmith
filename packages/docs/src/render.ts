@@ -1,9 +1,10 @@
 import { createHash } from 'crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'fs'
 import { basename, dirname, join, resolve } from 'path'
+import { relative } from 'path'
 import type { ResolvedDocsConfig } from './config.js'
-import type { DocsPage, DocsSectionMeta } from './content.js'
-import { loadDocsPages, loadRootMeta, loadSectionMetas } from './content.js'
+import type { DocsPage, DocsSectionMeta, SiteModel } from './content.js'
+import { buildBreadcrumbs, loadDocsPages, loadRootMeta, loadSectionMetas } from './content.js'
 import { buildSiteModel, getPrevNext, getSitePayload } from './navigation.js'
 import DocHome from '../theme/layouts/DocHome'
 import DocNotFound from '../theme/layouts/DocNotFound'
@@ -132,7 +133,9 @@ function writeHtml(outDir: string, routePath: string, html: string): void {
   writeFileSync(outputPath, `<!DOCTYPE html>\n${html}`)
 }
 
-export async function renderDocs(config: ResolvedDocsConfig): Promise<void> {
+export async function renderDocs(
+  config: ResolvedDocsConfig,
+): Promise<{ pages: DocsPage[]; model: SiteModel }> {
   const rootMeta = loadRootMeta(config.contentDir)
   const sectionMetas = loadSectionMetas(config.contentDir)
   const pages = await loadDocsPages(config, sectionMetas)
@@ -141,6 +144,14 @@ export async function renderDocs(config: ResolvedDocsConfig): Promise<void> {
   const layouts = await resolveDocsLayouts(config, sectionMetas)
 
   const base = config.basePath
+
+  // Build edit link URL helper
+  const buildEditUrl = config.editLink
+    ? (sourcePath: string) => {
+        const relPath = relative(config.rootDir, sourcePath)
+        return `${config.editLink!.editPattern}/${relPath}`
+      }
+    : undefined
 
   for (const page of pages) {
     const urlPath = `${base}${page.routePath}`
@@ -180,6 +191,8 @@ export async function renderDocs(config: ResolvedDocsConfig): Promise<void> {
 
     const sidebarSections = page.section ? model.sidebarBySection.get(page.section) : undefined
     const { prev, next } = getPrevNext(sidebarSections, urlPath)
+    const breadcrumbs = buildBreadcrumbs(page.contentSlug, page.title, base)
+    const editUrl = buildEditUrl ? buildEditUrl(page.sourcePath) : undefined
     const layout = layouts[page.layoutName] ?? layouts.page
     const output = layout({
       content: page.html,
@@ -190,6 +203,10 @@ export async function renderDocs(config: ResolvedDocsConfig): Promise<void> {
       sidebarSections,
       prev,
       next,
+      breadcrumbs,
+      editUrl,
+      editLabel: config.editLink?.label,
+      lastUpdated: page.lastUpdated,
     })
     writeHtml(config.outDir, page.routePath, String(output))
   }
@@ -208,4 +225,6 @@ export async function renderDocs(config: ResolvedDocsConfig): Promise<void> {
   writeHtml(config.outDir, '/404', String(notFound))
   // Also write 404.html at root for GitHub Pages
   writeFileSync(join(config.outDir, '404.html'), notFoundHtml)
+
+  return { pages, model }
 }

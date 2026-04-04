@@ -7,7 +7,7 @@ Two main user-facing packages: `@pagesmith/core` for the shared content/runtime 
 ## What matters most
 
 - **`@pagesmith/core`** (`packages/core/`) — Content layer, markdown pipeline (Expressive Code for syntax highlighting), JSX runtime, CSS builder, schemas, loaders, validation, `z` re-export, and Vite plugins (`pagesmithContent`, `pagesmithSsg`) at `@pagesmith/core/vite`.
-- **`@pagesmith/docs`** (`packages/docs/`) — Docs-site implementation on top of core: build/dev/preview CLI, default theme, bundled Pagefind search, nav/sidebar generation from `content/`, and layout overrides through `theme.layouts.*` in `pagesmith.config.json5`.
+- **`@pagesmith/docs`** (`packages/docs/`) — Docs-site implementation on top of core: build/dev/preview CLI, default theme, bundled Pagefind search, nav/sidebar generation from `content/`, layout overrides through `theme.layouts.*`, asset mapping via `assets`, and config validation in `pagesmith.config.json5`. Features include `editLink` ("Edit this page" links), `lastUpdated` (git-based timestamps), auto-generated breadcrumbs, parallel page building, and an incremental dev server that skips CSS/JS/Pagefind for content-only changes. Default output is `gh-pages/`. Hosted at `projects.sujeet.pro/pagesmith`.
 - The root docs site in [`docs/`](/Users/sujeet/personal/pagesmith/docs) uses the default docs package setup.
 - [`examples/doc-site/`](/Users/sujeet/personal/pagesmith/examples/doc-site) demonstrates docs layout overrides.
 - [`examples/blog-site/`](/Users/sujeet/personal/pagesmith/examples/blog-site) demonstrates a custom site built on `@pagesmith/core` with its own layouts and asset pipeline.
@@ -97,13 +97,11 @@ Code block styling is handled entirely by Expressive Code through inline styles 
 
 ## AI guidelines
 
-Detailed guidelines for working with this project live in `ai-guidelines/`:
+Detailed guidelines for working with this project live in `ai-guidelines/` (3 files):
 
-- [`ai-guidelines/setup-core.md`](ai-guidelines/setup-core.md) — **Standalone setup guide** for `@pagesmith/core` — point any agent at this file to configure a project
-- [`ai-guidelines/setup-docs.md`](ai-guidelines/setup-docs.md) — **Standalone setup guide** for `@pagesmith/docs` — point any agent at this file to configure a project
-- [`ai-guidelines/using-core.md`](ai-guidelines/using-core.md) — Using `@pagesmith/core` in examples and custom sites
-- [`ai-guidelines/using-docs.md`](ai-guidelines/using-docs.md) — Using `@pagesmith/docs` for documentation sites
-- [`ai-guidelines/markdown-guidelines.md`](ai-guidelines/markdown-guidelines.md) — Markdown feature support and pipeline details
+- [`ai-guidelines/core-guidelines.md`](ai-guidelines/core-guidelines.md) — **Complete guide** for `@pagesmith/core` — setup, usage, API, configuration, and key rules
+- [`ai-guidelines/docs-guidelines.md`](ai-guidelines/docs-guidelines.md) — **Complete guide** for `@pagesmith/docs` — setup, usage, configuration, content structure, and key rules
+- [`ai-guidelines/markdown-guidelines.md`](ai-guidelines/markdown-guidelines.md) — **Standalone markdown reference** for both packages — features, pipeline, code blocks, and frontmatter schemas
 
 Read the relevant guideline before generating code or content for that area.
 

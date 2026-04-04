@@ -1,4 +1,4 @@
-import blogCollection from 'virtual:content/blog'
+import featuresCollection from 'virtual:content/features'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 
@@ -42,7 +42,7 @@ export const guideEntries = [...(guideCollection as MarkdownEntry[])].sort((left
   return getTime(left.frontmatter.date) - getTime(right.frontmatter.date)
 })
 
-export const blogEntries = [...(blogCollection as MarkdownEntry[])].sort(
+export const featuresEntries = [...(featuresCollection as MarkdownEntry[])].sort(
   (left, right) => getTime(right.frontmatter.date) - getTime(left.frontmatter.date),
 )
 
@@ -59,7 +59,7 @@ export function leafSlug(contentSlug: string, collection: string): string {
   return contentSlug.replace(new RegExp(`^${collection}/`), '')
 }
 
-export function routeFor(entry: MarkdownEntry, collection: 'guide' | 'blog' | 'pages'): string {
+export function routeFor(entry: MarkdownEntry, collection: 'guide' | 'features' | 'pages'): string {
   const slug = leafSlug(entry.contentSlug, collection)
   return collection === 'pages' ? `/${slug}` : `/${collection}/${slug}`
 }
@@ -100,7 +100,7 @@ export function escapeHtml(value: string): string {
 export function buildNavEntries(
   entries: MarkdownEntry[],
   base: string,
-  section: 'guide' | 'blog',
+  section: 'guide' | 'features',
 ): NavEntry[] {
   return entries.map((entry) => ({
     slug: leafSlug(entry.contentSlug, section),

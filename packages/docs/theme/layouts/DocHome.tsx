@@ -62,7 +62,14 @@ export default function DocHome(props: Props) {
     <Html
       title={hero?.name || frontmatter.title || site.title}
       description={hero?.tagline || frontmatter.description || site.description}
-      url="/"
+      url={slug}
+      socialImage={
+        frontmatter.socialImage
+          ? frontmatter.socialImage.startsWith('http')
+            ? frontmatter.socialImage
+            : `${site.basePath || ''}/${frontmatter.socialImage.replace(/^\//, '')}`
+          : undefined
+      }
       site={site}
     >
       <DocHeader

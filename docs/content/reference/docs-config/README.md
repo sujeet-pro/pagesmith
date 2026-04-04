@@ -32,7 +32,15 @@ type DocsUserConfig = {
     lightColor?: string
     darkColor?: string
     layouts?: Record<string, string>
+    socialImage?: string
   }
+  editLink?: {
+    repo: string
+    branch?: string
+    label?: string
+  }
+  lastUpdated?: boolean
+  sitemap?: boolean
   analytics?: {
     googleAnalytics?: string
   }
@@ -50,18 +58,18 @@ type DocsUserConfig = {
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `name` | `string` | Directory name | Short site name displayed in the header and used for OpenGraph `og:site_name`. Falls back to `title` if not set. |
-| `title` | `string` | Directory name | Full site title used in `<title>` tags and document metadata. Falls back to `name` if not set. |
-| `description` | `string` | `"Documentation site powered by @pagesmith/docs"` | Site-level description used for the default meta description and OpenGraph tags. |
-| `origin` | `string` | `"https://example.com"` | The canonical origin URL of the site (e.g. `https://pagesmith.dev`). Used for canonical links, OpenGraph URLs, and sitemap generation. Should not include a trailing slash. |
+| `name` | `string` | package.json name &rarr; directory name | Short site name displayed in the header and used for OpenGraph `og:site_name`. Falls back to `title`, then package.json `name` (scope stripped), then directory name. |
+| `title` | `string` | package.json name &rarr; directory name | Full site title used in `<title>` tags and document metadata. Falls back to `name`, then package.json `name` (scope stripped), then directory name. |
+| `description` | `string` | package.json description &rarr; placeholder | Site-level description used for the default meta description and OpenGraph tags. |
+| `origin` | `string` | package.json homepage &rarr; placeholder | The canonical origin URL of the site (e.g. `https://pagesmith.dev`). Used for canonical links, OpenGraph URLs, and sitemap generation. Should not include a trailing slash. |
 | `language` | `string` | `"en"` | The language code set on the `<html lang>` attribute. |
 
 ### Directory Paths
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `contentDir` | `string` | `"content"` | Path to the content directory, relative to the config file. This directory contains your markdown documentation organized in folders. |
-| `outDir` | `string` | `"dist"` | Output directory for the static build. Can be overridden by the `--out-dir` CLI flag. |
+| `contentDir` | `string` | `"docs/"` if exists, else `"content/"` | Path to the content directory, relative to the config file. This directory contains your markdown documentation organized in folders. Smart detection checks for a `docs/` directory first. |
+| `outDir` | `string` | `"gh-pages"` | Output directory for the static build. Can be overridden by the `--out-dir` CLI flag. |
 | `publicDir` | `string` | `"public"` | Directory for static files that are copied as-is to the build output (favicons, images, etc.). |
 
 ### Base Path
@@ -105,7 +113,7 @@ footerLinks: [
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `sidebar.collapsible` | `boolean` | `false` | Enable collapsible sidebar section groups. When true, section headings in the sidebar become toggleable, and sections can specify `collapsed: true` in their `meta.json5` to start collapsed. |
+| `sidebar.collapsible` | `boolean` | `true` | Enable collapsible sidebar section groups. When true, section headings in the sidebar become toggleable, and sections can specify `collapsed: true` in their `meta.json5` to start collapsed. |
 
 Example:
 
@@ -153,6 +161,7 @@ search: {
 | `theme.lightColor` | `string` | `"#f8fafc"` | The `theme-color` meta tag value for light mode. Affects the browser chrome color on mobile devices. |
 | `theme.darkColor` | `string` | `"#020617"` | The `theme-color` meta tag value for dark mode. |
 | `theme.layouts` | `Record<string, string>` | `{}` | A map of layout names to file paths for overriding the default theme layouts. Paths are resolved relative to the project root (the directory containing `pagesmith.config.json5`). |
+| `theme.socialImage` | `string` | auto-detect | Path to default Open Graph social sharing image. Checked in order: config value, then `public/og-image.png` (or `.jpg`). Per-page override via `socialImage` frontmatter. |
 
 The default theme provides three built-in layout keys:
 
@@ -182,6 +191,47 @@ theme: {
   },
 }
 ```
+
+### Edit Link
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `editLink.repo` | `string` | — | Repository URL (e.g. `"https://github.com/user/repo"`). When set, an "Edit this page" link appears on every documentation page. |
+| `editLink.branch` | `string` | `"main"` | Branch name for the edit link URL. |
+| `editLink.label` | `string` | `"Edit this page"` | Custom label for the edit link. |
+
+Example:
+
+```json5 title="pagesmith.config.json5"
+editLink: {
+  repo: 'https://github.com/my-org/my-project',
+  branch: 'main',
+},
+```
+
+The edit link generates a URL like `https://github.com/my-org/my-project/edit/main/docs/content/guide/getting-started/README.md` pointing to the source file of each page.
+
+### Last Updated
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `lastUpdated` | `boolean` | `false` | Show a git-based "last updated" timestamp on each documentation page. Uses `git log` to determine when each content file was last modified. |
+
+Example:
+
+```json5 title="pagesmith.config.json5"
+lastUpdated: true,
+```
+
+When enabled, each page displays a "Last updated: January 15, 2026" line below the content.
+
+### Sitemap
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `sitemap` | `boolean` | `true` | Generate `sitemap.xml` during build. Skipped when `origin` is still the placeholder value (`https://example.com`). Set to `false` to disable. |
+
+The sitemap is generated from all non-draft pages and placed at the build output root.
 
 ### Analytics Configuration
 
@@ -309,6 +359,18 @@ Example:
 
 The `series` field allows grouping related articles under a named series, which is useful for multi-part tutorials or sequential learning paths.
 
+### Auto-generated Build Files
+
+The build automatically generates these files in the output directory:
+
+| File | Condition | Description |
+|---|---|---|
+| `.nojekyll` | Always | Prevents GitHub Pages from ignoring `_`-prefixed directories (required for Pagefind). |
+| `sitemap.xml` | `origin` is set and `sitemap` is not `false` | XML sitemap of all non-draft pages for search engine indexing. |
+| `robots.txt` | Not already in output (from `publicDir` or `assets`) | Basic robots.txt with `Allow: /` and a `Sitemap:` reference when sitemap was generated. |
+
+Additionally, `llms.txt` and `llms-full.txt` are automatically copied from the project root to the build output if they exist — no `assets` mapping needed.
+
 ## Complete Example
 
 Here is a complete `pagesmith.config.json5` showing all available fields:
@@ -324,7 +386,7 @@ Here is a complete `pagesmith.config.json5` showing all available fields:
 
   // Directory paths
   contentDir: './content',
-  outDir: './dist',
+  outDir: './gh-pages',
   publicDir: './public',
 
   // Deployment base path
@@ -359,7 +421,20 @@ Here is a complete `pagesmith.config.json5` showing all available fields:
     layouts: {
       home: './theme/CustomHome.tsx',
     },
+    socialImage: '/og-image.png',
   },
+
+  // Edit link on each page
+  editLink: {
+    repo: 'https://github.com/org/my-project',
+    branch: 'main',
+  },
+
+  // Git-based last updated timestamps
+  lastUpdated: true,
+
+  // Sitemap generation
+  sitemap: true,
 
   // Analytics
   analytics: {
@@ -405,7 +480,7 @@ type ResolvedDocsConfig = {
   language: string         // Resolved language code
   footerLinks: FooterLink[]
   sidebar: {
-    collapsible: boolean   // Defaults to false
+    collapsible: boolean   // Defaults to true
   }
   search: {
     enabled: boolean       // Defaults to true
@@ -413,6 +488,10 @@ type ResolvedDocsConfig = {
     showSubResults: boolean // Defaults to true
     pagefindFlags: string[]
   }
+  editLink?: { repo: string; branch: string; label: string }
+  lastUpdated: boolean        // Defaults to false
+  sitemap: boolean            // Defaults to true
+  socialImage?: string
   theme?: { lightColor?: string; darkColor?: string; layouts?: Record<string, string> }
   analytics?: { googleAnalytics?: string }
   markdown?: MarkdownConfig
@@ -426,8 +505,10 @@ The resolution logic in `resolveDocsConfig()` works as follows:
 - `rootDir` is set to the directory containing `pagesmith.config.json5`.
 - `contentDir`, `outDir`, and `publicDir` are resolved to absolute paths from `rootDir`.
 - `basePath` follows the priority chain: CLI `--base-path` > `BASE_URL` env > config `basePath` > `"/"`. Trailing slashes are stripped.
-- `name` falls back to `title`, then to the directory name.
-- `title` falls back to `name`, then to the directory name.
-- `sidebar.collapsible` defaults to `false`.
+- `name` falls back to `title`, then package.json `name` (scope stripped), then directory name.
+- `title` falls back to `name`, then package.json `name` (scope stripped), then directory name.
+- `name`, `title`, `description`, and `origin` fall back to package.json fields before using placeholder defaults.
+- `contentDir` resolves to `docs/` if the directory exists, otherwise `content/`.
+- `sidebar.collapsible` defaults to `true`.
 - `search.enabled` defaults to `true`, `search.showImages` defaults to `false`, `search.showSubResults` defaults to `true`.
 - `homeConfigFile` resolves to the absolute path of `home.configFile` or defaults to `content/home.json5` in the project root.

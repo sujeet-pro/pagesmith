@@ -8,6 +8,7 @@
  * - Validate all entries (validate)
  */
 
+import { convert as coreConvert } from './convert'
 import type { ConvertResult } from './convert'
 import type { MarkdownConfig } from './schemas/markdown-config'
 import type { ContentEntry } from './entry'
@@ -30,7 +31,7 @@ export interface ContentLayer {
   invalidate(collection: string, slug: string): Promise<void>
 
   /** Invalidate an entire collection's cache. */
-  invalidateCollection(collection: string): void
+  invalidateCollection(collection: string): Promise<void>
 
   /** Invalidate all cached data. */
   invalidateAll(): void
@@ -43,6 +44,9 @@ export interface ContentLayer {
 
   /** Get the definition of a collection. */
   getCollectionDef(name: string): CollectionDef | undefined
+
+  /** Get all collection definitions. */
+  getCollections(): Record<string, CollectionDef>
 }
 
 export type LayerConvertOptions = {
@@ -78,7 +82,6 @@ class ContentLayerImpl implements ContentLayer {
   }
 
   async convert(markdown: string, options?: LayerConvertOptions): Promise<ConvertResult> {
-    const { convert: coreConvert } = await import('./convert.js')
     return coreConvert(markdown, {
       markdown: options?.markdown ?? this.config.markdown,
     })
@@ -88,8 +91,8 @@ class ContentLayerImpl implements ContentLayer {
     await this.store.invalidate(collection, slug)
   }
 
-  invalidateCollection(collection: string): void {
-    this.store.invalidateCollection(collection)
+  async invalidateCollection(collection: string): Promise<void> {
+    await this.store.invalidateCollection(collection)
   }
 
   invalidateAll(): void {
@@ -135,6 +138,10 @@ class ContentLayerImpl implements ContentLayer {
 
   getCollectionDef(name: string): CollectionDef | undefined {
     return this.config.collections[name]
+  }
+
+  getCollections(): Record<string, CollectionDef> {
+    return { ...this.config.collections }
   }
 }
 

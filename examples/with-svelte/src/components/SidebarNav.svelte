@@ -5,20 +5,20 @@
     currentPath,
     basePath,
     firstGuideUrl,
-    firstBlogUrl,
+    firstFeaturesUrl,
     guideGroups,
-    blogEntries,
+    featuresEntries,
   }: {
     currentPath: string
     basePath: string
     firstGuideUrl: string
-    firstBlogUrl: string
+    firstFeaturesUrl: string
     guideGroups: GuideGroup[]
-    blogEntries: NavEntry[]
+    featuresEntries: NavEntry[]
   } = $props()
 
   const isGuide = $derived(currentPath.startsWith('/guide'))
-  const isBlog = $derived(currentPath.startsWith('/blog'))
+  const isFeatures = $derived(currentPath.startsWith('/features'))
 </script>
 
 <div class="doc-sidebar-section">
@@ -30,8 +30,8 @@
     <li class:active={isGuide} class="doc-sidebar-item">
       <a href={firstGuideUrl} class="doc-sidebar-link">Guide</a>
     </li>
-    <li class:active={isBlog} class="doc-sidebar-item">
-      <a href={firstBlogUrl} class="doc-sidebar-link">Blog</a>
+    <li class:active={isFeatures} class="doc-sidebar-item">
+      <a href={firstFeaturesUrl} class="doc-sidebar-link">Features</a>
     </li>
     <li class:active={currentPath === '/about'} class="doc-sidebar-item">
       <a href={`${basePath}/about`} class="doc-sidebar-link">About</a>
@@ -60,10 +60,10 @@
 </div>
 
 <div class="doc-sidebar-section">
-  <p class="doc-sidebar-heading">Blog</p>
+  <p class="doc-sidebar-heading">Features</p>
   <ul class="doc-sidebar-list">
-    {#each blogEntries as entry (entry.slug)}
-      <li class:active={currentPath === `/blog/${entry.slug}`} class="doc-sidebar-item">
+    {#each featuresEntries as entry (entry.slug)}
+      <li class:active={currentPath === `/features/${entry.slug}`} class="doc-sidebar-item">
         <a href={entry.url} class="doc-sidebar-link">{entry.title}</a>
       </li>
     {/each}

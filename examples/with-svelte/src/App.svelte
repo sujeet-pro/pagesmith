@@ -18,10 +18,10 @@
     currentPath,
     basePath,
     firstGuideUrl,
-    firstBlogUrl,
+    firstFeaturesUrl,
     searchEnabled = false,
     guideEntries = [],
-    blogEntries = [],
+    featuresEntries = [],
     guideGroups = [],
     pageDate = undefined,
     pageReadTime = undefined,
@@ -34,10 +34,10 @@
     currentPath: string
     basePath: string
     firstGuideUrl: string
-    firstBlogUrl: string
+    firstFeaturesUrl: string
     searchEnabled?: boolean
     guideEntries?: NavEntry[]
-    blogEntries?: NavEntry[]
+    featuresEntries?: NavEntry[]
     guideGroups?: GuideGroup[]
     pageDate?: string
     pageReadTime?: number
@@ -45,11 +45,11 @@
 </script>
 
 {#if pageKind !== 'not-found'}
-  <SiteHeader {basePath} {currentPath} {firstGuideUrl} {firstBlogUrl} {searchEnabled} />
+  <SiteHeader {basePath} {currentPath} {firstGuideUrl} {firstFeaturesUrl} {searchEnabled} />
 {/if}
 
 {#if pageKind === 'home'}
-  <HomeBody {firstGuideUrl} {firstBlogUrl} {guideEntries} {blogEntries} />
+  <HomeBody {firstGuideUrl} {firstFeaturesUrl} {guideEntries} {featuresEntries} />
 {:else if pageKind === 'page'}
   <PageBody
     title={pageTitle}
@@ -59,9 +59,9 @@
     {currentPath}
     {basePath}
     {firstGuideUrl}
-    {firstBlogUrl}
+    {firstFeaturesUrl}
     {guideGroups}
-    {blogEntries}
+    {featuresEntries}
     date={pageDate}
     readTime={pageReadTime}
   />
@@ -77,7 +77,7 @@
         {@html closeIcon}
       </button>
       <nav class="doc-sidebar-nav" aria-label="Sidebar navigation">
-        <SidebarNav {currentPath} {basePath} {firstGuideUrl} {firstBlogUrl} {guideGroups} {blogEntries} />
+        <SidebarNav {currentPath} {basePath} {firstGuideUrl} {firstFeaturesUrl} {guideGroups} {featuresEntries} />
       </nav>
     </div>
   </dialog>

@@ -41,6 +41,8 @@ export type AiInstallOptions = {
   includeLlms?: boolean
   force?: boolean
   skillName?: string
+  /** When true, return planned writes without actually writing files. */
+  dryRun?: boolean
 }
 
 const PAGESMITH_TITLE = 'Pagesmith'
@@ -930,7 +932,17 @@ export function getAiArtifacts(options: AiInstallOptions = {}): AiArtifact[] {
 }
 
 export function installAiArtifacts(options: AiInstallOptions = {}): AiInstallResult[] {
-  return getAiArtifacts(options).map((artifact) => ({
+  const artifacts = getAiArtifacts(options)
+  if (options.dryRun) {
+    return artifacts.map((artifact) => ({
+      assistant: artifact.assistant,
+      kind: artifact.kind,
+      path: artifact.path,
+      label: artifact.label,
+      status: 'unchanged' as AiInstallStatus,
+    }))
+  }
+  return artifacts.map((artifact) => ({
     assistant: artifact.assistant,
     kind: artifact.kind,
     path: artifact.path,

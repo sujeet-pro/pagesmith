@@ -13,7 +13,7 @@ import { join } from 'path'
 import contentConfig from '../content.config.mjs'
 import type { SsgRenderConfig } from '@pagesmith/core/vite'
 
-const { guide, blog, pages } = contentConfig as Record<string, any>
+const { guide, features, pages } = contentConfig as Record<string, any>
 
 // ── Content layer (created once, reused across renders) ──
 
@@ -22,7 +22,7 @@ let layerRoot: string
 function getLayer(root: string) {
   if (!layer || layerRoot !== root) {
     layerRoot = root
-    layer = createContentLayer({ collections: { guide, blog, pages }, root })
+    layer = createContentLayer({ collections: { guide, features, pages }, root })
   }
   return layer
 }
@@ -39,7 +39,7 @@ type RenderedEntry = {
 async function loadContent(root: string) {
   const l = getLayer(root)
   const allGuide = await l.getCollection('guide')
-  const allBlog = await l.getCollection('blog')
+  const allFeatures = await l.getCollection('features')
   const allPages = await l.getCollection('pages')
 
   async function renderAll(entries: any[]): Promise<RenderedEntry[]> {
@@ -52,7 +52,7 @@ async function loadContent(root: string) {
   }
 
   const renderedGuide = await renderAll(allGuide)
-  const renderedBlog = await renderAll(allBlog)
+  const renderedFeatures = await renderAll(allFeatures)
   const renderedPages = await renderAll(allPages)
 
   const sortedGuide = [...renderedGuide].sort((a, b) => {
@@ -61,11 +61,11 @@ async function loadContent(root: string) {
     return a.entry.data.date.getTime() - b.entry.data.date.getTime()
   })
 
-  const sortedBlog = [...renderedBlog].sort(
+  const sortedFeatures = [...renderedFeatures].sort(
     (a, b) => b.entry.data.date.getTime() - a.entry.data.date.getTime(),
   )
 
-  return { sortedGuide, sortedBlog, renderedPages }
+  return { sortedGuide, sortedFeatures, renderedPages }
 }
 
 function groupBySeries(entries: RenderedEntry[]) {
@@ -126,17 +126,17 @@ function renderWithLayout(root: string, body: string, vars: Record<string, any>)
 // ── Route + render API ──
 
 export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
-  const { sortedGuide, sortedBlog, renderedPages } = await loadContent(config.root)
+  const { sortedGuide, sortedFeatures, renderedPages } = await loadContent(config.root)
   const routes = ['/']
   for (const item of sortedGuide) routes.push(`/guide/${item.entry.slug}`)
-  for (const item of sortedBlog) routes.push(`/blog/${item.entry.slug}`)
+  for (const item of sortedFeatures) routes.push(`/features/${item.entry.slug}`)
   if (renderedPages.find((p) => p.entry.slug === 'about')) routes.push('/about')
   return routes
 }
 
 export async function render(url: string, config: SsgRenderConfig): Promise<string> {
   const { base, root, cssPath, jsPath, searchEnabled } = config
-  const { sortedGuide, sortedBlog, renderedPages } = await loadContent(root)
+  const { sortedGuide, sortedFeatures, renderedPages } = await loadContent(root)
 
   const guideGroups = groupBySeries(sortedGuide)
   const css = readFileSync(join(root, 'src/theme.css'), 'utf-8')
@@ -144,9 +144,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 
   const sidebarData = {
     guideGroups,
-    blogEntries: sortedBlog.map((e) => ({ title: e.entry.data.title, slug: e.entry.slug })),
+    featuresEntries: sortedFeatures.map((e) => ({ title: e.entry.data.title, slug: e.entry.slug })),
     firstGuideSlug: sortedGuide[0]?.entry.slug ?? '',
-    firstBlogSlug: sortedBlog[0]?.entry.slug ?? '',
+    firstFeaturesSlug: sortedFeatures[0]?.entry.slug ?? '',
   }
 
   const shared = { basePath, css, js: '', formatDate, sidebar: sidebarData }
@@ -172,7 +172,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         description: e.entry.data.description,
         slug: e.entry.slug,
       })),
-      sortedBlog: sortedBlog.map((e) => ({
+      sortedFeatures: sortedFeatures.map((e) => ({
         title: e.entry.data.title,
         description: e.entry.data.description,
         date: e.entry.data.date,
@@ -182,7 +182,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       basePath,
       formatDate,
       firstGuideSlug: sortedGuide[0]?.entry.slug ?? '',
-      firstBlogSlug: sortedBlog[0]?.entry.slug ?? '',
+      firstFeaturesSlug: sortedFeatures[0]?.entry.slug ?? '',
     })
     return renderWithLayout(root, indexBody, {
       ...shared,
@@ -219,10 +219,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
     }
   }
 
-  // Blog pages
-  const blogMatch = routePath.match(/^\/blog\/(.+)$/)
-  if (blogMatch) {
-    const item = sortedBlog.find((e) => e.entry.slug === blogMatch[1])
+  // Features pages
+  const featuresMatch = routePath.match(/^\/features\/(.+)$/)
+  if (featuresMatch) {
+    const item = sortedFeatures.find((e) => e.entry.slug === featuresMatch[1])
     if (item) {
       const body = ejs.render(articleTemplate, {
         title: item.entry.data.title,
@@ -238,7 +238,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       return renderWithLayout(root, body, {
         ...shared,
         title: item.entry.data.title,
-        activePath: `/blog/${item.entry.slug}`,
+        activePath: `/features/${item.entry.slug}`,
         aside: renderTocAside(item.headings),
         isHome: false,
       })

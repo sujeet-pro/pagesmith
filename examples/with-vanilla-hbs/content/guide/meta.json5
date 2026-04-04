@@ -5,12 +5,12 @@
     {
       slug: 'getting-started',
       displayName: 'Getting Started',
-      articles: ['installation', 'collections', 'rendering'],
+      articles: ['installation', 'project-structure', 'content-collections'],
     },
     {
       slug: 'framework-integration',
       displayName: 'Framework Integration',
-      articles: ['vite-plugin', 'ssr-prerendering', 'search-integration'],
+      articles: ['layouts-and-rendering', 'vite-config', 'search-integration'],
     },
   ],
 }

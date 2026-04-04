@@ -2,7 +2,7 @@ import { render as renderSvelte } from 'svelte/server'
 import type { SsgRenderConfig } from '@pagesmith/core/vite'
 import App from './App.svelte'
 import {
-  blogEntries,
+  featuresEntries,
   buildNavEntries,
   escapeHtml,
   estimateReadTime,
@@ -57,7 +57,7 @@ function renderDocument(props: {
 export async function getRoutes(): Promise<string[]> {
   const routes = ['/', '/404']
   routes.push(...guideEntries.map((entry) => routeFor(entry, 'guide')))
-  routes.push(...blogEntries.map((entry) => routeFor(entry, 'blog')))
+  routes.push(...featuresEntries.map((entry) => routeFor(entry, 'features')))
 
   const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, 'pages') === 'about')
   if (aboutPage) {
@@ -74,19 +74,19 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
   })()
 
   const guideNavEntries = buildNavEntries(guideEntries, config.base, 'guide')
-  const blogNavEntries = buildNavEntries(blogEntries, config.base, 'blog')
+  const featuresNavEntries = buildNavEntries(featuresEntries, config.base, 'features')
   const guideGroups = groupBySeries(config.base)
   const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`
-  const firstBlogUrl = blogNavEntries[0]?.url ?? `${config.base}/blog`
+  const firstFeaturesUrl = featuresNavEntries[0]?.url ?? `${config.base}/features`
 
   const sharedProps = {
     currentPath: routePath,
     basePath: config.base,
     firstGuideUrl,
-    firstBlogUrl,
+    firstFeaturesUrl,
     searchEnabled: config.searchEnabled,
     guideEntries: guideNavEntries,
-    blogEntries: blogNavEntries,
+    featuresEntries: featuresNavEntries,
     guideGroups,
   }
 
@@ -107,9 +107,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
     }
   } else {
     const guideEntry = guideEntries.find((entry) => routeFor(entry, 'guide') === routePath)
-    const blogEntry = blogEntries.find((entry) => routeFor(entry, 'blog') === routePath)
+    const featuresEntry = featuresEntries.find((entry) => routeFor(entry, 'features') === routePath)
     const aboutEntry = pageEntries.find((entry) => routeFor(entry, 'pages') === routePath)
-    const currentEntry = guideEntry ?? blogEntry ?? aboutEntry
+    const currentEntry = guideEntry ?? featuresEntry ?? aboutEntry
 
     if (currentEntry && routePath !== '/') {
       title = `${currentEntry.frontmatter.title} - Pagesmith + Svelte`

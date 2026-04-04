@@ -2,6 +2,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
+import { detectGitOrigin } from '../config'
 import { build, preview, startDev } from '../site'
 
 type ServerCliArgs = {
@@ -140,57 +141,56 @@ async function runInit(argv: string[]): Promise<void> {
   const configPath = resolve(args.config ?? 'pagesmith.config.json5')
 
   // Create pagesmith.config.json5 if it doesn't exist
+  const projectDir = resolve('.')
   if (!existsSync(configPath)) {
-    const pkgPath = resolve('package.json')
-    let projectName = 'My Docs'
-    if (existsSync(pkgPath)) {
-      try {
-        const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
-        if (pkg.name) projectName = pkg.name
-      } catch {
-        // ignore parse errors
-      }
-    }
+    const gitInfo = detectGitOrigin(projectDir)
 
-    writeFileSync(
-      configPath,
-      [
+    let configContent: string
+    if (gitInfo?.repoName) {
+      const displayName = gitInfo.repoName
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+      configContent = [
         '{',
-        `  name: '${projectName}',`,
-        `  title: '${projectName}',`,
-        `  description: 'Documentation for ${projectName}',`,
-        "  contentDir: './content',",
-        "  outDir: './dist',",
-        '  search: { enabled: true },',
+        `  name: "${gitInfo.repoName}",`,
+        `  title: "${displayName}",`,
+        `  basePath: "${gitInfo.basePath}",`,
+        ...(gitInfo.origin ? [`  origin: "${gitInfo.origin}",`] : []),
+        "  // assets: { '/': ['llms.txt'] },  // uncomment to copy extra files to build output",
         '}',
         '',
-      ].join('\n'),
-    )
+      ].join('\n')
+    } else {
+      configContent = [
+        '{',
+        "  // basePath: '/my-project',  // uncomment if hosting under a subdirectory",
+        "  // assets: { '/': ['llms.txt'] },  // uncomment to copy extra files to build output",
+        '}',
+        '',
+      ].join('\n')
+    }
+
+    writeFileSync(configPath, configContent)
     console.log(`Created ${configPath}`)
   } else {
     console.log(`Config already exists: ${configPath}`)
   }
 
-  // Create content directory structure
-  const contentDir = resolve('content')
-  const dirs = [
-    contentDir,
-    resolve(contentDir, 'guide'),
-    resolve(contentDir, 'guide', 'getting-started'),
-  ]
+  // Create docs directory structure (preferred convention over content/)
+  const docsDir = resolve('docs')
+  const dirs = [docsDir, resolve(docsDir, 'guide'), resolve(docsDir, 'guide', 'getting-started')]
 
   for (const dir of dirs) {
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
   }
 
   // Home page
-  const homePath = resolve(contentDir, 'README.md')
+  const homePath = resolve(docsDir, 'README.md')
   if (!existsSync(homePath)) {
     writeFileSync(
       homePath,
       [
         '---',
-        'layout: DocHome',
         'title: Documentation',
         'tagline: Welcome to the documentation',
         'description: Project documentation',
@@ -200,32 +200,13 @@ async function runInit(argv: string[]): Promise<void> {
         '    theme: brand',
         '---',
         '',
-        'Welcome to the documentation.',
-        '',
       ].join('\n'),
     )
-    console.log('Created content/README.md')
-  }
-
-  // Guide meta
-  const guideMetaPath = resolve(contentDir, 'guide', 'meta.json5')
-  if (!existsSync(guideMetaPath)) {
-    writeFileSync(
-      guideMetaPath,
-      [
-        '{',
-        "  displayName: 'Guide',",
-        "  orderBy: 'manual',",
-        "  items: ['getting-started'],",
-        '}',
-        '',
-      ].join('\n'),
-    )
-    console.log('Created content/guide/meta.json5')
+    console.log('Created docs/README.md')
   }
 
   // Getting started page
-  const gettingStartedPath = resolve(contentDir, 'guide', 'getting-started', 'README.md')
+  const gettingStartedPath = resolve(docsDir, 'guide', 'getting-started', 'README.md')
   if (!existsSync(gettingStartedPath)) {
     writeFileSync(
       gettingStartedPath,
@@ -241,7 +222,7 @@ async function runInit(argv: string[]): Promise<void> {
         '',
       ].join('\n'),
     )
-    console.log('Created content/guide/getting-started/README.md')
+    console.log('Created docs/guide/getting-started/README.md')
   }
 
   // AI integrations

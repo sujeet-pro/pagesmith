@@ -1,558 +1,879 @@
-import { existsSync, readdirSync, readFileSync } from 'fs'
-import { extname, join, relative, resolve } from 'path'
-import JSON5 from 'json5'
-import { processMarkdown } from '@pagesmith/core/markdown'
+import { resolve } from 'path'
+import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
+import type { ContentEntry } from '@pagesmith/core'
 import type { SsgRenderConfig } from '@pagesmith/core/vite'
-import Article from '../layouts/Article'
-import Blog from '../layouts/Blog'
-import Home from '../layouts/Home'
-import Listing from '../layouts/Listing'
-import NotFound from '../layouts/NotFound'
-import Page from '../layouts/Page'
-import Project from '../layouts/Project'
-import TagIndex from '../layouts/TagIndex'
-import TagListing from '../layouts/TagListing'
-import type { PageMeta, SiteConfig, TagPageData } from '../layouts/types'
-import { withBase } from '../layouts/utils'
 
-function getContentDir(root?: string): string {
-  if (root) return resolve(root, 'content')
-  return resolve(import.meta.dirname, '../content')
-}
+// ── Types ──
 
-const layouts = {
-  Article,
-  Blog,
-  Home,
-  Listing,
-  NotFound,
-  Page,
-  Project,
-  TagIndex,
-  TagListing,
-}
-
-type LayoutName = keyof typeof layouts
-
-type LoadedPage = {
-  filePath: string
+type NavEntry = {
   slug: string
-  routePath: string
-  section?: string
-  isHome: boolean
-  isSectionIndex: boolean
-  frontmatter: Record<string, any>
+  title: string
+  description?: string
+  url: string
+  date?: string
+  tags?: string[]
+}
+
+type GuideGroup = {
+  series: string
+  items: NavEntry[]
+}
+
+type RenderedEntry = {
+  slug: string
+  collection: string
+  data: Record<string, any>
   html: string
-  headings: any[]
-  meta: PageMeta[]
+  headings: Array<{ depth: number; slug: string; text: string }>
+  readTime: number
 }
 
-type SiteConfigWithPageTypes = SiteConfig & {
-  pageTypesConfig: Record<string, any>
+// ── Icons ──
+
+const menuIcon =
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>'
+const closeIcon =
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
+const searchIcon =
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>'
+
+// ── Content Layer ──
+
+function buildLayer(root?: string) {
+  const contentRoot = root ? resolve(root) : resolve(import.meta.dirname, '..')
+
+  return createContentLayer(
+    defineConfig({
+      root: contentRoot,
+      collections: {
+        guide: defineCollection({
+          loader: 'markdown',
+          directory: resolve(contentRoot, 'content/guide'),
+          schema: z.object({
+            title: z.string(),
+            description: z.string().optional(),
+            date: z.coerce.date(),
+            tags: z.array(z.string()).default([]),
+            series: z.string().optional(),
+            seriesOrder: z.number().optional(),
+          }),
+        }),
+        features: defineCollection({
+          loader: 'markdown',
+          directory: resolve(contentRoot, 'content/features'),
+          schema: z.object({
+            title: z.string(),
+            description: z.string().optional(),
+            date: z.coerce.date(),
+            tags: z.array(z.string()).default([]),
+          }),
+        }),
+        pages: defineCollection({
+          loader: 'markdown',
+          directory: resolve(contentRoot, 'content/pages'),
+          schema: z.object({
+            title: z.string(),
+            description: z.string().optional(),
+          }),
+        }),
+      },
+    }),
+  )
 }
 
-type PageTypeData = {
-  type: string
-  displayName: string
-  series: Array<{
-    slug: string
-    displayName: string
-    shortName: string
-    description?: string
-    articles: Array<{
-      slug: string
-      title: string
-      description: string
-      url: string
-      tags: string[]
-    }>
-  }>
-  unsorted: Array<{
-    slug: string
-    title: string
-    description: string
-    url: string
-    tags: string[]
-  }>
-}
+// ── Helpers ──
 
-type SeriesNav = {
-  series: {
-    slug: string
-    displayName: string
-    shortName: string
-    description?: string
-    articles: string[]
+async function renderEntries(
+  entries: ContentEntry<any>[],
+  collection: string,
+): Promise<RenderedEntry[]> {
+  const rendered: RenderedEntry[] = []
+  for (const entry of entries) {
+    const result = await entry.render()
+    rendered.push({
+      slug: entry.slug,
+      collection,
+      data: entry.data,
+      html: result.html,
+      headings: result.headings,
+      readTime: result.readTime,
+    })
   }
-  articles: Array<{ slug: string; title: string; url: string }>
-  prev?: { slug: string; title: string; url: string }
-  next?: { slug: string; title: string; url: string }
+  return rendered
 }
 
-function readJson5<T>(filePath: string): T | undefined {
-  if (!existsSync(filePath)) return undefined
-  return JSON5.parse(readFileSync(filePath, 'utf-8')) as T
+function getTime(date: string | Date | undefined): number {
+  if (!date) return 0
+  return date instanceof Date ? date.getTime() : new Date(date).getTime()
 }
 
-function toTitleCase(value: string): string {
-  return value.replace(/[-_]/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+function toIso(date: string | Date | undefined): string | undefined {
+  if (!date) return undefined
+  return (date instanceof Date ? date : new Date(date)).toISOString()
 }
 
-function toContentSlug(filePath: string, contentDir: string): string {
-  let slug = relative(contentDir, filePath).replace(/\\/g, '/')
-  const extension = extname(slug)
-  if (extension) slug = slug.slice(0, -extension.length)
-  if (slug === 'README' || slug === 'index') return '/'
-  if (slug.endsWith('/README')) slug = slug.slice(0, -7)
-  if (slug.endsWith('/index')) slug = slug.slice(0, -6)
-  return slug
-}
-
-function prefixInternalLinks(html: string, base: string): string {
-  return html.replace(/(href|src)="(\/[^"]*)"/g, (_, attr, value) => {
-    return `${attr}="${withBase(base, value)}"`
+function formatDate(iso: string): string {
+  const date = new Date(iso)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   })
 }
 
-function collectMarkdown(dir: string): string[] {
-  const files: string[] = []
-  if (!existsSync(dir)) return files
-
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name.startsWith('.')) continue
-    const fullPath = join(dir, entry.name)
-    if (entry.isDirectory()) {
-      files.push(...collectMarkdown(fullPath))
-      continue
-    }
-    if (entry.name.endsWith('.md')) {
-      files.push(fullPath)
-    }
-  }
-
-  return files.sort((left, right) => left.localeCompare(right))
-}
-
-async function loadPages(base: string, contentDir: string): Promise<LoadedPage[]> {
-  const loadedPages: LoadedPage[] = []
-
-  for (const filePath of collectMarkdown(contentDir)) {
-    const raw = readFileSync(filePath, 'utf-8')
-    const result = await processMarkdown(raw)
-    const slug = toContentSlug(filePath, contentDir)
-    const routePath = slug === '/' ? '/' : `/${slug}`
-    const section = slug !== '/' ? slug.split('/')[0] : undefined
-    const isHome = slug === '/'
-    const isSectionIndex = Boolean(section && slug === section)
-    const readTime = Math.max(1, Math.ceil(raw.split(/\s+/).length / 200))
-
-    loadedPages.push({
-      filePath,
-      slug,
-      routePath,
-      section,
-      isHome,
-      isSectionIndex,
-      frontmatter: {
-        ...result.frontmatter,
-        readTime,
-      },
-      html: prefixInternalLinks(result.html, base),
-      headings: result.headings,
-      meta: [],
-    })
-  }
-
-  const meta = loadedPages.map((page) => ({
-    slug: page.slug,
-    filePath: page.filePath,
-    frontmatter: page.frontmatter,
-  }))
-
-  for (const page of loadedPages) {
-    page.meta = meta
-  }
-
-  return loadedPages
-}
-
-function loadSectionMeta(contentDir: string) {
-  return new Map(
-    ['articles', 'blogs', 'projects'].map((section) => [
-      section,
-      readJson5<Record<string, any>>(resolve(contentDir, section, 'meta.json5')) ?? {},
-    ]),
-  )
-}
-
-function normalizeSocialLink(value: any) {
-  if (!value) return { handle: '', url: '#' }
-  if (typeof value === 'string') {
-    const handle = value.split('/').filter(Boolean).pop() ?? ''
-    return { handle, url: value }
-  }
+function escapeHtml(value: string): string {
   return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
-function normalizeCopyright(value: unknown) {
-  if (value && typeof value === 'object') return value as { holder: string; startYear: number }
-  if (typeof value === 'string') {
-    const match = value.match(/(?:©\s*)?(\d{4})(?:[–-]\d{4})?\s+(.+)/u)
-    if (match) {
-      return {
-        startYear: parseInt(match[1], 10),
-        holder: match[2]!,
-      }
-    }
-    return {
-      startYear: new Date().getFullYear(),
-      holder: value.replace(/^©\s*/u, ''),
-    }
-  }
-  return {
-    startYear: new Date().getFullYear(),
-    holder: 'Pagesmith',
-  }
+function normalizeRoute(url: string, base: string): string {
+  if (!base || !url.startsWith(base)) return url === '' ? '/' : url
+  const trimmed = url.slice(base.length)
+  if (trimmed === '') return '/'
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
 }
 
-function normalizeSiteConfig(
-  rawSite: Record<string, any>,
-  config: SsgRenderConfig,
-): SiteConfigWithPageTypes {
-  const navItems = (rawSite.navItems ?? []).map((item: Record<string, string>) => ({
-    label: item.label,
-    path: withBase(config.base, item.path ?? item.href ?? '/'),
+function routeFor(entry: RenderedEntry): string {
+  if (entry.collection === 'pages') return `/${entry.slug}`
+  return `/${entry.collection}/${entry.slug}`
+}
+
+function buildNavEntries(entries: RenderedEntry[], base: string): NavEntry[] {
+  return entries.map((entry) => ({
+    slug: entry.slug,
+    title: entry.data.title,
+    description: entry.data.description,
+    url: `${base}/${entry.collection}/${entry.slug}`,
+    date: toIso(entry.data.date),
+    tags: entry.data.tags ?? [],
   }))
-
-  return {
-    origin: rawSite.origin ?? 'https://example.com',
-    name: rawSite.name ?? 'Pagesmith Blog',
-    title: rawSite.title ?? rawSite.name ?? 'Pagesmith Blog',
-    description: rawSite.description ?? 'Custom Pagesmith blog example.',
-    language: rawSite.language ?? 'en',
-    baseUrl: config.base,
-    defaultLayout: 'Page',
-    styles: [config.cssPath],
-    markdown: rawSite.markdown ?? {},
-    navItems,
-    footerLinks: rawSite.footerLinks
-      ? rawSite.footerLinks.map((item: Record<string, string>) => ({
-          label: item.label,
-          path: withBase(config.base, item.path ?? item.href ?? '/'),
-        }))
-      : navItems,
-    social: {
-      github: normalizeSocialLink(rawSite.social?.github),
-      linkedin: normalizeSocialLink(rawSite.social?.linkedin),
-      twitter: normalizeSocialLink(rawSite.social?.twitter),
-    },
-    copyright: normalizeCopyright(rawSite.copyright),
-    featuredArticles: rawSite.featured?.articles ?? [],
-    featuredSeries: rawSite.featured?.series ?? [],
-    pageTypes: Object.keys(rawSite.pageTypes ?? {}),
-    home: rawSite.home,
-    analytics: rawSite.analytics,
-    seo: rawSite.seo,
-    theme: rawSite.theme,
-    assets: {
-      cssPath: config.cssPath,
-      jsPath: config.jsPath,
-    },
-    search: rawSite.search,
-    pageTypesConfig: rawSite.pageTypes ?? {},
-  }
 }
 
-function buildPageTypes(
-  pages: LoadedPage[],
-  sectionMetaMap: Map<string, Record<string, any>>,
-  siteConfig: SiteConfigWithPageTypes,
-) {
-  const pageTypes = new Map<string, PageTypeData>()
+function groupBySeries(guideEntries: RenderedEntry[], base: string): GuideGroup[] {
+  const groups: GuideGroup[] = []
+  const seen = new Map<string, NavEntry[]>()
 
-  for (const [section, pageTypeConfig] of Object.entries(siteConfig.pageTypesConfig ?? {})) {
-    const entries = pages.filter((page) => page.section === section && !page.isSectionIndex)
-    const summaries = entries.map((page) => ({
-      slug: page.slug,
-      title: page.frontmatter.title ?? toTitleCase(page.slug.split('/').at(-1) ?? section),
-      description: page.frontmatter.description ?? '',
-      url: withBase(siteConfig, page.routePath),
-      tags: page.frontmatter.tags ?? [],
-    }))
-    const summaryBySlug = new Map(
-      summaries.map((summary) => [summary.slug.split('/').at(-1), summary]),
-    )
-
-    const seriesDefs = sectionMetaMap.get(section)?.series ?? {}
-    const usedSlugs = new Set<string>()
-    const series = Object.entries(seriesDefs).map(([seriesSlug, definition]) => {
-      const articles = ((definition as { items?: string[] }).items ?? [])
-        .map((itemSlug) => summaryBySlug.get(itemSlug))
-        .filter((article): article is NonNullable<typeof article> => article != null)
-
-      for (const article of articles) {
-        usedSlugs.add(article.slug)
-      }
-
-      return {
-        slug: seriesSlug,
-        displayName: (definition as { title?: string }).title ?? toTitleCase(seriesSlug),
-        shortName:
-          (definition as { shortName?: string; title?: string }).shortName ??
-          (definition as { title?: string }).title ??
-          toTitleCase(seriesSlug),
-        description: (definition as { description?: string }).description,
-        articles,
-      }
-    })
-
-    const unsorted = summaries.filter((summary) => !usedSlugs.has(summary.slug))
-    pageTypes.set(section, {
-      type: section,
-      displayName: (pageTypeConfig as { displayName?: string }).displayName ?? toTitleCase(section),
-      series,
-      unsorted,
+  for (const entry of guideEntries) {
+    const series = entry.data.series ?? 'Other'
+    if (!seen.has(series)) {
+      const items: NavEntry[] = []
+      seen.set(series, items)
+      groups.push({ series, items })
+    }
+    seen.get(series)!.push({
+      slug: entry.slug,
+      title: entry.data.title,
+      url: `${base}/guide/${entry.slug}`,
     })
   }
 
-  return pageTypes
+  return groups
 }
 
-function getFeaturedArticles(articlePageType: PageTypeData | undefined, slugs: string[]) {
-  if (!articlePageType) return []
-  const allArticles = [
-    ...articlePageType.series.flatMap((series) => series.articles),
-    ...articlePageType.unsorted,
-  ]
-  const byLeafSlug = new Map(
-    allArticles.map((article) => [article.slug.split('/').at(-1), article]),
+// ── Components ──
+
+function SidebarNav(props: {
+  currentPath: string
+  basePath: string
+  isGuide: boolean
+  isFeatures: boolean
+  firstGuideUrl: string
+  firstFeaturesUrl: string
+  guideGroups: GuideGroup[]
+  featuresEntries: NavEntry[]
+}) {
+  const {
+    currentPath,
+    basePath,
+    isGuide,
+    isFeatures,
+    firstGuideUrl,
+    firstFeaturesUrl,
+    guideGroups,
+    featuresEntries,
+  } = props
+
+  return (
+    <Fragment>
+      <div class="doc-sidebar-section">
+        <p class="doc-sidebar-heading">Navigation</p>
+        <ul class="doc-sidebar-list">
+          <li class={`doc-sidebar-item${currentPath === '/' ? ' active' : ''}`}>
+            <a href={`${basePath}/`} class="doc-sidebar-link">
+              Home
+            </a>
+          </li>
+          <li class={`doc-sidebar-item${isGuide ? ' active' : ''}`}>
+            <a href={firstGuideUrl} class="doc-sidebar-link">
+              Guide
+            </a>
+          </li>
+          <li class={`doc-sidebar-item${isFeatures ? ' active' : ''}`}>
+            <a href={firstFeaturesUrl} class="doc-sidebar-link">
+              Features
+            </a>
+          </li>
+          <li class={`doc-sidebar-item${currentPath === '/about' ? ' active' : ''}`}>
+            <a href={`${basePath}/about`} class="doc-sidebar-link">
+              About
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="doc-sidebar-section">
+        <p class="doc-sidebar-heading">Guide</p>
+        <ul class="doc-sidebar-list">
+          {guideGroups.map((group) => (
+            <li class="doc-sidebar-item expanded">
+              <span
+                class="doc-sidebar-link"
+                style="font-weight: 500; color: var(--color-text-secondary)"
+              >
+                {group.series}
+              </span>
+              <ul class="doc-sidebar-nested">
+                {group.items.map((entry) => (
+                  <li
+                    class={`doc-sidebar-item${currentPath === `/guide/${entry.slug}` ? ' active' : ''}`}
+                  >
+                    <a href={entry.url} class="doc-sidebar-link">
+                      {entry.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="doc-sidebar-section">
+        <p class="doc-sidebar-heading">Features</p>
+        <ul class="doc-sidebar-list">
+          {featuresEntries.map((entry) => (
+            <li
+              class={`doc-sidebar-item${currentPath === `/features/${entry.slug}` ? ' active' : ''}`}
+            >
+              <a href={entry.url} class="doc-sidebar-link">
+                {entry.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Fragment>
   )
-  return (slugs ?? []).map((slug) => byLeafSlug.get(slug)).filter(Boolean)
 }
 
-function getFeaturedSeries(pageTypes: Map<string, PageTypeData>, slugs: string[]) {
-  const allSeries = [...pageTypes.values()].flatMap((pageType) => pageType.series)
-  const bySlug = new Map(allSeries.map((series) => [series.slug, series]))
-  return (slugs ?? []).map((slug) => bySlug.get(slug)).filter(Boolean)
+function SearchTrigger() {
+  return (
+    <button type="button" class="doc-search-trigger" data-search-trigger="" aria-label="Search">
+      <span class="doc-search-icon" innerHTML={searchIcon} />
+      <kbd class="doc-search-shortcut">
+        <span class="doc-search-shortcut-key">{'\u2318'}</span>K
+      </kbd>
+    </button>
+  )
 }
 
-function buildTagIndex(pages: LoadedPage[], siteConfig: SiteConfigWithPageTypes) {
-  const allTags = new Map<string, TagPageData>()
+function SiteHeader(props: {
+  basePath: string
+  currentPath: string
+  firstGuideUrl: string
+  firstFeaturesUrl: string
+  searchEnabled?: boolean
+}) {
+  const { basePath, currentPath, firstGuideUrl, firstFeaturesUrl, searchEnabled } = props
+  const isGuide = currentPath.startsWith('/guide')
+  const isFeatures = currentPath.startsWith('/features')
 
-  for (const page of pages.filter((entry) => entry.section && !entry.isSectionIndex)) {
-    for (const tag of page.frontmatter.tags ?? []) {
-      if (!allTags.has(tag)) {
-        allTags.set(tag, {
-          tag,
-          entries: {},
-        })
-      }
+  return (
+    <header class="doc-header">
+      <div class="doc-header-inner">
+        <div class="doc-header-left">
+          <button
+            type="button"
+            class="doc-sidebar-toggle"
+            aria-label="Toggle navigation"
+            data-sidebar-toggle=""
+            innerHTML={menuIcon}
+          />
+          <a href="/pagesmith/" class="doc-logo">
+            Pagesmith
+          </a>
+        </div>
+        <nav class="doc-nav">
+          <a href={`${basePath}/`} class={currentPath === '/' ? 'active' : ''}>
+            Home
+          </a>
+          <a href={firstGuideUrl} class={isGuide ? 'active' : ''}>
+            Guide
+          </a>
+          <a href={firstFeaturesUrl} class={isFeatures ? 'active' : ''}>
+            Blog
+          </a>
+        </nav>
+        {searchEnabled ? <SearchTrigger /> : null}
+      </div>
+    </header>
+  )
+}
 
-      const group = allTags.get(tag)!
-      if (!group.entries[page.section!]) {
-        group.entries[page.section!] = []
-      }
+function HomeBody(props: {
+  basePath: string
+  firstGuideUrl: string
+  firstFeaturesUrl: string
+  searchEnabled?: boolean
+  guideEntries: NavEntry[]
+  featuresEntries: NavEntry[]
+}) {
+  const {
+    basePath,
+    firstGuideUrl,
+    firstFeaturesUrl,
+    searchEnabled,
+    guideEntries,
+    featuresEntries,
+  } = props
 
-      group.entries[page.section!].push({
-        slug: page.slug,
-        title: page.frontmatter.title ?? toTitleCase(page.slug.split('/').at(-1) ?? page.section!),
-        url: withBase(siteConfig, page.routePath),
-        lastUpdatedOn: String(
-          page.frontmatter.lastUpdatedOn ?? page.frontmatter.publishedDate ?? '',
-        ),
-      })
+  return (
+    <Fragment>
+      <SiteHeader
+        basePath={basePath}
+        currentPath="/"
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        searchEnabled={searchEnabled}
+      />
+      <main class="doc-home" data-pagefind-body="">
+        <section class="doc-home-section doc-hero">
+          <h1 class="doc-hero-text">Pagesmith + Core JSX</h1>
+          <p class="doc-hero-tagline">
+            A content-driven static site using @pagesmith/core directly -- no framework, no virtual
+            modules, just the content layer API and the core JSX runtime.
+          </p>
+          <div class="doc-hero-actions">
+            <a href={firstGuideUrl} class="doc-hero-action doc-hero-action-brand">
+              Read the Guide
+            </a>
+            <a href={firstFeaturesUrl} class="doc-hero-action doc-hero-action-alt">
+              Browse Features
+            </a>
+          </div>
+        </section>
+
+        <section class="doc-home-section">
+          <h2>Markdown Features</h2>
+          <ul style="display: flex; flex-direction: column; gap: 1rem">
+            {featuresEntries.map((post) => (
+              <li style="padding: 1rem 1.25rem; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-lg)">
+                <a href={post.url}>
+                  <h3 style="margin: 0; font-size: var(--font-size-lg)">{post.title}</h3>
+                </a>
+                {post.description ? (
+                  <p style="margin: 0.5rem 0 0; color: var(--color-text-muted); font-size: var(--font-size-sm)">
+                    {post.description}
+                  </p>
+                ) : null}
+                {post.date ? (
+                  <p style="margin: 0.375rem 0 0; font-size: var(--font-size-xs); color: var(--color-text-muted)">
+                    <time dateTime={post.date}>{formatDate(post.date)}</time>
+                    {post.tags && post.tags.length > 0 ? (
+                      <Fragment>
+                        {' \u00b7 '}
+                        {post.tags.join(', ')}
+                      </Fragment>
+                    ) : null}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="doc-home-section">
+          <h2>Guide</h2>
+          <ul style="display: flex; flex-direction: column; gap: 0.75rem">
+            {guideEntries.map((entry) => (
+              <li>
+                <a href={entry.url} style="font-weight: 500">
+                  {entry.title}
+                </a>
+                {entry.description ? (
+                  <span style="color: var(--color-text-muted); font-size: var(--font-size-sm)">
+                    {' \u2014 '}
+                    {entry.description}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <div class="doc-home-footer">
+          <footer class="doc-footer">
+            <div class="doc-footer-links">
+              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site">
+                GitHub
+              </a>
+              <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
+            </div>
+            <p class="doc-footer-copyright">
+              {'\u00a9'} 2026 Pagesmith {' \u00b7 '} Made with{' '}
+              <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
+            </p>
+          </footer>
+        </div>
+      </main>
+    </Fragment>
+  )
+}
+
+function PageBody(props: {
+  title: string
+  content: string
+  headings: Array<{ depth: number; slug: string; text: string }>
+  currentPath: string
+  basePath: string
+  firstGuideUrl: string
+  firstFeaturesUrl: string
+  searchEnabled?: boolean
+  sidebar: GuideGroup[]
+  featuresEntries: NavEntry[]
+  date?: string
+  readTime?: number
+}) {
+  const {
+    content,
+    headings,
+    currentPath,
+    basePath,
+    firstGuideUrl,
+    firstFeaturesUrl,
+    searchEnabled,
+    sidebar,
+    featuresEntries,
+    date,
+    readTime,
+  } = props
+  const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
+
+  return (
+    <Fragment>
+      <SiteHeader
+        basePath={basePath}
+        currentPath={currentPath}
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        searchEnabled={searchEnabled}
+      />
+      <div class="doc-layout">
+        <aside class="doc-sidebar">
+          <nav class="doc-sidebar-nav" aria-label="Documentation navigation">
+            <SidebarNav
+              currentPath={currentPath}
+              basePath={basePath}
+              isGuide={currentPath.startsWith('/guide')}
+              isFeatures={currentPath.startsWith('/features')}
+              firstGuideUrl={firstGuideUrl}
+              firstFeaturesUrl={firstFeaturesUrl}
+              guideGroups={sidebar}
+              featuresEntries={featuresEntries}
+            />
+          </nav>
+        </aside>
+
+        <main class="doc-main" data-pagefind-body="">
+          <article>
+            {filteredHeadings.length > 0 ? (
+              <details class="doc-toc-mobile">
+                <summary>On this page</summary>
+                <nav class="doc-toc">
+                  <ul class="doc-toc-list">
+                    {filteredHeadings.map((heading) => (
+                      <li class={`doc-toc-item depth-${heading.depth}`}>
+                        <a href={`#${heading.slug}`}>{heading.text}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </details>
+            ) : null}
+
+            {date ? (
+              <p
+                class="doc-page-meta"
+                style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem"
+              >
+                <time dateTime={date}>{formatDate(date)}</time>
+                {readTime ? (
+                  <Fragment>
+                    {' \u00b7 '}
+                    {readTime} min read
+                  </Fragment>
+                ) : null}
+              </p>
+            ) : null}
+
+            <div class="prose" innerHTML={content} />
+          </article>
+
+          <footer class="doc-footer">
+            <div class="doc-footer-links">
+              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site">
+                GitHub
+              </a>
+              <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
+            </div>
+            <p class="doc-footer-copyright">
+              {'\u00a9'} 2026 Pagesmith {' \u00b7 '} Made with{' '}
+              <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
+            </p>
+          </footer>
+        </main>
+
+        <aside class="doc-aside">
+          {filteredHeadings.length > 0 ? (
+            <nav class="doc-toc">
+              <p class="doc-toc-title">On this page</p>
+              <ul class="doc-toc-list">
+                {filteredHeadings.map((heading) => (
+                  <li class={`doc-toc-item depth-${heading.depth}`}>
+                    <a href={`#${heading.slug}`}>{heading.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
+        </aside>
+      </div>
+    </Fragment>
+  )
+}
+
+function renderDocument(props: {
+  title: string
+  description?: string
+  basePath: string
+  cssPath: string
+  jsPath?: string
+  searchEnabled?: boolean
+  bodyHtml: string
+  sidebarHtml?: string
+}) {
+  const { title, description, basePath, cssPath, jsPath, searchEnabled, bodyHtml, sidebarHtml } =
+    props
+  const base = basePath.replace(/\/+$/, '')
+
+  return `<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>${escapeHtml(title)}</title>
+    ${description ? `<meta name="description" content="${escapeHtml(description)}" />` : ''}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ''}
+    <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="${base}/assets/fonts.css" />
+    <link rel="stylesheet" href="${cssPath}" />
+    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-ui.css" />` : ''}
+    <script>document.documentElement.classList.remove('no-js')</script>
+    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-ui.js" defer></script>` : ''}
+    ${searchEnabled ? '<noscript><style>.doc-search-trigger{display:none!important}</style></noscript>' : ''}
+  </head>
+  <body>
+    ${bodyHtml}
+    ${
+      sidebarHtml
+        ? `<dialog class="doc-sidebar-modal" id="sidebar-modal">
+            <div class="doc-sidebar-modal-backdrop" data-sidebar-close=""></div>
+            <div class="doc-sidebar-modal-panel">
+              <button type="button" class="doc-sidebar-modal-close" data-sidebar-close="" aria-label="Close navigation">${closeIcon}</button>
+              <nav class="doc-sidebar-nav" aria-label="Sidebar navigation">${sidebarHtml}</nav>
+            </div>
+          </dialog>`
+        : ''
     }
-  }
-
-  return allTags
-}
-
-function resolveLayoutName(
-  page: LoadedPage,
-  sectionMetaMap: Map<string, Record<string, any>>,
-  site: SiteConfigWithPageTypes,
-): LayoutName {
-  if (page.frontmatter.layout) return page.frontmatter.layout as LayoutName
-  if (page.isHome) return 'Home'
-  if (page.isSectionIndex && page.section) {
-    return (site.pageTypesConfig?.[page.section]?.layout ?? 'Listing') as LayoutName
-  }
-  if (page.section) {
-    return (site.pageTypesConfig?.[page.section]?.itemLayout ??
-      sectionMetaMap.get(page.section)?.layout ??
-      'Page') as LayoutName
-  }
-  return 'Page'
-}
-
-function getSeriesNavigation(
-  page: LoadedPage,
-  pageType: PageTypeData | undefined,
-): SeriesNav | undefined {
-  if (!pageType) return undefined
-
-  for (const series of pageType.series) {
-    const currentIndex = series.articles.findIndex((article) => article.slug === page.slug)
-    if (currentIndex === -1) continue
-
-    const articles = series.articles.map((article) => ({
-      slug: article.slug,
-      title: article.title,
-      url: article.url,
-    }))
-
-    return {
-      series: {
-        slug: series.slug,
-        displayName: series.displayName,
-        shortName: series.shortName,
-        description: series.description,
-        articles: series.articles.map((article) => article.slug),
-      },
-      articles,
-      prev: currentIndex > 0 ? articles[currentIndex - 1] : undefined,
-      next: currentIndex < articles.length - 1 ? articles[currentIndex + 1] : undefined,
+    ${
+      searchEnabled
+        ? `<dialog class="doc-search-modal" id="search-modal" aria-label="Search" data-search-show-images="false" data-search-show-sub-results="true">
+            <div class="doc-search-modal-inner">
+              <div class="doc-search-modal-header">
+                <span class="doc-search-modal-title">Search</span>
+                <button type="button" class="doc-search-modal-close" aria-label="Close" data-search-close="">${closeIcon}</button>
+              </div>
+              <div class="doc-search-modal-body" id="search-container" data-pagefind-search=""></div>
+            </div>
+          </dialog>`
+        : ''
     }
-  }
-
-  return undefined
+    ${jsPath ? `<script src="${jsPath}" defer></script>` : ''}
+  </body>
+</html>`
 }
 
-function renderLayout(layoutName: LayoutName, props: Record<string, any>): string {
-  const layout = layouts[layoutName] as (input: Record<string, any>) => unknown
-  return String(layout(props))
-}
+// ── Data loading ──
 
 async function loadSite(config: SsgRenderConfig) {
-  const contentDir = getContentDir(config.root)
-  const site = normalizeSiteConfig(
-    readJson5<Record<string, any>>(resolve(contentDir, 'site.json5')) ?? {},
-    config,
-  )
-  const sectionMeta = loadSectionMeta(contentDir)
-  const pages = await loadPages(config.base, contentDir)
-  const pageTypes = buildPageTypes(pages, sectionMeta, site)
-  const featuredArticles = getFeaturedArticles(pageTypes.get('articles'), site.featuredArticles)
-  const featuredSeries = getFeaturedSeries(pageTypes, site.featuredSeries)
-  const allTags = buildTagIndex(pages, site)
+  const layer = buildLayer(config.root)
 
-  return {
-    site,
-    sectionMeta,
-    pages,
-    pageTypes,
-    featuredArticles,
-    featuredSeries,
-    allTags,
-  }
+  const guideRaw = await layer.getCollection('guide')
+  const featuresRaw = await layer.getCollection('features')
+  const pagesRaw = await layer.getCollection('pages')
+
+  const guideEntries = (await renderEntries(guideRaw, 'guide')).sort((left, right) => {
+    const orderDelta = (left.data.seriesOrder ?? 99) - (right.data.seriesOrder ?? 99)
+    if (orderDelta !== 0) return orderDelta
+    return getTime(left.data.date) - getTime(right.data.date)
+  })
+
+  const featuresEntries = (await renderEntries(featuresRaw, 'features')).sort(
+    (left, right) => getTime(right.data.date) - getTime(left.data.date),
+  )
+
+  const pageEntries = await renderEntries(pagesRaw, 'pages')
+
+  return { guideEntries, featuresEntries, pageEntries }
 }
 
-export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
-  const { pages, allTags } = await loadSite(config)
-  const routes = pages.map((page) => page.routePath)
+// ── Exports ──
 
-  if (allTags.size > 0) {
-    routes.push('/tags')
-    for (const tag of allTags.keys()) {
-      routes.push(`/tags/${tag}`)
-    }
+export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
+  const { guideEntries, featuresEntries, pageEntries } = await loadSite(config)
+
+  const routes = ['/', '/404']
+  routes.push(...guideEntries.map((entry) => routeFor(entry)))
+  routes.push(...featuresEntries.map((entry) => routeFor(entry)))
+
+  const aboutPage = pageEntries.find((entry) => entry.slug === 'about')
+  if (aboutPage) {
+    routes.push(routeFor(aboutPage))
   }
 
-  routes.push('/404')
-  return Array.from(new Set(routes))
+  return routes
 }
 
 export async function render(url: string, config: SsgRenderConfig): Promise<string> {
   const routePath = (() => {
-    if (config.base && url.startsWith(config.base)) {
-      const trimmed = url.slice(config.base.length)
-      if (trimmed === '') return '/'
-      return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
-    }
-    return url
+    const normalized = normalizeRoute(url, config.base)
+    return normalized !== '/' && normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
   })()
-  const normalizedPath =
-    routePath !== '/' && routePath.endsWith('/') ? routePath.slice(0, -1) : routePath
 
-  const { site, sectionMeta, pages, pageTypes, featuredArticles, featuredSeries, allTags } =
-    await loadSite(config)
+  const { guideEntries, featuresEntries, pageEntries } = await loadSite(config)
 
-  if (normalizedPath === '/404') {
-    return renderLayout('NotFound', {
-      content: '',
-      frontmatter: {},
-      headings: [],
-      slug: '/404',
-      site,
+  const guideNavEntries = buildNavEntries(guideEntries, config.base)
+  const featuresNavEntries = buildNavEntries(featuresEntries, config.base)
+  const guideGroups = groupBySeries(guideEntries, config.base)
+  const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`
+  const firstFeaturesUrl = featuresNavEntries[0]?.url ?? `${config.base}/features`
+
+  if (routePath === '/') {
+    const sidebarHtml = String(
+      <div class="doc-sidebar-section">
+        <p class="doc-sidebar-heading">Navigation</p>
+        <ul class="doc-sidebar-list">
+          <li class="doc-sidebar-item active">
+            <a href={`${config.base}/`} class="doc-sidebar-link">
+              Home
+            </a>
+          </li>
+          <li class="doc-sidebar-item">
+            <a href={firstGuideUrl} class="doc-sidebar-link">
+              Guide
+            </a>
+          </li>
+          <li class="doc-sidebar-item">
+            <a href={firstFeaturesUrl} class="doc-sidebar-link">
+              Features
+            </a>
+          </li>
+        </ul>
+      </div>,
+    )
+    const bodyHtml = String(
+      <HomeBody
+        basePath={config.base}
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        searchEnabled={config.searchEnabled}
+        guideEntries={guideNavEntries}
+        featuresEntries={featuresNavEntries}
+      />,
+    )
+
+    return renderDocument({
+      title: 'Pagesmith + Core JSX',
+      description:
+        'A content-driven static site using @pagesmith/core directly -- no framework, no virtual modules.',
+      basePath: config.base,
+      cssPath: config.cssPath,
+      jsPath: config.jsPath,
+      searchEnabled: config.searchEnabled,
+      bodyHtml,
+      sidebarHtml,
     })
   }
 
-  if (normalizedPath === '/tags' && allTags.size > 0) {
-    return renderLayout('TagIndex', {
-      content: '',
-      frontmatter: {
-        title: 'Tags',
-        description: 'Browse entries by topic.',
-      },
-      headings: [],
-      slug: withBase(site, '/tags'),
-      site,
-      allTags,
-      pages: pages[0]?.meta ?? [],
+  if (routePath === '/404') {
+    return renderDocument({
+      title: 'Page Not Found - Pagesmith + Core JSX',
+      description: 'The page you requested could not be found.',
+      basePath: config.base,
+      cssPath: config.cssPath,
+      jsPath: config.jsPath,
+      searchEnabled: config.searchEnabled,
+      bodyHtml:
+        '<main class="doc-home"><section class="doc-home-section"><div class="doc-not-found-container"><p class="doc-not-found-code">404</p><h1 class="doc-not-found-title">Page Not Found</h1></div></section></main>',
     })
   }
 
-  const tagMatch = normalizedPath.match(/^\/tags\/(.+)$/)
-  if (tagMatch && allTags.size > 0) {
-    const tag = tagMatch[1]!
-    return renderLayout('TagListing', {
-      content: '',
-      frontmatter: {
-        title: `Tag: ${tag}`,
-        description: `Entries tagged ${tag}.`,
-      },
-      headings: [],
-      slug: withBase(site, `/tags/${tag}`),
-      site,
-      allTags,
-      pages: pages[0]?.meta ?? [],
+  // Guide page
+  const guideEntry = guideEntries.find((entry) => routeFor(entry) === routePath)
+  if (guideEntry) {
+    const sidebarHtml = String(
+      <SidebarNav
+        currentPath={routePath}
+        basePath={config.base}
+        isGuide={true}
+        isFeatures={false}
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        guideGroups={guideGroups}
+        featuresEntries={featuresNavEntries}
+      />,
+    )
+    const bodyHtml = String(
+      <PageBody
+        title={guideEntry.data.title}
+        content={guideEntry.html}
+        headings={guideEntry.headings}
+        currentPath={routePath}
+        basePath={config.base}
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        searchEnabled={config.searchEnabled}
+        sidebar={guideGroups}
+        featuresEntries={featuresNavEntries}
+        date={toIso(guideEntry.data.date)}
+        readTime={guideEntry.readTime}
+      />,
+    )
+
+    return renderDocument({
+      title: `${guideEntry.data.title} - Pagesmith + Core JSX`,
+      description: guideEntry.data.description,
+      basePath: config.base,
+      cssPath: config.cssPath,
+      jsPath: config.jsPath,
+      searchEnabled: config.searchEnabled,
+      bodyHtml,
+      sidebarHtml,
     })
   }
 
-  const page = pages.find((candidate) => candidate.routePath === normalizedPath)
-  if (!page) {
-    return renderLayout('NotFound', {
-      content: '',
-      frontmatter: {},
-      headings: [],
-      slug: normalizedPath,
-      site,
+  // Features page
+  const featuresEntry = featuresEntries.find((entry) => routeFor(entry) === routePath)
+  if (featuresEntry) {
+    const sidebarHtml = String(
+      <SidebarNav
+        currentPath={routePath}
+        basePath={config.base}
+        isGuide={false}
+        isFeatures={true}
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        guideGroups={guideGroups}
+        featuresEntries={featuresNavEntries}
+      />,
+    )
+    const bodyHtml = String(
+      <PageBody
+        title={featuresEntry.data.title}
+        content={featuresEntry.html}
+        headings={featuresEntry.headings}
+        currentPath={routePath}
+        basePath={config.base}
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        searchEnabled={config.searchEnabled}
+        sidebar={guideGroups}
+        featuresEntries={featuresNavEntries}
+        date={toIso(featuresEntry.data.date)}
+        readTime={featuresEntry.readTime}
+      />,
+    )
+
+    return renderDocument({
+      title: `${featuresEntry.data.title} - Pagesmith + Core JSX`,
+      description: featuresEntry.data.description,
+      basePath: config.base,
+      cssPath: config.cssPath,
+      jsPath: config.jsPath,
+      searchEnabled: config.searchEnabled,
+      bodyHtml,
+      sidebarHtml,
     })
   }
 
-  const layoutName = resolveLayoutName(page, sectionMeta, site)
-  const pageType = page.section ? pageTypes.get(page.section) : undefined
-  const seriesNav = page.section ? getSeriesNavigation(page, pageType) : undefined
+  // Pages (about, etc.)
+  const pageEntry = pageEntries.find((entry) => routeFor(entry) === routePath)
+  if (pageEntry) {
+    const sidebarHtml = String(
+      <SidebarNav
+        currentPath={routePath}
+        basePath={config.base}
+        isGuide={false}
+        isFeatures={false}
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        guideGroups={guideGroups}
+        featuresEntries={featuresNavEntries}
+      />,
+    )
+    const bodyHtml = String(
+      <PageBody
+        title={pageEntry.data.title}
+        content={pageEntry.html}
+        headings={pageEntry.headings}
+        currentPath={routePath}
+        basePath={config.base}
+        firstGuideUrl={firstGuideUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
+        searchEnabled={config.searchEnabled}
+        sidebar={guideGroups}
+        featuresEntries={featuresNavEntries}
+      />,
+    )
 
-  return renderLayout(layoutName, {
-    content: page.html,
-    frontmatter: page.frontmatter,
-    headings: page.headings,
-    slug: withBase(site, page.routePath),
-    site,
-    pages: page.meta,
-    pageType,
-    allTags,
-    seriesNav,
-    featuredArticles: page.isHome ? featuredArticles : undefined,
-    featuredSeries: page.isHome ? featuredSeries : undefined,
-    stats: page.isHome
-      ? {
-          totalArticles:
-            (pageTypes.get('articles')?.series.flatMap((series) => series.articles).length ?? 0) +
-            (pageTypes.get('articles')?.unsorted.length ?? 0),
-          totalSeries: pageTypes.get('articles')?.series.length ?? 0,
-        }
-      : undefined,
+    return renderDocument({
+      title: `${pageEntry.data.title} - Pagesmith + Core JSX`,
+      description: pageEntry.data.description,
+      basePath: config.base,
+      cssPath: config.cssPath,
+      jsPath: config.jsPath,
+      searchEnabled: config.searchEnabled,
+      bodyHtml,
+      sidebarHtml,
+    })
+  }
+
+  // Fallback to 404
+  return renderDocument({
+    title: 'Page Not Found - Pagesmith + Core JSX',
+    description: 'The page you requested could not be found.',
+    basePath: config.base,
+    cssPath: config.cssPath,
+    jsPath: config.jsPath,
+    searchEnabled: config.searchEnabled,
+    bodyHtml:
+      '<main class="doc-home"><section class="doc-home-section"><div class="doc-not-found-container"><p class="doc-not-found-code">404</p><h1 class="doc-not-found-title">Page Not Found</h1></div></section></main>',
   })
 }

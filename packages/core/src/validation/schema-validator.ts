@@ -62,7 +62,8 @@ export function validateSchema(
     severity: 'error' as const,
   }))
 
-  const details = issues.map((i) => (i.field ? `${i.field}: ${i.message}` : i.message)).join('; ')
-
-  throw new Error(`Schema validation failed: ${details}`)
+  return {
+    issues,
+    validatedData: data,
+  }
 }

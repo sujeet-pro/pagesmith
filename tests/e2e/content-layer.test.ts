@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import { resolve } from 'path'
 import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
 
-const FIXTURES = resolve(import.meta.dirname, '../../examples/shared-content')
+const FIXTURES = resolve(import.meta.dirname, './fixtures')
 
 describe('content layer', () => {
   it('loads a markdown collection', async () => {

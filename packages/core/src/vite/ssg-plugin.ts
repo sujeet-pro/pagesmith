@@ -109,12 +109,17 @@ function isAssetReference(ref: string): boolean {
 function rewriteContentAssetRefs(html: string, base: string): string {
   const basePrefix = base.replace(/\/+$/u, '')
 
-  return html.replace(/(src|href|srcset)="([^"]+)"/g, (match, attr: string, ref: string) => {
-    if (!isAssetReference(ref)) return match
-    const pathname = ref.split(/[?#]/u, 1)[0] ?? ref
-    const suffix = ref.slice(pathname.length)
-    return `${attr}="${basePrefix}/assets/${pathname.split('/').pop() ?? pathname}${suffix}"`
-  })
+  return html.replace(
+    /(src|href|srcset)=(?:"([^"]+)"|'([^']+)')/g,
+    (match, attr: string, doubleRef: string | undefined, singleRef: string | undefined) => {
+      const ref = doubleRef ?? singleRef ?? ''
+      if (!isAssetReference(ref)) return match
+      const pathname = ref.split(/[?#]/u, 1)[0] ?? ref
+      const suffix = ref.slice(pathname.length)
+      const quote = doubleRef !== undefined ? '"' : "'"
+      return `${attr}=${quote}${basePrefix}/assets/${pathname.split('/').pop() ?? pathname}${suffix}${quote}`
+    },
+  )
 }
 
 function collectContentAssets(contentDirs: string[]): Map<string, string> {
@@ -240,9 +245,11 @@ export function pagesmithSsg(options: SsgPluginOptions): Plugin[] {
           }
         }
 
-        // Only handle HTML navigation requests (not assets)
+        // Only handle HTML navigation requests (not assets, not files with extensions)
         const accept = req.headers.accept ?? ''
-        if (!accept.includes('text/html')) return next()
+        const pathExt = extname(pathname)
+        if (pathExt && pathExt !== '.html') return next()
+        if (!pathExt && !accept.includes('text/html')) return next()
 
         // Redirect root to base
         if (base && (url === '/' || url === '')) {

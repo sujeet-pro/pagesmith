@@ -391,7 +391,7 @@ export function pagesmithContent<TCollections extends CollectionMap>(
           if (moduleNode) {
             server.moduleGraph.invalidateModule(moduleNode)
           }
-          getLayer().invalidateCollection(name)
+          void getLayer().invalidateCollection(name)
         }
       } else {
         // Config change: invalidate all collection modules

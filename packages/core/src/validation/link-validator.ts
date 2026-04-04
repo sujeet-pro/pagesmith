@@ -48,50 +48,73 @@ function isWellFormedUrl(url: string): boolean {
   }
 }
 
-export const linkValidator: ContentValidator = {
-  name: 'links',
-
-  validate(ctx: ValidatorContext): ValidationIssue[] {
-    if (!ctx.rawContent || !ctx.mdast) return []
-
-    const issues: ValidationIssue[] = []
-    const tree = ctx.mdast as MdastNode
-
-    const links = collectLinks(tree)
-    const fileDir = dirname(ctx.filePath)
-
-    for (const link of links) {
-      const lineInfo = link.line ? ` (line ${link.line})` : ''
-
-      // External links — check URL format
-      if (link.url.startsWith('http://') || link.url.startsWith('https://')) {
-        if (!isWellFormedUrl(link.url)) {
-          issues.push({
-            field: `links${lineInfo}`,
-            message: `Malformed external URL: ${link.url}`,
-            severity: 'warn',
-          })
-        }
-        continue
-      }
-
-      // Internal links — check file exists
-      if (isInternalLink(link.url)) {
-        // Strip fragment and query
-        const urlPath = link.url.split('#')[0]!.split('?')[0]!
-        if (!urlPath) continue // pure fragment link
-
-        const resolved = resolve(fileDir, urlPath)
-        if (!existsSync(resolved)) {
-          issues.push({
-            field: `links${lineInfo}`,
-            message: `Broken internal link: ${link.url}`,
-            severity: 'error',
-          })
-        }
-      }
-    }
-
-    return issues
-  },
+export type LinkValidatorOptions = {
+  /** Glob patterns for internal links to skip file-existence checks on. */
+  skipPatterns?: string[]
 }
+
+export function createLinkValidator(options?: LinkValidatorOptions): ContentValidator {
+  const skipPatterns = options?.skipPatterns ?? []
+
+  function shouldSkip(url: string): boolean {
+    return skipPatterns.some((pattern) => {
+      if (pattern.includes('*')) {
+        const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$')
+        return regex.test(url)
+      }
+      return url.startsWith(pattern)
+    })
+  }
+
+  return {
+    name: 'links',
+
+    validate(ctx: ValidatorContext): ValidationIssue[] {
+      if (!ctx.rawContent || !ctx.mdast) return []
+
+      const issues: ValidationIssue[] = []
+      const tree = ctx.mdast as MdastNode
+
+      const links = collectLinks(tree)
+      const fileDir = dirname(ctx.filePath)
+
+      for (const link of links) {
+        const lineInfo = link.line ? ` (line ${link.line})` : ''
+
+        // External links — check URL format
+        if (link.url.startsWith('http://') || link.url.startsWith('https://')) {
+          if (!isWellFormedUrl(link.url)) {
+            issues.push({
+              field: `links${lineInfo}`,
+              message: `Malformed external URL: ${link.url}`,
+              severity: 'warn',
+            })
+          }
+          continue
+        }
+
+        // Internal links — check file exists
+        if (isInternalLink(link.url)) {
+          if (shouldSkip(link.url)) continue
+
+          // Strip fragment and query
+          const urlPath = link.url.split('#')[0]!.split('?')[0]!
+          if (!urlPath) continue // pure fragment link
+
+          const resolved = resolve(fileDir, urlPath)
+          if (!existsSync(resolved)) {
+            issues.push({
+              field: `links${lineInfo}`,
+              message: `Broken internal link: ${link.url}`,
+              severity: 'error',
+            })
+          }
+        }
+      }
+
+      return issues
+    },
+  }
+}
+
+export const linkValidator: ContentValidator = createLinkValidator()

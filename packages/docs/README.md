@@ -1,6 +1,6 @@
 # @pagesmith/docs
 
-Convention-based documentation package built on `@pagesmith/core`. Create a full docs site from a `pagesmith.config.json5` file and a `content/` directory — with built-in Pagefind search, sidebar generation, and an optional layout override system.
+Convention-based documentation package built on `@pagesmith/core`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with built-in Pagefind search, sidebar generation, and an optional layout override system.
 
 ## Install
 
@@ -14,20 +14,16 @@ npm add @pagesmith/docs
 
 ```json5
 {
-  name: 'My Docs',
-  title: 'My Docs',
-  description: 'Project documentation',
-  search: { enabled: true },
+  // basePath: '/my-project',  // uncomment if hosting under a subdirectory
 }
 ```
 
-2. Add content in a `content/` directory:
+2. Add content in a `docs/` directory:
 
 ```
-content/
+docs/
   README.md                 Home page
   guide/
-    meta.json5              Section ordering
     getting-started/
       README.md             A page
     configuration/
@@ -52,10 +48,12 @@ npx pagesmith build
 
 Content follows a folder convention:
 
-- **`content/README.md`** — home page (renders with the `DocHome` layout)
+- **`docs/README.md`** (or `content/README.md`) — home page (renders with the `DocHome` layout)
 - **Top-level folders** (`content/guide/`, `content/reference/`) — become navigation sections in the sidebar
 - **Subfolders with `README.md`** (`content/guide/getting-started/README.md`) — become individual pages
 - **`meta.json5` files** — control section ordering and metadata
+
+The content directory defaults to `docs/` if it exists, otherwise `content/`.
 
 ### Frontmatter
 
@@ -69,6 +67,7 @@ All pages support these frontmatter fields:
 | `sidebarLabel` | `string` | Override the label shown in sidebar |
 | `order` | `number` | Manual sort order within a section |
 | `draft` | `boolean` | Exclude page from build when `true` |
+| `socialImage` | `string` | Open Graph image path for social sharing (per-page override) |
 
 All fields are optional. Additional custom fields are passed through to layouts.
 
@@ -163,18 +162,18 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `name` | `string` | — | Site name (shown in header) |
-| `title` | `string` | — | Browser tab title |
-| `description` | `string` | — | Default meta description |
-| `origin` | `string` | — | Production URL for canonical links |
+| `name` | `string` | `pkg name` | Site name (header). Falls back to package.json name. |
+| `title` | `string` | `pkg name` | Browser tab title |
+| `description` | `string` | `pkg desc` | Default meta description |
+| `origin` | `string` | `pkg homepage` | Production URL for canonical links |
 | `language` | `string` | `'en'` | HTML lang attribute |
-| `contentDir` | `string` | `'content'` | Path to content directory |
-| `outDir` | `string` | `'dist'` | Build output directory |
+| `contentDir` | `string` | `'docs/' or 'content/'` | Path to content directory |
+| `outDir` | `string` | `'gh-pages'` | Build output directory |
 | `publicDir` | `string` | `'public'` | Static assets directory |
 | `basePath` | `string` | `'/'` | URL base path (overridden by `BASE_URL` env) |
 | `homeLink` | `string` | `basePath` | Header logo link destination |
 | `footerLinks` | `array` | `[]` | Footer navigation links (`{ label, path }`) |
-| `sidebar.collapsible` | `boolean` | `false` | Enable collapsible sidebar sections |
+| `sidebar.collapsible` | `boolean` | `true` | Enable collapsible sidebar sections |
 | `search.enabled` | `boolean` | `true` | Enable Pagefind search |
 | `search.showImages` | `boolean` | `false` | Show images in search results |
 | `search.showSubResults` | `boolean` | `true` | Show section-level results |
@@ -183,6 +182,10 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
 | `theme.darkColor` | `string` | — | Dark theme meta color |
 | `theme.layouts` | `Record<string, string>` | — | Layout override file paths |
 | `analytics.googleAnalytics` | `string` | — | Google Analytics tracking ID |
+| `editLink` | `object` | — | Edit link config (`{ repo, branch?, label? }`) |
+| `lastUpdated` | `boolean` | `false` | Show git-based last updated timestamp on pages |
+| `sitemap` | `boolean` | `true` | Generate sitemap.xml (when origin is set) |
+| `theme.socialImage` | `string` | — | Default OG image for social sharing |
 | `markdown` | `MarkdownConfig` | — | Markdown pipeline config (from `@pagesmith/core`) |
 | `packages` | `Record<string, { label }>` | — | Multi-package section labels |
 
@@ -190,12 +193,7 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
 
 ```json5
 {
-  name: 'My Docs',
-  title: 'My Docs',
-  description: 'Documentation for My Project',
   origin: 'https://docs.example.com',
-  contentDir: './content',
-  outDir: './dist',
   basePath: '/docs',
   sidebar: {
     collapsible: true,
@@ -209,15 +207,10 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
     enabled: true,
     showSubResults: true,
   },
-  theme: {
-    layouts: {
-      home: './theme/layouts/DocHome.tsx',
-      page: './theme/layouts/DocPage.tsx',
-    },
+  editLink: {
+    repo: 'https://github.com/example/repo',
   },
-  analytics: {
-    googleAnalytics: 'G-XXXXXXXXXX',
-  },
+  lastUpdated: true,
 }
 ```
 
@@ -225,7 +218,7 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
 
 ### `pagesmith dev`
 
-Start a development server with hot reload.
+Start a development server with live reload. Uses incremental rebuilds -- content changes trigger a fast content-only rebuild, while config or theme changes trigger a full rebuild. Shows a startup summary with page/section counts and clickable section URLs.
 
 ```bash
 pagesmith dev [--port 3001] [--open] [--config path] [--out-dir path] [--base-path path]
@@ -233,7 +226,7 @@ pagesmith dev [--port 3001] [--open] [--config path] [--out-dir path] [--base-pa
 
 ### `pagesmith build`
 
-Build the static site for production.
+Build the static site for production. Pages are processed in parallel for faster builds. Outputs a build summary with page count, section count, and timing.
 
 ```bash
 pagesmith build [--out-dir path] [--base-path path] [--config path]
@@ -246,6 +239,15 @@ Preview the built site locally.
 ```bash
 pagesmith preview [--port 4173] [--config path]
 ```
+
+## Auto-generated Files
+
+The build automatically generates:
+
+- **`.nojekyll`** — always generated for GitHub Pages compatibility
+- **`sitemap.xml`** — generated when `origin` is set (disable with `sitemap: false`)
+- **`robots.txt`** — generated if not already provided via `publicDir` or `assets`
+- **`llms.txt`** / **`llms-full.txt`** — auto-copied from project root if present
 
 ## Layout Overrides
 
@@ -323,6 +325,7 @@ Layouts are resolved in order: `default` export, then named export matching the 
 
 - **Top nav** — auto-generated from top-level content folders. Override with `headerLinks` in `content/meta.json5`.
 - **Sidebar** — auto-generated from folder structure within each section. Ordering from `meta.json5` `items` array.
+- **Breadcrumbs** — auto-generated from the slug path on non-home pages with depth > 1. No configuration needed.
 - **Prev/next** — auto-generated from flattened sidebar items.
 - **Footer** — configured via `footerLinks` in config.
 

@@ -1,6 +1,8 @@
 import { processMarkdown, type MarkdownConfig } from '@pagesmith/core/markdown'
 import type { Heading } from '@pagesmith/core/schemas'
+import { execFileSync } from 'child_process'
 import { existsSync, readFileSync, readdirSync } from 'fs'
+import { availableParallelism } from 'os'
 import { dirname, extname, join, relative } from 'path'
 import { z } from 'zod'
 import { readJson5File, toTitleCase, type ResolvedDocsConfig } from './config.js'
@@ -62,6 +64,7 @@ export const DocsFrontmatterSchema = z
     sidebarLabel: z.string().optional(),
     order: z.number().optional(),
     draft: z.boolean().optional(),
+    socialImage: z.string().optional(),
     hero: z.record(z.string(), z.any()).optional(),
     features: z.array(z.record(z.string(), z.any())).optional(),
   })
@@ -80,6 +83,7 @@ export type DocsPage = {
   sourcePath: string
   isHome: boolean
   layoutName: string
+  lastUpdated?: string
 }
 
 export type SiteModel = {
@@ -195,19 +199,97 @@ function createRelativeLinkTransform(filePath: string, contentDir: string, baseP
   }
 }
 
+/**
+ * Run async tasks with bounded concurrency.
+ * Prevents memory blowup when processing thousands of pages.
+ */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = Array.from({ length: items.length })
+  let index = 0
+
+  async function worker(): Promise<void> {
+    while (index < items.length) {
+      const i = index++
+      results[i] = await fn(items[i])
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker())
+  await Promise.all(workers)
+  return results
+}
+
+/**
+ * Get the git last-modified date for a file.
+ * Returns ISO date string or undefined if git is unavailable or the file isn't tracked.
+ */
+function getGitLastUpdated(filePath: string): string | undefined {
+  try {
+    const output = execFileSync('git', ['log', '-1', '--format=%cI', '--', filePath], {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim()
+    return output || undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Generate breadcrumbs from a content slug.
+ * Returns array of { label, path } from root to current page.
+ */
+export function buildBreadcrumbs(
+  contentSlug: string,
+  title: string,
+  basePath: string,
+): Array<{ label: string; path: string }> {
+  if (contentSlug === '/') return []
+
+  const segments = contentSlug.split('/')
+  const crumbs: Array<{ label: string; path: string }> = []
+
+  for (let i = 0; i < segments.length - 1; i++) {
+    const slug = segments.slice(0, i + 1).join('/')
+    crumbs.push({
+      label: toTitleCase(segments[i]),
+      path: `${basePath}/${slug}`,
+    })
+  }
+
+  // Current page (no link)
+  crumbs.push({ label: title, path: '' })
+  return crumbs
+}
+
 export async function loadDocsPages(
   config: ResolvedDocsConfig,
   sectionMetas?: Map<string, DocsSectionMeta>,
 ): Promise<DocsPage[]> {
-  const pages: DocsPage[] = []
   const homeConfig = config.homeConfigFile
     ? readJson5File<Record<string, unknown>>(config.homeConfigFile)
     : undefined
 
-  for (const filePath of collectMarkdownFiles(config.contentDir)) {
+  const files = collectMarkdownFiles(config.contentDir)
+  const concurrency = Math.max(1, availableParallelism() * 2)
+
+  // Process markdown files with bounded concurrency to manage memory at scale
+  const results = await mapWithConcurrency(files, concurrency, async (filePath) => {
     const raw = readFileSync(filePath, 'utf-8')
     const markdownConfig: MarkdownConfig = {
       ...(config.markdown ?? {}),
+      shiki: {
+        themes: config.markdown?.shiki?.themes ?? {
+          light: 'github-light',
+          dark: 'github-dark',
+        },
+        defaultShowLineNumbers: config.markdown?.shiki?.defaultShowLineNumbers,
+        langAlias: config.markdown?.shiki?.langAlias,
+      },
       rehypePlugins: [
         ...(config.markdown?.rehypePlugins ?? []),
         [rehypeAssetTransform, { contentDir: dirname(filePath) }] as const,
@@ -222,7 +304,7 @@ export async function loadDocsPages(
 
     const frontmatter =
       isHome && homeConfig ? { ...homeConfig, ...parsedFrontmatter } : parsedFrontmatter
-    if (frontmatter.draft) continue
+    if (frontmatter.draft) return null
 
     const routePath = isHome ? '/' : `/${contentSlug}`
     const section = isHome ? undefined : contentSlug.split('/')[0]
@@ -244,7 +326,10 @@ export async function loadDocsPages(
       layoutName = 'page'
     }
 
-    pages.push({
+    // Git last-updated timestamp (only when enabled)
+    const lastUpdated = config.lastUpdated ? getGitLastUpdated(filePath) : undefined
+
+    return {
       title,
       routePath,
       contentSlug,
@@ -255,9 +340,14 @@ export async function loadDocsPages(
       sourcePath: filePath,
       isHome,
       layoutName,
-    })
-  }
+      lastUpdated,
+    } as DocsPage
+  })
 
+  const pages: DocsPage[] = []
+  for (const result of results) {
+    if (result != null) pages.push(result)
+  }
   return pages.sort((left, right) => left.routePath.localeCompare(right.routePath))
 }
 

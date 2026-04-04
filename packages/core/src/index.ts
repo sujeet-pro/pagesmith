@@ -23,6 +23,7 @@ export type { MarkdownResult } from './markdown'
 
 // ── CSS Builder ──
 export { buildCss } from './css'
+export type { CssBuildOptions } from './css/builder'
 
 // ── Frontmatter ──
 export { extractFrontmatter, validateFrontmatter } from './frontmatter'
@@ -68,13 +69,21 @@ export type {
 export {
   builtinMarkdownValidators,
   codeBlockValidator,
+  createLinkValidator,
   headingValidator,
   linkValidator,
   runValidators,
 } from './validation'
 
 // ── Loaders ──
-export { JsoncLoader, JsonLoader, MarkdownLoader, TomlLoader, YamlLoader } from './loaders'
+export {
+  JsoncLoader,
+  JsonLoader,
+  MarkdownLoader,
+  registerLoader,
+  TomlLoader,
+  YamlLoader,
+} from './loaders'
 export type { Loader, LoaderResult, LoaderType } from './loaders/types'
 
 // ── AI Companion Files ──

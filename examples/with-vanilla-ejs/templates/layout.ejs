@@ -26,8 +26,8 @@
         <li class="doc-sidebar-item<%= activePath.startsWith('/guide') ? ' active' : '' %>">
           <a href="<%= basePath %>guide/<%= sidebar.firstGuideSlug %>/" class="doc-sidebar-link">Guide</a>
         </li>
-        <li class="doc-sidebar-item<%= activePath.startsWith('/blog') ? ' active' : '' %>">
-          <a href="<%= basePath %>blog/<%= sidebar.firstBlogSlug %>/" class="doc-sidebar-link">Blog</a>
+        <li class="doc-sidebar-item<%= activePath.startsWith('/features') ? ' active' : '' %>">
+          <a href="<%= basePath %>features/<%= sidebar.firstFeaturesSlug %>/" class="doc-sidebar-link">Features</a>
         </li>
         <li class="doc-sidebar-item<%= activePath === '/about' ? ' active' : '' %>">
           <a href="<%= basePath %>about/" class="doc-sidebar-link">About</a>
@@ -54,11 +54,11 @@
     </div>
 
     <div class="doc-sidebar-section">
-      <span class="doc-sidebar-heading">Blog</span>
+      <span class="doc-sidebar-heading">Features</span>
       <ul class="doc-sidebar-list">
-        <% for (const entry of sidebar.blogEntries) { %>
-          <li class="doc-sidebar-item<%= activePath === '/blog/' + entry.slug ? ' active' : '' %>">
-            <a href="<%= basePath %>blog/<%= entry.slug %>/" class="doc-sidebar-link"><%= entry.title %></a>
+        <% for (const entry of sidebar.featuresEntries) { %>
+          <li class="doc-sidebar-item<%= activePath === '/features/' + entry.slug ? ' active' : '' %>">
+            <a href="<%= basePath %>features/<%= entry.slug %>/" class="doc-sidebar-link"><%= entry.title %></a>
           </li>
         <% } %>
       </ul>
@@ -76,7 +76,7 @@
       <nav class="doc-nav">
         <a href="<%= basePath %>"<%= activePath === '/' ? ' class="active"' : '' %>>Home</a>
         <a href="<%= basePath %>guide/<%= sidebar.firstGuideSlug %>/"<%= activePath.startsWith('/guide') ? ' class="active"' : '' %>>Guide</a>
-        <a href="<%= basePath %>blog/<%= sidebar.firstBlogSlug %>/"<%= activePath.startsWith('/blog') ? ' class="active"' : '' %>>Blog</a>
+        <a href="<%= basePath %>features/<%= sidebar.firstFeaturesSlug %>/"<%= activePath.startsWith('/features') ? ' class="active"' : '' %>>Features</a>
       </nav>
       <button type="button" class="doc-search-trigger" data-search-trigger aria-label="Search">
         <span class="doc-search-icon">

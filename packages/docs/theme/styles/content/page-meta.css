@@ -1,0 +1,65 @@
+/* ═══════════════════════════════════════════════════════════════
+   Page meta: breadcrumbs, edit link, last updated
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Breadcrumbs ─── */
+.doc-breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: var(--ps-font-size-sm, 0.875rem);
+  color: var(--ps-color-text-muted, var(--color-text-muted, #6b7280));
+  margin-bottom: 1rem;
+}
+
+.doc-breadcrumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.doc-breadcrumbs a:hover {
+  color: var(--ps-color-text, var(--color-text, #1f2937));
+  text-decoration: underline;
+}
+
+.doc-breadcrumb-sep {
+  color: var(--ps-color-border, var(--color-border, #d1d5db));
+  user-select: none;
+}
+
+.doc-breadcrumbs [aria-current="page"] {
+  color: var(--ps-color-text, var(--color-text, #1f2937));
+  font-weight: 500;
+}
+
+/* ─── Page meta footer (edit link + last updated) ─── */
+.doc-page-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ps-color-border-subtle, var(--color-border-subtle, #e5e7eb));
+  font-size: var(--ps-font-size-sm, 0.875rem);
+  color: var(--ps-color-text-muted, var(--color-text-muted, #6b7280));
+}
+
+.doc-edit-link {
+  color: var(--ps-color-primary, var(--color-primary, #3b82f6));
+  text-decoration: none;
+}
+
+.doc-edit-link:hover {
+  text-decoration: underline;
+}
+
+.doc-last-updated {
+  color: var(--ps-color-text-muted, var(--color-text-muted, #6b7280));
+}
+
+.doc-last-updated time {
+  color: var(--ps-color-text, var(--color-text, #374151));
+}

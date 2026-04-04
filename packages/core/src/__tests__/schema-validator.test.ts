@@ -48,23 +48,23 @@ describe('validateSchema', () => {
     expect(validatedData.tags).toEqual([])
   })
 
-  it('throws on missing required fields', () => {
-    expect(() => validateSchema({ count: 1 }, schema)).toThrow(/Schema validation failed/)
+  it('returns issues for missing required fields', () => {
+    const { issues, validatedData } = validateSchema({ count: 1 }, schema)
+    expect(issues.length).toBeGreaterThan(0)
+    expect(issues[0].severity).toBe('error')
+    expect(validatedData).toEqual({ count: 1 })
   })
 
-  it('throws on wrong types', () => {
-    expect(() => validateSchema({ title: 123, count: 'not a number' }, schema)).toThrow(
-      /Schema validation failed/,
-    )
+  it('returns issues for wrong types', () => {
+    const { issues } = validateSchema({ title: 123, count: 'not a number' }, schema)
+    expect(issues.length).toBeGreaterThan(0)
+    expect(issues.every((i) => i.severity === 'error')).toBe(true)
   })
 
-  it('error message includes field path', () => {
-    try {
-      validateSchema({ title: 123, count: 1 }, schema)
-      expect.unreachable('should have thrown')
-    } catch (err: any) {
-      expect(err.message).toContain('title')
-    }
+  it('issue message includes field path', () => {
+    const { issues } = validateSchema({ title: 123, count: 1 }, schema)
+    expect(issues.length).toBeGreaterThan(0)
+    expect(issues[0].field).toBe('title')
   })
 
   it('validates nested objects', () => {
@@ -83,7 +83,7 @@ describe('validateSchema', () => {
     expect(validatedData.author.name).toBe('Test')
   })
 
-  it('throws on invalid nested object fields', () => {
+  it('returns issues for invalid nested object fields', () => {
     const nestedSchema = z.object({
       author: z.object({
         name: z.string(),
@@ -91,9 +91,12 @@ describe('validateSchema', () => {
       }),
     })
 
-    expect(() =>
-      validateSchema({ author: { name: 'Test', email: 'not-an-email' } }, nestedSchema),
-    ).toThrow(/Schema validation failed/)
+    const { issues } = validateSchema(
+      { author: { name: 'Test', email: 'not-an-email' } },
+      nestedSchema,
+    )
+    expect(issues.length).toBeGreaterThan(0)
+    expect(issues[0].field).toContain('email')
   })
 
   it('validates arrays', () => {
@@ -106,14 +109,14 @@ describe('validateSchema', () => {
     expect(validatedData.items).toEqual([1, 2, 3])
   })
 
-  it('throws on invalid array elements', () => {
+  it('returns issues for invalid array elements', () => {
     const arraySchema = z.object({
       items: z.array(z.number()),
     })
 
-    expect(() => validateSchema({ items: [1, 'two', 3] }, arraySchema)).toThrow(
-      /Schema validation failed/,
-    )
+    const { issues } = validateSchema({ items: [1, 'two', 3] }, arraySchema)
+    expect(issues.length).toBeGreaterThan(0)
+    expect(issues[0].field).toContain('items')
   })
 
   it('coerces date strings to Date objects', () => {
@@ -127,16 +130,15 @@ describe('validateSchema', () => {
     expect(validatedData.publishedDate.getFullYear()).toBe(2024)
   })
 
-  it('strips extra fields with strict schema', () => {
+  it('returns issues for extra fields with strict schema', () => {
     const strictSchema = z
       .object({
         title: z.string(),
       })
       .strict()
 
-    expect(() => validateSchema({ title: 'Hello', extra: 'field' }, strictSchema)).toThrow(
-      /Schema validation failed/,
-    )
+    const { issues } = validateSchema({ title: 'Hello', extra: 'field' }, strictSchema)
+    expect(issues.length).toBeGreaterThan(0)
   })
 
   it('passes through extra fields with passthrough schema', () => {

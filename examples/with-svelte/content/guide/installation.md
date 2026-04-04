@@ -1,69 +1,81 @@
 ---
-title: "Installation & Setup"
-description: "Set up Pagesmith in your project with npm, configure collections, and verify your first content build."
-date: 2026-03-01
-tags: [setup, getting-started]
-series: getting-started
+title: Installation
+description: Setting up the Pagesmith Svelte example
+date: 2026-03-20
+tags:
+  - setup
+series: Getting Started
 seriesOrder: 1
 ---
 
-# Installation & Setup
+# Installation
 
-Install the core package and any peer dependencies your framework needs.
+This guide walks through setting up a static site that uses **Svelte** for rendering and **Pagesmith** for the content layer. The example produces a fully static site -- no client-side Svelte runtime ships to the browser.
 
-## Install
+## Dependencies
 
-```bash
-npm add @pagesmith/core
-```
+The project requires three groups of packages:
 
-For the Vite content plugin, no extra install is needed — it ships with `@pagesmith/core/vite`.
+**Content layer** -- `@pagesmith/core` provides the markdown pipeline, collection schemas, virtual modules, and Vite plugins:
 
-## Create a content config
-
-Create `content.config.ts` (or `.mjs`) in your project root:
-
-```ts
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
-
-export const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
-  schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-  }),
-})
-
-export default defineCollections({ posts })
-```
-
-## Add content
-
-Create `content/posts/hello-world.md`:
-
-```markdown
----
-title: "Hello World"
-date: 2026-01-01
-tags: [intro]
----
-
-Your first Pagesmith content entry.
-```
-
-## Wire up Vite
-
-Add the `pagesmithContent` plugin to your `vite.config.ts`:
-
-```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import collections from './content.config'
-
-export default {
-  plugins: [pagesmithContent({ collections })],
+```json title="package.json (excerpt)"
+{
+  "dependencies": {
+    "@pagesmith/core": "*",
+    "svelte": "^5.55.1",
+    "pagefind": "^1.3.0"
+  }
 }
 ```
 
-Now `import posts from 'virtual:content/posts'` gives you typed, validated content entries at build time.
+**Svelte** -- `svelte` (v5) is used exclusively at build time. The `render` function from `svelte/server` converts components into HTML strings during static generation.
+
+**Pagefind** -- listed as a dependency so the SSG plugin can index generated pages and produce a search index automatically.
+
+The dev dependencies include `@sveltejs/vite-plugin-svelte` for Svelte compilation:
+
+```json title="package.json (excerpt)"
+{
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "typescript": "^5.7.0",
+    "vite-plus": "^0.1.13"
+  }
+}
+```
+
+## Quick start
+
+Clone the repository and install from the workspace root:
+
+```bash
+git clone https://github.com/sujeet-pro/pagesmith.git
+cd pagesmith
+vp install
+```
+
+Run the development server for this example:
+
+```bash
+vp run dev:eg:svelte
+```
+
+Or build for production:
+
+```bash
+cd examples/with-svelte
+vp build
+```
+
+The production build writes to `gh-pages/examples/svelte/` (configured via `build.outDir` in the Vite config).
+
+## What the Vite plugins provide
+
+Two Pagesmith plugins handle the heavy lifting:
+
+1. **`pagesmithContent`** -- Processes markdown files, validates frontmatter against Zod schemas, and exposes each collection as a virtual module (e.g., `virtual:content/guide`).
+2. **`pagesmithSsg`** -- Runs the SSR entry at build time to produce static HTML files, sets up dev middleware for live reload, and indexes the output with Pagefind.
+
+A third plugin, `sharedAssetsPlugin`, copies font files and other shared assets into the build output.
+
+These three plugins are the only Pagesmith-specific configuration needed -- everything else is standard Vite.

@@ -120,7 +120,7 @@ describe('invalidateCollection', () => {
     expect(first.length).toBe(3)
 
     // Invalidate
-    layer.invalidateCollection('posts')
+    await layer.invalidateCollection('posts')
 
     // Load again — should re-discover files
     const second = await layer.getCollection('posts')

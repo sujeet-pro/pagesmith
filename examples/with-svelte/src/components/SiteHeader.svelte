@@ -8,18 +8,18 @@
     basePath,
     currentPath,
     firstGuideUrl,
-    firstBlogUrl,
+    firstFeaturesUrl,
     searchEnabled = false,
   }: {
     basePath: string
     currentPath: string
     firstGuideUrl: string
-    firstBlogUrl: string
+    firstFeaturesUrl: string
     searchEnabled?: boolean
   } = $props()
 
   const isGuide = $derived(currentPath.startsWith('/guide'))
-  const isBlog = $derived(currentPath.startsWith('/blog'))
+  const isFeatures = $derived(currentPath.startsWith('/features'))
 </script>
 
 <header class="doc-header">
@@ -33,7 +33,7 @@
     <nav class="doc-nav">
       <a href={`${basePath}/`} class:active={currentPath === '/'}>Home</a>
       <a href={firstGuideUrl} class:active={isGuide}>Guide</a>
-      <a href={firstBlogUrl} class:active={isBlog}>Blog</a>
+      <a href={firstFeaturesUrl} class:active={isFeatures}>Features</a>
     </nav>
     {#if searchEnabled}
       <button type="button" class="doc-search-trigger" data-search-trigger="" aria-label="Search">

@@ -66,9 +66,13 @@ export class ContentStore {
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err)
           const slug = def.slugify ? def.slugify(filePath, directory) : toSlug(filePath, directory)
+          const loadError = new Error(`Failed to load ${filePath}: ${message}`, {
+            cause: err,
+          })
+          console.warn(loadError.message)
           return {
             entry: new ContentEntry(slug, name, filePath, {}, undefined, this.markdownConfig),
-            issues: [{ message: `Failed to load: ${message}`, severity: 'error' as const }],
+            issues: [{ message: loadError.message, severity: 'error' as const }],
           }
         }
       }),
@@ -228,7 +232,7 @@ export class ContentStore {
   }
 
   /** Invalidate an entire collection. */
-  invalidateCollection(collection: string): void {
+  async invalidateCollection(collection: string): Promise<void> {
     this.cache.delete(collection)
     this.loaded.delete(collection)
   }

@@ -1,0 +1,16 @@
+{
+  displayName: 'Guide',
+  orderBy: 'manual',
+  series: [
+    {
+      slug: 'getting-started',
+      displayName: 'Getting Started',
+      articles: ['overview', 'project-structure', 'content-layer'],
+    },
+    {
+      slug: 'core-concepts',
+      displayName: 'Core Concepts',
+      articles: ['jsx-runtime', 'css-approach', 'build-and-deploy'],
+    },
+  ],
+}

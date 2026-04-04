@@ -3,9 +3,14 @@
   orderBy: 'manual',
   series: [
     {
-      slug: 'basics',
-      displayName: 'Basics',
-      articles: ['getting-started', 'configuration', 'layouts'],
+      slug: 'getting-started',
+      displayName: 'Getting Started',
+      articles: ['installation', 'project-structure', 'content-collections'],
+    },
+    {
+      slug: 'customization',
+      displayName: 'Customization',
+      articles: ['layouts-and-rendering', 'configuration', 'search-integration'],
     },
   ],
 }

@@ -13,9 +13,9 @@ declare module 'virtual:content/guide' {
   export default collection
 }
 
-declare module 'virtual:content/blog' {
+declare module 'virtual:content/features' {
   const collection: import('@pagesmith/core/vite').ContentCollectionModule<
-    __PagesmithCollections['blog']
+    __PagesmithCollections['features']
   >
   export default collection
 }

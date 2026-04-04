@@ -4,14 +4,14 @@
 
   let {
     firstGuideUrl,
-    firstBlogUrl,
+    firstFeaturesUrl,
     guideEntries,
-    blogEntries,
+    featuresEntries,
   }: {
     firstGuideUrl: string
-    firstBlogUrl: string
+    firstFeaturesUrl: string
     guideEntries: NavEntry[]
-    blogEntries: NavEntry[]
+    featuresEntries: NavEntry[]
   } = $props()
 </script>
 
@@ -24,14 +24,14 @@
     </p>
     <div class="doc-hero-actions">
       <a href={firstGuideUrl} class="doc-hero-action doc-hero-action-brand">Read the Guide</a>
-      <a href={firstBlogUrl} class="doc-hero-action doc-hero-action-alt">Browse the Blog</a>
+      <a href={firstFeaturesUrl} class="doc-hero-action doc-hero-action-alt">Browse Features</a>
     </div>
   </section>
 
   <section class="doc-home-section">
-    <h2>Recent Blog Posts</h2>
+    <h2>Markdown Features</h2>
     <ul style="display:flex;flex-direction:column;gap:1rem">
-      {#each blogEntries as post (post.slug)}
+      {#each featuresEntries as post (post.slug)}
         <li
           style="padding:1rem 1.25rem;border:1px solid var(--color-border-subtle);border-radius:var(--radius-lg)"
         >

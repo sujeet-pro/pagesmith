@@ -11,7 +11,7 @@
     {
       slug: 'docs-reference',
       displayName: 'Docs (@pagesmith/docs)',
-      articles: ['docs-config', 'docs-cli', 'docs-theme'],
+      articles: ['docs-config', 'docs-cli', 'docs-theme', 'css-customization', 'performance'],
     },
   ],
 }

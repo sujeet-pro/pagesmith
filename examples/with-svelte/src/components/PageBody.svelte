@@ -11,9 +11,9 @@
     currentPath,
     basePath,
     firstGuideUrl,
-    firstBlogUrl,
+    firstFeaturesUrl,
     guideGroups,
-    blogEntries,
+    featuresEntries,
     date = undefined,
     readTime = undefined,
   }: {
@@ -24,9 +24,9 @@
     currentPath: string
     basePath: string
     firstGuideUrl: string
-    firstBlogUrl: string
+    firstFeaturesUrl: string
     guideGroups: GuideGroup[]
-    blogEntries: NavEntry[]
+    featuresEntries: NavEntry[]
     date?: string
     readTime?: number
   } = $props()
@@ -37,7 +37,7 @@
 <div class="doc-layout">
   <aside class="doc-sidebar">
     <nav class="doc-sidebar-nav" aria-label="Documentation navigation">
-      <SidebarNav {currentPath} {basePath} {firstGuideUrl} {firstBlogUrl} {guideGroups} {blogEntries} />
+      <SidebarNav {currentPath} {basePath} {firstGuideUrl} {firstFeaturesUrl} {guideGroups} {featuresEntries} />
     </nav>
   </aside>
 

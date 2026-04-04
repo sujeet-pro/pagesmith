@@ -3,7 +3,7 @@ import { resolve } from 'path'
 import { convert, extractToc } from '@pagesmith/core'
 import { readFileSync } from 'fs'
 
-const FIXTURES = resolve(import.meta.dirname, '../../examples/shared-content')
+const FIXTURES = resolve(import.meta.dirname, './fixtures')
 
 describe('cli (programmatic equivalents)', () => {
   it('converts markdown to HTML', async () => {

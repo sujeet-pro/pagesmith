@@ -2,18 +2,20 @@
   name: 'Pagesmith',
   title: 'Pagesmith',
   description: 'File-based CMS and static site generator',
-  origin: 'https://pagesmith.dev',
+  origin: 'https://projects.sujeet.pro',
   contentDir: './content',
   outDir: '../gh-pages',
   basePath: '/pagesmith',
-  sidebar: {
-    collapsible: true,
-  },
   footerLinks: [
     { label: 'Guide', path: '/guide' },
     { label: 'Reference', path: '/reference' },
     { label: 'GitHub', path: 'https://github.com/sujeet-pro/pagesmith' },
   ],
+  editLink: {
+    repo: 'https://github.com/sujeet-pro/pagesmith',
+    branch: 'main',
+  },
+  lastUpdated: true,
   search: {
     enabled: true,
   },

@@ -1,0 +1,22 @@
+{
+  // Theme colors
+  colors: {
+    primary: '#3b82f6',
+    secondary: '#6366f1',
+    accent: '#f59e0b',
+  },
+  fonts: {
+    sans: 'Open Sans',
+    mono: 'JetBrains Mono',
+  },
+  layout: {
+    maxWidth: '1200px',
+    sidebarWidth: '280px',
+  },
+  code: {
+    themes: {
+      light: 'github-light',
+      dark: 'github-dark',
+    },
+  },
+}

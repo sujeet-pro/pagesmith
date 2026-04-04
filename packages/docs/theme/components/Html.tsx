@@ -4,6 +4,7 @@ type Props = {
   title: string
   description?: string
   url?: string
+  socialImage?: string
   site: {
     origin: string
     basePath?: string
@@ -14,12 +15,37 @@ type Props = {
     analytics?: { googleAnalytics?: string }
     footerLinks?: Array<{ label: string; path: string }>
     search?: { enabled?: boolean; showImages?: boolean; showSubResults?: boolean }
+    socialImage?: string
     favicon?: string | false
+    faviconFallback?: string | false
+    appleTouchIcon?: string | false
   }
   children?: any
 }
 
-export function Html({ title, description, url, site, children }: Props) {
+function buildCsp(gaId?: string): string {
+  const scriptSrc = ["'self'", "'unsafe-inline'"]
+  const connectSrc = ["'self'"]
+
+  if (gaId) {
+    scriptSrc.push('https://www.googletagmanager.com')
+    connectSrc.push('https://www.google-analytics.com', 'https://analytics.google.com')
+  }
+
+  return [
+    "default-src 'self'",
+    `script-src ${scriptSrc.join(' ')}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "font-src 'self'",
+    `connect-src ${connectSrc.join(' ')}`,
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; ')
+}
+
+export function Html({ title, description, url, socialImage, site, children }: Props) {
   const origin = site.origin.replace(/\/$/, '')
   const base = site.basePath || ''
   const canonicalUrl = url ? `${origin}${url}` : undefined
@@ -27,8 +53,11 @@ export function Html({ title, description, url, site, children }: Props) {
   const lightColor = site.theme?.lightColor || '#f8fafc'
   const darkColor = site.theme?.darkColor || '#020617'
   const gaId = site.analytics?.googleAnalytics
+  const ogImage = socialImage ?? site.socialImage
   const searchEnabled = site.search?.enabled !== false
   const favicon = site.favicon
+  const faviconFallback = site.faviconFallback
+  const appleTouchIcon = site.appleTouchIcon
 
   return (
     <html lang={site.language || 'en'} class="no-js">
@@ -36,7 +65,14 @@ export function Html({ title, description, url, site, children }: Props) {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
+
+        {/* Security */}
+        <meta http-equiv="Content-Security-Policy" content={buildCsp(gaId)} />
+        <meta name="referrer" content="strict-origin-when-cross-origin" />
+
         <title>{title}</title>
+
+        {/* Icons */}
         {favicon !== false && favicon ? (
           <link
             rel="icon"
@@ -44,6 +80,8 @@ export function Html({ title, description, url, site, children }: Props) {
             type={favicon.endsWith('.svg') ? 'image/svg+xml' : 'image/x-icon'}
           />
         ) : null}
+        {faviconFallback ? <link rel="icon" href={faviconFallback} sizes="32x32" /> : null}
+        {appleTouchIcon ? <link rel="apple-touch-icon" href={appleTouchIcon} /> : null}
         {description ? <meta name="description" content={description} /> : null}
 
         {/* Canonical URL */}
@@ -54,12 +92,31 @@ export function Html({ title, description, url, site, children }: Props) {
         {canonicalUrl ? <meta property="og:url" content={canonicalUrl} /> : null}
         <meta property="og:title" content={title} />
         {description ? <meta property="og:description" content={description} /> : null}
+        {ogImage ? (
+          <meta
+            property="og:image"
+            content={ogImage.startsWith('http') ? ogImage : `${origin}${ogImage}`}
+          />
+        ) : null}
         <meta property="og:locale" content={locale} />
         <meta property="og:site_name" content={site.name} />
 
         {/* Theme color */}
         <meta name="theme-color" content={lightColor} media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content={darkColor} media="(prefers-color-scheme: dark)" />
+
+        {/* Performance: font preload */}
+        <link
+          rel="preload"
+          href={`${base}/assets/fonts/open-sans-variable.woff2`}
+          as="font"
+          type="font/woff2"
+          crossorigin=""
+        />
+        {/* Performance: GA preconnect */}
+        {gaId ? (
+          <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="" />
+        ) : null}
 
         {/* CSS */}
         <link rel="stylesheet" href={`${base}/assets/style.css`} />

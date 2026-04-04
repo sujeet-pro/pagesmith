@@ -1,2 +1,2 @@
-import './styles/main.css'
-import './runtime/main.ts'
+import './src/theme.css'
+import './src/runtime.ts'

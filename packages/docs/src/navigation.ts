@@ -70,6 +70,14 @@ function buildSidebarWithSeries(
   const landing = sectionPages.find((p) => p.contentSlug === sectionSlug)
 
   for (const series of meta.series!) {
+    for (const slug of series.articles) {
+      if (!pageBySlug.has(slug)) {
+        console.warn(
+          `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${series.displayName}" references article slug "${slug}" which does not match any loaded page.`,
+        )
+      }
+    }
+
     const items: SidebarItem[] = series.articles
       .map((slug) => pageBySlug.get(slug))
       .filter((p): p is DocsPage => p != null)
@@ -223,6 +231,7 @@ export function buildSiteModel(
 
   for (const page of pages) {
     if (!page.section) continue
+    if (page.frontmatter.draft) continue
     if (!pagesBySection.has(page.section)) {
       pagesBySection.set(page.section, [])
     }
@@ -367,6 +376,15 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
     sidebar: config.sidebar,
     analytics: config.analytics,
     theme: config.theme,
+    socialImage: config.socialImage
+      ? config.socialImage.startsWith('http')
+        ? config.socialImage
+        : `${config.basePath}/${config.socialImage.replace(/^\//, '')}`
+      : undefined,
     favicon: config.favicon !== false ? `${config.basePath}/${basename(config.favicon)}` : false,
+    faviconFallback: config.faviconFallback
+      ? `${config.basePath}/${basename(config.faviconFallback)}`
+      : false,
+    appleTouchIcon: config.appleTouchIcon ? `${config.basePath}/apple-touch-icon.png` : false,
   }
 }

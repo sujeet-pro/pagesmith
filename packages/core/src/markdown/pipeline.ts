@@ -31,6 +31,18 @@ export type { MarkdownConfig }
 
 const DEFAULT_MARKDOWN_CONFIG: MarkdownConfig = {}
 
+/** Default language aliases for fenced code blocks that Shiki doesn't recognize natively. */
+const DEFAULT_LANG_ALIASES: Record<string, string> = {
+  dot: 'text',
+  mermaid: 'text',
+  plantuml: 'text',
+  excalidraw: 'json',
+  drawio: 'xml',
+  proto: 'protobuf',
+  ejs: 'html',
+  hbs: 'handlebars',
+}
+
 function getTextContent(node: any): string {
   if (node.type === 'text') return node.value || ''
   if (node.children) return node.children.map(getTextContent).join('')
@@ -70,7 +82,26 @@ function createProcessor(config: MarkdownConfig) {
     }
   }
 
+  // Apply language aliases to fenced code blocks before Expressive Code processes them.
+  // Merge defaults with user-provided aliases (user overrides take precedence).
+  const langAlias = { ...DEFAULT_LANG_ALIASES, ...config.shiki?.langAlias }
+  processor.use(() => (tree: any) => {
+    const visit = (node: any): void => {
+      if (node?.type === 'code' && typeof node.lang === 'string' && langAlias[node.lang]) {
+        node.lang = langAlias[node.lang]
+      }
+      if (Array.isArray(node?.children)) {
+        for (const child of node.children) visit(child)
+      }
+    }
+    visit(tree)
+  })
+
   processor.use(remarkRehype, { allowDangerousHtml: true })
+
+  // MathJax must run before Expressive Code so that math elements (from remark-math)
+  // are rendered to SVG before Expressive Code tries to highlight them as code blocks.
+  processor.use(rehypeMathjax)
 
   // Expressive Code — syntax highlighting, code frames, tabs, copy button
   const lightTheme = (config.shiki?.themes?.light || 'github-light') as BundledShikiTheme
@@ -90,7 +121,6 @@ function createProcessor(config: MarkdownConfig) {
   } satisfies RehypeExpressiveCodeOptions)
 
   processor
-    .use(rehypeMathjax)
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, { behavior: 'wrap' })
     // External links: add target="_blank" rel="noopener noreferrer" to absolute URLs
@@ -136,13 +166,21 @@ export async function processMarkdown(
     content = parsed.content
   }
   const resolvedConfig = config && Object.keys(config).length > 0 ? config : DEFAULT_MARKDOWN_CONFIG
+  // Freeze to prevent mutation — the processor is cached by object reference.
+  if (Object.isFrozen(resolvedConfig) === false) Object.freeze(resolvedConfig)
   let processor = processorCache.get(resolvedConfig)
   if (!processor) {
     processor = createProcessor(resolvedConfig)
     processorCache.set(resolvedConfig, processor)
   }
-  const result = await processor.process(content)
-  const headings = Array.isArray(result.data.headings) ? (result.data.headings as Heading[]) : []
-
-  return { html: String(result), headings, frontmatter }
+  try {
+    const result = await processor.process(content)
+    const headings = Array.isArray(result.data.headings) ? (result.data.headings as Heading[]) : []
+    return { html: String(result), headings, frontmatter }
+  } catch (err) {
+    throw new Error(
+      `Markdown processing failed: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    )
+  }
 }

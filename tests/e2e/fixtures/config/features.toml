@@ -1,0 +1,20 @@
+[search]
+enabled = true
+provider = "pagefind"
+indexOnBuild = true
+
+[analytics]
+provider = "none"
+
+[rss]
+enabled = false
+
+[sitemap]
+enabled = true
+
+[darkMode]
+enabled = true
+default = "system"
+
+[comments]
+enabled = false

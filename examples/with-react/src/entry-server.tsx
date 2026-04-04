@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import type { SsgRenderConfig } from '@pagesmith/core/vite'
-import blogCollection from 'virtual:content/blog'
+import featuresCollection from 'virtual:content/features'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 
@@ -38,7 +38,7 @@ const guideEntries = [...(guideCollection as MarkdownEntry[])].sort((left, right
   return getTime(left.frontmatter.date) - getTime(right.frontmatter.date)
 })
 
-const blogEntries = [...(blogCollection as MarkdownEntry[])].sort(
+const featuresEntries = [...(featuresCollection as MarkdownEntry[])].sort(
   (left, right) => getTime(right.frontmatter.date) - getTime(left.frontmatter.date),
 )
 
@@ -62,7 +62,7 @@ function leafSlug(contentSlug: string, collection: string): string {
   return contentSlug.replace(new RegExp(`^${collection}/`), '')
 }
 
-function routeFor(entry: MarkdownEntry, collection: 'guide' | 'blog' | 'pages'): string {
+function routeFor(entry: MarkdownEntry, collection: 'guide' | 'features' | 'pages'): string {
   const slug = leafSlug(entry.contentSlug, collection)
   return collection === 'pages' ? `/${slug}` : `/${collection}/${slug}`
 }
@@ -103,7 +103,7 @@ function escapeHtml(value: string): string {
 function buildNavEntries(
   entries: MarkdownEntry[],
   base: string,
-  section: 'guide' | 'blog',
+  section: 'guide' | 'features',
 ): NavEntry[] {
   return entries.map((entry) => ({
     slug: leafSlug(entry.contentSlug, section),
@@ -140,21 +140,21 @@ function SidebarNav(props: {
   currentPath: string
   basePath: string
   isGuide: boolean
-  isBlog: boolean
+  isFeatures: boolean
   firstGuideUrl: string
-  firstBlogUrl: string
+  firstFeaturesUrl: string
   guideGroups: GuideGroup[]
-  blogEntries: NavEntry[]
+  featuresEntries: NavEntry[]
 }) {
   const {
     currentPath,
     basePath,
     isGuide,
-    isBlog,
+    isFeatures,
     firstGuideUrl,
-    firstBlogUrl,
+    firstFeaturesUrl,
     guideGroups,
-    blogEntries,
+    featuresEntries,
   } = props
 
   return (
@@ -172,9 +172,9 @@ function SidebarNav(props: {
               Guide
             </a>
           </li>
-          <li className={`doc-sidebar-item${isBlog ? ' active' : ''}`}>
-            <a href={firstBlogUrl} className="doc-sidebar-link">
-              Blog
+          <li className={`doc-sidebar-item${isFeatures ? ' active' : ''}`}>
+            <a href={firstFeaturesUrl} className="doc-sidebar-link">
+              Features
             </a>
           </li>
           <li className={`doc-sidebar-item${currentPath === '/about' ? ' active' : ''}`}>
@@ -214,12 +214,12 @@ function SidebarNav(props: {
       </div>
 
       <div className="doc-sidebar-section">
-        <p className="doc-sidebar-heading">Blog</p>
+        <p className="doc-sidebar-heading">Features</p>
         <ul className="doc-sidebar-list">
-          {blogEntries.map((entry) => (
+          {featuresEntries.map((entry) => (
             <li
               key={entry.slug}
-              className={`doc-sidebar-item${currentPath === `/blog/${entry.slug}` ? ' active' : ''}`}
+              className={`doc-sidebar-item${currentPath === `/features/${entry.slug}` ? ' active' : ''}`}
             >
               <a href={entry.url} className="doc-sidebar-link">
                 {entry.title}
@@ -247,12 +247,12 @@ function SiteHeader(props: {
   basePath: string
   currentPath: string
   firstGuideUrl: string
-  firstBlogUrl: string
+  firstFeaturesUrl: string
   searchEnabled?: boolean
 }) {
-  const { basePath, currentPath, firstGuideUrl, firstBlogUrl, searchEnabled } = props
+  const { basePath, currentPath, firstGuideUrl, firstFeaturesUrl, searchEnabled } = props
   const isGuide = currentPath.startsWith('/guide')
-  const isBlog = currentPath.startsWith('/blog')
+  const isFeatures = currentPath.startsWith('/features')
 
   return (
     <header className="doc-header">
@@ -276,7 +276,7 @@ function SiteHeader(props: {
           <a href={firstGuideUrl} className={isGuide ? 'active' : ''}>
             Guide
           </a>
-          <a href={firstBlogUrl} className={isBlog ? 'active' : ''}>
+          <a href={firstFeaturesUrl} className={isFeatures ? 'active' : ''}>
             Blog
           </a>
         </nav>
@@ -289,12 +289,19 @@ function SiteHeader(props: {
 function HomeBody(props: {
   basePath: string
   firstGuideUrl: string
-  firstBlogUrl: string
+  firstFeaturesUrl: string
   searchEnabled?: boolean
   guideEntries: NavEntry[]
-  blogEntries: NavEntry[]
+  featuresEntries: NavEntry[]
 }) {
-  const { basePath, firstGuideUrl, firstBlogUrl, searchEnabled, guideEntries, blogEntries } = props
+  const {
+    basePath,
+    firstGuideUrl,
+    firstFeaturesUrl,
+    searchEnabled,
+    guideEntries,
+    featuresEntries,
+  } = props
 
   return (
     <>
@@ -302,7 +309,7 @@ function HomeBody(props: {
         basePath={basePath}
         currentPath="/"
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={searchEnabled}
       />
       <main className="doc-home" data-pagefind-body="">
@@ -316,16 +323,16 @@ function HomeBody(props: {
             <a href={firstGuideUrl} className="doc-hero-action doc-hero-action-brand">
               Read the Guide
             </a>
-            <a href={firstBlogUrl} className="doc-hero-action doc-hero-action-alt">
-              Browse the Blog
+            <a href={firstFeaturesUrl} className="doc-hero-action doc-hero-action-alt">
+              Browse Features
             </a>
           </div>
         </section>
 
         <section className="doc-home-section">
-          <h2>Recent Blog Posts</h2>
+          <h2>Markdown Features</h2>
           <ul style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {blogEntries.map((post) => (
+            {featuresEntries.map((post) => (
               <li
                 key={post.slug}
                 style={{
@@ -421,10 +428,10 @@ function PageBody(props: {
   currentPath: string
   basePath: string
   firstGuideUrl: string
-  firstBlogUrl: string
+  firstFeaturesUrl: string
   searchEnabled?: boolean
   sidebar: GuideGroup[]
-  blogEntries: NavEntry[]
+  featuresEntries: NavEntry[]
   date?: string
   readTime?: number
 }) {
@@ -435,10 +442,10 @@ function PageBody(props: {
     currentPath,
     basePath,
     firstGuideUrl,
-    firstBlogUrl,
+    firstFeaturesUrl,
     searchEnabled,
     sidebar,
-    blogEntries,
+    featuresEntries,
     date,
     readTime,
   } = props
@@ -450,7 +457,7 @@ function PageBody(props: {
         basePath={basePath}
         currentPath={currentPath}
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={searchEnabled}
       />
       <div className="doc-layout">
@@ -460,11 +467,11 @@ function PageBody(props: {
               currentPath={currentPath}
               basePath={basePath}
               isGuide={currentPath.startsWith('/guide')}
-              isBlog={currentPath.startsWith('/blog')}
+              isFeatures={currentPath.startsWith('/features')}
               firstGuideUrl={firstGuideUrl}
-              firstBlogUrl={firstBlogUrl}
+              firstFeaturesUrl={firstFeaturesUrl}
               guideGroups={sidebar}
-              blogEntries={blogEntries}
+              featuresEntries={featuresEntries}
             />
           </nav>
         </aside>
@@ -621,7 +628,7 @@ function renderNotFound(config: SsgRenderConfig) {
 export async function getRoutes(): Promise<string[]> {
   const routes = ['/', '/404']
   routes.push(...guideEntries.map((entry) => routeFor(entry, 'guide')))
-  routes.push(...blogEntries.map((entry) => routeFor(entry, 'blog')))
+  routes.push(...featuresEntries.map((entry) => routeFor(entry, 'features')))
 
   const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, 'pages') === 'about')
   if (aboutPage) {
@@ -638,10 +645,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
   })()
 
   const guideNavEntries = buildNavEntries(guideEntries, config.base, 'guide')
-  const blogNavEntries = buildNavEntries(blogEntries, config.base, 'blog')
+  const featuresNavEntries = buildNavEntries(featuresEntries, config.base, 'features')
   const guideGroups = groupBySeries(config.base)
   const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`
-  const firstBlogUrl = blogNavEntries[0]?.url ?? `${config.base}/blog`
+  const firstFeaturesUrl = featuresNavEntries[0]?.url ?? `${config.base}/features`
 
   if (routePath === '/') {
     const sidebarHtml = renderToStaticMarkup(
@@ -659,8 +666,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
             </a>
           </li>
           <li className="doc-sidebar-item">
-            <a href={firstBlogUrl} className="doc-sidebar-link">
-              Blog
+            <a href={firstFeaturesUrl} className="doc-sidebar-link">
+              Features
             </a>
           </li>
         </ul>
@@ -670,10 +677,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       <HomeBody
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={config.searchEnabled}
         guideEntries={guideNavEntries}
-        blogEntries={blogNavEntries}
+        featuresEntries={featuresNavEntries}
       />,
     )
 
@@ -701,11 +708,11 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         isGuide={true}
-        isBlog={false}
+        isFeatures={false}
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         guideGroups={guideGroups}
-        blogEntries={blogNavEntries}
+        featuresEntries={featuresNavEntries}
       />,
     )
     const bodyHtml = renderToStaticMarkup(
@@ -716,10 +723,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
-        blogEntries={blogNavEntries}
+        featuresEntries={featuresNavEntries}
         date={toIso(guideEntry.frontmatter.date)}
         readTime={estimateReadTime(guideEntry.html)}
       />,
@@ -737,40 +744,40 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
     })
   }
 
-  const blogEntry = blogEntries.find((entry) => routeFor(entry, 'blog') === routePath)
-  if (blogEntry) {
+  const featuresEntry = featuresEntries.find((entry) => routeFor(entry, 'features') === routePath)
+  if (featuresEntry) {
     const sidebarHtml = renderToStaticMarkup(
       <SidebarNav
         currentPath={routePath}
         basePath={config.base}
         isGuide={false}
-        isBlog={true}
+        isFeatures={true}
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         guideGroups={guideGroups}
-        blogEntries={blogNavEntries}
+        featuresEntries={featuresNavEntries}
       />,
     )
     const bodyHtml = renderToStaticMarkup(
       <PageBody
-        title={blogEntry.frontmatter.title}
-        content={blogEntry.html}
-        headings={blogEntry.headings}
+        title={featuresEntry.frontmatter.title}
+        content={featuresEntry.html}
+        headings={featuresEntry.headings}
         currentPath={routePath}
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
-        blogEntries={blogNavEntries}
-        date={toIso(blogEntry.frontmatter.date)}
-        readTime={estimateReadTime(blogEntry.html)}
+        featuresEntries={featuresNavEntries}
+        date={toIso(featuresEntry.frontmatter.date)}
+        readTime={estimateReadTime(featuresEntry.html)}
       />,
     )
 
     return renderDocument({
-      title: `${blogEntry.frontmatter.title} - Pagesmith + React`,
-      description: blogEntry.frontmatter.description,
+      title: `${featuresEntry.frontmatter.title} - Pagesmith + React`,
+      description: featuresEntry.frontmatter.description,
       basePath: config.base,
       cssPath: config.cssPath,
       jsPath: config.jsPath,
@@ -787,11 +794,11 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         isGuide={false}
-        isBlog={false}
+        isFeatures={false}
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         guideGroups={guideGroups}
-        blogEntries={blogNavEntries}
+        featuresEntries={featuresNavEntries}
       />,
     )
     const bodyHtml = renderToStaticMarkup(
@@ -802,10 +809,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstBlogUrl={firstBlogUrl}
+        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
-        blogEntries={blogNavEntries}
+        featuresEntries={featuresNavEntries}
       />,
     )
 
