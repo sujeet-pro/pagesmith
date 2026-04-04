@@ -206,25 +206,36 @@ describe('validateConfig', () => {
     expect(errors).toHaveLength(0)
   })
 
-  it('warns when name falls back to directory name', () => {
-    const config = makeConfig()
-    // Simulate fallback: name equals basename(rootDir)
+  it('warns when neither name nor title is set by user', () => {
+    const config = makeConfig({
+      _userConfig: {},
+    })
     config.name = config.rootDir.split('/').pop()!
+    config.title = config.rootDir.split('/').pop()!
     const issues = validateConfig(config)
 
     const nameIssue = issues.find((i) => i.field === 'name')
     expect(nameIssue).toBeDefined()
     expect(nameIssue!.severity).toBe('warn')
-  })
-
-  it('warns when title falls back to directory name', () => {
-    const config = makeConfig()
-    config.title = config.rootDir.split('/').pop()!
-    const issues = validateConfig(config)
 
     const titleIssue = issues.find((i) => i.field === 'title')
     expect(titleIssue).toBeDefined()
     expect(titleIssue!.severity).toBe('warn')
+  })
+
+  it('does not warn when name matches directory name but was explicitly set', () => {
+    const config = makeConfig()
+    const dirName = config.rootDir.split('/').pop()!
+    config.name = dirName
+    config.title = dirName
+    config._userConfig = { name: dirName }
+    const issues = validateConfig(config)
+
+    const nameIssue = issues.find((i) => i.field === 'name')
+    expect(nameIssue).toBeUndefined()
+
+    const titleIssue = issues.find((i) => i.field === 'title')
+    expect(titleIssue).toBeUndefined()
   })
 
   it('warns when description is the default placeholder', () => {

@@ -21,8 +21,9 @@ src/
     index.ts                      Re-exports processMarkdown, MarkdownResult
     pipeline.ts                   Unified pipeline: remark-parse → remark-gfm → remark-math →
                                     remark-frontmatter → remark-github-alerts → remark-smartypants →
-                                    (user remark plugins) → remark-rehype → rehype-expressive-code →
-                                    rehype-mathjax → rehype-slug → rehype-autolink-headings →
+                                    (user remark plugins) → lang-alias transform → remark-rehype →
+                                    rehype-mathjax → rehype-expressive-code →
+                                    rehype-slug → rehype-autolink-headings →
                                     rehype-external-links → rehype-accessible-emojis →
                                     heading extraction → (user rehype plugins) → rehype-stringify
     plugins/
@@ -167,8 +168,8 @@ remark-parse                       Parse markdown to MDAST
   -> remark-frontmatter            Strip YAML frontmatter from AST
   -> [user remark plugins]         From MarkdownConfig.remarkPlugins
   -> remark-rehype                 MDAST -> HAST (allowDangerousHtml: true)
+  -> rehype-mathjax/svg            Render math to SVG (must run before Expressive Code)
   -> rehype-expressive-code        Syntax highlighting + code frames + copy + tabs
-  -> rehype-mathjax/svg            Render math to SVG
   -> rehype-slug                   Add id="" to headings
   -> rehype-autolink-headings      Wrap heading text in anchor links
   -> heading extraction            Custom plugin: walk HAST, collect Heading[]

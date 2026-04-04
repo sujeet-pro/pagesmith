@@ -21,7 +21,7 @@ import { builtinMarkdownValidators, runValidators } from './validation/runner'
 import type { ContentValidator } from './validation/types'
 
 type CacheEntry = {
-  entry: ContentEntry<any>
+  entry: ContentEntry
   issues: ValidationIssue[]
 }
 
@@ -42,7 +42,7 @@ export class ContentStore {
   async loadCollection<S extends ZodType>(
     name: string,
     def: CollectionDef<S>,
-  ): Promise<ContentEntry<any>[]> {
+  ): Promise<ContentEntry[]> {
     if (this.loaded.has(name)) {
       const cached = this.cache.get(name)
       return cached ? Array.from(cached.values()).map((c) => c.entry) : []
@@ -180,7 +180,7 @@ export class ContentStore {
   }
 
   /** Get a single entry by slug. */
-  getEntry(collection: string, slug: string): ContentEntry<any> | undefined {
+  getEntry(collection: string, slug: string): ContentEntry | undefined {
     return this.cache.get(collection)?.get(slug)?.entry
   }
 

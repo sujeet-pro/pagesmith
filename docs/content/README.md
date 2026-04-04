@@ -71,24 +71,26 @@ Use `@pagesmith/docs` when you want a complete docs site from configuration alon
 
 ## Quick Start
 
-### Docs Site (zero code)
+### Docs Site (interactive setup)
 
 ```bash
 npm add @pagesmith/docs
+npx pagesmith init
 ```
 
-Create `pagesmith.config.json5`:
+The interactive init prompts for project name, title, base path, content directory, search, and AI integrations — with smart defaults detected from your git remote and `package.json`. Press Enter to accept defaults or type a new value.
 
-```json5
-{
-  name: 'My Docs',
-  title: 'My Docs',
-  description: 'Project documentation',
-  search: { enabled: true },
-}
+To skip prompts and accept all defaults:
+
+```bash
+npx pagesmith init -y
 ```
 
-Add content in `content/` and run `npx pagesmith dev`.
+Then start the dev server:
+
+```bash
+npx pagesmith dev
+```
 
 ### Custom Site (any framework)
 

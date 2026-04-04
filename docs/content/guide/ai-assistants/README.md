@@ -21,7 +21,13 @@ The fastest way to set up AI integrations is via the `pagesmith init` command:
 npx pagesmith init --ai
 ```
 
-This creates the docs config, content structure, and all AI artifacts in one step.
+This creates the docs config, content structure, and all AI artifacts in one step. Without `--ai`, the interactive init will ask whether to install AI integrations.
+
+You can also run init interactively and choose AI integrations when prompted:
+
+```bash
+npx pagesmith init
+```
 
 ### Programmatic API
 
@@ -33,22 +39,6 @@ installAiArtifacts({
   scope: 'project',
   profile: 'docs', // or 'default' for core-only projects
 })
-```
-
-### CLI (standalone)
-
-```bash
-# Install for all assistants
-pagesmith ai install
-
-# Install for Claude only
-pagesmith ai install --assistant claude
-
-# Install to user home
-pagesmith ai install --scope user
-
-# Force overwrite existing files
-pagesmith ai install --force
 ```
 
 ## Profiles
@@ -82,9 +72,9 @@ The installer automatically creates `.pagesmith/markdown-guidelines.md` in the p
 
 Future AI sessions that read the project's `CLAUDE.md` or `AGENTS.md` will be directed to this file, ensuring consistent content authoring across all sessions.
 
-## The /update-docs Command
+## The /update-docs Skill
 
-When Claude is included in the install, the installer generates `.claude/commands/update-docs.md`. This gives Claude Code an `/update-docs` slash command that:
+When Claude is included in a **project-level** install, the installer generates `.claude/skills/update-docs/SKILL.md`. This gives Claude Code an `/update-docs` slash command that:
 
 1. Reads the project's source code to understand the current implementation
 2. Reads the existing docs structure (`pagesmith.config.json5`, `meta.json5` files, content pages)
@@ -101,36 +91,7 @@ Use it in Claude Code:
 
 This is useful after making implementation changes — run `/update-docs` and the assistant will scan the code and bring the documentation up to date.
 
-## AI-Assisted Project Setup
-
-You can use an AI assistant to set up Pagesmith on a new or existing project from scratch. The repo provides standalone setup guides that any agent can follow:
-
-### Setting up @pagesmith/docs
-
-Point your assistant at the setup guide:
-
-> Add documentation to this repo using @pagesmith/docs. Follow the setup guide at `ai-guidelines/setup-docs.md` — install the package, create the config, set up the content directory, add markdown guidelines, and update CLAUDE.md.
-
-The guide walks through every step: install, config file, content directory structure, home page frontmatter, section meta, package.json scripts, CLAUDE.md updates, and the `/update-docs` skill.
-
-### Setting up @pagesmith/core
-
-Point your assistant at the setup guide:
-
-> Add content collections to this repo using @pagesmith/core. Follow the setup guide at `ai-guidelines/setup-core.md` — install the package, create `content.config.ts`, configure Vite, and update CLAUDE.md.
-
-The guide covers: install, content directory, collection definitions, Vite config, SSR entry, TypeScript JSX config, CSS imports, markdown guidelines, and CLAUDE.md updates.
-
-### What the setup guides do
-
-Both guides instruct the assistant to:
-
-1. Install the appropriate package
-2. Create configuration files (`content.config.ts` or `pagesmith.config.json5`)
-3. Set up the content directory with sample content
-4. Create `.pagesmith/markdown-guidelines.md` with authoring rules
-5. Update `CLAUDE.md` / `AGENTS.md` with project-specific context
-6. Add the `/update-docs` Claude command (docs profile)
+> **Note:** The `/update-docs` skill is only generated for project-level installs (`scope: 'project'`). User-level installs include the `/pagesmith` skill but not `/update-docs`.
 
 ## Supported Assistants
 
@@ -145,7 +106,7 @@ Files installed:
 | Project | `.claude/skills/update-docs/SKILL.md` | `/update-docs` skill with frontmatter |
 | Project | `.pagesmith/markdown-guidelines.md` | Markdown authoring rules for content |
 | User | `~/.claude/CLAUDE.md` | User-level memory applied across all projects |
-| User | `~/.claude/skills/pagesmith/SKILL.md` | User-level skill |
+| User | `~/.claude/skills/pagesmith/SKILL.md` | User-level `/pagesmith` skill |
 
 Claude Code reads `CLAUDE.md` automatically when working in the project directory. Skills use the [Claude Code skills format](https://code.claude.com/docs/en/skills) with YAML frontmatter for `name`, `description`, and `allowed-tools`. They are available as `/pagesmith` and `/update-docs` in Claude Code.
 
@@ -220,38 +181,11 @@ installAiArtifacts({
 
 Installed locations:
 
-- Claude: `~/.claude/CLAUDE.md` and `~/.claude/commands/pagesmith.md`
+- Claude: `~/.claude/CLAUDE.md` and `~/.claude/skills/pagesmith/SKILL.md`
 - Codex: `~/.codex/AGENTS.md` and `~/.codex/skills/pagesmith/SKILL.md`
 - Gemini CLI: `~/.gemini/GEMINI.md` and `~/.gemini/commands/pagesmith.toml`
 
 Use `skillName: '<name>'` if you want a custom command or skill name instead of `pagesmith`.
-
-## CLI Usage
-
-The `pagesmith ai install` command provides a CLI interface to the same installer:
-
-```bash
-# Install for all assistants
-pagesmith ai install
-
-# Install for Claude only
-pagesmith ai install --assistant claude
-
-# Install with docs profile
-pagesmith ai install --assistant claude --scope project
-
-# Install to user home
-pagesmith ai install --scope user
-
-# Custom skill name
-pagesmith ai install --skill-name content
-
-# Force overwrite existing files
-pagesmith ai install --force
-
-# Skip llms.txt generation
-pagesmith ai install --no-llms
-```
 
 ## Updating and Regenerating
 
@@ -265,13 +199,13 @@ installAiArtifacts({
 })
 ```
 
-Or via CLI:
+Or via the init command:
 
 ```bash
-pagesmith ai install --force
+npx pagesmith init --ai
 ```
 
-The `force` option replaces all existing files. Without it, the installer merges content into existing files using managed block markers (`<!-- pagesmith-ai:...:start -->` / `<!-- pagesmith-ai:...:end -->`), preserving any custom content you have added outside the managed blocks.
+The installer merges content into existing files using managed block markers (`<!-- pagesmith-ai:...:start -->` / `<!-- pagesmith-ai:...:end -->`), preserving any custom content you have added outside the managed blocks. Use the `force` option in the programmatic API to replace all existing files instead.
 
 ## Programmatic API
 

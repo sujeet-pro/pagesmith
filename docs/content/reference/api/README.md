@@ -595,3 +595,44 @@ AI assistant artifact installer for generating memory, skill, and llms files.
 | `AiInstallOptions` | Options for `installAiArtifacts()` |
 | `AiInstallResult` | Result of an install operation |
 | `AiInstallScope` | `'project' \| 'user'` |
+
+---
+
+## `@pagesmith/docs`
+
+### Export Paths
+
+| Import Path | Purpose |
+|---|---|
+| `@pagesmith/docs` | Main barrel -- `build()`, `startDev()`, `preview()`, `defineDocsConfig()`, `loadDocsConfig()`, `validateDocsConfig()` |
+| `@pagesmith/docs/preset` | `docsPreset()` -- programmatic access to build/dev/preview |
+| `@pagesmith/docs/schemas` | Docs config Zod schemas |
+
+### `docsPreset()`
+
+Import: `@pagesmith/docs/preset`
+
+Returns an object with `build()`, `dev()`, and `preview()` methods for programmatic control over the docs lifecycle. Useful for tooling integrations or custom build scripts that need to drive the docs pipeline without going through the CLI.
+
+```ts
+import { docsPreset } from '@pagesmith/docs/preset'
+
+const docs = docsPreset()
+
+// Build the docs site
+await docs.build('./pagesmith.config.json5')
+
+// Start dev server
+await docs.dev('./pagesmith.config.json5', { port: 3000 })
+
+// Preview built output
+await docs.preview({ port: 4173, configPath: './pagesmith.config.json5' })
+```
+
+**Methods:**
+
+| Method | Signature | Description |
+|---|---|---|
+| `build` | `(configPath?: string) => Promise<void>` | Run a full production build |
+| `dev` | `(configPath?: string, options?: { port?: number }) => Promise<void>` | Start the dev server with live reload |
+| `preview` | `(options?: { port?: number; configPath?: string }) => Promise<void>` | Serve the built output for local verification |

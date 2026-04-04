@@ -30,15 +30,19 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
     "./schemas": {
+      "types": "./dist/schemas/index.d.mts",
       "import": "./dist/schemas/index.mjs"
     },
     "./schemas/*": {
+      "types": "./dist/schemas/*.d.mts",
       "import": "./dist/schemas/*.mjs"
     },
     "./preset": {
+      "types": "./dist/preset.d.mts",
       "import": "./dist/preset.mjs"
     }
   },

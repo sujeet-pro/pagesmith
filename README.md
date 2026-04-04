@@ -27,20 +27,22 @@ npm add @pagesmith/core
 
 ## Quick Start
 
-Docs site with defaults:
+### Docs site (interactive setup)
 
-```json5
-{
-  name: 'Acme Docs',
-  title: 'Acme Docs',
-  description: 'Team documentation',
-  contentDir: './content',
-  basePath: '/',
-  search: { enabled: true },
-}
+```bash
+npm add @pagesmith/docs
+npx pagesmith init
 ```
 
-Custom site or framework integration with core:
+The interactive init prompts for project name, title, base path, content directory, search, and AI integrations — with smart defaults detected from your git remote and `package.json`. Press Enter to accept defaults or type a new value. Use `-y` to skip prompts.
+
+Then start the dev server:
+
+```bash
+npx pagesmith dev
+```
+
+### Custom site (framework integration with core)
 
 ```ts
 import { defineCollection, defineCollections, z } from '@pagesmith/core'
@@ -116,24 +118,28 @@ Use an AI coding assistant (Claude, Codex, Gemini) to configure Pagesmith on you
 
 ### Set up docs with the CLI
 
-After installing `@pagesmith/docs`, run the init command to scaffold config, content, and optionally AI integrations:
+After installing `@pagesmith/docs`, run the interactive init to scaffold config, content, and optionally AI integrations:
 
 ```bash
 npm add @pagesmith/docs
-npx pagesmith init --ai
+npx pagesmith init
 ```
 
-This creates `pagesmith.config.json5`, a starter `content/` directory, and (with `--ai`) installs AI assistant context files, skills, and markdown guidelines.
+The interactive init prompts for project name, title, base path, content directory, search, and AI integrations. Use `--ai` or `-y` to skip prompts:
+
+```bash
+npx pagesmith init --ai -y
+```
 
 ### Set up docs via an AI assistant
 
-Point your AI assistant at the setup guide:
+Point your AI assistant at the guidelines:
 
-> Add documentation to this repo using @pagesmith/docs. Follow the setup guide at https://github.com/sujeet-pro/pagesmith/blob/main/ai-guidelines/setup-docs.md — install the package, create `pagesmith.config.json5`, set up the `content/` directory structure with a home page and initial guide section based on the project's README, add markdown guidelines, and update CLAUDE.md with the project's docs structure.
+> Add documentation to this repo using @pagesmith/docs. Follow the guidelines at `ai-guidelines/docs-guidelines.md` — install the package, run `npx pagesmith init`, set up the `content/` directory structure with a home page and initial guide section based on the project's README, add markdown guidelines, and update CLAUDE.md with the project's docs structure.
 
 ### Set up core via an AI assistant
 
-> Add content collections to this repo using @pagesmith/core. Follow the setup guide at https://github.com/sujeet-pro/pagesmith/blob/main/ai-guidelines/setup-core.md — install the package, create `content.config.ts`, configure Vite, add markdown guidelines, and update CLAUDE.md.
+> Add content collections to this repo using @pagesmith/core. Follow the guidelines at `ai-guidelines/core-guidelines.md` — install the package, create `content.config.ts`, configure Vite, add markdown guidelines, and update CLAUDE.md.
 
 ### Reference files in npm packages
 
@@ -166,10 +172,10 @@ This installs:
 - `.claude/skills/pagesmith/SKILL.md` — a `/pagesmith` skill for Pagesmith-specific help
 - `llms.txt` and `llms-full.txt` (cover both core and docs packages)
 
-Or via CLI:
+Or via the init command:
 
 ```bash
-pagesmith ai install --assistant claude --scope project
+npx pagesmith init --ai
 ```
 
 ### AI guidelines
@@ -178,10 +184,8 @@ Detailed guidelines for AI assistants working with this project:
 
 | Guide | Description |
 |---|---|
-| [setup-core.md](ai-guidelines/setup-core.md) | Complete setup guide for `@pagesmith/core` — point any agent at this file |
-| [setup-docs.md](ai-guidelines/setup-docs.md) | Complete setup guide for `@pagesmith/docs` — point any agent at this file |
-| [using-core.md](ai-guidelines/using-core.md) | API reference and conventions for `@pagesmith/core` |
-| [using-docs.md](ai-guidelines/using-docs.md) | Configuration and content structure for `@pagesmith/docs` |
+| [core-guidelines.md](ai-guidelines/core-guidelines.md) | Complete guide for `@pagesmith/core` — setup, usage, API, configuration |
+| [docs-guidelines.md](ai-guidelines/docs-guidelines.md) | Complete guide for `@pagesmith/docs` — setup, usage, configuration, content structure |
 | [markdown-guidelines.md](ai-guidelines/markdown-guidelines.md) | Full markdown feature reference and authoring rules |
 
 ## Assistant Artifacts

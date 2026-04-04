@@ -391,7 +391,11 @@ export function pagesmithContent<TCollections extends CollectionMap>(
           if (moduleNode) {
             server.moduleGraph.invalidateModule(moduleNode)
           }
-          void getLayer().invalidateCollection(name)
+          getLayer()
+            .invalidateCollection(name)
+            .catch((err) => {
+              console.warn(`[pagesmith] Failed to invalidate collection "${name}":`, err)
+            })
         }
       } else {
         // Config change: invalidate all collection modules

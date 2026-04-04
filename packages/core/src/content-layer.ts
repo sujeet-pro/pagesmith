@@ -19,10 +19,10 @@ import type { ValidationResult } from './validation'
 
 export interface ContentLayer {
   /** Get all entries in a collection. */
-  getCollection(name: string): Promise<ContentEntry<any>[]>
+  getCollection(name: string): Promise<ContentEntry[]>
 
   /** Get a single entry by collection name and slug. */
-  getEntry(collection: string, slug: string): Promise<ContentEntry<any> | undefined>
+  getEntry(collection: string, slug: string): Promise<ContentEntry | undefined>
 
   /** Convert raw markdown to HTML (no collection, no validation). */
   convert(markdown: string, options?: LayerConvertOptions): Promise<ConvertResult>
@@ -62,7 +62,7 @@ class ContentLayerImpl implements ContentLayer {
     this.store = new ContentStore(config)
   }
 
-  async getCollection(name: string): Promise<ContentEntry<any>[]> {
+  async getCollection(name: string): Promise<ContentEntry[]> {
     const def = this.config.collections[name]
     if (!def) {
       throw new Error(
@@ -74,7 +74,7 @@ class ContentLayerImpl implements ContentLayer {
     return this.store.loadCollection(name, def)
   }
 
-  async getEntry(collection: string, slug: string): Promise<ContentEntry<any> | undefined> {
+  async getEntry(collection: string, slug: string): Promise<ContentEntry | undefined> {
     // The first getEntry call loads the full collection and then serves from cache.
     // Single-entry loading would skip collection-level transforms and validation context.
     await this.getCollection(collection)

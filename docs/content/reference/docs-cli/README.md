@@ -16,20 +16,35 @@ The `pagesmith` binary is then available via `npx`, npm scripts, or direct invoc
 
 ### pagesmith init
 
-Initialize a new docs project with config, content structure, and optionally AI integrations.
+Initialize a new docs project interactively. Prompts for project name, title, base path, content directory, search, AI integrations, and starter content — with smart defaults detected from your git remote and `package.json`.
 
 ```bash title="Terminal"
 pagesmith init [options]
 ```
 
+**Interactive mode** (default):
+
+```text title="Example session"
+  Pagesmith v0.2.0
+
+  Project name (my-project):
+  Site title (My Project):
+  Base path (/my-project):
+  Content directory (docs):
+  Enable search? (Y/n):
+  Install AI integrations? (y/N):
+  Create starter content? (Y/n):
+```
+
+Press Enter to accept the default shown in parentheses, or type a new value.
+
 The init command creates:
 
-1. **`pagesmith.config.json5`** — site configuration file (uses the project name from `package.json` if available)
-2. **`content/README.md`** — home page with `DocHome` layout frontmatter
-3. **`content/guide/meta.json5`** — guide section with manual ordering
-4. **`content/guide/getting-started/README.md`** — starter getting-started page
+1. **`pagesmith.config.json5`** — site configuration with the values you provided
+2. **`docs/README.md`** — home page with frontmatter (if starter content enabled)
+3. **`docs/guide/getting-started/README.md`** — starter getting-started page (if starter content enabled)
 
-With `--ai`, it additionally installs AI assistant integrations:
+With AI integrations enabled, it additionally installs:
 
 - `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` — assistant memory files
 - `.claude/skills/pagesmith/SKILL.md` — Claude `/pagesmith` skill
@@ -41,17 +56,21 @@ With `--ai`, it additionally installs AI assistant integrations:
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `--ai` | boolean | `false` | Install AI integrations (skills, memory files, guidelines) |
+| `-y`, `--yes` | boolean | `false` | Skip prompts, accept all detected defaults |
+| `--ai` | boolean | `false` | Pre-select AI integrations (works with both interactive and `-y` mode) |
 | `--config <path>` | string | `pagesmith.config.json5` | Path for the configuration file |
 
 **Example:**
 
 ```bash title="Terminal"
-# Basic init — config + content only
+# Interactive init — prompts for all options
 pagesmith init
 
-# Init with AI integrations
-pagesmith init --ai
+# Skip prompts, accept defaults
+pagesmith init -y
+
+# Skip prompts with AI integrations enabled
+pagesmith init --ai -y
 
 # Init with a custom config path
 pagesmith init --config ./docs/pagesmith.config.json5
@@ -191,12 +210,13 @@ The help output shows:
 pagesmith
 
 Commands:
-  init [options]                       Initialize a docs project
+  init [options]                       Initialize a docs project (interactive)
   dev [options]                        Start a docs dev server
   build [options]                      Build a docs site
   preview [options]                    Preview the built docs site
 
 Init options:
+  -y, --yes                           Skip prompts, use defaults
   --ai                                Install AI integrations (skills, guidelines)
   --config <path>                     Config file path
 
@@ -210,7 +230,7 @@ Server options:
 
 ## Option Parsing
 
-The CLI uses a custom argument parser (no external dependency). All options use `--long-name` format with no short aliases (except `-h` for `--help`).
+The CLI uses a custom argument parser (no external dependency). All options use `--long-name` format with short aliases for `-h` (`--help`), `-v` (`--version`), and `-y` (`--yes`).
 
 Options that take a value require the value as the next argument (space-separated):
 
@@ -316,8 +336,8 @@ The CLI wraps the top-level `main()` function in a `.catch()` handler that logs 
 ## Typical Workflow
 
 ```bash title="Terminal"
-# 0. Initialize (first time only)
-pagesmith init --ai
+# 0. Initialize interactively (first time only)
+pagesmith init
 
 # 1. Start development
 pagesmith dev --open

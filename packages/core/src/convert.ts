@@ -9,7 +9,7 @@ export type ConvertOptions = {
 export type ConvertResult = {
   html: string
   toc: Heading[]
-  frontmatter: Record<string, any>
+  frontmatter: Record<string, unknown>
 }
 
 export async function convert(input: string, options: ConvertOptions = {}): Promise<ConvertResult> {

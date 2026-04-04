@@ -24,7 +24,7 @@ import type { MarkdownConfig } from '../schemas/markdown-config'
 export type MarkdownResult = {
   html: string
   headings: Heading[]
-  frontmatter: Record<string, any>
+  frontmatter: Record<string, unknown>
 }
 
 export type { MarkdownConfig }

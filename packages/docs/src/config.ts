@@ -134,6 +134,8 @@ export type ResolvedDocsConfig = {
   packages?: Record<string, { label: string }>
   /** Resolved asset mappings: output path → array of resolved absolute source paths. */
   assets: Map<string, string[]>
+  /** @internal Raw user config — used by validateConfig to distinguish explicit values from fallbacks. */
+  _userConfig?: DocsUserConfig
 }
 
 export type DocsBuildOptions = {
@@ -376,6 +378,7 @@ export function resolveDocsConfig(
       : resolve(rootDir, contentDir, 'home.json5'),
     packages: userConfig.packages,
     assets,
+    _userConfig: userConfig,
   }
 }
 
@@ -417,8 +420,13 @@ export type ConfigValidationIssue = {
 export function validateConfig(config: ResolvedDocsConfig): ConfigValidationIssue[] {
   const issues: ConfigValidationIssue[] = []
 
-  // Required field checks
-  if (!config.name || config.name === basename(config.rootDir)) {
+  // Required field checks — only warn when neither name nor title was explicitly set
+  // by the user (the resolved config always has a value due to fallback chain).
+  const uc = config._userConfig
+  const hasExplicitName = uc ? !!(uc.name || uc.title) : config.name !== basename(config.rootDir)
+  const hasExplicitTitle = uc ? !!(uc.title || uc.name) : config.title !== basename(config.rootDir)
+
+  if (!hasExplicitName) {
     issues.push({
       field: 'name',
       message: 'Missing "name" in pagesmith.config.json5 — using directory name as fallback.',
@@ -426,7 +434,7 @@ export function validateConfig(config: ResolvedDocsConfig): ConfigValidationIssu
     })
   }
 
-  if (!config.title || config.title === basename(config.rootDir)) {
+  if (!hasExplicitTitle) {
     issues.push({
       field: 'title',
       message: 'Missing "title" in pagesmith.config.json5 — using directory name as fallback.',
