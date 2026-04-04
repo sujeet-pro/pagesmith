@@ -58,6 +58,7 @@ With AI integrations enabled, it additionally installs:
 |---|---|---|---|
 | `-y`, `--yes` | boolean | `false` | Skip prompts, accept all detected defaults |
 | `--ai` | boolean | `false` | Pre-select AI integrations (works with both interactive and `-y` mode) |
+| `--no-llms` | boolean | `false` | Skip `llms.txt` / `llms-full.txt` generation during AI install |
 | `--config <path>` | string | `pagesmith.config.json5` | Path for the configuration file |
 
 **Example:**
@@ -71,6 +72,7 @@ pagesmith init -y
 
 # Skip prompts with AI integrations enabled
 pagesmith init --ai -y
+pagesmith init --ai --no-llms -y
 
 # Init with a custom config path
 pagesmith init --config ./docs/pagesmith.config.json5
@@ -195,6 +197,36 @@ pagesmith preview
 pagesmith preview --port 5000
 ```
 
+### pagesmith mcp
+
+Start a stdio MCP server backed by `@pagesmith/docs`.
+
+```bash title="Terminal"
+pagesmith mcp [options]
+```
+
+Use this to expose docs-aware tools to MCP-compatible assistants and editors.
+
+**Options:**
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `--stdio` | boolean | `true` | Use stdio transport |
+| `--config <path>` | string | `pagesmith.config.json5` | Config path used by MCP docs tools |
+| `--root <path>` | string | current working directory | Project root for resolving config and content |
+
+**Example:**
+
+```bash title="Terminal"
+# Start MCP server with default config
+pagesmith mcp --stdio
+
+# Start MCP server for another docs workspace
+pagesmith mcp --stdio --root ./docs --config ./docs/pagesmith.config.json5
+```
+
+Tools exposed by the server include `docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, and `docs_get_page`.
+
 ### pagesmith --help
 
 Display the help text with all available commands and options.
@@ -214,10 +246,12 @@ Commands:
   dev [options]                        Start a docs dev server
   build [options]                      Build a docs site
   preview [options]                    Preview the built docs site
+  mcp [options]                        Start stdio MCP server for docs tooling
 
 Init options:
   -y, --yes                           Skip prompts, use defaults
   --ai                                Install AI integrations (skills, guidelines)
+  --no-llms                           Skip llms.txt / llms-full.txt generation during AI install
   --config <path>                     Config file path
 
 Server options:
@@ -226,6 +260,11 @@ Server options:
   --out-dir <path>                    Output directory (overrides config)
   --base-path <path>                  Base URL path prefix (overrides config)
   --config <path>                     Config file path
+
+MCP options:
+  --stdio                             Use stdio transport (default)
+  --config <path>                     Config file path used by docs_* tools
+  --root <path>                       Project root to resolve config/content paths
 ```
 
 ## Option Parsing

@@ -2,6 +2,8 @@
 
 Convention-based documentation package built on `@pagesmith/core`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with built-in Pagefind search, sidebar generation, and an optional layout override system.
 
+Package docs shipped inside npm (`node_modules/@pagesmith/docs/docs/*`) are version-matched to the installed package. The hosted docs site in this repository tracks the latest implementation.
+
 ## Install
 
 ```bash
@@ -9,6 +11,17 @@ npm add @pagesmith/docs
 ```
 
 ## Quick Start
+
+### AI-first (recommended)
+
+If you use an agent workflow, initialize docs and assistant context together:
+
+```bash
+npx pagesmith init --ai
+```
+
+This scaffolds config/content plus AI guidance and Claude docs skills (`/update-docs`, `/ps-update-all-docs`).
+If your project already has custom root `llms.txt` files, use `npx pagesmith init --ai --no-llms` to skip regenerating them.
 
 1. Create `pagesmith.config.json5`:
 
@@ -240,6 +253,16 @@ Preview the built site locally.
 pagesmith preview [--port 4173] [--config path]
 ```
 
+### `pagesmith mcp`
+
+Start the stdio MCP server for docs-aware AI tooling.
+
+```bash
+pagesmith mcp --stdio [--config path] [--root path]
+```
+
+The MCP server exposes docs-focused tools (`docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, `docs_get_page`) and package resources for versioned guidance (`pagesmith://docs/agents/usage`, `pagesmith://docs/llms-full`, `pagesmith://docs/reference`).
+
 ## Auto-generated Files
 
 The build automatically generates:
@@ -371,6 +394,7 @@ await preview({ port: 4173 })
 | `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig) |
 | `@pagesmith/docs/schemas` | Zod schemas for config, layout props, page data |
 | `@pagesmith/docs/preset` | Docs preset for integration |
+| `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
 
 ## License
 

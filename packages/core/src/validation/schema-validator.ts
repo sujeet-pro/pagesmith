@@ -13,6 +13,8 @@ export type ValidationIssue = {
   message: string
   /** Error severity */
   severity: 'error' | 'warn'
+  /** Origin of this issue — helps consumers distinguish validation phases. */
+  source?: 'schema' | 'content' | 'plugin' | 'custom'
 }
 
 export type ValidationEntryResult = {
@@ -60,6 +62,7 @@ export function validateSchema(
     field: issue.path.length > 0 ? formatPath(issue.path) : undefined,
     message: issue.message,
     severity: 'error' as const,
+    source: 'schema' as const,
   }))
 
   return {

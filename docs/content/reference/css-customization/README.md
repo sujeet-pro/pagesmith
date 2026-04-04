@@ -1,11 +1,14 @@
 ---
 title: CSS Customization
-description: Customize the look and feel of your docs site
+description: Design tokens and CSS custom properties for theming Pagesmith sites
 ---
 
 # CSS Customization
 
 The Pagesmith visual layer is built on CSS custom properties, making it straightforward to adjust colors, typography, spacing, and code block styling without modifying source files. This reference covers the design token system, import paths, and techniques for overriding the default theme.
+
+> [!TIP]
+> **AI quick-start:** Tell your AI agent "change the accent color to blue" or "customize the font to Inter" and it will generate the correct CSS overrides using the design token system.
 
 ## Design Tokens
 

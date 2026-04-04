@@ -5,7 +5,12 @@ export {
   type ValidationResult,
 } from './schema-validator'
 
-export type { ContentValidator, MdastNode, ValidatorContext } from './types'
+export type {
+  ContentValidator,
+  MdastNode,
+  ResolvedValidatorContext,
+  ValidatorContext,
+} from './types'
 
 export { codeBlockValidator } from './code-block-validator'
 export { headingValidator } from './heading-validator'

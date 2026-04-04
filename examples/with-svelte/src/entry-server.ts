@@ -1,10 +1,14 @@
+// ── Boilerplate: shared across all framework examples ──
+// Helper utilities (route normalization, nav building, HTML escaping, etc.) live
+// in ./site.ts and are framework-agnostic. They can be reused as-is.
+
 import { render as renderSvelte } from 'svelte/server'
 import type { SsgRenderConfig } from '@pagesmith/core/vite'
+import { renderDocumentShell } from '@pagesmith/core/ssg-utils'
 import App from './App.svelte'
 import {
   featuresEntries,
   buildNavEntries,
-  escapeHtml,
   estimateReadTime,
   groupBySeries,
   guideEntries,
@@ -15,44 +19,11 @@ import {
   toIso,
 } from './site'
 
-function renderDocument(props: {
-  title: string
-  description?: string
-  headHtml?: string
-  basePath: string
-  cssPath: string
-  jsPath?: string
-  searchEnabled?: boolean
-  bodyHtml: string
-}) {
-  const { title, description, headHtml, basePath, cssPath, jsPath, searchEnabled, bodyHtml } = props
-  const base = basePath.replace(/\/+$/, '')
+const renderDocument = renderDocumentShell
 
-  return `<html lang="en" class="no-js">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
-    <title>${escapeHtml(title)}</title>
-    ${description ? `<meta name="description" content="${escapeHtml(description)}" />` : ''}
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="${escapeHtml(title)}" />
-    ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ''}
-    <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="${base}/assets/fonts.css" />
-    <link rel="stylesheet" href="${cssPath}" />
-    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-ui.css" />` : ''}
-    <script>document.documentElement.classList.remove('no-js')</script>
-    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-ui.js" defer></script>` : ''}
-    ${searchEnabled ? '<noscript><style>.doc-search-trigger{display:none!important}</style></noscript>' : ''}
-    ${headHtml ?? ''}
-  </head>
-  <body>
-    ${bodyHtml}
-    ${jsPath ? `<script src="${jsPath}" defer></script>` : ''}
-  </body>
-</html>`
-}
+// ── Layout components ──
+// Svelte layout components live in .svelte files (App.svelte, etc.).
+// The route/render logic below wires props into those components.
 
 export async function getRoutes(): Promise<string[]> {
   const routes = ['/', '/404']

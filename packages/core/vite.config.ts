@@ -60,6 +60,7 @@ export default defineConfig({
       'ai/index': 'src/ai/index.ts',
       'vite/index': 'src/vite/index.ts',
       'create/index': 'src/create/index.ts',
+      'mcp/server': 'src/mcp/server.ts',
     },
     plugins: [fixPostcssDtsImports()],
     deps: {

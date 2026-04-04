@@ -1,4 +1,26 @@
+---
+title: Getting Started
+description: Set up @pagesmith/core with collections, schemas, and Vite plugins
+order: 4
+---
+
 # Getting Started
+
+## Agent Quick Start
+
+The fastest way to set up Pagesmith is through your AI assistant. Tell your agent:
+
+> "Set up a Pagesmith docs site for my project"
+
+Your agent will run `npx pagesmith init` and configure everything — config file, content directory, search, and AI integrations. Skip to [What You Get](#what-you-get) to understand the result.
+
+If your agent has the Pagesmith MCP server configured, it can also validate your setup:
+
+> "Validate my Pagesmith configuration"
+
+---
+
+## Manual Setup
 
 Pagesmith works best when you treat content as typed data first and rendered HTML second. The core workflow is:
 
@@ -7,7 +29,7 @@ Pagesmith works best when you treat content as typed data first and rendered HTM
 3. Load them through a content layer.
 4. Render only the entries you need.
 
-If you want a convention-based docs site with built-in navigation and search, skip to the [Quick Start with @pagesmith/docs](#quick-start-with-pagesmiths-docs) section at the end.
+If you want a convention-based docs site with built-in navigation and search, see the [Docs Getting Started](/guide/docs-getting-started) guide instead.
 
 ## Install
 
@@ -149,53 +171,23 @@ export function render(url: string, config: SsgRenderConfig): string {
 }
 ```
 
-## Quick Start with @pagesmith/docs
+## Documentation Sites
 
-If you want a convention-based documentation site with built-in navigation, sidebar, search, and a default theme, use `@pagesmith/docs` instead:
+> Looking to build a documentation site? See the [Docs Getting Started](/guide/docs-getting-started) guide for a complete walkthrough of `@pagesmith/docs`, including config, content structure, navigation, search, and deployment.
 
-```bash title="Terminal"
-npm add -D @pagesmith/docs
-```
+## Import Map
 
-Create a `pagesmith.config.json5` at your project root:
-
-```json5 title="pagesmith.config.json5"
-{
-  name: "My Docs",
-  title: "My Project Documentation",
-  contentDir: "./content",
-  search: { enabled: true },
-}
-```
-
-Add markdown files to `content/`:
-
-```text title="Project Structure"
-content/
-  README.md              # Home page
-  guide/
-    meta.json5            # Section ordering
-    getting-started/
-      README.md
-  reference/
-    meta.json5
-    api/
-      README.md
-```
-
-Run the dev server:
-
-```bash title="Terminal"
-npx pagesmith dev --open
-```
-
-Build for production:
-
-```bash title="Terminal"
-npx pagesmith build
-```
-
-See the [Docs CLI Reference](/reference/docs-cli/) and [Docs Configuration Reference](/reference/docs-config/) for full details.
+| I want to... | Import from |
+|---|---|
+| Define collections and schemas | `@pagesmith/core` |
+| Use Vite plugins | `@pagesmith/core/vite` |
+| Write JSX layouts | `@pagesmith/core/jsx-runtime` |
+| Add content CSS | `@pagesmith/core/css/content` |
+| Add full layout CSS | `@pagesmith/core/css/standalone` |
+| Process markdown directly | `@pagesmith/core/markdown` |
+| Use Zod schemas | `@pagesmith/core/schemas` |
+| Use built-in loaders | `@pagesmith/core/loaders` |
+| Access runtime CSS/JS paths | `@pagesmith/core/runtime` |
 
 ## What to Read Next
 

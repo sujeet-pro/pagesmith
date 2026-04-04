@@ -1,5 +1,9 @@
 # Validation and Rendering
 
+> [!TIP] AI Quick Start
+> Ask your AI agent: "Add a custom content validator to my Pagesmith collection that checks for missing image alt text and warns on TODO markers in markdown files."
+> Then read on to understand what happened and customize further.
+
 Pagesmith separates validation from rendering so you can keep content workflows fast. Validation happens at load time (when `getCollection()` is called), while rendering is lazy and happens only when you call `entry.render()`.
 
 ## Validation Pipeline

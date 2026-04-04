@@ -2,6 +2,7 @@ import { h } from '@pagesmith/core/jsx-runtime'
 
 type Props = {
   siteName: string
+  siteIcon?: string | false
   basePath?: string
   homeLink?: string
   navItems?: Array<{ path: string; label: string }>
@@ -15,7 +16,15 @@ const hamburgerIcon =
 const searchIcon =
   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>'
 
-export function DocHeader({ siteName, basePath, homeLink, navItems, slug, searchEnabled }: Props) {
+export function DocHeader({
+  siteName,
+  siteIcon,
+  basePath,
+  homeLink,
+  navItems,
+  slug,
+  searchEnabled,
+}: Props) {
   const homePath = homeLink || (basePath ? `${basePath}/` : '/')
   const hasNav = navItems && navItems.length > 0
   const base = (basePath || '').replace(/\/+$/, '')
@@ -41,6 +50,9 @@ export function DocHeader({ siteName, basePath, homeLink, navItems, slug, search
             />
           ) : null}
           <a href={homePath} class="doc-logo">
+            {siteIcon !== false && siteIcon ? (
+              <span class="doc-logo-icon" innerHTML={siteIcon} />
+            ) : null}
             {siteName}
           </a>
         </div>

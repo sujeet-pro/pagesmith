@@ -59,20 +59,28 @@ export class ContentStore {
     })
 
     const entries = new Map<string, CacheEntry>()
+    const strict = this.config.strict ?? false
     const results = await Promise.all(
       files.map(async (filePath) => {
         try {
           return await this.loadEntry(name, filePath, directory, loader, def)
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err)
-          const slug = def.slugify ? def.slugify(filePath, directory) : toSlug(filePath, directory)
-          const loadError = new Error(`Failed to load ${filePath}: ${message}`, {
+          const loadError = new Error(`[${name}] Failed to load ${filePath}: ${message}`, {
             cause: err,
           })
-          console.warn(loadError.message)
+
+          if (strict) {
+            throw loadError
+          }
+
+          console.warn(`[pagesmith] ${loadError.message}`)
+          const slug = def.slugify ? def.slugify(filePath, directory) : toSlug(filePath, directory)
           return {
             entry: new ContentEntry(slug, name, filePath, {}, undefined, this.markdownConfig),
-            issues: [{ message: loadError.message, severity: 'error' as const }],
+            issues: [
+              { message: loadError.message, severity: 'error' as const, source: 'schema' as const },
+            ],
           }
         }
       }),
@@ -134,7 +142,7 @@ export class ContentStore {
     if (def.validate) {
       const customError = def.validate(raw)
       if (customError) {
-        issues.push({ message: customError, severity: 'error' })
+        issues.push({ message: customError, severity: 'error', source: 'custom' })
       }
     }
 
@@ -150,6 +158,11 @@ export class ContentStore {
             collection: collectionName,
             rawContent: raw.content,
             data: raw.data,
+            getEntry: (col, s) => {
+              const cached = this.cache.get(col)?.get(s)
+              if (!cached) return undefined
+              return { slug: cached.entry.slug, data: cached.entry.data }
+            },
           },
           validators,
         )
@@ -163,7 +176,7 @@ export class ContentStore {
         content: raw.content,
       })
       for (const message of pluginIssues) {
-        issues.push({ message, severity: 'error' })
+        issues.push({ message, severity: 'error', source: 'plugin' })
       }
     }
 
@@ -241,6 +254,56 @@ export class ContentStore {
   invalidateAll(): void {
     this.cache.clear()
     this.loaded.clear()
+  }
+
+  /** Get cache statistics for debugging and monitoring. */
+  getCacheStats(): { collections: number; entries: Record<string, number>; totalEntries: number } {
+    const entries: Record<string, number> = {}
+    let totalEntries = 0
+    for (const [name, cache] of this.cache) {
+      entries[name] = cache.size
+      totalEntries += cache.size
+    }
+    return { collections: this.loaded.size, entries, totalEntries }
+  }
+
+  /** Invalidate entries matching a predicate without reloading the entire collection. */
+  async invalidateWhere(
+    collection: string,
+    predicate: (entry: ContentEntry) => boolean,
+  ): Promise<number> {
+    const collectionCache = this.cache.get(collection)
+    if (!collectionCache) return 0
+
+    const def = this.config.collections[collection]
+    if (!def) return 0
+
+    const loader = resolveLoader(def.loader)
+    const directory = resolve(this.rootDir, def.directory)
+    let count = 0
+
+    for (const [slug, cached] of collectionCache) {
+      if (!predicate(cached.entry)) continue
+      count++
+      try {
+        const result = await this.loadEntry(
+          collection,
+          cached.entry.filePath,
+          directory,
+          loader,
+          def,
+        )
+        if (result) {
+          collectionCache.set(slug, result)
+        } else {
+          collectionCache.delete(slug)
+        }
+      } catch {
+        collectionCache.delete(slug)
+      }
+    }
+
+    return count
   }
 
   /** Resolve the list of content validators for a collection. */

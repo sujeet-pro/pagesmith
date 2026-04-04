@@ -1,0 +1,9 @@
+# Project AI Pointers (Template)
+
+## @pagesmith/docs
+
+Use the installed package guidance, not copied snippets:
+
+- `node_modules/@pagesmith/docs/docs/agents/usage.md`
+- `node_modules/@pagesmith/docs/docs/agents/recipes.md`
+- `node_modules/@pagesmith/docs/REFERENCE.md`

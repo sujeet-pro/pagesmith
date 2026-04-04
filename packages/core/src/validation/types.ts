@@ -20,7 +20,7 @@ export type MdastNode = {
   position?: { start: { line: number } }
 }
 
-/** Context provided to each validator for a single content entry. */
+/** Context passed to runValidators() — mdast may be absent before parsing. */
 export type ValidatorContext = {
   /** Absolute path to the source file */
   filePath: string
@@ -34,6 +34,21 @@ export type ValidatorContext = {
   data: Record<string, any>
   /** Pre-parsed MDAST tree shared across validators. */
   mdast?: Root
+  /**
+   * Look up another entry by collection and slug.
+   * Available when running within a content layer context.
+   * Returns undefined if the entry doesn't exist or context is unavailable.
+   */
+  getEntry?: (
+    collection: string,
+    slug: string,
+  ) => { slug: string; data: Record<string, any> } | undefined
+}
+
+/** Context provided to each validator — mdast is guaranteed to be present. */
+export type ResolvedValidatorContext = Omit<ValidatorContext, 'mdast'> & {
+  /** Parsed MDAST tree shared across all validators. */
+  mdast: Root
 }
 
 /** A single-entry content validator. */
@@ -41,5 +56,5 @@ export type ContentValidator = {
   /** Unique validator name (used in error reporting) */
   name: string
   /** Validate a content entry and return any issues found. */
-  validate(ctx: ValidatorContext): ValidationIssue[] | Promise<ValidationIssue[]>
+  validate(ctx: ResolvedValidatorContext): ValidationIssue[] | Promise<ValidationIssue[]>
 }

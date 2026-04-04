@@ -16,7 +16,7 @@
   "scripts": {
     "dev": "vp run dev:docs",
     "build": "vp run clean && vp run build:library && vp run build:landing && vp run build:docs && vp run build:examples",
-    "build:library": "node scripts/build-packages.mjs",
+    "build:library": "node --strip-types --no-warnings scripts/build-packages.ts",
     "build:docs": "vp run --filter @pagesmith/docs-site build",
     "build:examples": "vp run build:eg:blog-site && vp run build:eg:doc-site && vp run build:eg:vanilla-ejs && vp run build:eg:vanilla-hbs && vp run build:eg:react && vp run build:eg:solid && vp run build:eg:svelte",
     "build:eg:blog-site": "vp run --filter @pagesmith/example-blog-site build",
@@ -26,7 +26,7 @@
     "build:eg:react": "vp run --filter @pagesmith/example-with-react build",
     "build:eg:solid": "vp run --filter @pagesmith/example-with-solid build",
     "build:eg:svelte": "vp run --filter @pagesmith/example-with-svelte build",
-    "build:landing": "node scripts/build.mjs",
+    "build:landing": "node --strip-types --no-warnings scripts/build.ts",
     "dev:docs": "vp run --filter @pagesmith/docs-site dev",
     "dev:eg:blog-site": "vp run --filter @pagesmith/example-blog-site dev",
     "dev:eg:doc-site": "vp run --filter @pagesmith/example-doc-site dev",
@@ -36,8 +36,8 @@
     "dev:eg:solid": "vp run --filter @pagesmith/example-with-solid dev",
     "dev:eg:svelte": "vp run --filter @pagesmith/example-with-svelte dev",
     "clean": "rm -rf gh-pages packages/*/dist docs/dist examples/*/dist",
-    "preview": "node scripts/preview-gh-pages.mjs",
-    "validate:examples": "node scripts/validate-examples.mjs",
+    "preview": "node --strip-types --no-warnings scripts/preview-gh-pages.ts",
+    "validate:examples": "node --strip-types --no-warnings scripts/validate-examples.ts",
     "validate": "vp run build:library && vp run build:docs && vp run validate:examples && vp check && vp test run",
     "test": "vp test run",
     "test:watch": "vp test",
@@ -47,12 +47,12 @@
     "prepare": "vp config"
   },
   "devDependencies": {
-    "typescript": "^5.9.0",
-    "vite-plus": "^0.1.13"
+    "typescript": "^6.0.2",
+    "vite-plus": "0.1.13"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.13",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.13"
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.1.13",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.13"
   },
   "engines": {
     "node": ">=24"

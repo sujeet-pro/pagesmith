@@ -189,6 +189,7 @@ describe('validateConfig', () => {
       sidebar: { collapsible: false },
       search: { enabled: true, showImages: false, showSubResults: true, pagefindFlags: [] },
       favicon: false,
+      icon: false,
       faviconFallback: false,
       appleTouchIcon: false,
       lastUpdated: false,

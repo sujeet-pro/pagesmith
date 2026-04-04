@@ -148,6 +148,28 @@ function createProcessor(config: MarkdownConfig) {
   return processor
 }
 
+/**
+ * Processor cache keyed by MarkdownConfig object reference.
+ *
+ * **Why a WeakMap keyed by object reference?**
+ * Building a unified processor chain is expensive — it loads Shiki grammars,
+ * theme JSON, and instantiates every remark/rehype plugin. Caching the
+ * processor by config reference lets callers that reuse the same config object
+ * (the common case) skip all of that setup on subsequent calls. The WeakMap
+ * also ensures that if a config object is garbage-collected, its processor is
+ * too, so long-running processes don't leak memory.
+ *
+ * **Why is the config frozen?**
+ * The cache assumes the config does not change after the processor is built.
+ * If a caller mutated a config object after the processor was created, later
+ * calls would still receive the stale processor (keyed by the same reference),
+ * producing silently wrong output. Freezing the config at first use turns that
+ * silent bug into a loud TypeError on any attempted mutation.
+ *
+ * **What if a consumer needs different settings?**
+ * Pass a new config object — a fresh reference gets its own cache entry.
+ * For example: `processMarkdown(md, { ...existingConfig, remarkPlugins: [...] })`.
+ */
 const processorCache = new WeakMap<MarkdownConfig, ReturnType<typeof createProcessor>>()
 
 export async function processMarkdown(
@@ -166,7 +188,7 @@ export async function processMarkdown(
     content = parsed.content
   }
   const resolvedConfig = config && Object.keys(config).length > 0 ? config : DEFAULT_MARKDOWN_CONFIG
-  // Freeze to prevent mutation — the processor is cached by object reference.
+  // Freeze to prevent mutation after caching — see processorCache JSDoc above.
   if (Object.isFrozen(resolvedConfig) === false) Object.freeze(resolvedConfig)
   let processor = processorCache.get(resolvedConfig)
   if (!processor) {

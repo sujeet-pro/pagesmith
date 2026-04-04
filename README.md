@@ -36,6 +36,14 @@ npx pagesmith init
 
 The interactive init prompts for project name, title, base path, content directory, search, and AI integrations — with smart defaults detected from your git remote and `package.json`. Press Enter to accept defaults or type a new value. Use `-y` to skip prompts.
 
+### AI-first docs setup (recommended)
+
+```bash
+npx pagesmith init --ai
+```
+
+This installs assistant memory files, skills/commands, markdown guidelines, and `llms*.txt` context files so agents can set up docs and keep them in sync with implementation.
+
 Then start the dev server:
 
 ```bash
@@ -82,7 +90,6 @@ export default defineConfig({
 |---|---|---|
 | [blog-site](examples/blog-site/) | Custom site built on `@pagesmith/core` with own layouts and Vite-powered asset build | [README](examples/blog-site/README.md) |
 | [doc-site](examples/doc-site/) | `@pagesmith/docs` with layout overrides via `theme.layouts.*` | [README](examples/doc-site/README.md) |
-| [shared-content](examples/shared-content/) | Content layer example with shared collections | [README](examples/shared-content/README.md) |
 | [with-react](examples/with-react/) | `@pagesmith/core` + React (react-dom/server) | [README](examples/with-react/README.md) |
 | [with-solid](examples/with-solid/) | `@pagesmith/core` + SolidJS | [README](examples/with-solid/README.md) |
 | [with-svelte](examples/with-svelte/) | `@pagesmith/core` + Svelte 5 | [README](examples/with-svelte/README.md) |
@@ -112,94 +119,67 @@ export default defineConfig({
 
 Code block styling is handled by Expressive Code through inline styles injected during markdown processing.
 
+## Import Map
+
+| I want to... | Import from |
+|---|---|
+| Define collections and schemas | `@pagesmith/core` |
+| Use Vite plugins | `@pagesmith/core/vite` |
+| Write JSX layouts | `@pagesmith/core/jsx-runtime` |
+| Add content CSS | `@pagesmith/core/css/content` |
+| Add full layout CSS | `@pagesmith/core/css/standalone` |
+| Process markdown directly | `@pagesmith/core/markdown` |
+| Use built-in loaders | `@pagesmith/core/loaders` |
+| Access runtime CSS/JS paths | `@pagesmith/core/runtime` |
+| MCP server (core) | `@pagesmith/core/mcp` |
+| MCP server (docs) | `@pagesmith/docs/mcp` |
+
 ## AI-Assisted Setup
 
-Use an AI coding assistant (Claude, Codex, Gemini) to configure Pagesmith on your project. Point the assistant at one of the setup guides and it will install the package, create configuration files, set up content structure, add markdown guidelines, and update your CLAUDE.md/AGENTS.md.
-
-### Set up docs with the CLI
-
-After installing `@pagesmith/docs`, run the interactive init to scaffold config, content, and optionally AI integrations:
-
-```bash
-npm add @pagesmith/docs
-npx pagesmith init
-```
-
-The interactive init prompts for project name, title, base path, content directory, search, and AI integrations. Use `--ai` or `-y` to skip prompts:
-
-```bash
-npx pagesmith init --ai -y
-```
-
-### Set up docs via an AI assistant
-
-Point your AI assistant at the guidelines:
-
-> Add documentation to this repo using @pagesmith/docs. Follow the guidelines at `ai-guidelines/docs-guidelines.md` — install the package, run `npx pagesmith init`, set up the `content/` directory structure with a home page and initial guide section based on the project's README, add markdown guidelines, and update CLAUDE.md with the project's docs structure.
-
-### Set up core via an AI assistant
-
-> Add content collections to this repo using @pagesmith/core. Follow the guidelines at `ai-guidelines/core-guidelines.md` — install the package, create `content.config.ts`, configure Vite, add markdown guidelines, and update CLAUDE.md.
-
-### Reference files in npm packages
-
-Both packages ship a `REFERENCE.md` file that AI assistants can read for the complete API and configuration reference. Link to it from your project's `CLAUDE.md` or `AGENTS.md`:
-
-```markdown
-For @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
-For @pagesmith/docs reference, see: node_modules/@pagesmith/docs/REFERENCE.md
-```
-
-### Generate AI artifacts programmatically
-
-Use the installer API to generate assistant context files, markdown guidelines, and the `/update-docs` Claude skill:
-
-```ts
-import { installAiArtifacts } from '@pagesmith/core/ai'
-
-installAiArtifacts({
-  assistants: ['claude', 'codex', 'gemini'],
-  scope: 'project',
-  profile: 'docs', // or 'default' for core-only projects
-})
-```
-
-This installs:
-
-- `CLAUDE.md` / `AGENTS.md` / `GEMINI.md` with Pagesmith context (references REFERENCE.md)
-- `.pagesmith/markdown-guidelines.md` with authoring rules for content
-- `.claude/skills/update-docs/SKILL.md` — an `/update-docs` skill that reads the implementation and updates docs content
-- `.claude/skills/pagesmith/SKILL.md` — a `/pagesmith` skill for Pagesmith-specific help
-- `llms.txt` and `llms-full.txt` (cover both core and docs packages)
-
-Or via the init command:
+The primary way to set up AI integrations is through the CLI:
 
 ```bash
 npx pagesmith init --ai
 ```
 
+This generates:
+
+- `CLAUDE.md` / `AGENTS.md` / `GEMINI.md` with Pagesmith context (references package usage + reference files)
+- `.pagesmith/markdown-guidelines.md` with authoring rules for content
+- `.claude/skills/update-docs/SKILL.md` — an `/update-docs` skill that reads the implementation and updates docs content
+- `.claude/skills/ps-update-all-docs/SKILL.md` — a `/ps-update-all-docs` skill for full-repo docs regeneration, navigation checks, and skill alignment
+- `.claude/skills/pagesmith/SKILL.md` — a `/pagesmith` skill for Pagesmith-specific help
+- `llms.txt` and `llms-full.txt` (cover both core and docs packages)
+
+### Set up docs via an AI assistant
+
+Point your AI assistant at the package-shipped usage guide:
+
+> Add documentation to this repo using @pagesmith/docs. Follow `node_modules/@pagesmith/docs/docs/agents/usage.md` — install the package, run `npx pagesmith init`, set up the `content/` directory structure with a home page and initial guide section based on the project's README, add markdown guidelines, and update CLAUDE.md with the project's docs structure.
+
+### Set up core via an AI assistant
+
+> Add content collections to this repo using @pagesmith/core. Follow `node_modules/@pagesmith/core/docs/agents/usage.md` — install the package, create `content.config.ts`, configure Vite, add markdown guidelines, and update CLAUDE.md.
+
+### Reference files in npm packages
+
+Both packages ship AI usage files plus `REFERENCE.md`. Link to them from your project's `CLAUDE.md` or `AGENTS.md`:
+
+```markdown
+For @pagesmith/core usage, see: node_modules/@pagesmith/core/docs/agents/usage.md
+For @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
+For @pagesmith/docs usage, see: node_modules/@pagesmith/docs/docs/agents/usage.md
+For @pagesmith/docs reference, see: node_modules/@pagesmith/docs/REFERENCE.md
+```
+
 ### AI guidelines
 
-Detailed guidelines for AI assistants working with this project:
+Version-matched package guidance for AI assistants:
 
-| Guide | Description |
+| Package | Files |
 |---|---|
-| [core-guidelines.md](ai-guidelines/core-guidelines.md) | Complete guide for `@pagesmith/core` — setup, usage, API, configuration |
-| [docs-guidelines.md](ai-guidelines/docs-guidelines.md) | Complete guide for `@pagesmith/docs` — setup, usage, configuration, content structure |
-| [markdown-guidelines.md](ai-guidelines/markdown-guidelines.md) | Full markdown feature reference and authoring rules |
-
-## Assistant Artifacts
-
-Pagesmith exposes programmatic helpers for generating checked-in assistant context such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `llms.txt`, and `llms-full.txt`:
-
-```ts
-import { installAiArtifacts } from '@pagesmith/core/ai'
-
-installAiArtifacts({
-  assistants: ['claude', 'codex', 'gemini'],
-  scope: 'project',
-})
-```
+| `@pagesmith/core` | `node_modules/@pagesmith/core/docs/agents/usage.md`, `node_modules/@pagesmith/core/docs/llms.txt`, `node_modules/@pagesmith/core/docs/llms-full.txt` |
+| `@pagesmith/docs` | `node_modules/@pagesmith/docs/docs/agents/usage.md`, `node_modules/@pagesmith/docs/docs/llms.txt`, `node_modules/@pagesmith/docs/docs/llms-full.txt` |
 
 ## Docs
 

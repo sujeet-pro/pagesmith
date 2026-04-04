@@ -172,7 +172,10 @@ export async function build(options: DocsBuildOptions = {}): Promise<void> {
   const contentAssets = collectContentAssets(config.contentDir)
 
   await bundleThemeAssets(config)
+  const renderStart = performance.now()
   const { pages } = await renderDocs(config)
+  const renderElapsed = Math.round(performance.now() - renderStart)
+  console.log(`  Rendered ${pages.length} pages in ${renderElapsed}ms`)
   copyPublicAssets(config)
   copyMappedAssets(config)
   copyContentAssetsToOutput(config.outDir, contentAssets)

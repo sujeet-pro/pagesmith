@@ -5,6 +5,10 @@ description: Overview of the Pagesmith framework integration matrix and how each
 
 # Framework Integrations
 
+> [!TIP] AI Quick Start
+> Ask your AI agent: "Integrate @pagesmith/core content collections into my Vite app. I'm using [React/Solid/Svelte] -- set up `pagesmithContent` and `pagesmithSsg` plugins with an SSR entry."
+> Then read on to understand what happened and customize further.
+
 Pagesmith's content layer is framework-agnostic. Define collections once in `content.config.ts`, then consume entries through virtual imports or the programmatic content-layer API in any rendering stack.
 
 ## Two Approaches
@@ -37,11 +41,11 @@ The repo includes a full example matrix. Each example is self-contained with its
 
 | Example | Package | Renderer | Content Access | Demo |
 |---|---|---|---|---|
-| [React](/guide/framework-react) | `@pagesmith/core` | `react-dom/server` | `virtual:content/*` | <a href="/pagesmith/examples/react/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Solid](/guide/framework-solid) | `@pagesmith/core` | `solid-js/web` | `virtual:content/*` | <a href="/pagesmith/examples/solid/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Svelte](/guide/framework-svelte) | `@pagesmith/core` | `svelte/server` | `virtual:content/*` | <a href="/pagesmith/examples/svelte/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Vanilla + EJS](/guide/framework-vanilla-ejs) | `@pagesmith/core` | EJS templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-ejs/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Vanilla + Handlebars](/guide/framework-vanilla-hbs) | `@pagesmith/core` | Handlebars templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-hbs/" target="_blank" rel="noopener noreferrer">Live</a> |
+| [React](/guide/framework-vite-apps#react) | `@pagesmith/core` | `react-dom/server` | `virtual:content/*` | <a href="/pagesmith/examples/react/" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Solid](/guide/framework-vite-apps#solidjs) | `@pagesmith/core` | `solid-js/web` | `virtual:content/*` | <a href="/pagesmith/examples/solid/" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Svelte](/guide/framework-vite-apps#svelte) | `@pagesmith/core` | `svelte/server` | `virtual:content/*` | <a href="/pagesmith/examples/svelte/" target="_blank" rel="noopener noreferrer">Live</a> |
+| [EJS](/guide/framework-template-engines#ejs) | `@pagesmith/core` | EJS templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-ejs/" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Handlebars](/guide/framework-template-engines#handlebars) | `@pagesmith/core` | Handlebars templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-hbs/" target="_blank" rel="noopener noreferrer">Live</a> |
 | [Doc Site](/guide/framework-doc-site) | `@pagesmith/docs` | Docs theme | Convention-based | <a href="/pagesmith/examples/doc-site/" target="_blank" rel="noopener noreferrer">Live</a> |
 | [Blog Site](/guide/framework-blog-site) | `@pagesmith/core` | Custom JSX layouts | `processMarkdown` | <a href="/pagesmith/examples/blog-site/" target="_blank" rel="noopener noreferrer">Live</a> |
 
@@ -52,7 +56,7 @@ All examples use plugins from `@pagesmith/core/vite`:
 | Plugin | Purpose | Used By |
 |---|---|---|
 | `sharedAssetsPlugin()` | Copies bundled fonts and `fonts.css` into the build output | All examples |
-| `pagesmithContent({ collections })` | Loads content and exposes `virtual:content/*` modules | React, Solid, Svelte |
+| `pagesmithContent(collections)` | Loads content and exposes `virtual:content/*` modules | React, Solid, Svelte |
 | `pagesmithSsg({ entry, contentDirs })` | SSG: dev middleware, pre-rendering, asset copying, Pagefind indexing | All except Doc Site |
 
 ## Shared Behavior
@@ -88,16 +92,13 @@ Two JSX runtimes are used across the examples:
 | If you want... | Choose... |
 |---|---|
 | A documentation site that works from configuration alone | [Doc Site](/guide/framework-doc-site) |
-| Full layout control with a specific framework (React, Solid, Svelte) | [React](/guide/framework-react), [Solid](/guide/framework-solid), or [Svelte](/guide/framework-svelte) |
-| No framework runtime, simple templates | [EJS](/guide/framework-vanilla-ejs) or [Handlebars](/guide/framework-vanilla-hbs) |
+| Full layout control with a specific framework (React, Solid, Svelte) | [Vite Framework Apps](/guide/framework-vite-apps) |
+| No framework runtime, simple templates | [Template Engines](/guide/framework-template-engines) |
 | A fully custom site with its own design system | [Blog Site](/guide/framework-blog-site) |
 
 ## Read Next
 
-- [React Integration](/guide/framework-react)
-- [SolidJS Integration](/guide/framework-solid)
-- [Svelte Integration](/guide/framework-svelte)
-- [Vanilla EJS](/guide/framework-vanilla-ejs)
-- [Vanilla Handlebars](/guide/framework-vanilla-hbs)
+- [Vite Framework Apps](/guide/framework-vite-apps) -- React, SolidJS, Svelte
+- [Template Engines](/guide/framework-template-engines) -- EJS, Handlebars
 - [Doc Site](/guide/framework-doc-site)
 - [Blog Site](/guide/framework-blog-site)

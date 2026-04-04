@@ -1,0 +1,52 @@
+# @pagesmith/core Full AI Reference
+
+This file is the package-shipped source of truth for AI assistants using `@pagesmith/core`.
+
+## Priority order
+
+1. `docs/agents/usage.md` for package rules and integration contract.
+2. `docs/agents/recipes.md` for implementation patterns.
+3. `REFERENCE.md` for complete API details.
+
+## Key rules
+
+- Use `@pagesmith/core` for custom-site scenarios; do not force docs conventions from `@pagesmith/docs`.
+- Prefer `defineCollection`, `defineConfig`, and `createContentLayer`.
+- Prefer folder-based markdown entries when pages reference sibling assets.
+- Keep content validation in collection schemas and validators, not scattered in app code.
+- Treat Expressive Code as the source for code-block UI; do not add separate copy-button scripts.
+
+## Exposed files
+
+- `node_modules/@pagesmith/core/docs/llms.txt`
+- `node_modules/@pagesmith/core/docs/llms-full.txt`
+- `node_modules/@pagesmith/core/docs/agents/usage.md`
+- `node_modules/@pagesmith/core/docs/agents/recipes.md`
+- `node_modules/@pagesmith/core/docs/agents/errors.md`
+- `node_modules/@pagesmith/core/docs/agents/changelog-notes.md`
+- `node_modules/@pagesmith/core/docs/agents/AGENTS.md.template`
+
+## Pointer snippet for consuming projects
+
+Add this snippet to project-level memory files:
+
+`Read node_modules/@pagesmith/core/docs/agents/usage.md before suggesting or editing @pagesmith/core setup.`
+
+## Validation
+
+`ValidationIssue` includes an optional `source` field (`'schema' | 'content' | 'plugin' | 'custom'`) that identifies which validation phase produced the issue. Use this to categorize and prioritize fixes.
+
+## MCP tools
+
+The core MCP server (`@pagesmith/core/mcp`) exposes:
+
+- `core_list_collections` — list all collections with loader type, directory, and schema fields
+- `core_list_entries` — list entries in a collection (paginated, limit/offset)
+- `core_get_entry` — load a single entry with rendered HTML, headings, and read time
+- `core_validate` — run validation on one or all collections
+- `core_search_entries` — search entries by title, description, tags, slug (case-insensitive, max 20)
+
+Shared utilities exported from `@pagesmith/core/mcp`:
+- `getPackageVersion(moduleDir)` — read version from package.json
+- `resolvePackageDocPath(moduleDir, relativePath)` — resolve doc file path
+- `asTextResource(uri, path)` — load file as MCP text resource

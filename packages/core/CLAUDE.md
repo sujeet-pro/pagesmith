@@ -336,3 +336,13 @@ The package exposes multiple entry points via `exports` in package.json:
 - **Build** via `vp pack` (vite-plus), outputs to `dist/` as ESM with source maps and declarations.
 - **CSS** bundled with LightningCSS; targets Chrome 100+, Firefox 100+, Safari 16+.
 - **Processor caching** — the unified markdown processor is cached per `MarkdownConfig` reference via `WeakMap` to avoid rebuilding the plugin chain on every call.
+
+## Package AI files
+
+These files are part of the package contract and must be kept current when `@pagesmith/core` behavior changes:
+
+- `docs/llms.txt`
+- `docs/llms-full.txt`
+- `docs/agents/usage.md`
+- `docs/agents/recipes.md`
+- `docs/agents/changelog-notes.md`

@@ -12,7 +12,8 @@ Two main user-facing packages: `@pagesmith/core` for the shared content/runtime 
 - [`examples/doc-site/`](/Users/sujeet/personal/pagesmith/examples/doc-site) demonstrates docs layout overrides.
 - [`examples/blog-site/`](/Users/sujeet/personal/pagesmith/examples/blog-site) demonstrates a custom site built on `@pagesmith/core` with its own layouts and asset pipeline.
 - Framework examples in `examples/with-*` demonstrate integration with React, Solid, Svelte, EJS, and Handlebars.
-- Assistant artifact generation lives in `@pagesmith/core/ai`.
+- Assistant artifact generation via CLI: `npx pagesmith init --ai`.
+- MCP servers: `@pagesmith/docs/mcp` (docs tools) and `@pagesmith/core/mcp` (collection tools).
 
 ## Repo workflow
 
@@ -46,7 +47,6 @@ packages/
 examples/
   blog-site/            Custom site using @pagesmith/core (own layouts/styles/runtime)
   doc-site/             @pagesmith/docs with layout overrides
-  shared-content/       Content layer example (shared)
   with-react/           Content layer + React
   with-solid/           Content layer + SolidJS
   with-svelte/          Content layer + Svelte
@@ -98,15 +98,21 @@ Code block styling is handled entirely by Expressive Code through inline styles 
 
 ## AI guidelines
 
-Detailed guidelines for working with this project live in `ai-guidelines/` (3 files):
+Package-local AI guidance is the canonical source of truth and must stay version-matched with each package.
 
-- [`ai-guidelines/core-guidelines.md`](ai-guidelines/core-guidelines.md) — **Complete guide** for `@pagesmith/core` — setup, usage, API, configuration, and key rules
-- [`ai-guidelines/docs-guidelines.md`](ai-guidelines/docs-guidelines.md) — **Complete guide** for `@pagesmith/docs` — setup, usage, configuration, content structure, and key rules
-- [`ai-guidelines/markdown-guidelines.md`](ai-guidelines/markdown-guidelines.md) — **Standalone markdown reference** for both packages — features, pipeline, code blocks, and frontmatter schemas
+- `packages/core/docs/llms.txt`
+- `packages/core/docs/llms-full.txt`
+- `packages/core/docs/agents/usage.md`
+- `packages/docs/docs/llms.txt`
+- `packages/docs/docs/llms-full.txt`
+- `packages/docs/docs/agents/usage.md`
 
-Read the relevant guideline before generating code or content for that area.
+For consuming projects, point `CLAUDE.md`/`AGENTS.md` to installed package files under `node_modules`:
 
-The AI installer (`@pagesmith/core/ai`) generates assistant context files including markdown guidelines (`.pagesmith/markdown-guidelines.md`) and a `/update-docs` Claude command for keeping docs in sync with implementation.
+- `node_modules/@pagesmith/core/docs/agents/usage.md`
+- `node_modules/@pagesmith/docs/docs/agents/usage.md`
+
+The AI installer CLI (`npx pagesmith init --ai`) generates assistant context files including markdown guidelines (`.pagesmith/markdown-guidelines.md`) and a `/update-docs` Claude command for keeping docs in sync with implementation. The AI module code lives in `packages/core/src/ai/` (split into types, writers, and per-assistant content modules) and is used internally by the CLI.
 
 ## Guidance
 
@@ -118,6 +124,7 @@ The AI installer (`@pagesmith/core/ai`) generates assistant context files includ
 - Keep schema validation and content validation in `@pagesmith/core` instead of scattering it into app code.
 - Doc-specific schemas (site config, layout props, page data) live in `@pagesmith/docs/schemas/`.
 - Keep README, docs, and `CLAUDE.md` aligned when user-facing behavior changes.
+- Every release-impacting package change must update package-local AI files (`docs/llms*.txt`, `docs/agents/*.md`) in the same PR.
 - All packages use the `@pagesmith/` npm scope.
 - Top-level folders under `content/` define the main docs navigation in `@pagesmith/docs`.
 - Everything is Vite-native. No webpack, no custom bundlers.

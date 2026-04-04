@@ -1,8 +1,30 @@
+---
+title: Getting Started with @pagesmith/docs
+description: Set up a convention-based docs site with navigation, search, and a default theme
+order: 3
+---
+
 # Getting Started with @pagesmith/docs
 
 `@pagesmith/docs` is a convention-based documentation site builder that sits on top of `@pagesmith/core`. It turns a directory of markdown files and a single JSON5 config into a complete docs site with navigation, sidebar, table of contents, Pagefind search, and a default theme -- all without writing any JavaScript or layout code.
 
 This guide covers everything you need to go from an empty project to a running docs site.
+
+## AI-First Setup
+
+Paste this into your AI assistant to set up a complete docs site in under a minute:
+
+> Install `@pagesmith/docs` and run `npx pagesmith init --ai`. Accept the defaults or customize when prompted. Then run `npx pagesmith dev --open` to start the dev server.
+
+Your agent will create:
+- `pagesmith.config.json5` -- site configuration
+- `content/README.md` and starter sections
+- AI context files and markdown guidelines
+- Claude skills for docs maintenance (`/update-docs`, `/ps-update-all-docs`)
+
+The rest of this guide explains each piece in detail for manual setup or customization.
+
+---
 
 ## Install
 
@@ -61,7 +83,7 @@ Every `@pagesmith/docs` site is driven by a `pagesmith.config.json5` file in the
 | `publicDir` | `string` | `"./public"` | Static assets directory copied verbatim to output |
 | `basePath` | `string` | `"/"` | URL prefix for deployment under a subdirectory. Can also be set via the `BASE_URL` environment variable or the `--base-path` CLI flag. Priority: CLI flag > `BASE_URL` env > config value > default `"/"` |
 | `footerLinks` | `array` | `[]` | Links shown in the page footer. Each entry has `label` and `path` |
-| `search` | `object` | `{ enabled: true }` | Search configuration (see the [Search](/guide/search) guide) |
+| `search` | `object` | `{ enabled: true }` | Search configuration. Set `{ enabled: false }` to disable |
 | `theme` | `object` | -- | Theme overrides including `lightColor`, `darkColor`, and `layouts` |
 | `analytics` | `object` | -- | Analytics config, currently supports `googleAnalytics` tracking ID |
 | `markdown` | `object` | -- | Markdown pipeline config passed to `@pagesmith/core` (custom remark/rehype plugins) |
@@ -294,8 +316,21 @@ A typical `package.json` setup:
 }
 ```
 
+## Search
+
+Pagefind full-text search is enabled by default. It indexes your content during `pagesmith build` and provides a search modal triggered by `Cmd+K` / `Ctrl+K`.
+
+To disable search:
+
+```json5
+{
+  search: { enabled: false },
+}
+```
+
+Search works automatically with no additional configuration. The search index is regenerated on every build.
+
 ## What to Read Next
 
 - [Meta and Navigation](/guide/meta-and-navigation) -- control sidebar ordering, series grouping, and header links
-- [Search](/guide/search) -- configure Pagefind search behavior
 - [Layout Overrides](/guide/layout-overrides) -- replace built-in layouts with custom components

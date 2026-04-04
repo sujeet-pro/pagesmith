@@ -1,0 +1,28 @@
+# @pagesmith/core
+
+Version-matched AI context for the installed `@pagesmith/core` package.
+
+## Use this package when
+
+- You need a custom content architecture, custom layouts, or framework-specific rendering.
+- You want typed content collections with explicit schemas and runtime control.
+
+## Canonical usage guidance
+
+- `node_modules/@pagesmith/core/docs/agents/usage.md`
+- `node_modules/@pagesmith/core/docs/agents/recipes.md`
+- `node_modules/@pagesmith/core/docs/agents/errors.md`
+- `node_modules/@pagesmith/core/REFERENCE.md`
+
+## Project memory pointer
+
+In the consuming project, add this to `CLAUDE.md` or `AGENTS.md`:
+
+`For @pagesmith/core usage rules, read node_modules/@pagesmith/core/docs/agents/usage.md`
+
+## Recent changes
+
+- `ValidationIssue` now includes an optional `source` field (`'schema' | 'content' | 'plugin' | 'custom'`) to identify which validation phase produced the issue.
+- New `core_search_entries` MCP tool: search entries across collections by title, description, tags, and slug (case-insensitive, max 20 results).
+- `@pagesmith/core/mcp` now exports shared MCP utilities (`getPackageVersion`, `resolvePackageDocPath`, `asTextResource`) alongside the server factory.
+- Error catalog added at `agents/errors.md` with machine-readable patterns and fixes for schema, content, plugin, load, and MCP errors.

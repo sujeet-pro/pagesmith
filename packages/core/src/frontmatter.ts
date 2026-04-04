@@ -8,6 +8,7 @@
 import matter from 'gray-matter'
 import { parse as parseYaml } from 'yaml'
 import type { ZodSchema } from 'zod'
+import { validateSchema } from './validation/schema-validator'
 
 export type FrontmatterResult = {
   frontmatter: Record<string, any>
@@ -20,15 +21,24 @@ export function extractFrontmatter(raw: string): FrontmatterResult {
   return { frontmatter: data, content }
 }
 
-/** Validate frontmatter against a Zod schema. Returns parsed data or throws. */
+/**
+ * Validate frontmatter against a Zod schema. Returns parsed data or errors.
+ *
+ * @deprecated Use `validateSchema()` from `@pagesmith/core` for richer
+ * validation results including field paths and severity levels.
+ */
 export function validateFrontmatter<T>(
   frontmatter: Record<string, any>,
   schema: ZodSchema<T>,
 ): { success: true; data: T } | { success: false; errors: string[] } {
-  const result = schema.safeParse(frontmatter)
-  if (result.success) {
-    return { success: true, data: result.data }
+  const { issues, validatedData } = validateSchema(frontmatter, schema)
+
+  if (issues.length === 0) {
+    return { success: true, data: validatedData as T }
   }
-  const errors = result.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+
+  const errors = issues.map((issue) =>
+    issue.field ? `${issue.field}: ${issue.message}` : issue.message,
+  )
   return { success: false, errors }
 }

@@ -1,0 +1,32 @@
+# @pagesmith/docs
+
+Version-matched AI context for the installed `@pagesmith/docs` package.
+
+## Use this package when
+
+- You want convention-based docs with minimal setup.
+- You want built-in docs navigation, default theme, and Pagefind search.
+
+## Canonical usage guidance
+
+- `node_modules/@pagesmith/docs/docs/agents/usage.md`
+- `node_modules/@pagesmith/docs/docs/agents/recipes.md`
+- `node_modules/@pagesmith/docs/docs/agents/errors.md`
+- `node_modules/@pagesmith/docs/REFERENCE.md`
+- MCP: `pagesmith mcp --stdio`
+
+## Agent-first setup tip
+
+- Prefer `pagesmith init --ai` for initial setup so docs structure and AI context are generated together.
+- For full docs regeneration in Claude workflows, use `/ps-update-all-docs` after installation.
+
+## Project memory pointer
+
+In the consuming project, add this to `CLAUDE.md` or `AGENTS.md`:
+
+`For @pagesmith/docs usage rules, read node_modules/@pagesmith/docs/docs/agents/usage.md`
+
+## Recent changes
+
+- `@pagesmith/docs` now exports navigation and content types (`NavItem`, `SidebarSection`, `SidebarItem`, `PrevNextLink`, `SiteModel`, `DocsPage`, `DocsSectionMeta`, `DocsRootMeta`) and functions (`buildSiteModel`, `getPrevNext`, `getSitePayload`) for theme customization.
+- Error catalog added at `agents/errors.md` with machine-readable patterns and fixes.

@@ -8,25 +8,28 @@ Use this skill when docs or example content has drifted from the implementation 
 
 ## Workflow
 
-1. **Audit implementation** — Read the source files that changed. Key locations:
-   - `packages/core/src/markdown/pipeline.ts` — markdown pipeline plugins and order
-   - `packages/core/src/runtime/` — what runtime JS actually provides
-   - `packages/core/src/schemas/` — frontmatter and config schemas
-   - `packages/core/src/vite/` — Vite plugin APIs
-   - `packages/docs/src/site.ts` — docs build pipeline
-   - `packages/docs/theme/runtime/main.ts` — docs runtime features
+1. **Load package-shipped AI guidance first (source of truth)**:
+   - `node_modules/@pagesmith/core/docs/agents/usage.md`
+   - `node_modules/@pagesmith/core/docs/agents/recipes.md`
+   - `node_modules/@pagesmith/docs/docs/agents/usage.md`
+   - `node_modules/@pagesmith/docs/docs/agents/recipes.md`
+   - If running inside the Pagesmith monorepo, use:
+     - `packages/core/docs/agents/usage.md`
+     - `packages/docs/docs/agents/usage.md`
 
-2. **Scan docs for references** — Grep `docs/content/` for keywords related to the changed feature. Read each matching file to determine if the content is accurate.
+2. **Audit implementation** — Read the source files that changed and map deltas against package guidance.
 
-3. **Scan examples for references** — Grep `examples/` (both content markdown files and READMEs) for the same keywords. Also check template files (`templates/*.ejs`, `templates/*.hbs`) and runtime files (`src/runtime.ts`).
+3. **Scan docs for references** — Grep `docs/content/` for keywords related to the changed feature. Read each matching file to determine if the content is accurate.
 
-4. **Fix discrepancies** — Edit each file to match the current implementation. Common patterns:
+4. **Scan examples for references** — Grep `examples/` (both content markdown files and READMEs) for the same keywords. Also check template files (`templates/*.ejs`, `templates/*.hbs`) and runtime files (`src/runtime.ts`).
+
+5. **Fix discrepancies** — Edit each file to match the current implementation and package guidance. Common patterns:
    - Feature described as "manual JS" but now handled by a plugin → remove manual JS docs, reference the plugin
    - API renamed or signature changed → update code examples
    - Config option added/removed → update config reference tables
    - CSS export changed → update import path tables
 
-5. **Verify consistency** — After edits, grep for the old terminology to confirm no references remain.
+6. **Verify consistency** — After edits, grep for the old terminology to confirm no references remain.
 
 ## Key facts about current implementation
 

@@ -4,26 +4,33 @@
   orderBy: 'manual',
   series: [
     {
-      slug: 'getting-started',
-      displayName: 'Getting Started',
-      articles: [
-        'choose-your-path',
-        'getting-started',
-        'collections-and-loaders',
-        'validation-and-rendering',
-      ],
+      slug: 'onboarding',
+      displayName: 'Onboarding',
+      articles: ['choose-your-path', 'ai-assistants', 'prompts-cookbook', 'mcp-setup'],
+    },
+    {
+      slug: 'manual-setup',
+      displayName: 'Manual Setup',
+      description: 'Step-by-step setup when you want to understand every detail.',
+      articles: ['getting-started', 'docs-getting-started'],
+    },
+    {
+      slug: 'deep-dives',
+      displayName: 'Deep Dives',
+      description: 'Collections, validation, and the content pipeline in detail.',
+      articles: ['collections-and-loaders', 'validation-and-rendering'],
     },
     {
       slug: 'docs-package',
       displayName: 'Docs Package',
       description: 'Features specific to @pagesmith/docs.',
-      articles: ['docs-getting-started', 'meta-and-navigation', 'search', 'layout-overrides'],
+      articles: ['meta-and-navigation', 'layout-overrides'],
     },
     {
       slug: 'core-features',
       displayName: 'Core Features',
       description: 'Features available in @pagesmith/core.',
-      articles: ['markdown-features', 'code-blocks', 'ai-assistants'],
+      articles: ['markdown-features', 'code-blocks'],
     },
     {
       slug: 'framework-integrations',
@@ -31,14 +38,17 @@
       description: 'Self-contained example sites built on the same Pagesmith content model.',
       articles: [
         'frameworks',
-        'framework-react',
-        'framework-solid',
-        'framework-svelte',
-        'framework-vanilla-ejs',
-        'framework-vanilla-hbs',
+        'framework-vite-apps',
+        'framework-template-engines',
         'framework-doc-site',
         'framework-blog-site',
       ],
+    },
+    {
+      slug: 'help',
+      displayName: 'Help',
+      description: 'Troubleshooting and common solutions.',
+      articles: ['troubleshooting'],
     },
   ],
 }

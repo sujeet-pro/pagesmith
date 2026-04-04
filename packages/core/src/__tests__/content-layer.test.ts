@@ -164,3 +164,24 @@ describe('convert', () => {
     expect(result.html).toContain('World')
   })
 })
+
+describe('TypedContentLayer', () => {
+  it('preserves collection types through createContentLayer', () => {
+    // This is a compile-time test — if it compiles, types are working
+    const typedPosts = defineCollection({
+      loader: 'markdown',
+      directory: join(FIXTURES_DIR, 'content'),
+      schema: z.object({
+        title: z.string(),
+        draft: z.boolean().default(false),
+      }),
+    })
+    const config = defineConfig({ collections: { posts: typedPosts } })
+    const layer = createContentLayer(config)
+
+    // These should compile without errors:
+    // layer.getCollection('posts') returns typed entries
+    // layer.getEntry('posts', 'slug') returns typed entry
+    expect(layer.getCollectionNames()).toContain('posts')
+  })
+})

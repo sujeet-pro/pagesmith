@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { basename, resolve } from 'path'
 import { createInterface } from 'readline/promises'
 import { detectGitOrigin } from '../config'
+import { startDocsMcpServer } from '../mcp/server'
 import { build, preview, startDev } from '../site'
 
 type ServerCliArgs = {
@@ -18,6 +19,13 @@ type InitCliArgs = {
   ai?: boolean
   config?: string
   yes?: boolean
+  noLlms?: boolean
+}
+
+type McpCliArgs = {
+  config?: string
+  root?: string
+  stdio?: boolean
 }
 
 function parseServerArgs(argv: string[]): ServerCliArgs {
@@ -91,6 +99,44 @@ function parseInitArgs(argv: string[]): InitCliArgs {
       continue
     }
 
+    if (arg === '--no-llms') {
+      args.noLlms = true
+      continue
+    }
+
+    if (arg.startsWith('-')) {
+      throw new Error(`Unknown option: ${arg}`)
+    }
+  }
+
+  return args
+}
+
+function parseMcpArgs(argv: string[]): McpCliArgs {
+  const args: McpCliArgs = { stdio: true }
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index]!
+
+    if (arg === '--config') {
+      const value = argv[++index]
+      if (!value) throw new Error('--config requires a path')
+      args.config = value
+      continue
+    }
+
+    if (arg === '--root') {
+      const value = argv[++index]
+      if (!value) throw new Error('--root requires a path')
+      args.root = value
+      continue
+    }
+
+    if (arg === '--stdio') {
+      args.stdio = true
+      continue
+    }
+
     if (arg.startsWith('-')) {
       throw new Error(`Unknown option: ${arg}`)
     }
@@ -115,10 +161,12 @@ Commands:
   dev [options]                        Start a docs dev server
   build [options]                      Build a docs site
   preview [options]                    Preview the built docs site
+  mcp [options]                        Start stdio MCP server for docs tooling
 
 Init options:
   -y, --yes                           Skip prompts, use defaults
   --ai                                Install AI integrations (skills, guidelines)
+  --no-llms                           Skip llms.txt / llms-full.txt generation during AI install
   --config <path>                     Config file path
 
 Server options:
@@ -127,6 +175,11 @@ Server options:
   --out-dir <path>                    Output directory (overrides config)
   --base-path <path>                  Base URL path prefix (overrides config)
   --config <path>                     Config file path
+
+MCP options:
+  --stdio                             Use stdio transport (default)
+  --config <path>                     Config file path used by docs_* tools
+  --root <path>                       Project root to resolve config/content paths
 
 General:
   -v, --version                       Print version
@@ -321,6 +374,7 @@ async function runInit(argv: string[]): Promise<void> {
       assistants: 'all',
       scope: 'project',
       profile: 'docs',
+      includeLlms: !args.noLlms,
     })
     for (const result of results) {
       created.push(result.path)
@@ -371,6 +425,14 @@ async function runPreview(argv: string[]): Promise<void> {
   })
 }
 
+async function runMcp(argv: string[]): Promise<void> {
+  const args = parseMcpArgs(argv)
+  await startDocsMcpServer({
+    configPath: args.config,
+    rootDir: args.root,
+  })
+}
+
 async function main(): Promise<void> {
   const [command, ...rest] = process.argv.slice(2)
 
@@ -401,6 +463,11 @@ async function main(): Promise<void> {
 
   if (command === 'preview') {
     await runPreview(rest)
+    return
+  }
+
+  if (command === 'mcp') {
+    await runMcp(rest)
     return
   }
 

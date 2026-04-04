@@ -6,7 +6,7 @@
  */
 
 import type { ValidationIssue } from './schema-validator'
-import type { ContentValidator, MdastNode, ValidatorContext } from './types'
+import type { ContentValidator, MdastNode, ResolvedValidatorContext } from './types'
 
 /** Known meta properties accepted by Expressive Code and its plugins. */
 const KNOWN_META_PROPS = new Set([
@@ -55,8 +55,8 @@ function collectCodeBlocks(node: MdastNode): MdastNode[] {
 export const codeBlockValidator: ContentValidator = {
   name: 'code-blocks',
 
-  validate(ctx: ValidatorContext): ValidationIssue[] {
-    if (!ctx.rawContent || !ctx.mdast) return []
+  validate(ctx: ResolvedValidatorContext): ValidationIssue[] {
+    if (!ctx.rawContent) return []
 
     const issues: ValidationIssue[] = []
     const tree = ctx.mdast as MdastNode

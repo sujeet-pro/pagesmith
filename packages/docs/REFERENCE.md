@@ -1,5 +1,7 @@
 # @pagesmith/docs — AI Reference
 
+Versioning note: files shipped in `node_modules/@pagesmith/docs/docs/*` match the exact installed package version. The Pagesmith docs site content in this repository reflects the latest implementation.
+
 Link this file from your project's CLAUDE.md or AGENTS.md to give AI assistants a comprehensive reference for `@pagesmith/docs`.
 
 ```markdown
@@ -38,15 +40,16 @@ For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/RE
 ## CLI Commands
 
 ```bash
-pagesmith init [--ai] [--config path]   # Initialize config + content + AI integrations
+pagesmith init [--ai] [--no-llms] [--config path]   # Initialize config + content + AI integrations
 pagesmith dev [--port N] [--open]        # Development server with live reload
 pagesmith build [--out-dir path]         # Production build with Pagefind indexing
 pagesmith preview [--port N]             # Preview built site locally
+pagesmith mcp --stdio [--config path]    # Start stdio MCP server for docs tooling
 ```
 
 ### pagesmith init
 
-Creates a minimal `pagesmith.config.json5` and a starter `docs/` directory structure. Site metadata (name, description) is auto-detected from `package.json`. With `--ai`, also installs AI assistant integrations (CLAUDE.md, skills, markdown guidelines).
+Creates a minimal `pagesmith.config.json5` and a starter `docs/` directory structure. Site metadata (name, description) is auto-detected from `package.json`. With `--ai`, also installs AI assistant integrations (CLAUDE.md, skills, markdown guidelines). Add `--no-llms` to skip writing `llms.txt` and `llms-full.txt` when the project already maintains its own LLM files.
 
 ### Dev Server
 
@@ -370,6 +373,7 @@ const issues = validateConfig(config)
 | `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig, validateConfig) |
 | `@pagesmith/docs/schemas` | Zod schemas for config, layout props, page data |
 | `@pagesmith/docs/preset` | Docs preset for integration |
+| `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
 
 ## GitHub Pages Deployment
 

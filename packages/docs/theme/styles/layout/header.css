@@ -65,6 +65,9 @@
 
 /* ─── Logo / site name ─── */
 .doc-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--color-text);
@@ -73,6 +76,14 @@
 }
 .doc-logo:hover {
   color: var(--color-text-secondary);
+}
+.doc-logo-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.doc-logo-icon svg {
+  width: 1.4em;
+  height: 1.4em;
 }
 
 /* ─── Search trigger — push to far right when nav is hidden ─── */

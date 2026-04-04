@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
     "paths": {
       "@pagesmith/core": ["../core/src/index.ts"],
       "@pagesmith/core/*": ["../core/src/*/index.ts"]

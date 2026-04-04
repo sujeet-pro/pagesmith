@@ -145,6 +145,8 @@ export async function renderDocs(
 
   const base = config.basePath
 
+  console.log(`  Rendering ${pages.length} pages...`)
+
   // Build edit link URL helper
   const buildEditUrl = config.editLink
     ? (sourcePath: string) => {

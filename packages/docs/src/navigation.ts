@@ -381,6 +381,7 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
         ? config.socialImage
         : `${config.basePath}/${config.socialImage.replace(/^\//, '')}`
       : undefined,
+    icon: config.icon,
     favicon: config.favicon !== false ? `${config.basePath}/${basename(config.favicon)}` : false,
     faviconFallback: config.faviconFallback
       ? `${config.basePath}/${basename(config.faviconFallback)}`

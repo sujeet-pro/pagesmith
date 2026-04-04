@@ -8,14 +8,40 @@
  * - Validate all entries (validate)
  */
 
+import { watch as fsWatch, type FSWatcher } from 'fs'
+import { resolve as pathResolve } from 'path'
+
 import { convert as coreConvert } from './convert'
 import type { ConvertResult } from './convert'
 import type { MarkdownConfig } from './schemas/markdown-config'
 import type { ContentEntry } from './entry'
-import type { CollectionDef } from './schemas/collection'
+import type { CollectionDef, InferCollectionData } from './schemas/collection'
 import type { ContentLayerConfig } from './schemas/content-config'
 import { ContentStore } from './store'
 import type { ValidationResult } from './validation'
+
+export type WatchEvent = {
+  collection: string
+  event: string
+  filename: string | null
+}
+
+export type WatchHandle = {
+  close(): void
+}
+
+export type WatchCallback = (event: WatchEvent) => void
+
+/** Typed content layer that preserves collection schema types. */
+export type TypedContentLayer<T extends Record<string, CollectionDef>> = ContentLayer & {
+  getCollection<K extends keyof T & string>(
+    name: K,
+  ): Promise<ContentEntry<InferCollectionData<T[K]>>[]>
+  getEntry<K extends keyof T & string>(
+    collection: K,
+    slug: string,
+  ): Promise<ContentEntry<InferCollectionData<T[K]>> | undefined>
+}
 
 export interface ContentLayer {
   /** Get all entries in a collection. */
@@ -47,6 +73,15 @@ export interface ContentLayer {
 
   /** Get all collection definitions. */
   getCollections(): Record<string, CollectionDef>
+
+  /** Invalidate entries in a collection that match a predicate. Returns count of invalidated entries. */
+  invalidateWhere(collection: string, predicate: (entry: ContentEntry) => boolean): Promise<number>
+
+  /** Watch collection directories for changes. Returns a handle to stop watching. */
+  watch(callback: WatchCallback): WatchHandle
+
+  /** Get cache statistics for debugging and monitoring. */
+  getCacheStats(): { collections: number; entries: Record<string, number>; totalEntries: number }
 }
 
 export type LayerConvertOptions = {
@@ -99,6 +134,13 @@ class ContentLayerImpl implements ContentLayer {
     this.store.invalidateAll()
   }
 
+  async invalidateWhere(
+    collection: string,
+    predicate: (entry: ContentEntry) => boolean,
+  ): Promise<number> {
+    return this.store.invalidateWhere(collection, predicate)
+  }
+
   async validate(collection?: string): Promise<ValidationResult[]> {
     const names = collection ? [collection] : Object.keys(this.config.collections)
     const results: ValidationResult[] = []
@@ -143,9 +185,53 @@ class ContentLayerImpl implements ContentLayer {
   getCollections(): Record<string, CollectionDef> {
     return { ...this.config.collections }
   }
+
+  watch(callback: WatchCallback): WatchHandle {
+    const watchers: FSWatcher[] = []
+    const root = this.config.root ?? process.cwd()
+    const timers = new Map<string, ReturnType<typeof setTimeout>>()
+
+    for (const [name, def] of Object.entries(this.config.collections)) {
+      const dir = pathResolve(root, def.directory)
+      try {
+        const watcher = fsWatch(dir, { recursive: true }, (event, filename) => {
+          // Debounce: coalesce rapid changes per collection within 100ms
+          const existing = timers.get(name)
+          if (existing) clearTimeout(existing)
+          timers.set(
+            name,
+            setTimeout(() => {
+              timers.delete(name)
+              void this.store.invalidateCollection(name)
+              callback({ collection: name, event, filename })
+            }, 100),
+          )
+        })
+        watchers.push(watcher)
+      } catch {
+        // Directory may not exist yet — skip silently
+      }
+    }
+
+    return {
+      close() {
+        for (const w of watchers) w.close()
+        for (const t of timers.values()) clearTimeout(t)
+        timers.clear()
+      },
+    }
+  }
+
+  getCacheStats() {
+    return this.store.getCacheStats()
+  }
 }
 
 /** Create a new content layer from a configuration. */
+export function createContentLayer<T extends Record<string, CollectionDef>>(
+  config: ContentLayerConfig & { collections: T },
+): TypedContentLayer<T>
+export function createContentLayer(config: ContentLayerConfig): ContentLayer
 export function createContentLayer(config: ContentLayerConfig): ContentLayer {
   return new ContentLayerImpl(config)
 }

@@ -1,0 +1,59 @@
+# @pagesmith/docs Full AI Reference
+
+This file is the package-shipped source of truth for AI assistants using `@pagesmith/docs`.
+
+## Versioning note
+
+- Package-shipped docs in `node_modules/@pagesmith/docs/docs/` are version-matched to what is installed.
+- The Pagesmith docs site is maintained for latest behavior and can differ from older installed versions.
+
+## Priority order
+
+1. `docs/agents/usage.md` for package rules and expected docs structure.
+2. `docs/agents/recipes.md` for common docs-site tasks.
+3. `REFERENCE.md` for complete config, CLI, and schema details.
+
+## Key rules
+
+- Use `@pagesmith/docs` for convention-based docs sites.
+- Keep docs structure rooted at `content/` with `content/README.md` as home.
+- Use `meta.json5` and frontmatter for ordering and labels, not hardcoded nav lists.
+- Keep search configuration inside `pagesmith.config.json5`; Pagefind is built in.
+- Use `theme.layouts` keys (`home`, `page`, `notFound`) for layout overrides.
+- Prefer the package MCP server for config/page introspection: `pagesmith mcp --stdio`.
+- Prefer AI-first setup with `pagesmith init --ai` so docs structure + assistant context stay aligned from day one.
+- Keep onboarding first in manual nav order (for example `getting-started` first in `guide/meta.json5`).
+
+## Exposed files
+
+- `node_modules/@pagesmith/docs/docs/llms.txt`
+- `node_modules/@pagesmith/docs/docs/llms-full.txt`
+- `node_modules/@pagesmith/docs/docs/agents/usage.md`
+- `node_modules/@pagesmith/docs/docs/agents/recipes.md`
+- `node_modules/@pagesmith/docs/docs/agents/errors.md`
+- `node_modules/@pagesmith/docs/docs/agents/changelog-notes.md`
+- `node_modules/@pagesmith/docs/docs/agents/AGENTS.md.template`
+- `node_modules/@pagesmith/docs/dist/mcp/server.mjs`
+
+## Pointer snippet for consuming projects
+
+Add this snippet to project-level memory files:
+
+`Read node_modules/@pagesmith/docs/docs/agents/usage.md before suggesting or editing @pagesmith/docs setup.`
+
+## Navigation types
+
+`@pagesmith/docs` exports navigation and content types for theme customization:
+
+Types: `NavItem`, `SidebarSection`, `SidebarItem`, `PrevNextLink`, `SiteModel`, `DocsPage`, `DocsSectionMeta`, `DocsRootMeta`
+Functions: `buildSiteModel`, `getPrevNext`, `getSitePayload`
+
+## MCP tools
+
+The docs MCP server (`pagesmith mcp --stdio`) exposes:
+
+- `docs_validate_config` — validate pagesmith.config.json5
+- `docs_resolve_config` — resolve effective config with defaults
+- `docs_list_pages` — list all pages with routes and source files
+- `docs_get_page` — get a page by slug with markdown source
+- `docs_search_pages` — search pages by query (title, description, content)

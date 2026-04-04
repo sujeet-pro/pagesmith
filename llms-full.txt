@@ -2,6 +2,14 @@
 
 Pagesmith is a filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope.
 
+## Agent Onboarding (Read In This Order)
+
+1. Run `npx pagesmith init --ai` in the target project to scaffold assistant context and markdown guidelines.
+2. For docs workflows, read `node_modules/@pagesmith/docs/docs/agents/usage.md`.
+3. For core/custom-site workflows, read `node_modules/@pagesmith/core/docs/agents/usage.md`.
+4. Use `node_modules/@pagesmith/docs/docs/llms.txt` or `node_modules/@pagesmith/core/docs/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
+5. If MCP is enabled, use `pagesmith mcp --stdio` (docs) and `@pagesmith/core/mcp` tools for collection-aware inspection and validation.
+
 ## Packages
 
 - `@pagesmith/core`: shared content/runtime layer with collections, loaders, markdown pipeline (Expressive Code), validation, JSX runtime, CSS builder, `z` re-export, runtime CSS exports, and Vite plugins (`pagesmithContent`, `pagesmithSsg`)
@@ -40,7 +48,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 
 ### Markdown Pipeline
 - `processMarkdown(raw, config?, preExtracted?)` → `{ html, headings, frontmatter }`
-- Pipeline: remark-parse → remark-gfm → remark-math → remark-frontmatter → remark-github-alerts → remark-smartypants → (user remark plugins) → remark-rehype → rehype-expressive-code → rehype-mathjax → rehype-slug → rehype-autolink-headings → heading extraction → (user rehype plugins) → rehype-external-links → rehype-accessible-emojis → rehype-stringify
+- Pipeline: remark-parse → remark-gfm → remark-math → remark-frontmatter → remark-github-alerts → remark-smartypants → (user remark plugins) → remark-rehype → rehype-mathjax → rehype-expressive-code → rehype-slug → rehype-autolink-headings → rehype-external-links → rehype-accessible-emojis → heading extraction → (user rehype plugins) → rehype-stringify
 - Processor cached per MarkdownConfig reference via WeakMap
 
 ### Markdown Features

@@ -74,6 +74,7 @@ export default function DocHome(props: Props) {
     >
       <DocHeader
         siteName={site.name}
+        siteIcon={site.icon}
         basePath={site.basePath}
         homeLink={site.homeLink}
         navItems={site.navItems}

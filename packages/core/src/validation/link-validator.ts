@@ -8,7 +8,7 @@
 import { existsSync } from 'fs'
 import { dirname, resolve } from 'path'
 import type { ValidationIssue } from './schema-validator'
-import type { ContentValidator, MdastNode, ValidatorContext } from './types'
+import type { ContentValidator, MdastNode, ResolvedValidatorContext } from './types'
 
 /** Walk MDAST tree, collecting link and image nodes. */
 function collectLinks(node: MdastNode): Array<{ url: string; line?: number }> {
@@ -69,8 +69,8 @@ export function createLinkValidator(options?: LinkValidatorOptions): ContentVali
   return {
     name: 'links',
 
-    validate(ctx: ValidatorContext): ValidationIssue[] {
-      if (!ctx.rawContent || !ctx.mdast) return []
+    validate(ctx: ResolvedValidatorContext): ValidationIssue[] {
+      if (!ctx.rawContent) return []
 
       const issues: ValidationIssue[] = []
       const tree = ctx.mdast as MdastNode

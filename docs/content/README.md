@@ -5,9 +5,12 @@ tagline: File-Based CMS for the Filesystem-First Web
 description: Typed content collections, convention-based docs, and configurable assistant artifacts — powered by Vite.
 install: npm install @pagesmith/docs
 actions:
-  - text: Get Started
-    link: /guide/getting-started
+  - text: Start with AI
+    link: /guide/choose-your-path
     theme: brand
+  - text: Manual Setup
+    link: /guide/docs-getting-started
+    theme: alt
   - text: Framework Guides
     link: /guide/frameworks
     theme: alt
@@ -102,6 +105,10 @@ Define collections in `content.config.ts`, configure Vite with `pagesmithContent
 
 ## Next Steps
 
+- [Choose Your Path](/guide/choose-your-path) — pick AI-first or manual setup for docs vs custom sites
+- [AI Assistants](/guide/ai-assistants) — install assistant context files and workflows
+- [Prompts Cookbook](/guide/prompts-cookbook) — copy-paste prompts for common tasks
+- [MCP Setup](/guide/mcp-setup) — connect your assistant to docs-aware tooling
 - [Getting Started](/guide/getting-started) — define your first collection and content layer
 - [Code Blocks](/guide/code-blocks) — syntax highlighting, line numbers, tabs, and more
 - [Framework Guides](/guide/frameworks) — complete setup instructions for every supported framework

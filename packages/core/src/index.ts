@@ -9,7 +9,15 @@
 export { defineCollection, defineCollections, defineConfig } from './config'
 
 // ── Content Layer ──
-export { type ContentLayer, type LayerConvertOptions, createContentLayer } from './content-layer'
+export {
+  type ContentLayer,
+  type LayerConvertOptions,
+  type TypedContentLayer,
+  type WatchCallback,
+  type WatchEvent,
+  type WatchHandle,
+  createContentLayer,
+} from './content-layer'
 
 // ── Entry ──
 export { ContentEntry, type RenderedContent } from './entry'
@@ -61,6 +69,7 @@ export type { ContentLayerConfig, ContentPlugin } from './schemas/content-config
 // ── Validation ──
 export type {
   ContentValidator,
+  ResolvedValidatorContext,
   ValidationEntryResult,
   ValidationIssue,
   ValidationResult,
@@ -85,19 +94,6 @@ export {
   YamlLoader,
 } from './loaders'
 export type { Loader, LoaderResult, LoaderType } from './loaders/types'
-
-// ── AI Companion Files ──
-export {
-  getAiArtifactContent,
-  getAiArtifacts,
-  installAiArtifacts,
-  type AiArtifact,
-  type AiArtifactKind,
-  type AiAssistant,
-  type AiInstallOptions,
-  type AiInstallResult,
-  type AiInstallScope,
-} from './ai/index'
 
 // ── Re-export zod for consumer convenience ──
 export { z } from 'zod'

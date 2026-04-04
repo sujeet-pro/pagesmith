@@ -1,6 +1,7 @@
 import type { MarkdownConfig } from '@pagesmith/core/markdown'
 import { execSync } from 'child_process'
-import { existsSync, readFileSync, readdirSync, statSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
 import JSON5 from 'json5'
 import { basename, dirname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
@@ -49,6 +50,8 @@ export type DocsUserConfig = {
   }
   /** Path to favicon file relative to project root. Defaults to 'public/favicon.svg'. Set to false to disable. */
   favicon?: string | false
+  /** SVG string or path for the header logo icon. Defaults to the first letter of the site name. Set to false to disable. */
+  icon?: string | false
   /** Show "Edit this page" link on each page. */
   editLink?: {
     /** GitHub/GitLab repo URL (e.g. 'https://github.com/user/repo') */
@@ -125,6 +128,8 @@ export type ResolvedDocsConfig = {
   socialImage?: string
   /** Resolved absolute path to favicon file, or false if disabled. */
   favicon: string | false
+  /** SVG string for the header logo icon, or false if disabled. */
+  icon: string | false
   /** Resolved absolute path to apple-touch-icon, or false if not found. */
   appleTouchIcon: string | false
   /** Resolved absolute path to ICO fallback (when primary favicon is SVG), or false. */
@@ -285,6 +290,9 @@ export function resolveDocsConfig(
   const contentDir = resolveContentDir(rootDir, userConfig.contentDir)
   const publicDir = resolve(rootDir, userConfig.publicDir ?? 'public')
 
+  // Resolve site name early so it can be used for default favicon generation
+  const siteName = userConfig.name ?? userConfig.title ?? pkgDisplayName ?? packageName
+
   // Resolve favicon path
   let resolvedFavicon: string | false
   let resolvedFaviconFallback: string | false = false
@@ -293,7 +301,7 @@ export function resolveDocsConfig(
   } else if (typeof userConfig.favicon === 'string') {
     resolvedFavicon = resolve(rootDir, userConfig.favicon)
   } else {
-    // Default: check public/favicon.svg, then public/favicon.ico, then bundled default
+    // Default: check public/favicon.svg, then public/favicon.ico, then generate from site name
     const svgPath = join(publicDir, 'favicon.svg')
     const icoPath = join(publicDir, 'favicon.ico')
     if (existsSync(svgPath)) {
@@ -305,9 +313,33 @@ export function resolveDocsConfig(
     } else if (existsSync(icoPath)) {
       resolvedFavicon = icoPath
     } else {
-      const corePkgDir = dirname(fileURLToPath(import.meta.resolve('@pagesmith/core/package.json')))
-      resolvedFavicon = join(corePkgDir, 'assets', 'favicon.svg')
+      // Generate a favicon SVG using the first letter of the site name
+      const letter = (siteName.charAt(0) || 'P').toUpperCase()
+      resolvedFavicon = generateDefaultFavicon(letter)
     }
+  }
+
+  // Resolve header icon
+  let resolvedIcon: string | false
+  if (userConfig.icon === false) {
+    resolvedIcon = false
+  } else if (typeof userConfig.icon === 'string') {
+    // User provided an SVG string or file path
+    if (userConfig.icon.trimStart().startsWith('<')) {
+      resolvedIcon = userConfig.icon
+    } else {
+      const iconPath = resolve(rootDir, userConfig.icon)
+      resolvedIcon = existsSync(iconPath) ? readFileSync(iconPath, 'utf-8') : false
+    }
+  } else {
+    // Default: generate SVG from first letter of site name
+    const letter = (siteName.charAt(0) || 'P').toUpperCase()
+    resolvedIcon = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">',
+      '  <rect width="32" height="32" rx="6" fill="#111"/>',
+      `  <text x="16" y="24" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="20" font-weight="700">${letter}</text>`,
+      '</svg>',
+    ].join('')
   }
 
   // Detect apple-touch-icon in public directory
@@ -362,8 +394,8 @@ export function resolveDocsConfig(
     publicDir,
     basePath,
     homeLink: userConfig.homeLink,
-    name: userConfig.name ?? userConfig.title ?? pkgDisplayName ?? packageName,
-    title: userConfig.title ?? userConfig.name ?? pkgDisplayName ?? packageName,
+    name: siteName,
+    title: userConfig.title ?? siteName,
     description:
       userConfig.description ?? pkg?.description ?? 'Documentation site powered by @pagesmith/docs',
     origin: userConfig.origin ?? pkg?.homepage ?? gitInfo?.origin ?? 'https://example.com',
@@ -379,6 +411,7 @@ export function resolveDocsConfig(
       collapsible: userConfig.sidebar?.collapsible ?? true,
     },
     favicon: resolvedFavicon,
+    icon: resolvedIcon,
     faviconFallback: resolvedFaviconFallback,
     appleTouchIcon: resolvedAppleTouchIcon,
     editLink,
@@ -400,6 +433,27 @@ export function resolveDocsConfig(
     assets,
     _userConfig: userConfig,
   }
+}
+
+/**
+ * Generate a default favicon SVG with a single letter on a dark rounded-rect background.
+ * Returns the path to a cached temp file so the existing copy pipeline can use it.
+ */
+function generateDefaultFavicon(letter: string): string {
+  const cacheDir = join(tmpdir(), 'pagesmith-favicon', letter)
+  const filePath = join(cacheDir, 'favicon.svg')
+  if (!existsSync(filePath)) {
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">',
+      '  <rect width="32" height="32" rx="6" fill="#111"/>',
+      `  <text x="16" y="24" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="20" font-weight="700">${letter}</text>`,
+      '</svg>',
+      '',
+    ].join('\n')
+    mkdirSync(cacheDir, { recursive: true })
+    writeFileSync(filePath, svg)
+  }
+  return filePath
 }
 
 export function readJson5File<T>(filePath: string): T | undefined {

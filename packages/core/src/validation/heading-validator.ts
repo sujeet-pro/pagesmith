@@ -5,7 +5,7 @@
  */
 
 import type { ValidationIssue } from './schema-validator'
-import type { ContentValidator, MdastNode, ValidatorContext } from './types'
+import type { ContentValidator, MdastNode, ResolvedValidatorContext } from './types'
 
 /** Extract plain text from a heading node's children. */
 function getTextContent(node: MdastNode): string {
@@ -38,8 +38,8 @@ function collectHeadings(node: MdastNode): Array<{ depth: number; text: string; 
 export const headingValidator: ContentValidator = {
   name: 'headings',
 
-  validate(ctx: ValidatorContext): ValidationIssue[] {
-    if (!ctx.rawContent || !ctx.mdast) return []
+  validate(ctx: ResolvedValidatorContext): ValidationIssue[] {
+    if (!ctx.rawContent) return []
 
     const issues: ValidationIssue[] = []
     const tree = ctx.mdast as MdastNode

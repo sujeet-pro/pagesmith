@@ -15,4 +15,16 @@ export {
 } from './site'
 export { withBase } from './config'
 export { docsPreset, type DocsPreset } from './preset'
+export { createDocsMcpServer, startDocsMcpServer, type DocsMcpServerOptions } from './mcp/server'
 export { Html } from '../theme/components/Html'
+export type {
+  NavItem,
+  SidebarSection,
+  SidebarItem,
+  PrevNextLink,
+  SiteModel,
+  DocsPage,
+  DocsSectionMeta,
+  DocsRootMeta,
+} from './content'
+export { buildSiteModel, getPrevNext, getSitePayload } from './navigation'

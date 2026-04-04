@@ -173,7 +173,10 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
     return 'content'
   }
 
-  async function doRebuild(type: 'full' | 'content'): Promise<void> {
+  async function doRebuild(type: 'full' | 'content', changedPath?: string): Promise<void> {
+    if (type === 'full' && changedPath && resolve(changedPath) === resolve(configPath)) {
+      console.log('  \x1b[36mConfig changed, rebuilding...\x1b[0m')
+    }
     const start = performance.now()
     if (type === 'full') {
       await build({ configPath })
@@ -281,7 +284,7 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 
     rebuilding = true
     try {
-      await doRebuild(changeType)
+      await doRebuild(changeType, changedPath)
       notifyClients()
     } catch (err) {
       console.error('Rebuild failed:', err instanceof Error ? err.message : err)

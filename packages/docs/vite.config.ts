@@ -5,6 +5,7 @@ export default defineConfig({
     entry: {
       index: 'src/index.ts',
       'cli/bin': 'src/cli/bin.ts',
+      'mcp/server': 'src/mcp/server.ts',
       preset: 'src/preset.ts',
       'schemas/index': 'src/schemas/index.ts',
     },
