@@ -527,6 +527,111 @@ describe('buildSiteModel', () => {
     const setupItem = sidebar![0].items.find((i) => i.title === 'Parent Page')
     expect(setupItem).toBeDefined()
   })
+
+  it('builds folderPaths pointing to index page when it exists', () => {
+    const pages = [
+      mockPage({
+        title: 'Guide Overview',
+        routePath: '/guide',
+        contentSlug: 'guide',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Getting Started',
+        routePath: '/guide/getting-started',
+        contentSlug: 'guide/getting-started',
+        section: 'guide',
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+
+    expect(model.folderPaths.get('guide')).toBe('/guide')
+  })
+
+  it('builds folderPaths pointing to first child when no index page', () => {
+    const pages = [
+      mockPage({
+        title: 'Getting Started',
+        routePath: '/guide/getting-started',
+        contentSlug: 'guide/getting-started',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Advanced',
+        routePath: '/guide/advanced',
+        contentSlug: 'guide/advanced',
+        section: 'guide',
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+
+    expect(model.folderPaths.get('guide')).toBe('/guide/advanced')
+  })
+
+  it('includes basePath in folderPaths', () => {
+    const config = { ...mockConfig, basePath: '/docs' }
+    const pages = [
+      mockPage({
+        title: 'Intro',
+        routePath: '/guide/intro',
+        contentSlug: 'guide/intro',
+        section: 'guide',
+      }),
+    ]
+
+    const model = buildSiteModel(config, pages)
+
+    expect(model.folderPaths.get('guide')).toBe('/docs/guide/intro')
+  })
+
+  it('builds folderPaths for nested folders without index pages', () => {
+    const pages = [
+      mockPage({
+        title: 'Setup',
+        routePath: '/guide/advanced/setup',
+        contentSlug: 'guide/advanced/setup',
+        section: 'guide',
+        frontmatter: { order: 1 },
+      }),
+      mockPage({
+        title: 'Config',
+        routePath: '/guide/advanced/config',
+        contentSlug: 'guide/advanced/config',
+        section: 'guide',
+        frontmatter: { order: 2 },
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+
+    expect(model.folderPaths.get('guide')).toBe('/guide/advanced/setup')
+    expect(model.folderPaths.get('guide/advanced')).toBe('/guide/advanced/setup')
+  })
+
+  it('respects frontmatter order when picking first child for folderPaths', () => {
+    const pages = [
+      mockPage({
+        title: 'Zeta (ordered first)',
+        routePath: '/guide/zeta',
+        contentSlug: 'guide/zeta',
+        section: 'guide',
+        frontmatter: { order: 1 },
+      }),
+      mockPage({
+        title: 'Alpha (ordered second)',
+        routePath: '/guide/alpha',
+        contentSlug: 'guide/alpha',
+        section: 'guide',
+        frontmatter: { order: 2 },
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+
+    expect(model.folderPaths.get('guide')).toBe('/guide/zeta')
+  })
 })
 
 // ---------------------------------------------------------------------------

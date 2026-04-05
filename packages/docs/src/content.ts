@@ -92,6 +92,8 @@ export type SiteModel = {
   navItems: NavItem[]
   sidebarBySection: Map<string, SidebarSection[]>
   pageByPath: Map<string, DocsPage>
+  /** Maps folder slugs to resolved URL paths (with basePath). Folders without an index page resolve to their first child page. */
+  folderPaths: Map<string, string>
   rootMeta?: DocsRootMeta
   sectionMetas: Map<string, DocsSectionMeta>
 }
@@ -274,11 +276,16 @@ function getGitLastUpdated(filePath: string): string | undefined {
 /**
  * Generate breadcrumbs from a content slug.
  * Returns array of { label, path } from root to current page.
+ *
+ * When `folderPaths` is provided, ancestor crumb links are resolved through it
+ * so that folders without an index page link to their first child page instead
+ * of producing a 404.
  */
 export function buildBreadcrumbs(
   contentSlug: string,
   title: string,
   basePath: string,
+  folderPaths?: Map<string, string>,
 ): Array<{ label: string; path: string }> {
   if (contentSlug === '/') return []
 
@@ -289,7 +296,7 @@ export function buildBreadcrumbs(
     const slug = segments.slice(0, i + 1).join('/')
     crumbs.push({
       label: toTitleCase(segments[i]),
-      path: `${basePath}/${slug}`,
+      path: folderPaths?.get(slug) ?? `${basePath}/${slug}`,
     })
   }
 

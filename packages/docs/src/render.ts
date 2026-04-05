@@ -194,7 +194,7 @@ export async function renderDocs(
 
     const sidebarSections = page.section ? model.sidebarBySection.get(page.section) : undefined
     const { prev, next } = getPrevNext(sidebarSections, urlPath)
-    const breadcrumbs = buildBreadcrumbs(page.contentSlug, page.title, base)
+    const breadcrumbs = buildBreadcrumbs(page.contentSlug, page.title, base, model.folderPaths)
     const editUrl = buildEditUrl ? buildEditUrl(page.sourcePath) : undefined
     const layout = layouts[page.layoutName] ?? layouts.page
     const output = layout({

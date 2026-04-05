@@ -299,6 +299,36 @@ describe('buildBreadcrumbs', () => {
     expect(crumbs).toHaveLength(1)
     expect(crumbs[0]).toEqual({ label: 'About', path: '' })
   })
+
+  it('uses folderPaths to resolve ancestor links', () => {
+    const folderPaths = new Map([['guide', '/guide/getting-started']])
+    const crumbs = buildBreadcrumbs('guide/advanced', 'Advanced', '', folderPaths)
+
+    expect(crumbs).toHaveLength(2)
+    expect(crumbs[0]).toEqual({ label: 'Guide', path: '/guide/getting-started' })
+    expect(crumbs[1]).toEqual({ label: 'Advanced', path: '' })
+  })
+
+  it('uses folderPaths for deeply nested ancestors', () => {
+    const folderPaths = new Map([
+      ['guide', '/docs/guide/intro'],
+      ['guide/advanced', '/docs/guide/advanced/setup'],
+    ])
+    const crumbs = buildBreadcrumbs('guide/advanced/config', 'Configuration', '/docs', folderPaths)
+
+    expect(crumbs).toHaveLength(3)
+    expect(crumbs[0]).toEqual({ label: 'Guide', path: '/docs/guide/intro' })
+    expect(crumbs[1]).toEqual({ label: 'Advanced', path: '/docs/guide/advanced/setup' })
+    expect(crumbs[2]).toEqual({ label: 'Configuration', path: '' })
+  })
+
+  it('falls back to slug-based path when folder is not in map', () => {
+    const folderPaths = new Map([['guide', '/guide/intro']])
+    const crumbs = buildBreadcrumbs('guide/advanced/config', 'Configuration', '', folderPaths)
+
+    expect(crumbs[0]).toEqual({ label: 'Guide', path: '/guide/intro' })
+    expect(crumbs[1]).toEqual({ label: 'Advanced', path: '/guide/advanced' })
+  })
 })
 
 // ---------------------------------------------------------------------------

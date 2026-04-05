@@ -228,6 +228,7 @@ export function buildSiteModel(
   const sidebarBySection = new Map<string, SidebarSection[]>()
   const navItems: NavItem[] = []
   const pagesBySection = new Map<string, DocsPage[]>()
+  const folderPaths = new Map<string, string>()
 
   for (const page of pages) {
     if (!page.section) continue
@@ -305,10 +306,39 @@ export function buildSiteModel(
     }
   }
 
+  // Build folderPaths: map every ancestor folder slug to a resolved URL.
+  // Folders with an index page point to that page; folders without one
+  // point to their first child page so breadcrumbs never produce 404s.
+  const pageBySlug = new Map(pages.map((p) => [p.contentSlug, p]))
+  const folderSlugs = new Set<string>()
+  for (const page of pages) {
+    if (page.isHome) continue
+    const segments = page.contentSlug.split('/')
+    for (let i = 1; i < segments.length; i++) {
+      folderSlugs.add(segments.slice(0, i).join('/'))
+    }
+  }
+  for (const folder of folderSlugs) {
+    const indexPage = pageBySlug.get(folder)
+    if (indexPage) {
+      folderPaths.set(folder, `${config.basePath}${indexPage.routePath}`)
+      continue
+    }
+    const children = sortPages(
+      pages.filter(
+        (p) => !p.isHome && p.contentSlug.startsWith(folder + '/') && p.contentSlug !== folder,
+      ),
+    )
+    if (children.length > 0) {
+      folderPaths.set(folder, `${config.basePath}${children[0].routePath}`)
+    }
+  }
+
   return {
     navItems,
     sidebarBySection,
     pageByPath,
+    folderPaths,
     rootMeta,
     sectionMetas: sectionMetas ?? new Map(),
   }
