@@ -84,17 +84,6 @@
     "typescript": "^6.0.2",
     "vite-plus": "^0.1.13"
   },
-  "bundleDependencies": [
-    "@modelcontextprotocol/sdk",
-    "@pagesmith/core",
-    "chokidar",
-    "json5",
-    "pagefind",
-    "rolldown",
-    "unist-util-visit",
-    "ws",
-    "zod"
-  ],
   "engines": {
     "node": ">=24"
   },
