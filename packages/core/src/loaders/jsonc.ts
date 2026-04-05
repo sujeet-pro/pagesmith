@@ -59,7 +59,8 @@ export class JsoncLoader implements Loader {
     const raw = await readFile(filePath, 'utf-8')
     try {
       const stripped = stripComments(raw)
-      const data = JSON.parse(stripped)
+      const withoutTrailingCommas = stripped.replace(/,\s*([}\]])/g, '$1')
+      const data = JSON.parse(withoutTrailingCommas)
       return { data }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)

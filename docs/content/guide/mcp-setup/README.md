@@ -21,7 +21,7 @@ Add to `.claude/settings.json` (project-level) or `~/.claude/settings.json` (use
 ```json title=".claude/settings.json"
 {
   "mcpServers": {
-    "pagesmith-docs": {
+    "pagesmith": {
       "command": "npx",
       "args": ["pagesmith", "mcp", "--stdio"]
     }

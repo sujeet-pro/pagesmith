@@ -1,3 +1,8 @@
+---
+title: Configuration
+description: ContentLayerConfig and CollectionDef for @pagesmith/core, plus how docs sites use pagesmith.config.json5.
+---
+
 # Configuration
 
 This page covers all configuration formats used across Pagesmith: the `ContentLayerConfig` for `@pagesmith/core` and the `pagesmith.config.json5` for `@pagesmith/docs`.

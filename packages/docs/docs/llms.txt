@@ -2,30 +2,64 @@
 
 Version-matched AI context for the installed `@pagesmith/docs` package.
 
+## Install
+
+```bash
+npm add @pagesmith/docs
+```
+
 ## Use this package when
 
 - You want convention-based docs with minimal setup.
 - You want built-in docs navigation, default theme, and Pagefind search.
 
-## Canonical usage guidance
+## Start here
 
-- `node_modules/@pagesmith/docs/docs/agents/usage.md`
-- `node_modules/@pagesmith/docs/docs/agents/recipes.md`
-- `node_modules/@pagesmith/docs/docs/agents/errors.md`
-- `node_modules/@pagesmith/docs/docs/agents/migration.md`
-- `node_modules/@pagesmith/docs/REFERENCE.md`
-- MCP: `pagesmith mcp --stdio`
+- **Full reference:** `node_modules/@pagesmith/docs/REFERENCE.md`
+- **Agent rules + prompts:** `node_modules/@pagesmith/docs/docs/agents/usage.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/docs/docs/agents/recipes.md`
 
-## Agent-first setup tip
+## All guidance files
+
+| File | Purpose |
+|---|---|
+| `node_modules/@pagesmith/docs/REFERENCE.md` | Complete config, CLI, content, markdown, layout, deployment |
+| `node_modules/@pagesmith/docs/README.md` | User-facing quick start and API overview |
+| `node_modules/@pagesmith/docs/docs/agents/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `node_modules/@pagesmith/docs/docs/agents/recipes.md` | Task-specific step-by-step recipes |
+| `node_modules/@pagesmith/docs/docs/agents/errors.md` | Error catalog with patterns and fixes |
+| `node_modules/@pagesmith/docs/docs/agents/migration.md` | Pre-1.0 upgrade notes |
+| `node_modules/@pagesmith/docs/docs/agents/changelog-notes.md` | Version highlights |
+| `node_modules/@pagesmith/docs/docs/agents/AGENTS.md.template` | Template for project-level AGENTS.md |
+
+## Agent-first setup
 
 - Prefer `pagesmith init --ai` for initial setup so docs structure and AI context are generated together.
 - For full docs regeneration in Claude workflows, use `/ps-update-all-docs` after installation.
+- MCP server: `pagesmith mcp --stdio`
+
+## Config and paths (`pagesmith.config.json5`)
+
+- Top-level fields include **`home`**, **`server`** (e.g. `devPort`, **`previewPort`** default **4000**, `strictPort`), **`icon`**, plus `site`, `contentDir`, `outDir`, `basePath`, `theme`, etc.
+- **`contentDir`**: defaults to **`docs/`** if that directory exists in the project root, otherwise **`content/`**.
+
+## Main package exports (`@pagesmith/docs`)
+
+- From the primary entry: `build`, `defineDocsConfig`, **`loadDocsConfig`**, `preview`, **`reportConfigIssues`**, `resolveDocsConfig`, `startDev`, `validateConfig`, **`withBase`**, **`docsPreset`**, `createDocsMcpServer`, `startDocsMcpServer`, **`Html`**, **`buildSiteModel`**, **`getPrevNext`**, **`getSitePayload`**, and related types (`DocsUserConfig`, `ResolvedDocsConfig`, …).
 
 ## Project memory pointer
 
 In the consuming project, add this to `CLAUDE.md` or `AGENTS.md`:
 
-`For @pagesmith/docs usage rules, read node_modules/@pagesmith/docs/docs/agents/usage.md`
+```
+For @pagesmith/docs usage and prompts, read node_modules/@pagesmith/docs/docs/agents/usage.md
+For the full @pagesmith/docs reference, see node_modules/@pagesmith/docs/REFERENCE.md
+```
+
+## Related package
+
+- Core content layer reference: `node_modules/@pagesmith/core/REFERENCE.md`
+- Core usage: `node_modules/@pagesmith/core/docs/agents/usage.md`
 
 ## Recent changes
 

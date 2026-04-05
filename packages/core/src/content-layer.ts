@@ -213,6 +213,9 @@ class ContentLayerImpl implements ContentLayer {
             }, 100),
           )
         })
+        watcher.on('error', (err) => {
+          console.warn(`Content watcher error for "${name}":`, err.message)
+        })
         watchers.push(watcher)
       } catch {
         // Directory may not exist yet — skip silently

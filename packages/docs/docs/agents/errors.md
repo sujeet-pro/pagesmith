@@ -1,6 +1,6 @@
 # @pagesmith/docs Error Catalog
 
-Error solutions specific to the docs package. See also: `@pagesmith/core/docs/agents/errors.md` for content layer errors.
+Error solutions specific to the docs package. See also: `node_modules/@pagesmith/core/docs/agents/errors.md` for content layer errors.
 
 ## Configuration Errors
 
@@ -41,6 +41,35 @@ Error solutions specific to the docs package. See also: `@pagesmith/core/docs/ag
 ### Search index empty
 **Pattern:** Pagefind returns no results
 **Fix:** Ensure `search.enabled: true` in config and pages have sufficient text content. Rebuild with `npx pagesmith build`.
+
+## CLI Errors
+
+### Unknown command
+
+**Pattern:** `Unknown command: <command>. Run 'pagesmith --help' for available commands.`
+**Fix:** Use a valid CLI command: `init`, `dev`, `build`, `preview`, or `mcp`. Run `pagesmith --help` for the full list.
+
+### Failed to parse config file
+
+**Pattern:** `Failed to parse config file: <path>`
+**Fix:** The `pagesmith.config.json5` file contains invalid JSON5 syntax. Check for:
+
+- Unmatched braces or brackets
+- Missing commas between entries
+- Invalid escape sequences
+- Encoding issues (file must be UTF-8)
+
+### Config validation failed
+
+**Pattern (build):** `Config validation failed — fix the errors above before building.`
+**Pattern (server):** `Config validation failed — fix the errors above.`
+**Fix:** The build or server detected configuration errors (not just warnings). Review the error output printed above this message. Common causes:
+
+- Missing content directory
+- Layout file paths that don't exist
+- Invalid asset source paths
+
+Fix all `error`-severity issues reported by `validateConfig`, then rebuild.
 
 ## Quick Fix Workflow
 

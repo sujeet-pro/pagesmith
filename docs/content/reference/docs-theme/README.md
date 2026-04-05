@@ -1,3 +1,8 @@
+---
+title: Docs Theme Reference
+description: Default @pagesmith/docs theme — layouts, components, styles, runtime scripts, and layout props for documentation sites.
+---
+
 # Docs Theme Reference
 
 The `@pagesmith/docs` package includes a complete default theme that provides layouts, styles, and runtime behavior for documentation sites. The theme is designed around a minimal, monochrome aesthetic that adapts to light and dark color schemes automatically.

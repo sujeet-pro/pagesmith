@@ -62,7 +62,7 @@ The dev server uses incremental rebuilds for fast iteration:
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `--port <number>` | number | 3000/4173 | Server port |
+| `--port <number>` | number | 3000/4000 | Server port (dev/preview) |
 | `--config <path>` | string | `pagesmith.config.json5` | Config file path |
 | `--open` | boolean | `false` | Open browser on start |
 | `--out-dir <path>` | string | Config `outDir` | Override output directory |
@@ -103,6 +103,11 @@ The dev server uses incremental rebuilds for fast iteration:
 | `sitemap` | `boolean` | `true` | Generate sitemap.xml (when origin is set) |
 | `favicon` | `string \| false` | auto-detect | Path to favicon or `false` to disable |
 | `assets` | `Record<string, string[]>` | — | Asset mapping (output path → source files/folders) |
+| `home.configFile` | `string` | `content/home.json5` | Path to home page configuration file |
+| `icon` | `string \| false` | auto-generated | SVG string or path for header logo icon. Set to `false` to disable |
+| `server.devPort` | `number` | `3000` | Default port for the dev server |
+| `server.previewPort` | `number` | `4000` | Default port for the preview server |
+| `server.strictPort` | `boolean` | `false` | Fail if port is in use instead of finding next available |
 
 ### Config Validation
 
@@ -355,25 +360,36 @@ Pagefind full-text search is bundled. Enable with `search.enabled: true` (defaul
 ## Programmatic API
 
 ```ts
-import { build, startDev, preview, defineDocsConfig, validateConfig, resolveDocsConfig } from '@pagesmith/docs'
+import {
+  build, startDev, preview, defineDocsConfig, validateConfig,
+  resolveDocsConfig, loadDocsConfig, reportConfigIssues, withBase,
+  docsPreset, Html, buildSiteModel, getPrevNext, getSitePayload,
+} from '@pagesmith/docs'
 
 await build({ configPath: './pagesmith.config.json5' })
 await startDev({ port: 3000 })
-await preview({ port: 4173 })
+await preview({ port: 4000 })
 
 // Config validation
 const config = resolveDocsConfig('./pagesmith.config.json5')
 const issues = validateConfig(config)
+reportConfigIssues(issues)
+
+// Load raw user config (without resolution)
+const userConfig = loadDocsConfig('./pagesmith.config.json5')
+
+// URL helper
+const url = withBase('/guide/getting-started', config.basePath)
 ```
 
 ## Export Map
 
 | Import Path | Purpose |
 |---|---|
-| `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig, validateConfig) |
+| `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig, validateConfig, resolveDocsConfig, loadDocsConfig, reportConfigIssues, withBase, docsPreset, Html, buildSiteModel, getPrevNext, getSitePayload) |
 | `@pagesmith/docs/schemas` | Zod schemas for config, layout props, page data |
-| `@pagesmith/docs/preset` | Docs preset for integration |
-| `@pagesmith/docs/theme` | Theme/runtime export surface |
+| `@pagesmith/docs/preset` | Docs preset for Vite integration (`docsPreset`) |
+| `@pagesmith/docs/theme` | Theme/runtime export surface (`Html`) |
 | `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
 
 ## GitHub Pages Deployment
@@ -403,7 +419,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - run: npm ci
       - run: cd docs && npx pagesmith build
       - uses: actions/upload-pages-artifact@v3
@@ -498,3 +514,12 @@ Pages are processed with bounded concurrency using `os.availableParallelism() * 
 - Config is validated at build time — missing fields and non-existent asset references are reported
 - `name`, `title`, `description`, and `origin` auto-fallback to `package.json` fields — most projects need only `basePath` in config
 - Build auto-generates `.nojekyll`, `sitemap.xml`, `robots.txt`, and copies `llms.txt` if present
+
+## Related Docs
+
+- **Agent prompts and rules:** `node_modules/@pagesmith/docs/docs/agents/usage.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/docs/docs/agents/recipes.md`
+- **Error catalog:** `node_modules/@pagesmith/docs/docs/agents/errors.md`
+- **User README:** `node_modules/@pagesmith/docs/README.md`
+- **Core package reference:** `node_modules/@pagesmith/core/REFERENCE.md`
+- **Core package README:** `node_modules/@pagesmith/core/README.md`

@@ -8,7 +8,7 @@ describe('buildCss', () => {
 
   it('builds standalone CSS', () => {
     const standalonePath = resolve(fixtureDir, 'standalone.css')
-    if (!existsSync(standalonePath)) return // Skip if path doesn't exist
+    expect(existsSync(standalonePath)).toBe(true)
 
     const result = buildCss(standalonePath, { minify: true })
     expect(typeof result).toBe('string')
@@ -19,7 +19,7 @@ describe('buildCss', () => {
 
   it('builds content CSS', () => {
     const contentPath = resolve(fixtureDir, 'content.css')
-    if (!existsSync(contentPath)) return
+    expect(existsSync(contentPath)).toBe(true)
 
     const result = buildCss(contentPath, { minify: true })
     expect(typeof result).toBe('string')
@@ -28,7 +28,7 @@ describe('buildCss', () => {
 
   it('builds without minification', () => {
     const contentPath = resolve(fixtureDir, 'content.css')
-    if (!existsSync(contentPath)) return
+    expect(existsSync(contentPath)).toBe(true)
 
     const minified = buildCss(contentPath, { minify: true })
     const unminified = buildCss(contentPath, { minify: false })

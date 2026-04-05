@@ -1,7 +1,6 @@
 import { createHash } from 'crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'fs'
-import { basename, dirname, join, resolve } from 'path'
-import { relative } from 'path'
+import { basename, dirname, join, relative, resolve } from 'path'
 import type { ResolvedDocsConfig } from './config.js'
 import type { DocsPage, DocsSectionMeta, SiteModel } from './content.js'
 import { buildBreadcrumbs, loadDocsPages, loadRootMeta, loadSectionMetas } from './content.js'

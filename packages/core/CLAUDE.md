@@ -121,7 +121,10 @@ The main API object. Created via `createContentLayer(config)`.
 - `convert(markdown, options?)` — convert raw markdown to HTML outside of collections
 - `invalidate(collection, slug)` / `invalidateCollection(name)` / `invalidateAll()` — cache busting
 - `validate(collection?)` — run all validators, return `ValidationResult[]`
-- `getCollectionNames()` / `getCollectionDef(name)` — introspect configuration
+- `getCollectionNames()` / `getCollectionDef(name)` / `getCollections()` — introspect configuration
+- `invalidateWhere(collection, predicate)` — invalidate entries matching a predicate
+- `watch(callback)` — watch collection directories for changes
+- `getCacheStats()` — get cache size stats per collection
 
 ### ContentEntry<T> (entry.ts)
 
@@ -132,7 +135,7 @@ Represents a single loaded content entry. Properties: `slug`, `collection`, `fil
 
 ### ContentLayerConfig (schemas/content-config.ts)
 
-Top-level config passed to `defineConfig()`. Fields: `collections`, `root`, `markdown`, `assets`, `cache`, `eager`, `plugins`.
+Top-level config passed to `defineConfig()`. Fields: `collections`, `root`, `markdown`, `assets`, `plugins`, `strict`.
 
 ### CollectionDef<S> (schemas/collection.ts)
 
@@ -166,12 +169,17 @@ remark-parse                       Parse markdown to MDAST
   -> remark-gfm                   Tables, strikethrough, task lists, autolinks
   -> remark-math                  Math blocks ($...$, $$...$$)
   -> remark-frontmatter            Strip YAML frontmatter from AST
+  -> remark-github-alerts          GitHub-style alert/callout blocks
+  -> remark-smartypants            Typographic quotes, dashes, ellipses
   -> [user remark plugins]         From MarkdownConfig.remarkPlugins
+  -> lang-alias transform          Resolve language aliases for Expressive Code
   -> remark-rehype                 MDAST -> HAST (allowDangerousHtml: true)
   -> rehype-mathjax/svg            Render math to SVG (must run before Expressive Code)
   -> rehype-expressive-code        Syntax highlighting + code frames + copy + tabs
   -> rehype-slug                   Add id="" to headings
   -> rehype-autolink-headings      Wrap heading text in anchor links
+  -> rehype-external-links         Add target/rel to external links
+  -> rehype-accessible-emojis      Wrap emojis in accessible spans
   -> heading extraction            Custom plugin: walk HAST, collect Heading[]
   -> [user rehype plugins]         From MarkdownConfig.rehypePlugins
   -> rehype-stringify              Serialize HAST to HTML string
@@ -278,7 +286,7 @@ Configure in tsconfig.json:
 
 ## CSS builder
 
-`buildCss(entryPath, { minify? })` — bundles a CSS file using LightningCSS. Targets Chrome 100+, Firefox 100+, Safari 16+. Returns minified CSS string.
+`buildCss(entryPath, { minify? })` — bundles a CSS file using LightningCSS. Targets Chrome 123+, Firefox 120+, Safari 18+. Returns minified CSS string.
 
 ## Runtime exports
 
@@ -290,22 +298,6 @@ Two tiers:
 
 Accessors: `getRuntimeCSS()`, `getRuntimeJS()`, `getContentCSS()`, `getContentJS()`, plus `get*Path()` variants for file paths. Also individual: `getViewportCSS()`.
 
-## CLI commands
-
-Binary: `pagesmith` (from `cli/bin.ts`).
-
-### `pagesmith convert <file.md> [options]`
-
-Convert markdown to HTML fragment. Options: `-o/--output`, `-w/--watch`.
-
-### `pagesmith toc <file.md|file.html>`
-
-Extract table of contents as JSON. Works on both markdown (converts first) and HTML (regex extraction).
-
-### `pagesmith ai install [options]`
-
-Install assistant memory, skills, and llms files. Options: `--assistant` (all|claude|codex|gemini), `--scope` (project|user), `--cwd`, `--home-dir`, `--skill-name`, `--force`, `--no-llms`.
-
 ## Export map
 
 The package exposes multiple entry points via `exports` in package.json:
@@ -314,14 +306,21 @@ The package exposes multiple entry points via `exports` in package.json:
 |--------------------------|----------------------------|--------------------------------------|
 | `@pagesmith/core`              | `src/index.ts`             | Main API barrel                      |
 | `@pagesmith/core/jsx-runtime`  | `src/jsx-runtime/index.ts` | h, Fragment, HtmlString              |
+| `@pagesmith/core/jsx-dev-runtime` | `src/jsx-runtime/index.ts` | JSX dev runtime (same as jsx-runtime) |
 | `@pagesmith/core/markdown`     | `src/markdown/index.ts`    | processMarkdown                      |
 | `@pagesmith/core/css`          | `src/css/index.ts`         | buildCss (LightningCSS)             |
 | `@pagesmith/core/css/content`  | `src/styles/content.css`   | Content CSS file                     |
+| `@pagesmith/core/css/standalone` | `src/styles/standalone.css` | Standalone layout + prose CSS       |
 | `@pagesmith/core/css/viewport` | `src/styles/viewport.css`  | Viewport CSS file                    |
+| `@pagesmith/core/css/fonts`    | `assets/fonts.css`         | Bundled font faces                   |
 | `@pagesmith/core/schemas`      | `src/schemas/index.ts`     | Zod schemas and types                |
 | `@pagesmith/core/loaders`      | `src/loaders/index.ts`     | Loader classes and registry          |
 | `@pagesmith/core/assets`       | `src/assets/index.ts`      | Asset copying and hashing            |
 | `@pagesmith/core/runtime`      | `src/runtime/index.ts`     | Pre-built CSS/JS accessors           |
+| `@pagesmith/core/vite`         | `src/vite/index.ts`        | Vite plugins (pagesmithContent, pagesmithSsg) |
+| `@pagesmith/core/ssg-utils`    | `src/ssg/utils.ts`         | Shared SSG utility helpers           |
+| `@pagesmith/core/create`       | `src/create/index.ts`      | Project scaffolding utilities        |
+| `@pagesmith/core/mcp`          | `src/mcp/index.ts`         | Core MCP server and helpers          |
 | `@pagesmith/core/ai`           | `src/ai/index.ts`          | AI assistant file installer          |
 
 ## Coding conventions
@@ -334,7 +333,7 @@ The package exposes multiple entry points via `exports` in package.json:
 - **Node platform** — build target is Node (`platform: 'node'` in vite.config.ts).
 - **Tests** in `src/__tests__/` colocated with source, run via `vp test`.
 - **Build** via `vp pack` (vite-plus), outputs to `dist/` as ESM with source maps and declarations.
-- **CSS** bundled with LightningCSS; targets Chrome 100+, Firefox 100+, Safari 16+.
+- **CSS** bundled with LightningCSS; targets Chrome 123+, Firefox 120+, Safari 18+.
 - **Processor caching** — the unified markdown processor is cached per `MarkdownConfig` reference via `WeakMap` to avoid rebuilding the plugin chain on every call.
 
 ## Package AI files

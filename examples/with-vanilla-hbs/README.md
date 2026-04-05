@@ -12,7 +12,7 @@ vp run dev:eg:vanilla-hbs
 
 ## Architecture
 
-Content is defined in `content.config.mjs` using `defineCollection` with Zod schemas. The `pagesmithContent` Vite plugin generates virtual modules imported in `entry-server.tsx`. Handlebars templates (`layout.hbs`, `index.hbs`, `article.hbs`, `about.hbs`) with custom helpers (`eq`, `startsWith`, `concat`) render pages via `Handlebars.compile()`. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
+Content is defined in `content.config.mjs` using `defineCollection` with Zod schemas. The SSR entry calls `createContentLayer()` with that config and loads collections at render time (no virtual content modules). Handlebars templates (`layout.hbs`, `index.hbs`, `article.hbs`, `about.hbs`) with custom helpers (`eq`, `startsWith`, `concat`) render pages via `Handlebars.compile()`. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
 
 The site works without JavaScript. Inline client-side scripts add progressive enhancements: TOC scroll highlighting, Pagefind search modal (Cmd/Ctrl+K), and mobile sidebar toggle.
 

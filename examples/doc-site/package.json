@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "node ../../packages/docs/dist/cli/bin.mjs dev --config ./pagesmith.config.json5",
-    "build": "node ../../packages/docs/dist/cli/bin.mjs build --config ./pagesmith.config.json5"
+    "build": "node ../../packages/docs/dist/cli/bin.mjs build --config ./pagesmith.config.json5",
+    "check": "tsc --noEmit"
   },
   "dependencies": {
     "@pagesmith/docs": "*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
   }
 }

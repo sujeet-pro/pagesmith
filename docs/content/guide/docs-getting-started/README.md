@@ -48,9 +48,9 @@ Every `@pagesmith/docs` site is driven by a `pagesmith.config.json5` file in the
   description: 'Documentation for my project',
   origin: 'https://docs.example.com',
 
-  // Optional: content and output paths (shown with defaults)
-  contentDir: './content',
-  outDir: './dist',
+  // Optional: content and output paths
+  contentDir: './docs',
+  outDir: './gh-pages',
 
   // Optional: deployment under a subdirectory
   basePath: '/docs',
@@ -78,10 +78,10 @@ Every `@pagesmith/docs` site is driven by a `pagesmith.config.json5` file in the
 | `description` | `string` | `"Documentation site powered by @pagesmith/docs"` | Meta description for the site |
 | `origin` | `string` | `"https://example.com"` | Production URL origin (used for canonical links, sitemap) |
 | `language` | `string` | `"en"` | HTML `lang` attribute |
-| `contentDir` | `string` | `"./content"` | Path to the content directory, relative to the config file |
-| `outDir` | `string` | `"./dist"` | Build output directory, relative to the config file |
+| `contentDir` | `string` | `"docs/"` if exists, else `"content/"` | Path to the content directory, relative to the config file |
+| `outDir` | `string` | `"gh-pages"` | Build output directory, relative to the config file |
 | `publicDir` | `string` | `"./public"` | Static assets directory copied verbatim to output |
-| `basePath` | `string` | `"/"` | URL prefix for deployment under a subdirectory. Can also be set via the `BASE_URL` environment variable or the `--base-path` CLI flag. Priority: CLI flag > `BASE_URL` env > config value > default `"/"` |
+| `basePath` | `string` | `"/"` | URL prefix for deployment under a subdirectory. Can also be set via the `BASE_URL` environment variable or the `--base-path` CLI flag. Priority: CLI flag > `BASE_URL` env > config value > git-detected repo name > default `"/"` |
 | `footerLinks` | `array` | `[]` | Links shown in the page footer. Each entry has `label` and `path` |
 | `search` | `object` | `{ enabled: true }` | Search configuration. Set `{ enabled: false }` to disable |
 | `theme` | `object` | -- | Theme overrides including `lightColor`, `darkColor`, and `layouts` |
@@ -107,14 +107,14 @@ content/
     meta.json5           # Section configuration (optional)
     api/
       README.md          # /reference/api
-    cli/
-      README.md          # /reference/cli
+    docs-cli/
+      README.md          # /reference/docs-cli
 ```
 
 Key conventions:
 
 - **`content/README.md`** is always the home page, rendered at `/`.
-- **Top-level folders** (e.g. `guide/`, `reference/`) become navigation sections visible in the header.
+- **Top-level folders** (e.g. `guide/`, `reference/`) become navigation sections. By default they appear in the header; use `headerLinks` in `meta.json5` to control which sections are shown.
 - **`README.md` inside a section folder** is the section landing page (e.g. `guide/README.md` serves `/guide`).
 - **Subfolders with `README.md`** become individual pages. The folder name is the URL slug.
 - All `.md` files are collected recursively. Nested subfolders create nested URL paths.
@@ -157,6 +157,7 @@ draft: false
 | `sidebarLabel` | `string` | Override the label shown in the sidebar for this page |
 | `order` | `number` | Numeric sort order within a section. Lower numbers appear first. Pages without `order` sort alphabetically after ordered pages |
 | `draft` | `boolean` | When `true`, the page is excluded from the build entirely |
+| `socialImage` | `string` | Path to a custom Open Graph image for this page |
 
 Additional frontmatter fields are passed through to layout components, so you can define custom fields and access them in layout overrides.
 
@@ -256,7 +257,7 @@ Build a static site:
 npx pagesmith build
 ```
 
-The output goes to the configured `outDir` (default `./dist`). The build:
+The output goes to the configured `outDir` (default `gh-pages/`). The build:
 
 1. Processes all markdown files through the markdown pipeline
 2. Renders each page using the appropriate layout
@@ -278,7 +279,7 @@ Preview the built site locally:
 npx pagesmith preview
 ```
 
-This starts a static file server pointing at the output directory. Use `--port` to change the default port (4173):
+This starts a static file server pointing at the output directory. Use `--port` to change the default port (4000):
 
 ```bash
 npx pagesmith preview --port 5000
@@ -292,10 +293,11 @@ pagesmith build [options]     Build a docs site
 pagesmith preview [options]   Preview the built docs site
 
 Options:
-  --port <number>             Server port (dev: 3000, preview: 4173)
+  -p, --port <number>         Server port (dev: 3000, preview: 4000)
   --open                      Open browser on server start
   --out-dir <path>            Output directory (overrides config)
   --base-path <path>          Base URL path prefix (overrides config)
+  --log-level <level>         Log level: silent|error|warn|info|verbose (default: warn)
   --config <path>             Config file path (default: pagesmith.config.json5)
 ```
 

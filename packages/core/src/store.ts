@@ -5,6 +5,7 @@
  * Not exported directly — used internally by ContentLayer.
  */
 
+import { availableParallelism } from 'os'
 import { resolve } from 'path'
 import type { MarkdownConfig } from './schemas/markdown-config'
 import type { ZodType } from 'zod'
@@ -20,6 +21,28 @@ import { validateSchema, type ValidationIssue } from './validation'
 import { builtinMarkdownValidators, runValidators } from './validation/runner'
 import type { ContentValidator } from './validation/types'
 
+const MAX_CONCURRENCY = availableParallelism() * 2
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = Array.from({ length: items.length })
+  let index = 0
+
+  async function worker(): Promise<void> {
+    while (index < items.length) {
+      const i = index++
+      results[i] = await fn(items[i])
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker())
+  await Promise.all(workers)
+  return results
+}
+
 type CacheEntry = {
   entry: ContentEntry
   issues: ValidationIssue[]
@@ -28,6 +51,7 @@ type CacheEntry = {
 export class ContentStore {
   private cache = new Map<string, Map<string, CacheEntry>>()
   private loaded = new Set<string>()
+  private loading = new Map<string, Promise<ContentEntry[]>>()
   private config: ContentLayerConfig
   private rootDir: string
   private markdownConfig: MarkdownConfig
@@ -48,6 +72,22 @@ export class ContentStore {
       return cached ? Array.from(cached.values()).map((c) => c.entry) : []
     }
 
+    const existing = this.loading.get(name)
+    if (existing) return existing
+
+    const promise = this._doLoadCollection(name, def)
+    this.loading.set(name, promise)
+    try {
+      return await promise
+    } finally {
+      this.loading.delete(name)
+    }
+  }
+
+  private async _doLoadCollection<S extends ZodType>(
+    name: string,
+    def: CollectionDef<S>,
+  ): Promise<ContentEntry[]> {
     const loader = resolveLoader(def.loader)
     const directory = resolve(this.rootDir, def.directory)
     const include = def.include ?? defaultIncludePatterns(loader)
@@ -60,31 +100,29 @@ export class ContentStore {
 
     const entries = new Map<string, CacheEntry>()
     const strict = this.config.strict ?? false
-    const results = await Promise.all(
-      files.map(async (filePath) => {
-        try {
-          return await this.loadEntry(name, filePath, directory, loader, def)
-        } catch (err) {
-          const message = err instanceof Error ? err.message : String(err)
-          const loadError = new Error(`[${name}] Failed to load ${filePath}: ${message}`, {
-            cause: err,
-          })
+    const results = await mapWithConcurrency(files, MAX_CONCURRENCY, async (filePath) => {
+      try {
+        return await this.loadEntry(name, filePath, directory, loader, def)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err)
+        const loadError = new Error(`[${name}] Failed to load ${filePath}: ${message}`, {
+          cause: err,
+        })
 
-          if (strict) {
-            throw loadError
-          }
-
-          console.warn(`[pagesmith] ${loadError.message}`)
-          const slug = def.slugify ? def.slugify(filePath, directory) : toSlug(filePath, directory)
-          return {
-            entry: new ContentEntry(slug, name, filePath, {}, undefined, this.markdownConfig),
-            issues: [
-              { message: loadError.message, severity: 'error' as const, source: 'schema' as const },
-            ],
-          }
+        if (strict) {
+          throw loadError
         }
-      }),
-    )
+
+        console.warn(`[pagesmith] ${loadError.message}`)
+        const slug = def.slugify ? def.slugify(filePath, directory) : toSlug(filePath, directory)
+        return {
+          entry: new ContentEntry(slug, name, filePath, {}, undefined, this.markdownConfig),
+          issues: [
+            { message: loadError.message, severity: 'error' as const, source: 'schema' as const },
+          ],
+        }
+      }
+    })
 
     for (const result of results) {
       if (result) {
@@ -121,12 +159,13 @@ export class ContentStore {
       raw = await def.transform(raw)
     }
 
-    // Apply computed fields
+    // Apply computed fields (clone data to avoid mutating loader output)
     if (def.computed) {
+      raw = { ...raw, data: { ...raw.data } }
       for (const [key, fn] of Object.entries(def.computed) as Array<
         [string, (entry: RawEntry) => any]
       >) {
-        raw.data[key] = fn(raw)
+        raw.data[key] = await fn(raw)
       }
     }
 

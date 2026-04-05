@@ -1,3 +1,8 @@
+---
+title: API Reference
+description: Import paths and public API for @pagesmith/core — collections, content layer, Vite plugins, JSX, markdown, loaders, and schemas.
+---
+
 # API Reference
 
 Complete API reference for `@pagesmith/core` and its sub-path exports.
@@ -528,7 +533,7 @@ CSS and JS asset accessors for pre-built runtime bundles. See the [Runtime Refer
 
 ## `@pagesmith/core/create`
 
-Project scaffolding module for `pagesmith create`. Supports local templates (bundled) and remote templates (downloaded from GitHub examples).
+Programmatic project scaffolding. Supports local templates (bundled) and remote templates (downloaded from GitHub examples). Import `createProject` and `listTemplates` from this module when building tooling; there is no separate `pagesmith create` CLI command.
 
 | Export | Description |
 |---|---|
@@ -604,9 +609,17 @@ AI assistant artifact installer for generating memory, skill, and llms files.
 
 | Import Path | Purpose |
 |---|---|
-| `@pagesmith/docs` | Main barrel -- `build()`, `startDev()`, `preview()`, `defineDocsConfig()`, `loadDocsConfig()`, `validateDocsConfig()` |
+| `@pagesmith/docs` | Main barrel -- `build()`, `startDev()`, `preview()`, `defineDocsConfig()`, `loadDocsConfig()`, `resolveDocsConfig()`, `validateConfig()`, `reportConfigIssues()`, `withBase()`, navigation helpers, MCP, types |
 | `@pagesmith/docs/preset` | `docsPreset()` -- programmatic access to build/dev/preview |
 | `@pagesmith/docs/schemas` | Docs config Zod schemas |
+
+### Config resolution and validation
+
+| Export | Description |
+|---|---|
+| `resolveDocsConfig(configPath?, options?)` | Load `pagesmith.config.json5`, apply defaults and absolute paths, resolve `basePath`, and return a `ResolvedDocsConfig`. Optional `options` can override CLI-equivalent values (e.g. `basePath`, `outDir`). |
+| `validateConfig(config)` | Validate a `ResolvedDocsConfig` and return `ConfigValidationIssue[]` (errors and warnings). |
+| `reportConfigIssues(issues)` | Print issues to the console; returns `true` if any error-severity issues are present. |
 
 ### `docsPreset()`
 
@@ -626,7 +639,7 @@ await docs.build('./pagesmith.config.json5')
 await docs.dev('./pagesmith.config.json5', { port: 3000 })
 
 // Preview built output
-await docs.preview({ port: 4173, configPath: './pagesmith.config.json5' })
+await docs.preview({ port: 4000, configPath: './pagesmith.config.json5' })
 ```
 
 **Methods:**

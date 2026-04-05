@@ -13,7 +13,7 @@
  * inline code, and layout only.
  */
 
-import { readFileSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -43,6 +43,7 @@ function readAsset(relPath: string): string {
       return readFileSync(join(pkgDir, dir, relPath), 'utf-8')
     } catch {}
   }
+  console.warn(`[pagesmith] Asset not found: ${relPath}`)
   return ''
 }
 
@@ -51,17 +52,11 @@ function resolveAssetPath(relPath: string): string {
   const mapped = ASSET_PATHS[relPath]
   if (mapped) {
     const path = join(pkgDir, 'src', mapped)
-    try {
-      readFileSync(path)
-      return path
-    } catch {}
+    if (existsSync(path)) return path
   }
   for (const dir of ['dist', 'src']) {
     const path = join(pkgDir, dir, relPath)
-    try {
-      readFileSync(path)
-      return path
-    } catch {}
+    if (existsSync(path)) return path
   }
   return join(pkgDir, 'dist', relPath)
 }

@@ -12,14 +12,21 @@ export type CssBuildOptions = {
 
 export function buildCss(entryPath: string, config?: CssBuildOptions): string {
   const targets = config?.targets ?? {}
-  const { code } = bundle({
-    filename: resolve(entryPath),
-    minify: config?.minify ?? true,
-    targets: {
-      chrome: (targets.chrome ?? 123) << 16,
-      firefox: (targets.firefox ?? 120) << 16,
-      safari: (targets.safari ?? 18) << 16,
-    },
-  })
-  return new TextDecoder().decode(code)
+  try {
+    const { code } = bundle({
+      filename: resolve(entryPath),
+      minify: config?.minify ?? true,
+      targets: {
+        chrome: (targets.chrome ?? 123) << 16,
+        firefox: (targets.firefox ?? 120) << 16,
+        safari: (targets.safari ?? 18) << 16,
+      },
+    })
+    return new TextDecoder().decode(code)
+  } catch (err) {
+    throw new Error(
+      `CSS build failed for ${entryPath}: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    )
+  }
 }

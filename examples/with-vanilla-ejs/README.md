@@ -12,7 +12,7 @@ vp run dev:eg:vanilla-ejs
 
 ## Architecture
 
-Content is defined in `content.config.mjs` using `defineCollection` with Zod schemas. The `pagesmithContent` Vite plugin generates virtual modules imported in `entry-server.tsx`. EJS templates (`layout.ejs`, `index.ejs`, `article.ejs`, `about.ejs`) render pages to HTML strings via `ejs.render()`. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
+Content is defined in `content.config.mjs` using `defineCollection` with Zod schemas. The SSR entry calls `createContentLayer()` with that config and loads collections at render time (no virtual content modules). EJS templates (`layout.ejs`, `index.ejs`, `article.ejs`, `about.ejs`) render pages to HTML strings via `ejs.render()`. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
 
 The site works without JavaScript. Inline client-side scripts add progressive enhancements: TOC scroll highlighting, Pagefind search modal (Cmd/Ctrl+K), and mobile sidebar toggle.
 

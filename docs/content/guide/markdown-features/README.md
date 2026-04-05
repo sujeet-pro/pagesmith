@@ -189,9 +189,10 @@ remark-frontmatter        Strip YAML frontmatter from AST
 remark-github-alerts      > [!NOTE], > [!TIP], etc.
 remark-smartypants        Smart quotes, dashes, ellipses
 [user remark plugins]     From MarkdownConfig.remarkPlugins
+lang-alias transform      Map fenced-code language tags via `markdown.shiki.langAlias`
 remark-rehype             Markdown AST → HTML AST
+rehype-mathjax            Render math to SVG (before Expressive Code)
 rehype-expressive-code    Syntax highlighting, code frames, copy button
-rehype-mathjax            Render math to SVG
 rehype-slug               Add id="" to headings
 rehype-autolink-headings  Wrap heading text in anchor links
 rehype-external-links     target="_blank" on external URLs

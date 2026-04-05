@@ -1,3 +1,8 @@
+---
+title: Docs CLI Reference
+description: pagesmith CLI for init, dev, build, preview, and mcp — install, flags, and command behavior for @pagesmith/docs.
+---
+
 # Docs CLI Reference
 
 The `@pagesmith/docs` package provides a `pagesmith` CLI binary for developing, building, and previewing documentation sites. The CLI is the primary interface for working with `@pagesmith/docs` projects.
@@ -94,11 +99,12 @@ The dev server watches your `content/` directory and any referenced assets for c
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `--port <number>` | number | `3000` | Port number for the development server |
+| `-p, --port <number>` | number | `3000` | Port number for the development server |
 | `--config <path>` | string | `pagesmith.config.json5` | Path to the configuration file (resolved relative to cwd) |
 | `--open` | boolean | `false` | Open the default browser when the server starts |
 | `--out-dir <path>` | string | Config `outDir` | Override the output directory |
 | `--base-path <path>` | string | Config `basePath` | Override the base URL path prefix |
+| `--log-level <level>` | string | `warn` | Log verbosity: `silent`, `error`, `warn`, `info`, `verbose` |
 
 **Example:**
 
@@ -184,8 +190,12 @@ The preview server serves the previously built output directory as static files.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `--port <number>` | number | `4173` | Port number for the preview server |
+| `-p, --port <number>` | number | `4000` | Port number for the preview server |
 | `--config <path>` | string | `pagesmith.config.json5` | Path to the configuration file (used to determine the output directory) |
+| `--open` | boolean | `false` | Open the default browser when the server starts |
+| `--out-dir <path>` | string | Config `outDir` | Override the output directory |
+| `--base-path <path>` | string | Config `basePath` | Override the base URL path prefix |
+| `--log-level <level>` | string | `warn` | Log verbosity: `silent`, `error`, `warn`, `info`, `verbose` |
 
 **Example:**
 
@@ -255,10 +265,11 @@ Init options:
   --config <path>                     Config file path
 
 Server options:
-  --port <number>                     Server port (dev: 3000, preview: 4173)
+  -p, --port <number>                 Server port (dev: 3000, preview: 4000)
   --open                              Open browser on server start
   --out-dir <path>                    Output directory (overrides config)
   --base-path <path>                  Base URL path prefix (overrides config)
+  --log-level <level>                 Log level: silent|error|warn|info|verbose (default: warn)
   --config <path>                     Config file path
 
 MCP options:
@@ -269,7 +280,7 @@ MCP options:
 
 ## Option Parsing
 
-The CLI uses a custom argument parser (no external dependency). All options use `--long-name` format with short aliases for `-h` (`--help`), `-v` (`--version`), and `-y` (`--yes`).
+The CLI uses a custom argument parser (no external dependency). All options use `--long-name` format with short aliases for `-h` (`--help`), `-v` (`--version`), `-y` (`--yes`), and `-p` (`--port`).
 
 Options that take a value require the value as the next argument (space-separated):
 
@@ -308,7 +319,8 @@ The priority order for base path resolution is:
 1. `--base-path` CLI flag (highest priority)
 2. `BASE_URL` environment variable
 3. `basePath` in `pagesmith.config.json5`
-4. Default `"/"`
+4. Auto-detected from git remote URL (repo name as base path)
+5. Default `"/"`
 
 ## Running via npm Scripts
 
@@ -347,7 +359,8 @@ npx @pagesmith/docs preview
 All commands look for `pagesmith.config.json5` in the current working directory by default. If the file is not found at the resolved path, the CLI exits with an error:
 
 ```text
-No pagesmith.config.json5 file found at /path/to/pagesmith.config.json5
+No config file found at /path/to/pagesmith.config.json5
+  Run 'pagesmith init' to create one, or use --config to specify a path.
 ```
 
 The resolution logic uses `path.resolve()` against the current working directory, so relative paths in `--config` are resolved from where you run the command.
@@ -389,5 +402,5 @@ pagesmith build
 # 4. Verify the production build locally
 pagesmith preview
 
-# 5. Deploy the dist/ directory to your hosting provider
+# 5. Deploy the output directory (default: gh-pages/) to your hosting provider
 ```

@@ -1,3 +1,8 @@
+---
+title: Meta Files and Navigation
+description: Root and section meta.json5 files for header and footer links, sidebar order, series, and per-section layouts.
+---
+
 # Meta Files and Navigation
 
 `@pagesmith/docs` uses `meta.json5` files to control navigation, sidebar ordering, series grouping, and section-level layout assignments. There are two types: a root meta file for site-wide navigation, and section meta files for per-section configuration.

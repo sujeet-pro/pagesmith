@@ -16,7 +16,7 @@ import {
   writeFileSync,
 } from 'fs'
 import { join, resolve } from 'path'
-import { execSync } from 'child_process'
+import { execFileSync, execSync } from 'child_process'
 import { tmpdir } from 'os'
 
 const GITHUB_REPO = 'sujeet-pro/pagesmith'
@@ -259,7 +259,12 @@ function writePackageJson(destination: string, projectName: string, template: Te
     pkg.devDependencies['vite-plus'] = '^0.1.13'
   }
 
-  pkg.packageManager = 'npm@11.12.0'
+  try {
+    const npmVersion = execFileSync('npm', ['--version'], { encoding: 'utf-8' }).trim()
+    pkg.packageManager = `npm@${npmVersion}`
+  } catch {
+    // Omit packageManager if npm version cannot be detected
+  }
 
   writeFileSync(existingPkg, JSON.stringify(pkg, null, 2) + '\n')
 }

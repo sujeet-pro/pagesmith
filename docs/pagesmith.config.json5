@@ -19,4 +19,7 @@
   search: {
     enabled: true,
   },
+  assets: {
+    '/': ['../llms.txt', '../llms-full.txt'],
+  },
 }

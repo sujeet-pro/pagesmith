@@ -2,24 +2,63 @@
 
 Version-matched AI context for the installed `@pagesmith/core` package.
 
+## Install
+
+```bash
+npm add @pagesmith/core
+```
+
 ## Use this package when
 
 - You need a custom content architecture, custom layouts, or framework-specific rendering.
 - You want typed content collections with explicit schemas and runtime control.
 
-## Canonical usage guidance
+## Start here
 
-- `node_modules/@pagesmith/core/docs/agents/usage.md`
-- `node_modules/@pagesmith/core/docs/agents/recipes.md`
-- `node_modules/@pagesmith/core/docs/agents/errors.md`
-- `node_modules/@pagesmith/core/docs/agents/migration.md`
-- `node_modules/@pagesmith/core/REFERENCE.md`
+- **Full API reference:** `node_modules/@pagesmith/core/REFERENCE.md`
+- **Agent rules + prompts:** `node_modules/@pagesmith/core/docs/agents/usage.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/core/docs/agents/recipes.md`
+
+## Requirements
+
+- **Node.js 24+** (`engines.node` in package.json).
+
+## Content layer snapshot
+
+- **`ContentLayerConfig`** (via `defineConfig`): `collections`, optional `root`, `markdown`, `assets`, `plugins`, and optional **`strict`** (throw on load errors). There is no top-level `cache` or `eager` field on this config.
+- **`defineCollections({ ... })`** — helper to build the `collections` map in one call (same as registering multiple `defineCollection` defs).
+- **`ContentLayer`** methods include: `getCollection`, `getEntry`, `convert`, `invalidate` / `invalidateCollection` / `invalidateAll`, `validate`, `getCollectionNames`, `getCollectionDef`, `getCollections`, `invalidateWhere`, `watch`, `getCacheStats`.
+
+## CLI
+
+The **`pagesmith`** CLI (init, dev, build, preview, mcp, etc.) ships with **`@pagesmith/docs`**, not `@pagesmith/core`.
+
+## All guidance files
+
+| File | Purpose |
+|---|---|
+| `node_modules/@pagesmith/core/REFERENCE.md` | Complete API: content layer, collections, loaders, markdown, JSX, CSS, Vite plugins |
+| `node_modules/@pagesmith/core/README.md` | User-facing quick start and API overview |
+| `node_modules/@pagesmith/core/docs/agents/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `node_modules/@pagesmith/core/docs/agents/recipes.md` | Task-specific step-by-step recipes |
+| `node_modules/@pagesmith/core/docs/agents/errors.md` | Error catalog with patterns and fixes |
+| `node_modules/@pagesmith/core/docs/agents/migration.md` | Pre-1.0 upgrade notes |
+| `node_modules/@pagesmith/core/docs/agents/changelog-notes.md` | Version highlights |
+| `node_modules/@pagesmith/core/docs/agents/AGENTS.md.template` | Template for project-level AGENTS.md |
 
 ## Project memory pointer
 
 In the consuming project, add this to `CLAUDE.md` or `AGENTS.md`:
 
-`For @pagesmith/core usage rules, read node_modules/@pagesmith/core/docs/agents/usage.md`
+```
+For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/docs/agents/usage.md
+For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REFERENCE.md
+```
+
+## Related package
+
+- Docs reference: `node_modules/@pagesmith/docs/REFERENCE.md`
+- Docs usage: `node_modules/@pagesmith/docs/docs/agents/usage.md`
 
 ## Recent changes
 

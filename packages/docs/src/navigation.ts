@@ -31,9 +31,13 @@ function sortSectionPages(pages: DocsPage[], meta?: DocsSectionMeta): DocsPage[]
   if (meta.orderBy === 'publishedDate') {
     const getPublishedTime = (value: unknown): number => {
       if (!value) return 0
-      if (value instanceof Date) return value.getTime()
+      if (value instanceof Date) {
+        const t = value.getTime()
+        return Number.isNaN(t) ? 0 : t
+      }
       if (typeof value === 'string' || typeof value === 'number') {
-        return new Date(value).getTime()
+        const t = new Date(value).getTime()
+        return Number.isNaN(t) ? 0 : t
       }
       return 0
     }

@@ -1,3 +1,4 @@
+import { extractFrontmatter } from '@pagesmith/core'
 import { processMarkdown, type MarkdownConfig } from '@pagesmith/core/markdown'
 import type { Heading } from '@pagesmith/core/schemas'
 import { execFileSync } from 'child_process'
@@ -167,22 +168,31 @@ function transformContentLinks(
   basePath: string,
 ): string {
   return html.replace(/<a\s[^>]*>/g, (tag) => {
-    const hrefMatch = tag.match(/href="([^"]*)"/)
+    const hrefMatch = tag.match(/href=(?:"([^"]*)"|'([^']*)')/)
     if (!hrefMatch) return tag
-    const href = hrefMatch[1]
+    const href = hrefMatch[1] ?? hrefMatch[2]
+    const quote = tag.includes(`href="`) ? '"' : "'"
 
     if (href.includes('.md') && !href.startsWith('http')) {
-      const [rawPath, hash = ''] = href.split('#')
+      const hashIdx = href.indexOf('#')
+      const rawPath = hashIdx >= 0 ? href.slice(0, hashIdx) : href
+      const hash = hashIdx >= 0 ? href.slice(hashIdx) : ''
       const targetPath = join(dirname(filePath), rawPath)
       const slug = toContentSlug(targetPath, contentDir)
       const routePath = slug === '/' ? '/' : `/${slug}/`
       const fullPath = `${basePath}${routePath}`
-      const newHref = hash ? `${fullPath}#${hash}` : fullPath
-      return tag.replace(`href="${href}"`, `href="${newHref}"`)
+      const newHref = hash ? `${fullPath}${hash}` : fullPath
+      return tag.replace(`href=${quote}${href}${quote}`, `href=${quote}${newHref}${quote}`)
     }
 
-    if (basePath && href.startsWith('/') && !href.startsWith('//') && !href.startsWith(basePath)) {
-      return tag.replace(`href="${href}"`, `href="${basePath}${href}"`)
+    if (
+      basePath &&
+      href.startsWith('/') &&
+      !href.startsWith('//') &&
+      href !== basePath &&
+      !href.startsWith(basePath + '/')
+    ) {
+      return tag.replace(`href=${quote}${href}${quote}`, `href=${quote}${basePath}${href}${quote}`)
     }
 
     return tag
@@ -336,18 +346,24 @@ export async function loadDocsPages(
   const results = await mapWithConcurrency(files, concurrency, async (filePath) => {
     const raw = readFileSync(filePath, 'utf-8')
 
-    const result = await processMarkdown(raw, sharedMarkdownConfig)
-    const html = transformContentAssets(
-      transformContentLinks(result.html, filePath, config.contentDir, config.basePath),
-      dirname(filePath),
-    )
-    const parsedFrontmatter = DocsFrontmatterSchema.parse(result.frontmatter ?? {})
+    // Extract frontmatter early to skip expensive markdown processing for drafts
+    const extracted = extractFrontmatter(raw)
+    const earlyFrontmatter = DocsFrontmatterSchema.parse(extracted.frontmatter ?? {})
     const contentSlug = toContentSlug(filePath, config.contentDir)
     const isHome = contentSlug === '/'
 
     const frontmatter =
-      isHome && homeConfig ? { ...homeConfig, ...parsedFrontmatter } : parsedFrontmatter
+      isHome && homeConfig ? { ...homeConfig, ...earlyFrontmatter } : earlyFrontmatter
     if (frontmatter.draft) return null
+
+    const result = await processMarkdown(raw, sharedMarkdownConfig, {
+      content: extracted.content,
+      frontmatter: extracted.frontmatter,
+    })
+    const html = transformContentAssets(
+      transformContentLinks(result.html, filePath, config.contentDir, config.basePath),
+      dirname(filePath),
+    )
 
     const routePath = isHome ? '/' : `/${contentSlug}`
     const section = isHome ? undefined : contentSlug.split('/')[0]

@@ -17,10 +17,10 @@
     },
   },
   footerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'API', path: '/api' },
-    { label: 'Reference', path: '/reference' },
-    { label: 'Features', path: '/features' },
+    { label: 'Guide', path: '/guide/installation' },
+    { label: 'API', path: '/guide/content-collections' },
+    { label: 'Reference', path: '/guide/configuration' },
+    { label: 'Features', path: '/features/kitchen-sink' },
   ],
   editLink: {
     repo: 'https://github.com/sujeet-pro/pagesmith',

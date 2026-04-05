@@ -22,7 +22,13 @@ export function runPluginValidators(
   const issues: string[] = []
   for (const plugin of plugins) {
     if (plugin.validate) {
-      issues.push(...plugin.validate(entry))
+      try {
+        issues.push(...plugin.validate(entry))
+      } catch (err) {
+        issues.push(
+          `[${plugin.name}] Validator threw: ${err instanceof Error ? err.message : String(err)}`,
+        )
+      }
     }
   }
   return issues

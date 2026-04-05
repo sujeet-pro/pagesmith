@@ -30,7 +30,7 @@ All site configuration lives in a single JSON5 file:
 
 ## Smart Defaults
 
-When you run `pagesmith-docs init`, the CLI detects your git remote and pre-populates `basePath` and `origin` for GitHub Pages deployment. For a repo at `github.com/user/my-project`, it sets:
+When you run `pagesmith init`, the CLI detects your git remote and pre-populates `basePath` and `origin` for GitHub Pages deployment. For a repo at `github.com/user/my-project`, it sets:
 
 - `basePath: '/my-project'`
 - `origin: 'https://user.github.io'`

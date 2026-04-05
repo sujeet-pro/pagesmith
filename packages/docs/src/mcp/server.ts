@@ -216,9 +216,18 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       inputSchema: {
         query: z.string().describe('Search query string'),
         section: z.string().optional().describe('Filter results to a specific section'),
+        configPath: z.string().optional().describe('Path to pagesmith.config.json5'),
       },
     },
-    async ({ query, section }: { query: string; section?: string }) => {
+    async ({
+      query,
+      section,
+      configPath,
+    }: {
+      query: string
+      section?: string
+      configPath?: string
+    }) => {
       if (!query.trim()) {
         return {
           content: [
@@ -230,7 +239,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
         }
       }
 
-      const config = resolveConfigOrThrow(baseRoot)
+      const config = resolveConfigOrThrow(baseRoot, configPath)
       const sectionMetas = loadSectionMetas(config.contentDir)
       const pages = await loadDocsPages(config, sectionMetas)
       const filtered = section ? pages.filter((page) => page.section === section) : pages
@@ -360,11 +369,13 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       description: 'Core package reference for content layer and markdown pipeline.',
       mimeType: 'text/markdown',
     },
-    async () =>
-      asTextResource(
-        'pagesmith://core/reference',
-        resolve(import.meta.dirname, '..', '..', '..', 'core', 'REFERENCE.md'),
-      ),
+    async () => {
+      const { fileURLToPath } = await import('url')
+      const { dirname, join } = await import('path')
+      const corePkgPath = fileURLToPath(import.meta.resolve('@pagesmith/core/package.json'))
+      const coreRefPath = join(dirname(corePkgPath), 'REFERENCE.md')
+      return asTextResource('pagesmith://core/reference', coreRefPath)
+    },
   )
 
   return server

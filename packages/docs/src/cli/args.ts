@@ -54,6 +54,16 @@ export function parseServerArgs(argv: string[]): ServerCliArgs {
       if (!value) throw new Error('--port requires a number')
       args.port = parseInt(value, 10)
       if (Number.isNaN(args.port)) throw new Error('--port must be a valid number')
+      if (args.port < 1 || args.port > 65535) throw new Error('--port must be between 1 and 65535')
+      continue
+    }
+
+    if (arg.startsWith('--port=')) {
+      const value = arg.slice('--port='.length)
+      if (!value) throw new Error('--port= requires a number')
+      args.port = parseInt(value, 10)
+      if (Number.isNaN(args.port)) throw new Error('--port must be a valid number')
+      if (args.port < 1 || args.port > 65535) throw new Error('--port must be between 1 and 65535')
       continue
     }
 

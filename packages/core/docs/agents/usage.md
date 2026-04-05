@@ -2,6 +2,12 @@
 
 Use this file as the primary instruction source for `@pagesmith/core`.
 
+## Getting started
+
+1. Install: `npm add @pagesmith/core`
+2. Read the full reference: `node_modules/@pagesmith/core/REFERENCE.md`
+3. The `docs/` folder inside the package contains version-matched AI guidance files.
+
 ## When to pick @pagesmith/core
 
 - Custom site or app architecture.
@@ -15,6 +21,59 @@ Use this file as the primary instruction source for `@pagesmith/core`.
 3. For Vite flows, use `@pagesmith/core/vite` plugins (`pagesmithContent`, `pagesmithSsg`).
 4. Use `entry.render()` when HTML is needed (lazy render path).
 
+---
+
+## Agent Prompts
+
+Copy-paste prompts for common workflows. Each prompt tells the agent which package files to read.
+
+### Prompt: Initial setup with Vite
+
+> Add `@pagesmith/core` content collections to this project. Read `node_modules/@pagesmith/core/REFERENCE.md` for the full API reference and `node_modules/@pagesmith/core/docs/agents/recipes.md` for setup recipes. Install the package, create `content.config.ts` with collection definitions, configure Vite with `pagesmithContent` and `pagesmithSsg`, and update CLAUDE.md / AGENTS.md with Pagesmith pointers.
+
+**Files to read:**
+- `node_modules/@pagesmith/core/REFERENCE.md`
+- `node_modules/@pagesmith/core/docs/agents/recipes.md`
+
+### Prompt: Define content collections
+
+> Create content collections for this project using `@pagesmith/core`. Read `node_modules/@pagesmith/core/REFERENCE.md` for `defineCollection`, `defineCollections`, schema options, loader types, computed fields, filters, and custom validators. Define Zod schemas for each collection and register them with `defineConfig`.
+
+**Files to read:**
+- `node_modules/@pagesmith/core/REFERENCE.md` (Content Layer API, Collections, Loaders, Validation sections)
+
+### Prompt: Write markdown content
+
+> Create markdown content for the collections defined in this project. Read `node_modules/@pagesmith/core/REFERENCE.md` for the markdown pipeline, frontmatter schemas, code block features (Expressive Code), and content validators. Use proper frontmatter, fenced code blocks with language identifiers, mermaid code blocks for diagrams, and GitHub Alerts for callouts.
+
+**Files to read:**
+- `node_modules/@pagesmith/core/REFERENCE.md` (Markdown Pipeline, Expressive Code, Frontmatter Schemas, Validators sections)
+
+### Prompt: Troubleshooting validation errors
+
+> Fix content validation errors in this project. Read `node_modules/@pagesmith/core/docs/agents/errors.md` for the error catalog with patterns and fixes grouped by source (schema, content, plugin, load, MCP).
+
+**Files to read:**
+- `node_modules/@pagesmith/core/docs/agents/errors.md`
+- `node_modules/@pagesmith/core/REFERENCE.md` (Validation section)
+
+---
+
+## Package files reference
+
+| File | Purpose |
+|---|---|
+| `node_modules/@pagesmith/core/REFERENCE.md` | Complete API reference: content layer, collections, loaders, markdown pipeline, JSX, CSS, Vite plugins |
+| `node_modules/@pagesmith/core/README.md` | User-facing quick start, Vite integration, and API overview |
+| `node_modules/@pagesmith/core/docs/agents/usage.md` | This file — agent rules and prompts |
+| `node_modules/@pagesmith/core/docs/agents/recipes.md` | Step-by-step recipes for common tasks |
+| `node_modules/@pagesmith/core/docs/agents/errors.md` | Error catalog with patterns and fixes |
+| `node_modules/@pagesmith/core/docs/agents/migration.md` | Pre-1.0 upgrade notes |
+| `node_modules/@pagesmith/core/docs/agents/changelog-notes.md` | Version highlights |
+| `node_modules/@pagesmith/core/docs/agents/AGENTS.md.template` | Template for consuming project AGENTS.md |
+| `node_modules/@pagesmith/core/docs/llms.txt` | Compact AI context index |
+| `node_modules/@pagesmith/core/docs/llms-full.txt` | Full AI context with all file pointers |
+
 ## Non-negotiable rules
 
 - Keep schema validation in collection schemas (`z` from `@pagesmith/core`).
@@ -22,12 +81,13 @@ Use this file as the primary instruction source for `@pagesmith/core`.
 - Keep markdown behavior aligned with core markdown pipeline and validators.
 - Do not add ad-hoc code-block copy button JS; Expressive Code already handles this.
 
-## Reference docs
+## Related package docs
 
-- API reference: `node_modules/@pagesmith/core/REFERENCE.md`
-- Recipes: `node_modules/@pagesmith/core/docs/agents/recipes.md`
-- Version notes: `node_modules/@pagesmith/core/docs/agents/changelog-notes.md`
-- Migration notes: `node_modules/@pagesmith/core/docs/agents/migration.md`
+- Core reference: `node_modules/@pagesmith/core/REFERENCE.md`
+- Core README: `node_modules/@pagesmith/core/README.md`
+- Docs reference: `node_modules/@pagesmith/docs/REFERENCE.md`
+- Docs README: `node_modules/@pagesmith/docs/README.md`
+- Docs usage: `node_modules/@pagesmith/docs/docs/agents/usage.md`
 
 ## MCP Introspection Workflows
 
@@ -56,3 +116,4 @@ Use this file as the primary instruction source for `@pagesmith/core`.
 3. Call core_validate → collect all issues
 4. Group issues by source (schema/content/plugin) for prioritized fixing
 ```
+

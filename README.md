@@ -96,10 +96,10 @@ export default defineConfig({
 ## Packages
 
 
-| Package                             | Description                                                              | README                                             |
-| ----------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------- |
-| `[@pagesmith/core](packages/core/)` | Content layer, markdown pipeline, JSX runtime, CSS builder, Vite plugins | [packages/core/README.md](packages/core/README.md) |
-| `[@pagesmith/docs](packages/docs/)` | Convention-based docs site with theme, search, navigation, CLI           | [packages/docs/README.md](packages/docs/README.md) |
+| Package                             | Description                                                              | README                                             | AI Reference                                                   |
+| ----------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------- | -------------------------------------------------------------- |
+| `[@pagesmith/core](packages/core/)` | Content layer, markdown pipeline, JSX runtime, CSS builder, Vite plugins | [packages/core/README.md](packages/core/README.md) | [packages/core/REFERENCE.md](packages/core/REFERENCE.md)       |
+| `[@pagesmith/docs](packages/docs/)` | Convention-based docs site with theme, search, navigation, CLI           | [packages/docs/README.md](packages/docs/README.md) | [packages/docs/REFERENCE.md](packages/docs/REFERENCE.md)       |
 
 
 ## Examples
@@ -191,24 +191,35 @@ Point your AI assistant at the package-shipped usage guide:
 
 ### Reference files in npm packages
 
-Both packages ship AI usage files plus `REFERENCE.md`. Link to them from your project's `CLAUDE.md` or `AGENTS.md`:
+Both packages ship `REFERENCE.md`, agent guidance files, and `llms*.txt` inside the npm package. After installing, link to them from your project's `CLAUDE.md` or `AGENTS.md`:
 
 ```markdown
-For @pagesmith/core usage, see: node_modules/@pagesmith/core/docs/agents/usage.md
-For @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
-For @pagesmith/docs usage, see: node_modules/@pagesmith/docs/docs/agents/usage.md
-For @pagesmith/docs reference, see: node_modules/@pagesmith/docs/REFERENCE.md
+For @pagesmith/docs usage and prompts, read node_modules/@pagesmith/docs/docs/agents/usage.md
+For the full @pagesmith/docs reference, see node_modules/@pagesmith/docs/REFERENCE.md
+For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/docs/agents/usage.md
+For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REFERENCE.md
 ```
 
-### AI guidelines
+Or copy the AGENTS.md template from the package:
+- `node_modules/@pagesmith/docs/docs/agents/AGENTS.md.template`
+- `node_modules/@pagesmith/core/docs/agents/AGENTS.md.template`
 
-Version-matched package guidance for AI assistants:
+### AI guidance files in each package
 
+Both packages ship these files under `node_modules/@pagesmith/<pkg>/`:
 
-| Package           | Files                                                                                                                                                |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@pagesmith/core` | `node_modules/@pagesmith/core/docs/agents/usage.md`, `node_modules/@pagesmith/core/docs/llms.txt`, `node_modules/@pagesmith/core/docs/llms-full.txt` |
-| `@pagesmith/docs` | `node_modules/@pagesmith/docs/docs/agents/usage.md`, `node_modules/@pagesmith/docs/docs/llms.txt`, `node_modules/@pagesmith/docs/docs/llms-full.txt` |
+| File | Purpose |
+|---|---|
+| `REFERENCE.md` | Complete reference (config, API, markdown, layouts, deployment) |
+| `README.md` | User-facing quick start and API overview |
+| `docs/agents/usage.md` | Agent rules, integration shape, copy-paste prompts for common workflows |
+| `docs/agents/recipes.md` | Step-by-step recipes for common tasks |
+| `docs/agents/errors.md` | Error catalog with patterns and fixes |
+| `docs/agents/migration.md` | Pre-1.0 upgrade notes |
+| `docs/agents/changelog-notes.md` | Version highlights |
+| `docs/agents/AGENTS.md.template` | Template for project-level AGENTS.md |
+| `docs/llms.txt` | Compact AI context index |
+| `docs/llms-full.txt` | Full AI context with all file pointers |
 
 
 ## Docs

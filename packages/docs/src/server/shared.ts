@@ -1,4 +1,4 @@
-import { exec } from 'child_process'
+import { exec, execFile } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { createServer as createNetServer } from 'net'
 import { extname, join } from 'path'
@@ -26,13 +26,16 @@ const MIME: Record<string, string> = {
 
 const WS_CLIENT_SCRIPT = `<script>
 (function() {
+  var retries = 0;
   var ws = new WebSocket('ws://' + location.host + '/__ws');
   ws.onmessage = function(e) {
     var msg = JSON.parse(e.data);
     if (msg.type === 'reload') location.reload();
   };
   ws.onclose = function() {
-    setTimeout(function() { location.reload(); }, 1000);
+    if (retries++ < 5) {
+      setTimeout(function() { location.reload(); }, 1000 * retries);
+    }
   };
 })();
 </script>`
@@ -102,7 +105,8 @@ export function logStartupSummary(
     const itemCount = sections.reduce((sum, s) => sum + s.items.length, 0)
     const title = sections[0]?.title ?? '(unknown)'
     const firstPath = sections[0]?.items[0]?.path ?? ''
-    const url = firstPath ? `${baseUrl.replace(/\/$/, '')}${firstPath}/` : baseUrl
+    const origin = new URL(baseUrl).origin
+    const url = firstPath ? `${origin}${firstPath}/` : baseUrl
     console.log(`  ${title} (${itemCount} pages)  ${url}`)
   }
 
@@ -112,7 +116,11 @@ export function logStartupSummary(
 export function openBrowser(url: string): void {
   const cmd =
     process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open'
-  exec(`${cmd} ${JSON.stringify(url)}`)
+  if (process.platform === 'win32') {
+    exec(`${cmd} ${JSON.stringify(url)}`)
+  } else {
+    execFile(cmd, [url], () => {})
+  }
 }
 
 export type StaticRequestResult =

@@ -1,3 +1,8 @@
+---
+title: Validation and Rendering
+description: Schema validation at load time, MDAST content validators, and lazy rendering with entry.render() in the content pipeline.
+---
+
 # Validation and Rendering
 
 > [!TIP] AI Quick Start
@@ -235,9 +240,10 @@ remark-parse                    Parse markdown to MDAST
   -> remark-github-alerts      > [!NOTE], > [!TIP], etc.
   -> remark-smartypants        Smart quotes, dashes, ellipses
   -> [user remark plugins]     From MarkdownConfig.remarkPlugins
+  -> lang-alias transform      Map fenced-code language tags via `markdown.shiki.langAlias`
   -> remark-rehype             MDAST -> HAST (allowDangerousHtml: true)
+  -> rehype-mathjax/svg        Render math to SVG (before Expressive Code)
   -> rehype-expressive-code    Syntax highlighting, code frames, tabs, copy buttons
-  -> rehype-mathjax/svg        Render math to SVG
   -> rehype-slug               Add id="" to headings
   -> rehype-autolink-headings  Wrap heading text in anchor links (behavior: 'wrap')
   -> rehype-external-links     target="_blank" on external URLs

@@ -47,7 +47,8 @@ The base path follows a priority resolution order:
 1. `--base-path` CLI flag (highest priority)
 2. `BASE_URL` environment variable
 3. `basePath` in `pagesmith.config.json5`
-4. Default: `"/"` (root)
+4. Auto-detected from git remote URL (repo name as base path)
+5. Default: `"/"` (root)
 
 This resolution chain allows CI/CD pipelines to override the base path without modifying the config file.
 
@@ -58,7 +59,7 @@ This resolution chain allows CI/CD pipelines to override the base path without m
 - **Custom domain**: leave as default `"/"` unless your docs live under a subdirectory
 - **Netlify / Vercel / Cloudflare**: leave as default `"/"` for most setups
 
-The `pagesmith-docs init` command auto-detects the correct `basePath` from your `package.json` repository field when running in a GitHub Pages context.
+The `pagesmith init` command auto-detects the correct `basePath` from your git remote URL when running in a GitHub Pages context.
 
 ## GitHub Pages
 
@@ -105,7 +106,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - run: npm ci
       - run: npx pagesmith build
@@ -156,7 +157,7 @@ In your Netlify dashboard or `netlify.toml`:
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "22"
+  NODE_VERSION = "24"
 ```
 
 When deploying to `https://my-project.netlify.app/` (the root), leave `basePath` as default. The `--out-dir dist` override is optional but avoids Netlify confusion with the `gh-pages/` default.
@@ -207,7 +208,7 @@ In the Cloudflare Pages dashboard:
 
 - **Build command**: `npx pagesmith build --out-dir dist`
 - **Build output directory**: `dist`
-- **Node.js version**: Set `NODE_VERSION` environment variable to `22`
+- **Node.js version**: Set `NODE_VERSION` environment variable to `24`
 
 ### wrangler.toml
 

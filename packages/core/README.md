@@ -481,6 +481,25 @@ Generates: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, skills, `llms.txt`, `llms-full
 | `@pagesmith/core/create` | Project scaffolding utilities |
 | `@pagesmith/core/mcp` | Core MCP server and helper utilities |
 
+## Further Reading
+
+- **[REFERENCE.md](REFERENCE.md)** — complete AI reference covering the content layer API, collections, loaders, markdown pipeline, Expressive Code, validators, JSX runtime, CSS exports, and Vite plugins
+- **[`@pagesmith/docs` README](../docs/README.md)** — convention-based docs site package with built-in navigation, search, and theme
+- **[`@pagesmith/docs` REFERENCE.md](../docs/REFERENCE.md)** — full docs reference for AI assistants
+
+### AI agent guidance (shipped inside the package)
+
+These files are available at `node_modules/@pagesmith/core/` after installation:
+
+| File | Purpose |
+|---|---|
+| `REFERENCE.md` | Full API reference for content layer, collections, markdown, JSX, CSS, Vite |
+| `docs/agents/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `docs/agents/recipes.md` | Step-by-step recipes for common tasks |
+| `docs/agents/errors.md` | Error catalog with patterns and fixes |
+| `docs/llms.txt` | Compact AI context index |
+| `docs/llms-full.txt` | Full AI context with all file pointers |
+
 ## License
 
 MIT

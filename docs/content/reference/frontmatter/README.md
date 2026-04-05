@@ -41,8 +41,8 @@ These fields are recognized by `@pagesmith/docs` for documentation sites. The sc
 | `order` | `number` | `undefined` | Manual sort order within a section. Lower numbers appear first. When not set, pages follow the order defined in the section's `meta.json5` `items` array, or fall back to alphabetical order. |
 | `draft` | `boolean` | `false` | Mark a page as a draft. Draft pages are excluded from the build output entirely -- they do not appear in navigation, search, or sitemap. |
 | `socialImage` | `string` | Config `theme.socialImage` | Path to a custom Open Graph image for this page. Overrides the site-level default set in `pagesmith.config.json5`. |
-| `hero` | `object` | `undefined` | Hero section data for the home page layout. Contains fields like `title`, `tagline`, and action buttons. Only used when the page uses the `home` layout. |
-| `features` | `array` | `undefined` | Feature cards for the home page layout. Each entry is an object with fields like `title`, `description`, and `icon`. Only used when the page uses the `home` layout. |
+| `hero` | `object` | `undefined` | Hero section data for the home page layout. Contains `name`, `text`, `tagline`, `badge`, and `actions`. Only used when the page uses the `home` layout. |
+| `features` | `array` | `undefined` | Feature cards for the home page layout. Each entry is an object with `title`, `details`, and optional `icon`. Only used when the page uses the `home` layout. |
 
 #### Hero Object Fields
 
@@ -50,9 +50,11 @@ When using the `home` layout, the `hero` object supports:
 
 | Field | Type | Description |
 |---|---|---|
-| `hero.title` | `string` | Large heading text in the hero section |
-| `hero.tagline` | `string` | Subtitle below the hero title |
-| `hero.actions` | `array` | Array of `{ label: string, path: string }` button links |
+| `hero.name` | `string` | Prominent name/brand text above the heading |
+| `hero.text` | `string` | Large h1 heading text in the hero section |
+| `hero.tagline` | `string` | Subtitle below the heading |
+| `hero.badge` | `string` | Badge text shown above the name |
+| `hero.actions` | `array` | Array of `{ text: string, link: string, theme?: 'brand' \| 'alt' }` button links |
 
 #### Features Array Fields
 
@@ -61,7 +63,7 @@ Each entry in the `features` array supports:
 | Field | Type | Description |
 |---|---|---|
 | `title` | `string` | Feature card heading |
-| `description` | `string` | Feature card body text |
+| `details` | `string` | Feature card body text |
 | `icon` | `string` | Optional icon identifier |
 
 ### Base Frontmatter (BaseFrontmatterSchema)
@@ -146,20 +148,23 @@ The home page layout reads `hero` and `features` from frontmatter (or from `home
 title: My Project
 description: A modern toolkit for building content sites
 hero:
-  title: My Project
-  tagline: Build content-driven sites with zero configuration
+  name: My Project
+  text: Build content-driven sites
+  tagline: Zero configuration, maximum output
   actions:
-    - label: Get Started
-      path: /guide/getting-started
-    - label: View on GitHub
-      path: https://github.com/my-org/my-project
+    - text: Get Started
+      link: /guide/getting-started
+      theme: brand
+    - text: View on GitHub
+      link: https://github.com/my-org/my-project
+      theme: alt
 features:
   - title: Fast Builds
-    description: Parallel page processing and incremental dev server
+    details: Parallel page processing and incremental dev server
   - title: Full-Text Search
-    description: Built-in Pagefind integration with zero configuration
+    details: Built-in Pagefind integration with zero configuration
   - title: Type-Safe Content
-    description: Zod schema validation for all frontmatter and data
+    details: Zod schema validation for all frontmatter and data
 ---
 ```
 
@@ -233,8 +238,6 @@ export default defineConfig({
 ```
 
 For docs sites using `@pagesmith/docs`, the `DocsFrontmatterSchema` is applied automatically to all content pages. You do not need to configure it manually.
-
-## Custom Fields
 
 ## Validation Rules
 

@@ -23,6 +23,9 @@ function getSchemaFieldNames(schema: z.ZodType): string[] | undefined {
   if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
     return getSchemaFieldNames(schema.unwrap() as z.ZodType)
   }
+  if (schema instanceof z.ZodDefault) {
+    return getSchemaFieldNames(schema._def.innerType as z.ZodType)
+  }
   return undefined
 }
 

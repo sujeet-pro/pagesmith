@@ -264,7 +264,7 @@ The biggest time savings in CI comes from caching `node_modules`. The Shiki gram
 ```yaml title="GitHub Actions caching"
 - uses: actions/setup-node@v4
   with:
-    node-version: 22
+    node-version: 24
     cache: 'npm'
 ```
 

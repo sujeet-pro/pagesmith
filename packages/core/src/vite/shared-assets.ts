@@ -30,7 +30,7 @@ export function sharedAssetsPlugin(): Plugin {
         // Serve font files
         if (url.includes('/assets/fonts/') && url.endsWith('.woff2')) {
           const fileName = url.split('/assets/fonts/').pop()
-          if (fileName) {
+          if (fileName && !fileName.includes('..') && !fileName.includes('/')) {
             const filePath = join(assetsDir, 'fonts', fileName)
             if (existsSync(filePath)) {
               res.writeHead(200, {

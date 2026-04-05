@@ -28,7 +28,7 @@ Search is enabled by default. Customize it in your config:
 
 ## How It Works
 
-1. During `pagesmith-docs build`, Pagefind indexes the HTML output
+1. During `pagesmith build`, Pagefind indexes the HTML output
 2. The built-in theme includes a search dialog triggered by a button or `Cmd/Ctrl+K`
 3. Search results appear instantly with highlighted matches
 4. Sub-results show individual sections within pages

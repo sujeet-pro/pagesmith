@@ -65,6 +65,8 @@ export function validateSchema(
     source: 'schema' as const,
   }))
 
+  // On failure, return raw data so the pipeline can continue in non-strict mode.
+  // The issues array signals that validation did not pass.
   return {
     issues,
     validatedData: data,

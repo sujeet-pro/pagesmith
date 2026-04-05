@@ -22,5 +22,5 @@
 
 ## Related docs
 
-- `docs/agents/changelog-notes.md`
-- `REFERENCE.md`
+- `node_modules/@pagesmith/docs/docs/agents/changelog-notes.md`
+- `node_modules/@pagesmith/docs/REFERENCE.md`

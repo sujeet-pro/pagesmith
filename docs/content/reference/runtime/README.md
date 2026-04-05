@@ -1,3 +1,8 @@
+---
+title: Runtime
+description: Pre-built CSS and JavaScript exports from @pagesmith/core — content and standalone tiers, fonts, tokens, and runtime helpers.
+---
+
 # Runtime
 
 `@pagesmith/core` provides pre-built CSS and JS assets for styling rendered markdown content. This page is the comprehensive guide for CSS imports, runtime JavaScript, design tokens, and customization.

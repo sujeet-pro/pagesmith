@@ -2,7 +2,6 @@ import { Fragment, h } from '@pagesmith/core/jsx-runtime'
 
 type SidebarItem = {
   title: string
-  slug: string
   path: string
   children?: SidebarItem[]
 }

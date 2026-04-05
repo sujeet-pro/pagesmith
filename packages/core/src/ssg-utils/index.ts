@@ -6,13 +6,11 @@
  * used across all framework examples.
  */
 
+import type { Heading } from '../schemas/heading'
+
 // ── Types ──
 
-export type Heading = {
-  depth: number
-  slug: string
-  text: string
-}
+export type { Heading }
 
 export type MarkdownEntry<T extends Record<string, unknown> = Record<string, unknown>> = {
   contentSlug: string
@@ -54,7 +52,8 @@ export function normalizeRoute(url: string, base: string): string {
 }
 
 export function leafSlug(contentSlug: string, collection: string): string {
-  return contentSlug.replace(new RegExp(`^${collection}/`), '')
+  const escaped = collection.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return contentSlug.replace(new RegExp(`^${escaped}/`), '')
 }
 
 export function routeFor(

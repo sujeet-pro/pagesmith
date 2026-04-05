@@ -44,7 +44,7 @@ describe('ContentStore', () => {
       const first = await store.loadCollection('posts', def)
       const second = await store.loadCollection('posts', def)
 
-      expect(first).toEqual(second)
+      expect(first).toBe(second)
     })
 
     it('validates entries against the schema', async () => {

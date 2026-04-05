@@ -10,13 +10,21 @@ import { dirname, resolve } from 'path'
 import type { ValidationIssue } from './schema-validator'
 import type { ContentValidator, MdastNode, ResolvedValidatorContext } from './types'
 
+/** Extract plain text from a node's children. */
+function getTextContent(node: MdastNode): string {
+  if (node.type === 'text') return node.value ?? ''
+  if (node.children) return node.children.map(getTextContent).join('')
+  return ''
+}
+
 /** Walk MDAST tree, collecting link and image nodes. */
-function collectLinks(node: MdastNode): Array<{ url: string; line?: number }> {
-  const links: Array<{ url: string; line?: number }> = []
+function collectLinks(node: MdastNode): Array<{ url: string; text: string; line?: number }> {
+  const links: Array<{ url: string; text: string; line?: number }> = []
 
   if ((node.type === 'link' || node.type === 'image') && node.url) {
     links.push({
       url: node.url,
+      text: node.type === 'link' ? getTextContent(node) : '',
       line: node.position?.start.line,
     })
   }
@@ -36,6 +44,7 @@ function isInternalLink(url: string): boolean {
   if (url.startsWith('//')) return false
   if (url.startsWith('mailto:')) return false
   if (url.startsWith('tel:')) return false
+  if (url.startsWith('data:')) return false
   return true
 }
 
@@ -80,6 +89,15 @@ export function createLinkValidator(options?: LinkValidatorOptions): ContentVali
 
       for (const link of links) {
         const lineInfo = link.line ? ` (line ${link.line})` : ''
+
+        // Empty link text — bad accessibility
+        if (link.text !== undefined && !link.text.trim()) {
+          issues.push({
+            field: `links${lineInfo}`,
+            message: `Link has no visible text: ${link.url}`,
+            severity: 'warn',
+          })
+        }
 
         // External links — check URL format
         if (link.url.startsWith('http://') || link.url.startsWith('https://')) {

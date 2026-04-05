@@ -1,3 +1,8 @@
+---
+title: Docs Configuration Reference
+description: Full pagesmith.config.json5 reference — site metadata, paths, base URL, theme, search, edit links, and markdown options.
+---
+
 # Docs Configuration Reference
 
 The `@pagesmith/docs` package is configured through a `pagesmith.config.json5` file placed at the root of your documentation project. This file uses the [JSON5](https://json5.org/) format, which supports comments, trailing commas, unquoted keys, and other conveniences that make configuration files more readable.
@@ -49,6 +54,14 @@ type DocsUserConfig = {
     configFile?: string
   }
   packages?: Record<string, { label: string }>
+  favicon?: string | false
+  icon?: string | false
+  assets?: Record<string, string[]>
+  server?: {
+    devPort?: number
+    previewPort?: number
+    strictPort?: boolean
+  }
 }
 ```
 
@@ -83,7 +96,8 @@ The base path follows a priority resolution order:
 1. `--base-path` CLI flag (highest priority)
 2. `BASE_URL` environment variable
 3. `basePath` in `pagesmith.config.json5`
-4. Default: `"/"` (root)
+4. Auto-detected from git remote URL (repo name as base path)
+5. Default: `"/"` (root)
 
 This resolution order allows CI/CD pipelines to override the base path without modifying the config file. For example, GitHub Pages deployments commonly set `BASE_URL` in the build environment.
 
@@ -488,15 +502,25 @@ type ResolvedDocsConfig = {
     showSubResults: boolean // Defaults to true
     pagefindFlags: string[]
   }
-  editLink?: { repo: string; branch: string; label: string }
+  editLink?: { repo: string; branch: string; label: string; editPattern: string }
   lastUpdated: boolean        // Defaults to false
   sitemap: boolean            // Defaults to true
   socialImage?: string
+  favicon: string | false      // Resolved favicon path (false disables)
+  icon: string | false         // Resolved icon/logo path (false disables)
+  appleTouchIcon: string | false
+  faviconFallback: string | false
   theme?: { lightColor?: string; darkColor?: string; layouts?: Record<string, string> }
   analytics?: { googleAnalytics?: string }
   markdown?: MarkdownConfig
   homeConfigFile?: string  // Absolute path to home config JSON5
   packages?: Record<string, { label: string }>
+  assets: Map<string, string[]>  // Resolved asset mappings
+  server: {
+    devPort: number          // Defaults to 3000
+    previewPort: number      // Defaults to 4000
+    strictPort: boolean      // Defaults to false
+  }
 }
 ```
 
@@ -504,7 +528,7 @@ The resolution logic in `resolveDocsConfig()` works as follows:
 
 - `rootDir` is set to the directory containing `pagesmith.config.json5`.
 - `contentDir`, `outDir`, and `publicDir` are resolved to absolute paths from `rootDir`.
-- `basePath` follows the priority chain: CLI `--base-path` > `BASE_URL` env > config `basePath` > `"/"`. Trailing slashes are stripped.
+- `basePath` follows the priority chain: CLI `--base-path` > `BASE_URL` env > config `basePath` > auto-detected from git remote (repo name) > `"/"`. Trailing slashes are stripped.
 - `name` falls back to `title`, then package.json `name` (scope stripped), then directory name.
 - `title` falls back to `name`, then package.json `name` (scope stripped), then directory name.
 - `name`, `title`, `description`, and `origin` fall back to package.json fields before using placeholder defaults.

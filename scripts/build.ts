@@ -15,14 +15,8 @@ mkdirSync(join(sharedAssetsDir, 'fonts'), { recursive: true })
 cpSync(coreFontsDir, join(sharedAssetsDir, 'fonts'), { recursive: true })
 cpSync(join(process.cwd(), 'packages/core/assets/fonts.css'), join(sharedAssetsDir, 'fonts.css'))
 
-// Copy llms text files to gh-pages root
-for (const file of ['llms.txt', 'llms-full.txt']) {
-  const src: string = join(process.cwd(), file)
-  if (existsSync(src)) {
-    copyFileSync(src, join(outDir, file))
-    console.log(`Copied ${file} → gh-pages/${file}`)
-  }
-}
+// Root llms.txt files are copied to gh-pages/ by the docs build via the
+// `assets` config in docs/pagesmith.config.json5.
 
 // Copy package-level llms files to hosted paths.
 interface LlmsTarget {

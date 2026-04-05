@@ -6,7 +6,7 @@ description: A fully featured documentation site with search, series navigation,
 install: npm install @pagesmith/docs
 actions:
   - text: Get Started
-    link: /guide/getting-started
+    link: /guide/installation
     theme: brand
   - text: View on GitHub
     link: https://github.com/sujeet-pro/pagesmith
@@ -38,6 +38,6 @@ This is a demonstration documentation site built with `@pagesmith/docs`. It show
 
 ## Explore
 
-- **[Guide](/guide/getting-started)** -- Learn the basics of setting up and configuring a docs site.
-- **[Reference](/reference/cli)** -- CLI commands, schemas, and configuration options.
-- **[Blog](/blog)** -- Posts about building with Pagesmith.
+- **[Guide](/guide/installation)** -- Learn the basics of setting up and configuring a docs site.
+- **[Reference](/guide/configuration)** -- Configuration options used in this example.
+- **[Features](/features/kitchen-sink)** -- Markdown and layout features demonstrated on this site.

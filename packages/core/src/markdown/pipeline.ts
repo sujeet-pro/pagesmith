@@ -170,6 +170,16 @@ function createProcessor(config: MarkdownConfig) {
  * Pass a new config object — a fresh reference gets its own cache entry.
  * For example: `processMarkdown(md, { ...existingConfig, remarkPlugins: [...] })`.
  */
+function deepFreeze<T extends object>(obj: T): T {
+  Object.freeze(obj)
+  for (const value of Object.values(obj)) {
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+      deepFreeze(value)
+    }
+  }
+  return obj
+}
+
 const processorCache = new WeakMap<MarkdownConfig, ReturnType<typeof createProcessor>>()
 
 export async function processMarkdown(
@@ -189,7 +199,7 @@ export async function processMarkdown(
   }
   const resolvedConfig = config && Object.keys(config).length > 0 ? config : DEFAULT_MARKDOWN_CONFIG
   // Freeze to prevent mutation after caching — see processorCache JSDoc above.
-  if (Object.isFrozen(resolvedConfig) === false) Object.freeze(resolvedConfig)
+  if (Object.isFrozen(resolvedConfig) === false) deepFreeze(resolvedConfig)
   let processor = processorCache.get(resolvedConfig)
   if (!processor) {
     processor = createProcessor(resolvedConfig)

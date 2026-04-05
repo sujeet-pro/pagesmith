@@ -15,7 +15,16 @@ export function loadDocsConfig(configPath?: string): DocsUserConfig {
     return {}
   }
 
-  return JSON5.parse(readFileSync(resolvedConfigPath, 'utf-8')) as DocsUserConfig
+  try {
+    return JSON5.parse(readFileSync(resolvedConfigPath, 'utf-8')) as DocsUserConfig
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    throw new Error(
+      `Failed to parse config file: ${resolvedConfigPath}\n` +
+        `  ${message}\n` +
+        `  Check that the file contains valid JSON5 syntax.`,
+    )
+  }
 }
 
 /** Detect basePath and origin from git remote URL. */
@@ -114,7 +123,10 @@ export function resolveDocsConfig(
 
   const rawBase =
     overrides?.basePath ?? process.env.BASE_URL ?? userConfig.basePath ?? gitInfo?.basePath ?? '/'
-  const basePath = rawBase.replace(/\/+$/, '')
+  let basePath = rawBase.replace(/\/+$/, '')
+  if (basePath && !basePath.startsWith('/')) {
+    basePath = '/' + basePath
+  }
   const contentDir = resolveContentDir(rootDir, userConfig.contentDir)
   const publicDir = resolve(rootDir, userConfig.publicDir ?? 'public')
   const siteName = userConfig.name ?? userConfig.title ?? pkgDisplayName ?? packageName

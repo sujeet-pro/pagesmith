@@ -1,11 +1,11 @@
 declare module '../content.config.mjs' {
   export const guide: any
-  export const blog: any
+  export const features: any
   export const pages: any
 
   const config: {
     guide: any
-    blog: any
+    features: any
     pages: any
   }
 

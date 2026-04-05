@@ -1,3 +1,8 @@
+---
+title: Layout Overrides
+description: Replace home, page, and 404 layouts with custom TSX components via theme.layouts, props, and section meta assignments.
+---
+
 # Layout Overrides
 
 `@pagesmith/docs` ships with three built-in layouts: `home`, `page`, and `notFound`. You can replace any of them with your own TSX components, or register entirely new layouts and assign them to specific sections through `meta.json5`.
@@ -94,6 +99,7 @@ A `SidebarSection` has:
 type SidebarSection = {
   title: string
   slug: string
+  collapsed?: boolean
   items: SidebarItem[]
 }
 

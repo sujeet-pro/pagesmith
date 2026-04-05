@@ -32,9 +32,17 @@ async function loadSiteModel(config: ResolvedDocsConfig): Promise<SiteModel> {
 export async function startDev(options: DocsDevOptions = {}): Promise<void> {
   const configPath = resolve(options.configPath ?? join(process.cwd(), 'pagesmith.config.json5'))
   const logger = createLogger(options.logLevel ?? 'warn')
+  const buildOverrides: { configPath: string; outDir?: string; basePath?: string } = {
+    configPath,
+    outDir: options.outDir,
+    basePath: options.basePath,
+  }
 
-  await build({ configPath })
-  const config = resolveDocsConfig(configPath)
+  await build(buildOverrides)
+  const config = resolveDocsConfig(configPath, {
+    outDir: options.outDir,
+    basePath: options.basePath,
+  })
   const requestedPort = options.port ?? config.server.devPort
   const port = await findAvailablePort(requestedPort, config.server.strictPort, 'dev', logger)
   const themeRoot = getThemeRoot()
@@ -83,9 +91,9 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
     }
     const start = performance.now()
     if (type === 'full') {
-      await build({ configPath })
+      await build(buildOverrides)
     } else {
-      await rebuildContent({ configPath })
+      await rebuildContent(buildOverrides)
     }
     const elapsed = Math.round(performance.now() - start)
     logger.info(
@@ -104,18 +112,20 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
         base ? pathname.startsWith(`${base}/assets/fonts/`) : pathname.startsWith('/assets/fonts/')
       ) {
         const fontFile = pathname.replace(/.*\/assets\/fonts\//, '')
-        const corePkgDir = dirname(
-          fileURLToPath(import.meta.resolve('@pagesmith/core/package.json')),
-        )
-        const fontPath = join(corePkgDir, 'assets', 'fonts', fontFile)
-        if (existsSync(fontPath)) {
-          logRequest(200, method, url.pathname)
-          res.writeHead(200, {
-            'Content-Type': 'font/woff2',
-            'Cache-Control': 'public, max-age=31536000',
-          })
-          res.end(readFileSync(fontPath))
-          return
+        if (fontFile && !fontFile.includes('..') && !fontFile.includes('/')) {
+          const corePkgDir = dirname(
+            fileURLToPath(import.meta.resolve('@pagesmith/core/package.json')),
+          )
+          const fontPath = join(corePkgDir, 'assets', 'fonts', fontFile)
+          if (existsSync(fontPath)) {
+            logRequest(200, method, url.pathname)
+            res.writeHead(200, {
+              'Content-Type': 'font/woff2',
+              'Cache-Control': 'public, max-age=31536000',
+            })
+            res.end(readFileSync(fontPath))
+            return
+          }
         }
       }
 
@@ -197,7 +207,7 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
       logger.error(`  Rebuild failed: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       rebuilding = false
-      if (pending) {
+      while (pending) {
         const nextType = pending
         pending = false
         rebuilding = true
@@ -216,7 +226,20 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 
 export async function preview(options: DocsDevOptions = {}): Promise<void> {
   const logger = createLogger(options.logLevel ?? 'warn')
-  const config = resolveDocsConfig(options.configPath)
+  const config = resolveDocsConfig(options.configPath, {
+    outDir: options.outDir,
+    basePath: options.basePath,
+  })
+
+  const { validateConfig: validate, reportConfigIssues: report } = await import('./config.js')
+  const issues = validate(config)
+  if (issues.length > 0) {
+    const hasErrors = report(issues)
+    if (hasErrors) {
+      throw new Error('Config validation failed — fix the errors above.')
+    }
+  }
+
   const requestedPort = options.port ?? config.server.previewPort
   const port = await findAvailablePort(requestedPort, config.server.strictPort, 'preview', logger)
   const previewBase = config.basePath.replace(/\/+$/, '')

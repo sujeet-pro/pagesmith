@@ -236,7 +236,7 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
 Start a development server with live reload. Uses incremental rebuilds -- content changes trigger a fast content-only rebuild, while config or theme changes trigger a full rebuild. Shows a startup summary with page/section counts and clickable section URLs.
 
 ```bash
-pagesmith dev [--port 3001] [--open] [--config path] [--out-dir path] [--base-path path]
+pagesmith dev [--port 3001] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
 ```
 
 ### `pagesmith build`
@@ -252,7 +252,7 @@ pagesmith build [--out-dir path] [--base-path path] [--config path]
 Preview the built site locally.
 
 ```bash
-pagesmith preview [--port 4173] [--config path]
+pagesmith preview [--port 4000] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
 ```
 
 ### `pagesmith mcp`
@@ -263,7 +263,7 @@ Start the stdio MCP server for docs-aware AI tooling.
 pagesmith mcp --stdio [--config path] [--root path]
 ```
 
-The MCP server exposes docs-focused tools (`docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, `docs_get_page`) and package resources for versioned guidance (`pagesmith://docs/agents/usage`, `pagesmith://docs/llms-full`, `pagesmith://docs/reference`).
+The MCP server exposes docs-focused tools (`docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, `docs_get_page`, `docs_search_pages`) and package resources for versioned guidance (`pagesmith://docs/agents/usage`, `pagesmith://docs/llms-full`, `pagesmith://docs/reference`).
 
 ## Auto-generated Files
 
@@ -386,7 +386,7 @@ const config = defineDocsConfig({
 
 await build({ configPath: './pagesmith.config.json5' })
 await startDev({ port: 3000 })
-await preview({ port: 4173 })
+await preview({ port: 4000 })
 ```
 
 ## Export Map
@@ -398,6 +398,25 @@ await preview({ port: 4173 })
 | `@pagesmith/docs/preset` | Docs preset for integration |
 | `@pagesmith/docs/theme` | Theme/runtime export surface |
 | `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
+
+## Further Reading
+
+- **[REFERENCE.md](REFERENCE.md)** — complete AI reference covering config, CLI, content structure, frontmatter, markdown pipeline, layout overrides, and GitHub Pages deployment
+- **[`@pagesmith/core` README](../core/README.md)** — content layer, collections, markdown pipeline, Vite plugins, JSX runtime, and CSS exports
+- **[`@pagesmith/core` REFERENCE.md](../core/REFERENCE.md)** — full core API reference for AI assistants
+
+### AI agent guidance (shipped inside the package)
+
+These files are available at `node_modules/@pagesmith/docs/` after installation:
+
+| File | Purpose |
+|---|---|
+| `REFERENCE.md` | Full reference for config, CLI, content, markdown, layouts, deployment |
+| `docs/agents/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `docs/agents/recipes.md` | Step-by-step recipes for common tasks |
+| `docs/agents/errors.md` | Error catalog with patterns and fixes |
+| `docs/llms.txt` | Compact AI context index |
+| `docs/llms-full.txt` | Full AI context with all file pointers |
 
 ## License
 

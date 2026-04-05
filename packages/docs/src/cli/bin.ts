@@ -58,9 +58,15 @@ General:
   )
 }
 
-async function ensureDocsConfig(configPath?: string): Promise<string> {
+async function ensureDocsConfig(
+  configPath?: string,
+  opts?: { allowMissing?: boolean },
+): Promise<string> {
   const resolved = resolve(configPath ?? 'pagesmith.config.json5')
   if (!existsSync(resolved)) {
+    if (opts?.allowMissing) {
+      return resolved
+    }
     throw new Error(
       `No config file found at ${resolved}\n` +
         `  Run 'pagesmith init' to create one, or use --config to specify a path.`,
@@ -113,6 +119,18 @@ function detectDefaults(projectDir: string): InitAnswers {
 async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
   const rl = createInterface({ input: process.stdin, output: process.stdout })
 
+  const onSigint = () => {
+    rl.close()
+    console.log('\n  Init cancelled.')
+    process.exit(130)
+  }
+  process.once('SIGINT', onSigint)
+
+  const cleanup = () => {
+    process.removeListener('SIGINT', onSigint)
+    rl.close()
+  }
+
   const ask = async (label: string, fallback: string): Promise<string> => {
     const answer = await rl.question(`  ${label} (${fallback}): `)
     return answer.trim() || fallback
@@ -136,7 +154,7 @@ async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
   const ai = await confirm('Install AI integrations?', defaults.ai)
   const starterContent = await confirm('Create starter content?', defaults.starterContent)
 
-  rl.close()
+  cleanup()
   console.log()
 
   return { name, title, basePath, contentDir, search, ai, starterContent }
@@ -151,6 +169,7 @@ function buildConfigContent(answers: InitAnswers, gitOrigin?: string): string {
   lines.push(`  name: "${answers.name}",`)
   lines.push(`  title: "${answers.title}",`)
   lines.push(`  basePath: "${answers.basePath}",`)
+  lines.push(`  contentDir: "${answers.contentDir}",`)
   if (gitOrigin) lines.push(`  origin: "${gitOrigin}",`)
   if (answers.search) lines.push('  search: { enabled: true },')
   lines.push('}', '')
@@ -278,10 +297,12 @@ async function runDev(argv: string[]): Promise<void> {
     return
   }
   await startDev({
-    configPath: await ensureDocsConfig(args.config),
+    configPath: await ensureDocsConfig(args.config, { allowMissing: true }),
     port: args.port,
     open: args.open,
     logLevel: args.logLevel,
+    outDir: args.outDir,
+    basePath: args.basePath,
   })
 }
 
@@ -309,6 +330,8 @@ async function runPreview(argv: string[]): Promise<void> {
     port: args.port,
     open: args.open,
     logLevel: args.logLevel,
+    outDir: args.outDir,
+    basePath: args.basePath,
   })
 }
 

@@ -104,8 +104,6 @@ function copyContentAssetsToOutput(outDir: string, assets: Map<string, string>):
 }
 
 async function runPagefind(outDir: string, extraFlags: string[] = []): Promise<void> {
-  // Resolve pagefind's main entry via import.meta.resolve (works with exports-only packages)
-  const { fileURLToPath } = await import('url')
   const mainUrl = import.meta.resolve('pagefind')
   const mainPath = fileURLToPath(mainUrl)
   const pagefindRoot = join(mainPath, '..', '..')
@@ -236,9 +234,17 @@ export async function rebuildContent(options: DocsBuildOptions = {}): Promise<vo
     basePath: options.basePath,
   })
 
+  const issues = validateConfig(config)
+  if (issues.length > 0) {
+    const hasErrors = issues.some((i) => i.severity === 'error')
+    if (hasErrors) {
+      reportConfigIssues(issues)
+    }
+  }
+
   const contentAssets = collectContentAssets(config.contentDir)
 
-  await renderDocs(config)
+  const { pages } = await renderDocs(config)
   copyPublicAssets(config)
   copyMappedAssets(config)
   copyContentAssetsToOutput(config.outDir, contentAssets)
@@ -248,5 +254,19 @@ export async function rebuildContent(options: DocsBuildOptions = {}): Promise<vo
     if (!existsSync(faviconDest)) {
       copyFileSync(config.favicon, faviconDest)
     }
+  }
+
+  // Regenerate sitemap/robots/nojekyll for content-only rebuilds
+  writeFileSync(join(config.outDir, '.nojekyll'), '')
+  if (config.sitemap && config.origin !== 'https://example.com') {
+    writeFileSync(join(config.outDir, 'sitemap.xml'), generateSitemap(pages, config))
+  }
+  const robotsPath = join(config.outDir, 'robots.txt')
+  if (!existsSync(robotsPath)) {
+    const hasSitemap = config.sitemap && config.origin !== 'https://example.com'
+    const sitemapLine = hasSitemap
+      ? `\nSitemap: ${config.origin}${config.basePath}/sitemap.xml`
+      : ''
+    writeFileSync(robotsPath, `User-agent: *\nAllow: /${sitemapLine}\n`)
   }
 }

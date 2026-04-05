@@ -1,3 +1,8 @@
+---
+title: Architecture
+description: Workspace layout, 1.0 principles, package dependency graph, and how @pagesmith/core and @pagesmith/docs fit together.
+---
+
 # Architecture
 
 Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm scope. The two main packages:

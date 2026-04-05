@@ -113,4 +113,6 @@ Define collections in `content.config.ts`, configure Vite with `pagesmithContent
 - [Code Blocks](/guide/code-blocks) — syntax highlighting, line numbers, tabs, and more
 - [Framework Guides](/guide/frameworks) — complete setup instructions for every supported framework
 - [Layout Overrides](/guide/layout-overrides) — customize the docs theme with your own layouts
+- [Deployment](/deployment) — deploy to GitHub Pages, Netlify, Vercel, or Cloudflare
+- [Troubleshooting](/guide/troubleshooting) — common issues and solutions
 - [API Reference](/reference/api) — the full API surface for `@pagesmith/core`

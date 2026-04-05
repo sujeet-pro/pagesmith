@@ -38,6 +38,6 @@ export function getThemeRuntimeEntry(): string {
 export function withBase(basePath: string, path: string): string {
   const base = basePath.replace(/\/+$/, '')
   if (!base) return path
-  if (path.startsWith(base)) return path
+  if (path === base || path.startsWith(base + '/')) return path
   return `${base}${path.startsWith('/') ? '' : '/'}${path}`
 }

@@ -14,13 +14,6 @@ import type { SsgRenderConfig } from './ssg-plugin'
 import { collectContentAssets } from '../assets'
 import { MIME, rewriteContentAssetRefs } from './ssg-render'
 
-const WS_RELOAD_SCRIPT = `<script type="module">
-import 'vite/modulepreload-polyfill'
-if (import.meta.hot) {
-  import.meta.hot.on('full-reload', () => location.reload())
-}
-</script>`
-
 export type SsgDevContext = {
   /** Absolute path to the project root */
   projectRoot: string
@@ -144,7 +137,9 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
       res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8' })
       res.end(html)
     } catch (err: unknown) {
-      server.ssrFixStacktrace(err as Error)
+      if (err instanceof Error) {
+        server.ssrFixStacktrace(err)
+      }
       console.error(`SSR error for ${url}:`, err instanceof Error ? err.message : String(err))
       next(err)
     }

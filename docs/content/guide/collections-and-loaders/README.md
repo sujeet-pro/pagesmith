@@ -1,3 +1,8 @@
+---
+title: Collections and Loaders
+description: Define content collections with loaders, Zod schemas, transforms, computed fields, filters, and built-in markdown and data loaders.
+---
+
 # Collections and Loaders
 
 > [!TIP] AI Quick Start

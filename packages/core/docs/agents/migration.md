@@ -5,13 +5,13 @@
 ## Upgrade checklist
 
 1. Prefer subpath imports from the package export map:
-   - `@pagesmith/core/vite`
-   - `@pagesmith/core/mcp`
-   - `@pagesmith/core/ssg-utils`
+  - `@pagesmith/core/vite`
+  - `@pagesmith/core/mcp`
+  - `@pagesmith/core/ssg-utils`
 2. Keep Vite integration scripts aligned with current examples (`vite dev`, `vite build`) in downstream projects.
 3. Re-run validation and tests after upgrade:
-   - `vp check`
-   - `vp test`
+  - `vp check`
+  - `vp test`
 
 ## Behavior updates to note
 
@@ -21,5 +21,5 @@
 
 ## Related docs
 
-- `docs/agents/changelog-notes.md`
-- `REFERENCE.md`
+- `node_modules/@pagesmith/core/docs/agents/changelog-notes.md`
+- `node_modules/@pagesmith/core/REFERENCE.md`

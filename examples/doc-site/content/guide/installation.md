@@ -18,7 +18,7 @@ npm install @pagesmith/docs
 Initialize a new docs site:
 
 ```bash
-npx pagesmith-docs init
+npx pagesmith init
 ```
 
 This creates a `pagesmith.config.json5` with smart defaults detected from your git repository — including `basePath` and `origin` for GitHub Pages deployment.
@@ -26,7 +26,7 @@ This creates a `pagesmith.config.json5` with smart defaults detected from your g
 ## Running Locally
 
 ```bash
-npx pagesmith-docs dev
+npx pagesmith dev
 ```
 
 The dev server starts with hot reload. Content changes rebuild instantly without rebundling CSS or JavaScript.
@@ -34,7 +34,7 @@ The dev server starts with hot reload. Content changes rebuild instantly without
 ## Building for Production
 
 ```bash
-npx pagesmith-docs build
+npx pagesmith build
 ```
 
 Outputs static HTML to `gh-pages/` (configurable via `outDir`). Pagefind search indexing runs automatically.

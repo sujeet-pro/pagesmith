@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/core",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "File-based CMS — schema-validated collections, lazy markdown rendering, and runtime CSS/JS exports",
   "keywords": [
     "cms",
@@ -108,6 +108,7 @@
     "./agents/usage": "./docs/agents/usage.md",
     "./agents/recipes": "./docs/agents/recipes.md",
     "./agents/changelog-notes": "./docs/agents/changelog-notes.md",
+    "./agents/errors": "./docs/agents/errors.md",
     "./agents/migration": "./docs/agents/migration.md",
     "./agents/template": "./docs/agents/AGENTS.md.template",
     "./package.json": "./package.json"

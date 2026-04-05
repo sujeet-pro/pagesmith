@@ -58,6 +58,18 @@ export const headingValidator: ContentValidator = {
       return issues
     }
 
+    // Empty heading text
+    for (const h of headings) {
+      if (!h.text.trim()) {
+        const lineInfo = h.line ? ` (line ${h.line})` : ''
+        issues.push({
+          field: `headings${lineInfo}`,
+          message: `Empty heading at level h${h.depth}`,
+          severity: 'warn',
+        })
+      }
+    }
+
     // At most one h1
     const h1s = headings.filter((h) => h.depth === 1)
     if (h1s.length > 1) {
