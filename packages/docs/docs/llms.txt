@@ -12,6 +12,7 @@ Version-matched AI context for the installed `@pagesmith/docs` package.
 - `node_modules/@pagesmith/docs/docs/agents/usage.md`
 - `node_modules/@pagesmith/docs/docs/agents/recipes.md`
 - `node_modules/@pagesmith/docs/docs/agents/errors.md`
+- `node_modules/@pagesmith/docs/docs/agents/migration.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md`
 - MCP: `pagesmith mcp --stdio`
 

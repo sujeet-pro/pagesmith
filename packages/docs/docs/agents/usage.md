@@ -60,6 +60,7 @@ Primary MCP tools:
 - Core reference: `node_modules/@pagesmith/core/REFERENCE.md`
 - Recipes: `node_modules/@pagesmith/docs/docs/agents/recipes.md`
 - Version notes: `node_modules/@pagesmith/docs/docs/agents/changelog-notes.md`
+- Migration notes: `node_modules/@pagesmith/docs/docs/agents/migration.md`
 - MCP entry: `node_modules/@pagesmith/docs/dist/mcp/server.mjs`
 
 ## MCP Introspection Workflows

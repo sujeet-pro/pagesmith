@@ -197,6 +197,10 @@ export class ContentStore {
     return this.cache.get(collection)?.get(slug)?.entry
   }
 
+  isCollectionLoaded(collection: string): boolean {
+    return this.loaded.has(collection)
+  }
+
   /** Get validation issues for a collection. */
   getIssues(collection: string): Map<string, ValidationIssue[]> {
     const result = new Map<string, ValidationIssue[]>()

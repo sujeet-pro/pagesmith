@@ -14,6 +14,7 @@
     "url": "https://github.com/sujeet-pro/pagesmith/issues"
   },
   "license": "MIT",
+  "author": "Sujeet <hello@sujeet.pro> (https://sujeet.pro)",
   "repository": {
     "type": "git",
     "url": "https://github.com/sujeet-pro/pagesmith.git",
@@ -46,6 +47,10 @@
       "types": "./dist/preset.d.mts",
       "import": "./dist/preset.mjs"
     },
+    "./theme": {
+      "types": "./dist/theme.d.mts",
+      "import": "./dist/theme.mjs"
+    },
     "./mcp": {
       "types": "./dist/mcp/server.d.mts",
       "import": "./dist/mcp/server.mjs"
@@ -55,6 +60,7 @@
     "./agents/usage": "./docs/agents/usage.md",
     "./agents/recipes": "./docs/agents/recipes.md",
     "./agents/changelog-notes": "./docs/agents/changelog-notes.md",
+    "./agents/migration": "./docs/agents/migration.md",
     "./agents/template": "./docs/agents/AGENTS.md.template"
   },
   "scripts": {
@@ -76,7 +82,21 @@
     "@types/node": "^25.5.2",
     "@types/ws": "^8.18.1",
     "typescript": "^6.0.2",
-    "vite-plus": "0.1.13"
+    "vite-plus": "^0.1.13"
+  },
+  "bundleDependencies": [
+    "@modelcontextprotocol/sdk",
+    "@pagesmith/core",
+    "chokidar",
+    "json5",
+    "pagefind",
+    "rolldown",
+    "unist-util-visit",
+    "ws",
+    "zod"
+  ],
+  "engines": {
+    "node": ">=24"
   },
   "ai": {
     "context": "./docs/llms.txt",

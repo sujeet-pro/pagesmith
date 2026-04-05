@@ -27,6 +27,7 @@ Use this file as the primary instruction source for `@pagesmith/core`.
 - API reference: `node_modules/@pagesmith/core/REFERENCE.md`
 - Recipes: `node_modules/@pagesmith/core/docs/agents/recipes.md`
 - Version notes: `node_modules/@pagesmith/core/docs/agents/changelog-notes.md`
+- Migration notes: `node_modules/@pagesmith/core/docs/agents/migration.md`
 
 ## MCP Introspection Workflows
 

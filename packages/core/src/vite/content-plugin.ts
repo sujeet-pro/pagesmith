@@ -1,0 +1,345 @@
+import { mkdirSync, writeFileSync } from 'fs'
+import { dirname, relative, resolve } from 'path'
+import { uneval } from 'devalue'
+import { createContentLayer } from '../content-layer'
+import { resolveLoader } from '../loaders'
+import type { Heading } from '../schemas/heading'
+import type { CollectionDef, CollectionMap, InferCollectionData } from '../schemas/collection'
+import type { ContentLayerConfig } from '../schemas/content-config'
+import { toSlug } from '../utils/slug'
+import { createDtsSource, resolveDtsPath } from './dts'
+
+type Simplify<T> = { [K in keyof T]: T[K] } & {}
+
+type PagesmithResolvedConfig = {
+  root: string
+}
+
+type PagesmithModuleGraph = {
+  getModuleById(id: string): unknown
+  invalidateModule(module: unknown): void
+}
+
+type PagesmithDevServer = {
+  moduleGraph: PagesmithModuleGraph
+  ws: {
+    send(payload: { type: string }): void
+  }
+}
+
+export type PagesmithVitePlugin = {
+  name: string
+  enforce?: 'pre' | 'post'
+  configResolved?: (config: PagesmithResolvedConfig) => void
+  buildStart?: () => void
+  resolveId?: (id: string) => string | void
+  load?: (id: string) => Promise<string | void> | string | void
+  handleHotUpdate?: (context: { file: string; server: PagesmithDevServer }) => void
+}
+
+export type BaseContentModuleEntry = {
+  id: string
+  contentSlug: string
+}
+
+export type MarkdownContentModuleEntry<TCollection extends CollectionDef<any, any, any>> = Simplify<
+  BaseContentModuleEntry & {
+    html: string
+    headings: Heading[]
+    frontmatter: InferCollectionData<TCollection>
+  }
+>
+
+export type DataContentModuleEntry<TCollection extends CollectionDef<any, any, any>> = Simplify<
+  BaseContentModuleEntry & {
+    data: InferCollectionData<TCollection>
+  }
+>
+
+type LoaderKindFromCollection<TCollection extends CollectionDef<any, any, any>> =
+  TCollection['loader'] extends 'markdown'
+    ? 'markdown'
+    : TCollection['loader'] extends { kind: infer TKind }
+      ? TKind
+      : 'data'
+
+export type ContentCollectionModule<TCollection extends CollectionDef<any, any, any>> =
+  LoaderKindFromCollection<TCollection> extends 'markdown'
+    ? MarkdownContentModuleEntry<TCollection>[]
+    : DataContentModuleEntry<TCollection>[]
+
+export type ContentModuleMap<TCollections extends CollectionMap> = {
+  [TName in keyof TCollections]: ContentCollectionModule<TCollections[TName]>
+}
+
+export type PagesmithContentPluginOptions<TCollections extends CollectionMap> = Omit<
+  ContentLayerConfig,
+  'collections'
+> & {
+  collections: TCollections
+  /**
+   * Shared content root used to compute `id` and `contentSlug`.
+   * Defaults to the deepest common parent directory across all collection directories.
+   */
+  contentRoot?: string
+  /**
+   * Root virtual module id.
+   * Per-collection modules are exposed as `${moduleId}/<collection-name>`.
+   */
+  moduleId?: string
+  /**
+   * Path to the content config module used for generated typings.
+   * Defaults to `./content.config.ts`.
+   */
+  configPath?: string
+  /**
+   * Generate module declarations for the virtual modules.
+   * Defaults to `src/pagesmith-content.d.ts` when `src/` exists, otherwise `pagesmith-content.d.ts`.
+   */
+  dts?: boolean | string | { path?: string }
+}
+
+const DEFAULT_MODULE_ID = 'virtual:content'
+
+function normalizePath(value: string): string {
+  return value.replace(/\\/g, '/')
+}
+
+function isPathWithin(parent: string, candidate: string): boolean {
+  const rel = normalizePath(relative(parent, candidate))
+  return rel === '' || (!rel.startsWith('..') && !rel.startsWith('/'))
+}
+
+function commonDirectory(paths: string[]): string {
+  const normalized = paths.map((path) => normalizePath(resolve(path)))
+  if (normalized.length === 0) return process.cwd()
+  if (normalized.length === 1) return normalized[0]
+
+  const segments = normalized.map((path) => path.split('/').filter(Boolean))
+  const shared: string[] = []
+  const first = segments[0]!
+
+  for (let index = 0; index < first.length; index += 1) {
+    const segment = first[index]
+    if (segments.every((parts) => parts[index] === segment)) {
+      shared.push(segment)
+      continue
+    }
+    break
+  }
+
+  if (shared.length === 0) {
+    return resolve('/')
+  }
+
+  return resolve(`/${shared.join('/')}`)
+}
+
+async function serializeCollection(
+  layer: ReturnType<typeof createContentLayer>,
+  collectionName: string,
+  collectionDef: CollectionDef<any, any, any>,
+  contentRoot: string,
+): Promise<string> {
+  const entries = await layer.getCollection(collectionName)
+  const loader = resolveLoader(collectionDef.loader)
+  const sortedEntries = [...entries].sort((left, right) =>
+    left.filePath.localeCompare(right.filePath),
+  )
+
+  const payload = await Promise.all(
+    sortedEntries.map(async (entry) => {
+      const contentSlug = toSlug(entry.filePath, contentRoot)
+      const base = {
+        id: contentSlug,
+        contentSlug,
+      }
+
+      if (loader.kind === 'markdown') {
+        const rendered = await entry.render()
+        return {
+          ...base,
+          html: rendered.html,
+          headings: rendered.headings,
+          frontmatter: entry.data,
+        }
+      }
+
+      return {
+        ...base,
+        data: entry.data,
+      }
+    }),
+  )
+
+  return `const collection = ${uneval(payload)};\nexport default collection;\n`
+}
+
+function createRootModuleSource(moduleId: string, collectionNames: string[]): string {
+  const imports = collectionNames
+    .map((name, index) => `import collection${index} from '${moduleId}/${name}'`)
+    .join('\n')
+  const contentMap = collectionNames
+    .map((name, index) => `${JSON.stringify(name)}: collection${index}`)
+    .join(', ')
+
+  return `${imports}\n\nexport default { ${contentMap} };\n`
+}
+
+function resolvePluginOptions<TCollections extends CollectionMap>(
+  collectionsOrOptions: TCollections | PagesmithContentPluginOptions<TCollections>,
+  maybeOptions: Omit<PagesmithContentPluginOptions<TCollections>, 'collections'> = {},
+): PagesmithContentPluginOptions<TCollections> {
+  if ('collections' in collectionsOrOptions) {
+    return collectionsOrOptions as PagesmithContentPluginOptions<TCollections>
+  }
+
+  return {
+    ...maybeOptions,
+    collections: collectionsOrOptions,
+  }
+}
+
+export function pagesmithContent<TCollections extends CollectionMap>(
+  collections: TCollections,
+  options?: Omit<PagesmithContentPluginOptions<TCollections>, 'collections'>,
+): PagesmithVitePlugin
+export function pagesmithContent<TCollections extends CollectionMap>(
+  options: PagesmithContentPluginOptions<TCollections>,
+): PagesmithVitePlugin
+export function pagesmithContent<TCollections extends CollectionMap>(
+  collectionsOrOptions: TCollections | PagesmithContentPluginOptions<TCollections>,
+  maybeOptions: Omit<PagesmithContentPluginOptions<TCollections>, 'collections'> = {},
+): PagesmithVitePlugin {
+  const options = resolvePluginOptions(collectionsOrOptions, maybeOptions)
+  const collectionNames = Object.keys(options.collections)
+  const moduleId = options.moduleId ?? DEFAULT_MODULE_ID
+  const resolvedPrefix = `\0${moduleId}/`
+  const resolvedRootId = `\0${moduleId}`
+
+  let projectRoot = process.cwd()
+  let layerRoot = projectRoot
+  let contentRoot = projectRoot
+  let configPath = resolve(projectRoot, options.configPath ?? 'content.config.ts')
+  let dtsPath = resolveDtsPath(projectRoot, options.dts)
+  let layer: ReturnType<typeof createContentLayer> | null = null
+
+  function getLayer(): ReturnType<typeof createContentLayer> {
+    if (!layer) {
+      throw new Error(
+        'pagesmith-content: ContentLayer not initialized. configResolved has not run yet.',
+      )
+    }
+    return layer
+  }
+
+  const ensureDeclarations = (): void => {
+    if (options.dts === false) return
+
+    const source = createDtsSource(moduleId, collectionNames, dtsPath, configPath)
+    mkdirSync(dirname(dtsPath), { recursive: true })
+    writeFileSync(dtsPath, source)
+  }
+
+  return {
+    name: 'pagesmith-content',
+    enforce: 'pre',
+
+    configResolved(config) {
+      projectRoot = resolve(config.root)
+      layerRoot = resolve(projectRoot, options.root ?? '.')
+      configPath = resolve(projectRoot, options.configPath ?? 'content.config.ts')
+      dtsPath = resolveDtsPath(projectRoot, options.dts)
+
+      const collectionDirectories = collectionNames.map((name) =>
+        resolve(layerRoot, options.collections[name]!.directory),
+      )
+      contentRoot = options.contentRoot
+        ? resolve(layerRoot, options.contentRoot)
+        : commonDirectory(collectionDirectories)
+
+      layer = createContentLayer({
+        ...options,
+        root: layerRoot,
+      })
+
+      ensureDeclarations()
+    },
+
+    buildStart() {
+      ensureDeclarations()
+    },
+
+    resolveId(id) {
+      if (id === moduleId) {
+        return resolvedRootId
+      }
+
+      for (const name of collectionNames) {
+        if (id === `${moduleId}/${name}`) {
+          return `${resolvedPrefix}${name}`
+        }
+      }
+    },
+
+    async load(id) {
+      if (id === resolvedRootId) {
+        return createRootModuleSource(moduleId, collectionNames)
+      }
+
+      if (!id.startsWith(resolvedPrefix)) return
+
+      const collectionName = id.slice(resolvedPrefix.length)
+      const collectionDef = options.collections[collectionName]
+      if (!collectionDef) return
+
+      return serializeCollection(getLayer(), collectionName, collectionDef, contentRoot)
+    },
+
+    handleHotUpdate({ file, server }) {
+      const resolvedFile = resolve(file)
+      const touchesConfig = resolvedFile === configPath
+
+      const affectedCollections = collectionNames.filter((name) =>
+        isPathWithin(resolve(layerRoot, options.collections[name]!.directory), resolvedFile),
+      )
+
+      const touchesContent = affectedCollections.length > 0
+
+      if (!touchesConfig && !touchesContent) return
+
+      if (touchesConfig) {
+        ensureDeclarations()
+      }
+
+      const rootModule = server.moduleGraph.getModuleById(resolvedRootId)
+      if (rootModule) {
+        server.moduleGraph.invalidateModule(rootModule)
+      }
+
+      if (touchesContent) {
+        for (const name of affectedCollections) {
+          const moduleNode = server.moduleGraph.getModuleById(`${resolvedPrefix}${name}`)
+          if (moduleNode) {
+            server.moduleGraph.invalidateModule(moduleNode)
+          }
+          getLayer()
+            .invalidateCollection(name)
+            .catch((err) => {
+              console.warn(`[pagesmith] Failed to invalidate collection "${name}":`, err)
+            })
+        }
+      } else {
+        for (const name of collectionNames) {
+          const moduleNode = server.moduleGraph.getModuleById(`${resolvedPrefix}${name}`)
+          if (moduleNode) {
+            server.moduleGraph.invalidateModule(moduleNode)
+          }
+        }
+        getLayer().invalidateAll()
+      }
+
+      server.ws.send({ type: 'full-reload' })
+    },
+  }
+}

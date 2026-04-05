@@ -93,6 +93,7 @@ Use `$` for inline math and `$$` for display (block) math. Rendered to SVG via M
 Inline: `$E = mc^2$`
 
 Block:
+
 ```md
 $$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
@@ -105,13 +106,15 @@ Note: The `$` delimiters must not have spaces immediately inside them for inline
 
 ASCII typography is automatically converted to proper typographic characters. Code blocks and inline code are not affected.
 
-| Input | Output | Description |
-|---|---|---|
+
+| Input     | Output            | Description                                   |
+| --------- | ----------------- | --------------------------------------------- |
 | `"hello"` | \u201chello\u201d | Straight double quotes to curly double quotes |
 | `'hello'` | \u2018hello\u2019 | Straight single quotes to curly single quotes |
-| `--` | \u2013 | Two hyphens to en dash |
-| `---` | \u2014 | Three hyphens to em dash |
-| `...` | \u2026 | Three dots to ellipsis |
+| `--`      | \u2013            | Two hyphens to en dash                        |
+| `---`     | \u2014            | Three hyphens to em dash                      |
+| `...`     | \u2026            | Three dots to ellipsis                        |
+
 
 ## External Links (rehype-external-links)
 
@@ -149,6 +152,7 @@ All headings automatically receive:
 2. The heading text wrapped in an anchor link (behavior: `wrap`) by `rehype-autolink-headings`
 
 Slug generation algorithm:
+
 - Convert to lowercase
 - Replace spaces with hyphens
 - Strip special characters (punctuation, symbols)
@@ -156,12 +160,14 @@ Slug generation algorithm:
 
 Examples:
 
-| Heading | Generated slug |
-|---|---|
-| `## Getting Started` | `getting-started` |
-| `## What's New in v2?` | `whats-new-in-v2` |
+
+| Heading                 | Generated slug     |
+| ----------------------- | ------------------ |
+| `## Getting Started`    | `getting-started`  |
+| `## What's New in v2?`  | `whats-new-in-v2`  |
 | `## API Reference (v3)` | `api-reference-v3` |
-| `## CSS & JavaScript` | `css--javascript` |
+| `## CSS & JavaScript`   | `css--javascript`  |
+
 
 Rendered HTML:
 
@@ -178,6 +184,7 @@ Syntax highlighting handled by [Expressive Code](https://expressive-code.com/) w
 Automatic light/dark switching via `prefers-color-scheme`. Defaults: `github-light` / `github-dark`.
 
 Configure:
+
 ```ts
 markdown: {
   shiki: {
@@ -190,21 +197,23 @@ markdown: {
 
 All features are enabled via meta strings after the language identifier:
 
-| Meta | Example | Description |
-|---|---|---|
-| `title="..."` | `` ```js title="app.js" `` | File title above the code block |
-| `showLineNumbers` | `` ```js showLineNumbers `` | Show line numbers |
-| `startLineNumber=N` | `` ```js showLineNumbers startLineNumber=5 `` | Start line numbering at N |
-| `mark={lines}` | `` ```js mark={3,5-7} `` | Highlight lines |
-| `ins={lines}` | `` ```js ins={4} `` | Mark lines as inserted (green) |
-| `del={lines}` | `` ```js del={5} `` | Mark lines as deleted (red) |
-| `collapse={lines}` | `` ```js collapse={1-5} `` | Collapse lines by default |
-| `wrap` | `` ```js wrap `` | Enable text wrapping |
-| `frame="..."` | `` ```js frame="none" `` | Frame style: `none`, `code`, `terminal`, `lines` |
+
+| Meta                | Example                                   | Description                                      |
+| ------------------- | ----------------------------------------- | ------------------------------------------------ |
+| `title="..."`       | ````js title="app.js"`                    | File title above the code block                  |
+| `showLineNumbers`   | ````js showLineNumbers`                   | Show line numbers                                |
+| `startLineNumber=N` | ````js showLineNumbers startLineNumber=5` | Start line numbering at N                        |
+| `mark={lines}`      | ````js mark={3,5-7}`                      | Highlight lines                                  |
+| `ins={lines}`       | ````js ins={4}`                           | Mark lines as inserted (green)                   |
+| `del={lines}`       | ````js del={5}`                           | Mark lines as deleted (red)                      |
+| `collapse={lines}`  | ````js collapse={1-5}`                    | Collapse lines by default                        |
+| `wrap`              | ````js wrap`                              | Enable text wrapping                             |
+| `frame="..."`       | ````js frame="none"`                      | Frame style: `none`, `code`, `terminal`, `lines` |
+
 
 ### Combined Example
 
-````md
+```md
 ```ts title="server.ts" showLineNumbers mark={3} ins={7-8} collapse={1-2}
 import express from 'express'
 import cors from 'cors'
@@ -215,7 +224,8 @@ app.use(cors())
 app.get('/api', handler)
 app.post('/api', handler)
 ```
-````
+
+```
 
 ### Automatic Features (no meta needed)
 
@@ -264,36 +274,42 @@ User remark plugins run after the built-in remark plugins (GFM, math, frontmatte
 
 Core provides base schemas. Use them or define your own with Zod:
 
-| Schema | Fields |
-|---|---|
-| `BaseFrontmatterSchema` | title, description, publishedDate, lastUpdatedOn, tags, draft |
-| `BlogFrontmatterSchema` | extends base + category, featured, coverImage |
-| `ProjectFrontmatterSchema` | extends base + gitRepo, links |
+
+| Schema                     | Fields                                                        |
+| -------------------------- | ------------------------------------------------------------- |
+| `BaseFrontmatterSchema`    | title, description, publishedDate, lastUpdatedOn, tags, draft |
+| `BlogFrontmatterSchema`    | extends base + category, featured, coverImage                 |
+| `ProjectFrontmatterSchema` | extends base + gitRepo, links                                 |
+
 
 ## Frontmatter -- @pagesmith/docs (additional)
 
 Docs pages support these additional frontmatter fields beyond what your schema defines:
 
-| Field | Type | Description |
-|---|---|---|
-| `title` | `string` | Page title (sidebar + browser tab) |
-| `description` | `string` | Meta description for SEO |
-| `navLabel` | `string` | Override top navigation label |
-| `sidebarLabel` | `string` | Override sidebar label |
-| `order` | `number` | Manual sort order within section |
-| `draft` | `boolean` | Exclude from build |
+
+| Field          | Type      | Description                        |
+| -------------- | --------- | ---------------------------------- |
+| `title`        | `string`  | Page title (sidebar + browser tab) |
+| `description`  | `string`  | Meta description for SEO           |
+| `navLabel`     | `string`  | Override top navigation label      |
+| `sidebarLabel` | `string`  | Override sidebar label             |
+| `order`        | `number`  | Manual sort order within section   |
+| `draft`        | `boolean` | Exclude from build                 |
+
 
 ### Home Page Frontmatter (docs only)
 
-| Field | Type | Description |
-|---|---|---|
-| `layout` | `string` | `DocHome` for the home layout |
-| `tagline` | `string` | Short description below title |
-| `install` | `string` | Install command snippet |
-| `actions` | `array` | CTA buttons (`{ text, link, theme: 'brand' \| 'alt' }`) |
-| `features` | `array` | Feature cards (`{ icon, title, details }`) |
-| `packages` | `array` | Package cards (`{ name, description, href, tag }`) |
-| `codeExample` | `object` | Code example (`{ label, title, code }`) |
+
+| Field         | Type     | Description                                        |
+| ------------- | -------- | -------------------------------------------------- |
+| `layout`      | `string` | `DocHome` for the home layout                      |
+| `tagline`     | `string` | Short description below title                      |
+| `install`     | `string` | Install command snippet                            |
+| `actions`     | `array`  | CTA buttons (`{ text, link, theme: 'brand'         |
+| `features`    | `array`  | Feature cards (`{ icon, title, details }`)         |
+| `packages`    | `array`  | Package cards (`{ name, description, href, tag }`) |
+| `codeExample` | `object` | Code example (`{ label, title, code }`)            |
+
 
 ## Built-in Content Validators
 
@@ -316,37 +332,40 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 
 ## Quick Reference Card
 
-| Feature | Syntax | Plugin |
-|---|---|---|
-| Bold | `**bold**` | built-in |
-| Italic | `*italic*` | built-in |
-| Inline code | `` `code` `` | built-in |
-| Link | `[text](url)` | built-in |
-| Image | `![alt](src)` | built-in |
-| Blockquote | `> quote` | built-in |
-| Ordered list | `1. item` | built-in |
-| Unordered list | `- item` | built-in |
-| Horizontal rule | `---` | built-in |
-| Table | `\| col \| col \|` with separator row | remark-gfm |
-| Strikethrough | `~~text~~` | remark-gfm |
-| Task list | `- [x] done` / `- [ ] todo` | remark-gfm |
-| Autolink | bare URL | remark-gfm |
-| Footnote | `[^id]` + `[^id]: text` | remark-gfm |
-| Inline math | `$E = mc^2$` | remark-math |
-| Block math | `$$...$$` | remark-math |
-| Alert | `> [!NOTE]` / `> [!TIP]` / `> [!IMPORTANT]` / `> [!WARNING]` / `> [!CAUTION]` | remark-github-alerts |
-| Smart quotes | `"text"` becomes curly | remark-smartypants |
-| Em dash | `---` | remark-smartypants |
-| En dash | `--` | remark-smartypants |
-| Ellipsis | `...` | remark-smartypants |
-| Code title | `` ```js title="file.js" `` | rehype-expressive-code |
-| Line numbers | `` ```js showLineNumbers `` | rehype-expressive-code |
-| Line highlight | `` ```js mark={1-3} `` | rehype-expressive-code |
-| Line insert | `` ```js ins={4} `` | rehype-expressive-code |
-| Line delete | `` ```js del={5} `` | rehype-expressive-code |
-| Collapse lines | `` ```js collapse={1-5} `` | rehype-expressive-code |
-| Word wrap | `` ```js wrap `` | rehype-expressive-code |
-| Frame style | `` ```js frame="terminal" `` | rehype-expressive-code |
-| External link | `[text](https://...)` auto new-tab | rehype-external-links |
-| Heading anchor | auto `id` + wrap link | rehype-slug + rehype-autolink-headings |
-| Accessible emoji | Unicode emoji auto-wrapped | rehype-accessible-emojis |
+
+| Feature          | Syntax                                                                        | Plugin                                 |
+| ---------------- | ----------------------------------------------------------------------------- | -------------------------------------- |
+| Bold             | `**bold**`                                                                    | built-in                               |
+| Italic           | `*italic*`                                                                    | built-in                               |
+| Inline code      | `code`                                                                        | built-in                               |
+| Link             | `[text](url)`                                                                 | built-in                               |
+| Image            | `![alt](src)`                                                                 | built-in                               |
+| Blockquote       | `> quote`                                                                     | built-in                               |
+| Ordered list     | `1. item`                                                                     | built-in                               |
+| Unordered list   | `- item`                                                                      | built-in                               |
+| Horizontal rule  | `---`                                                                         | built-in                               |
+| Table            | `\| col \| col \|` with `\| --- \| --- \|` separator                          | remark-gfm                             |
+| Strikethrough    | `~~text~~`                                                                    | remark-gfm                             |
+| Task list        | `- [x] done` / `- [ ] todo`                                                   | remark-gfm                             |
+| Autolink         | bare URL                                                                      | remark-gfm                             |
+| Footnote         | `[^id]` + `[^id]: text`                                                       | remark-gfm                             |
+| Inline math      | `$E = mc^2$`                                                                  | remark-math                            |
+| Block math       | `$$...$$`                                                                     | remark-math                            |
+| Alert            | `> [!NOTE]` / `> [!TIP]` / `> [!IMPORTANT]` / `> [!WARNING]` / `> [!CAUTION]` | remark-github-alerts                   |
+| Smart quotes     | `"text"` becomes curly                                                        | remark-smartypants                     |
+| Em dash          | `---`                                                                         | remark-smartypants                     |
+| En dash          | `--`                                                                          | remark-smartypants                     |
+| Ellipsis         | `...`                                                                         | remark-smartypants                     |
+| Code title       | ````js title="file.js"`                                                       | rehype-expressive-code                 |
+| Line numbers     | ````js showLineNumbers`                                                       | rehype-expressive-code                 |
+| Line highlight   | ````js mark={1-3}`                                                            | rehype-expressive-code                 |
+| Line insert      | ````js ins={4}`                                                               | rehype-expressive-code                 |
+| Line delete      | ````js del={5}`                                                               | rehype-expressive-code                 |
+| Collapse lines   | ````js collapse={1-5}`                                                        | rehype-expressive-code                 |
+| Word wrap        | ````js wrap`                                                                  | rehype-expressive-code                 |
+| Frame style      | ````js frame="terminal"`                                                      | rehype-expressive-code                 |
+| External link    | `[text](https://...)` auto new-tab                                            | rehype-external-links                  |
+| Heading anchor   | auto `id` + wrap link                                                         | rehype-slug + rehype-autolink-headings |
+| Accessible emoji | Unicode emoji auto-wrapped                                                    | rehype-accessible-emojis               |
+
+

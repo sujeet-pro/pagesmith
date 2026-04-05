@@ -1,10 +1,15 @@
 #!/usr/bin/env -S node --strip-types --no-warnings
 
 import { execSync } from 'child_process'
+import { existsSync, readdirSync } from 'fs'
 import { join } from 'path'
 
 const root: string = process.cwd()
-const packages: string[] = ['core', 'docs']
+const packagesDir = join(root, 'packages')
+const packages: string[] = readdirSync(packagesDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
+  .filter((name) => existsSync(join(packagesDir, name, 'package.json')))
 
 for (const pkg of packages) {
   console.log(`\n> vp pack (${pkg})`)

@@ -18,14 +18,14 @@
     "build": "vp run clean && vp run build:library && vp run build:landing && vp run build:docs && vp run build:examples",
     "build:library": "node --strip-types --no-warnings scripts/build-packages.ts",
     "build:docs": "vp run --filter @pagesmith/docs-site build",
-    "build:examples": "vp run build:eg:blog-site && vp run build:eg:doc-site && vp run build:eg:vanilla-ejs && vp run build:eg:vanilla-hbs && vp run build:eg:react && vp run build:eg:solid && vp run build:eg:svelte",
-    "build:eg:blog-site": "vp run --filter @pagesmith/example-blog-site build",
-    "build:eg:doc-site": "vp run --filter @pagesmith/example-doc-site build",
-    "build:eg:vanilla-ejs": "vp run --filter @pagesmith/example-with-vanilla-ejs build",
-    "build:eg:vanilla-hbs": "vp run --filter @pagesmith/example-with-vanilla-hbs build",
-    "build:eg:react": "vp run --filter @pagesmith/example-with-react build",
-    "build:eg:solid": "vp run --filter @pagesmith/example-with-solid build",
-    "build:eg:svelte": "vp run --filter @pagesmith/example-with-svelte build",
+    "build:examples": "npm run build:eg:blog-site && npm run build:eg:doc-site && npm run build:eg:vanilla-ejs && npm run build:eg:vanilla-hbs && npm run build:eg:react && npm run build:eg:solid && npm run build:eg:svelte",
+    "build:eg:blog-site": "npm run --workspace @pagesmith/example-blog-site build",
+    "build:eg:doc-site": "npm run --workspace @pagesmith/example-doc-site build",
+    "build:eg:vanilla-ejs": "npm run --workspace @pagesmith/example-with-vanilla-ejs build",
+    "build:eg:vanilla-hbs": "npm run --workspace @pagesmith/example-with-vanilla-hbs build",
+    "build:eg:react": "npm run --workspace @pagesmith/example-with-react build",
+    "build:eg:solid": "npm run --workspace @pagesmith/example-with-solid build",
+    "build:eg:svelte": "npm run --workspace @pagesmith/example-with-svelte build",
     "build:landing": "node --strip-types --no-warnings scripts/build.ts",
     "dev:docs": "vp run --filter @pagesmith/docs-site dev",
     "dev:eg:blog-site": "vp run --filter @pagesmith/example-blog-site dev",
@@ -47,12 +47,9 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.2",
     "typescript": "^6.0.2",
-    "vite-plus": "0.1.13"
-  },
-  "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.1.13",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.13"
+    "vite-plus": "^0.1.13"
   },
   "engines": {
     "node": ">=24"

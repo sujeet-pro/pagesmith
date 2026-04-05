@@ -15,6 +15,18 @@ Two main user-facing packages: `@pagesmith/core` for the shared content/runtime 
 - Assistant artifact generation via CLI: `npx pagesmith init --ai`.
 - MCP servers: `@pagesmith/docs/mcp` (docs tools) and `@pagesmith/core/mcp` (collection tools).
 
+## 1.0 Architecture Principles (Locked)
+
+These principles are locked for 1.0 and should drive all future edits unless an explicit architecture RFC supersedes them:
+
+1. **Filesystem-first source of truth** — content and companion assets live in the repo, not in an external CMS or database.
+2. **Strict package boundaries** — keep shared primitives in `@pagesmith/core`; keep docs-site conventions and orchestration in `@pagesmith/docs`.
+3. **Validation at content boundaries** — schema and markdown/content validation must happen before render/runtime usage. The content loading pipeline order is: discover -> load -> transform -> computed fields -> filter -> schema validate -> custom validate -> content validators -> plugin validators -> cache.
+4. **Vite-native execution model** — no custom bundler layer; build/dev/preview flows stay Vite-centric.
+5. **Progressive enhancement over JS-heavy runtime** — static-first HTML output with minimal client JS for UX improvements.
+6. **Configuration before customization** — defaults should cover common docs workflows; advanced overrides remain opt-in.
+7. **Docs and AI guidance in lockstep with behavior** — release-impacting changes must update user docs plus package AI guidance files in the same PR.
+
 ## Repo workflow
 
 Use Vite+ commands:
@@ -103,9 +115,11 @@ Package-local AI guidance is the canonical source of truth and must stay version
 - `packages/core/docs/llms.txt`
 - `packages/core/docs/llms-full.txt`
 - `packages/core/docs/agents/usage.md`
+- `packages/core/docs/agents/migration.md`
 - `packages/docs/docs/llms.txt`
 - `packages/docs/docs/llms-full.txt`
 - `packages/docs/docs/agents/usage.md`
+- `packages/docs/docs/agents/migration.md`
 
 For consuming projects, point `CLAUDE.md`/`AGENTS.md` to installed package files under `node_modules`:
 

@@ -57,6 +57,8 @@ npx pagesmith dev
 npx pagesmith build
 ```
 
+For pre-1.0 upgrade notes, see `docs/agents/migration.md`.
+
 ## Content Structure
 
 Content follows a folder convention:
@@ -394,6 +396,7 @@ await preview({ port: 4173 })
 | `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig) |
 | `@pagesmith/docs/schemas` | Zod schemas for config, layout props, page data |
 | `@pagesmith/docs/preset` | Docs preset for integration |
+| `@pagesmith/docs/theme` | Theme/runtime export surface |
 | `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
 
 ## License

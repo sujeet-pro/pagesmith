@@ -21,29 +21,19 @@ interface Result {
 
 const root: string = process.cwd()
 
-const contentLayerExamples: Example[] = [
-  'with-vanilla-ejs',
-  'with-vanilla-hbs',
-  'with-react',
-  'with-solid',
-  'with-svelte',
-].map((name: string) => ({
-  name,
-  buildCmd: 'vp run build',
-  outDir: '../../gh-pages/examples',
-}))
-
-const docsExamples: Example[] = ['blog-site', 'doc-site'].map((name: string) => ({
-  name,
-  buildCmd: 'vp run build',
-  outDir: '../../gh-pages/examples',
-}))
-
-const examples: Example[] = [...contentLayerExamples, ...docsExamples]
+const examples: Example[] = [
+  { name: 'blog-site', buildCmd: 'npm run build', outDir: 'gh-pages/examples/blog-site' },
+  { name: 'doc-site', buildCmd: 'npm run build', outDir: 'gh-pages/examples/doc-site' },
+  { name: 'with-vanilla-ejs', buildCmd: 'npm run build', outDir: 'gh-pages/examples/vanilla-ejs' },
+  { name: 'with-vanilla-hbs', buildCmd: 'npm run build', outDir: 'gh-pages/examples/vanilla-hbs' },
+  { name: 'with-react', buildCmd: 'npm run build', outDir: 'gh-pages/examples/react' },
+  { name: 'with-solid', buildCmd: 'npm run build', outDir: 'gh-pages/examples/solid' },
+  { name: 'with-svelte', buildCmd: 'npm run build', outDir: 'gh-pages/examples/svelte' },
+]
 
 async function validateExample(example: Example): Promise<Result> {
   const dir: string = join(root, 'examples', example.name)
-  const outDir: string = resolveExampleOutDir(example.name)
+  const outDir: string = join(root, example.outDir)
 
   try {
     await execAsync(example.buildCmd, {
@@ -95,18 +85,4 @@ if (failed.length > 0) {
     console.log(`  - ${failure.name}: ${failure.error}`)
   }
   process.exit(1)
-}
-
-function resolveExampleOutDir(name: string): string {
-  const map: Record<string, string> = {
-    'blog-site': join(root, 'gh-pages/examples/blog-site'),
-    'doc-site': join(root, 'gh-pages/examples/doc-site'),
-    'with-vanilla-ejs': join(root, 'gh-pages/examples/vanilla-ejs'),
-    'with-vanilla-hbs': join(root, 'gh-pages/examples/vanilla-hbs'),
-    'with-react': join(root, 'gh-pages/examples/react'),
-    'with-solid': join(root, 'gh-pages/examples/solid'),
-    'with-svelte': join(root, 'gh-pages/examples/svelte'),
-  }
-
-  return map[name]
 }

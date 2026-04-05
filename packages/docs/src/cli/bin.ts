@@ -3,147 +3,16 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { basename, resolve } from 'path'
 import { createInterface } from 'readline/promises'
-import { detectGitOrigin } from '../config'
+import { detectGitOrigin, toTitleCase } from '../config'
 import { startDocsMcpServer } from '../mcp/server'
 import { build, preview, startDev } from '../site'
-
-type ServerCliArgs = {
-  port?: number
-  config?: string
-  open?: boolean
-  outDir?: string
-  basePath?: string
-}
-
-type InitCliArgs = {
-  ai?: boolean
-  config?: string
-  yes?: boolean
-  noLlms?: boolean
-}
-
-type McpCliArgs = {
-  config?: string
-  root?: string
-  stdio?: boolean
-}
-
-function parseServerArgs(argv: string[]): ServerCliArgs {
-  const args: ServerCliArgs = {}
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const arg = argv[index]!
-
-    if (arg === '--port' || arg === '-p') {
-      const value = argv[++index]
-      if (!value) throw new Error('--port requires a number')
-      args.port = parseInt(value, 10)
-      if (Number.isNaN(args.port)) throw new Error('--port must be a valid number')
-      continue
-    }
-
-    if (arg === '--config') {
-      const value = argv[++index]
-      if (!value) throw new Error('--config requires a path')
-      args.config = value
-      continue
-    }
-
-    if (arg === '--open') {
-      args.open = true
-      continue
-    }
-
-    if (arg === '--out-dir') {
-      const value = argv[++index]
-      if (!value) throw new Error('--out-dir requires a path')
-      args.outDir = value
-      continue
-    }
-
-    if (arg === '--base-path') {
-      const value = argv[++index]
-      if (!value) throw new Error('--base-path requires a value')
-      args.basePath = value
-      continue
-    }
-
-    if (arg.startsWith('-')) {
-      throw new Error(`Unknown option: ${arg}`)
-    }
-  }
-
-  return args
-}
-
-function parseInitArgs(argv: string[]): InitCliArgs {
-  const args: InitCliArgs = {}
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const arg = argv[index]!
-
-    if (arg === '--ai') {
-      args.ai = true
-      continue
-    }
-
-    if (arg === '--yes' || arg === '-y') {
-      args.yes = true
-      continue
-    }
-
-    if (arg === '--config') {
-      const value = argv[++index]
-      if (!value) throw new Error('--config requires a path')
-      args.config = value
-      continue
-    }
-
-    if (arg === '--no-llms') {
-      args.noLlms = true
-      continue
-    }
-
-    if (arg.startsWith('-')) {
-      throw new Error(`Unknown option: ${arg}`)
-    }
-  }
-
-  return args
-}
-
-function parseMcpArgs(argv: string[]): McpCliArgs {
-  const args: McpCliArgs = { stdio: true }
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const arg = argv[index]!
-
-    if (arg === '--config') {
-      const value = argv[++index]
-      if (!value) throw new Error('--config requires a path')
-      args.config = value
-      continue
-    }
-
-    if (arg === '--root') {
-      const value = argv[++index]
-      if (!value) throw new Error('--root requires a path')
-      args.root = value
-      continue
-    }
-
-    if (arg === '--stdio') {
-      args.stdio = true
-      continue
-    }
-
-    if (arg.startsWith('-')) {
-      throw new Error(`Unknown option: ${arg}`)
-    }
-  }
-
-  return args
-}
+import {
+  type InitCliArgs,
+  parseBuildArgs,
+  parseInitArgs,
+  parseMcpArgs,
+  parseServerArgs,
+} from './args'
 
 function getVersion(): string {
   const pkgPath = resolve(import.meta.dirname, '..', '..', 'package.json')
@@ -174,6 +43,7 @@ Server options:
   --open                              Open browser on server start
   --out-dir <path>                    Output directory (overrides config)
   --base-path <path>                  Base URL path prefix (overrides config)
+  --log-level <level>                 Log level: silent|error|warn|info|verbose (default: warn)
   --config <path>                     Config file path
 
 MCP options:
@@ -191,7 +61,10 @@ General:
 async function ensureDocsConfig(configPath?: string): Promise<string> {
   const resolved = resolve(configPath ?? 'pagesmith.config.json5')
   if (!existsSync(resolved)) {
-    throw new Error(`No pagesmith.config.json5 file found at ${resolved}`)
+    throw new Error(
+      `No config file found at ${resolved}\n` +
+        `  Run 'pagesmith init' to create one, or use --config to specify a path.`,
+    )
   }
 
   return resolved
@@ -211,10 +84,6 @@ type InitAnswers = {
   starterContent: boolean
 }
 
-function titleize(name: string): string {
-  return name.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
 function readPackageName(projectDir: string): string | undefined {
   try {
     const pkg = JSON.parse(readFileSync(resolve(projectDir, 'package.json'), 'utf-8'))
@@ -232,7 +101,7 @@ function detectDefaults(projectDir: string): InitAnswers {
 
   return {
     name,
-    title: titleize(name),
+    title: toTitleCase(name),
     basePath: gitInfo?.basePath ?? '/',
     contentDir: 'docs',
     search: true,
@@ -260,7 +129,7 @@ async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
   console.log(`\n  Pagesmith v${getVersion()}\n`)
 
   const name = await ask('Project name', defaults.name)
-  const title = await ask('Site title', titleize(name))
+  const title = await ask('Site title', toTitleCase(name))
   const basePath = await ask('Base path', defaults.basePath)
   const contentDir = await ask('Content directory', defaults.contentDir)
   const search = await confirm('Enable search?', defaults.search)
@@ -290,6 +159,10 @@ function buildConfigContent(answers: InitAnswers, gitOrigin?: string): string {
 
 async function runInit(argv: string[]): Promise<void> {
   const args = parseInitArgs(argv)
+  if (args._help) {
+    printHelp()
+    return
+  }
   const projectDir = resolve('.')
   const configPath = resolve(args.config ?? 'pagesmith.config.json5')
 
@@ -400,15 +273,24 @@ async function runInit(argv: string[]): Promise<void> {
 
 async function runDev(argv: string[]): Promise<void> {
   const args = parseServerArgs(argv)
+  if (args._help) {
+    printHelp()
+    return
+  }
   await startDev({
     configPath: await ensureDocsConfig(args.config),
     port: args.port,
     open: args.open,
+    logLevel: args.logLevel,
   })
 }
 
 async function runBuild(argv: string[]): Promise<void> {
-  const args = parseServerArgs(argv)
+  const args = parseBuildArgs(argv)
+  if (args._help) {
+    printHelp()
+    return
+  }
   await build({
     configPath: await ensureDocsConfig(args.config),
     outDir: args.outDir,
@@ -418,15 +300,24 @@ async function runBuild(argv: string[]): Promise<void> {
 
 async function runPreview(argv: string[]): Promise<void> {
   const args = parseServerArgs(argv)
+  if (args._help) {
+    printHelp()
+    return
+  }
   await preview({
     configPath: await ensureDocsConfig(args.config),
     port: args.port,
     open: args.open,
+    logLevel: args.logLevel,
   })
 }
 
 async function runMcp(argv: string[]): Promise<void> {
   const args = parseMcpArgs(argv)
+  if (args._help) {
+    printHelp()
+    return
+  }
   await startDocsMcpServer({
     configPath: args.config,
     rootDir: args.root,
@@ -471,7 +362,7 @@ async function main(): Promise<void> {
     return
   }
 
-  throw new Error(`Unknown command: ${command}`)
+  throw new Error(`Unknown command: ${command}. Run 'pagesmith --help' for available commands.`)
 }
 
 main().catch((error) => {

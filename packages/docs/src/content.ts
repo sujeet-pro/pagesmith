@@ -3,10 +3,12 @@ import type { Heading } from '@pagesmith/core/schemas'
 import { execFileSync } from 'child_process'
 import { existsSync, readFileSync, readdirSync } from 'fs'
 import { availableParallelism } from 'os'
-import { dirname, extname, join, relative } from 'path'
+import { basename, dirname, extname, join, relative } from 'path'
 import { z } from 'zod'
+import { collectContentAssets as collectAssets, CONTENT_ASSET_EXTS } from '@pagesmith/core/assets'
 import { readJson5File, toTitleCase, type ResolvedDocsConfig } from './config.js'
-import { rehypeAssetTransform } from './markdown/plugins/rehype-asset-transform'
+
+export { CONTENT_ASSET_EXTS }
 
 export type NavItem = {
   label: string
@@ -94,17 +96,6 @@ export type SiteModel = {
   sectionMetas: Map<string, DocsSectionMeta>
 }
 
-export const CONTENT_ASSET_EXTS = new Set([
-  '.svg',
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.gif',
-  '.webp',
-  '.avif',
-  '.ico',
-])
-
 export function toContentSlug(filePath: string, contentDir: string): string {
   const ext = extname(filePath)
   let slug = relative(contentDir, filePath).replace(/\\/g, '/')
@@ -161,42 +152,83 @@ function collectMarkdownFiles(contentDir: string): string[] {
   return files.sort()
 }
 
-function createRelativeLinkTransform(filePath: string, contentDir: string, basePath: string) {
-  return () => (tree: any) => {
-    const visit = (node: any): void => {
-      if (node?.type === 'element' && node.tagName === 'a') {
-        const href = node.properties?.href
-        if (typeof href === 'string' && href.includes('.md') && !href.startsWith('http')) {
-          // Transform .md references to route paths
-          const [rawPath, hash = ''] = href.split('#')
-          const targetPath = join(dirname(filePath), rawPath)
-          const slug = toContentSlug(targetPath, contentDir)
-          const routePath = slug === '/' ? '/' : `/${slug}/`
-          const fullPath = `${basePath}${routePath}`
-          node.properties = node.properties || {}
-          node.properties.href = hash ? `${fullPath}#${hash}` : fullPath
-        } else if (
-          basePath &&
-          typeof href === 'string' &&
-          href.startsWith('/') &&
-          !href.startsWith('//') &&
-          !href.startsWith(basePath)
-        ) {
-          // Prefix absolute internal links with basePath
-          node.properties = node.properties || {}
-          node.properties.href = `${basePath}${href}`
-        }
-      }
+const ASSET_EXTS_RE = /\.(svg|png|jpg|jpeg|gif|webp|avif|ico)$/i
 
-      if (Array.isArray(node?.children)) {
-        for (const child of node.children) {
-          visit(child)
-        }
-      }
+/**
+ * Post-process HTML to transform relative .md links into site route paths
+ * and prefix absolute internal links with basePath.
+ */
+function transformContentLinks(
+  html: string,
+  filePath: string,
+  contentDir: string,
+  basePath: string,
+): string {
+  return html.replace(/<a\s[^>]*>/g, (tag) => {
+    const hrefMatch = tag.match(/href="([^"]*)"/)
+    if (!hrefMatch) return tag
+    const href = hrefMatch[1]
+
+    if (href.includes('.md') && !href.startsWith('http')) {
+      const [rawPath, hash = ''] = href.split('#')
+      const targetPath = join(dirname(filePath), rawPath)
+      const slug = toContentSlug(targetPath, contentDir)
+      const routePath = slug === '/' ? '/' : `/${slug}/`
+      const fullPath = `${basePath}${routePath}`
+      const newHref = hash ? `${fullPath}#${hash}` : fullPath
+      return tag.replace(`href="${href}"`, `href="${newHref}"`)
     }
 
-    visit(tree)
-  }
+    if (basePath && href.startsWith('/') && !href.startsWith('//') && !href.startsWith(basePath)) {
+      return tag.replace(`href="${href}"`, `href="${basePath}${href}"`)
+    }
+
+    return tag
+  })
+}
+
+/**
+ * Post-process HTML to transform relative asset references (./image.png)
+ * into site-relative /assets/ URLs. Handles inline SVG embedding and
+ * dark-mode inversion classes.
+ */
+function transformContentAssets(html: string, fileDir: string): string {
+  let result = html
+
+  // Inline SVGs: replace <img> tags with embedded SVG content
+  result = result.replace(/<img\s[^>]*?src="(\.\/.+?\.inline\.svg)"[^>]*?\/?>/g, (tag, src) => {
+    const svgPath = join(fileDir, src.replace('./', ''))
+    if (!existsSync(svgPath)) return tag
+    let svg = readFileSync(svgPath, 'utf-8')
+      .replace(/<\?xml[^?]*\?>\s*/g, '')
+      .replace(/<!DOCTYPE[^>]*>\s*/g, '')
+    const altMatch = tag.match(/alt="([^"]*)"/)
+    const alt = altMatch?.[1] ?? ''
+    svg = svg.replace(
+      '<svg',
+      `<svg role="img" aria-label="${alt.replace(/"/g, '&quot;')}" class="inline-svg"`,
+    )
+    return svg
+  })
+
+  // Transform remaining relative asset references in src/href/srcset
+  result = result.replace(/(src|href|srcset)="(\.\/.+?)"/g, (match, attr, ref) => {
+    if (!ASSET_EXTS_RE.test(ref)) return match
+    return `${attr}="/assets/${basename(ref)}"`
+  })
+
+  // Add invert-on-dark class to images with .invert. in filename
+  result = result.replace(
+    /(<img\s)([^>]*?src="\/assets\/[^"]*\.invert\.[^"]*"[^>]*?)\/?>/g,
+    (match, open, attrs) => {
+      if (attrs.includes('class="')) {
+        return match.replace(/class="([^"]*)"/, 'class="$1 invert-on-dark"')
+      }
+      return `${open}${attrs} class="invert-on-dark"/>`
+    },
+  )
+
+  return result
 }
 
 /**
@@ -277,27 +309,31 @@ export async function loadDocsPages(
   const files = collectMarkdownFiles(config.contentDir)
   const concurrency = Math.max(1, availableParallelism() * 2)
 
+  // Build a single shared config — same object reference enables the processor
+  // WeakMap cache so the expensive Shiki/Expressive Code setup runs only once.
+  // Per-file transforms (asset URLs, .md links) are applied as HTML post-processing.
+  const sharedMarkdownConfig: MarkdownConfig = {
+    ...(config.markdown ?? {}),
+    shiki: {
+      themes: config.markdown?.shiki?.themes ?? {
+        light: 'github-light',
+        dark: 'github-dark',
+      },
+      defaultShowLineNumbers: config.markdown?.shiki?.defaultShowLineNumbers,
+      langAlias: config.markdown?.shiki?.langAlias,
+    },
+    rehypePlugins: [...(config.markdown?.rehypePlugins ?? [])],
+  }
+
   // Process markdown files with bounded concurrency to manage memory at scale
   const results = await mapWithConcurrency(files, concurrency, async (filePath) => {
     const raw = readFileSync(filePath, 'utf-8')
-    const markdownConfig: MarkdownConfig = {
-      ...(config.markdown ?? {}),
-      shiki: {
-        themes: config.markdown?.shiki?.themes ?? {
-          light: 'github-light',
-          dark: 'github-dark',
-        },
-        defaultShowLineNumbers: config.markdown?.shiki?.defaultShowLineNumbers,
-        langAlias: config.markdown?.shiki?.langAlias,
-      },
-      rehypePlugins: [
-        ...(config.markdown?.rehypePlugins ?? []),
-        [rehypeAssetTransform, { contentDir: dirname(filePath) }] as const,
-        createRelativeLinkTransform(filePath, config.contentDir, config.basePath),
-      ],
-    }
 
-    const result = await processMarkdown(raw, markdownConfig)
+    const result = await processMarkdown(raw, sharedMarkdownConfig)
+    const html = transformContentAssets(
+      transformContentLinks(result.html, filePath, config.contentDir, config.basePath),
+      dirname(filePath),
+    )
     const parsedFrontmatter = DocsFrontmatterSchema.parse(result.frontmatter ?? {})
     const contentSlug = toContentSlug(filePath, config.contentDir)
     const isHome = contentSlug === '/'
@@ -335,7 +371,7 @@ export async function loadDocsPages(
       contentSlug,
       section,
       frontmatter,
-      html: result.html,
+      html,
       headings: result.headings,
       sourcePath: filePath,
       isHome,
@@ -352,32 +388,5 @@ export async function loadDocsPages(
 }
 
 export function collectContentAssets(contentDir: string): Map<string, string> {
-  const assets = new Map<string, string>()
-
-  function walk(currentDir: string): void {
-    if (!existsSync(currentDir)) return
-
-    for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
-      if (entry.name.startsWith('.')) continue
-
-      const fullPath = join(currentDir, entry.name)
-      if (entry.isDirectory()) {
-        walk(fullPath)
-        continue
-      }
-
-      if (!CONTENT_ASSET_EXTS.has(extname(entry.name).toLowerCase())) continue
-
-      if (assets.has(entry.name) && assets.get(entry.name) !== fullPath) {
-        console.warn(
-          `pagesmith:docs duplicate companion asset basename "${entry.name}" detected; using ${fullPath}`,
-        )
-      }
-
-      assets.set(entry.name, fullPath)
-    }
-  }
-
-  walk(contentDir)
-  return assets
+  return collectAssets([contentDir])
 }

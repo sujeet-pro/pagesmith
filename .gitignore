@@ -4,5 +4,6 @@ dev/
 .air/
 .temp/
 gh-pages/
+coverage/
 *.tsbuildinfo
 .DS_Store

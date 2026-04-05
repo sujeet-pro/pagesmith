@@ -1,8 +1,6 @@
-import { exec } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { createServer, type IncomingMessage, type ServerResponse } from 'http'
-import { createServer as createNetServer } from 'net'
-import { dirname, extname, join, resolve } from 'path'
+import { dirname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { watch } from 'chokidar'
 import { type WebSocket, WebSocketServer } from 'ws'
@@ -15,58 +13,14 @@ import {
 import { loadDocsPages, loadRootMeta, loadSectionMetas, type SiteModel } from './content.js'
 import { buildSiteModel } from './navigation.js'
 import { build, rebuildContent } from './build.js'
-
-const MIME: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.xml': 'application/xml',
-  '.txt': 'text/plain; charset=utf-8',
-}
-
-const WS_CLIENT_SCRIPT = `<script>
-(function() {
-  var ws = new WebSocket('ws://' + location.host + '/__ws');
-  ws.onmessage = function(e) {
-    var msg = JSON.parse(e.data);
-    if (msg.type === 'reload') location.reload();
-  };
-  ws.onclose = function() {
-    setTimeout(function() { location.reload(); }, 1000);
-  };
-})();
-</script>`
-
-function serveFile(
-  filePath: string,
-  res: ServerResponse,
-  injectReload = false,
-  statusCode = 200,
-): void {
-  const ext = extname(filePath)
-  const contentType = MIME[ext] || 'application/octet-stream'
-  const body = readFileSync(filePath)
-
-  if (ext === '.html' && injectReload) {
-    const html = body.toString().replace('</body>', `${WS_CLIENT_SCRIPT}</body>`)
-    res.writeHead(statusCode, { 'Content-Type': contentType })
-    res.end(html)
-    return
-  }
-
-  res.writeHead(statusCode, { 'Content-Type': contentType })
-  res.end(body)
-}
+import {
+  createLogger,
+  findAvailablePort,
+  logStartupSummary,
+  openBrowser,
+  resolveStaticRequest,
+  serveFile,
+} from './server/shared'
 
 async function loadSiteModel(config: ResolvedDocsConfig): Promise<SiteModel> {
   const rootMeta = loadRootMeta(config.contentDir)
@@ -75,69 +29,14 @@ async function loadSiteModel(config: ResolvedDocsConfig): Promise<SiteModel> {
   return buildSiteModel(config, pages, rootMeta, sectionMetas)
 }
 
-function logStartupSummary(config: ResolvedDocsConfig, model: SiteModel, baseUrl: string): void {
-  const pageCount = model.pageByPath.size
-  const sectionCount = model.sidebarBySection.size
-
-  console.log(`  ${pageCount} pages in ${sectionCount} sections`)
-  console.log()
-
-  for (const [, sections] of model.sidebarBySection) {
-    const itemCount = sections.reduce((sum, s) => sum + s.items.length, 0)
-    const title = sections[0]?.title ?? '(unknown)'
-    const firstPath = sections[0]?.items[0]?.path ?? ''
-    const url = firstPath ? `${baseUrl.replace(/\/$/, '')}${firstPath}/` : baseUrl
-    console.log(`  ${title} (${itemCount} pages)  ${url}`)
-  }
-
-  console.log()
-}
-
-function openBrowser(url: string): void {
-  const cmd =
-    process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open'
-  exec(`${cmd} ${url}`)
-}
-
-function isPortAvailable(port: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    const server = createNetServer()
-    server.once('error', () => resolve(false))
-    server.once('listening', () => {
-      server.close(() => resolve(true))
-    })
-    server.listen(port)
-  })
-}
-
-async function findAvailablePort(
-  startPort: number,
-  strictPort: boolean,
-  label: string,
-): Promise<number> {
-  if (await isPortAvailable(startPort)) return startPort
-  if (strictPort) {
-    throw new Error(
-      `Port ${startPort} is already in use (${label}). Disable strictPort to auto-find an available port.`,
-    )
-  }
-  const maxAttempts = 20
-  for (let port = startPort + 1; port < startPort + maxAttempts; port++) {
-    if (await isPortAvailable(port)) {
-      console.log(`  Port ${startPort} in use, using ${port}`)
-      return port
-    }
-  }
-  throw new Error(`No available port found in range ${startPort}–${startPort + maxAttempts - 1}`)
-}
-
 export async function startDev(options: DocsDevOptions = {}): Promise<void> {
   const configPath = resolve(options.configPath ?? join(process.cwd(), 'pagesmith.config.json5'))
+  const logger = createLogger(options.logLevel ?? 'warn')
 
   await build({ configPath })
   const config = resolveDocsConfig(configPath)
   const requestedPort = options.port ?? config.server.devPort
-  const port = await findAvailablePort(requestedPort, config.server.strictPort, 'dev')
+  const port = await findAvailablePort(requestedPort, config.server.strictPort, 'dev', logger)
   const themeRoot = getThemeRoot()
   const watchTargets = [config.contentDir, configPath, themeRoot]
   if (existsSync(config.publicDir)) {
@@ -150,15 +49,20 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 
   const base = config.basePath.replace(/\/+$/, '')
 
-  function log(status: number, method: string, pathname: string): void {
+  function logRequest(status: number, method: string, pathname: string): void {
+    if (!logger.shouldLog('info')) return
     const color = status < 300 ? '\x1b[32m' : status < 400 ? '\x1b[36m' : '\x1b[33m'
-    console.log(`  ${color}${status}\x1b[0m ${method} ${pathname}`)
+    logger.info(`  ${color}${status}\x1b[0m ${method} ${pathname}`)
   }
 
   function notifyClients(): void {
     const payload = JSON.stringify({ type: 'reload' })
     for (const client of clients) {
-      client.send(payload)
+      try {
+        client.send(payload)
+      } catch (error) {
+        logger.warn(`  WS notify failed: ${error instanceof Error ? error.message : String(error)}`)
+      }
     }
   }
 
@@ -175,7 +79,7 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 
   async function doRebuild(type: 'full' | 'content', changedPath?: string): Promise<void> {
     if (type === 'full' && changedPath && resolve(changedPath) === resolve(configPath)) {
-      console.log('  \x1b[36mConfig changed, rebuilding...\x1b[0m')
+      logger.info('  \x1b[36mConfig changed, rebuilding...\x1b[0m')
     }
     const start = performance.now()
     if (type === 'full') {
@@ -184,80 +88,77 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
       await rebuildContent({ configPath })
     }
     const elapsed = Math.round(performance.now() - start)
-    console.log(
+    logger.info(
       `  \x1b[36m${type === 'full' ? 'Full rebuild' : 'Content rebuild'} in ${elapsed}ms\x1b[0m`,
     )
   }
 
   const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-    const url = new URL(req.url || '/', `http://localhost:${port}`)
-    const method = req.method || 'GET'
-    let pathname = url.pathname
+    try {
+      const url = new URL(req.url || '/', `http://localhost:${port}`)
+      const method = req.method || 'GET'
+      const pathname = url.pathname
 
-    // Redirect root to basePath
-    if (base && (pathname === '/' || pathname === '')) {
-      log(302, method, pathname)
-      res.writeHead(302, { Location: `${base}/` })
-      res.end()
-      return
-    }
+      // Serve font files from core assets during dev (before static resolution)
+      if (
+        base ? pathname.startsWith(`${base}/assets/fonts/`) : pathname.startsWith('/assets/fonts/')
+      ) {
+        const fontFile = pathname.replace(/.*\/assets\/fonts\//, '')
+        const corePkgDir = dirname(
+          fileURLToPath(import.meta.resolve('@pagesmith/core/package.json')),
+        )
+        const fontPath = join(corePkgDir, 'assets', 'fonts', fontFile)
+        if (existsSync(fontPath)) {
+          logRequest(200, method, url.pathname)
+          res.writeHead(200, {
+            'Content-Type': 'font/woff2',
+            'Cache-Control': 'public, max-age=31536000',
+          })
+          res.end(readFileSync(fontPath))
+          return
+        }
+      }
 
-    // Strip basePath prefix so file lookup matches outDir structure
-    if (base && pathname.startsWith(base)) {
-      pathname = pathname.slice(base.length) || '/'
-    }
+      const result = resolveStaticRequest(pathname, base, config.outDir)
 
-    // Serve font files from core assets during dev
-    if (pathname.startsWith('/assets/fonts/')) {
-      const fontFile = pathname.replace('/assets/fonts/', '')
-      const corePkgDir = dirname(fileURLToPath(import.meta.resolve('@pagesmith/core/package.json')))
-      const fontPath = join(corePkgDir, 'assets', 'fonts', fontFile)
-      if (existsSync(fontPath)) {
-        log(200, method, url.pathname)
-        res.writeHead(200, {
-          'Content-Type': 'font/woff2',
-          'Cache-Control': 'public, max-age=31536000',
-        })
-        res.end(readFileSync(fontPath))
+      if (result.type === 'redirect') {
+        logRequest(302, method, pathname)
+        res.writeHead(302, { Location: result.location })
+        res.end()
         return
       }
-    }
 
-    let filePath = join(config.outDir, pathname)
-
-    if (existsSync(filePath) && !extname(filePath)) {
-      filePath = join(filePath, 'index.html')
-    }
-
-    if (!existsSync(filePath)) {
-      // Try 404/index.html then 404.html (GitHub Pages convention)
-      const notFoundDir = join(config.outDir, '404', 'index.html')
-      const notFoundFile = join(config.outDir, '404.html')
-      const notFoundPath = existsSync(notFoundDir)
-        ? notFoundDir
-        : existsSync(notFoundFile)
-          ? notFoundFile
-          : null
-      if (notFoundPath) {
-        log(404, method, url.pathname)
-        serveFile(notFoundPath, res, true, 404)
+      if (result.type === 'not-found') {
+        logRequest(404, method, url.pathname)
+        res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })
+        res.end('<h1>404</h1>')
         return
       }
-      log(404, method, url.pathname)
-      res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })
-      res.end('<h1>404</h1>')
-      return
-    }
 
-    log(200, method, url.pathname)
-    serveFile(filePath, res, true)
+      logRequest(result.statusCode, method, url.pathname)
+      serveFile(result.filePath, res, true, result.statusCode)
+    } catch (error) {
+      logger.error(
+        `  Dev request failed: ${error instanceof Error ? error.message : String(error)}`,
+      )
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' })
+      }
+      res.end('Internal server error')
+    }
   })
 
   const wss = new WebSocketServer({ server, path: '/__ws' })
   wss.on('connection', (socket) => {
     clients.add(socket)
     socket.on('close', () => clients.delete(socket))
+    socket.on('error', (error) =>
+      logger.warn(`  WS socket error: ${error instanceof Error ? error.message : String(error)}`),
+    )
   })
+  wss.on('error', (error) =>
+    logger.warn(`  WS server error: ${error instanceof Error ? error.message : String(error)}`),
+  )
 
   const devUrl = `http://localhost:${port}${base}/`
 
@@ -271,8 +172,14 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
     logStartupSummary(config, model, devUrl)
     if (options.open) openBrowser(devUrl)
   })
+  server.on('error', (error) =>
+    logger.error(`  Dev server error: ${error instanceof Error ? error.message : String(error)}`),
+  )
 
   const watcher = watch(watchTargets, { ignoreInitial: true })
+  watcher.on('error', (error) =>
+    logger.warn(`  Watcher error: ${error instanceof Error ? error.message : String(error)}`),
+  )
   watcher.on('all', async (_event, changedPath) => {
     const changeType = getChangeType(changedPath)
 
@@ -287,7 +194,7 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
       await doRebuild(changeType, changedPath)
       notifyClients()
     } catch (err) {
-      console.error('Rebuild failed:', err instanceof Error ? err.message : err)
+      logger.error(`  Rebuild failed: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       rebuilding = false
       if (pending) {
@@ -298,7 +205,7 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
           await doRebuild(nextType)
           notifyClients()
         } catch (err) {
-          console.error('Rebuild failed:', err instanceof Error ? err.message : err)
+          logger.error(`  Rebuild failed: ${err instanceof Error ? err.message : String(err)}`)
         } finally {
           rebuilding = false
         }
@@ -308,45 +215,51 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 }
 
 export async function preview(options: DocsDevOptions = {}): Promise<void> {
+  const logger = createLogger(options.logLevel ?? 'warn')
   const config = resolveDocsConfig(options.configPath)
   const requestedPort = options.port ?? config.server.previewPort
-  const port = await findAvailablePort(requestedPort, config.server.strictPort, 'preview')
+  const port = await findAvailablePort(requestedPort, config.server.strictPort, 'preview', logger)
   const previewBase = config.basePath.replace(/\/+$/, '')
 
+  function logRequest(status: number, method: string, pathname: string): void {
+    if (!logger.shouldLog('info')) return
+    const color = status < 300 ? '\x1b[32m' : status < 400 ? '\x1b[36m' : '\x1b[33m'
+    logger.info(`  ${color}${status}\x1b[0m ${method} ${pathname}`)
+  }
+
   const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-    const url = new URL(req.url || '/', `http://localhost:${port}`)
-    let pathname = url.pathname
+    try {
+      const url = new URL(req.url || '/', `http://localhost:${port}`)
+      const method = req.method || 'GET'
+      const pathname = url.pathname
 
-    // Redirect root to basePath
-    if (previewBase && (pathname === '/' || pathname === '')) {
-      res.writeHead(302, { Location: `${previewBase}/` })
-      res.end()
-      return
-    }
+      const result = resolveStaticRequest(pathname, previewBase, config.outDir)
 
-    // Strip basePath prefix
-    if (previewBase && pathname.startsWith(previewBase)) {
-      pathname = pathname.slice(previewBase.length) || '/'
-    }
+      if (result.type === 'redirect') {
+        logRequest(302, method, pathname)
+        res.writeHead(302, { Location: result.location })
+        res.end()
+        return
+      }
 
-    let filePath = join(config.outDir, pathname)
-
-    if (existsSync(filePath) && !extname(filePath)) {
-      filePath = join(filePath, 'index.html')
-    }
-
-    if (!existsSync(filePath)) {
-      filePath = join(config.outDir, '404', 'index.html')
-      if (!existsSync(filePath)) {
+      if (result.type === 'not-found') {
+        logRequest(404, method, url.pathname)
         res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
         res.end('Not found')
         return
       }
-      serveFile(filePath, res, false, 404)
-      return
-    }
 
-    serveFile(filePath, res)
+      logRequest(result.statusCode, method, url.pathname)
+      serveFile(result.filePath, res, false, result.statusCode)
+    } catch (error) {
+      logger.error(
+        `  Preview request failed: ${error instanceof Error ? error.message : String(error)}`,
+      )
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' })
+      }
+      res.end('Internal server error')
+    }
   })
 
   const previewUrl = `http://localhost:${port}${previewBase}/`
@@ -361,4 +274,9 @@ export async function preview(options: DocsDevOptions = {}): Promise<void> {
     logStartupSummary(config, model, previewUrl)
     if (options.open) openBrowser(previewUrl)
   })
+  server.on('error', (error) =>
+    logger.error(
+      `  Preview server error: ${error instanceof Error ? error.message : String(error)}`,
+    ),
+  )
 }

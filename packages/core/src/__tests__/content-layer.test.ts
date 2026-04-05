@@ -167,7 +167,6 @@ describe('convert', () => {
 
 describe('TypedContentLayer', () => {
   it('preserves collection types through createContentLayer', () => {
-    // This is a compile-time test — if it compiles, types are working
     const typedPosts = defineCollection({
       loader: 'markdown',
       directory: join(FIXTURES_DIR, 'content'),
@@ -179,9 +178,65 @@ describe('TypedContentLayer', () => {
     const config = defineConfig({ collections: { posts: typedPosts } })
     const layer = createContentLayer(config)
 
-    // These should compile without errors:
-    // layer.getCollection('posts') returns typed entries
-    // layer.getEntry('posts', 'slug') returns typed entry
     expect(layer.getCollectionNames()).toContain('posts')
+  })
+})
+
+describe('getCollections', () => {
+  it('returns all collection definitions', () => {
+    const layer = makeLayer()
+    const collections = layer.getCollections()
+
+    expect(collections.posts).toBeDefined()
+    expect(collections.posts.loader).toBe('markdown')
+  })
+
+  it('returns a copy (not a reference to internal state)', () => {
+    const layer = makeLayer()
+    const a = layer.getCollections()
+    const b = layer.getCollections()
+
+    expect(a).not.toBe(b)
+    expect(a).toEqual(b)
+  })
+})
+
+describe('invalidateWhere', () => {
+  it('invalidates entries matching predicate', async () => {
+    const layer = makeLayer()
+    await layer.getCollection('posts')
+
+    const count = await layer.invalidateWhere('posts', (entry) => entry.slug === 'hello')
+
+    expect(count).toBe(1)
+  })
+
+  it('returns 0 when no entries match', async () => {
+    const layer = makeLayer()
+    await layer.getCollection('posts')
+
+    const count = await layer.invalidateWhere('posts', () => false)
+
+    expect(count).toBe(0)
+  })
+
+  it('returns 0 for unloaded collection', async () => {
+    const layer = makeLayer()
+    const count = await layer.invalidateWhere('posts', () => true)
+
+    expect(count).toBe(0)
+  })
+})
+
+describe('invalidate (single entry)', () => {
+  it('reloads a single entry', async () => {
+    const layer = makeLayer()
+    await layer.getCollection('posts')
+
+    await layer.invalidate('posts', 'hello')
+
+    const entry = await layer.getEntry('posts', 'hello')
+    expect(entry).toBeDefined()
+    expect(entry!.data.title).toBe('Hello World')
   })
 })

@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vp dev",
-    "build": "vp build",
+    "dev": "vite dev",
+    "build": "vite build",
     "check": "vp check"
   },
   "dependencies": {
@@ -13,7 +13,7 @@
     "pagefind": "^1.3.0"
   },
   "devDependencies": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.15",
-    "vite-plus": "^0.1.15"
+    "vite": "^8.0.3",
+    "vite-plus": "0.1.13"
   }
 }

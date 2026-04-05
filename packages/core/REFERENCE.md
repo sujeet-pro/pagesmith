@@ -158,9 +158,10 @@ Serves shared font assets (Open Sans, JetBrains Mono) bundled with `@pagesmith/c
 ```
 remark-parse → remark-gfm → remark-math → remark-frontmatter
   → remark-github-alerts → remark-smartypants → [user remark plugins]
-  → remark-rehype
+  → lang-alias transform → remark-rehype
+  → rehype-mathjax (must run before Expressive Code so math is rendered to SVG first)
   → rehype-expressive-code (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
-  → rehype-mathjax → rehype-slug → rehype-autolink-headings
+  → rehype-slug → rehype-autolink-headings
   → rehype-external-links → rehype-accessible-emojis
   → heading extraction → [user rehype plugins] → rehype-stringify
 ```
@@ -267,8 +268,10 @@ Two tiers:
 | `@pagesmith/core/assets` | Asset copying and hashing |
 | `@pagesmith/core/runtime` | Pre-built CSS/JS accessors |
 | `@pagesmith/core/vite` | Vite plugins |
+| `@pagesmith/core/ssg-utils` | Shared SSG utility helpers |
 | `@pagesmith/core/ai` | AI assistant artifact generator |
 | `@pagesmith/core/create` | Project scaffolding |
+| `@pagesmith/core/mcp` | Core MCP server and helper utilities |
 
 ## Key Rules
 

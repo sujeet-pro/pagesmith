@@ -4,6 +4,7 @@ export default defineConfig({
   pack: {
     entry: {
       index: 'src/index.ts',
+      theme: 'src/theme.ts',
       'cli/bin': 'src/cli/bin.ts',
       'mcp/server': 'src/mcp/server.ts',
       preset: 'src/preset.ts',
@@ -11,7 +12,6 @@ export default defineConfig({
     },
     deps: {
       alwaysBundle: ['@pagesmith/core'],
-      neverBundle: ['gray-matter'],
       onlyBundle: false,
     },
     format: 'esm',

@@ -9,6 +9,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 3. For core/custom-site workflows, read `node_modules/@pagesmith/core/docs/agents/usage.md`.
 4. Use `node_modules/@pagesmith/docs/docs/llms.txt` or `node_modules/@pagesmith/core/docs/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
 5. If MCP is enabled, use `pagesmith mcp --stdio` (docs) and `@pagesmith/core/mcp` tools for collection-aware inspection and validation.
+6. For upgrades across pre-1.0 versions, review `MIGRATING.md` before proposing refactors.
 
 ## Packages
 
@@ -145,7 +146,7 @@ Syntax highlighting via rehype-expressive-code with dual themes (default: github
 - `preview(options?)` — preview built site
 - `defineDocsConfig(config)` — type-safe docs config
 - `loadDocsConfig(path?)` — load config from file
-- `resolveDocsConfig(userConfig, rootDir)` — resolve with defaults
+- `resolveDocsConfig(configPath?, overrides?)` — resolve effective docs config with defaults and CLI/env overrides
 
 ### CLI
 - `pagesmith dev [--port] [--open] [--config] [--out-dir] [--base-path]`
@@ -156,7 +157,7 @@ Syntax highlighting via rehype-expressive-code with dual themes (default: github
 - Site: `name`, `title`, `description`, `origin`, `language`
 - Paths: `contentDir`, `outDir`, `publicDir`, `basePath`, `homeLink`
 - Navigation: `footerLinks` (array of `{ label, path }`)
-- Sidebar: `sidebar.collapsible` (boolean, default false)
+- Sidebar: `sidebar.collapsible` (boolean, default true)
 - Search: `search.enabled` (default true), `search.showImages`, `search.showSubResults`, `search.pagefindFlags`
 - Theme: `theme.lightColor`, `theme.darkColor`, `theme.layouts` (override map)
 - Analytics: `analytics.googleAnalytics`

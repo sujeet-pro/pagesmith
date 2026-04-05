@@ -16,7 +16,7 @@ export {
 export { withBase } from './config'
 export { docsPreset, type DocsPreset } from './preset'
 export { createDocsMcpServer, startDocsMcpServer, type DocsMcpServerOptions } from './mcp/server'
-export { Html } from '../theme/components/Html'
+export { Html } from './theme'
 export type {
   NavItem,
   SidebarSection,

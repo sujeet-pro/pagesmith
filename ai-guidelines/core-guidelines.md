@@ -2,7 +2,7 @@
 
 Comprehensive guide for AI assistants setting up and using `@pagesmith/core`. Follow this file to configure a project and generate code or content using the core package.
 
-For markdown features, frontmatter schemas, and content authoring rules, see [`markdown-guidelines.md`](markdown-guidelines.md).
+For markdown features, frontmatter schemas, and content authoring rules, see `[markdown-guidelines.md](markdown-guidelines.md)`.
 
 ---
 
@@ -230,29 +230,33 @@ export function render(url: string, config: SsgRenderConfig): string | Promise<s
 
 ### Collection Options
 
-| Option | Type | Description |
-|---|---|---|
-| `loader` | `string \| Loader` | `'markdown'`, `'json'`, `'json5'`, `'jsonc'`, `'yaml'`, `'toml'`, or custom |
-| `directory` | `string` | Directory containing files |
-| `schema` | `z.ZodType` | Zod schema for validation |
-| `include` | `string[]` | Glob include patterns |
-| `exclude` | `string[]` | Glob exclude patterns |
-| `computed` | `Record<string, fn>` | Computed fields |
-| `validate` | `fn` | Custom validation (return string for error) |
-| `filter` | `fn` | Filter entries |
-| `slugify` | `fn` | Custom slug generation |
-| `transform` | `fn` | Pre-validation transform |
-| `validators` | `ContentValidator[]` | Custom content validators |
-| `disableBuiltinValidators` | `boolean` | Disable link/heading/code-block validators |
+
+| Option                     | Type                 | Description                                                                 |
+| -------------------------- | -------------------- | --------------------------------------------------------------------------- |
+| `loader`                   | `string | Loader`    | `'markdown'`, `'json'`, `'json5'`, `'jsonc'`, `'yaml'`, `'toml'`, or custom |
+| `directory`                | `string`             | Directory containing files                                                  |
+| `schema`                   | `z.ZodType`          | Zod schema for validation                                                   |
+| `include`                  | `string[]`           | Glob include patterns                                                       |
+| `exclude`                  | `string[]`           | Glob exclude patterns                                                       |
+| `computed`                 | `Record<string, fn>` | Computed fields                                                             |
+| `validate`                 | `fn`                 | Custom validation (return string for error)                                 |
+| `filter`                   | `fn`                 | Filter entries                                                              |
+| `slugify`                  | `fn`                 | Custom slug generation                                                      |
+| `transform`                | `fn`                 | Pre-validation transform                                                    |
+| `validators`               | `ContentValidator[]` | Custom content validators                                                   |
+| `disableBuiltinValidators` | `boolean`            | Disable link/heading/code-block validators                                  |
+
 
 ### CSS Exports
 
-| Import Path | Use Case |
-|---|---|
-| `@pagesmith/core/css/content` | Embedding rendered markdown in an existing app |
-| `@pagesmith/core/css/standalone` | Full doc site layout with sidebar and TOC |
-| `@pagesmith/core/css/viewport` | Minimal responsive shell |
-| `@pagesmith/core/css/fonts` | Bundled Open Sans + JetBrains Mono |
+
+| Import Path                      | Use Case                                       |
+| -------------------------------- | ---------------------------------------------- |
+| `@pagesmith/core/css/content`    | Embedding rendered markdown in an existing app |
+| `@pagesmith/core/css/standalone` | Full doc site layout with sidebar and TOC      |
+| `@pagesmith/core/css/viewport`   | Minimal responsive shell                       |
+| `@pagesmith/core/css/fonts`      | Bundled Open Sans + JetBrains Mono             |
+
 
 Code block CSS is injected inline by Expressive Code -- do NOT import separate code block CSS.
 
@@ -284,7 +288,7 @@ Pre-defined schemas available from `@pagesmith/core`:
 - `BlogFrontmatterSchema` -- extends base + category, featured, coverImage
 - `ProjectFrontmatterSchema` -- extends base + gitRepo, links
 
-For full frontmatter details, see [`markdown-guidelines.md`](markdown-guidelines.md).
+For full frontmatter details, see `[markdown-guidelines.md](markdown-guidelines.md)`.
 
 ---
 
@@ -306,3 +310,4 @@ For the complete API reference including markdown features, loaders, validators,
 ```
 node_modules/@pagesmith/core/REFERENCE.md
 ```
+

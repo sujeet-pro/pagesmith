@@ -10,6 +10,7 @@ import DocHome from '../theme/layouts/DocHome'
 import DocNotFound from '../theme/layouts/DocNotFound'
 import DocPage from '../theme/layouts/DocPage'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- layout registry stores heterogeneous prop types
 type DocsRenderable = (props: any) => unknown
 
 type DocsLayoutRegistry = Record<string, DocsRenderable>
@@ -17,7 +18,7 @@ type DocsLayoutRegistry = Record<string, DocsRenderable>
 async function loadUserThemeModule(
   entryPath: string,
   rootDir: string,
-): Promise<Record<string, any>> {
+): Promise<Record<string, unknown>> {
   const { build } = await import('rolldown')
   const { pathToFileURL } = await import('url')
 
@@ -63,7 +64,9 @@ async function loadUserThemeModule(
     })
   }
 
-  return import(`${pathToFileURL(outFile).href}?t=${Date.now()}`) as Promise<Record<string, any>>
+  return import(`${pathToFileURL(outFile).href}?t=${Date.now()}`) as Promise<
+    Record<string, unknown>
+  >
 }
 
 async function resolveDocsLayout(
@@ -147,7 +150,6 @@ export async function renderDocs(
 
   console.log(`  Rendering ${pages.length} pages...`)
 
-  // Build edit link URL helper
   const buildEditUrl = config.editLink
     ? (sourcePath: string) => {
         const relPath = relative(config.rootDir, sourcePath)
@@ -155,16 +157,15 @@ export async function renderDocs(
       }
     : undefined
 
-  for (const page of pages) {
+  function renderPage(page: DocsPage): void {
     const urlPath = `${base}${page.routePath}`
 
     if (page.isHome) {
-      // Prefix internal hero action links with basePath
       const frontmatter = { ...page.frontmatter }
       if (frontmatter.hero?.actions) {
         frontmatter.hero = {
           ...frontmatter.hero,
-          actions: frontmatter.hero.actions.map((a: any) => ({
+          actions: frontmatter.hero.actions.map((a: Record<string, unknown>) => ({
             ...a,
             link:
               typeof a.link === 'string' && a.link.startsWith('/') ? `${base}${a.link}` : a.link,
@@ -173,7 +174,7 @@ export async function renderDocs(
       }
       const homeActions = Array.isArray(frontmatter.actions) ? frontmatter.actions : undefined
       if (homeActions) {
-        frontmatter.actions = homeActions.map((a: any) => ({
+        frontmatter.actions = homeActions.map((a: Record<string, unknown>) => ({
           ...a,
           link: typeof a.link === 'string' && a.link.startsWith('/') ? `${base}${a.link}` : a.link,
         }))
@@ -188,7 +189,7 @@ export async function renderDocs(
         site,
       })
       writeHtml(config.outDir, page.routePath, String(output))
-      continue
+      return
     }
 
     const sidebarSections = page.section ? model.sidebarBySection.get(page.section) : undefined
@@ -211,6 +212,10 @@ export async function renderDocs(
       lastUpdated: page.lastUpdated,
     })
     writeHtml(config.outDir, page.routePath, String(output))
+  }
+
+  for (const page of pages) {
+    renderPage(page)
   }
 
   const notFound = layouts.notFound({

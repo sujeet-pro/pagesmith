@@ -29,6 +29,8 @@ const rendered = await entries[0]?.render()
 // rendered.html, rendered.headings, rendered.readTime
 ```
 
+For pre-1.0 upgrade notes, see `docs/agents/migration.md`.
+
 ### Vite Integration
 
 ```ts
@@ -147,11 +149,12 @@ The pipeline is built with unified and processes markdown through these stages:
 ```
 remark-parse → remark-gfm → remark-math → remark-frontmatter
   → remark-github-alerts → remark-smartypants → [user remark plugins]
-  → remark-rehype
+  → lang-alias transform → remark-rehype
+  → rehype-mathjax (must run before Expressive Code)
   → rehype-expressive-code (syntax highlighting)
-  → rehype-mathjax → rehype-slug → rehype-autolink-headings
-  → heading extraction → [user rehype plugins]
-  → rehype-external-links → rehype-accessible-emojis → rehype-stringify
+  → rehype-slug → rehype-autolink-headings
+  → rehype-external-links → rehype-accessible-emojis
+  → heading extraction → [user rehype plugins] → rehype-stringify
 ```
 
 ### Markdown Features
@@ -474,7 +477,9 @@ Generates: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, skills, `llms.txt`, `llms-full
 | `@pagesmith/core/runtime` | Pre-built CSS/JS accessors |
 | `@pagesmith/core/ai` | AI assistant artifact generator |
 | `@pagesmith/core/vite` | Vite plugins (pagesmithContent, pagesmithSsg, sharedAssetsPlugin) |
+| `@pagesmith/core/ssg-utils` | Shared SSG utility helpers |
 | `@pagesmith/core/create` | Project scaffolding utilities |
+| `@pagesmith/core/mcp` | Core MCP server and helper utilities |
 
 ## License
 

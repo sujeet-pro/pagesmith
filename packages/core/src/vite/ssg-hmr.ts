@@ -11,7 +11,8 @@ import { extname, resolve } from 'path'
 import { readFileSync } from 'fs'
 import type { ViteDevServer } from 'vite'
 import type { SsgRenderConfig } from './ssg-plugin'
-import { collectContentAssets, MIME, rewriteContentAssetRefs } from './ssg-render'
+import { collectContentAssets } from '../assets'
+import { MIME, rewriteContentAssetRefs } from './ssg-render'
 
 const WS_RELOAD_SCRIPT = `<script type="module">
 import 'vite/modulepreload-polyfill'
@@ -142,9 +143,9 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
       const status = html.includes('doc-not-found') ? 404 : 200
       res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8' })
       res.end(html)
-    } catch (err: any) {
-      server.ssrFixStacktrace(err)
-      console.error(`SSR error for ${url}:`, err.message)
+    } catch (err: unknown) {
+      server.ssrFixStacktrace(err as Error)
+      console.error(`SSR error for ${url}:`, err instanceof Error ? err.message : String(err))
       next(err)
     }
   })

@@ -17,15 +17,11 @@ function getLoaderType(loader: string | Loader): string {
 }
 
 function getSchemaFieldNames(schema: z.ZodType): string[] | undefined {
-  try {
-    // Zod v4 uses a different internal shape; try the common paths.
-    const shape =
-      (schema as any)._zod?.def?.shape ?? (schema as any).shape ?? (schema as any)._def?.shape?.()
-    if (shape && typeof shape === 'object') {
-      return Object.keys(shape)
-    }
-  } catch {
-    // Schema may not be an object type — that's fine.
+  if (schema instanceof z.ZodObject) {
+    return Object.keys(schema.shape)
+  }
+  if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
+    return getSchemaFieldNames(schema.unwrap() as z.ZodType)
   }
   return undefined
 }

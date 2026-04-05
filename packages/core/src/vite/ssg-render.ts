@@ -21,7 +21,7 @@ import {
 import { basename, dirname, extname, join, resolve } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import type { ResolvedConfig } from 'vite'
-import { copyPublicFiles } from '../assets'
+import { collectContentAssets, CONTENT_ASSET_EXTS, copyPublicFiles } from '../assets'
 import type { SsgRenderConfig } from './ssg-plugin'
 
 export const MIME: Record<string, string> = {
@@ -43,17 +43,6 @@ export const MIME: Record<string, string> = {
   '.txt': 'text/plain; charset=utf-8',
   '.xml': 'application/xml; charset=utf-8',
 }
-
-const CONTENT_ASSET_EXTS = new Set([
-  '.svg',
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.gif',
-  '.webp',
-  '.avif',
-  '.ico',
-])
 
 // ── Content directory helpers ──
 
@@ -81,42 +70,6 @@ export function rewriteContentAssetRefs(html: string, base: string): string {
       return `${attr}=${quote}${basePrefix}/assets/${pathname.split('/').pop() ?? pathname}${suffix}${quote}`
     },
   )
-}
-
-export function collectContentAssets(contentDirs: string[]): Map<string, string> {
-  const assets = new Map<string, string>()
-
-  function walk(dir: string): void {
-    if (!existsSync(dir)) return
-
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name.startsWith('.')) continue
-
-      const fullPath = join(dir, entry.name)
-
-      if (entry.isDirectory()) {
-        walk(fullPath)
-        continue
-      }
-
-      const ext = extname(entry.name).toLowerCase()
-      if (!CONTENT_ASSET_EXTS.has(ext)) continue
-
-      if (assets.has(entry.name) && assets.get(entry.name) !== fullPath) {
-        console.warn(
-          `pagesmith:ssg duplicate companion asset basename "${entry.name}" detected; using ${fullPath}`,
-        )
-      }
-
-      assets.set(entry.name, fullPath)
-    }
-  }
-
-  for (const dir of contentDirs) {
-    walk(dir)
-  }
-
-  return assets
 }
 
 function copyContentAssetsToOutDir(outDir: string, assets: Map<string, string>): void {
@@ -188,21 +141,31 @@ export async function renderStaticSite(context: SsgBuildContext): Promise<number
     isDev: false,
   }
 
-  // Get routes and render
+  // Get routes and render with bounded concurrency
   const routes: string[] = await ssrMod.getRoutes(renderConfig)
   console.log(`SSG: Rendering ${routes.length} pages...`)
 
-  for (const route of routes) {
-    const html = rewriteContentAssetRefs(await ssrMod.render(route, renderConfig), base)
-    const routePath = route === '/' ? '' : route.replace(/^\//, '')
-    const outputPath = join(outDir, routePath, 'index.html')
-    mkdirSync(dirname(outputPath), { recursive: true })
-    writeFileSync(outputPath, `<!DOCTYPE html>\n${html}`)
+  const concurrency = Math.min(routes.length, 8)
+  let routeIndex = 0
 
-    if (route === '/404') {
-      writeFileSync(join(outDir, '404.html'), `<!DOCTYPE html>\n${html}`)
+  async function renderWorker(): Promise<void> {
+    while (routeIndex < routes.length) {
+      const i = routeIndex++
+      const route = routes[i]
+      const html = rewriteContentAssetRefs(await ssrMod.render(route, renderConfig), base)
+      const routePath = route === '/' ? '' : route.replace(/^\//, '')
+      const outputPath = join(outDir, routePath, 'index.html')
+      mkdirSync(dirname(outputPath), { recursive: true })
+      writeFileSync(outputPath, `<!DOCTYPE html>\n${html}`)
+
+      if (route === '/404') {
+        writeFileSync(join(outDir, '404.html'), `<!DOCTYPE html>\n${html}`)
+      }
     }
   }
+
+  const workers = Array.from({ length: concurrency }, () => renderWorker())
+  await Promise.all(workers)
 
   copyContentAssetsToOutDir(outDir, contentAssets)
 
@@ -253,7 +216,7 @@ async function buildSsrBundle(
   const ssrEntry = resolve(projectRoot, entry)
   // Write a temp build script that externalizes node_modules and skips the SSG plugin
   const buildScript = `
-    import { build } from 'vite-plus';
+    import { build } from 'vite';
     await build({
       root: ${JSON.stringify(projectRoot)},
       logLevel: 'warn',

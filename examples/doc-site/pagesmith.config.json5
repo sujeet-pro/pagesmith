@@ -10,6 +10,12 @@
   sidebar: {
     collapsible: true,
   },
+  theme: {
+    layouts: {
+      home: './theme/layouts/DocHome.tsx',
+      page: './theme/layouts/DocPage.tsx',
+    },
+  },
   footerLinks: [
     { label: 'Guide', path: '/guide' },
     { label: 'API', path: '/api' },

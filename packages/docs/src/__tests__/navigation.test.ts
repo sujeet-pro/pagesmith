@@ -307,6 +307,226 @@ describe('buildSiteModel', () => {
     expect(model.rootMeta).toBe(rootMeta)
     expect(model.sectionMetas).toBe(sectionMetas)
   })
+
+  it('uses rootMeta headerLinks for nav when provided', () => {
+    const pages = [
+      mockPage({
+        title: 'Guide Landing',
+        routePath: '/guide',
+        contentSlug: 'guide',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Intro',
+        routePath: '/guide/intro',
+        contentSlug: 'guide/intro',
+        section: 'guide',
+      }),
+    ]
+    const rootMeta = {
+      headerLinks: [{ label: 'Custom Guide', path: '/guide' }],
+    }
+
+    const model = buildSiteModel(mockConfig, pages, rootMeta)
+
+    expect(model.navItems.length).toBe(1)
+    expect(model.navItems[0].label).toBe('Custom Guide')
+  })
+
+  it('sorts pages by frontmatter order', () => {
+    const pages = [
+      mockPage({
+        title: 'Third',
+        routePath: '/guide/third',
+        contentSlug: 'guide/third',
+        section: 'guide',
+        frontmatter: { order: 3 },
+      }),
+      mockPage({
+        title: 'First',
+        routePath: '/guide/first',
+        contentSlug: 'guide/first',
+        section: 'guide',
+        frontmatter: { order: 1 },
+      }),
+      mockPage({
+        title: 'Second',
+        routePath: '/guide/second',
+        contentSlug: 'guide/second',
+        section: 'guide',
+        frontmatter: { order: 2 },
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+    const sidebar = model.sidebarBySection.get('guide')
+
+    expect(sidebar).toBeDefined()
+    expect(sidebar![0].items[0].title).toBe('First')
+    expect(sidebar![0].items[1].title).toBe('Second')
+    expect(sidebar![0].items[2].title).toBe('Third')
+  })
+
+  it('builds sidebar with series grouping from section meta', () => {
+    const pages = [
+      mockPage({
+        title: 'Guide Landing',
+        routePath: '/guide',
+        contentSlug: 'guide',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Getting Started',
+        routePath: '/guide/getting-started',
+        contentSlug: 'guide/getting-started',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Advanced',
+        routePath: '/guide/advanced',
+        contentSlug: 'guide/advanced',
+        section: 'guide',
+      }),
+    ]
+    const sectionMetas = new Map([
+      [
+        'guide',
+        {
+          displayName: 'Guide',
+          orderBy: 'manual' as const,
+          series: [
+            {
+              slug: 'basics',
+              displayName: 'Basics',
+              articles: ['getting-started'],
+            },
+            {
+              slug: 'deep-dives',
+              displayName: 'Deep Dives',
+              articles: ['advanced'],
+            },
+          ],
+        },
+      ],
+    ])
+
+    const model = buildSiteModel(mockConfig, pages, undefined, sectionMetas)
+    const sidebar = model.sidebarBySection.get('guide')
+
+    expect(sidebar).toBeDefined()
+    expect(sidebar!.length).toBe(2)
+    expect(sidebar![0].title).toBe('Basics')
+    expect(sidebar![1].title).toBe('Deep Dives')
+  })
+
+  it('uses sidebarLabel from frontmatter when available', () => {
+    const pages = [
+      mockPage({
+        title: 'Very Long Page Title That Should Be Shortened',
+        routePath: '/guide/long-title',
+        contentSlug: 'guide/long-title',
+        section: 'guide',
+        frontmatter: { sidebarLabel: 'Short Title' },
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+    const sidebar = model.sidebarBySection.get('guide')
+
+    expect(sidebar![0].items[0].title).toBe('Short Title')
+  })
+
+  it('excludes draft pages from sidebar and nav', () => {
+    const pages = [
+      mockPage({
+        title: 'Published',
+        routePath: '/guide/published',
+        contentSlug: 'guide/published',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Draft',
+        routePath: '/guide/draft',
+        contentSlug: 'guide/draft',
+        section: 'guide',
+        frontmatter: { draft: true },
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+    const sidebar = model.sidebarBySection.get('guide')
+
+    expect(sidebar![0].items.length).toBe(1)
+    expect(sidebar![0].items[0].title).toBe('Published')
+  })
+
+  it('prepends landing page to sidebar items', () => {
+    const pages = [
+      mockPage({
+        title: 'Guide Overview',
+        routePath: '/guide',
+        contentSlug: 'guide',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Getting Started',
+        routePath: '/guide/getting-started',
+        contentSlug: 'guide/getting-started',
+        section: 'guide',
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+    const sidebar = model.sidebarBySection.get('guide')
+
+    expect(sidebar![0].items[0].title).toBe('Guide Overview')
+    expect(sidebar![0].items[1].title).toBe('Getting Started')
+  })
+
+  it('uses landing page route for nav link', () => {
+    const pages = [
+      mockPage({
+        title: 'Guide Overview',
+        routePath: '/guide',
+        contentSlug: 'guide',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Getting Started',
+        routePath: '/guide/getting-started',
+        contentSlug: 'guide/getting-started',
+        section: 'guide',
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+
+    expect(model.navItems[0].path).toBe('/guide')
+  })
+
+  it('builds nested sidebar items for deep content', () => {
+    const pages = [
+      mockPage({
+        title: 'Parent Page',
+        routePath: '/guide/setup',
+        contentSlug: 'guide/setup',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Install',
+        routePath: '/guide/setup/install',
+        contentSlug: 'guide/setup/install',
+        section: 'guide',
+      }),
+    ]
+
+    const model = buildSiteModel(mockConfig, pages)
+    const sidebar = model.sidebarBySection.get('guide')
+
+    expect(sidebar).toBeDefined()
+    const setupItem = sidebar![0].items.find((i) => i.title === 'Parent Page')
+    expect(setupItem).toBeDefined()
+  })
 })
 
 // ---------------------------------------------------------------------------

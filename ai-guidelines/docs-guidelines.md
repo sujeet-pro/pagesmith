@@ -2,7 +2,7 @@
 
 Comprehensive guide for AI assistants setting up and using `@pagesmith/docs`. Follow this file to configure a documentation site and generate content using the docs package.
 
-For markdown features, frontmatter schemas (both core and docs-specific), and content authoring rules, see [`markdown-guidelines.md`](markdown-guidelines.md).
+For markdown features, frontmatter schemas (both core and docs-specific), and content authoring rules, see `[markdown-guidelines.md](markdown-guidelines.md)`.
 
 ---
 
@@ -26,6 +26,7 @@ npx pagesmith init --ai
 ```
 
 This creates:
+
 - `pagesmith.config.json5` -- minimal site configuration
 - `docs/` -- starter content directory (no `meta.json5` needed)
 - AI integrations (CLAUDE.md, skills, markdown guidelines) when `--ai` is passed
@@ -187,27 +188,29 @@ Open the dev server URL. Verify the home page renders, navigation works, and con
 
 ### Configuration (`pagesmith.config.json5`)
 
-| Field | Type | Default | Description |
-|---|---|---|---|
-| `name` | `string` | pkg name | Site name (header) |
-| `title` | `string` | pkg name | Browser tab title |
-| `description` | `string` | pkg desc | Default meta description |
-| `origin` | `string` | pkg homepage | Production URL for canonical links |
-| `language` | `string` | `'en'` | HTML lang attribute |
-| `contentDir` | `string` | `'docs/' or 'content/'` | Content directory path |
-| `outDir` | `string` | `'gh-pages'` | Build output directory |
-| `publicDir` | `string` | `'public'` | Static assets directory |
-| `basePath` | `string` | `'/'` | URL base path |
-| `homeLink` | `string` | `basePath` | Header logo link |
-| `footerLinks` | `array` | `[]` | Footer links (`{ label, path }`) |
-| `sidebar.collapsible` | `boolean` | `true` | Collapsible sidebar sections |
-| `search.enabled` | `boolean` | `true` | Pagefind search |
-| `theme.layouts` | `Record` | -- | Layout override paths |
-| `analytics.googleAnalytics` | `string` | -- | GA tracking ID |
-| `markdown` | `MarkdownConfig` | -- | Markdown pipeline config |
-| `assets` | `Record<string, string[]>` | -- | Asset mapping (output path to source files/folders) |
-| `sitemap` | `boolean` | `true` | Auto-generate sitemap.xml |
-| `theme.socialImage` | `string` | -- | Default OG image |
+
+| Field                       | Type                       | Default                 | Description                                         |
+| --------------------------- | -------------------------- | ----------------------- | --------------------------------------------------- |
+| `name`                      | `string`                   | pkg name                | Site name (header)                                  |
+| `title`                     | `string`                   | pkg name                | Browser tab title                                   |
+| `description`               | `string`                   | pkg desc                | Default meta description                            |
+| `origin`                    | `string`                   | pkg homepage            | Production URL for canonical links                  |
+| `language`                  | `string`                   | `'en'`                  | HTML lang attribute                                 |
+| `contentDir`                | `string`                   | `'docs/' or 'content/'` | Content directory path                              |
+| `outDir`                    | `string`                   | `'gh-pages'`            | Build output directory                              |
+| `publicDir`                 | `string`                   | `'public'`              | Static assets directory                             |
+| `basePath`                  | `string`                   | `'/'`                   | URL base path                                       |
+| `homeLink`                  | `string`                   | `basePath`              | Header logo link                                    |
+| `footerLinks`               | `array`                    | `[]`                    | Footer links (`{ label, path }`)                    |
+| `sidebar.collapsible`       | `boolean`                  | `true`                  | Collapsible sidebar sections                        |
+| `search.enabled`            | `boolean`                  | `true`                  | Pagefind search                                     |
+| `theme.layouts`             | `Record`                   | --                      | Layout override paths                               |
+| `analytics.googleAnalytics` | `string`                   | --                      | GA tracking ID                                      |
+| `markdown`                  | `MarkdownConfig`           | --                      | Markdown pipeline config                            |
+| `assets`                    | `Record<string, string[]>` | --                      | Asset mapping (output path to source files/folders) |
+| `sitemap`                   | `boolean`                  | `true`                  | Auto-generate sitemap.xml                           |
+| `theme.socialImage`         | `string`                   | --                      | Default OG image                                    |
+
 
 ### Asset Mapping
 
@@ -224,7 +227,7 @@ Copy specific files or folders to the build output:
 
 Source paths are relative to the config file directory. Folders are copied recursively. The build validates all referenced sources exist.
 
-Note: `llms.txt`, `llms-full.txt`, `sitemap.xml`, `robots.txt`, and `.nojekyll` are auto-generated — no `assets` mapping needed for these.
+Note: `sitemap.xml`, `robots.txt`, and `.nojekyll` are auto-generated by the build. `llms.txt` and `llms-full.txt` are auto-copied from the project root when present. No `assets` mapping is needed for any of these.
 
 ### Content Structure
 
@@ -251,10 +254,10 @@ npx pagesmith preview   # Preview built site
 - No `vite.config.ts` or `content.config.ts` needed -- docs uses `pagesmith.config.json5`
 - Top-level folders in `content/` define the main navigation
 - Pagefind search is bundled -- no separate `pagefind` dependency needed
-- All markdown features from `@pagesmith/core` are available (see [`markdown-guidelines.md`](markdown-guidelines.md))
+- All markdown features from `@pagesmith/core` are available (see `[markdown-guidelines.md](markdown-guidelines.md)`)
 - Config is validated at build time -- missing required fields and non-existent asset references are reported
 - `name`, `title`, `description`, `origin` auto-fallback to package.json — most projects need only `basePath` in config
-- Docs-specific frontmatter fields (navLabel, sidebarLabel, order, home page fields) are documented in [`markdown-guidelines.md`](markdown-guidelines.md)
+- Docs-specific frontmatter fields (navLabel, sidebarLabel, order, home page fields) are documented in `[markdown-guidelines.md](markdown-guidelines.md)`
 
 ---
 
@@ -266,4 +269,4 @@ For complete documentation (frontmatter, layout overrides, section meta, program
 node_modules/@pagesmith/docs/REFERENCE.md
 ```
 
-For markdown features (code blocks, alerts, math, tables), see [`markdown-guidelines.md`](markdown-guidelines.md).
+For markdown features (code blocks, alerts, math, tables), see `[markdown-guidelines.md](markdown-guidelines.md)`.

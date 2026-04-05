@@ -1,6 +1,6 @@
 import { existsSync } from 'fs'
 import { dirname, relative, resolve } from 'path'
-import type { PagesmithContentPluginOptions } from './index'
+import type { PagesmithContentPluginOptions } from './content-plugin'
 
 function stripExtension(filePath: string): string {
   return filePath.replace(/\.(c|m)?[jt]sx?$/u, '')

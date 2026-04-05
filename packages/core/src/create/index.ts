@@ -20,7 +20,16 @@ import { execSync } from 'child_process'
 import { tmpdir } from 'os'
 
 const GITHUB_REPO = 'sujeet-pro/pagesmith'
-const PACKAGE_VERSION = '^0.1.0'
+
+function getPackageVersion(): string {
+  try {
+    const pkgPath = resolve(import.meta.dirname, '..', '..', 'package.json')
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { version?: string }
+    return `^${pkg.version ?? '0.1.0'}`
+  } catch {
+    return '^0.1.0'
+  }
+}
 
 export type Template = {
   name: string
@@ -46,7 +55,7 @@ export const templates: Template[] = [
     source: 'github',
     path: 'examples/blog-site',
     dependency: '@pagesmith/core',
-    scripts: { dev: 'node --watch build.mjs', build: 'node build.mjs' },
+    scripts: { dev: 'vp dev', build: 'vp build', check: 'vp check' },
   },
   {
     name: 'react',
@@ -56,7 +65,8 @@ export const templates: Template[] = [
     dependency: '@pagesmith/core',
     scripts: {
       dev: 'vp dev',
-      build: 'node build.mjs',
+      build: 'vp build',
+      check: 'vp check',
       preview: 'vp preview',
     },
   },
@@ -68,7 +78,8 @@ export const templates: Template[] = [
     dependency: '@pagesmith/core',
     scripts: {
       dev: 'vp dev',
-      build: 'node build.mjs',
+      build: 'vp build',
+      check: 'vp check',
       preview: 'vp preview',
     },
   },
@@ -80,7 +91,8 @@ export const templates: Template[] = [
     dependency: '@pagesmith/core',
     scripts: {
       dev: 'vp dev',
-      build: 'node build.mjs',
+      build: 'vp build',
+      check: 'vp check',
       preview: 'vp preview',
     },
   },
@@ -91,8 +103,9 @@ export const templates: Template[] = [
     path: 'examples/with-vanilla-ejs',
     dependency: '@pagesmith/core',
     scripts: {
-      dev: 'node --watch build.mjs',
-      build: 'node build.mjs',
+      dev: 'vp dev',
+      build: 'vp build',
+      check: 'vp check',
     },
   },
   {
@@ -102,8 +115,9 @@ export const templates: Template[] = [
     path: 'examples/with-vanilla-hbs',
     dependency: '@pagesmith/core',
     scripts: {
-      dev: 'node --watch build.mjs',
-      build: 'node build.mjs',
+      dev: 'vp dev',
+      build: 'vp build',
+      check: 'vp check',
     },
   },
 ]
@@ -143,27 +157,6 @@ async function downloadFromGithub(templatePath: string, destination: string): Pr
 
     mkdirSync(destination, { recursive: true })
     cpSync(sourcePath, destination, { recursive: true })
-
-    // Also copy shared-content for framework examples
-    const sharedContentPath = join(tmpExtract, topDir, 'examples/shared-content')
-    if (existsSync(sharedContentPath) && templatePath.startsWith('examples/with-')) {
-      const contentDest = join(destination, 'content')
-      mkdirSync(contentDest, { recursive: true })
-
-      // Copy markdown/data files from shared-content
-      for (const subDir of ['posts', 'pages', 'authors']) {
-        const srcDir = join(sharedContentPath, subDir)
-        if (existsSync(srcDir)) {
-          cpSync(srcDir, join(contentDest, subDir), { recursive: true })
-        }
-      }
-
-      // Copy content config
-      const configSrc = join(sharedContentPath, 'content.config.mjs')
-      if (existsSync(configSrc)) {
-        cpSync(configSrc, join(destination, 'content.config.mjs'))
-      }
-    }
   } finally {
     unlinkSync(tmpFile)
     rmSync(tmpExtract, { recursive: true, force: true })
@@ -252,14 +245,14 @@ function writePackageJson(destination: string, projectName: string, template: Te
   if (pkg.dependencies) {
     for (const [name, version] of Object.entries(pkg.dependencies)) {
       if (version === '*' && name.startsWith('@pagesmith/')) {
-        pkg.dependencies[name] = PACKAGE_VERSION
+        pkg.dependencies[name] = getPackageVersion()
       }
     }
   }
 
   // Ensure the primary dependency is present
   pkg.dependencies = pkg.dependencies ?? {}
-  pkg.dependencies[template.dependency] = PACKAGE_VERSION
+  pkg.dependencies[template.dependency] = getPackageVersion()
 
   // Keep Vite+ in standalone examples that already use it
   if (pkg.devDependencies?.vite && !pkg.devDependencies['vite-plus']) {

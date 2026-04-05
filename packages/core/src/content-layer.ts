@@ -110,6 +110,12 @@ class ContentLayerImpl implements ContentLayer {
   }
 
   async getEntry(collection: string, slug: string): Promise<ContentEntry | undefined> {
+    const cached = this.store.getEntry(collection, slug)
+    if (cached) return cached
+
+    // If the collection was already loaded and this slug wasn't found, short-circuit.
+    if (this.store.isCollectionLoaded(collection)) return undefined
+
     // The first getEntry call loads the full collection and then serves from cache.
     // Single-entry loading would skip collection-level transforms and validation context.
     await this.getCollection(collection)

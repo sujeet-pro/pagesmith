@@ -19,6 +19,18 @@ Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm 
   bundled search and layout override slots
 ```
 
+## 1.0 Architecture Principles
+
+These principles are the long-term guardrails for implementation and docs decisions:
+
+1. **Filesystem-first source of truth**: content and companion assets live in the repository.
+2. **Strict package boundaries**: shared primitives belong in `@pagesmith/core`; docs conventions belong in `@pagesmith/docs`.
+3. **Boundary validation**: schema + content validation happens before rendering.
+4. **Vite-native tooling**: build/dev/preview flows remain Vite-centric.
+5. **Static-first delivery**: default output is static HTML with small progressive enhancements.
+6. **Configuration-first experience**: sensible defaults first, explicit overrides second.
+7. **Docs and AI guidance parity**: user docs and assistant guidance must track behavior changes in the same release.
+
 ## Package Dependency Graph
 
 `@pagesmith/core` is standalone with no internal workspace dependencies. `@pagesmith/docs` depends on `@pagesmith/core` as a runtime dependency and imports from multiple entry points:
@@ -40,7 +52,7 @@ The package exposes multiple entry points via the `exports` field in `package.js
 
 | Import path | Source | Purpose |
 |---|---|---|
-| `@pagesmith/core` | `src/index.ts` | Main barrel -- config helpers, content layer, entry, JSX runtime, markdown, schemas, loaders, validation, AI |
+| `@pagesmith/core` | `src/index.ts` | Main barrel -- config helpers, content layer, entry, JSX runtime, markdown, CSS, schemas, loaders, validation |
 | `@pagesmith/core/vite` | `src/vite/index.ts` | Vite plugins -- `pagesmithContent()`, `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
 | `@pagesmith/core/runtime` | `src/runtime/index.ts` | Pre-built CSS/JS accessors for standalone and content tiers |
 | `@pagesmith/core/jsx-runtime` | `src/jsx-runtime/index.ts` | Server-side JSX: `h()`, `Fragment()`, `HtmlString` |
@@ -145,34 +157,39 @@ The content layer follows a strict pipeline when `getCollection(name)` is called
 4. Generate slug
    def.slugify(filePath, directory) or toSlug(filePath, directory)
 
-5. Apply pre-validation transform
+5. Apply transform (pre-validation)
    def.transform(rawEntry) -> RawEntry
 
-6. Schema validation
+6. Apply computed fields
+   def.computed: { fieldName: (entry) => value }
+   Merged into entry.data before validation
+
+7. Apply filter
+   def.filter(entry) -> boolean (false excludes from results)
+
+8. Schema validation
    validateSchema(data, def.schema) via Zod safeParse
    Produces ValidationIssue[] with field paths
+   Validates the enriched data including computed fields
 
-7. Apply computed fields
-   def.computed: { fieldName: (entry) => value }
-   Merged into entry.data
+9. Custom validation
+   def.validate(rawEntry) -> string | undefined
+   Appended as error-severity issue
 
-8. Content validators (markdown collections only)
-   Parse MDAST once, shared across all validators via ValidatorContext.mdast
-   Built-in: linkValidator, headingValidator, codeBlockValidator
-   Custom: def.validators[]
-   Disable built-ins: def.disableBuiltinValidators
+10. Content validators (markdown collections only)
+    Parse MDAST once, shared across all validators via ValidatorContext.mdast
+    Built-in: linkValidator, headingValidator, codeBlockValidator
+    Custom: def.validators[]
+    Disable built-ins: def.disableBuiltinValidators
 
-9. Plugin validators
-   ContentPlugin.validate() runs after all other validation
+11. Plugin validators
+    ContentPlugin.validate() runs after all other validation
 
-10. Filter
-    def.filter(entry) -> boolean (false excludes from results)
-
-11. Cache
+12. Cache
     ContentStore stores { entry: ContentEntry<T>, issues: ValidationIssue[] }
     Subsequent calls return from cache until invalidated
 
-12. Return ContentEntry<T>[]
+13. Return ContentEntry<T>[]
     entry.data is available immediately
     entry.render() triggers lazy markdown processing
 ```
@@ -195,9 +212,10 @@ remark-parse                    Parse markdown to MDAST
   -> remark-github-alerts      > [!NOTE], > [!TIP], etc.
   -> remark-smartypants        Smart quotes, dashes, ellipses
   -> [user remark plugins]     From MarkdownConfig.remarkPlugins
+  -> lang-alias transform      Map unsupported languages to known aliases
   -> remark-rehype             MDAST -> HAST (allowDangerousHtml: true)
+  -> rehype-mathjax/svg        Render math to SVG (must run before Expressive Code)
   -> rehype-expressive-code    Syntax highlighting, code frames, tabs, copy buttons
-  -> rehype-mathjax/svg        Render math to SVG
   -> rehype-slug               Add id="" to headings
   -> rehype-autolink-headings  Wrap heading text in anchor links (behavior: 'wrap')
   -> rehype-external-links     target="_blank" on external URLs

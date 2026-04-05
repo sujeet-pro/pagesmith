@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vp dev",
-    "build": "vp build",
+    "dev": "vite dev",
+    "build": "vite build",
     "check": "vp check"
   },
   "dependencies": {
@@ -17,6 +17,6 @@
     "typescript": "^6.0.2",
     "vite": "^8.0.3",
     "vite-plugin-solid": "^2.11.11",
-    "vite-plus": "^0.1.15"
+    "vite-plus": "0.1.13"
   }
 }

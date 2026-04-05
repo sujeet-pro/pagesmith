@@ -9,6 +9,16 @@ Two main user-facing packages:
 
 Use `@pagesmith/docs` when you want a batteries-included docs site from `pagesmith.config.json5`. Use `@pagesmith/core` when you want a custom site, a framework integration (React, Solid, Svelte, EJS, Handlebars), or full control over layouts and rendering.
 
+## 1.0 Architecture Principles
+
+- Filesystem-first content and assets
+- Strict `@pagesmith/core` vs `@pagesmith/docs` boundaries
+- Validation before rendering
+- Vite-native toolchain and plugins
+- Static-first output with progressive enhancement
+
+See `docs/content/reference/architecture/README.md` for the full architecture and rationale.
+
 ## Install
 
 Docs-first install:
@@ -24,6 +34,12 @@ Core/Vite install:
 ```bash
 npm add @pagesmith/core
 ```
+
+## Pre-1.0 Migration
+
+Pagesmith is pre-1.0 and minor releases may include breaking changes while APIs are being finalized.
+
+Use `MIGRATING.md` for the current upgrade checklist and import-path/script migration guidance.
 
 ## Quick Start
 
@@ -79,60 +95,72 @@ export default defineConfig({
 
 ## Packages
 
-| Package | Description | README |
-|---|---|---|
-| [`@pagesmith/core`](packages/core/) | Content layer, markdown pipeline, JSX runtime, CSS builder, Vite plugins | [packages/core/README.md](packages/core/README.md) |
-| [`@pagesmith/docs`](packages/docs/) | Convention-based docs site with theme, search, navigation, CLI | [packages/docs/README.md](packages/docs/README.md) |
+
+| Package                             | Description                                                              | README                                             |
+| ----------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------- |
+| `[@pagesmith/core](packages/core/)` | Content layer, markdown pipeline, JSX runtime, CSS builder, Vite plugins | [packages/core/README.md](packages/core/README.md) |
+| `[@pagesmith/docs](packages/docs/)` | Convention-based docs site with theme, search, navigation, CLI           | [packages/docs/README.md](packages/docs/README.md) |
+
 
 ## Examples
 
-| Example | Description | README |
-|---|---|---|
-| [blog-site](examples/blog-site/) | Custom site built on `@pagesmith/core` with own layouts and Vite-powered asset build | [README](examples/blog-site/README.md) |
-| [doc-site](examples/doc-site/) | `@pagesmith/docs` with layout overrides via `theme.layouts.*` | [README](examples/doc-site/README.md) |
-| [with-react](examples/with-react/) | `@pagesmith/core` + React (react-dom/server) | [README](examples/with-react/README.md) |
-| [with-solid](examples/with-solid/) | `@pagesmith/core` + SolidJS | [README](examples/with-solid/README.md) |
-| [with-svelte](examples/with-svelte/) | `@pagesmith/core` + Svelte 5 | [README](examples/with-svelte/README.md) |
-| [with-vanilla-ejs](examples/with-vanilla-ejs/) | `@pagesmith/core` + EJS templates | [README](examples/with-vanilla-ejs/README.md) |
-| [with-vanilla-hbs](examples/with-vanilla-hbs/) | `@pagesmith/core` + Handlebars templates | [README](examples/with-vanilla-hbs/README.md) |
+
+| Example                                        | Description                                                                          | README                                        |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------- |
+| [blog-site](examples/blog-site/)               | Custom site built on `@pagesmith/core` with own layouts and Vite-powered asset build | [README](examples/blog-site/README.md)        |
+| [doc-site](examples/doc-site/)                 | `@pagesmith/docs` with layout overrides via `theme.layouts.*`                        | [README](examples/doc-site/README.md)         |
+| [with-react](examples/with-react/)             | `@pagesmith/core` + React (react-dom/server)                                         | [README](examples/with-react/README.md)       |
+| [with-solid](examples/with-solid/)             | `@pagesmith/core` + SolidJS                                                          | [README](examples/with-solid/README.md)       |
+| [with-svelte](examples/with-svelte/)           | `@pagesmith/core` + Svelte 5                                                         | [README](examples/with-svelte/README.md)      |
+| [with-vanilla-ejs](examples/with-vanilla-ejs/) | `@pagesmith/core` + EJS templates                                                    | [README](examples/with-vanilla-ejs/README.md) |
+| [with-vanilla-hbs](examples/with-vanilla-hbs/) | `@pagesmith/core` + Handlebars templates                                             | [README](examples/with-vanilla-hbs/README.md) |
+
 
 ## Framework Support
 
-| Framework | Pattern | Example |
-|---|---|---|
-| React | `pagesmithContent` + `pagesmithSsg` | `examples/with-react/` |
-| SolidJS | `pagesmithContent` + `pagesmithSsg` | `examples/with-solid/` |
-| Svelte | `pagesmithContent` + `pagesmithSsg` | `examples/with-svelte/` |
-| EJS | `createContentLayer` + `pagesmithSsg` | `examples/with-vanilla-ejs/` |
+
+| Framework  | Pattern                               | Example                      |
+| ---------- | ------------------------------------- | ---------------------------- |
+| React      | `pagesmithContent` + `pagesmithSsg`   | `examples/with-react/`       |
+| SolidJS    | `pagesmithContent` + `pagesmithSsg`   | `examples/with-solid/`       |
+| Svelte     | `pagesmithContent` + `pagesmithSsg`   | `examples/with-svelte/`      |
+| EJS        | `createContentLayer` + `pagesmithSsg` | `examples/with-vanilla-ejs/` |
 | Handlebars | `createContentLayer` + `pagesmithSsg` | `examples/with-vanilla-hbs/` |
-| Docs | `@pagesmith/docs` CLI | `examples/doc-site/` |
-| Custom | `@pagesmith/core` JSX runtime | `examples/blog-site/` |
+| Docs       | `@pagesmith/docs` CLI                 | `examples/doc-site/`         |
+| Custom     | `@pagesmith/core` JSX runtime         | `examples/blog-site/`        |
+
 
 ## CSS Exports
 
-| Import | Contents |
-|---|---|
-| `@pagesmith/core/css/content` | Prose typography + inline code |
-| `@pagesmith/core/css/standalone` | Full layout + prose + TOC |
-| `@pagesmith/core/css/viewport` | Responsive viewport base |
-| `@pagesmith/core/css/fonts` | Bundled Open Sans + JetBrains Mono |
+
+| Import                           | Contents                           |
+| -------------------------------- | ---------------------------------- |
+| `@pagesmith/core/css/content`    | Prose typography + inline code     |
+| `@pagesmith/core/css/standalone` | Full layout + prose + TOC          |
+| `@pagesmith/core/css/viewport`   | Responsive viewport base           |
+| `@pagesmith/core/css/fonts`      | Bundled Open Sans + JetBrains Mono |
+
 
 Code block styling is handled by Expressive Code through inline styles injected during markdown processing.
 
 ## Import Map
 
-| I want to... | Import from |
-|---|---|
-| Define collections and schemas | `@pagesmith/core` |
-| Use Vite plugins | `@pagesmith/core/vite` |
-| Write JSX layouts | `@pagesmith/core/jsx-runtime` |
-| Add content CSS | `@pagesmith/core/css/content` |
-| Add full layout CSS | `@pagesmith/core/css/standalone` |
-| Process markdown directly | `@pagesmith/core/markdown` |
-| Use built-in loaders | `@pagesmith/core/loaders` |
-| Access runtime CSS/JS paths | `@pagesmith/core/runtime` |
-| MCP server (core) | `@pagesmith/core/mcp` |
-| MCP server (docs) | `@pagesmith/docs/mcp` |
+
+| I want to...                   | Import from                      |
+| ------------------------------ | -------------------------------- |
+| Define collections and schemas | `@pagesmith/core`                |
+| Use Vite plugins               | `@pagesmith/core/vite`           |
+| Write JSX layouts              | `@pagesmith/core/jsx-runtime`    |
+| Add content CSS                | `@pagesmith/core/css/content`    |
+| Add full layout CSS            | `@pagesmith/core/css/standalone` |
+| Process markdown directly      | `@pagesmith/core/markdown`       |
+| Use built-in loaders           | `@pagesmith/core/loaders`        |
+| Access runtime CSS/JS paths    | `@pagesmith/core/runtime`        |
+| Use shared SSG helpers         | `@pagesmith/core/ssg-utils`      |
+| MCP server (core)              | `@pagesmith/core/mcp`            |
+| MCP server (docs)              | `@pagesmith/docs/mcp`            |
+| Use docs theme exports         | `@pagesmith/docs/theme`          |
+
 
 ## AI-Assisted Setup
 
@@ -176,19 +204,21 @@ For @pagesmith/docs reference, see: node_modules/@pagesmith/docs/REFERENCE.md
 
 Version-matched package guidance for AI assistants:
 
-| Package | Files |
-|---|---|
+
+| Package           | Files                                                                                                                                                |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@pagesmith/core` | `node_modules/@pagesmith/core/docs/agents/usage.md`, `node_modules/@pagesmith/core/docs/llms.txt`, `node_modules/@pagesmith/core/docs/llms-full.txt` |
 | `@pagesmith/docs` | `node_modules/@pagesmith/docs/docs/agents/usage.md`, `node_modules/@pagesmith/docs/docs/llms.txt`, `node_modules/@pagesmith/docs/docs/llms-full.txt` |
+
 
 ## Docs
 
 The repo uses both packages in different ways:
 
-- [`docs/`](docs/) uses `@pagesmith/docs` with the default docs configuration
-- [`examples/doc-site/`](examples/doc-site/) shows layout overrides through `theme.layouts.*` in `pagesmith.config.json5`
-- [`examples/blog-site/`](examples/blog-site/) is a custom site built on `@pagesmith/core` with its own layouts and a Vite-powered asset build
-- The framework examples in [`examples/`](examples/) use `@pagesmith/core` with React, Solid, Svelte, EJS, and Handlebars rendering flows
+- `[docs/](docs/)` uses `@pagesmith/docs` with the default docs configuration
+- `[examples/doc-site/](examples/doc-site/)` shows layout overrides through `theme.layouts.*` in `pagesmith.config.json5`
+- `[examples/blog-site/](examples/blog-site/)` is a custom site built on `@pagesmith/core` with its own layouts and a Vite-powered asset build
+- The framework examples in `[examples/](examples/)` use `@pagesmith/core` with React, Solid, Svelte, EJS, and Handlebars rendering flows
 
 ## Repo Development
 

@@ -373,6 +373,7 @@ const issues = validateConfig(config)
 | `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig, validateConfig) |
 | `@pagesmith/docs/schemas` | Zod schemas for config, layout props, page data |
 | `@pagesmith/docs/preset` | Docs preset for integration |
+| `@pagesmith/docs/theme` | Theme/runtime export surface |
 | `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
 
 ## GitHub Pages Deployment
@@ -434,9 +435,10 @@ The markdown pipeline processes content through unified with these plugins in or
 ```
 remark-parse → remark-gfm → remark-math → remark-frontmatter
   → remark-github-alerts → remark-smartypants → [user remark plugins]
-  → remark-rehype
+  → lang-alias transform → remark-rehype
+  → rehype-mathjax (must run before Expressive Code so math is rendered to SVG first)
   → rehype-expressive-code (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
-  → rehype-mathjax → rehype-slug → rehype-autolink-headings
+  → rehype-slug → rehype-autolink-headings
   → rehype-external-links → rehype-accessible-emojis
   → heading extraction → [user rehype plugins] → rehype-stringify
 ```

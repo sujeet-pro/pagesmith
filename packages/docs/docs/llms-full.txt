@@ -16,7 +16,7 @@ This file is the package-shipped source of truth for AI assistants using `@pages
 ## Key rules
 
 - Use `@pagesmith/docs` for convention-based docs sites.
-- Keep docs structure rooted at `content/` with `content/README.md` as home.
+- Keep docs structure in your content directory (defaults to `docs/` if it exists, otherwise `content/`) with `README.md` as home.
 - Use `meta.json5` and frontmatter for ordering and labels, not hardcoded nav lists.
 - Keep search configuration inside `pagesmith.config.json5`; Pagefind is built in.
 - Use `theme.layouts` keys (`home`, `page`, `notFound`) for layout overrides.
@@ -32,6 +32,7 @@ This file is the package-shipped source of truth for AI assistants using `@pages
 - `node_modules/@pagesmith/docs/docs/agents/recipes.md`
 - `node_modules/@pagesmith/docs/docs/agents/errors.md`
 - `node_modules/@pagesmith/docs/docs/agents/changelog-notes.md`
+- `node_modules/@pagesmith/docs/docs/agents/migration.md`
 - `node_modules/@pagesmith/docs/docs/agents/AGENTS.md.template`
 - `node_modules/@pagesmith/docs/dist/mcp/server.mjs`
 
