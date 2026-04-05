@@ -1,4 +1,6 @@
 node_modules/
+# npm pack (published tarball artifacts; keep out of the repo)
+packages/**/*.tgz
 dist/
 dev/
 .air/

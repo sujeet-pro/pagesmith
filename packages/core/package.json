@@ -148,32 +148,6 @@
     "typescript": "^6.0.2",
     "vite-plus": "^0.1.13"
   },
-  "bundleDependencies": [
-    "@modelcontextprotocol/sdk",
-    "devalue",
-    "fast-glob",
-    "gray-matter",
-    "json5",
-    "lightningcss",
-    "rehype-accessible-emojis",
-    "rehype-autolink-headings",
-    "rehype-expressive-code",
-    "rehype-external-links",
-    "rehype-mathjax",
-    "rehype-slug",
-    "rehype-stringify",
-    "remark-frontmatter",
-    "remark-gfm",
-    "remark-github-alerts",
-    "remark-math",
-    "remark-parse",
-    "remark-rehype",
-    "remark-smartypants",
-    "smol-toml",
-    "unified",
-    "yaml",
-    "zod"
-  ],
   "engines": {
     "node": ">=24"
   },
