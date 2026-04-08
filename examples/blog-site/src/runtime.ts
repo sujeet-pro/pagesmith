@@ -52,50 +52,6 @@
   }
 }
 
-// ── Search modal ──
-{
-  const modal = document.getElementById('search-modal') as HTMLDialogElement | null
-  const trigger = document.querySelector('[data-search-trigger]')
-  const closeBtn = document.querySelector('[data-search-close]')
-
-  if (modal && trigger) {
-    let initialized = false
-
-    function openSearch() {
-      modal!.showModal()
-      if (!initialized && typeof (window as any).PagefindUI !== 'undefined') {
-        new (window as any).PagefindUI({
-          element: '#search-container',
-          showImages: false,
-          showSubResults: true,
-          resetStyles: false,
-        })
-        initialized = true
-      }
-      requestAnimationFrame(() => {
-        modal!.querySelector<HTMLInputElement>('.pagefind-ui__search-input')?.focus()
-      })
-    }
-
-    trigger.addEventListener('click', openSearch)
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.close()
-    })
-    closeBtn?.addEventListener('click', () => modal.close())
-
-    document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        if (modal.open) {
-          modal.close()
-        } else {
-          openSearch()
-        }
-      }
-    })
-  }
-}
-
 // ── Sidebar modal ──
 {
   const sidebarModal = document.getElementById('sidebar-modal') as HTMLDialogElement | null
@@ -136,4 +92,71 @@
   if (active) {
     active.scrollIntoView({ block: 'center' })
   }
+}
+
+// ── Footer theme selector ──
+{
+  const STORAGE_KEY = 'pagesmith-theme'
+
+  function getPrefs() {
+    const classes = document.documentElement.className
+    const schemeMatch = classes.match(/color-scheme-(\w+)/)
+    const themeMatch = classes.match(/theme-([\w-]+)/)
+    return {
+      colorScheme: schemeMatch?.[1] || 'auto',
+      theme: themeMatch?.[1] || 'paper',
+    }
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getPrefs()))
+    } catch {
+      // localStorage unavailable
+    }
+  }
+
+  function syncUI() {
+    const prefs = getPrefs()
+    document.querySelectorAll<HTMLButtonElement>('[data-footer-scheme] button').forEach((btn) => {
+      const active = btn.dataset.scheme === prefs.colorScheme
+      btn.classList.toggle('active', active)
+      btn.setAttribute('aria-pressed', String(active))
+    })
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-footer-theme-type] button')
+      .forEach((btn) => {
+        const active = btn.dataset.theme === prefs.theme
+        btn.classList.toggle('active', active)
+        btn.setAttribute('aria-pressed', String(active))
+      })
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-footer-scheme] button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.scheme) {
+        document.documentElement.className = document.documentElement.className.replace(
+          /color-scheme-\w+/,
+          'color-scheme-' + btn.dataset.scheme,
+        )
+        persist()
+        syncUI()
+      }
+    })
+  })
+
+  document.querySelectorAll<HTMLButtonElement>('[data-footer-theme-type] button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.theme) {
+        document.documentElement.className = document.documentElement.className.replace(
+          /theme-[\w-]+/,
+          'theme-' + btn.dataset.theme,
+        )
+        persist()
+        syncUI()
+      }
+    })
+  })
+
+  syncUI()
 }

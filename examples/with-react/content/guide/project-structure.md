@@ -68,7 +68,7 @@ A self-contained stylesheet providing CSS reset, design tokens, layout grid (hea
 
 Client-side progressive enhancements loaded via `client.js`. Adds three features on top of the static HTML:
 - **TOC highlight** -- Uses `IntersectionObserver` to highlight the current heading in the table of contents as the user scrolls.
-- **Search modal** -- Initializes `PagefindUI` in a dialog and binds the keyboard shortcut.
+- **Search modal** -- Handled natively by Pagefind Component UI web components (`<pagefind-modal>`, `<pagefind-modal-trigger>`).
 - **Sidebar modal** -- Opens/closes the mobile navigation drawer.
 
 ### `client.js`

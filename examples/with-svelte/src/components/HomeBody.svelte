@@ -78,6 +78,23 @@
         <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-svelte">GitHub</a>
         <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
       </div>
+      <div class="doc-footer-theme no-js-hidden" data-footer-theme>
+        <div class="doc-footer-theme-group">
+          <span class="doc-footer-theme-label">Appearance</span>
+          <div class="doc-footer-theme-options" data-footer-scheme>
+            <button type="button" data-scheme="auto" class="active" aria-pressed="true">Auto</button>
+            <button type="button" data-scheme="light" aria-pressed="false">Light</button>
+            <button type="button" data-scheme="dark" aria-pressed="false">Dark</button>
+          </div>
+        </div>
+        <div class="doc-footer-theme-group">
+          <span class="doc-footer-theme-label">Theme</span>
+          <div class="doc-footer-theme-options" data-footer-theme-type>
+            <button type="button" data-theme="paper" class="active" aria-pressed="true">Paper</button>
+            <button type="button" data-theme="high-contrast" aria-pressed="false">High Contrast</button>
+          </div>
+        </div>
+      </div>
       <p class="doc-footer-copyright">
         &copy; 2026 Pagesmith {' · '} Made with <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
       </p>

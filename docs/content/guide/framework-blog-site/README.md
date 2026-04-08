@@ -342,19 +342,28 @@ export function Html({ title, description, site, children }: Props) {
         <link rel="stylesheet" href={`${baseUrl}/assets/fonts.css`} />
         <link rel="stylesheet" href={cssPath} />
         {searchEnabled ? (
-          <link rel="stylesheet" href={`${baseUrl}/pagefind/pagefind-ui.css`} />
+          <link rel="stylesheet" href={`${baseUrl}/pagefind/pagefind-component-ui.css`} />
         ) : null}
         <script innerHTML="document.documentElement.classList.remove('no-js')" />
-        {searchEnabled ? <script src={`${baseUrl}/pagefind/pagefind-ui.js`} defer /> : null}
+        {searchEnabled ? (
+          <script src={`${baseUrl}/pagefind/pagefind-component-ui.js`} type="module" />
+        ) : null}
       </head>
       <body>
         {children}
         {searchEnabled ? (
-          <dialog class="site-search-modal" id="search-modal" aria-label="Search site">
-            <div class="site-search-modal-inner">
-              <div class="site-search-modal-body" data-pagefind-search="" />
-            </div>
-          </dialog>
+          <pagefind-modal reset-on-close="">
+            <pagefind-modal-header>
+              <pagefind-input />
+            </pagefind-modal-header>
+            <pagefind-modal-body>
+              <pagefind-summary />
+              <pagefind-results show-images={site.search?.showImages ? '' : undefined} />
+            </pagefind-modal-body>
+            <pagefind-modal-footer>
+              <pagefind-keyboard-hints />
+            </pagefind-modal-footer>
+          </pagefind-modal>
         ) : null}
       </body>
     </html>
@@ -485,7 +494,7 @@ Search is configured in `content/site.json5`:
 }
 ```
 
-The `Html` component conditionally includes Pagefind CSS/JS assets and renders a search dialog. The runtime JavaScript initializes `PagefindUI` when the modal opens. Content areas are marked with `data-pagefind-body` for indexing.
+The `Html` component conditionally includes Pagefind Component UI CSS/JS assets and renders `<pagefind-modal>` with `<pagefind-input>` and related web components. Keyboard shortcuts and modal behavior are handled by Component UI, not by `new PagefindUI({ ... })`. Content areas are marked with `data-pagefind-body` for indexing.
 
 ## Development and Building
 

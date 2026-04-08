@@ -227,10 +227,12 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
         <title>{frontmatter.title || site.title}</title>
         <link rel="stylesheet" href={assetPath(site, '/assets/style.css')} />
         {searchEnabled ? (
-          <link rel="stylesheet" href={assetPath(site, '/pagefind/pagefind-ui.css')} />
+          <link rel="stylesheet" href={assetPath(site, '/pagefind/pagefind-component-ui.css')} />
         ) : null}
         <script innerHTML="document.documentElement.classList.remove('no-js')" />
-        {searchEnabled ? <script src={assetPath(site, '/pagefind/pagefind-ui.js')} defer /> : null}
+        {searchEnabled ? (
+          <script src={assetPath(site, '/pagefind/pagefind-component-ui.js')} type="module" />
+        ) : null}
       </head>
       <body>
         <header class="doc-header">
@@ -247,6 +249,7 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
                 ))}
               </nav>
             ) : null}
+            {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}
           </div>
         </header>
         <main class="doc-home" data-pagefind-body="">
@@ -280,6 +283,23 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
           ) : null}
           {content ? <div class="prose" innerHTML={content} /> : null}
         </main>
+        {searchEnabled ? (
+          <pagefind-modal reset-on-close="">
+            <pagefind-modal-header>
+              <pagefind-input />
+            </pagefind-modal-header>
+            <pagefind-modal-body>
+              <pagefind-summary />
+              <pagefind-results
+                show-images={site.search?.showImages ? '' : undefined}
+                hide-sub-results={site.search?.showSubResults === false ? '' : undefined}
+              />
+            </pagefind-modal-body>
+            <pagefind-modal-footer>
+              <pagefind-keyboard-hints />
+            </pagefind-modal-footer>
+          </pagefind-modal>
+        ) : null}
         <script src={assetPath(site, '/assets/main.js')} defer />
       </body>
     </html>
@@ -320,7 +340,7 @@ Key features of the DocPage override:
 - **Active link detection** -- highlights the current page in sidebar and top navigation
 - **Table of contents** -- both mobile collapsible and desktop aside, filtered to h2-h3
 - **Prev/next navigation** -- footer links to adjacent pages
-- **Pagefind search** -- dialog with Cmd+K shortcut
+- **Pagefind search** -- Pagefind Component UI (`<pagefind-modal>`, `<pagefind-modal-trigger>`) with Cmd+K shortcut
 
 ## CSS and Styling
 
@@ -335,7 +355,7 @@ Layout overrides use the default `@pagesmith/docs` theme styles, bundled automat
 
 Custom layouts reference these styles through the standard `doc-*` CSS class names. You do not need to provide your own stylesheet unless you want to extend or override the theme.
 
-The runtime JavaScript (`/assets/main.js`) provides progressive enhancements: TOC highlighting, search modal, and sidebar toggle.
+The runtime JavaScript (`/assets/main.js`) provides progressive enhancements: TOC highlighting and sidebar toggle. Search is handled by Pagefind Component UI in the static HTML (`<pagefind-modal>`, `<pagefind-input>`, etc.).
 
 ## Pagefind Search
 
@@ -353,9 +373,9 @@ Search is configured in `pagesmith.config.json5`:
 When enabled, `@pagesmith/docs` automatically:
 
 1. Adds `data-pagefind-body` to content areas
-2. Includes Pagefind CSS and JS assets
-3. Renders a search trigger button with Cmd+K shortcut
-4. Provides a search modal dialog
+2. Includes Pagefind Component UI CSS and JS assets (`pagefind-component-ui.css`, `pagefind-component-ui.js` as a module)
+3. Renders `<pagefind-modal-trigger>` and a `<pagefind-modal>` tree (with `<pagefind-input>` for the query field instead of Default UI `.pagefind-ui__search-input`)
+4. Wires Cmd+K and modal behavior through Component UI web components (no `new PagefindUI({ ... })`)
 5. Runs Pagefind indexing after the build
 
 No manual configuration is needed beyond setting `search.enabled: true`.

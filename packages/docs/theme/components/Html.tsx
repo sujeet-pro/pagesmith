@@ -134,15 +134,14 @@ export function Html({ title, description, url, socialImage, site, children }: P
 
         {/* CSS */}
         <link rel="stylesheet" href={`${base}/assets/style.css`} />
-        {searchEnabled ? <link rel="stylesheet" href={`${base}/pagefind/pagefind-ui.css`} /> : null}
+        {searchEnabled ? (
+          <link rel="stylesheet" href={`${base}/pagefind/pagefind-component-ui.css`} />
+        ) : null}
 
         {/* Remove no-js class (theme classes remain) */}
         <script innerHTML="document.documentElement.classList.remove('no-js')" />
-        {searchEnabled ? <script src={`${base}/pagefind/pagefind-ui.js`} defer /> : null}
         {searchEnabled ? (
-          <noscript>
-            <style innerHTML=".doc-search-trigger{display:none!important}" />
-          </noscript>
+          <script src={`${base}/pagefind/pagefind-component-ui.js`} type="module" />
         ) : null}
 
         {/* Google Analytics */}
@@ -158,27 +157,21 @@ export function Html({ title, description, url, socialImage, site, children }: P
       <body>
         {children}
         {searchEnabled ? (
-          <dialog
-            class="doc-search-modal"
-            id="search-modal"
-            aria-label="Search documentation"
-            data-search-show-images={site.search?.showImages ? 'true' : 'false'}
-            data-search-show-sub-results={site.search?.showSubResults !== false ? 'true' : 'false'}
-          >
-            <div class="doc-search-modal-inner">
-              <div class="doc-search-modal-header">
-                <span class="doc-search-modal-title">Search</span>
-                <button
-                  type="button"
-                  class="doc-search-modal-close"
-                  aria-label="Close search"
-                  data-search-close=""
-                  innerHTML='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
-                />
-              </div>
-              <div class="doc-search-modal-body" data-pagefind-search="" />
-            </div>
-          </dialog>
+          <pagefind-modal reset-on-close="">
+            <pagefind-modal-header>
+              <pagefind-input />
+            </pagefind-modal-header>
+            <pagefind-modal-body>
+              <pagefind-summary />
+              <pagefind-results
+                show-images={site.search?.showImages ? '' : undefined}
+                hide-sub-results={site.search?.showSubResults === false ? '' : undefined}
+              />
+            </pagefind-modal-body>
+            <pagefind-modal-footer>
+              <pagefind-keyboard-hints />
+            </pagefind-modal-footer>
+          </pagefind-modal>
         ) : null}
         <script src={`${base}/assets/main.js`} defer />
       </body>

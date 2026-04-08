@@ -169,7 +169,7 @@ const bodyHtml = renderToStaticMarkup(
 
 ### Runtime
 
-The client entry imports theme CSS and runtime JavaScript for progressive enhancements (TOC highlight, search modal, sidebar toggle):
+The client entry imports theme CSS and runtime JavaScript for progressive enhancements (TOC highlight, sidebar toggle). Search is handled by Pagefind Component UI in the server-rendered HTML, not in this bundle:
 
 ```js title="client.js"
 import './src/theme.css'
@@ -364,11 +364,10 @@ The `sharedAssetsPlugin()` copies font files and `fonts.css` into the build outp
 The `pagesmithSsg` plugin automatically runs Pagefind after the production build. To enable search:
 
 1. Mark searchable content with `data-pagefind-body`
-2. Conditionally include Pagefind CSS/JS based on `config.searchEnabled`
-3. Add a search trigger button and dialog container
-4. Initialize `PagefindUI` in runtime JavaScript
+2. Conditionally include Pagefind Component UI CSS/JS (`pagefind-component-ui.css`, `pagefind-component-ui.js` as `type="module"`) based on `config.searchEnabled`
+3. Add `<pagefind-modal-trigger>` in the header and a `<pagefind-modal reset-on-close>` tree (with `<pagefind-input>`, `<pagefind-results>`, etc.) in the document
 
-Search is disabled during development and enabled automatically in production builds.
+Search is disabled during development and enabled automatically in production builds. Keyboard shortcuts and modal behavior are handled natively by the Component UI web components, not by calling `new PagefindUI({ ... })`.
 
 ### Development and Building
 

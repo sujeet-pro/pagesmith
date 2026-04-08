@@ -36,14 +36,7 @@
       <a href={firstFeaturesUrl} class:active={isFeatures}>Features</a>
     </nav>
     {#if searchEnabled}
-      <button type="button" class="doc-search-trigger" data-search-trigger="" aria-label="Search">
-        <span class="doc-search-icon">
-          {@html searchIcon}
-        </span>
-        <kbd class="doc-search-shortcut">
-          <span class="doc-search-shortcut-key">⌘</span>K
-        </kbd>
-      </button>
+      <pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
     {/if}
   </div>
 </header>

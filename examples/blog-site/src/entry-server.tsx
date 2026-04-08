@@ -272,14 +272,7 @@ function SidebarNav(props: {
 }
 
 function SearchTrigger() {
-  return (
-    <button type="button" class="doc-search-trigger" data-search-trigger="" aria-label="Search">
-      <span class="doc-search-icon" innerHTML={searchIcon} />
-      <kbd class="doc-search-shortcut">
-        <span class="doc-search-shortcut-key">{'\u2318'}</span>K
-      </kbd>
-    </button>
-  )
+  return <pagefind-modal-trigger class="doc-search-trigger" />
 }
 
 function SiteHeader(props: {
@@ -424,6 +417,33 @@ function HomeBody(props: {
               </a>
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
             </div>
+            <div class="doc-footer-theme no-js-hidden" data-footer-theme="">
+              <div class="doc-footer-theme-group">
+                <span class="doc-footer-theme-label">Appearance</span>
+                <div class="doc-footer-theme-options" data-footer-scheme="">
+                  <button type="button" data-scheme="auto" class="active" aria-pressed="true">
+                    Auto
+                  </button>
+                  <button type="button" data-scheme="light" aria-pressed="false">
+                    Light
+                  </button>
+                  <button type="button" data-scheme="dark" aria-pressed="false">
+                    Dark
+                  </button>
+                </div>
+              </div>
+              <div class="doc-footer-theme-group">
+                <span class="doc-footer-theme-label">Theme</span>
+                <div class="doc-footer-theme-options" data-footer-theme-type="">
+                  <button type="button" data-theme="paper" class="active" aria-pressed="true">
+                    Paper
+                  </button>
+                  <button type="button" data-theme="high-contrast" aria-pressed="false">
+                    High Contrast
+                  </button>
+                </div>
+              </div>
+            </div>
             <p class="doc-footer-copyright">
               {'\u00a9'} 2026 Pagesmith {' \u00b7 '} Made with{' '}
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
@@ -531,6 +551,33 @@ function PageBody(props: {
               </a>
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
             </div>
+            <div class="doc-footer-theme no-js-hidden" data-footer-theme="">
+              <div class="doc-footer-theme-group">
+                <span class="doc-footer-theme-label">Appearance</span>
+                <div class="doc-footer-theme-options" data-footer-scheme="">
+                  <button type="button" data-scheme="auto" class="active" aria-pressed="true">
+                    Auto
+                  </button>
+                  <button type="button" data-scheme="light" aria-pressed="false">
+                    Light
+                  </button>
+                  <button type="button" data-scheme="dark" aria-pressed="false">
+                    Dark
+                  </button>
+                </div>
+              </div>
+              <div class="doc-footer-theme-group">
+                <span class="doc-footer-theme-label">Theme</span>
+                <div class="doc-footer-theme-options" data-footer-theme-type="">
+                  <button type="button" data-theme="paper" class="active" aria-pressed="true">
+                    Paper
+                  </button>
+                  <button type="button" data-theme="high-contrast" aria-pressed="false">
+                    High Contrast
+                  </button>
+                </div>
+              </div>
+            </div>
             <p class="doc-footer-copyright">
               {'\u00a9'} 2026 Pagesmith {' \u00b7 '} Made with{' '}
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
@@ -587,10 +634,9 @@ function renderDocument(props: {
     <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="${base}/assets/fonts.css" />
     <link rel="stylesheet" href="${cssPath}" />
-    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-ui.css" />` : ''}
+    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ''}
     <script>document.documentElement.classList.remove('no-js')</script>
-    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-ui.js" defer></script>` : ''}
-    ${searchEnabled ? '<noscript><style>.doc-search-trigger{display:none!important}</style></noscript>' : ''}
+    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ''}
   </head>
   <body>
     ${bodyHtml}
@@ -607,15 +653,14 @@ function renderDocument(props: {
     }
     ${
       searchEnabled
-        ? `<dialog class="doc-search-modal" id="search-modal" aria-label="Search" data-search-show-images="false" data-search-show-sub-results="true">
-            <div class="doc-search-modal-inner">
-              <div class="doc-search-modal-header">
-                <span class="doc-search-modal-title">Search</span>
-                <button type="button" class="doc-search-modal-close" aria-label="Close" data-search-close="">${closeIcon}</button>
-              </div>
-              <div class="doc-search-modal-body" id="search-container" data-pagefind-search=""></div>
-            </div>
-          </dialog>`
+        ? `<pagefind-modal reset-on-close>
+            <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
+            <pagefind-modal-body>
+              <pagefind-summary></pagefind-summary>
+              <pagefind-results></pagefind-results>
+            </pagefind-modal-body>
+            <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
+          </pagefind-modal>`
         : ''
     }
     ${jsPath ? `<script src="${jsPath}" defer></script>` : ''}

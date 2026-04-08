@@ -152,14 +152,7 @@ function SidebarNav(props: {
 }
 
 function SearchTrigger() {
-  return (
-    <button type="button" className="doc-search-trigger" data-search-trigger="" aria-label="Search">
-      <span className="doc-search-icon" dangerouslySetInnerHTML={{ __html: searchIcon }} />
-      <kbd className="doc-search-shortcut">
-        <span className="doc-search-shortcut-key">⌘</span>K
-      </kbd>
-    </button>
-  )
+  return <pagefind-modal-trigger className="doc-search-trigger" />
 }
 
 function SiteHeader(props: {
@@ -329,6 +322,33 @@ function HomeBody(props: {
               </a>
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
             </div>
+            <div className="doc-footer-theme no-js-hidden" data-footer-theme="">
+              <div className="doc-footer-theme-group">
+                <span className="doc-footer-theme-label">Appearance</span>
+                <div className="doc-footer-theme-options" data-footer-scheme="">
+                  <button type="button" data-scheme="auto" className="active" aria-pressed="true">
+                    Auto
+                  </button>
+                  <button type="button" data-scheme="light" aria-pressed="false">
+                    Light
+                  </button>
+                  <button type="button" data-scheme="dark" aria-pressed="false">
+                    Dark
+                  </button>
+                </div>
+              </div>
+              <div className="doc-footer-theme-group">
+                <span className="doc-footer-theme-label">Theme</span>
+                <div className="doc-footer-theme-options" data-footer-theme-type="">
+                  <button type="button" data-theme="paper" className="active" aria-pressed="true">
+                    Paper
+                  </button>
+                  <button type="button" data-theme="high-contrast" aria-pressed="false">
+                    High Contrast
+                  </button>
+                </div>
+              </div>
+            </div>
             <p className="doc-footer-copyright">
               &copy; 2026 Pagesmith {' · '} Made with{' '}
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
@@ -441,6 +461,33 @@ function PageBody(props: {
                 GitHub
               </a>
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
+            </div>
+            <div className="doc-footer-theme no-js-hidden" data-footer-theme="">
+              <div className="doc-footer-theme-group">
+                <span className="doc-footer-theme-label">Appearance</span>
+                <div className="doc-footer-theme-options" data-footer-scheme="">
+                  <button type="button" data-scheme="auto" className="active" aria-pressed="true">
+                    Auto
+                  </button>
+                  <button type="button" data-scheme="light" aria-pressed="false">
+                    Light
+                  </button>
+                  <button type="button" data-scheme="dark" aria-pressed="false">
+                    Dark
+                  </button>
+                </div>
+              </div>
+              <div className="doc-footer-theme-group">
+                <span className="doc-footer-theme-label">Theme</span>
+                <div className="doc-footer-theme-options" data-footer-theme-type="">
+                  <button type="button" data-theme="paper" className="active" aria-pressed="true">
+                    Paper
+                  </button>
+                  <button type="button" data-theme="high-contrast" aria-pressed="false">
+                    High Contrast
+                  </button>
+                </div>
+              </div>
             </div>
             <p className="doc-footer-copyright">
               &copy; 2026 Pagesmith {' · '} Made with{' '}

@@ -633,7 +633,7 @@ img.only-dark, .prose figure img.only-dark {
 }
 
 /* ─── Search trigger — push to far right when nav is hidden ─── */
-.doc-search-trigger {
+pagefind-modal-trigger.doc-search-trigger {
   margin-left: auto;
 }
 
@@ -678,7 +678,7 @@ img.only-dark, .prose figure img.only-dark {
     display: none;
   }
 
-  .doc-search-trigger {
+  pagefind-modal-trigger.doc-search-trigger {
     margin-left: unset;
   }
 }
@@ -1521,7 +1521,7 @@ img.only-dark, .prose figure img.only-dark {
    ═══════════════════════════════════════════════════════════════ */
 
 /* ─── Trigger button in header ─── */
-.doc-search-trigger {
+pagefind-modal-trigger.doc-search-trigger {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1536,7 +1536,7 @@ img.only-dark, .prose figure img.only-dark {
   flex-shrink: 0;
   transition: border-color var(--transition-fast), color var(--transition-fast);
 }
-.doc-search-trigger:hover {
+pagefind-modal-trigger.doc-search-trigger:hover {
   border-color: var(--color-text-muted);
   color: var(--color-text);
 }
@@ -1634,187 +1634,82 @@ img.only-dark, .prose figure img.only-dark {
   flex: 1;
 }
 
+/* Footer theme selector */
+.no-js .no-js-hidden { display: none !important; }
+.doc-footer-theme {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.doc-footer-theme-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.doc-footer-theme-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+.doc-footer-theme-options {
+  display: flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.doc-footer-theme-options button {
+  padding: 0.25rem 0.625rem;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.doc-footer-theme-options button + button {
+  border-left: 1px solid var(--color-border);
+}
+.doc-footer-theme-options button:hover {
+  color: var(--color-text);
+  background: var(--color-bg-hover);
+}
+.doc-footer-theme-options button.active {
+  color: var(--color-text);
+  background: var(--color-accent-subtle);
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .doc-footer-theme {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════
-   Pagefind UI overrides — force site fonts + match docs theme
+   Pagefind Component UI theming — map site tokens to --pf-* vars
    ═══════════════════════════════════════════════════════════════ */
 
-.doc-search-modal .pagefind-ui {
-  --pagefind-ui-scale: 0.9;
-  --pagefind-ui-primary: var(--color-text);
-  --pagefind-ui-text: var(--color-text-secondary);
-  --pagefind-ui-background: var(--color-bg-elevated);
-  --pagefind-ui-border: var(--color-border-subtle);
-  --pagefind-ui-tag: var(--color-bg-hover);
-  --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: var(--radius-md);
-  --pagefind-ui-image-border-radius: var(--radius-md);
-  --pagefind-ui-font: var(--font-sans);
-}
-
-/* Force site font on all Pagefind elements (override reset's all:unset) */
-.doc-search-modal .pagefind-ui,
-.doc-search-modal .pagefind-ui *,
-.doc-search-modal .pagefind-ui *::before,
-.doc-search-modal .pagefind-ui *::after {
-  font-family: var(--font-sans) !important;
-}
-
-/* ─── Search input ─── */
-.doc-search-modal .pagefind-ui__search-input {
-  min-height: 40px;
-  font-weight: 500;
-  font-size: calc(16px * var(--pagefind-ui-scale));
-  color: var(--color-text);
-  background: var(--color-bg-elevated);
-  border-color: var(--color-border);
-  border-radius: var(--radius-md);
-  transition: border-color var(--transition-fast);
-}
-.doc-search-modal .pagefind-ui__search-input:focus {
-  border-color: var(--color-border-hover);
-  outline: none;
-}
-.doc-search-modal .pagefind-ui__search-input::placeholder {
-  color: var(--color-text-muted);
-  opacity: 0.6;
-}
-
-/* ─── Search clear button ─── */
-.doc-search-modal .pagefind-ui__search-clear {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  background: var(--color-bg-elevated);
-  border-radius: var(--radius-sm);
-  transition: color var(--transition-fast);
-}
-.doc-search-modal .pagefind-ui__search-clear:hover {
-  color: var(--color-text);
-}
-
-/* ─── Drawer / results area ─── */
-.doc-search-modal .pagefind-ui__drawer {
-  box-shadow: none;
-  margin-top: 0.5rem;
-}
-
-/* ─── Result message (e.g. "3 results for ...") ─── */
-.doc-search-modal .pagefind-ui__message {
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-/* ─── Result items ─── */
-.doc-search-modal .pagefind-ui__result {
-  border-color: var(--color-border-subtle);
-  padding: 0.875rem 0;
-}
-
-/* ─── Result title + link ─── */
-.doc-search-modal .pagefind-ui__result-title {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text);
-}
-.doc-search-modal .pagefind-ui__result-link {
-  color: var(--color-text) !important;
-  text-decoration: none !important;
-  transition: color var(--transition-fast);
-}
-.doc-search-modal .pagefind-ui__result-link:hover {
-  text-decoration: underline !important;
-  text-decoration-color: var(--color-border) !important;
-  text-underline-offset: 2px;
-}
-
-/* ─── Result excerpt ─── */
-.doc-search-modal .pagefind-ui__result-excerpt {
-  font-size: var(--font-size-sm);
-  font-weight: 400;
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-}
-.doc-search-modal .pagefind-ui__result-excerpt mark {
-  background: transparent;
-  color: var(--color-text);
-  font-weight: 600;
-}
-
-/* ─── Result tags ─── */
-.doc-search-modal .pagefind-ui__result-tag {
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  color: var(--color-text-muted);
-  background: var(--color-bg-hover);
-  border-radius: var(--radius-sm);
-}
-
-/* ─── Nested sub-results ─── */
-.doc-search-modal .pagefind-ui__result-nested .pagefind-ui__result-link {
-  font-size: var(--font-size-sm) !important;
-  color: var(--color-text-secondary) !important;
-}
-.doc-search-modal .pagefind-ui__result-nested .pagefind-ui__result-link:hover {
-  color: var(--color-text) !important;
-}
-
-/* ─── Load more button ─── */
-.doc-search-modal .pagefind-ui__button {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  background: var(--color-bg);
-  border-color: var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: border-color var(--transition-fast), color var(--transition-fast);
-}
-.doc-search-modal .pagefind-ui__button:hover {
-  color: var(--color-text);
-  border-color: var(--color-border-hover);
-  background: var(--color-bg);
-}
-
-/* ─── Filter panel ─── */
-.doc-search-modal .pagefind-ui__filter-panel {
-  font-size: var(--font-size-sm);
-}
-.doc-search-modal .pagefind-ui__filter-name {
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-  color: var(--color-text);
-}
-.doc-search-modal .pagefind-ui__filter-label {
-  font-size: var(--font-size-sm);
-  font-weight: 400;
-  color: var(--color-text-secondary);
-}
-.doc-search-modal .pagefind-ui__filter-checkbox {
-  border-color: var(--color-border);
-  background: var(--color-bg-elevated);
-  border-radius: var(--radius-sm);
-}
-.doc-search-modal .pagefind-ui__filter-checkbox:checked {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-/* ─── Loading skeleton ─── */
-.doc-search-modal .pagefind-ui__loading {
-  background-color: var(--color-text-muted);
-  border-radius: var(--radius-sm);
-}
-
-/* ─── Responsive ─── */
-@media (max-width: 640px) {
-  .doc-search-modal {
-    margin: 2rem auto;
-    max-height: calc(100vh - 4rem);
-  }
-  .doc-search-modal-inner {
-    max-height: calc(100vh - 4rem);
-  }
+:root {
+  --pf-font: var(--font-sans);
+  --pf-text: var(--color-text);
+  --pf-text-secondary: var(--color-text-secondary);
+  --pf-text-muted: var(--color-text-muted);
+  --pf-background: var(--color-bg);
+  --pf-border: var(--color-border-subtle);
+  --pf-border-focus: var(--color-border-hover);
+  --pf-hover: var(--color-bg-hover);
+  --pf-mark: var(--color-text);
+  --pf-border-radius: var(--radius-md);
+  --pf-modal-backdrop: var(--color-overlay-bg);
+  --pf-shadow-lg: 0 20px 48px rgba(15, 23, 42, 0.18);
 }
 /* 404 Not Found page */
 

@@ -15,7 +15,7 @@ Search is powered by [Pagefind](https://pagefind.app/), a static search library 
 
 ## How indexing works
 
-The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind UI CSS and JavaScript.
+The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind Component UI CSS and JavaScript.
 
 Pages opt into indexing with the `data-pagefind-body` attribute. In the Handlebars example, both the home page and article pages include this attribute in the layout template:
 
@@ -35,88 +35,44 @@ Pages opt into indexing with the `data-pagefind-body` attribute. In the Handleba
 
 Only content inside elements with `data-pagefind-body` is indexed, keeping navigation chrome and boilerplate out of search results.
 
-## The search dialog
+## The search modal (Pagefind Component UI)
 
-Search is presented in a modal dialog that overlays the page. The HTML structure is defined in the layout template:
+Search uses Pagefind **Component UI** web components instead of the legacy Default UI (`PagefindUI`). The query field is provided by the `<pagefind-input>` custom element in the modal header. The modal structure is defined at the end of the layout template:
 
 ```html title="templates/layout.hbs (excerpt)"
-<dialog class="doc-search-modal" id="search-modal" aria-label="Search">
-  <div class="doc-search-modal-inner">
-    <div class="doc-search-modal-header">
-      <span class="doc-search-modal-title">Search</span>
-      <button type="button" class="doc-search-modal-close" aria-label="Close">...</button>
-    </div>
-    <div class="doc-search-modal-body" id="search-container"></div>
-  </div>
-</dialog>
+<pagefind-modal reset-on-close>
+  <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
+  <pagefind-modal-body>
+    <pagefind-summary></pagefind-summary>
+    <pagefind-results></pagefind-results>
+  </pagefind-modal-body>
+  <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
+</pagefind-modal>
 ```
 
-The dialog uses the native `<dialog>` element for proper modal behavior including focus trapping and backdrop handling.
+The components load and query the index when the user opens the modal, keeping the initial page load fast.
 
 ## Keyboard shortcut
 
-The layout template includes an inline script that binds the standard search shortcut:
+Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) opens search, and the header control is wired through `<pagefind-modal-trigger>`. That behavior is handled natively by Pagefind Component UI web components (`<pagefind-modal>`, `<pagefind-modal-trigger>`).
 
-```js title="templates/layout.hbs (inline script excerpt)"
-document.addEventListener('keydown', function(e) {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault();
-    if (modal && modal.open) modal.close();
-    else openSearch();
-  }
-});
-```
+## Search trigger
 
-Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) toggles the search dialog. The trigger button in the header also opens it.
-
-## Lazy initialization
-
-Pagefind UI is initialized lazily -- only when the search dialog is opened for the first time:
-
-```js title="templates/layout.hbs (inline script excerpt)"
-var initialized = false;
-
-function openSearch() {
-  if (!modal) return;
-  modal.showModal();
-  if (!initialized && typeof PagefindUI !== 'undefined') {
-    new PagefindUI({
-      element: '#search-container',
-      showImages: false,
-      showSubResults: true,
-      resetStyles: false,
-    });
-    initialized = true;
-  }
-}
-```
-
-This avoids loading and parsing the search index until the user actually requests it, keeping the initial page load fast.
-
-## Search trigger button
-
-The header includes a search button with a keyboard shortcut hint:
+The header includes the trigger component (styled with `doc-search-trigger` to match the theme):
 
 ```hbs title="templates/layout.hbs (excerpt)"
-<button type="button" class="doc-search-trigger" data-search-trigger aria-label="Search">
-  <span class="doc-search-icon">
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-      <circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" />
-    </svg>
-  </span>
-  <kbd class="doc-search-shortcut"><span class="doc-search-shortcut-key">⌘</span>K</kbd>
-</button>
+<pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
 ```
 
-The button is hidden via CSS when JavaScript is disabled using a `<noscript>` style rule in the layout's `<head>`.
+The trigger is hidden when JavaScript is disabled using a `<noscript>` style rule in the layout's `<head>`.
 
 ## Development vs. production
 
-During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The Pagefind CSS and JS are still referenced in the layout, but the assets do not exist until a production build runs. In production builds, the SSG plugin generates the index after writing all HTML files, and the Pagefind assets become available:
+During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The Pagefind Component UI CSS and JS are still referenced in the layout, but the assets do not exist until a production build runs. In production builds, the SSG plugin generates the index after writing all HTML files, and the Pagefind assets become available:
 
 ```hbs title="templates/layout.hbs (excerpt)"
-<link rel="stylesheet" href="{{basePath}}pagefind/pagefind-ui.css" />
-<script src="{{basePath}}pagefind/pagefind-ui.js" defer></script>
+<link rel="stylesheet" href="{{basePath}}pagefind/pagefind-component-ui.css" />
+<script src="{{basePath}}pagefind/pagefind-component-ui.js" type="module"></script>
 ```
 
 The site remains fully functional without search -- it is a progressive enhancement on top of the static HTML.

@@ -13,9 +13,6 @@ type Props = {
 const hamburgerIcon =
   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>'
 
-const searchIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>'
-
 const themeIcon =
   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
 
@@ -107,19 +104,7 @@ export function DocHeader({
             </fieldset>
           </div>
         </div>
-        {searchEnabled ? (
-          <button
-            type="button"
-            class="doc-search-trigger"
-            aria-label="Search"
-            data-search-trigger=""
-          >
-            <span class="doc-search-icon" innerHTML={searchIcon} />
-            <kbd class="doc-search-shortcut">
-              <span class="doc-search-shortcut-key">⌘</span>K
-            </kbd>
-          </button>
-        ) : null}
+        {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}
       </div>
     </header>
   )

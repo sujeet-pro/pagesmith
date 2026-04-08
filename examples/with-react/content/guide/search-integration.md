@@ -15,7 +15,7 @@ Search is powered by [Pagefind](https://pagefind.app/), a static search library 
 
 ## How indexing works
 
-The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind UI CSS and JavaScript.
+The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind Component UI CSS and JavaScript.
 
 Pages opt into indexing with the `data-pagefind-body` attribute. In the React example, both the home page and article pages include this attribute on their main content area:
 
@@ -29,92 +29,46 @@ Pages opt into indexing with the `data-pagefind-body` attribute. In the React ex
 
 Only content inside elements with `data-pagefind-body` is indexed, keeping navigation chrome and boilerplate out of search results.
 
-## The search dialog
+## Pagefind Component UI in the document shell
 
-Search is presented in a modal dialog that overlays the page. The HTML structure is generated in the `renderDocument` function when `searchEnabled` is true:
+Search uses Pagefind **Component UI** web components (`<pagefind-modal>`, `<pagefind-input>`, etc.) instead of the legacy Default UI (`new PagefindUI({ ... })`). The React example builds the HTML document with `renderDocumentShell` from `@pagesmith/core/ssg-utils`. When `searchEnabled` is true, the shell includes the Component UI assets and appends a modal tree after the page body (same pattern as other framework examples):
 
 ```html
-<dialog class="doc-search-modal" id="search-modal" aria-label="Search">
-  <div class="doc-search-modal-inner">
-    <div class="doc-search-modal-header">
-      <span class="doc-search-modal-title">Search</span>
-      <button type="button" class="doc-search-modal-close" aria-label="Close">...</button>
-    </div>
-    <div class="doc-search-modal-body" id="search-container" data-pagefind-search=""></div>
-  </div>
-</dialog>
+<pagefind-modal reset-on-close>
+  <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
+  <pagefind-modal-body>
+    <pagefind-summary></pagefind-summary>
+    <pagefind-results></pagefind-results>
+  </pagefind-modal-body>
+  <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
+</pagefind-modal>
 ```
 
-The dialog uses the native `<dialog>` element for proper modal behavior including focus trapping and backdrop handling.
+The search query is handled by the `<pagefind-input>` web component inside `<pagefind-modal-header>`. There is no `.pagefind-ui__search-input` selector or manual `PagefindUI` constructor.
 
 ## Keyboard shortcut
 
-The runtime script in `src/runtime.ts` binds the standard search shortcut:
+Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) opens search, and the header trigger is wired through `<pagefind-modal-trigger>`. That behavior is handled natively by Pagefind Component UI web components (`<pagefind-modal>`, `<pagefind-modal-trigger>`). Client code in `src/runtime.ts` only covers the table of contents and sidebar; it does not initialize search.
 
-```ts title="src/runtime.ts (excerpt)"
-document.addEventListener('keydown', (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault()
-    if (modal.open) {
-      modal.close()
-    } else {
-      openSearch()
-    }
-  }
-})
-```
+## Search trigger
 
-Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) toggles the search dialog. The trigger button in the header also opens it.
-
-## Lazy initialization
-
-Pagefind UI is initialized lazily -- only when the search dialog is opened for the first time:
-
-```ts title="src/runtime.ts (excerpt)"
-let initialized = false
-
-function openSearch() {
-  modal!.showModal()
-  if (!initialized && typeof (window as any).PagefindUI !== 'undefined') {
-    new (window as any).PagefindUI({
-      element: '#search-container',
-      showImages: false,
-      showSubResults: true,
-      resetStyles: false,
-    })
-    initialized = true
-  }
-}
-```
-
-This avoids loading and parsing the search index until the user actually requests it, keeping the initial page load fast.
-
-## Search trigger button
-
-The header includes a search button that is only rendered when search is enabled:
+When search is enabled, the header renders the trigger component:
 
 ```tsx title="src/entry-server.tsx (excerpt)"
 function SearchTrigger() {
-  return (
-    <button type="button" className="doc-search-trigger" data-search-trigger="" aria-label="Search">
-      <span className="doc-search-icon" dangerouslySetInnerHTML={{ __html: searchIcon }} />
-      <kbd className="doc-search-shortcut">
-        <span className="doc-search-shortcut-key">⌘</span>K
-      </kbd>
-    </button>
-  )
+  return <pagefind-modal-trigger className="doc-search-trigger" />
 }
 ```
 
-The button displays a search icon alongside the keyboard shortcut hint, giving users a visual affordance and teaching them the shortcut.
+The trigger displays the search affordance and keyboard hint via Component UI and theme CSS.
 
 ## Development vs. production
 
-During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The `searchEnabled` flag in `SsgRenderConfig` controls whether search UI elements are rendered. In production builds, the SSG plugin sets this to `true` after indexing completes, and the Pagefind CSS and JS are included in the document `<head>`:
+During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The `searchEnabled` flag in `SsgRenderConfig` controls whether search UI elements are rendered. In production builds, the SSG plugin sets this to `true` after indexing completes, and the Pagefind Component UI CSS and JS are included in the document `<head>`:
 
 ```html
-<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-<script src="/pagefind/pagefind-ui.js" defer></script>
+<link rel="stylesheet" href="/pagefind/pagefind-component-ui.css" />
+<script src="/pagefind/pagefind-component-ui.js" type="module"></script>
 ```
 
 The site remains fully functional without search -- it is a progressive enhancement on top of the static HTML.

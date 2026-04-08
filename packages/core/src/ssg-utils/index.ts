@@ -189,10 +189,9 @@ export function renderDocumentShell(options: DocumentShellOptions): string {
     <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="${base}/assets/fonts.css" />
     <link rel="stylesheet" href="${cssPath}" />
-    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-ui.css" />` : ''}
+    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ''}
     <script>document.documentElement.classList.remove('no-js')</script>
-    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-ui.js" defer></script>` : ''}
-    ${searchEnabled ? '<noscript><style>.doc-search-trigger{display:none!important}</style></noscript>' : ''}
+    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ''}
     ${headHtml ?? ''}
   </head>
   <body>
@@ -210,15 +209,14 @@ export function renderDocumentShell(options: DocumentShellOptions): string {
     }
     ${
       searchEnabled
-        ? `<dialog class="doc-search-modal" id="search-modal" aria-label="Search" data-search-show-images="false" data-search-show-sub-results="true">
-            <div class="doc-search-modal-inner">
-              <div class="doc-search-modal-header">
-                <span class="doc-search-modal-title">Search</span>
-                <button type="button" class="doc-search-modal-close" aria-label="Close" data-search-close="">${closeIcon}</button>
-              </div>
-              <div class="doc-search-modal-body" id="search-container" data-pagefind-search=""></div>
-            </div>
-          </dialog>`
+        ? `<pagefind-modal reset-on-close>
+            <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
+            <pagefind-modal-body>
+              <pagefind-summary></pagefind-summary>
+              <pagefind-results></pagefind-results>
+            </pagefind-modal-body>
+            <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
+          </pagefind-modal>`
         : ''
     }
     ${jsPath ? `<script src="${jsPath}" defer></script>` : ''}

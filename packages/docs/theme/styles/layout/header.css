@@ -87,7 +87,7 @@
 }
 
 /* ─── Search trigger — push to far right when nav is hidden ─── */
-.doc-search-trigger {
+pagefind-modal-trigger.doc-search-trigger {
   margin-left: auto;
 }
 
@@ -132,7 +132,7 @@
     display: none;
   }
 
-  .doc-search-trigger {
+  pagefind-modal-trigger.doc-search-trigger {
     margin-left: unset;
   }
 }

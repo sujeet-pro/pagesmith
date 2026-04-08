@@ -22,9 +22,6 @@ function assetPath(site: Props['site'], path: string): string {
   return base ? `${base}${path}` : path
 }
 
-const searchIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>'
-
 export default function DocHome({ content, frontmatter, slug, site }: Props) {
   const title = frontmatter.title || site.title
   const description = frontmatter.description || site.description
@@ -38,25 +35,23 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
   const actions = hero.actions ?? frontmatter.actions ?? []
 
   return (
-    <html lang={site.language || 'en'} class="no-js">
+    <html lang={site.language || 'en'} class="no-js color-scheme-auto theme-paper">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
+        <script innerHTML="(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme)}}catch(e){}})()" />
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="theme-color" content={lightColor} media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content={darkColor} media="(prefers-color-scheme: dark)" />
         <link rel="stylesheet" href={assetPath(site, '/assets/style.css')} />
         {searchEnabled ? (
-          <link rel="stylesheet" href={assetPath(site, '/pagefind/pagefind-ui.css')} />
+          <link rel="stylesheet" href={assetPath(site, '/pagefind/pagefind-component-ui.css')} />
         ) : null}
         <script innerHTML="document.documentElement.classList.remove('no-js')" />
-        {searchEnabled ? <script src={assetPath(site, '/pagefind/pagefind-ui.js')} defer /> : null}
         {searchEnabled ? (
-          <noscript>
-            <style innerHTML=".doc-search-trigger{display:none!important}" />
-          </noscript>
+          <script src={assetPath(site, '/pagefind/pagefind-component-ui.js')} type="module" />
         ) : null}
       </head>
       <body>
@@ -74,19 +69,7 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
                 ))}
               </nav>
             ) : null}
-            {searchEnabled ? (
-              <button
-                type="button"
-                class="doc-search-trigger"
-                aria-label="Search"
-                data-search-trigger=""
-              >
-                <span class="doc-search-icon" innerHTML={searchIcon} />
-                <kbd class="doc-search-shortcut">
-                  <span class="doc-search-shortcut-key">⌘</span>K
-                </kbd>
-              </button>
-            ) : null}
+            {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}
           </div>
         </header>
         <main class="doc-home" data-pagefind-body="">
@@ -110,14 +93,18 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
             ) : null}
           </section>
           {features.length > 0 ? (
-            <section class="doc-features">
-              {features.map((feature: any) => (
-                <div class="doc-feature-card">
-                  {feature.icon ? <span class="doc-feature-icon">{feature.icon}</span> : null}
-                  <h3 class="doc-feature-title">{feature.title}</h3>
-                  <p class="doc-feature-details">{feature.details}</p>
-                </div>
-              ))}
+            <section class="doc-home-section">
+              <div class="doc-features">
+                {features.map((feature: any) => (
+                  <div class="doc-feature-card">
+                    {feature.icon ? (
+                      <span class="doc-feature-icon" innerHTML={feature.icon} />
+                    ) : null}
+                    <h3 class="doc-feature-title">{feature.title}</h3>
+                    <p class="doc-feature-details">{feature.details}</p>
+                  </div>
+                ))}
+              </div>
             </section>
           ) : null}
           {content ? (
@@ -125,29 +112,54 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
               <div class="prose" innerHTML={content} />
             </section>
           ) : null}
+          <div class="doc-home-footer">
+            <footer class="doc-footer">
+              <div class="doc-footer-theme no-js-hidden" data-footer-theme="">
+                <div class="doc-footer-theme-group">
+                  <span class="doc-footer-theme-label">Appearance</span>
+                  <div class="doc-footer-theme-options" data-footer-scheme="">
+                    <button type="button" data-scheme="auto" class="active" aria-pressed="true">
+                      Auto
+                    </button>
+                    <button type="button" data-scheme="light" aria-pressed="false">
+                      Light
+                    </button>
+                    <button type="button" data-scheme="dark" aria-pressed="false">
+                      Dark
+                    </button>
+                  </div>
+                </div>
+                <div class="doc-footer-theme-group">
+                  <span class="doc-footer-theme-label">Theme</span>
+                  <div class="doc-footer-theme-options" data-footer-theme-type="">
+                    <button type="button" data-theme="paper" class="active" aria-pressed="true">
+                      Paper
+                    </button>
+                    <button type="button" data-theme="high-contrast" aria-pressed="false">
+                      High Contrast
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </footer>
+          </div>
         </main>
         {searchEnabled ? (
-          <dialog
-            class="doc-search-modal"
-            id="search-modal"
-            aria-label="Search documentation"
-            data-search-show-images={site.search?.showImages ? 'true' : 'false'}
-            data-search-show-sub-results={site.search?.showSubResults !== false ? 'true' : 'false'}
-          >
-            <div class="doc-search-modal-inner">
-              <div class="doc-search-modal-header">
-                <span class="doc-search-modal-title">Search</span>
-                <button
-                  type="button"
-                  class="doc-search-modal-close"
-                  aria-label="Close search"
-                  data-search-close=""
-                  innerHTML='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
-                />
-              </div>
-              <div class="doc-search-modal-body" data-pagefind-search="" />
-            </div>
-          </dialog>
+          <pagefind-modal reset-on-close="">
+            <pagefind-modal-header>
+              <pagefind-input />
+            </pagefind-modal-header>
+            <pagefind-modal-body>
+              <pagefind-summary />
+              <pagefind-results
+                show-images={site.search?.showImages ? '' : undefined}
+                hide-sub-results={site.search?.showSubResults === false ? '' : undefined}
+              />
+            </pagefind-modal-body>
+            <pagefind-modal-footer>
+              <pagefind-keyboard-hints />
+            </pagefind-modal-footer>
+          </pagefind-modal>
         ) : null}
         <script src={assetPath(site, '/assets/main.js')} defer />
       </body>

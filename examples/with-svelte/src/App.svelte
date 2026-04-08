@@ -84,21 +84,12 @@
 {/if}
 
 {#if searchEnabled && pageKind !== 'not-found'}
-  <dialog
-    class="doc-search-modal"
-    id="search-modal"
-    aria-label="Search"
-    data-search-show-images="false"
-    data-search-show-sub-results="true"
-  >
-    <div class="doc-search-modal-inner">
-      <div class="doc-search-modal-header">
-        <span class="doc-search-modal-title">Search</span>
-        <button type="button" class="doc-search-modal-close" aria-label="Close" data-search-close="">
-          {@html closeIcon}
-        </button>
-      </div>
-      <div class="doc-search-modal-body" id="search-container" data-pagefind-search=""></div>
-    </div>
-  </dialog>
+  <pagefind-modal reset-on-close>
+    <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
+    <pagefind-modal-body>
+      <pagefind-summary></pagefind-summary>
+      <pagefind-results></pagefind-results>
+    </pagefind-modal-body>
+    <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
+  </pagefind-modal>
 {/if}
