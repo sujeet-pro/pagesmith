@@ -33,6 +33,7 @@ const mockConfig: ResolvedDocsConfig = {
   origin: 'https://example.com',
   language: 'en',
   footerLinks: [],
+  footerText: 'Built with love using pagesmith',
   sidebar: { collapsible: false },
   search: { enabled: true, showImages: false, showSubResults: true, pagefindFlags: [] },
   favicon: false,
@@ -751,5 +752,12 @@ describe('getSitePayload', () => {
 
     expect(payload.search).toEqual(mockConfig.search)
     expect(payload.sidebar).toEqual(mockConfig.sidebar)
+  })
+
+  it('includes footer text in the payload', () => {
+    const model = buildSiteModel(mockConfig, [])
+    const payload = getSitePayload(mockConfig, model)
+
+    expect(payload.footerText).toBe('Built with love using pagesmith')
   })
 })

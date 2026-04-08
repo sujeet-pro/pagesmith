@@ -92,14 +92,17 @@ function copyMappedAssets(config: ResolvedDocsConfig): void {
   }
 }
 
-function copyContentAssetsToOutput(outDir: string, assets: Map<string, string>): void {
-  if (assets.size === 0) return
+function copyContentAssetsToOutput(
+  outDir: string,
+  assets: ReturnType<typeof collectContentAssets>,
+): void {
+  if (assets.byPath.size === 0) return
 
   const assetsDir = join(outDir, 'assets')
   mkdirSync(assetsDir, { recursive: true })
 
-  for (const [fileName, sourcePath] of assets) {
-    copyFileSync(sourcePath, join(assetsDir, fileName))
+  for (const [, sourcePath] of assets.byPath) {
+    copyFileSync(sourcePath, join(assetsDir, basename(sourcePath)))
   }
 }
 

@@ -60,8 +60,18 @@ For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REF
 - Docs reference: `node_modules/@pagesmith/docs/REFERENCE.md`
 - Docs usage: `node_modules/@pagesmith/docs/docs/agents/usage.md`
 
+## Theme system
+
+Class-based multi-theme system with two orthogonal axes on `<html>`:
+- **Color scheme**: `color-scheme-auto` | `color-scheme-light` | `color-scheme-dark` — controls `light-dark()` via CSS `color-scheme` property.
+- **Theme**: `theme-paper` | `theme-high-contrast` — overrides CSS custom properties.
+- Image switching: `.only-light`/`.only-dark`, `.show-on-light`/`.show-on-dark`, `.invert-on-dark`.
+- FOUC prevention via inline `<script>` reading `localStorage('pagesmith-theme')`.
+- Expressive Code configured with `themeCssSelector` for class-based code block theming.
+
 ## Recent changes
 
+- Multi-theme system: class-based color scheme control and theme variants with FOUC prevention.
 - `ValidationIssue` now includes an optional `source` field (`'schema' | 'content' | 'plugin' | 'custom'`) to identify which validation phase produced the issue.
 - New `core_search_entries` MCP tool: search entries across collections by title, description, tags, and slug (case-insensitive, max 20 results).
 - `@pagesmith/core/mcp` now exports shared MCP utilities (`getPackageVersion`, `resolvePackageDocPath`, `asTextResource`) alongside the server factory.

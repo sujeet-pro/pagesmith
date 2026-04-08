@@ -16,6 +16,7 @@
         'docs-cli',
         'frontmatter',
         'docs-theme',
+        'theming',
         'css-customization',
         'performance',
       ],

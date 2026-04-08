@@ -21,6 +21,8 @@ export type DocsUserConfig = {
   /** Override the header logo link destination (defaults to basePath). */
   homeLink?: string
   footerLinks?: FooterLink[]
+  /** Footer sign-off text shown beneath theme controls. */
+  footerText?: string
   sidebar?: {
     /** Enable collapsible sidebar section groups (default: true) */
     collapsible?: boolean
@@ -40,6 +42,10 @@ export type DocsUserConfig = {
     layouts?: Record<string, string>
     /** Path to default social sharing image, relative to publicDir or an absolute URL */
     socialImage?: string
+    /** Default color scheme: 'auto' follows OS, 'light' or 'dark' forces a scheme. Default: 'auto'. */
+    defaultColorScheme?: 'auto' | 'light' | 'dark'
+    /** Default theme variant. Default: 'paper'. */
+    defaultTheme?: 'paper' | 'high-contrast'
   }
   analytics?: {
     googleAnalytics?: string
@@ -98,6 +104,7 @@ export type ResolvedDocsConfig = {
   origin: string
   language: string
   footerLinks: FooterLink[]
+  footerText: string
   sidebar: {
     collapsible: boolean
   }
@@ -111,6 +118,8 @@ export type ResolvedDocsConfig = {
     lightColor?: string
     darkColor?: string
     layouts?: Record<string, string>
+    defaultColorScheme?: string
+    defaultTheme?: string
   }
   analytics?: {
     googleAnalytics?: string

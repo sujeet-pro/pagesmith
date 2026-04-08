@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { resolveDocsConfig } from '../config.js'
@@ -37,5 +37,9 @@ describe('renderDocs', () => {
     expect(existsSync(join(config.outDir, 'index.html'))).toBe(true)
     expect(existsSync(join(config.outDir, 'guide', 'intro', 'index.html'))).toBe(true)
     expect(existsSync(join(config.outDir, '404.html'))).toBe(true)
+
+    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro', 'index.html'), 'utf-8')
+    expect(introHtml).toContain('Built with')
+    expect(introHtml).toContain('https://github.com/sujeet-pro/pagesmith')
   })
 })

@@ -11,7 +11,12 @@ type Props = {
     name: string
     language?: string
     seo?: { locale?: string; twitterHandle?: string; defaultOgType?: string }
-    theme?: { lightColor?: string; darkColor?: string }
+    theme?: {
+      lightColor?: string
+      darkColor?: string
+      defaultColorScheme?: string
+      defaultTheme?: string
+    }
     analytics?: { googleAnalytics?: string }
     footerLinks?: Array<{ label: string; path: string }>
     search?: { enabled?: boolean; showImages?: boolean; showSubResults?: boolean }
@@ -59,12 +64,21 @@ export function Html({ title, description, url, socialImage, site, children }: P
   const faviconFallback = site.faviconFallback
   const appleTouchIcon = site.appleTouchIcon
 
+  const defaultColorScheme = site.theme?.defaultColorScheme || 'auto'
+  const defaultTheme = site.theme?.defaultTheme || 'paper'
+  const htmlClass = `no-js color-scheme-${defaultColorScheme} theme-${defaultTheme}`
+
+  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-\\w[\\w-]*/,'theme-'+p.theme)}}catch(e){}})();`
+
   return (
-    <html lang={site.language || 'en'} class="no-js">
+    <html lang={site.language || 'en'} class={htmlClass}>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
+
+        {/* Prevent FOUC: apply stored theme before CSS paints */}
+        <script innerHTML={foucScript} />
 
         {/* Security */}
         <meta http-equiv="Content-Security-Policy" content={buildCsp(gaId)} />
@@ -122,7 +136,7 @@ export function Html({ title, description, url, socialImage, site, children }: P
         <link rel="stylesheet" href={`${base}/assets/style.css`} />
         {searchEnabled ? <link rel="stylesheet" href={`${base}/pagefind/pagefind-ui.css`} /> : null}
 
-        {/* Remove no-js class */}
+        {/* Remove no-js class (theme classes remain) */}
         <script innerHTML="document.documentElement.classList.remove('no-js')" />
         {searchEnabled ? <script src={`${base}/pagefind/pagefind-ui.js`} defer /> : null}
         {searchEnabled ? (

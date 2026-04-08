@@ -1,0 +1,25 @@
+/* ═══════════════════════════════════════════════════════════════
+   Color Scheme — class-based control over light-dark() resolution.
+
+   The CSS `color-scheme` property controls which side of
+   light-dark() is picked. These classes go on <html>:
+
+     color-scheme-auto  → follows OS preference
+     color-scheme-light → always picks the light value
+     color-scheme-dark  → always picks the dark value
+
+   Server default: <html class="color-scheme-auto theme-paper">
+   ═══════════════════════════════════════════════════════════════ */
+
+:root,
+.color-scheme-auto {
+  color-scheme: light dark;
+}
+
+.color-scheme-light {
+  color-scheme: light;
+}
+
+.color-scheme-dark {
+  color-scheme: dark;
+}

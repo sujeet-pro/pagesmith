@@ -74,10 +74,10 @@ describe('collectContentAssets', () => {
 
     const assets = collectContentAssets(tmpDir)
 
-    expect(assets.size).toBe(3)
-    expect(assets.has('logo.png')).toBe(true)
-    expect(assets.has('icon.svg')).toBe(true)
-    expect(assets.has('photo.jpg')).toBe(true)
+    expect(assets.byPath.size).toBe(3)
+    expect(assets.byBasename.has('logo.png')).toBe(true)
+    expect(assets.byBasename.has('icon.svg')).toBe(true)
+    expect(assets.byBasename.has('photo.jpg')).toBe(true)
   })
 
   it('finds image files in nested directories', () => {
@@ -88,9 +88,9 @@ describe('collectContentAssets', () => {
 
     const assets = collectContentAssets(tmpDir)
 
-    expect(assets.size).toBe(2)
-    expect(assets.has('diagram.png')).toBe(true)
-    expect(assets.has('banner.webp')).toBe(true)
+    expect(assets.byPath.size).toBe(2)
+    expect(assets.byPath.has('guide/diagram.png')).toBe(true)
+    expect(assets.byBasename.has('banner.webp')).toBe(true)
   })
 
   it('excludes .md files', () => {
@@ -101,10 +101,10 @@ describe('collectContentAssets', () => {
 
     const assets = collectContentAssets(tmpDir)
 
-    expect(assets.size).toBe(1)
-    expect(assets.has('README.md')).toBe(false)
-    expect(assets.has('guide.md')).toBe(false)
-    expect(assets.has('logo.png')).toBe(true)
+    expect(assets.byPath.size).toBe(1)
+    expect(assets.byBasename.has('README.md')).toBe(false)
+    expect(assets.byBasename.has('guide.md')).toBe(false)
+    expect(assets.byBasename.has('logo.png')).toBe(true)
   })
 
   it('excludes non-image files like .txt and .json', () => {
@@ -115,22 +115,24 @@ describe('collectContentAssets', () => {
 
     const assets = collectContentAssets(tmpDir)
 
-    expect(assets.size).toBe(1)
-    expect(assets.has('image.gif')).toBe(true)
+    expect(assets.byPath.size).toBe(1)
+    expect(assets.byBasename.has('image.gif')).toBe(true)
   })
 
-  it('returns empty map for an empty directory', () => {
+  it('returns empty maps for an empty directory', () => {
     tmpDir = mkdtempSync(join(tmpdir(), 'ps-assets-'))
 
     const assets = collectContentAssets(tmpDir)
 
-    expect(assets.size).toBe(0)
+    expect(assets.byPath.size).toBe(0)
+    expect(assets.byBasename.size).toBe(0)
   })
 
-  it('returns empty map for a non-existent directory', () => {
+  it('returns empty maps for a non-existent directory', () => {
     const assets = collectContentAssets('/tmp/__nonexistent_ps_dir__')
 
-    expect(assets.size).toBe(0)
+    expect(assets.byPath.size).toBe(0)
+    expect(assets.byBasename.size).toBe(0)
   })
 
   it('skips dot-files and dot-directories', () => {
@@ -142,8 +144,8 @@ describe('collectContentAssets', () => {
 
     const assets = collectContentAssets(tmpDir)
 
-    expect(assets.size).toBe(1)
-    expect(assets.has('visible.svg')).toBe(true)
+    expect(assets.byPath.size).toBe(1)
+    expect(assets.byBasename.has('visible.svg')).toBe(true)
   })
 
   it('recognizes all supported image extensions', () => {
@@ -155,7 +157,7 @@ describe('collectContentAssets', () => {
 
     const assets = collectContentAssets(tmpDir)
 
-    expect(assets.size).toBe(extensions.length)
+    expect(assets.byPath.size).toBe(extensions.length)
   })
 })
 

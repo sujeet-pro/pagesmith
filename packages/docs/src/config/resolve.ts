@@ -5,6 +5,8 @@ import JSON5 from 'json5'
 import { basename, dirname, join, resolve } from 'path'
 import type { DocsUserConfig, GitOriginInfo, ResolvedDocsConfig } from './types'
 
+const DEFAULT_FOOTER_TEXT = 'Built with love using pagesmith'
+
 export function defineDocsConfig(config: DocsUserConfig): DocsUserConfig {
   return config
 }
@@ -226,6 +228,7 @@ export function resolveDocsConfig(
     origin: userConfig.origin ?? pkg?.homepage ?? gitInfo?.origin ?? 'https://example.com',
     language: userConfig.language ?? 'en',
     footerLinks: userConfig.footerLinks ?? [],
+    footerText: userConfig.footerText ?? DEFAULT_FOOTER_TEXT,
     search: {
       enabled: userConfig.search?.enabled ?? true,
       showImages: userConfig.search?.showImages ?? false,

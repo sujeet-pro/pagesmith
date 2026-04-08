@@ -85,6 +85,10 @@ Copy-paste prompts for common workflows. Each prompt tells the agent which packa
 
 > Customize the docs layout for this project. Read `node_modules/@pagesmith/docs/REFERENCE.md` for the layout override system — set `theme.layouts.home`, `theme.layouts.page`, or `theme.layouts.notFound` in `pagesmith.config.json5` to point to custom TSX files. Layouts use `@pagesmith/core/jsx-runtime` and receive props like `content`, `frontmatter`, `headings`, `sidebarSections`, `prev`, `next`.
 
+### Prompt: Theme and color scheme configuration
+
+> Configure the docs color scheme and theme. Set `theme.defaultColorScheme` to `"auto"` (OS preference), `"light"`, or `"dark"` in `pagesmith.config.json5`. Set `theme.defaultTheme` to `"paper"` (warm, low-contrast) or `"high-contrast"` (WCAG AAA). The theme toggle in the header and footer selector let users override these defaults. User preferences persist in `localStorage('pagesmith-theme')`. CSS classes on `<html>`: `color-scheme-auto|light|dark` + `theme-paper|high-contrast`. Use `.only-light`/`.only-dark` on images for scheme-aware switching. Use `.show-on-light`/`.show-on-dark` for generic visibility helpers. To customize the footer sign-off, set `footerText` in `pagesmith.config.json5`; default is "Built with love using pagesmith" (rendered with a heart icon and a GitHub link).
+
 **Files to read:**
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Layout Overrides, Layout Props sections)
 - `node_modules/@pagesmith/docs/docs/agents/recipes.md`

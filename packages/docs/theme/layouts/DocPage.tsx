@@ -142,7 +142,13 @@ export default function DocPage(props: Props) {
             </div>
           ) : null}
 
-          <DocFooter prev={prev} next={next} links={site.footerLinks} copyright={site.copyright} />
+          <DocFooter
+            prev={prev}
+            next={next}
+            links={site.footerLinks}
+            footerText={site.footerText}
+            copyright={site.copyright}
+          />
         </main>
         <aside class="doc-aside">
           <DocTOC headings={headings} />

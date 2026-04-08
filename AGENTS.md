@@ -71,6 +71,16 @@ remark-parse -> remark-gfm -> remark-math -> remark-frontmatter
   -> heading extraction -> [user rehype plugins] -> rehype-stringify
 ```
 
+## Theme System
+
+Class-based multi-theme with two orthogonal axes on `<html>`:
+- **Color scheme**: `color-scheme-auto` | `color-scheme-light` | `color-scheme-dark` — controls `light-dark()` via CSS `color-scheme` property.
+- **Theme**: `theme-paper` | `theme-high-contrast` — overrides CSS custom properties.
+- Server default: `<html class="color-scheme-auto theme-paper">`.
+- FOUC prevention: inline `<script>` reads `localStorage('pagesmith-theme')` before paint.
+- Image switching uses `.only-light`/`.only-dark` classes (not `@media (prefers-color-scheme)`).
+- Docs config: `theme.defaultColorScheme` (`'auto'|'light'|'dark'`) and `theme.defaultTheme` (`'paper'|'high-contrast'`).
+
 ## Practical Editing Rules
 
 - Prefer `@pagesmith/docs` for docs-site workflows; prefer `@pagesmith/core` for custom sites/framework integrations.

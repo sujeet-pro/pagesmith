@@ -212,7 +212,11 @@ export default function DocHome(props: Props) {
 
         {/* Footer */}
         <div class="doc-home-footer">
-          <DocFooter links={site.footerLinks} copyright={site.copyright} />
+          <DocFooter
+            links={site.footerLinks}
+            footerText={site.footerText}
+            copyright={site.copyright}
+          />
         </div>
       </main>
     </Html>

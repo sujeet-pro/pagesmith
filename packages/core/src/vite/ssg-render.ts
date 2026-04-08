@@ -21,7 +21,12 @@ import {
 import { basename, dirname, extname, join, resolve } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import type { ResolvedConfig } from 'vite'
-import { collectContentAssets, CONTENT_ASSET_EXTS, copyPublicFiles } from '../assets'
+import {
+  type ContentAssetMap,
+  collectContentAssets,
+  CONTENT_ASSET_EXTS,
+  copyPublicFiles,
+} from '../assets'
 import type { SsgRenderConfig } from './ssg-plugin'
 
 export const MIME: Record<string, string> = {
@@ -56,7 +61,19 @@ function isAssetReference(ref: string): boolean {
   return CONTENT_ASSET_EXTS.has(extname(path).toLowerCase())
 }
 
-export function rewriteContentAssetRefs(html: string, base: string): string {
+/**
+ * Rewrite `./`-prefixed asset references in rendered HTML to absolute
+ * `/assets/` paths. When an `assetMap` is provided, uses directory-preserving
+ * paths to avoid basename collisions. The optional `routeHint` disambiguates
+ * when multiple assets share the same basename by matching the route path
+ * against the asset's content-relative directory.
+ */
+export function rewriteContentAssetRefs(
+  html: string,
+  base: string,
+  assetMap?: ContentAssetMap,
+  routeHint?: string,
+): string {
   const basePrefix = base.replace(/\/+$/u, '')
 
   return html.replace(
@@ -67,19 +84,34 @@ export function rewriteContentAssetRefs(html: string, base: string): string {
       const pathname = ref.split(/[?#]/u, 1)[0] ?? ref
       const suffix = ref.slice(pathname.length)
       const quote = doubleRef !== undefined ? '"' : "'"
-      return `${attr}=${quote}${basePrefix}/assets/${pathname.split('/').pop() ?? pathname}${suffix}${quote}`
+      const assetBasename = pathname.split('/').pop() ?? pathname
+
+      let resolvedPath = assetBasename
+      if (assetMap) {
+        const candidates = assetMap.byBasename.get(assetBasename)
+        if (candidates?.length === 1) {
+          resolvedPath = candidates[0]
+        } else if (candidates && candidates.length > 1) {
+          const routeDir = routeHint?.replace(/^\//, '').replace(/\/$/, '') ?? ''
+          const contextMatch = routeDir
+            ? candidates.find((c) => c.startsWith(routeDir + '/'))
+            : undefined
+          resolvedPath = contextMatch ?? candidates[0]
+        }
+      }
+
+      return `${attr}=${quote}${basePrefix}/assets/${resolvedPath}${suffix}${quote}`
     },
   )
 }
 
-function copyContentAssetsToOutDir(outDir: string, assets: Map<string, string>): void {
-  if (assets.size === 0) return
+function copyContentAssetsToOutDir(outDir: string, assets: ContentAssetMap): void {
+  if (assets.byPath.size === 0) return
 
-  const assetsDir = join(outDir, 'assets')
-  mkdirSync(assetsDir, { recursive: true })
-
-  for (const [fileName, sourcePath] of assets) {
-    copyFileSync(sourcePath, join(assetsDir, fileName))
+  for (const [relPath, sourcePath] of assets.byPath) {
+    const destPath = join(outDir, 'assets', relPath)
+    mkdirSync(dirname(destPath), { recursive: true })
+    copyFileSync(sourcePath, destPath)
   }
 }
 
@@ -152,8 +184,13 @@ export async function renderStaticSite(context: SsgBuildContext): Promise<number
     while (routeIndex < routes.length) {
       const i = routeIndex++
       const route = routes[i]
-      const html = rewriteContentAssetRefs(await ssrMod.render(route, renderConfig), base)
       const routePath = route === '/' ? '' : route.replace(/^\//, '')
+      const html = rewriteContentAssetRefs(
+        await ssrMod.render(route, renderConfig),
+        base,
+        contentAssets,
+        routePath,
+      )
       const outputPath = join(outDir, routePath, 'index.html')
       mkdirSync(dirname(outputPath), { recursive: true })
       writeFileSync(outputPath, `<!DOCTYPE html>\n${html}`)
@@ -214,13 +251,36 @@ async function buildSsrBundle(
   const { execFileSync } = await import('child_process')
   const serverDir = join(outDir, '.server')
   const ssrEntry = resolve(projectRoot, entry)
-  // Write a temp build script that externalizes node_modules and skips the SSG plugin
+
+  // Resolve string aliases to absolute paths so the child SSR build
+  // doesn't break on relative replacements like "#schemas": "./schemas".
+  const resolvedAliases = config.resolve.alias
+    .filter((a): a is { find: string; replacement: string } => typeof a.find === 'string')
+    .map((a) => ({
+      find: a.find,
+      replacement: a.replacement.startsWith('.')
+        ? resolve(projectRoot, a.replacement)
+        : a.replacement,
+    }))
+
+  const hasAliases = resolvedAliases.length > 0
+  const aliasPlugin = hasAliases
+    ? `{
+        name: 'pagesmith:ssr-aliases',
+        configResolved(c) {
+          const regexpAliases = c.resolve.alias.filter(a => a.find instanceof RegExp);
+          c.resolve.alias = [...${JSON.stringify(resolvedAliases)}, ...regexpAliases];
+        },
+      }`
+    : ''
+
   const buildScript = `
     import { build } from 'vite';
     await build({
       root: ${JSON.stringify(projectRoot)},
       logLevel: 'warn',
       mode: ${JSON.stringify(config.mode)},
+      ${hasAliases ? `plugins: [${aliasPlugin}],` : ''}
       build: {
         ssr: ${JSON.stringify(ssrEntry)},
         outDir: ${JSON.stringify(serverDir)},

@@ -62,8 +62,6 @@ table {
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  color-scheme: light dark;
-
   --color-bg: light-dark(#f5f4f0, #111110);
   --color-bg-alt: light-dark(#eeeee8, #1a1a18);
   --color-bg-elevated: light-dark(#f5f4f0, #1e1e1c);

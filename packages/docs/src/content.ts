@@ -410,6 +410,6 @@ export async function loadDocsPages(
   return pages.sort((left, right) => left.routePath.localeCompare(right.routePath))
 }
 
-export function collectContentAssets(contentDir: string): Map<string, string> {
+export function collectContentAssets(contentDir: string) {
   return collectAssets([contentDir])
 }

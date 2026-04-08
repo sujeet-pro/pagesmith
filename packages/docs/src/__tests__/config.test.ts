@@ -81,6 +81,7 @@ describe('resolveDocsConfig', () => {
     expect(resolved.description).toBe('Documentation site powered by @pagesmith/docs')
     expect(resolved.origin).toBe('https://example.com')
     expect(resolved.footerLinks).toEqual([])
+    expect(resolved.footerText).toBe('Built with love using pagesmith')
     expect(resolved.search.enabled).toBe(true)
     expect(resolved.search.showImages).toBe(false)
     expect(resolved.search.showSubResults).toBe(true)
@@ -186,6 +187,7 @@ describe('validateConfig', () => {
       origin: 'https://mysite.com',
       language: 'en',
       footerLinks: [],
+      footerText: 'Built with love using pagesmith',
       sidebar: { collapsible: false },
       search: { enabled: true, showImages: false, showSubResults: true, pagefindFlags: [] },
       favicon: false,

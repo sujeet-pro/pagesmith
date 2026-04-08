@@ -39,49 +39,40 @@
   -webkit-mask-repeat: no-repeat;
 }
 
-/* ─── Alert variants ─── */
+/* ─── Alert variants (light-dark() respects color-scheme class) ─── */
 
 .markdown-alert-note {
-  --alert-color: #0969da;
-  --alert-bg: color-mix(in srgb, #0969da 6%, transparent);
+  --alert-color: light-dark(#0969da, #4493f8);
+  --alert-bg: light-dark(
+    color-mix(in srgb, #0969da 6%, transparent),
+    color-mix(in srgb, #4493f8 8%, transparent)
+  );
 }
 .markdown-alert-tip {
-  --alert-color: #1a7f37;
-  --alert-bg: color-mix(in srgb, #1a7f37 6%, transparent);
+  --alert-color: light-dark(#1a7f37, #3fb950);
+  --alert-bg: light-dark(
+    color-mix(in srgb, #1a7f37 6%, transparent),
+    color-mix(in srgb, #3fb950 8%, transparent)
+  );
 }
 .markdown-alert-important {
-  --alert-color: #8250df;
-  --alert-bg: color-mix(in srgb, #8250df 6%, transparent);
+  --alert-color: light-dark(#8250df, #a371f7);
+  --alert-bg: light-dark(
+    color-mix(in srgb, #8250df 6%, transparent),
+    color-mix(in srgb, #a371f7 8%, transparent)
+  );
 }
 .markdown-alert-warning {
-  --alert-color: #9a6700;
-  --alert-bg: color-mix(in srgb, #9a6700 6%, transparent);
+  --alert-color: light-dark(#9a6700, #d29922);
+  --alert-bg: light-dark(
+    color-mix(in srgb, #9a6700 6%, transparent),
+    color-mix(in srgb, #d29922 8%, transparent)
+  );
 }
 .markdown-alert-caution {
-  --alert-color: #d1242f;
-  --alert-bg: color-mix(in srgb, #d1242f 6%, transparent);
-}
-
-/* ─── Dark mode ─── */
-@media (prefers-color-scheme: dark) {
-  .markdown-alert-note {
-    --alert-color: #4493f8;
-    --alert-bg: color-mix(in srgb, #4493f8 8%, transparent);
-  }
-  .markdown-alert-tip {
-    --alert-color: #3fb950;
-    --alert-bg: color-mix(in srgb, #3fb950 8%, transparent);
-  }
-  .markdown-alert-important {
-    --alert-color: #a371f7;
-    --alert-bg: color-mix(in srgb, #a371f7 8%, transparent);
-  }
-  .markdown-alert-warning {
-    --alert-color: #d29922;
-    --alert-bg: color-mix(in srgb, #d29922 8%, transparent);
-  }
-  .markdown-alert-caution {
-    --alert-color: #f85149;
-    --alert-bg: color-mix(in srgb, #f85149 8%, transparent);
-  }
+  --alert-color: light-dark(#d1242f, #f85149);
+  --alert-bg: light-dark(
+    color-mix(in srgb, #d1242f 6%, transparent),
+    color-mix(in srgb, #f85149 8%, transparent)
+  );
 }

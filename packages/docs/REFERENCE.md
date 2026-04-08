@@ -83,6 +83,7 @@ The dev server uses incremental rebuilds for fast iteration:
 | `basePath` | `string` | `'/'` | URL base path (overridden by `BASE_URL` env) |
 | `homeLink` | `string` | `basePath` | Header logo link destination |
 | `footerLinks` | `array` | `[]` | Footer navigation links (`{ label, path }`) |
+| `footerText` | `string` | `'Built with love using pagesmith'` | Footer sign-off text shown beneath theme controls |
 | `sidebar.collapsible` | `boolean` | `true` | Enable collapsible sidebar sections |
 | `search.enabled` | `boolean` | `true` | Enable Pagefind search |
 | `search.showImages` | `boolean` | `false` | Show images in search results |
@@ -90,6 +91,8 @@ The dev server uses incremental rebuilds for fast iteration:
 | `search.pagefindFlags` | `string[]` | `[]` | Extra CLI flags for pagefind |
 | `theme.lightColor` | `string` | — | Light theme meta color |
 | `theme.darkColor` | `string` | — | Dark theme meta color |
+| `theme.defaultColorScheme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Default color scheme (auto follows OS) |
+| `theme.defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Default theme variant |
 | `theme.layouts` | `Record<string, string>` | — | Layout override file paths |
 | `theme.socialImage` | `string` | auto-detect | Default OG image for social sharing |
 | `analytics.googleAnalytics` | `string` | — | Google Analytics tracking ID |
@@ -133,6 +136,7 @@ The build validates `pagesmith.config.json5` automatically:
     { label: 'API', path: '/reference/api' },
     { label: 'GitHub', path: 'https://github.com/my-org/my-project' },
   ],
+  footerText: 'Built with love using pagesmith',
   search: { enabled: true },
   editLink: {
     repo: 'https://github.com/my-org/my-project',
@@ -351,7 +355,7 @@ export default function DocPage(props) {
 - **Sidebar** — auto-generated from section structure; order from `meta.json5` `items`
 - **Breadcrumbs** — auto-generated from the content slug path on every non-home page with depth > 1 (e.g. `guide/getting-started/intro` shows "Guide / Getting Started / Intro"). No configuration needed.
 - **Prev/next** — auto-generated from flattened sidebar items
-- **Footer** — configured via `footerLinks` in config
+- **Footer** — configured via `footerLinks` and `footerText` in config
 
 ## Search
 

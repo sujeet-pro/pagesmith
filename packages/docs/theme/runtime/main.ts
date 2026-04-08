@@ -9,8 +9,10 @@
 
 import { initSearch } from './search'
 import { initSidebar } from './sidebar'
+import { initTheme } from './theme'
 import { initTocHighlight } from './toc-highlight'
 
+initTheme()
 initSidebar()
 initTocHighlight()
 initSearch()

@@ -11,7 +11,6 @@ export default defineConfig({
       'schemas/index': 'src/schemas/index.ts',
     },
     deps: {
-      alwaysBundle: ['@pagesmith/core'],
       onlyBundle: false,
     },
     format: 'esm',

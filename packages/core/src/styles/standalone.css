@@ -1,6 +1,8 @@
 /* Foundations */
 @import "./foundations/reset.css";
+@import "./foundations/color-scheme.css";
 @import "./foundations/tokens.css";
+@import "./foundations/themes.css";
 
 /* Content */
 @import "./content/prose.css";

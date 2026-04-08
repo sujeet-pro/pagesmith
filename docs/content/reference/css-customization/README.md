@@ -180,13 +180,14 @@ The `theme.lightColor` and `theme.darkColor` config fields control the `<meta na
 }
 ```
 
-## Dark Mode
+## Color Schemes and Themes
 
-The default theme uses `color-scheme: light dark` with the `light-dark()` CSS function. This means:
+Pagesmith uses a class-based multi-theme system with two orthogonal axes on `<html>`:
 
-- Colors automatically adapt to the user's system preference
-- No JavaScript toggle is needed for the default behavior
-- Both themes are defined in a single declaration
+- **Color scheme** (`color-scheme-auto` | `color-scheme-light` | `color-scheme-dark`) — controls which side of `light-dark()` the browser picks
+- **Theme variant** (`theme-paper` | `theme-high-contrast`) — overrides design tokens for distinct visual styles
+
+The `@pagesmith/docs` theme includes built-in UI for switching both axes (header dropdown + footer selector), with preferences persisted to `localStorage`. See the [Theming](/reference/theming/) reference for the full system, built-in themes, and how to create custom theme variants.
 
 ### How light-dark() Works
 
@@ -210,7 +211,7 @@ To change colors for only one scheme, redefine the token with a new `light-dark(
 
 ### Forcing a Single Scheme
 
-To force light-only or dark-only mode:
+To force light-only or dark-only mode, use the color scheme class or CSS:
 
 ```css
 :root {
@@ -218,7 +219,7 @@ To force light-only or dark-only mode:
 }
 ```
 
-This causes all `light-dark()` functions to use their first argument.
+This causes all `light-dark()` functions to use their first argument. Alternatively, use `theme.defaultColorScheme: 'light'` in `pagesmith.config.json5` for `@pagesmith/docs` sites, or set the `color-scheme-light` class on `<html>` for core sites.
 
 ## Expressive Code Styling
 
@@ -332,25 +333,28 @@ The docs theme CSS is organized as follows:
 ```text title="@pagesmith/docs theme styles"
 main.css
   foundations/
-    reset.css         → CSS reset (box-sizing, margins)
-    fonts.css         → @font-face for bundled fonts
-    tokens.css        → Design tokens (custom properties)
+    reset.css           → CSS reset (box-sizing, margins)
+    color-scheme.css    → Color scheme classes (auto/light/dark)
+    fonts.css           → @font-face for bundled fonts
+    tokens.css          → Design tokens (custom properties)
+    themes.css          → Theme variant overrides (paper, high-contrast)
   content/
-    prose.css         → Prose typography (headings, paragraphs, lists, tables)
-    toc.css           → Table of contents sidebar styles
-    alerts.css        → GitHub-flavored alert boxes
-    page-meta.css     → Last updated, edit link, breadcrumbs
+    prose.css           → Prose typography (headings, paragraphs, lists, tables)
+    toc.css             → Table of contents sidebar styles
+    alerts.css          → GitHub-flavored alert boxes
+    page-meta.css       → Last updated, edit link, breadcrumbs
   code/
-    inline.css        → Inline code styling (backtick code)
+    inline.css          → Inline code styling (backtick code)
   layout/
-    grid.css          → Page grid (header, sidebar, content, TOC)
-    header.css        → Site header and navigation
-    sidebar.css       → Sidebar navigation
-    footer.css        → Page footer
-    home.css          → Home page hero and features
+    grid.css            → Page grid (header, sidebar, content, TOC)
+    header.css          → Site header and navigation
+    sidebar.css         → Sidebar navigation
+    footer.css          → Page footer
+    home.css            → Home page hero and features
   components/
-    search.css        → Search modal styles
-    not-found.css     → 404 page styles
+    search.css          → Search modal styles
+    theme-toggle.css    → Header dropdown and footer theme selector
+    not-found.css       → 404 page styles
 ```
 
 The full theme CSS is bundled and minified by LightningCSS during `pagesmith build`, producing a single `assets/style.css` file in the output directory. LightningCSS handles vendor prefixing, nesting compilation, and minification targeting Chrome 100+, Firefox 100+, and Safari 16+.

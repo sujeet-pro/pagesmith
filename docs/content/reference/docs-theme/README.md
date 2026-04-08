@@ -5,7 +5,7 @@ description: Default @pagesmith/docs theme — layouts, components, styles, runt
 
 # Docs Theme Reference
 
-The `@pagesmith/docs` package includes a complete default theme that provides layouts, styles, and runtime behavior for documentation sites. The theme is designed around a minimal, monochrome aesthetic that adapts to light and dark color schemes automatically.
+The `@pagesmith/docs` package includes a complete default theme that provides layouts, styles, and runtime behavior for documentation sites. The theme uses a class-based multi-theme system with two orthogonal axes — **color scheme** (auto/light/dark) and **theme variant** (paper/high-contrast) — that adapts to both OS preferences and user choice. See the [Theming](/reference/theming/) reference for the full token system and custom theme creation guide.
 
 ## Theme File Structure
 
@@ -25,6 +25,7 @@ theme/
     DocNotFound.tsx       404 error page
   runtime/
     main.ts              Browser entry point, initializes all runtime modules
+    theme.ts              Color scheme + theme variant toggle, localStorage sync
     search.ts             Search modal with Pagefind UI
     sidebar.ts            Mobile sidebar toggle and close behavior
     toc-highlight.ts      Active heading tracking in the TOC
@@ -32,8 +33,10 @@ theme/
     main.css              Master stylesheet entry (imports all others)
     foundations/
       reset.css           CSS reset
+      color-scheme.css    Color scheme classes (auto/light/dark)
       fonts.css           Font face declarations
       tokens.css          Design token custom properties
+      themes.css          Theme variant overrides (paper, high-contrast)
     content/
       prose.css           Typography styles for rendered markdown
       toc.css             Table of contents styling
@@ -51,6 +54,7 @@ theme/
       home.css            Home page specific styles
     components/
       search.css          Search trigger button and modal dialog
+      theme-toggle.css    Header theme dropdown and footer theme selector
       not-found.css       404 page styling
 ```
 
@@ -133,6 +137,7 @@ The sticky header bar at the top of every page:
 - Hamburger menu toggle for mobile sidebar (hidden at `>= 140ch`)
 - Site name/logo linking to the home page (or `homeLink` if configured)
 - Navigation links from `meta.json5` header links with `.active` class for current section
+- **Theme toggle dropdown** — a sun icon button that opens a panel with radio buttons for color scheme (Auto/Light/Dark) and theme variant (Paper/High Contrast). Wrapped in `.no-js-hidden` so it is invisible without JavaScript.
 - Search trigger button (when search is enabled)
 - Maximum inner width of `1400px`, centered with auto margins
 - Uses `backdrop-filter: blur(12px)` for a frosted glass appearance
@@ -167,6 +172,7 @@ The page footer:
 
 - Prev/next navigation cards for sequential page browsing (2-column grid, collapses to single column below `800px`)
 - Footer links from the `footerLinks` config
+- **Theme selector** — segmented button groups for Appearance (Auto/Light/Dark) and Theme (Paper/High Contrast) with `aria-pressed` for accessibility. Wrapped in `.no-js-hidden`. Stays synced with the header dropdown via the shared `theme.ts` runtime.
 - Copyright line
 
 ## CSS Architecture
@@ -249,21 +255,20 @@ Shadow colors also use `light-dark()` for appropriate opacity in each scheme.
 |---|---|---|
 | `--header-height` | `60px` | Fixed header height used for spacing and sticky offsets |
 
-### Color Scheme
+### Color Scheme and Theme System
 
-The theme uses the modern CSS `light-dark()` function for automatic dark mode support. This approach avoids duplicating styles in media queries -- every color token is defined once with both values:
+The theme uses a class-based multi-theme system. Two orthogonal CSS class axes on `<html>` control the visual appearance:
 
-```css
-:root {
-  color-scheme: light dark;
-  --color-bg: light-dark(#ffffff, #111111);
-  --color-text: light-dark(#111111, #e5e5e5);
-}
-```
+- **Color scheme** (`color-scheme-auto` | `color-scheme-light` | `color-scheme-dark`) — controls the CSS `color-scheme` property, which determines how `light-dark()` values resolve. With `auto`, the OS `prefers-color-scheme` decides.
+- **Theme variant** (`theme-paper` | `theme-high-contrast`) — overrides design tokens to provide distinct visual styles. Each variant defines all color tokens using `light-dark()`, so both light and dark modes work within every variant.
 
-The browser automatically selects the correct value based on the user's system preference (`prefers-color-scheme`). The `color-scheme: light dark` declaration tells the browser that the page supports both modes, which also affects form controls and scrollbars.
+The server renders `<html class="no-js color-scheme-{defaultColorScheme} theme-{defaultTheme}">` where the defaults come from `pagesmith.config.json5` (or `auto` and `paper` if not set).
 
-The `<meta name="color-scheme" content="light dark">` tag is included in the HTML head, along with separate `<meta name="theme-color">` tags for light and dark modes (values configurable via `theme.lightColor` and `theme.darkColor` in the config).
+A FOUC prevention inline `<script>` in the `<head>` reads `localStorage('pagesmith-theme')` before CSS paints to restore the user's last choice. The `no-js` class is removed by a second inline script, enabling theme toggle UI via `.no-js-hidden`.
+
+The `<meta name="color-scheme" content="light dark">` tag is included in the HTML head, along with separate `<meta name="theme-color">` tags for light and dark modes (values configurable via `theme.lightColor` and `theme.darkColor`).
+
+For the complete token reference and instructions on building custom themes, see the [Theming](/reference/theming/) reference.
 
 ## Responsive Grid System
 
@@ -340,12 +345,25 @@ The theme's runtime JavaScript is a progressive enhancement layer. The site work
 `runtime/main.ts` initializes all modules on page load:
 
 ```ts
+initTheme()
 initSidebar()
 initTocHighlight()
 initSearch()
 ```
 
 Code block interactivity (copy buttons) is handled by Expressive Code through inline scripts injected during markdown processing.
+
+### Theme Toggle (`theme.ts`)
+
+Manages the multi-theme system at runtime:
+
+- Reads the current color scheme and theme variant from `<html>` classes
+- `setColorScheme(scheme)` — replaces `color-scheme-*` class, persists to `localStorage`, syncs all UI controls
+- `setTheme(theme)` — replaces `theme-*` class, persists to `localStorage`, syncs all UI controls
+- `syncUI()` — keeps header dropdown radios and footer buttons in sync with the active preferences
+- `initHeaderToggle()` — wires the header dropdown button (open/close, outside click dismiss, Escape key, radio change events)
+- `initFooterSelector()` — wires the footer segmented buttons for both color scheme and theme variant
+- Preferences stored in `localStorage('pagesmith-theme')` as `{ colorScheme, theme }`
 
 ### Sidebar Toggle (`sidebar.ts`)
 

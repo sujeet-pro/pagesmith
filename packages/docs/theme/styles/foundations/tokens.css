@@ -1,8 +1,6 @@
 /* -- Design Tokens -- */
 
 :root {
-  color-scheme: light dark;
-
   /* Colors */
   --color-bg: light-dark(#f5f4f0, #111110);
   --color-bg-alt: light-dark(#eeeee8, #1a1a18);

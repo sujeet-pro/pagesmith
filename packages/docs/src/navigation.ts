@@ -406,6 +406,7 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
     language: config.language,
     navItems: model.navItems,
     footerLinks,
+    footerText: config.footerText,
     search: config.search,
     sidebar: config.sidebar,
     analytics: config.analytics,

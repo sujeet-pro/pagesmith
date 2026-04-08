@@ -187,21 +187,44 @@ h4 {
   accent-color: var(--color-text-muted);
 }
 
-/* ─── Light/dark image switching ─── */
-img.only-dark, .prose figure img.only-dark {
-  display: none;
+/* ─── Light/dark image switching ───────────────────────────────
+   Class-based: responds to .color-scheme-auto (OS), -light, -dark.
+   Also provides generic .show-on-light / .show-on-dark helpers.
+   ───────────────────────────────────────────────────────────── */
+
+/* Default: dark-only content hidden */
+img.only-dark, .prose figure img.only-dark,
+.show-on-dark { display: none; }
+.show-on-light { display: revert; }
+
+/* Auto mode: follow OS preference */
+@media (prefers-color-scheme: dark) {
+  .color-scheme-auto img.only-light,
+  .color-scheme-auto .prose figure img.only-light,
+  .color-scheme-auto .show-on-light { display: none; }
+
+  .color-scheme-auto img.only-dark,
+  .color-scheme-auto .prose figure img.only-dark,
+  .color-scheme-auto .show-on-dark { display: revert; }
 }
 
-@media (prefers-color-scheme: dark) {
-  img.only-light,
-  .prose figure img.only-light {
-    display: none;
-  }
-  img.only-dark,
-  .prose figure img.only-dark {
-    display: block;
-  }
-}
+/* Explicit light */
+.color-scheme-light img.only-dark,
+.color-scheme-light .prose figure img.only-dark,
+.color-scheme-light .show-on-dark { display: none; }
+
+.color-scheme-light img.only-light,
+.color-scheme-light .prose figure img.only-light,
+.color-scheme-light .show-on-light { display: revert; }
+
+/* Explicit dark */
+.color-scheme-dark img.only-light,
+.color-scheme-dark .prose figure img.only-light,
+.color-scheme-dark .show-on-light { display: none; }
+
+.color-scheme-dark img.only-dark,
+.color-scheme-dark .prose figure img.only-dark,
+.color-scheme-dark .show-on-dark { display: revert; }
 
 /* ─── Inline SVGs (embedded, use currentColor) ─── */
 .prose .inline-svg {
@@ -212,11 +235,14 @@ img.only-dark, .prose figure img.only-dark {
   color: var(--color-text-secondary);
 }
 
-/* ─── Invert images in dark mode (.invert. naming convention) ─── */
+/* ─── Invert images in dark mode ─── */
 @media (prefers-color-scheme: dark) {
-  .prose img.invert-on-dark {
+  .color-scheme-auto .prose img.invert-on-dark {
     filter: invert(1) hue-rotate(180deg);
   }
+}
+.color-scheme-dark .prose img.invert-on-dark {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 /* ─── Scroll margin for anchors ─── */

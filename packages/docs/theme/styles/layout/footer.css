@@ -99,6 +99,22 @@
   border-top: none;
 }
 
+.doc-footer-signoff {
+  margin-top: 1.5rem;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.doc-footer-signoff a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.doc-footer-signoff a:hover {
+  color: var(--color-text);
+}
+
 /* ═══════════════════════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════════════════════ */

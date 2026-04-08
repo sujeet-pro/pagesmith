@@ -109,3 +109,14 @@ Shared utilities exported from `@pagesmith/core/mcp`:
 - `getPackageVersion(moduleDir)` — read version from package.json
 - `resolvePackageDocPath(moduleDir, relativePath)` — resolve doc file path
 - `asTextResource(uri, path)` — load file as MCP text resource
+
+## Theme system
+
+Class-based multi-theme system with two orthogonal axes on `<html>`:
+- **Color scheme**: `color-scheme-auto` | `color-scheme-light` | `color-scheme-dark` — controls `light-dark()` via CSS `color-scheme` property.
+- **Theme**: `theme-paper` (warm, low-contrast) | `theme-high-contrast` (WCAG AAA) — overrides CSS custom properties with variant-specific `light-dark()` pairs.
+- New CSS files: `src/styles/foundations/color-scheme.css`, `src/styles/foundations/themes.css`.
+- Image switching: `.only-light`/`.only-dark`, `.show-on-light`/`.show-on-dark`, `.invert-on-dark` — class-based instead of `@media (prefers-color-scheme)`.
+- FOUC prevention via inline `<script>` reading `localStorage('pagesmith-theme')`.
+- Expressive Code configured with `themeCssSelector` for class-based code block theming.
+- `renderDocumentShell()` (SSG utils) now outputs `class="no-js color-scheme-auto theme-paper"` on `<html>` with FOUC prevention script.

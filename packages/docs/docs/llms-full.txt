@@ -23,7 +23,7 @@ npm add @pagesmith/docs
 
 - Use `@pagesmith/docs` for convention-based docs sites.
 - Keep docs structure in your content directory (defaults to `docs/` if it exists, otherwise `content/`) with `README.md` as home.
-- Configure **`home`**, **`server`** (dev/preview ports; **preview default port 4000**, not Vite’s 4173), **`icon`**, and other site options in `pagesmith.config.json5` as needed.
+- Configure **`home`**, **`server`** (dev/preview ports; **preview default port 4000**, not Vite’s 4173), **`icon`**, **`footerText`**, and other site options in `pagesmith.config.json5` as needed.
 - Use `meta.json5` and frontmatter for ordering and labels, not hardcoded nav lists.
 - Keep search configuration inside `pagesmith.config.json5`; Pagefind is built in.
 - Use `theme.layouts` keys (`home`, `page`, `notFound`) for layout overrides.
@@ -98,3 +98,16 @@ The docs MCP server (`pagesmith mcp --stdio`) exposes:
 - `docs_list_pages` — list all pages with routes and source files
 - `docs_get_page` — get a page by slug with markdown source
 - `docs_search_pages` — search pages by query (title, description, content)
+
+## Theme system
+
+Built-in multi-theme support with header toggle dropdown and footer theme selector:
+- **Color scheme**: `color-scheme-auto` (OS) | `color-scheme-light` | `color-scheme-dark`
+- **Theme**: `theme-paper` (warm, low-contrast) | `theme-high-contrast` (WCAG AAA)
+- Config: `theme.defaultColorScheme` (`'auto'|'light'|'dark'`), `theme.defaultTheme` (`'paper'|'high-contrast'`)
+- User preferences persist in `localStorage('pagesmith-theme')`
+- Progressive enhancement: no-JS uses OS preference; JS enables toggle UI and persistence
+- FOUC prevention via inline `<script>` in `<head>` before CSS loads
+- Theme runtime: `theme/runtime/theme.ts` (`initTheme`, `setColorScheme`, `setTheme`)
+- Styles: `theme/styles/components/theme-toggle.css`, `theme/styles/foundations/color-scheme.css`, `theme/styles/foundations/themes.css`
+- Footer sign-off: configurable with `footerText`; default is "Built with love using pagesmith" with a heart icon and a link to the Pagesmith GitHub repo.

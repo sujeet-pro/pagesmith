@@ -108,8 +108,13 @@ function createProcessor(config: MarkdownConfig) {
   const darkTheme = (config.shiki?.themes?.dark || 'github-dark') as BundledShikiTheme
 
   processor.use(rehypeExpressiveCode, {
-    themes: [darkTheme, lightTheme],
+    themes: [lightTheme, darkTheme],
     useDarkModeMediaQuery: true,
+    themeCssSelector: (theme) => {
+      if (theme.type === 'dark') return '.color-scheme-dark'
+      if (theme.type === 'light') return '.color-scheme-light'
+      return `[data-theme='${theme.name}']`
+    },
     styleOverrides: {
       uiFontFamily: 'var(--ps-font-sans, var(--font-family, system-ui, sans-serif))',
       codeFontFamily: 'var(--ps-font-mono, var(--font-mono, ui-monospace, monospace))',

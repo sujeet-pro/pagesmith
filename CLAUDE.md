@@ -108,6 +108,17 @@ Code block styling is handled entirely by Expressive Code through inline styles 
 - `@pagesmith/core/css/viewport` — responsive viewport base
 - `@pagesmith/core/css/fonts` — bundled Open Sans + JetBrains Mono
 
+## Theme system
+
+Class-based multi-theme with two orthogonal CSS class axes on `<html>`:
+- **Color scheme**: `color-scheme-auto` | `color-scheme-light` | `color-scheme-dark` — controls `light-dark()` via CSS `color-scheme` property.
+- **Theme variant**: `theme-paper` | `theme-high-contrast` — overrides CSS custom properties.
+- Server default: `<html class="color-scheme-auto theme-paper">`.
+- FOUC prevention: inline `<script>` reads `localStorage('pagesmith-theme')` before CSS paints.
+- Progressive enhancement: without JS, site follows OS preference; JS adds toggle UI and persistence.
+- Image switching: `.only-light`/`.only-dark` classes (class-based, not `@media`).
+- Docs theme: header toggle dropdown, footer selector, config options `theme.defaultColorScheme`/`theme.defaultTheme`.
+
 ## AI guidelines
 
 Package-local AI guidance is the canonical source of truth and must stay version-matched with each package.

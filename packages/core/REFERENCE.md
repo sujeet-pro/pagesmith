@@ -284,6 +284,22 @@ function Page({ title, content }: { title: string; content: string }) {
 
 Code block styling is handled by Expressive Code (inline styles).
 
+## Theme System
+
+Two orthogonal CSS class axes on `<html>`:
+
+- **Color scheme**: `color-scheme-auto` (OS preference) | `color-scheme-light` | `color-scheme-dark`
+- **Theme**: `theme-paper` (warm, low-contrast) | `theme-high-contrast` (WCAG AAA-friendly)
+
+Server default: `<html class="color-scheme-auto theme-paper">`. An inline FOUC-prevention script reads `localStorage('pagesmith-theme')` and swaps classes before first paint.
+
+Color scheme classes set the CSS `color-scheme` property, which controls `light-dark()` token resolution. Theme classes override CSS custom properties with variant-specific `light-dark()` pairs.
+
+Image switching uses class-based rules instead of `@media (prefers-color-scheme)`:
+- `.only-light` / `.only-dark` — show/hide images per scheme
+- `.show-on-light` / `.show-on-dark` — generic visibility helpers
+- `.invert-on-dark` — applies `filter: invert(1)` in dark mode
+
 ## Runtime Exports
 
 ```ts

@@ -36,6 +36,8 @@ type DocsUserConfig = {
   theme?: {
     lightColor?: string
     darkColor?: string
+    defaultColorScheme?: 'auto' | 'light' | 'dark'
+    defaultTheme?: 'paper' | 'high-contrast'
     layouts?: Record<string, string>
     socialImage?: string
   }
@@ -174,6 +176,8 @@ search: {
 |---|---|---|---|
 | `theme.lightColor` | `string` | `"#f8fafc"` | The `theme-color` meta tag value for light mode. Affects the browser chrome color on mobile devices. |
 | `theme.darkColor` | `string` | `"#020617"` | The `theme-color` meta tag value for dark mode. |
+| `theme.defaultColorScheme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Initial color scheme class on `<html>`. `'auto'` follows OS preference via `color-scheme: light dark`. `'light'` or `'dark'` forces a single scheme. |
+| `theme.defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Initial theme variant class on `<html>`. Controls which set of CSS token overrides is active. See the [Theming](/reference/theming/) reference. |
 | `theme.layouts` | `Record<string, string>` | `{}` | A map of layout names to file paths for overriding the default theme layouts. Paths are resolved relative to the project root (the directory containing `pagesmith.config.json5`). |
 | `theme.socialImage` | `string` | auto-detect | Path to default Open Graph social sharing image. Checked in order: config value, then `public/og-image.png` (or `.jpg`). Per-page override via `socialImage` frontmatter. |
 
@@ -432,6 +436,8 @@ Here is a complete `pagesmith.config.json5` showing all available fields:
   theme: {
     lightColor: '#ffffff',
     darkColor: '#111111',
+    defaultColorScheme: 'auto',  // 'auto' | 'light' | 'dark'
+    defaultTheme: 'paper',       // 'paper' | 'high-contrast'
     layouts: {
       home: './theme/CustomHome.tsx',
     },
@@ -510,7 +516,7 @@ type ResolvedDocsConfig = {
   icon: string | false         // Resolved icon/logo path (false disables)
   appleTouchIcon: string | false
   faviconFallback: string | false
-  theme?: { lightColor?: string; darkColor?: string; layouts?: Record<string, string> }
+  theme?: { lightColor?: string; darkColor?: string; defaultColorScheme?: string; defaultTheme?: string; layouts?: Record<string, string> }
   analytics?: { googleAnalytics?: string }
   markdown?: MarkdownConfig
   homeConfigFile?: string  // Absolute path to home config JSON5

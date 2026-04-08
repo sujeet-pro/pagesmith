@@ -571,11 +571,14 @@ function renderDocument(props: {
     props
   const base = basePath.replace(/\/+$/, '')
 
-  return `<html lang="en" class="no-js">
+  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme)}}catch(e){}})()`
+
+  return `<html lang="en" class="no-js color-scheme-auto theme-paper">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    <script>${foucScript}</script>
     <title>${escapeHtml(title)}</title>
     ${description ? `<meta name="description" content="${escapeHtml(description)}" />` : ''}
     <meta property="og:type" content="website" />

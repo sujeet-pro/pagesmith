@@ -7,11 +7,11 @@
  * - Vite HMR client injection for live reload
  */
 
-import { extname, resolve } from 'path'
-import { readFileSync } from 'fs'
+import { extname, join, resolve } from 'path'
+import { existsSync, readFileSync } from 'fs'
 import type { ViteDevServer } from 'vite'
 import type { SsgRenderConfig } from './ssg-plugin'
-import { collectContentAssets } from '../assets'
+import { type ContentAssetMap, collectContentAssets } from '../assets'
 import { MIME, rewriteContentAssetRefs } from './ssg-render'
 
 export type SsgDevContext = {
@@ -23,6 +23,24 @@ export type SsgDevContext = {
   contentDirs: string[]
   /** Path to the SSR entry module */
   entry: string
+  /** CSS entry path relative to project root (e.g., './styles/main.css') */
+  cssEntry: string
+}
+
+/**
+ * Discover the client JS entry path from the project's index.html.
+ * Returns the Vite-served path (with base prefix) or undefined.
+ */
+function discoverDevClientEntry(projectRoot: string, base: string): string | undefined {
+  const indexPath = join(projectRoot, 'index.html')
+  if (!existsSync(indexPath)) return undefined
+  const html = readFileSync(indexPath, 'utf-8')
+  const match = html.match(/<script[^>]*\bsrc="([^"]+)"/)
+  if (!match) return undefined
+  const src = match[1]
+  if (src.startsWith('http')) return src
+  const normalized = src.startsWith('/') ? src : `/${src.replace(/^\.\//, '')}`
+  return `${base}${normalized}`
 }
 
 /**
@@ -34,8 +52,8 @@ export type SsgDevContext = {
  * - Middleware for SSR-rendering HTML navigation requests
  */
 export function configureSsgDevServer(server: ViteDevServer, context: SsgDevContext): void {
-  const { projectRoot, base, contentDirs, entry } = context
-  let contentAssets = new Map<string, string>()
+  const { projectRoot, base, contentDirs, entry, cssEntry } = context
+  let contentAssets: ContentAssetMap = { byPath: new Map(), byBasename: new Map() }
 
   async function refreshContentArtifacts(): Promise<void> {
     contentAssets = collectContentAssets(contentDirs)
@@ -63,6 +81,9 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
     server.watcher.on('unlink', refresh)
   }
 
+  const cssDevPath = `${base}/${cssEntry.replace(/^\.\//, '')}`
+  const jsPath = discoverDevClientEntry(projectRoot, base)
+
   // Register middleware directly — appType: 'custom' disables Vite's
   // built-in HTML serving, so we handle all HTML requests via SSR.
   server.middlewares.use(async (req, res, next) => {
@@ -70,17 +91,27 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
     const pathname = url.split(/[?#]/u, 1)[0] ?? url
 
     if (pathname.includes('/assets/')) {
-      const assetName = pathname.split('/assets/').pop()
-      const assetPath = assetName ? contentAssets.get(assetName) : undefined
+      const assetRelPath = pathname.split('/assets/').pop()
+      if (assetRelPath) {
+        // Try by relative path first (directory-preserving), then by basename
+        let assetPath = contentAssets.byPath.get(assetRelPath)
+        if (!assetPath) {
+          const name = assetRelPath.split('/').pop()
+          const candidates = name ? contentAssets.byBasename.get(name) : undefined
+          if (candidates?.length === 1) {
+            assetPath = contentAssets.byPath.get(candidates[0])
+          }
+        }
 
-      if (assetPath) {
-        const ext = extname(assetPath).toLowerCase()
-        res.writeHead(200, {
-          'Content-Type': MIME[ext] ?? 'application/octet-stream',
-          'Cache-Control': 'no-cache',
-        })
-        res.end(readFileSync(assetPath))
-        return
+        if (assetPath) {
+          const ext = extname(assetPath).toLowerCase()
+          res.writeHead(200, {
+            'Content-Type': MIME[ext] ?? 'application/octet-stream',
+            'Cache-Control': 'no-cache',
+          })
+          res.end(readFileSync(assetPath))
+          return
+        }
       }
     }
 
@@ -110,23 +141,25 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
         return next()
       }
 
+      const routePath = base ? url.slice(base.length).replace(/^\//, '') : url.replace(/^\//, '')
+
       const renderConfig: SsgRenderConfig = {
         base,
         root: projectRoot,
-        cssPath: `${base}/src/theme.css`, // Vite transforms this in dev
-        jsPath: undefined,
+        cssPath: cssDevPath,
+        jsPath,
         searchEnabled: false,
         isDev: true,
       }
 
       let html = await renderFn(url, renderConfig)
-      html = rewriteContentAssetRefs(html, base)
+      html = rewriteContentAssetRefs(html, base, contentAssets, routePath)
 
       // Inject Vite's client + HMR script for live reload
       html = html.replace(
         '</head>',
         `<script type="module" src="/@vite/client"></script>\n` +
-          `<link rel="stylesheet" href="${base}/src/theme.css">\n` +
+          `<link rel="stylesheet" href="${cssDevPath}">\n` +
           `</head>`,
       )
 
