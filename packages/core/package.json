@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/core",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "File-based CMS — schema-validated collections, lazy markdown rendering, and runtime CSS/JS exports",
   "keywords": [
     "cms",
