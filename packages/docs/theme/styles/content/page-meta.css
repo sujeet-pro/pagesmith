@@ -33,16 +33,13 @@
   font-weight: 500;
 }
 
-/* ─── Page meta footer (edit link + last updated) ─── */
+/* ─── Page meta (edit link + last updated) — lives inside .doc-footer ─── */
 .doc-page-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 2.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--ps-color-border-subtle, var(--color-border-subtle, #e5e7eb));
   font-size: var(--ps-font-size-sm, 0.875rem);
   color: var(--ps-color-text-muted, var(--color-text-muted, #6b7280));
 }

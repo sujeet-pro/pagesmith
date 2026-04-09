@@ -94,6 +94,14 @@
             <button type="button" data-theme="high-contrast" aria-pressed="false">High Contrast</button>
           </div>
         </div>
+        <div class="doc-footer-theme-group">
+          <span class="doc-footer-theme-label">Text Size</span>
+          <div class="doc-footer-theme-options" data-footer-text-size>
+            <button type="button" data-size="small" aria-pressed="false" aria-label="Small text"><span class="doc-text-size-label" data-size="small">A</span></button>
+            <button type="button" data-size="base" class="active" aria-pressed="true" aria-label="Default text"><span class="doc-text-size-label" data-size="base">A</span></button>
+            <button type="button" data-size="large" aria-pressed="false" aria-label="Large text"><span class="doc-text-size-label" data-size="large">A</span></button>
+          </div>
+        </div>
       </div>
       <p class="doc-footer-copyright">
         &copy; 2026 Pagesmith {' · '} Made with <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>

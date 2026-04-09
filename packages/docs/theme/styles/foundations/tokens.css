@@ -1,5 +1,10 @@
 /* -- Design Tokens -- */
 
+/* Text size: percentages are relative to browser default (typically 16px) */
+html[data-text-size="small"] { font-size: 87.5%; }
+html[data-text-size="base"] { font-size: 100%; }
+html[data-text-size="large"] { font-size: 112.5%; }
+
 :root {
   /* Colors */
   --color-bg: light-dark(#f5f4f0, #111110);

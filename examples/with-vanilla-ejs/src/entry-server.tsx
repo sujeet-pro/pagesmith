@@ -96,6 +96,31 @@ function formatDate(date: string | Date) {
   })
 }
 
+const GITHUB_EDIT_BASE =
+  'https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-vanilla-ejs/content'
+
+function editUrlForEntry(entry: { collection: string; slug: string }) {
+  return `${GITHUB_EDIT_BASE}/${entry.collection}/${entry.slug}.md`
+}
+
+function articleNeighbors(
+  list: RenderedEntry[],
+  index: number,
+  basePath: string,
+  section: 'guide' | 'features',
+): Record<string, { title: string; url: string } | undefined> {
+  const out: Record<string, { title: string; url: string } | undefined> = {}
+  if (index > 0) {
+    const e = list[index - 1]!.entry
+    out.prev = { title: e.data.title, url: `${basePath}${section}/${e.slug}/` }
+  }
+  if (index < list.length - 1) {
+    const e = list[index + 1]!.entry
+    out.next = { title: e.data.title, url: `${basePath}${section}/${e.slug}/` }
+  }
+  return out
+}
+
 function renderTocAside(headings: any[]) {
   if (!headings || headings.length === 0) return ''
   const filtered = headings.filter((h: any) => h.depth >= 2 && h.depth <= 3)
@@ -196,7 +221,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
   // Guide pages
   const guideMatch = routePath.match(/^\/guide\/(.+)$/)
   if (guideMatch) {
-    const item = sortedGuide.find((e) => e.entry.slug === guideMatch[1])
+    const guideIndex = sortedGuide.findIndex((e) => e.entry.slug === guideMatch[1])
+    const item = guideIndex >= 0 ? sortedGuide[guideIndex] : undefined
     if (item) {
       const body = ejs.render(articleTemplate, {
         title: item.entry.data.title,
@@ -215,6 +241,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         activePath: `/guide/${item.entry.slug}`,
         aside: renderTocAside(item.headings),
         isHome: false,
+        ...articleNeighbors(sortedGuide, guideIndex, basePath, 'guide'),
+        editUrl: editUrlForEntry(item.entry),
+        lastUpdated: formatDate(item.entry.data.date),
       })
     }
   }
@@ -222,7 +251,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
   // Features pages
   const featuresMatch = routePath.match(/^\/features\/(.+)$/)
   if (featuresMatch) {
-    const item = sortedFeatures.find((e) => e.entry.slug === featuresMatch[1])
+    const featuresIndex = sortedFeatures.findIndex((e) => e.entry.slug === featuresMatch[1])
+    const item = featuresIndex >= 0 ? sortedFeatures[featuresIndex] : undefined
     if (item) {
       const body = ejs.render(articleTemplate, {
         title: item.entry.data.title,
@@ -241,6 +271,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         activePath: `/features/${item.entry.slug}`,
         aside: renderTocAside(item.headings),
         isHome: false,
+        ...articleNeighbors(sortedFeatures, featuresIndex, basePath, 'features'),
+        editUrl: editUrlForEntry(item.entry),
+        lastUpdated: formatDate(item.entry.data.date),
       })
     }
   }
@@ -260,6 +293,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         activePath: '/about',
         aside: renderTocAside(aboutItem.headings),
         isHome: false,
+        editUrl: editUrlForEntry(aboutItem.entry),
       })
     }
   }

@@ -20,6 +20,7 @@ import remarkSmartypants from 'remark-smartypants'
 import { unified } from 'unified'
 import type { Heading } from '../schemas/heading'
 import type { MarkdownConfig } from '../schemas/markdown-config'
+import rehypeCodeTabs from './plugins/rehype-code-tabs'
 
 export type MarkdownResult = {
   html: string
@@ -124,6 +125,10 @@ function createProcessor(config: MarkdownConfig) {
       borderColor: 'var(--ps-color-border-subtle, var(--color-border-subtle, #e5e7eb))',
     },
   } satisfies RehypeExpressiveCodeOptions)
+
+  // Group consecutive titled code blocks into a tabbed interface.
+  // Must run after Expressive Code so we can inspect its rendered output.
+  processor.use(rehypeCodeTabs)
 
   processor
     .use(rehypeSlug)

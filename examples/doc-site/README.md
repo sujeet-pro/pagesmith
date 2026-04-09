@@ -24,6 +24,24 @@ Custom layout overrides in `theme/layouts/` (DocHome.tsx, DocPage.tsx) use `@pag
 | `content/features/` | Features | Markdown feature showcase |
 | `content/pages/` | — | Standalone pages (about) |
 
+## Theme System
+
+This example uses the Pagesmith theme system provided by `@pagesmith/docs`, with layout overrides adding custom theme UI:
+
+- **Header theme dropdown** — Sun icon button with Appearance (Auto/Light/Dark), Theme (Paper/High Contrast), and Text Size (Small/Default/Large) controls, added via the `DocHome.tsx`/`DocPage.tsx` layout overrides
+- **Footer theme controls** — Segmented button groups for Appearance, Theme, and Text Size
+- **FOUC prevention** — Inline script restores `colorScheme`, `theme`, and `textSize` from `localStorage` before CSS paints, injected by the layout overrides
+- **Theme persistence** — All preferences stored in `localStorage` under `pagesmith-theme`
+
+### CSS Theme Features
+
+CSS theme support comes from `@pagesmith/docs` through the docs build pipeline:
+
+- Color scheme classes: `.color-scheme-auto`, `.color-scheme-light`, `.color-scheme-dark`
+- Theme variants: `.theme-paper` (warm, low-contrast), `.theme-high-contrast` (WCAG AAA)
+- Text size scaling: `html[data-text-size="small|base|large"]`
+- All design tokens use `light-dark()` for automatic light/dark mode support
+
 ## Deployed
 
 [View live example](https://projects.sujeet.pro/pagesmith/examples/doc-site/)

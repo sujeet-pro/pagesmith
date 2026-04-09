@@ -51,6 +51,8 @@ const closeIcon =
   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
 const searchIcon =
   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>'
+const themeIcon =
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
 
 function normalizeRoute(url: string, base: string): string {
   if (!base || !url.startsWith(base)) return url === '' ? '/' : url
@@ -90,6 +92,10 @@ function formatDate(iso: string): string {
 function estimateReadTime(html: string): number {
   const text = html.replace(/<[^>]+>/g, ' ')
   return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 200))
+}
+
+function contentEditUrl(contentSlug: string): string {
+  return `https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-solid/content/${contentSlug}.md`
 }
 
 function escapeHtml(value: string): string {
@@ -178,6 +184,68 @@ function SiteHeader(props: {
             Features
           </a>
         </nav>
+        <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
+          <button
+            type="button"
+            class="doc-theme-toggle-btn"
+            aria-label="Change theme"
+            aria-expanded="false"
+            aria-haspopup="true"
+            data-theme-toggle-btn=""
+            innerHTML={themeIcon}
+          />
+          <div class="doc-theme-dropdown" data-theme-dropdown="" hidden>
+            <fieldset class="doc-theme-group">
+              <legend>Appearance</legend>
+              <label class="doc-theme-option" data-scheme="auto">
+                <input type="radio" name="colorScheme" value="auto" checked />
+                Auto
+              </label>
+              <label class="doc-theme-option" data-scheme="light">
+                <input type="radio" name="colorScheme" value="light" />
+                Light
+              </label>
+              <label class="doc-theme-option" data-scheme="dark">
+                <input type="radio" name="colorScheme" value="dark" />
+                Dark
+              </label>
+            </fieldset>
+            <fieldset class="doc-theme-group">
+              <legend>Theme</legend>
+              <label class="doc-theme-option" data-theme="paper">
+                <input type="radio" name="theme" value="paper" checked />
+                Paper
+              </label>
+              <label class="doc-theme-option" data-theme="high-contrast">
+                <input type="radio" name="theme" value="high-contrast" />
+                High Contrast
+              </label>
+            </fieldset>
+            <fieldset class="doc-theme-group">
+              <legend>Text Size</legend>
+              <div class="doc-text-size-options">
+                <label class="doc-text-size-option" title="Small">
+                  <input type="radio" name="textSize" value="small" />
+                  <span class="doc-text-size-label" data-size="small">
+                    A
+                  </span>
+                </label>
+                <label class="doc-text-size-option" title="Default">
+                  <input type="radio" name="textSize" value="base" checked />
+                  <span class="doc-text-size-label" data-size="base">
+                    A
+                  </span>
+                </label>
+                <label class="doc-text-size-option" title="Large">
+                  <input type="radio" name="textSize" value="large" />
+                  <span class="doc-text-size-label" data-size="large">
+                    A
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+        </div>
         <Show when={searchEnabled}>
           <SearchTrigger />
         </Show>
@@ -416,6 +484,42 @@ function HomeBody(props: {
                   </button>
                 </div>
               </div>
+              <div class="doc-footer-theme-group">
+                <span class="doc-footer-theme-label">Text Size</span>
+                <div class="doc-footer-theme-options" data-footer-text-size="">
+                  <button
+                    type="button"
+                    data-size="small"
+                    aria-pressed="false"
+                    aria-label="Small text"
+                  >
+                    <span class="doc-text-size-label" data-size="small">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="base"
+                    class="active"
+                    aria-pressed="true"
+                    aria-label="Default text"
+                  >
+                    <span class="doc-text-size-label" data-size="base">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="large"
+                    aria-pressed="false"
+                    aria-label="Large text"
+                  >
+                    <span class="doc-text-size-label" data-size="large">
+                      A
+                    </span>
+                  </button>
+                </div>
+              </div>
             </div>
             <p class="doc-footer-copyright">
               &copy; 2026 Pagesmith {' · '} Made with{' '}
@@ -441,6 +545,9 @@ function PageBody(props: {
   featuresEntries: NavEntry[]
   date?: string
   readTime?: number
+  prev?: { title: string; url: string }
+  next?: { title: string; url: string }
+  editUrl?: string
 }) {
   const {
     title,
@@ -455,6 +562,9 @@ function PageBody(props: {
     featuresEntries,
     date,
     readTime,
+    prev,
+    next,
+    editUrl,
   } = props
   const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
 
@@ -519,9 +629,42 @@ function PageBody(props: {
             </Show>
 
             <div class="prose" innerHTML={content} />
+
+            <Show when={prev || next}>
+              <nav class="doc-article-nav" aria-label="Page navigation">
+                {prev ? (
+                  <a href={prev.url} class="doc-article-link doc-article-prev">
+                    <span class="doc-article-label">Previous</span>
+                    <span class="doc-article-title">{prev.title}</span>
+                  </a>
+                ) : (
+                  <span />
+                )}
+                {next ? (
+                  <a href={next.url} class="doc-article-link doc-article-next">
+                    <span class="doc-article-label">Next</span>
+                    <span class="doc-article-title">{next.title}</span>
+                  </a>
+                ) : null}
+              </nav>
+            </Show>
           </article>
 
           <footer class="doc-footer">
+            <Show when={editUrl || date}>
+              <div class="doc-page-footer-meta">
+                <Show when={editUrl}>
+                  <a href={editUrl} class="doc-edit-link" target="_blank" rel="noopener noreferrer">
+                    Edit this page
+                  </a>
+                </Show>
+                <Show when={date}>
+                  <span class="doc-last-updated">
+                    Last updated: <time datetime={date}>{formatDate(date!)}</time>
+                  </span>
+                </Show>
+              </div>
+            </Show>
             <div class="doc-footer-links">
               <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-solid">
                 GitHub
@@ -551,6 +694,42 @@ function PageBody(props: {
                   </button>
                   <button type="button" data-theme="high-contrast" aria-pressed="false">
                     High Contrast
+                  </button>
+                </div>
+              </div>
+              <div class="doc-footer-theme-group">
+                <span class="doc-footer-theme-label">Text Size</span>
+                <div class="doc-footer-theme-options" data-footer-text-size="">
+                  <button
+                    type="button"
+                    data-size="small"
+                    aria-pressed="false"
+                    aria-label="Small text"
+                  >
+                    <span class="doc-text-size-label" data-size="small">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="base"
+                    class="active"
+                    aria-pressed="true"
+                    aria-label="Default text"
+                  >
+                    <span class="doc-text-size-label" data-size="base">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="large"
+                    aria-pressed="false"
+                    aria-label="Large text"
+                  >
+                    <span class="doc-text-size-label" data-size="large">
+                      A
+                    </span>
                   </button>
                 </div>
               </div>
@@ -597,7 +776,7 @@ function renderDocument(props: {
     props
   const base = basePath.replace(/\/+$/, '')
 
-  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme)}}catch(e){}})()`
+  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})()`
 
   return `<html lang="en" class="no-js color-scheme-auto theme-paper">
   <head>
@@ -612,8 +791,8 @@ function renderDocument(props: {
     ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ''}
     <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="${base}/assets/fonts.css" />
-    <link rel="stylesheet" href="${cssPath}" />
     ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ''}
+    <link rel="stylesheet" href="${cssPath}" />
     <script>document.documentElement.classList.remove('no-js')</script>
     ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ''}
   </head>
@@ -738,6 +917,26 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 
   const guideEntry = guideEntries.find((entry) => routeFor(entry, 'guide') === routePath)
   if (guideEntry) {
+    const base = config.base.replace(/\/+$/, '')
+    const guideIndex = guideEntries.indexOf(guideEntry)
+    const prevGuide = guideIndex > 0 ? guideEntries[guideIndex - 1] : undefined
+    const nextGuide =
+      guideIndex >= 0 && guideIndex < guideEntries.length - 1
+        ? guideEntries[guideIndex + 1]
+        : undefined
+    const prevNav = prevGuide
+      ? {
+          title: prevGuide.frontmatter.title,
+          url: `${base}${routeFor(prevGuide, 'guide')}`,
+        }
+      : undefined
+    const nextNav = nextGuide
+      ? {
+          title: nextGuide.frontmatter.title,
+          url: `${base}${routeFor(nextGuide, 'guide')}`,
+        }
+      : undefined
+
     const sidebarHtml = renderToString(() => (
       <SidebarNav
         currentPath={routePath}
@@ -764,6 +963,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         featuresEntries={featuresNavEntries}
         date={toIso(guideEntry.frontmatter.date)}
         readTime={estimateReadTime(guideEntry.html)}
+        prev={prevNav}
+        next={nextNav}
+        editUrl={contentEditUrl(guideEntry.contentSlug)}
       />
     ))
 
@@ -781,6 +983,26 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 
   const featuresEntry = featuresEntries.find((entry) => routeFor(entry, 'features') === routePath)
   if (featuresEntry) {
+    const base = config.base.replace(/\/+$/, '')
+    const featuresIndex = featuresEntries.indexOf(featuresEntry)
+    const prevFeatures = featuresIndex > 0 ? featuresEntries[featuresIndex - 1] : undefined
+    const nextFeatures =
+      featuresIndex >= 0 && featuresIndex < featuresEntries.length - 1
+        ? featuresEntries[featuresIndex + 1]
+        : undefined
+    const prevNav = prevFeatures
+      ? {
+          title: prevFeatures.frontmatter.title,
+          url: `${base}${routeFor(prevFeatures, 'features')}`,
+        }
+      : undefined
+    const nextNav = nextFeatures
+      ? {
+          title: nextFeatures.frontmatter.title,
+          url: `${base}${routeFor(nextFeatures, 'features')}`,
+        }
+      : undefined
+
     const sidebarHtml = renderToString(() => (
       <SidebarNav
         currentPath={routePath}
@@ -807,6 +1029,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         featuresEntries={featuresNavEntries}
         date={toIso(featuresEntry.frontmatter.date)}
         readTime={estimateReadTime(featuresEntry.html)}
+        prev={prevNav}
+        next={nextNav}
+        editUrl={contentEditUrl(featuresEntry.contentSlug)}
       />
     ))
 
@@ -848,6 +1073,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
         featuresEntries={featuresNavEntries}
+        date={toIso(aboutEntry.frontmatter.date)}
+        editUrl={contentEditUrl(aboutEntry.contentSlug)}
       />
     ))
 

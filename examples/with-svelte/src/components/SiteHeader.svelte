@@ -3,6 +3,8 @@
     '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>'
   const searchIcon =
     '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>'
+  const themeIcon =
+    '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
 
   let {
     basePath,
@@ -35,6 +37,63 @@
       <a href={firstGuideUrl} class:active={isGuide}>Guide</a>
       <a href={firstFeaturesUrl} class:active={isFeatures}>Features</a>
     </nav>
+    <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
+      <button
+        type="button"
+        class="doc-theme-toggle-btn"
+        aria-label="Change theme"
+        aria-expanded="false"
+        aria-haspopup="true"
+        data-theme-toggle-btn=""
+      >
+        {@html themeIcon}
+      </button>
+      <div class="doc-theme-dropdown" data-theme-dropdown="" hidden>
+        <fieldset class="doc-theme-group">
+          <legend>Appearance</legend>
+          <label class="doc-theme-option" data-scheme="auto">
+            <input type="radio" name="colorScheme" value="auto" checked />
+            Auto
+          </label>
+          <label class="doc-theme-option" data-scheme="light">
+            <input type="radio" name="colorScheme" value="light" />
+            Light
+          </label>
+          <label class="doc-theme-option" data-scheme="dark">
+            <input type="radio" name="colorScheme" value="dark" />
+            Dark
+          </label>
+        </fieldset>
+        <fieldset class="doc-theme-group">
+          <legend>Theme</legend>
+          <label class="doc-theme-option" data-theme="paper">
+            <input type="radio" name="theme" value="paper" checked />
+            Paper
+          </label>
+          <label class="doc-theme-option" data-theme="high-contrast">
+            <input type="radio" name="theme" value="high-contrast" />
+            High Contrast
+          </label>
+        </fieldset>
+        <fieldset class="doc-theme-group">
+          <legend>Text Size</legend>
+          <div class="doc-text-size-options">
+            <label class="doc-text-size-option" title="Small">
+              <input type="radio" name="textSize" value="small" />
+              <span class="doc-text-size-label" data-size="small">A</span>
+            </label>
+            <label class="doc-text-size-option" title="Default">
+              <input type="radio" name="textSize" value="base" checked />
+              <span class="doc-text-size-label" data-size="base">A</span>
+            </label>
+            <label class="doc-text-size-option" title="Large">
+              <input type="radio" name="textSize" value="large" />
+              <span class="doc-text-size-label" data-size="large">A</span>
+            </label>
+          </div>
+        </fieldset>
+      </div>
+    </div>
     {#if searchEnabled}
       <pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
     {/if}

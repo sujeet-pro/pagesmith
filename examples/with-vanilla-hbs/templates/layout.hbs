@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
-  <script>(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\w-]+/,'theme-'+p.theme)}}catch(e){}})()</script>
+  <script>(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\w-]+/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})()</script>
   <title>{{title}}</title>
   <link rel="icon" href="{{basePath}}favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="{{basePath}}assets/fonts.css" />
+  <link rel="stylesheet" href="{{basePath}}pagefind/pagefind-component-ui.css" />
   <style>
     {{{css}}}
   </style>
-  <link rel="stylesheet" href="{{basePath}}pagefind/pagefind-component-ui.css" />
 </head>
 <body>
   {{!-- Define sidebar content as an inline partial to avoid duplication --}}
@@ -77,6 +77,32 @@
         <a href="{{basePath}}guide/{{sidebar.firstGuideSlug}}/"{{#if (startsWith activePath '/guide')}} class="active"{{/if}}>Guide</a>
         <a href="{{basePath}}features/{{sidebar.firstFeaturesSlug}}/"{{#if (startsWith activePath '/features')}} class="active"{{/if}}>Features</a>
       </nav>
+      <div class="doc-theme-toggle no-js-hidden" data-theme-toggle>
+        <button type="button" class="doc-theme-toggle-btn" aria-label="Change theme" aria-expanded="false" aria-haspopup="true" data-theme-toggle-btn>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>
+        </button>
+        <div class="doc-theme-dropdown" data-theme-dropdown hidden>
+          <fieldset class="doc-theme-group">
+            <legend>Appearance</legend>
+            <label class="doc-theme-option" data-scheme="auto"><input type="radio" name="colorScheme" value="auto" checked> Auto</label>
+            <label class="doc-theme-option" data-scheme="light"><input type="radio" name="colorScheme" value="light"> Light</label>
+            <label class="doc-theme-option" data-scheme="dark"><input type="radio" name="colorScheme" value="dark"> Dark</label>
+          </fieldset>
+          <fieldset class="doc-theme-group">
+            <legend>Theme</legend>
+            <label class="doc-theme-option" data-theme="paper"><input type="radio" name="theme" value="paper" checked> Paper</label>
+            <label class="doc-theme-option" data-theme="high-contrast"><input type="radio" name="theme" value="high-contrast"> High Contrast</label>
+          </fieldset>
+          <fieldset class="doc-theme-group">
+            <legend>Text Size</legend>
+            <div class="doc-text-size-options">
+              <label class="doc-text-size-option" title="Small"><input type="radio" name="textSize" value="small"><span class="doc-text-size-label" data-size="small">A</span></label>
+              <label class="doc-text-size-option" title="Default"><input type="radio" name="textSize" value="base" checked><span class="doc-text-size-label" data-size="base">A</span></label>
+              <label class="doc-text-size-option" title="Large"><input type="radio" name="textSize" value="large"><span class="doc-text-size-label" data-size="large">A</span></label>
+            </div>
+          </fieldset>
+        </div>
+      </div>
       <pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
     </div>
   </header>
@@ -106,6 +132,14 @@
               <button type="button" data-theme="high-contrast" aria-pressed="false">High Contrast</button>
             </div>
           </div>
+          <div class="doc-footer-theme-group">
+            <span class="doc-footer-theme-label">Text Size</span>
+            <div class="doc-footer-theme-options" data-footer-text-size>
+              <button type="button" data-size="small" aria-pressed="false" aria-label="Small text"><span class="doc-text-size-label" data-size="small">A</span></button>
+              <button type="button" data-size="base" class="active" aria-pressed="true" aria-label="Default text"><span class="doc-text-size-label" data-size="base">A</span></button>
+              <button type="button" data-size="large" aria-pressed="false" aria-label="Large text"><span class="doc-text-size-label" data-size="large">A</span></button>
+            </div>
+          </div>
         </div>
         <p class="doc-footer-copyright">&copy; 2026 Pagesmith &middot; Made with <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a></p>
       </footer>
@@ -121,7 +155,35 @@
 
     <main class="doc-main" data-pagefind-body>
       {{> body}}
+      {{#if (or prev next)}}
+        <nav class="doc-article-nav" aria-label="Page navigation">
+          {{#if prev}}
+            <a href="{{prev.url}}" class="doc-article-link doc-article-prev">
+              <span class="doc-article-label">Previous</span>
+              <span class="doc-article-title">{{prev.title}}</span>
+            </a>
+          {{else}}
+            <span></span>
+          {{/if}}
+          {{#if next}}
+            <a href="{{next.url}}" class="doc-article-link doc-article-next">
+              <span class="doc-article-label">Next</span>
+              <span class="doc-article-title">{{next.title}}</span>
+            </a>
+          {{/if}}
+        </nav>
+      {{/if}}
       <footer class="doc-footer">
+        {{#if (or editUrl lastUpdated)}}
+          <div class="doc-page-footer-meta">
+            {{#if editUrl}}
+              <a href="{{editUrl}}" class="doc-edit-link" target="_blank" rel="noopener noreferrer">Edit this page</a>
+            {{/if}}
+            {{#if lastUpdated}}
+              <span class="doc-last-updated">Last updated: <time>{{lastUpdated}}</time></span>
+            {{/if}}
+          </div>
+        {{/if}}
         <div class="doc-footer-links">
           <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-vanilla-hbs">GitHub</a>
           <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
@@ -140,6 +202,14 @@
             <div class="doc-footer-theme-options" data-footer-theme-type>
               <button type="button" data-theme="paper" class="active" aria-pressed="true">Paper</button>
               <button type="button" data-theme="high-contrast" aria-pressed="false">High Contrast</button>
+            </div>
+          </div>
+          <div class="doc-footer-theme-group">
+            <span class="doc-footer-theme-label">Text Size</span>
+            <div class="doc-footer-theme-options" data-footer-text-size>
+              <button type="button" data-size="small" aria-pressed="false" aria-label="Small text"><span class="doc-text-size-label" data-size="small">A</span></button>
+              <button type="button" data-size="base" class="active" aria-pressed="true" aria-label="Default text"><span class="doc-text-size-label" data-size="base">A</span></button>
+              <button type="button" data-size="large" aria-pressed="false" aria-label="Large text"><span class="doc-text-size-label" data-size="large">A</span></button>
             </div>
           </div>
         </div>
@@ -236,19 +306,37 @@
         });
       }
 
-      // Footer theme selector
+      // Theme switcher (header dropdown + footer buttons)
       var STORAGE_KEY = 'pagesmith-theme';
       function getPrefs() {
         var classes = document.documentElement.className;
         var schemeMatch = classes.match(/color-scheme-(\w+)/);
         var themeMatch = classes.match(/theme-([\w-]+)/);
-        return { colorScheme: schemeMatch ? schemeMatch[1] : 'auto', theme: themeMatch ? themeMatch[1] : 'paper' };
+        return { colorScheme: schemeMatch ? schemeMatch[1] : 'auto', theme: themeMatch ? themeMatch[1] : 'paper', textSize: document.documentElement.dataset.textSize || 'base' };
+      }
+      function setColorScheme(scheme) {
+        document.documentElement.className = document.documentElement.className.replace(/color-scheme-\w+/, 'color-scheme-' + scheme);
+        persistTheme(); syncThemeUI();
+      }
+      function setTheme(theme) {
+        document.documentElement.className = document.documentElement.className.replace(/theme-[\w-]+/, 'theme-' + theme);
+        persistTheme(); syncThemeUI();
+      }
+      function setTextSize(size) {
+        if (size === 'base') { delete document.documentElement.dataset.textSize; }
+        else { document.documentElement.dataset.textSize = size; }
+        persistTheme(); syncThemeUI();
       }
       function persistTheme() {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(getPrefs())); } catch(e) {}
       }
       function syncThemeUI() {
         var prefs = getPrefs();
+        // Header dropdown radios
+        document.querySelectorAll('[data-theme-dropdown] input[name="colorScheme"]').forEach(function(input) { input.checked = input.value === prefs.colorScheme; });
+        document.querySelectorAll('[data-theme-dropdown] input[name="theme"]').forEach(function(input) { input.checked = input.value === prefs.theme; });
+        document.querySelectorAll('[data-theme-dropdown] input[name="textSize"]').forEach(function(input) { input.checked = input.value === prefs.textSize; });
+        // Footer buttons
         document.querySelectorAll('[data-footer-scheme] button').forEach(function(btn) {
           var active = btn.dataset.scheme === prefs.colorScheme;
           btn.classList.toggle('active', active);
@@ -259,22 +347,50 @@
           btn.classList.toggle('active', active);
           btn.setAttribute('aria-pressed', String(active));
         });
+        document.querySelectorAll('[data-footer-text-size] button').forEach(function(btn) {
+          var active = btn.dataset.size === prefs.textSize;
+          btn.classList.toggle('active', active);
+          btn.setAttribute('aria-pressed', String(active));
+        });
       }
-      document.querySelectorAll('[data-footer-scheme] button').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          if (btn.dataset.scheme) {
-            document.documentElement.className = document.documentElement.className.replace(/color-scheme-\w+/, 'color-scheme-' + btn.dataset.scheme);
-            persistTheme(); syncThemeUI();
+      // Header dropdown toggle
+      var toggleBtn = document.querySelector('[data-theme-toggle-btn]');
+      var dropdown = document.querySelector('[data-theme-dropdown]');
+      if (toggleBtn && dropdown) {
+        toggleBtn.addEventListener('click', function() {
+          var open = !dropdown.hidden;
+          dropdown.hidden = open;
+          toggleBtn.setAttribute('aria-expanded', String(!open));
+        });
+        dropdown.addEventListener('change', function(e) {
+          var input = e.target;
+          if (input.name === 'colorScheme') setColorScheme(input.value);
+          if (input.name === 'theme') setTheme(input.value);
+          if (input.name === 'textSize') setTextSize(input.value);
+        });
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('[data-theme-toggle]')) {
+            dropdown.hidden = true;
+            toggleBtn.setAttribute('aria-expanded', 'false');
           }
         });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && !dropdown.hidden) {
+            dropdown.hidden = true;
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.focus();
+          }
+        });
+      }
+      // Footer buttons
+      document.querySelectorAll('[data-footer-scheme] button').forEach(function(btn) {
+        btn.addEventListener('click', function() { if (btn.dataset.scheme) setColorScheme(btn.dataset.scheme); });
       });
       document.querySelectorAll('[data-footer-theme-type] button').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          if (btn.dataset.theme) {
-            document.documentElement.className = document.documentElement.className.replace(/theme-[\w-]+/, 'theme-' + btn.dataset.theme);
-            persistTheme(); syncThemeUI();
-          }
-        });
+        btn.addEventListener('click', function() { if (btn.dataset.theme) setTheme(btn.dataset.theme); });
+      });
+      document.querySelectorAll('[data-footer-text-size] button').forEach(function(btn) {
+        btn.addEventListener('click', function() { if (btn.dataset.size) setTextSize(btn.dataset.size); });
       });
       syncThemeUI();
 

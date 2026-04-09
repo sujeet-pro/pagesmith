@@ -193,6 +193,7 @@ lang-alias transform      Map fenced-code language tags via `markdown.shiki.lang
 remark-rehype             Markdown AST → HTML AST
 rehype-mathjax            Render math to SVG (before Expressive Code)
 rehype-expressive-code    Syntax highlighting, code frames, copy button
+rehype-code-tabs          Group consecutive titled blocks into tabs
 rehype-slug               Add id="" to headings
 rehype-autolink-headings  Wrap heading text in anchor links
 rehype-external-links     target="_blank" on external URLs

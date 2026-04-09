@@ -34,11 +34,6 @@ type Props = {
   [key: string]: any
 }
 
-function formatDate(isoDate: string): string {
-  const date = new Date(isoDate)
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-}
-
 export default function DocPage(props: Props) {
   const {
     content,
@@ -55,13 +50,13 @@ export default function DocPage(props: Props) {
     lastUpdated,
   } = props
 
-  const pageTitle = frontmatter.title ? `${frontmatter.title} — ${site.title}` : site.title
+  const pageTitle = frontmatter.title ? `${frontmatter.title} \u2014 ${site.title}` : site.title
   const ogImage = frontmatter.socialImage
     ? frontmatter.socialImage.startsWith('http')
       ? frontmatter.socialImage
       : `${site.basePath || ''}/${frontmatter.socialImage.replace(/^\//, '')}`
     : undefined
-  const hasPageMeta = editUrl || lastUpdated
+  const hasPrevNext = prev || next
 
   return (
     <Html
@@ -86,8 +81,7 @@ export default function DocPage(props: Props) {
           currentSlug={slug}
           collapsible={site.sidebar?.collapsible}
         />
-        <main class="doc-main" data-pagefind-body="">
-          {/* Breadcrumbs */}
+        <div class="doc-content" data-pagefind-body="">
           {breadcrumbs && breadcrumbs.length > 1 ? (
             <nav class="doc-breadcrumbs" aria-label="Breadcrumbs">
               {breadcrumbs.map((crumb, i) =>
@@ -114,7 +108,6 @@ export default function DocPage(props: Props) {
             </nav>
           ) : null}
 
-          {/* Mobile TOC — always at top of content area */}
           {headings.length > 0 ? (
             <details class="doc-toc-mobile">
               <summary>On this page</summary>
@@ -122,34 +115,42 @@ export default function DocPage(props: Props) {
             </details>
           ) : null}
 
-          <article>
-            <div class="prose" innerHTML={content} />
-          </article>
+          <main>
+            <article>
+              <div class="prose" innerHTML={content} />
+            </article>
 
-          {/* Page meta: edit link + last updated */}
-          {hasPageMeta ? (
-            <div class="doc-page-meta">
-              {editUrl ? (
-                <a href={editUrl} class="doc-edit-link" target="_blank" rel="noopener noreferrer">
-                  {editLabel || 'Edit this page'}
-                </a>
-              ) : null}
-              {lastUpdated ? (
-                <span class="doc-last-updated">
-                  Last updated: <time datetime={lastUpdated}>{formatDate(lastUpdated)}</time>
-                </span>
-              ) : null}
-            </div>
-          ) : null}
+            {hasPrevNext ? (
+              <nav class="doc-article-nav" aria-label="Page navigation">
+                {prev ? (
+                  <a href={prev.path + '/'} class="doc-article-link doc-article-prev">
+                    <span class="doc-article-label">Previous</span>
+                    <span class="doc-article-title">{prev.title}</span>
+                  </a>
+                ) : (
+                  <span />
+                )}
+                {next ? (
+                  <a href={next.path + '/'} class="doc-article-link doc-article-next">
+                    <span class="doc-article-label">Next</span>
+                    <span class="doc-article-title">{next.title}</span>
+                  </a>
+                ) : (
+                  <span />
+                )}
+              </nav>
+            ) : null}
+          </main>
 
           <DocFooter
-            prev={prev}
-            next={next}
             links={site.footerLinks}
             footerText={site.footerText}
             copyright={site.copyright}
+            editUrl={editUrl}
+            editLabel={editLabel}
+            lastUpdated={lastUpdated}
           />
-        </main>
+        </div>
         <aside class="doc-aside">
           <DocTOC headings={headings} />
         </aside>

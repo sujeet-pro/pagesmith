@@ -5,6 +5,7 @@ const THEME_PREFIX = 'theme-'
 type ThemePrefs = {
   colorScheme: string
   theme: string
+  textSize: string
 }
 
 function getPrefs(): ThemePrefs {
@@ -15,6 +16,7 @@ function getPrefs(): ThemePrefs {
   return {
     colorScheme: schemeMatch?.[1] || 'auto',
     theme: themeMatch?.[1] || 'paper',
+    textSize: root.dataset.textSize || 'base',
   }
 }
 
@@ -28,6 +30,17 @@ function setColorScheme(scheme: string): void {
 function setTheme(theme: string): void {
   const root = document.documentElement
   root.className = root.className.replace(/theme-[\w-]+/, THEME_PREFIX + theme)
+  persist()
+  syncUI()
+}
+
+function setTextSize(size: string): void {
+  const root = document.documentElement
+  if (size === 'base') {
+    delete root.dataset.textSize
+  } else {
+    root.dataset.textSize = size
+  }
   persist()
   syncUI()
 }
@@ -54,6 +67,11 @@ function syncUI(): void {
     .forEach((input) => {
       input.checked = input.value === prefs.theme
     })
+  document
+    .querySelectorAll<HTMLInputElement>('[data-theme-dropdown] input[name="textSize"]')
+    .forEach((input) => {
+      input.checked = input.value === prefs.textSize
+    })
 
   // Footer scheme buttons
   document.querySelectorAll<HTMLButtonElement>('[data-footer-scheme] button').forEach((btn) => {
@@ -65,6 +83,13 @@ function syncUI(): void {
   // Footer theme buttons
   document.querySelectorAll<HTMLButtonElement>('[data-footer-theme-type] button').forEach((btn) => {
     const active = btn.dataset.theme === prefs.theme
+    btn.classList.toggle('active', active)
+    btn.setAttribute('aria-pressed', String(active))
+  })
+
+  // Footer text size buttons
+  document.querySelectorAll<HTMLButtonElement>('[data-footer-text-size] button').forEach((btn) => {
+    const active = btn.dataset.size === prefs.textSize
     btn.classList.toggle('active', active)
     btn.setAttribute('aria-pressed', String(active))
   })
@@ -85,6 +110,7 @@ function initHeaderToggle(): void {
     const input = e.target as HTMLInputElement
     if (input.name === 'colorScheme') setColorScheme(input.value)
     if (input.name === 'theme') setTheme(input.value)
+    if (input.name === 'textSize') setTextSize(input.value)
   })
 
   document.addEventListener('click', (e) => {
@@ -114,6 +140,12 @@ function initFooterSelector(): void {
   document.querySelectorAll<HTMLButtonElement>('[data-footer-theme-type] button').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (btn.dataset.theme) setTheme(btn.dataset.theme)
+    })
+  })
+
+  document.querySelectorAll<HTMLButtonElement>('[data-footer-text-size] button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.size) setTextSize(btn.dataset.size)
     })
   })
 }

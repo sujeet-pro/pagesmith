@@ -99,7 +99,7 @@
   }
 }
 
-// ── Footer theme selector ──
+// ── Theme switcher (header dropdown + footer buttons) ──
 {
   const STORAGE_KEY = 'pagesmith-theme'
 
@@ -110,7 +110,36 @@
     return {
       colorScheme: schemeMatch?.[1] || 'auto',
       theme: themeMatch?.[1] || 'paper',
+      textSize: document.documentElement.dataset.textSize || 'base',
     }
+  }
+
+  function setColorScheme(scheme: string) {
+    document.documentElement.className = document.documentElement.className.replace(
+      /color-scheme-\w+/,
+      'color-scheme-' + scheme,
+    )
+    persist()
+    syncUI()
+  }
+
+  function setTheme(theme: string) {
+    document.documentElement.className = document.documentElement.className.replace(
+      /theme-[\w-]+/,
+      'theme-' + theme,
+    )
+    persist()
+    syncUI()
+  }
+
+  function setTextSize(size: string) {
+    if (size === 'base') {
+      delete document.documentElement.dataset.textSize
+    } else {
+      document.documentElement.dataset.textSize = size
+    }
+    persist()
+    syncUI()
   }
 
   function persist() {
@@ -123,11 +152,32 @@
 
   function syncUI() {
     const prefs = getPrefs()
+
+    // Header dropdown radios
+    document
+      .querySelectorAll<HTMLInputElement>('[data-theme-dropdown] input[name="colorScheme"]')
+      .forEach((input) => {
+        input.checked = input.value === prefs.colorScheme
+      })
+    document
+      .querySelectorAll<HTMLInputElement>('[data-theme-dropdown] input[name="theme"]')
+      .forEach((input) => {
+        input.checked = input.value === prefs.theme
+      })
+    document
+      .querySelectorAll<HTMLInputElement>('[data-theme-dropdown] input[name="textSize"]')
+      .forEach((input) => {
+        input.checked = input.value === prefs.textSize
+      })
+
+    // Footer scheme buttons
     document.querySelectorAll<HTMLButtonElement>('[data-footer-scheme] button').forEach((btn) => {
       const active = btn.dataset.scheme === prefs.colorScheme
       btn.classList.toggle('active', active)
       btn.setAttribute('aria-pressed', String(active))
     })
+
+    // Footer theme buttons
     document
       .querySelectorAll<HTMLButtonElement>('[data-footer-theme-type] button')
       .forEach((btn) => {
@@ -135,31 +185,67 @@
         btn.classList.toggle('active', active)
         btn.setAttribute('aria-pressed', String(active))
       })
+
+    // Footer text size buttons
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-footer-text-size] button')
+      .forEach((btn) => {
+        const active = btn.dataset.size === prefs.textSize
+        btn.classList.toggle('active', active)
+        btn.setAttribute('aria-pressed', String(active))
+      })
   }
 
+  // Header dropdown toggle
+  const toggleBtn = document.querySelector<HTMLButtonElement>('[data-theme-toggle-btn]')
+  const dropdown = document.querySelector<HTMLElement>('[data-theme-dropdown]')
+  if (toggleBtn && dropdown) {
+    toggleBtn.addEventListener('click', () => {
+      const open = !dropdown.hidden
+      dropdown.hidden = open
+      toggleBtn.setAttribute('aria-expanded', String(!open))
+    })
+
+    dropdown.addEventListener('change', (e) => {
+      const input = e.target as HTMLInputElement
+      if (input.name === 'colorScheme') setColorScheme(input.value)
+      if (input.name === 'theme') setTheme(input.value)
+      if (input.name === 'textSize') setTextSize(input.value)
+    })
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-theme-toggle]')) {
+        dropdown.hidden = true
+        toggleBtn.setAttribute('aria-expanded', 'false')
+      }
+    })
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !dropdown.hidden) {
+        dropdown.hidden = true
+        toggleBtn.setAttribute('aria-expanded', 'false')
+        toggleBtn.focus()
+      }
+    })
+  }
+
+  // Footer buttons
   document.querySelectorAll<HTMLButtonElement>('[data-footer-scheme] button').forEach((btn) => {
     btn.addEventListener('click', () => {
-      if (btn.dataset.scheme) {
-        document.documentElement.className = document.documentElement.className.replace(
-          /color-scheme-\w+/,
-          'color-scheme-' + btn.dataset.scheme,
-        )
-        persist()
-        syncUI()
-      }
+      if (btn.dataset.scheme) setColorScheme(btn.dataset.scheme)
     })
   })
 
   document.querySelectorAll<HTMLButtonElement>('[data-footer-theme-type] button').forEach((btn) => {
     btn.addEventListener('click', () => {
-      if (btn.dataset.theme) {
-        document.documentElement.className = document.documentElement.className.replace(
-          /theme-[\w-]+/,
-          'theme-' + btn.dataset.theme,
-        )
-        persist()
-        syncUI()
-      }
+      if (btn.dataset.theme) setTheme(btn.dataset.theme)
+    })
+  })
+
+  document.querySelectorAll<HTMLButtonElement>('[data-footer-text-size] button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.size) setTextSize(btn.dataset.size)
     })
   })
 

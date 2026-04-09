@@ -19,7 +19,7 @@
 }
 
 /* ─── Main content column ─── */
-.doc-main {
+.doc-content {
   max-width: 100ch;
   width: 100%;
   margin: 0 auto;
@@ -69,7 +69,7 @@
     display: none;
   }
 
-  .doc-main {
+  .doc-content {
     padding: 2rem 2.5rem;
   }
 }

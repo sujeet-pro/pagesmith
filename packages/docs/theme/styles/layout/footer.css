@@ -1,9 +1,68 @@
 /* ═══════════════════════════════════════════════════════════════
-   Doc footer — prev/next navigation + copyright
+   Article navigation — prev/next page links (inside <main>)
+   ═══════════════════════════════════════════════════════════════ */
+
+.doc-article-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.doc-article-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+.doc-article-link:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-bg-hover);
+}
+
+.doc-article-prev {
+  text-align: left;
+}
+.doc-article-next {
+  text-align: right;
+  grid-column: 2;
+}
+.doc-article-next:first-child {
+  grid-column: 2;
+}
+
+.doc-article-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.doc-article-title {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color var(--transition-fast);
+}
+.doc-article-link:hover .doc-article-title {
+  color: var(--color-text-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Global footer — site-wide footer with consistent gap spacing
    ═══════════════════════════════════════════════════════════════ */
 
 .doc-footer {
-  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--color-border);
 }
@@ -13,7 +72,6 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1.5rem;
 }
 
 .doc-footer-links a {
@@ -25,82 +83,7 @@
   color: var(--color-text);
 }
 
-/* ─── Prev / Next navigation grid ─── */
-.doc-footer-nav {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-/* ─── Prev/Next card link ─── */
-.doc-footer-link {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  transition:
-    border-color var(--transition-fast),
-    background var(--transition-fast);
-}
-.doc-footer-link:hover {
-  border-color: var(--color-border-hover);
-  background: var(--color-bg-hover);
-}
-
-/* ─── Alignment ─── */
-.doc-footer-prev {
-  text-align: left;
-}
-.doc-footer-next {
-  text-align: right;
-  grid-column: 2;
-}
-
-/* When only "next" is present, push it to the right */
-.doc-footer-next:first-child {
-  grid-column: 2;
-}
-
-/* ─── Label: "Previous" / "Next" ─── */
-.doc-footer-label {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-}
-
-/* ─── Page title ─── */
-.doc-footer-title {
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--color-text);
-  transition: color var(--transition-fast);
-}
-.doc-footer-link:hover .doc-footer-title {
-  color: var(--color-text-secondary);
-}
-
-/* ─── Copyright line ─── */
-.doc-footer-copyright {
-  margin-top: 2rem;
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--color-border);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  text-align: center;
-  letter-spacing: 0.02em;
-}
-
-.doc-footer-copyright:first-child {
-  margin-top: 0;
-  border-top: none;
-}
-
 .doc-footer-signoff {
-  margin-top: 1.5rem;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   text-align: center;
@@ -115,21 +98,35 @@
   color: var(--color-text);
 }
 
+.doc-footer-copyright {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.doc-footer-copyright:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════════════════════ */
 
 @media (max-width: 800px) {
-  .doc-footer-nav {
+  .doc-article-nav {
     grid-template-columns: 1fr;
   }
 
-  .doc-footer-next {
+  .doc-article-next {
     text-align: left;
     grid-column: 1;
   }
 
-  .doc-footer-next:first-child {
+  .doc-article-next:first-child {
     grid-column: 1;
   }
 }

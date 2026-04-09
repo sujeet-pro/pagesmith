@@ -85,6 +85,52 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
     if (currentEntry && routePath !== '/') {
       title = `${currentEntry.frontmatter.title} - Pagesmith + Svelte`
       description = currentEntry.frontmatter.description ?? description
+
+      let pagePrev: { title: string; url: string } | undefined
+      let pageNext: { title: string; url: string } | undefined
+      let pageEditUrl: string | undefined
+
+      const githubEditBase =
+        'https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-svelte/content'
+
+      if (guideEntry) {
+        const i = guideEntries.indexOf(guideEntry)
+        if (i > 0) {
+          const e = guideEntries[i - 1]!
+          pagePrev = {
+            title: e.frontmatter.title,
+            url: `${config.base}/guide/${leafSlug(e.contentSlug, 'guide')}`,
+          }
+        }
+        if (i >= 0 && i < guideEntries.length - 1) {
+          const e = guideEntries[i + 1]!
+          pageNext = {
+            title: e.frontmatter.title,
+            url: `${config.base}/guide/${leafSlug(e.contentSlug, 'guide')}`,
+          }
+        }
+        pageEditUrl = `${githubEditBase}/${guideEntry.contentSlug}.md`
+      } else if (featuresEntry) {
+        const i = featuresEntries.indexOf(featuresEntry)
+        if (i > 0) {
+          const e = featuresEntries[i - 1]!
+          pagePrev = {
+            title: e.frontmatter.title,
+            url: `${config.base}/features/${leafSlug(e.contentSlug, 'features')}`,
+          }
+        }
+        if (i >= 0 && i < featuresEntries.length - 1) {
+          const e = featuresEntries[i + 1]!
+          pageNext = {
+            title: e.frontmatter.title,
+            url: `${config.base}/features/${leafSlug(e.contentSlug, 'features')}`,
+          }
+        }
+        pageEditUrl = `${githubEditBase}/${featuresEntry.contentSlug}.md`
+      } else if (aboutEntry) {
+        pageEditUrl = `${githubEditBase}/${aboutEntry.contentSlug}.md`
+      }
+
       appProps = {
         ...sharedProps,
         pageKind: 'page',
@@ -94,6 +140,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         pageHeadings: currentEntry.headings,
         pageDate: toIso(currentEntry.frontmatter.date),
         pageReadTime: estimateReadTime(currentEntry.html),
+        pagePrev,
+        pageNext,
+        pageEditUrl,
       }
     }
   }

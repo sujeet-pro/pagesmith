@@ -6,7 +6,6 @@ import {
   type NavGroup,
   menuIcon,
   closeIcon,
-  searchIcon,
   normalizeRoute,
   leafSlug,
   routeFor,
@@ -50,6 +49,9 @@ const pageEntries = [...(pagesCollection as Entry[])]
 function groupBySeries(base: string): GuideGroup[] {
   return groupByField(guideEntries, base, 'guide', 'series')
 }
+
+const themeIcon =
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
 
 // ── Layout components ──
 // React-specific JSX components for the site shell (sidebar, header, pages).
@@ -192,6 +194,68 @@ function SiteHeader(props: {
             Blog
           </a>
         </nav>
+        <div className="doc-theme-toggle no-js-hidden" data-theme-toggle="">
+          <button
+            type="button"
+            className="doc-theme-toggle-btn"
+            aria-label="Change theme"
+            aria-expanded="false"
+            aria-haspopup="true"
+            data-theme-toggle-btn=""
+            dangerouslySetInnerHTML={{ __html: themeIcon }}
+          />
+          <div className="doc-theme-dropdown" data-theme-dropdown="" hidden>
+            <fieldset className="doc-theme-group">
+              <legend>Appearance</legend>
+              <label className="doc-theme-option" data-scheme="auto">
+                <input type="radio" name="colorScheme" defaultValue="auto" defaultChecked />
+                Auto
+              </label>
+              <label className="doc-theme-option" data-scheme="light">
+                <input type="radio" name="colorScheme" defaultValue="light" />
+                Light
+              </label>
+              <label className="doc-theme-option" data-scheme="dark">
+                <input type="radio" name="colorScheme" defaultValue="dark" />
+                Dark
+              </label>
+            </fieldset>
+            <fieldset className="doc-theme-group">
+              <legend>Theme</legend>
+              <label className="doc-theme-option" data-theme="paper">
+                <input type="radio" name="theme" defaultValue="paper" defaultChecked />
+                Paper
+              </label>
+              <label className="doc-theme-option" data-theme="high-contrast">
+                <input type="radio" name="theme" defaultValue="high-contrast" />
+                High Contrast
+              </label>
+            </fieldset>
+            <fieldset className="doc-theme-group">
+              <legend>Text Size</legend>
+              <div className="doc-text-size-options">
+                <label className="doc-text-size-option" title="Small">
+                  <input type="radio" name="textSize" defaultValue="small" />
+                  <span className="doc-text-size-label" data-size="small">
+                    A
+                  </span>
+                </label>
+                <label className="doc-text-size-option" title="Default">
+                  <input type="radio" name="textSize" defaultValue="base" defaultChecked />
+                  <span className="doc-text-size-label" data-size="base">
+                    A
+                  </span>
+                </label>
+                <label className="doc-text-size-option" title="Large">
+                  <input type="radio" name="textSize" defaultValue="large" />
+                  <span className="doc-text-size-label" data-size="large">
+                    A
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+        </div>
         {searchEnabled ? <SearchTrigger /> : null}
       </div>
     </header>
@@ -348,6 +412,42 @@ function HomeBody(props: {
                   </button>
                 </div>
               </div>
+              <div className="doc-footer-theme-group">
+                <span className="doc-footer-theme-label">Text Size</span>
+                <div className="doc-footer-theme-options" data-footer-text-size="">
+                  <button
+                    type="button"
+                    data-size="small"
+                    aria-pressed="false"
+                    aria-label="Small text"
+                  >
+                    <span className="doc-text-size-label" data-size="small">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="base"
+                    className="active"
+                    aria-pressed="true"
+                    aria-label="Default text"
+                  >
+                    <span className="doc-text-size-label" data-size="base">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="large"
+                    aria-pressed="false"
+                    aria-label="Large text"
+                  >
+                    <span className="doc-text-size-label" data-size="large">
+                      A
+                    </span>
+                  </button>
+                </div>
+              </div>
             </div>
             <p className="doc-footer-copyright">
               &copy; 2026 Pagesmith {' · '} Made with{' '}
@@ -373,6 +473,9 @@ function PageBody(props: {
   featuresEntries: NavEntry[]
   date?: string
   readTime?: number
+  prev?: { title: string; url: string }
+  next?: { title: string; url: string }
+  editUrl?: string
 }) {
   const {
     title,
@@ -387,6 +490,9 @@ function PageBody(props: {
     featuresEntries,
     date,
     readTime,
+    prev,
+    next,
+    editUrl,
   } = props
   const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
 
@@ -453,9 +559,46 @@ function PageBody(props: {
             ) : null}
 
             <div className="prose" dangerouslySetInnerHTML={{ __html: content }} />
+            {prev || next ? (
+              <nav className="doc-article-nav" aria-label="Page navigation">
+                {prev ? (
+                  <a href={prev.url} className="doc-article-link doc-article-prev">
+                    <span className="doc-article-label">Previous</span>
+                    <span className="doc-article-title">{prev.title}</span>
+                  </a>
+                ) : (
+                  <span />
+                )}
+                {next ? (
+                  <a href={next.url} className="doc-article-link doc-article-next">
+                    <span className="doc-article-label">Next</span>
+                    <span className="doc-article-title">{next.title}</span>
+                  </a>
+                ) : null}
+              </nav>
+            ) : null}
           </article>
 
           <footer className="doc-footer">
+            {editUrl || date ? (
+              <div className="doc-page-footer-meta">
+                {editUrl ? (
+                  <a
+                    href={editUrl}
+                    className="doc-edit-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Edit this page
+                  </a>
+                ) : null}
+                {date ? (
+                  <span className="doc-last-updated">
+                    Last updated: <time dateTime={date}>{formatDate(date)}</time>
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
             <div className="doc-footer-links">
               <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-react">
                 GitHub
@@ -485,6 +628,42 @@ function PageBody(props: {
                   </button>
                   <button type="button" data-theme="high-contrast" aria-pressed="false">
                     High Contrast
+                  </button>
+                </div>
+              </div>
+              <div className="doc-footer-theme-group">
+                <span className="doc-footer-theme-label">Text Size</span>
+                <div className="doc-footer-theme-options" data-footer-text-size="">
+                  <button
+                    type="button"
+                    data-size="small"
+                    aria-pressed="false"
+                    aria-label="Small text"
+                  >
+                    <span className="doc-text-size-label" data-size="small">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="base"
+                    className="active"
+                    aria-pressed="true"
+                    aria-label="Default text"
+                  >
+                    <span className="doc-text-size-label" data-size="base">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="large"
+                    aria-pressed="false"
+                    aria-label="Large text"
+                  >
+                    <span className="doc-text-size-label" data-size="large">
+                      A
+                    </span>
                   </button>
                 </div>
               </div>
@@ -612,6 +791,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 
   const guideEntry = guideEntries.find((entry) => routeFor(entry, 'guide') === routePath)
   if (guideEntry) {
+    const guideIdx = guideEntries.indexOf(guideEntry)
+    const guidePrev = guideIdx > 0 ? guideEntries[guideIdx - 1] : undefined
+    const guideNext = guideIdx < guideEntries.length - 1 ? guideEntries[guideIdx + 1] : undefined
     const sidebarHtml = renderToStaticMarkup(
       <SidebarNav
         currentPath={routePath}
@@ -638,6 +820,23 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         featuresEntries={featuresNavEntries}
         date={toIso(guideEntry.frontmatter.date)}
         readTime={estimateReadTime(guideEntry.html)}
+        prev={
+          guidePrev
+            ? {
+                title: guidePrev.frontmatter.title,
+                url: `${config.base}/guide/${leafSlug(guidePrev.contentSlug, 'guide')}`,
+              }
+            : undefined
+        }
+        next={
+          guideNext
+            ? {
+                title: guideNext.frontmatter.title,
+                url: `${config.base}/guide/${leafSlug(guideNext.contentSlug, 'guide')}`,
+              }
+            : undefined
+        }
+        editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-react/content/${guideEntry.contentSlug}.md`}
       />,
     )
 
@@ -655,6 +854,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 
   const featuresEntry = featuresEntries.find((entry) => routeFor(entry, 'features') === routePath)
   if (featuresEntry) {
+    const featuresIdx = featuresEntries.indexOf(featuresEntry)
+    const featuresPrev = featuresIdx > 0 ? featuresEntries[featuresIdx - 1] : undefined
+    const featuresNext =
+      featuresIdx < featuresEntries.length - 1 ? featuresEntries[featuresIdx + 1] : undefined
     const sidebarHtml = renderToStaticMarkup(
       <SidebarNav
         currentPath={routePath}
@@ -681,6 +884,23 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         featuresEntries={featuresNavEntries}
         date={toIso(featuresEntry.frontmatter.date)}
         readTime={estimateReadTime(featuresEntry.html)}
+        prev={
+          featuresPrev
+            ? {
+                title: featuresPrev.frontmatter.title,
+                url: `${config.base}/features/${leafSlug(featuresPrev.contentSlug, 'features')}`,
+              }
+            : undefined
+        }
+        next={
+          featuresNext
+            ? {
+                title: featuresNext.frontmatter.title,
+                url: `${config.base}/features/${leafSlug(featuresNext.contentSlug, 'features')}`,
+              }
+            : undefined
+        }
+        editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-react/content/${featuresEntry.contentSlug}.md`}
       />,
     )
 
@@ -722,6 +942,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
         featuresEntries={featuresNavEntries}
+        date={toIso(aboutEntry.frontmatter.date)}
+        editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-react/content/${aboutEntry.contentSlug}.md`}
       />,
     )
 

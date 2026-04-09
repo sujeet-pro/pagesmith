@@ -68,7 +68,7 @@ export function Html({ title, description, url, socialImage, site, children }: P
   const defaultTheme = site.theme?.defaultTheme || 'paper'
   const htmlClass = `no-js color-scheme-${defaultColorScheme} theme-${defaultTheme}`
 
-  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-\\w[\\w-]*/,'theme-'+p.theme)}}catch(e){}})();`
+  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-\\w[\\w-]*/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})();`
 
   return (
     <html lang={site.language || 'en'} class={htmlClass}>
@@ -132,11 +132,11 @@ export function Html({ title, description, url, socialImage, site, children }: P
           <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="" />
         ) : null}
 
-        {/* CSS */}
-        <link rel="stylesheet" href={`${base}/assets/style.css`} />
+        {/* CSS — pagefind defaults load first so site tokens can override */}
         {searchEnabled ? (
           <link rel="stylesheet" href={`${base}/pagefind/pagefind-component-ui.css`} />
         ) : null}
+        <link rel="stylesheet" href={`${base}/assets/style.css`} />
 
         {/* Remove no-js class (theme classes remain) */}
         <script innerHTML="document.documentElement.classList.remove('no-js')" />

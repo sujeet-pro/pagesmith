@@ -17,8 +17,9 @@
 @import "./content/prose.css";
 @import "./content/alerts.css";
 
-/* Inline code */
+/* Code */
 @import "./code/inline.css";
+@import "./code/tabs.css";
 
 /* Viewport */
 @import "./viewport.css";

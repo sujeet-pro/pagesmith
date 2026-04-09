@@ -25,6 +25,9 @@
     guideGroups = [],
     pageDate = undefined,
     pageReadTime = undefined,
+    pagePrev = undefined,
+    pageNext = undefined,
+    pageEditUrl = undefined,
   }: {
     pageKind: 'home' | 'page' | 'not-found'
     pageTitle?: string
@@ -41,6 +44,9 @@
     guideGroups?: GuideGroup[]
     pageDate?: string
     pageReadTime?: number
+    pagePrev?: { title: string; url: string }
+    pageNext?: { title: string; url: string }
+    pageEditUrl?: string
   } = $props()
 </script>
 
@@ -64,6 +70,9 @@
     {featuresEntries}
     date={pageDate}
     readTime={pageReadTime}
+    prev={pagePrev}
+    next={pageNext}
+    editUrl={pageEditUrl}
   />
 {:else}
   <NotFoundBody />

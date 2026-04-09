@@ -37,6 +37,8 @@ const closeIcon =
   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
 const searchIcon =
   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>'
+const themeIcon =
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
 
 // ── Content Layer ──
 
@@ -312,6 +314,68 @@ function SiteHeader(props: {
             Blog
           </a>
         </nav>
+        <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
+          <button
+            type="button"
+            class="doc-theme-toggle-btn"
+            aria-label="Change theme"
+            aria-expanded="false"
+            aria-haspopup="true"
+            data-theme-toggle-btn=""
+            innerHTML={themeIcon}
+          />
+          <div class="doc-theme-dropdown" data-theme-dropdown="" hidden>
+            <fieldset class="doc-theme-group">
+              <legend>Appearance</legend>
+              <label class="doc-theme-option" data-scheme="auto">
+                <input type="radio" name="colorScheme" value="auto" checked />
+                Auto
+              </label>
+              <label class="doc-theme-option" data-scheme="light">
+                <input type="radio" name="colorScheme" value="light" />
+                Light
+              </label>
+              <label class="doc-theme-option" data-scheme="dark">
+                <input type="radio" name="colorScheme" value="dark" />
+                Dark
+              </label>
+            </fieldset>
+            <fieldset class="doc-theme-group">
+              <legend>Theme</legend>
+              <label class="doc-theme-option" data-theme="paper">
+                <input type="radio" name="theme" value="paper" checked />
+                Paper
+              </label>
+              <label class="doc-theme-option" data-theme="high-contrast">
+                <input type="radio" name="theme" value="high-contrast" />
+                High Contrast
+              </label>
+            </fieldset>
+            <fieldset class="doc-theme-group">
+              <legend>Text Size</legend>
+              <div class="doc-text-size-options">
+                <label class="doc-text-size-option" title="Small">
+                  <input type="radio" name="textSize" value="small" />
+                  <span class="doc-text-size-label" data-size="small">
+                    A
+                  </span>
+                </label>
+                <label class="doc-text-size-option" title="Default">
+                  <input type="radio" name="textSize" value="base" checked />
+                  <span class="doc-text-size-label" data-size="base">
+                    A
+                  </span>
+                </label>
+                <label class="doc-text-size-option" title="Large">
+                  <input type="radio" name="textSize" value="large" />
+                  <span class="doc-text-size-label" data-size="large">
+                    A
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+        </div>
         {searchEnabled ? <SearchTrigger /> : null}
       </div>
     </header>
@@ -440,6 +504,42 @@ function HomeBody(props: {
                   </button>
                   <button type="button" data-theme="high-contrast" aria-pressed="false">
                     High Contrast
+                  </button>
+                </div>
+              </div>
+              <div class="doc-footer-theme-group">
+                <span class="doc-footer-theme-label">Text Size</span>
+                <div class="doc-footer-theme-options" data-footer-text-size="">
+                  <button
+                    type="button"
+                    data-size="small"
+                    aria-pressed="false"
+                    aria-label="Small text"
+                  >
+                    <span class="doc-text-size-label" data-size="small">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="base"
+                    class="active"
+                    aria-pressed="true"
+                    aria-label="Default text"
+                  >
+                    <span class="doc-text-size-label" data-size="base">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="large"
+                    aria-pressed="false"
+                    aria-label="Large text"
+                  >
+                    <span class="doc-text-size-label" data-size="large">
+                      A
+                    </span>
                   </button>
                 </div>
               </div>
@@ -577,6 +677,42 @@ function PageBody(props: {
                   </button>
                 </div>
               </div>
+              <div class="doc-footer-theme-group">
+                <span class="doc-footer-theme-label">Text Size</span>
+                <div class="doc-footer-theme-options" data-footer-text-size="">
+                  <button
+                    type="button"
+                    data-size="small"
+                    aria-pressed="false"
+                    aria-label="Small text"
+                  >
+                    <span class="doc-text-size-label" data-size="small">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="base"
+                    class="active"
+                    aria-pressed="true"
+                    aria-label="Default text"
+                  >
+                    <span class="doc-text-size-label" data-size="base">
+                      A
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    data-size="large"
+                    aria-pressed="false"
+                    aria-label="Large text"
+                  >
+                    <span class="doc-text-size-label" data-size="large">
+                      A
+                    </span>
+                  </button>
+                </div>
+              </div>
             </div>
             <p class="doc-footer-copyright">
               {'\u00a9'} 2026 Pagesmith {' \u00b7 '} Made with{' '}
@@ -618,7 +754,7 @@ function renderDocument(props: {
     props
   const base = basePath.replace(/\/+$/, '')
 
-  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme)}}catch(e){}})()`
+  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})()`
 
   return `<html lang="en" class="no-js color-scheme-auto theme-paper">
   <head>
@@ -633,8 +769,8 @@ function renderDocument(props: {
     ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ''}
     <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="${base}/assets/fonts.css" />
-    <link rel="stylesheet" href="${cssPath}" />
     ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ''}
+    <link rel="stylesheet" href="${cssPath}" />
     <script>document.documentElement.classList.remove('no-js')</script>
     ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ''}
   </head>

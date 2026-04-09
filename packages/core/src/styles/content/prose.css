@@ -115,6 +115,9 @@ h4 {
 .prose figure {
   margin: 2rem 0;
 }
+.prose .expressive-code + .expressive-code {
+  margin-top: 1.5rem;
+}
 .prose figure img {
   display: block;
   max-width: 100%;

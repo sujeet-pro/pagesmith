@@ -102,6 +102,29 @@ export function DocHeader({
                 High Contrast
               </label>
             </fieldset>
+            <fieldset class="doc-theme-group">
+              <legend>Text Size</legend>
+              <div class="doc-text-size-options">
+                <label class="doc-text-size-option" title="Small">
+                  <input type="radio" name="textSize" value="small" />
+                  <span class="doc-text-size-label" data-size="small">
+                    A
+                  </span>
+                </label>
+                <label class="doc-text-size-option" title="Default">
+                  <input type="radio" name="textSize" value="base" checked />
+                  <span class="doc-text-size-label" data-size="base">
+                    A
+                  </span>
+                </label>
+                <label class="doc-text-size-option" title="Large">
+                  <input type="radio" name="textSize" value="large" />
+                  <span class="doc-text-size-label" data-size="large">
+                    A
+                  </span>
+                </label>
+              </div>
+            </fieldset>
           </div>
         </div>
         {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}

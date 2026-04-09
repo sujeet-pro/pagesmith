@@ -11,10 +11,11 @@ Pagesmith uses a class-based multi-theme system with two orthogonal axes: **colo
 
 The theme system sits on two independent CSS class axes applied to `<html>`:
 
-| Axis | Classes | Controls |
+| Axis | Classes / Attribute | Controls |
 |---|---|---|
 | **Color scheme** | `color-scheme-auto`, `color-scheme-light`, `color-scheme-dark` | Which side of `light-dark()` the browser picks |
 | **Theme variant** | `theme-paper`, `theme-high-contrast` | Which set of token overrides is active |
+| **Text size** | `html[data-text-size="small\|base\|large"]` | Root font size scaling |
 
 The server-rendered default is:
 
@@ -58,6 +59,18 @@ Theme variants override the design tokens to create distinct visual styles. Each
   /* ... all other tokens */
 }
 ```
+
+### Text Size
+
+The text size feature scales the root `font-size` via a `data-text-size` attribute on `<html>`:
+
+```css
+html[data-text-size="small"] { font-size: 87.5%; }   /* 14px */
+html[data-text-size="base"]  { font-size: 100%; }    /* 16px */
+html[data-text-size="large"] { font-size: 112.5%; }  /* 18px */
+```
+
+When `data-text-size` is not set or equals `"base"`, the default `16px` size applies. All `rem`-based sizing throughout the site scales accordingly. The attribute is set and removed by the runtime JavaScript; the `"base"` value removes the attribute entirely since it matches the default.
 
 ## Built-in Themes
 
@@ -255,16 +268,17 @@ The `@pagesmith/docs` default theme includes two theme controls:
 
 ### Header Dropdown
 
-A sun icon button in the header opens a dropdown with radio buttons for both axes:
+A sun icon button in the header opens a dropdown with radio buttons for all three axes:
 
 - **Appearance**: Auto / Light / Dark
 - **Theme**: Paper / High Contrast
+- **Text Size**: Small (A) / Default (A) / Large (A) — displayed as segmented buttons with sized "A" labels
 
 The dropdown closes on outside click or Escape.
 
 ### Footer Selector
 
-Segmented button groups at the bottom of each page for both axes. Uses `aria-pressed` for accessibility.
+Segmented button groups at the bottom of each page for all three axes (Appearance, Theme, Text Size). Uses `aria-pressed` for accessibility. The text size buttons use `<span class="doc-text-size-label" data-size="...">A</span>` to visually differentiate the sizes.
 
 ### No-JS Behavior
 
@@ -292,22 +306,24 @@ To avoid a flash of unstyled content when the user has previously selected a the
         d.className = d.className.replace(
           /theme-[\w-]+/, 'theme-' + p.theme
         )
+      if (p.textSize && p.textSize !== 'base')
+        d.dataset.textSize = p.textSize
     }
   } catch(e) {}
 })()
 ```
 
-The script is inlined in the `<head>` before any stylesheet links. It is present in both `@pagesmith/core`'s `renderDocumentShell` and `@pagesmith/docs`'s `Html.tsx`.
+The script is inlined in the `<head>` before any stylesheet links. It is present in both `@pagesmith/core`'s `renderDocumentShell` and `@pagesmith/docs`'s `Html.tsx`. The `textSize` restoration uses `dataset.textSize` (a data attribute) rather than a CSS class, and only sets it when the value differs from the default `"base"`.
 
 ## Persistence
 
 Theme preferences are stored in `localStorage` under the key `pagesmith-theme` as JSON:
 
 ```json
-{ "colorScheme": "dark", "theme": "high-contrast" }
+{ "colorScheme": "dark", "theme": "high-contrast", "textSize": "large" }
 ```
 
-The runtime reads this on page load, applies the stored classes, and syncs all UI controls (header radios and footer buttons). When the user changes a setting, the preference is immediately persisted.
+The runtime reads this on page load, applies the stored classes and data attributes, and syncs all UI controls (header dropdown radios and footer buttons). When the user changes a setting, the preference is immediately persisted.
 
 ## Image Switching
 
@@ -373,11 +389,26 @@ function setColorScheme(scheme: 'auto' | 'light' | 'dark') {
   root.className = root.className.replace(
     /color-scheme-\w+/, 'color-scheme-' + scheme
   )
+  persist()
+}
+
+function setTextSize(size: 'small' | 'base' | 'large') {
+  if (size === 'base') {
+    delete document.documentElement.dataset.textSize
+  } else {
+    document.documentElement.dataset.textSize = size
+  }
+  persist()
+}
+
+function persist() {
+  const classes = document.documentElement.className
   localStorage.setItem('pagesmith-theme', JSON.stringify({
-    colorScheme: scheme,
-    theme: getCurrentTheme(),
+    colorScheme: classes.match(/color-scheme-(\w+)/)?.[1] || 'auto',
+    theme: classes.match(/theme-([\w-]+)/)?.[1] || 'paper',
+    textSize: document.documentElement.dataset.textSize || 'base',
   }))
 }
 ```
 
-The key contract: replace `color-scheme-*` classes for scheme changes, `theme-*` classes for variant changes, and persist to `localStorage('pagesmith-theme')` as `{ colorScheme, theme }`.
+The key contract: replace `color-scheme-*` classes for scheme changes, `theme-*` classes for variant changes, set `data-text-size` for size changes, and persist to `localStorage('pagesmith-theme')` as `{ colorScheme, theme, textSize }`.

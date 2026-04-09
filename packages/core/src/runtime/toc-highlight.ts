@@ -36,6 +36,18 @@ export function initTocHighlight(): void {
         break
       }
     }
+
+    // When no TOC heading is in the viewport (e.g. scrolled into h4+ content
+    // whose parent h3 left the screen), highlight the last TOC heading that
+    // scrolled above the viewport top.
+    if (!currentId) {
+      for (let i = headings.length - 1; i >= 0; i--) {
+        if (headings[i].getBoundingClientRect().top < 100) {
+          currentId = headings[i].id
+          break
+        }
+      }
+    }
     // Update TOC active state
     tocLinks.forEach((link) => {
       const li = link.parentElement

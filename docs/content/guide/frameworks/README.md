@@ -69,6 +69,18 @@ Across the examples, Pagesmith is responsible for the same core jobs:
 - Copying content companion assets into the final build
 - Running Pagefind against the generated site for full-text search
 
+### Theme System Consistency
+
+All examples implement the complete Pagesmith theme system:
+
+- **Header theme dropdown** — A sun icon button opens a dropdown with three sections: Appearance (Auto/Light/Dark), Theme (Paper/High Contrast), and Text Size (Small/Default/Large). Closes on outside click or Escape.
+- **Footer theme controls** — Segmented button groups for all three axes at the bottom of each page.
+- **FOUC prevention** — An inline `<script>` in `<head>` restores `colorScheme`, `theme`, and `textSize` from `localStorage` before CSS paints.
+- **CSS foundations** — Color-scheme classes (`.color-scheme-auto/light/dark`), theme variant overrides (`.theme-paper`, `.theme-high-contrast`), text size scaling (`html[data-text-size]`), and header toggle styles (`.doc-theme-toggle`).
+- **Synchronized state** — Header dropdown radios and footer buttons stay in sync. Changing either updates both controls and persists to `localStorage`.
+
+For full details, see the [Theming reference](/reference/theming/).
+
 ## CSS Imports
 
 All examples can use pre-built CSS from `@pagesmith/core`:

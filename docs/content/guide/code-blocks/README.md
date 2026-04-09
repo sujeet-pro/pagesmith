@@ -182,6 +182,53 @@ Available frame values: `"code"` (editor), `"terminal"`, `"none"`, `"auto"` (def
 
 Every code block includes a copy button by default. Users can click it to copy the code to their clipboard. The button is rendered by Expressive Code and requires no additional runtime JavaScript.
 
+## Code Tabs
+
+Consecutive titled code blocks are automatically grouped into a tabbed interface. This is useful for showing the same concept across package managers, languages, or configurations. Just write titled fenced blocks one after another with no other content between them:
+
+````markdown
+```bash title="npm"
+npm install @pagesmith/core
+```
+
+```bash title="pnpm"
+pnpm add @pagesmith/core
+```
+
+```bash title="yarn"
+yarn add @pagesmith/core
+```
+````
+
+The `title` value becomes the tab label. The first tab is active by default and readers can click to switch between them. Without JavaScript, all blocks stack vertically as a fallback.
+
+You can also use code tabs to show the same logic in different languages:
+
+````markdown
+```ts title="TypeScript"
+interface Config {
+  host: string
+  port: number
+}
+```
+
+```python title="Python"
+@dataclass
+class Config:
+    host: str = "localhost"
+    port: int = 3000
+```
+
+```rust title="Rust"
+struct Config {
+    host: String,
+    port: u16,
+}
+```
+````
+
+Any non-code content (a paragraph, heading, or untitled code block) between titled blocks breaks the group — each group is independent.
+
 ## How It Works
 
 Expressive Code runs as a rehype plugin in the unified markdown pipeline. During markdown processing, it:
