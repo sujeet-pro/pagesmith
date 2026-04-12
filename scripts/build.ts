@@ -16,7 +16,7 @@ cpSync(coreFontsDir, join(sharedAssetsDir, 'fonts'), { recursive: true })
 cpSync(join(process.cwd(), 'packages/core/assets/fonts.css'), join(sharedAssetsDir, 'fonts.css'))
 
 // Root llms.txt files are copied to gh-pages/ by the docs build via the
-// `assets` config in docs/pagesmith.config.json5.
+// `assets` config in the repo-root pagesmith.config.json5.
 
 // Copy package-level llms files to hosted paths.
 interface LlmsTarget {
@@ -25,8 +25,14 @@ interface LlmsTarget {
 }
 
 const packageLlmsTargets: LlmsTarget[] = [
-  { srcDir: join(process.cwd(), 'packages/core/docs'), outDir: join(outDir, 'packages/core') },
-  { srcDir: join(process.cwd(), 'packages/docs/docs'), outDir: join(outDir, 'packages/docs') },
+  {
+    srcDir: join(process.cwd(), 'packages/core/ai-guidelines'),
+    outDir: join(outDir, 'packages/core'),
+  },
+  {
+    srcDir: join(process.cwd(), 'packages/docs/ai-guidelines'),
+    outDir: join(outDir, 'packages/docs'),
+  },
 ]
 
 for (const target of packageLlmsTargets) {

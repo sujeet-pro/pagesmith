@@ -3,6 +3,12 @@
  *
  * Exports `getRoutes()` and `render()` for the pagesmithSsg Vite plugin.
  * All content loading, sorting, and layout rendering lives here.
+ *
+ * Why this file exists: `pagesmithSsg` does not render Markdown itself — it
+ * loads this module in dev (middleware SSR) and after the client bundle build
+ * (static HTML). You own routing, `createContentLayer` usage, and how HTML is
+ * produced (here: EJS). That keeps `@pagesmith/core` as the content/markdown
+ * engine while templates stay plain strings.
  */
 
 import { createContentLayer } from '@pagesmith/core'
@@ -13,16 +19,19 @@ import { join } from 'path'
 import contentConfig from '../content.config.mjs'
 import type { SsgRenderConfig } from '@pagesmith/core/vite'
 
-const { guide, features, pages } = contentConfig as Record<string, any>
+const { guide, pages } = contentConfig as Record<string, any>
 
-// ── Content layer (created once, reused across renders) ──
+// ── Content layer (created once per project root) ──
+// Why `createContentLayer` here (not `pagesmithContent`): this stack has no
+// framework virtual modules — the SSR entry loads collections by name and
+// passes rendered HTML into EJS. Same API as other examples, different wiring.
 
 let layer: ReturnType<typeof createContentLayer>
 let layerRoot: string
 function getLayer(root: string) {
   if (!layer || layerRoot !== root) {
     layerRoot = root
-    layer = createContentLayer({ collections: { guide, features, pages }, root })
+    layer = createContentLayer({ collections: { guide, pages }, root })
   }
   return layer
 }
@@ -39,7 +48,6 @@ type RenderedEntry = {
 async function loadContent(root: string) {
   const l = getLayer(root)
   const allGuide = await l.getCollection('guide')
-  const allFeatures = await l.getCollection('features')
   const allPages = await l.getCollection('pages')
 
   async function renderAll(entries: any[]): Promise<RenderedEntry[]> {
@@ -52,7 +60,6 @@ async function loadContent(root: string) {
   }
 
   const renderedGuide = await renderAll(allGuide)
-  const renderedFeatures = await renderAll(allFeatures)
   const renderedPages = await renderAll(allPages)
 
   const sortedGuide = [...renderedGuide].sort((a, b) => {
@@ -61,11 +68,7 @@ async function loadContent(root: string) {
     return a.entry.data.date.getTime() - b.entry.data.date.getTime()
   })
 
-  const sortedFeatures = [...renderedFeatures].sort(
-    (a, b) => b.entry.data.date.getTime() - a.entry.data.date.getTime(),
-  )
-
-  return { sortedGuide, sortedFeatures, renderedPages }
+  return { sortedGuide, renderedPages }
 }
 
 function groupBySeries(entries: RenderedEntry[]) {
@@ -107,7 +110,7 @@ function articleNeighbors(
   list: RenderedEntry[],
   index: number,
   basePath: string,
-  section: 'guide' | 'features',
+  section: 'guide',
 ): Record<string, { title: string; url: string } | undefined> {
   const out: Record<string, { title: string; url: string } | undefined> = {}
   if (index > 0) {
@@ -151,30 +154,40 @@ function renderWithLayout(root: string, body: string, vars: Record<string, any>)
 // ── Route + render API ──
 
 export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
-  const { sortedGuide, sortedFeatures, renderedPages } = await loadContent(config.root)
+  const { sortedGuide, renderedPages } = await loadContent(config.root)
   const routes = ['/']
   for (const item of sortedGuide) routes.push(`/guide/${item.entry.slug}`)
-  for (const item of sortedFeatures) routes.push(`/features/${item.entry.slug}`)
   if (renderedPages.find((p) => p.entry.slug === 'about')) routes.push('/about')
   return routes
 }
 
 export async function render(url: string, config: SsgRenderConfig): Promise<string> {
   const { base, root, cssPath, jsPath, searchEnabled } = config
-  const { sortedGuide, sortedFeatures, renderedPages } = await loadContent(root)
+  const { sortedGuide, renderedPages } = await loadContent(root)
 
   const guideGroups = groupBySeries(sortedGuide)
-  const css = readFileSync(join(root, 'src/theme.css'), 'utf-8')
   const basePath = base.endsWith('/') ? base : base + '/'
+  const kitchenSinkSlug =
+    sortedGuide.find((entry) => entry.entry.slug === 'kitchen-sink')?.entry.slug ??
+    sortedGuide[0]?.entry.slug ??
+    ''
 
   const sidebarData = {
     guideGroups,
-    featuresEntries: sortedFeatures.map((e) => ({ title: e.entry.data.title, slug: e.entry.slug })),
     firstGuideSlug: sortedGuide[0]?.entry.slug ?? '',
-    firstFeaturesSlug: sortedFeatures[0]?.entry.slug ?? '',
   }
 
-  const shared = { basePath, css, js: '', formatDate, sidebar: sidebarData }
+  // `searchEnabled` / `isDev` come from `SsgRenderConfig` — use them so the
+  // layout does not reference Pagefind assets in dev (they are not written yet).
+  const shared = {
+    basePath,
+    cssPath,
+    jsPath,
+    formatDate,
+    sidebar: sidebarData,
+    searchEnabled,
+    isDev: config.isDev,
+  }
 
   // Strip basePath from URL to get the route path
   let routePath = url
@@ -197,17 +210,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         description: e.entry.data.description,
         slug: e.entry.slug,
       })),
-      sortedFeatures: sortedFeatures.map((e) => ({
-        title: e.entry.data.title,
-        description: e.entry.data.description,
-        date: e.entry.data.date,
-        tags: e.entry.data.tags,
-        slug: e.entry.slug,
-      })),
       basePath,
-      formatDate,
       firstGuideSlug: sortedGuide[0]?.entry.slug ?? '',
-      firstFeaturesSlug: sortedFeatures[0]?.entry.slug ?? '',
+      kitchenSinkSlug,
     })
     return renderWithLayout(root, indexBody, {
       ...shared,
@@ -242,36 +247,6 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         aside: renderTocAside(item.headings),
         isHome: false,
         ...articleNeighbors(sortedGuide, guideIndex, basePath, 'guide'),
-        editUrl: editUrlForEntry(item.entry),
-        lastUpdated: formatDate(item.entry.data.date),
-      })
-    }
-  }
-
-  // Features pages
-  const featuresMatch = routePath.match(/^\/features\/(.+)$/)
-  if (featuresMatch) {
-    const featuresIndex = sortedFeatures.findIndex((e) => e.entry.slug === featuresMatch[1])
-    const item = featuresIndex >= 0 ? sortedFeatures[featuresIndex] : undefined
-    if (item) {
-      const body = ejs.render(articleTemplate, {
-        title: item.entry.data.title,
-        date: item.entry.data.date,
-        tags: item.entry.data.tags,
-        description: item.entry.data.description,
-        content: item.html,
-        headings: item.headings,
-        readTime: item.readTime,
-        basePath,
-        formatDate,
-      })
-      return renderWithLayout(root, body, {
-        ...shared,
-        title: item.entry.data.title,
-        activePath: `/features/${item.entry.slug}`,
-        aside: renderTocAside(item.headings),
-        isHome: false,
-        ...articleNeighbors(sortedFeatures, featuresIndex, basePath, 'features'),
         editUrl: editUrlForEntry(item.entry),
         lastUpdated: formatDate(item.entry.data.date),
       })

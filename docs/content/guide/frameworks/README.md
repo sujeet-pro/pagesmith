@@ -41,13 +41,13 @@ The repo includes a full example matrix. Each example is self-contained with its
 
 | Example | Package | Renderer | Content Access | Demo |
 |---|---|---|---|---|
-| [React](/guide/framework-vite-apps#react) | `@pagesmith/core` | `react-dom/server` | `virtual:content/*` | <a href="/pagesmith/examples/react/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Solid](/guide/framework-vite-apps#solidjs) | `@pagesmith/core` | `solid-js/web` | `virtual:content/*` | <a href="/pagesmith/examples/solid/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Svelte](/guide/framework-vite-apps#svelte) | `@pagesmith/core` | `svelte/server` | `virtual:content/*` | <a href="/pagesmith/examples/svelte/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [EJS](/guide/framework-template-engines#ejs) | `@pagesmith/core` | EJS templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-ejs/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Handlebars](/guide/framework-template-engines#handlebars) | `@pagesmith/core` | Handlebars templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-hbs/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Doc Site](/guide/framework-doc-site) | `@pagesmith/docs` | Docs theme | Convention-based | <a href="/pagesmith/examples/doc-site/" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Blog Site](/guide/framework-blog-site) | `@pagesmith/core` | Custom JSX layouts | `processMarkdown` | <a href="/pagesmith/examples/blog-site/" target="_blank" rel="noopener noreferrer">Live</a> |
+| [React](/guide/framework-vite-apps#react) | `@pagesmith/core` | `react-dom/server` | `virtual:content/*` | <a href="/pagesmith/examples/react" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Solid](/guide/framework-vite-apps#solidjs) | `@pagesmith/core` | `solid-js/web` | `virtual:content/*` | <a href="/pagesmith/examples/solid" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Svelte](/guide/framework-vite-apps#svelte) | `@pagesmith/core` | `svelte/server` | `virtual:content/*` | <a href="/pagesmith/examples/svelte" target="_blank" rel="noopener noreferrer">Live</a> |
+| [EJS](/guide/framework-template-engines#ejs) | `@pagesmith/core` | EJS templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-ejs" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Handlebars](/guide/framework-template-engines#handlebars) | `@pagesmith/core` | Handlebars templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-hbs" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Doc Site](/guide/framework-doc-site) | `@pagesmith/docs` | Docs theme | Convention-based | <a href="/pagesmith/examples/doc-site" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Blog Site](/guide/framework-blog-site) | `@pagesmith/core` | Custom JSX layouts | `processMarkdown` | <a href="/pagesmith/examples/blog-site" target="_blank" rel="noopener noreferrer">Live</a> |
 
 ## Shared Vite Plugins
 

@@ -21,6 +21,7 @@
       articles: [
         'docs-config',
         'docs-cli',
+        'docs-ai-files',
         'frontmatter',
         'docs-theme',
         'theming',

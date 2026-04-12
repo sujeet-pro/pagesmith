@@ -325,7 +325,7 @@ No pagesmith.config.json5 file found at /path/to/pagesmith.config.json5
 1. **Wrong working directory.** The CLI looks for the config file relative to the current working directory. Run the command from your project root, or specify the path:
 
    ```bash title="Terminal"
-   pagesmith dev --config ./docs/pagesmith.config.json5
+   pagesmith dev --config ./pagesmith.config.json5
    ```
 
 2. **File not created yet.** Run `pagesmith init` to create the initial config file:

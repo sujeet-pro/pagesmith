@@ -2,13 +2,14 @@
  * Code block validator — checks fenced code block meta syntax.
  *
  * Walks the shared MDAST for `code` nodes. Validates known meta properties
- * and language identifiers. Meta syntax follows Expressive Code conventions.
+ * and language identifiers. Meta syntax follows Pagesmith's built-in code
+ * renderer conventions.
  */
 
 import type { ValidationIssue } from './schema-validator'
 import type { ContentValidator, MdastNode, ResolvedValidatorContext } from './types'
 
-/** Known meta properties accepted by Expressive Code and its plugins. */
+/** Known meta properties accepted by the built-in Pagesmith code renderer. */
 const KNOWN_META_PROPS = new Set([
   'title',
   'showLineNumbers',

@@ -230,20 +230,22 @@ Read time is computed from the original markdown source rather than rendered HTM
 
 ## Markdown Pipeline
 
-The markdown pipeline is built using the `unified` ecosystem with **Expressive Code** for syntax highlighting and code block features. The full chain:
+The markdown pipeline is built using the `unified` ecosystem with a **built-in Shiki-backed code renderer** for syntax highlighting and code block features. The full chain:
 
 ```text title="Pipeline Order"
 remark-parse                    Parse markdown to MDAST
   -> remark-gfm                Tables, strikethrough, task lists, autolinks
-  -> remark-math               Math blocks ($...$, $$...$$)
   -> remark-frontmatter        Strip YAML frontmatter from AST
   -> remark-github-alerts      > [!NOTE], > [!TIP], etc.
   -> remark-smartypants        Smart quotes, dashes, ellipses
+  -> remark-math (optional)    Enabled when `markdown.math` is `true` or `'auto'` detects math markers
   -> [user remark plugins]     From MarkdownConfig.remarkPlugins
   -> lang-alias transform      Map fenced-code language tags via `markdown.shiki.langAlias`
-  -> remark-rehype             MDAST -> HAST (allowDangerousHtml: true)
-  -> rehype-mathjax/svg        Render math to SVG (before Expressive Code)
-  -> rehype-expressive-code    Syntax highlighting, code frames, tabs, copy buttons
+  -> remark-rehype             MDAST -> HAST (`allowDangerousHtml` defaults to true)
+  -> rehype-mathjax/svg        Render math to SVG (when math is enabled)
+  -> applyPagesmithCodeRenderer Syntax highlighting, code frames, copy/collapse UI
+  -> rehype-code-tabs          Group consecutive titled blocks into tabs
+  -> rehype-scrollable-tables  Wrap markdown tables for overflow-safe scrolling
   -> rehype-slug               Add id="" to headings
   -> rehype-autolink-headings  Wrap heading text in anchor links (behavior: 'wrap')
   -> rehype-external-links     target="_blank" on external URLs
@@ -255,9 +257,9 @@ remark-parse                    Parse markdown to MDAST
 
 The processor is cached per `MarkdownConfig` object reference via a `WeakMap` to avoid rebuilding the plugin chain on every call.
 
-### Expressive Code Configuration
+### Built-in Code Renderer Configuration
 
-Pagesmith uses [Expressive Code](https://expressive-code.com/) (`rehype-expressive-code`) for all code block processing. Expressive Code handles:
+Pagesmith uses a built-in Shiki-backed code renderer for all code block processing. It handles:
 
 - Dual-theme syntax highlighting (defaults to `github-light` / `github-dark`)
 - Code block frames with title bars
@@ -267,13 +269,13 @@ Pagesmith uses [Expressive Code](https://expressive-code.com/) (`rehype-expressi
 - Collapsible sections
 - Code block grouping/tabs
 
-Expressive Code **injects its own CSS inline** during markdown processing. This means you do not need to import separate CSS for code block styling -- it is included in the rendered HTML output.
+Shared code-block chrome ships in the normal Pagesmith CSS bundles, while Shiki token colors and a small copy/collapse runtime are injected during markdown processing.
 
-The Expressive Code integration respects Pagesmith design tokens for font families, sizes, and border radius via CSS custom properties (`--ps-font-sans`, `--ps-font-mono`, `--ps-font-size-sm`, `--ps-radius-lg`, `--ps-color-border-subtle`).
+The renderer respects Pagesmith design tokens for font families, sizes, and border radius via CSS custom properties (`--ps-font-sans`, `--ps-font-mono`, `--ps-font-size-sm`, `--ps-radius-lg`, `--ps-color-border-subtle`).
 
 ### Code Block Meta Syntax
 
-Expressive Code supports a rich meta syntax on fenced code blocks. Add options after the language identifier:
+The built-in renderer supports a rich meta syntax on fenced code blocks. Add options after the language identifier:
 
 #### Title
 

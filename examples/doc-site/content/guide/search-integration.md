@@ -1,7 +1,7 @@
 ---
 title: Search Integration
 description: Built-in Pagefind search
-date: 2026-03-15
+publishedDate: 2026-03-15
 tags: [search, pagefind]
 series: Customization
 seriesOrder: 3
@@ -35,6 +35,6 @@ Search is enabled by default. Customize it in your config:
 
 ## Search Attributes
 
-Pages are indexed via the `data-pagefind-body` attribute on the main content area. The theme handles this automatically — no manual markup needed.
+Pages are indexed via the `data-pagefind-body` attribute on the content body only. In the built-in theme that means the home page indexes its content wrapper, article pages index the `<article>` body, and layout chrome like headers, sidebars, breadcrumbs, and footers stay out of search. The theme handles this automatically — no manual markup needed.
 
 If search indexing fails (e.g., Pagefind not installed), the build continues with a warning. The site works normally without search.

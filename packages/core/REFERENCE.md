@@ -5,16 +5,22 @@ Link this file from your project's CLAUDE.md or AGENTS.md to give AI assistants 
 ```markdown
 <!-- In your CLAUDE.md or AGENTS.md -->
 For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
-For @pagesmith/core usage and prompts, read: node_modules/@pagesmith/core/docs/agents/usage.md
+For @pagesmith/core usage and prompts, read: node_modules/@pagesmith/core/ai-guidelines/usage.md
 ```
 
 ---
 
 ## Overview
 
-`@pagesmith/core` is a file-based content toolkit for Vite. It provides schema-validated content collections, lazy markdown rendering with Expressive Code syntax highlighting, a server-side JSX runtime, CSS bundles, and Vite plugins for framework integrations.
+`@pagesmith/core` is a file-based content toolkit for Vite. It provides schema-validated content collections, lazy markdown rendering with a built-in Shiki-backed code renderer, a server-side JSX runtime, CSS bundles, and Vite plugins for framework integrations.
 
 ESM only (`"type": "module"`). Node 24+.
+
+## Adoption Paths
+
+- AI-first bootstrap or retrofit: `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- Upgrade an existing integration: `node_modules/@pagesmith/core/ai-guidelines/migration.md`
+- Use `@pagesmith/docs` instead when you need the `pagesmith` CLI, `pagesmith.config.json5`, built-in docs navigation, or Pagefind-powered search
 
 ## Content Layer API
 
@@ -182,7 +188,8 @@ Import in your code:
 
 ```ts
 import posts from 'virtual:content/posts'
-// Each markdown entry: { id, contentSlug, html, headings, frontmatter }
+// Markdown entries: { id, contentSlug, html, headings, frontmatter }[]
+// Data loaders: { id, contentSlug, data }[]
 ```
 
 ### pagesmithSsg
@@ -203,11 +210,13 @@ Serves shared font assets (Open Sans, JetBrains Mono) bundled with `@pagesmith/c
 ## Markdown Pipeline
 
 ```
-remark-parse → remark-gfm → remark-math → remark-frontmatter
-  → remark-github-alerts → remark-smartypants → [user remark plugins]
-  → lang-alias transform → remark-rehype
-  → rehype-mathjax (must run before Expressive Code so math is rendered to SVG first)
-  → rehype-expressive-code (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
+remark-parse → remark-gfm → remark-frontmatter
+  → remark-github-alerts → remark-smartypants
+  → remark-math (when `markdown.math` is `true` or `'auto'` detects math markers)
+  → [user remark plugins] → lang-alias transform → remark-rehype
+  → rehype-mathjax (when math is enabled, before the built-in code renderer)
+  → applyPagesmithCodeRenderer (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
+  → rehype-code-tabs → rehype-scrollable-tables
   → rehype-slug → rehype-autolink-headings
   → rehype-external-links → rehype-accessible-emojis
   → heading extraction → [user rehype plugins] → rehype-stringify
@@ -219,6 +228,8 @@ remark-parse → remark-gfm → remark-math → remark-frontmatter
 type MarkdownConfig = {
   remarkPlugins?: any[]
   rehypePlugins?: any[]
+  allowDangerousHtml?: boolean
+  math?: boolean | 'auto'
   shiki?: {
     themes: { light: string; dark: string }
     langAlias?: Record<string, string>
@@ -227,7 +238,10 @@ type MarkdownConfig = {
 }
 ```
 
-### Code Block Meta Syntax (Expressive Code)
+- `allowDangerousHtml` defaults to `true`. Disable it when rendering untrusted markdown content.
+- `math` defaults to `'auto'`, which only enables `remark-math` and `rehype-mathjax` for pages that contain math markers.
+
+### Code Block Meta Syntax (Built-in Renderer)
 
 
 | Meta               | Example                  | Description            |
@@ -276,13 +290,13 @@ function Page({ title, content }: { title: string; content: string }) {
 
 | Import Path                      | Contents                           |
 | -------------------------------- | ---------------------------------- |
-| `@pagesmith/core/css/content`    | Prose typography + inline code     |
-| `@pagesmith/core/css/standalone` | Full layout + prose + TOC          |
+| `@pagesmith/core/css/content`    | Prose typography + code block styling |
+| `@pagesmith/core/css/standalone` | Full layout + prose + TOC + code block styling |
 | `@pagesmith/core/css/viewport`   | Responsive viewport base           |
 | `@pagesmith/core/css/fonts`      | Bundled Open Sans + JetBrains Mono |
 
 
-Code block styling is handled by Expressive Code (inline styles).
+Code block styling is bundled in the core CSS exports. Highlight token colors and per-block theme vars are applied inline, while frame chrome, tabs, and layout ship in the shared CSS files.
 
 ## Theme System
 
@@ -311,6 +325,8 @@ Two tiers:
 - **Standalone** (`getRuntimeCSS/JS`) — full site with TOC highlight
 - **Content** (`getContentCSS/JS`) — markdown rendering only
 
+Load `@pagesmith/core/runtime/content` when you want Pagesmith's built-in code tabs, copy button behavior, and collapsed-line toggles in the browser without wiring the pieces manually.
+
 ## Frontmatter Schemas
 
 
@@ -331,6 +347,8 @@ Two tiers:
 | `@pagesmith/core/markdown`       | processMarkdown                                          |
 | `@pagesmith/core/css`            | buildCss (LightningCSS)                                  |
 | `@pagesmith/core/css/content`    | Content CSS file                                         |
+| `@pagesmith/core/css/code-block` | Block code CSS file                                      |
+| `@pagesmith/core/css/code-inline` | Inline code CSS file                                     |
 | `@pagesmith/core/css/standalone` | Standalone CSS file                                      |
 | `@pagesmith/core/css/viewport`   | Viewport CSS file                                        |
 | `@pagesmith/core/css/fonts`      | Bundled font faces                                       |
@@ -338,6 +356,8 @@ Two tiers:
 | `@pagesmith/core/loaders`        | Loader classes and registry                              |
 | `@pagesmith/core/assets`         | Asset copying and hashing                                |
 | `@pagesmith/core/runtime`        | Pre-built CSS/JS accessors                               |
+| `@pagesmith/core/runtime/content` | Browser runtime for code tabs, copy, and collapsed lines |
+| `@pagesmith/core/runtime/standalone` | Browser runtime for content interactivity + TOC highlight |
 | `@pagesmith/core/vite`           | Vite plugins                                             |
 | `@pagesmith/core/ssg-utils`      | Shared SSG utility helpers                               |
 | `@pagesmith/core/ai`             | AI assistant artifact generator                          |
@@ -351,15 +371,15 @@ Two tiers:
 - Prefer folder-based entries (`guide/getting-started/README.md`) when content references sibling assets
 - The `render()` result is cached — call `clearRenderCache()` to force re-render
 - `getCollection()` results are cached — use `invalidate*()` methods for cache busting
-- Runtime JS provides only TOC highlighting (standalone) — copy buttons are Expressive Code
+- Runtime JS handles TOC highlighting and Pagesmith code-block interactivity. Load `@pagesmith/core/runtime/content` or the runtime JS accessors instead of injecting ad-hoc inline scripts.
 - All exports are named (no default exports from core)
-- Code block styling is inline via Expressive Code — do NOT import separate code block CSS
+- Code block styling comes from the shipped core CSS bundles — include `@pagesmith/core/css/content` or `@pagesmith/core/css/standalone` for rendered markdown
 
 ## Related Docs
 
-- **Agent prompts and rules:** `node_modules/@pagesmith/core/docs/agents/usage.md`
-- **Step-by-step recipes:** `node_modules/@pagesmith/core/docs/agents/recipes.md`
-- **Error catalog:** `node_modules/@pagesmith/core/docs/agents/errors.md`
+- **Agent prompts and rules:** `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
+- **Error catalog:** `node_modules/@pagesmith/core/ai-guidelines/errors.md`
 - **User README:** `node_modules/@pagesmith/core/README.md`
 - **Docs package reference:** `node_modules/@pagesmith/docs/REFERENCE.md`
 - **Docs package README:** `node_modules/@pagesmith/docs/README.md`

@@ -34,17 +34,6 @@ export const guide = defineCollection({
   }),
 })
 
-export const features = defineCollection({
-  loader: 'markdown',
-  directory: './content/features',
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-  }),
-})
-
 export const pages = defineCollection({
   loader: 'markdown',
   directory: './content/pages',
@@ -54,7 +43,7 @@ export const pages = defineCollection({
   }),
 })
 
-export default defineCollections({ guide, features, pages })
+export default defineCollections({ guide, pages })
 ```
 
 ## How schemas work
@@ -76,7 +65,6 @@ When the `pagesmithContent` Vite plugin processes these collections, it creates 
 | Collection key | Virtual module             |
 | -------------- | -------------------------- |
 | `guide`        | `virtual:content/guide`    |
-| `features`     | `virtual:content/features` |
 | `pages`        | `virtual:content/pages`    |
 
 Each virtual module exports an array of entry objects. Every entry contains:
@@ -91,7 +79,6 @@ Each virtual module exports an array of entry objects. Every entry contains:
 The Svelte example centralizes virtual module imports in `src/site.ts` rather than in the entry server directly:
 
 ```ts title="src/site.ts (excerpt)"
-import featuresCollection from 'virtual:content/features'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 ```
@@ -101,3 +88,5 @@ This module sorts, groups, and exports the entries so that both the entry server
 ## Generated types
 
 The content plugin also generates a TypeScript declaration file at `src/pagesmith-content.d.ts`. This file declares the virtual module types so your editor provides autocompletion and type checking for frontmatter fields, content slugs, and collection shapes. The file is regenerated automatically -- do not edit it by hand.
+
+Next: how those entries become HTML — see [Layouts & Rendering](./layouts-and-rendering) and [Vite Configuration](./vite-config).

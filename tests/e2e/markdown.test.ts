@@ -28,10 +28,11 @@ describe('markdown pipeline', () => {
     expect(result.html).toContain('<del>')
   })
 
-  it('highlights code blocks with expressive code', async () => {
+  it('highlights code blocks with the built-in Pagesmith renderer', async () => {
     const md = '```typescript\nconst x: number = 42\n```'
     const result = await processMarkdown(md)
-    expect(result.html).toContain('expressive-code')
+    expect(result.html).toContain('ps-code-block')
+    expect(result.html).toContain('data-ps-code-renderer="pagesmith"')
     expect(result.html).toContain('42')
   })
 

@@ -1,6 +1,6 @@
 ---
 title: Search Integration
-description: Adding Pagefind search to your site
+description: Pagefind indexing, the document shell, and the search trigger in this example
 date: 2026-03-15
 tags:
   - search
@@ -11,71 +11,34 @@ seriesOrder: 3
 
 # Search Integration
 
-Search is powered by [Pagefind](https://pagefind.app/), a static search library that indexes the generated HTML at build time and runs entirely in the browser -- no server required.
+Search uses [Pagefind](https://pagefind.app/) with **Component UI**. `pagesmithSsg` runs the indexer after HTML is written; the browser loads scripts/styles from `pagefind/` under your `base` path.
 
-## How indexing works
+## What gets indexed
 
-The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind UI CSS and JavaScript.
+Pagefind only indexes subtrees marked with `data-pagefind-body`:
 
-Pages opt into indexing with the `data-pagefind-body` attribute. In the Svelte example, both the home page and article pages include this attribute on their main content area. The `HomeBody.svelte` and `PageBody.svelte` components set it on their `<main>` elements:
+- **Home** — `HomeBody.svelte` sets it on the `<main>` that wraps the hero and listings.
+- **Articles** — `PageBody.svelte` sets it on the inner `<article>` (the `.prose` region and in-article nav). The outer `<main class="doc-main">` is **not** marked, so the desktop sidebar and duplicated chrome stay out of the index.
 
 ```svelte title="src/components/HomeBody.svelte (excerpt)"
-<main class="doc-home" data-pagefind-body="">
+<main id="doc-main-content" class="doc-home" tabindex="-1" data-pagefind-body="">
 ```
 
 ```svelte title="src/components/PageBody.svelte (excerpt)"
-<main class="doc-main" data-pagefind-body="">
+<main class="doc-main">
+  <article id="doc-main-content" tabindex="-1" data-pagefind-body="">
 ```
 
-Only content inside elements with `data-pagefind-body` is indexed, keeping navigation chrome and boilerplate out of search results.
+## Where the modal lives
 
-## The search dialog
+When `render(url, config)` passes `searchEnabled: true` into `renderDocumentShell()`, the shell appends a single `<pagefind-modal>...</pagefind-modal>` **after** `bodyHtml` (alongside the deferred client script). That keeps one modal in the DOM regardless of framework.
 
-Search is presented in a modal dialog rendered by `App.svelte` when `searchEnabled` is true:
+Svelte output (`App.svelte` and children) should **not** declare another `<pagefind-modal>` — it would duplicate the shell and confuse Component UI.
 
-```svelte title="src/App.svelte (excerpt)"
-{#if searchEnabled && pageKind !== 'not-found'}
-  <dialog class="doc-search-modal" id="search-modal" aria-label="Search">
-    <div class="doc-search-modal-inner">
-      <div class="doc-search-modal-header">
-        <span class="doc-search-modal-title">Search</span>
-        <button type="button" class="doc-search-modal-close" aria-label="Close" data-search-close="">
-          {@html closeIcon}
-        </button>
-      </div>
-      <div class="doc-search-modal-body" id="search-container" data-pagefind-search=""></div>
-    </div>
-  </dialog>
-{/if}
-```
+## Trigger
 
-The dialog uses the native `<dialog>` element for proper modal behavior including focus trapping and backdrop handling. The `{@html closeIcon}` directive injects the SVG icon as raw HTML.
+`SiteHeader.svelte` renders `<pagefind-modal-trigger>` when `searchEnabled` is true. Keyboard shortcuts (e.g. Cmd/Ctrl+K) come from Pagefind, not from `src/runtime.ts` (that file only tweaks `compact` on the trigger for small viewports).
 
-## Keyboard shortcut
+## Development vs production
 
-The runtime script in `src/runtime.ts` binds the standard search shortcut:
-
-```ts title="src/runtime.ts (excerpt)"
-document.addEventListener('keydown', (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault()
-    if (modal.open) {
-      modal.close()
-    } else {
-      openSearch()
-    }
-  }
-})
-```
-
-Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) toggles the search dialog. The trigger button in the header also opens it.
-
-## Lazy initialization
-
-Pagefind UI is initialized lazily -- only when the search dialog is opened for the first time. This avoids loading and parsing the search index until the user actually requests it, keeping the initial page load fast.
-
-## Development vs. production
-
-During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The `searchEnabled` flag in `SsgRenderConfig` controls whether search UI elements are rendered. In production builds, the SSG plugin sets this to `true` after indexing completes, and the Pagefind CSS and JS are included in the document `<head>`.
-
-The site remains fully functional without search -- it is a progressive enhancement on top of the static HTML.
+Until a production build has produced `pagefind/` assets and an index, search UI may load but return no results. `searchEnabled` still controls whether shell assets and the modal are emitted.

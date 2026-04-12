@@ -11,68 +11,36 @@ seriesOrder: 3
 
 # Search Integration
 
-Search is powered by [Pagefind](https://pagefind.app/), a static search library that indexes the generated HTML at build time and runs entirely in the browser -- no server required.
+Search uses [Pagefind](https://pagefind.app/) on the static HTML produced by `pagesmithSsg`. The indexer runs after all pages are written; the [Pagefind Component UI](https://pagefind.app/docs/component-ui/) scripts in `templates/layout.hbs` load in the browser.
 
-## How indexing works
+## What gets indexed (`data-pagefind-body`)
 
-The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind Component UI CSS and JavaScript.
+Pagefind weights content inside elements marked `data-pagefind-body`. When at least one page defines this attribute, Pagefind scopes indexing to those subtrees (see Pagefind CLI output while building). In **this** example the marker sits on the authored body wrapper, not on the outer `<main>` that also holds chrome:
 
-Pages opt into indexing with the `data-pagefind-body` attribute. In the Handlebars example, both the home page and article pages include this attribute in the layout template:
+- **Home** — On the inner wrapper around the home body in `templates/layout.hbs` (class `doc-home-content`), so the hero and listings are indexed while the global header stays peripheral.
 
-```hbs title="templates/layout.hbs (excerpt)"
-{{!-- Home page layout --}}
-<main class="doc-home">
-  <div class="doc-home-content" data-pagefind-body>
-    {{> body}}
-  </div>
-</main>
+- **Guide and feature articles** — On the root `<article>` in `templates/article.hbs` (the same element exposes `id="doc-main-content"` for the skip link). The mobile TOC and date line sit inside that article; the layout shell, sidebar, and footer stay outside.
 
-{{!-- Article page layout --}}
-<main class="doc-main" data-pagefind-body>
-  {{> body}}
-</main>
-```
+- **About** — Same pattern as articles: `<article id="doc-main-content" ... data-pagefind-body>` in `templates/about.hbs`.
 
-Only content inside elements with `data-pagefind-body` is indexed, keeping navigation chrome and boilerplate out of search results.
+If you add new templates, add `data-pagefind-body` on the narrowest element that should represent “page content” for search snippets.
 
-## The search modal (Pagefind Component UI)
+## Component UI
 
-Search uses Pagefind **Component UI** web components instead of the legacy Default UI (`PagefindUI`). The query field is provided by the `<pagefind-input>` custom element in the modal header. The modal structure is defined at the end of the layout template:
+The modal, trigger, and keyboard shortcut are declared at the bottom of `templates/layout.hbs` (`<pagefind-modal>`, `<pagefind-modal-trigger>`, etc.). Styling comes from `pagefind/pagefind-component-ui.css`; behavior from `pagefind/pagefind-component-ui.js`, both under the Vite `base` path.
 
-```html title="templates/layout.hbs (excerpt)"
-<pagefind-modal reset-on-close>
-  <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
-  <pagefind-modal-body>
-    <pagefind-summary></pagefind-summary>
-    <pagefind-results></pagefind-results>
-  </pagefind-modal-body>
-  <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
-</pagefind-modal>
-```
+## Development vs production
 
-The components load and query the index when the user opens the modal, keeping the initial page load fast.
-
-## Keyboard shortcut
-
-Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) opens search, and the header control is wired through `<pagefind-modal-trigger>`. That behavior is handled natively by Pagefind Component UI web components (`<pagefind-modal>`, `<pagefind-modal-trigger>`).
-
-## Search trigger
-
-The header includes the trigger component (styled with `doc-search-trigger` to match the theme):
-
-```hbs title="templates/layout.hbs (excerpt)"
-<pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
-```
-
-The trigger is hidden when JavaScript is disabled using a `<noscript>` style rule in the layout's `<head>`.
-
-## Development vs. production
-
-During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The Pagefind Component UI CSS and JS are still referenced in the layout, but the assets do not exist until a production build runs. In production builds, the SSG plugin generates the index after writing all HTML files, and the Pagefind assets become available:
+During `vite dev`, Pagefind has not written an index yet, so search assets may 404 until you run a production `npm run build`. The site still works; search is a progressive enhancement.
 
 ```hbs title="templates/layout.hbs (excerpt)"
 <link rel="stylesheet" href="{{basePath}}pagefind/pagefind-component-ui.css" />
+```
+
+```hbs title="templates/layout.hbs (excerpt)"
 <script src="{{basePath}}pagefind/pagefind-component-ui.js" type="module"></script>
 ```
 
-The site remains fully functional without search -- it is a progressive enhancement on top of the static HTML.
+## Client entry
+
+`client.js` adjusts `<pagefind-modal-trigger>` attributes at small breakpoints (compact layout). That is optional polish; the modal works without it.

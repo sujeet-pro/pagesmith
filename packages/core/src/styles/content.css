@@ -2,8 +2,7 @@
    Content rendering CSS — all-in-one for styled markdown output.
 
    Import this single file to get everything needed for rendering
-   processed markdown: typography and inline code styling.
-   Code block styling is handled by Expressive Code (injected inline).
+   processed markdown: typography, code block styling, and inline code styling.
    Does NOT include layout (grid/sidebar) or site-level components.
    ═══════════════════════════════════════════════════════════════ */
 
@@ -18,6 +17,7 @@
 @import "./content/alerts.css";
 
 /* Code */
+@import "./code/block.css";
 @import "./code/inline.css";
 @import "./code/tabs.css";
 

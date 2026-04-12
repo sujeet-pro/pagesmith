@@ -10,7 +10,7 @@ Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm 
 ```text title="Package Overview"
 @pagesmith/core
   content layer (collections, loaders, store, validation)
-  markdown pipeline (unified + Expressive Code)
+  markdown pipeline (unified + built-in Pagesmith renderer)
   JSX runtime
   CSS builder
   Vite content plugin + SSG plugin
@@ -85,7 +85,7 @@ frontmatter.ts            extractFrontmatter(), validateFrontmatter()
 toc.ts                    extractToc() -- heading extraction from HTML
 
 markdown/
-  pipeline.ts             Unified pipeline (remark + Expressive Code + rehype)
+  pipeline.ts             Unified pipeline (remark + built-in Pagesmith renderer + rehype)
 
 jsx-runtime/              h(), Fragment(), HtmlString for server-side JSX
 
@@ -207,20 +207,22 @@ Results are cached per collection in `ContentStore`. Cache invalidation is avail
 
 ## Markdown Pipeline
 
-The markdown pipeline is built in `src/markdown/pipeline.ts` using the `unified` ecosystem with **Expressive Code** for syntax highlighting and code block features. The processor is cached per `MarkdownConfig` object reference via a `WeakMap` to avoid rebuilding the plugin chain on every call.
+The markdown pipeline is built in `src/markdown/pipeline.ts` using the `unified` ecosystem with the built-in Pagesmith code renderer on top of Shiki for syntax highlighting and code block features. The processor is cached per `MarkdownConfig` object reference via a `WeakMap` to avoid rebuilding the plugin chain on every call.
 
 ```text title="Pipeline Order"
 remark-parse                    Parse markdown to MDAST
   -> remark-gfm                Tables, strikethrough, task lists, autolinks
-  -> remark-math               Math blocks ($...$, $$...$$)
   -> remark-frontmatter        Strip YAML frontmatter from AST
   -> remark-github-alerts      > [!NOTE], > [!TIP], etc.
   -> remark-smartypants        Smart quotes, dashes, ellipses
+  -> remark-math (optional)    Enabled when `markdown.math` is `true` or `'auto'` detects math markers
   -> [user remark plugins]     From MarkdownConfig.remarkPlugins
   -> lang-alias transform      Map unsupported languages to known aliases
-  -> remark-rehype             MDAST -> HAST (allowDangerousHtml: true)
-  -> rehype-mathjax/svg        Render math to SVG (must run before Expressive Code)
-  -> rehype-expressive-code    Syntax highlighting, code frames, tabs, copy buttons
+  -> remark-rehype             MDAST -> HAST (`allowDangerousHtml` defaults to true)
+  -> rehype-mathjax/svg        Render math to SVG when math is enabled
+  -> applyPagesmithCodeRenderer Syntax highlighting, code frames, copy/collapse UI
+  -> rehype-code-tabs          Group consecutive titled code blocks into tabs
+  -> rehype-scrollable-tables  Wrap markdown tables for horizontal scrolling
   -> rehype-slug               Add id="" to headings
   -> rehype-autolink-headings  Wrap heading text in anchor links (behavior: 'wrap')
   -> rehype-external-links     target="_blank" on external URLs
@@ -230,9 +232,9 @@ remark-parse                    Parse markdown to MDAST
   -> rehype-stringify           Serialize HAST to HTML string
 ```
 
-Expressive Code defaults to `github-light` / `github-dark` dual themes with `useDarkModeMediaQuery: true` for automatic dark mode support. It handles code block frames, titles, line numbers, copy buttons, line highlighting (mark/ins/del), collapsible sections, and word wrapping. Expressive Code injects its CSS inline during markdown processing, so no separate code block CSS import is needed.
+The built-in renderer defaults to `github-light` / `github-dark` dual themes and responds to Pagesmith's color-scheme classes for automatic light/dark switching. It handles code block frames, titles, line numbers, copy buttons, line highlighting (`mark` / `ins` / `del`), collapsible sections, and word wrapping. Shared code block chrome ships in Pagesmith's CSS bundles while Shiki token colors and the copy/collapse runtime are injected during markdown processing.
 
-The Expressive Code integration uses Pagesmith design tokens for styling via CSS custom properties: `--ps-font-sans`, `--ps-font-mono`, `--ps-font-size-sm`, `--ps-radius-lg`, and `--ps-color-border-subtle`.
+The built-in renderer and shared code block styles use Pagesmith design tokens via CSS custom properties such as `--ps-font-sans`, `--ps-font-mono`, `--ps-font-size-sm`, `--ps-radius-lg`, and `--ps-color-border-subtle`.
 
 ## Vite Plugin Architecture
 
@@ -283,7 +285,7 @@ The central module that implements `build()`, `startDev()`, and `preview()`. It:
 1. **Reads `pagesmith.config.json5`** and resolves all paths to absolute
 2. **Discovers content** by walking the `contentDir` filesystem tree
 3. **Reads `meta.json5` files** at the root and section levels for navigation order, display names, series grouping, and layout assignments
-4. **Processes markdown** through `@pagesmith/core/markdown` with an additional `rehype-asset-transform` plugin for asset URL rewriting
+4. **Processes markdown** through `@pagesmith/core/markdown`, then applies docs-specific link and asset transforms so relative `.md` links resolve to site routes and local content assets publish under `/assets/`
 5. **Builds a site model** containing navigation items, sidebar sections (per content section), and a page map
 6. **Renders pages** using JSX theme layouts (DocHome, DocPage, DocNotFound) or custom layouts registered via `theme.layouts` in the config
 7. **Bundles CSS** using `@pagesmith/core/css` (LightningCSS)
@@ -349,7 +351,7 @@ Pagesmith uses multiple layers of caching for performance:
 
 ## Important Design Decisions
 
-- **Expressive Code replaces custom Shiki transformers** -- Expressive Code handles syntax highlighting, code frames, line numbers, copy buttons, tabs, and line highlighting in a single integrated package. Its CSS is injected inline during markdown processing.
+- **Pagesmith ships its own renderer instead of ad-hoc Shiki glue** -- the built-in renderer handles syntax highlighting, code frames, line numbers, copy buttons, tabs, and line highlighting behind a Pagesmith-specific DOM/runtime contract.
 - **Markdown validation shares one MDAST parse** across all validators via `ValidatorContext.mdast`, avoiding redundant parsing.
 - **Schema validation parses once** via Zod `safeParse` and reuses the coerced result for the entry data.
 - **Loader parse failures** are wrapped with structured file-aware errors so the content layer can report which file failed and why.

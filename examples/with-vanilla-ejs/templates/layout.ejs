@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" class="color-scheme-auto theme-paper">
 <head>
+  <%
+    // Pagefind files exist only after production SSG + indexing — the plugin
+    // sets `searchEnabled: false` in dev (see `SsgRenderConfig` in core).
+    const searchOn = typeof searchEnabled !== 'undefined' && searchEnabled;
+  %>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
@@ -8,10 +13,12 @@
   <title><%= title %></title>
   <link rel="icon" href="<%= basePath %>favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="<%= basePath %>assets/fonts.css" />
+  <% if (searchOn) { %>
   <link rel="stylesheet" href="<%= basePath %>pagefind/pagefind-component-ui.css" />
-  <style>
-    <%- css %>
-  </style>
+  <% } %>
+  <% if (typeof cssPath !== 'undefined' && cssPath) { %>
+  <link rel="stylesheet" href="<%= cssPath %>" />
+  <% } %>
 </head>
 <body>
   <%
@@ -26,9 +33,6 @@
         </li>
         <li class="doc-sidebar-item<%= activePath.startsWith('/guide') ? ' active' : '' %>">
           <a href="<%= basePath %>guide/<%= sidebar.firstGuideSlug %>/" class="doc-sidebar-link">Guide</a>
-        </li>
-        <li class="doc-sidebar-item<%= activePath.startsWith('/features') ? ' active' : '' %>">
-          <a href="<%= basePath %>features/<%= sidebar.firstFeaturesSlug %>/" class="doc-sidebar-link">Features</a>
         </li>
         <li class="doc-sidebar-item<%= activePath === '/about' ? ' active' : '' %>">
           <a href="<%= basePath %>about/" class="doc-sidebar-link">About</a>
@@ -53,23 +57,13 @@
         <% } %>
       </ul>
     </div>
-
-    <div class="doc-sidebar-section">
-      <span class="doc-sidebar-heading">Features</span>
-      <ul class="doc-sidebar-list">
-        <% for (const entry of sidebar.featuresEntries) { %>
-          <li class="doc-sidebar-item<%= activePath === '/features/' + entry.slug ? ' active' : '' %>">
-            <a href="<%= basePath %>features/<%= entry.slug %>/" class="doc-sidebar-link"><%= entry.title %></a>
-          </li>
-        <% } %>
-      </ul>
-    </div>
   <% } %>
 
   <header class="doc-header">
+    <a href="#doc-main-content" class="doc-skip-link" onclick="document.getElementById('doc-main-content')?.focus()">Skip to main content</a>
     <div class="doc-header-inner">
       <div class="doc-header-left">
-        <button type="button" class="doc-sidebar-toggle" aria-label="Toggle sidebar">
+        <button type="button" class="doc-sidebar-toggle" aria-label="Toggle navigation" data-sidebar-toggle="">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14" /></svg>
         </button>
         <a href="/pagesmith/" class="doc-logo">Pagesmith</a>
@@ -77,40 +71,42 @@
       <nav class="doc-nav">
         <a href="<%= basePath %>"<%= activePath === '/' ? ' class="active"' : '' %>>Home</a>
         <a href="<%= basePath %>guide/<%= sidebar.firstGuideSlug %>/"<%= activePath.startsWith('/guide') ? ' class="active"' : '' %>>Guide</a>
-        <a href="<%= basePath %>features/<%= sidebar.firstFeaturesSlug %>/"<%= activePath.startsWith('/features') ? ' class="active"' : '' %>>Features</a>
       </nav>
-      <div class="doc-theme-toggle no-js-hidden" data-theme-toggle>
-        <button type="button" class="doc-theme-toggle-btn" aria-label="Change theme" aria-expanded="false" aria-haspopup="true" data-theme-toggle-btn>
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>
-        </button>
-        <div class="doc-theme-dropdown" data-theme-dropdown hidden>
-          <fieldset class="doc-theme-group">
-            <legend>Appearance</legend>
-            <label class="doc-theme-option" data-scheme="auto"><input type="radio" name="colorScheme" value="auto" checked> Auto</label>
-            <label class="doc-theme-option" data-scheme="light"><input type="radio" name="colorScheme" value="light"> Light</label>
-            <label class="doc-theme-option" data-scheme="dark"><input type="radio" name="colorScheme" value="dark"> Dark</label>
-          </fieldset>
-          <fieldset class="doc-theme-group">
-            <legend>Theme</legend>
-            <label class="doc-theme-option" data-theme="paper"><input type="radio" name="theme" value="paper" checked> Paper</label>
-            <label class="doc-theme-option" data-theme="high-contrast"><input type="radio" name="theme" value="high-contrast"> High Contrast</label>
-          </fieldset>
-          <fieldset class="doc-theme-group">
-            <legend>Text Size</legend>
-            <div class="doc-text-size-options">
-              <label class="doc-text-size-option" title="Small"><input type="radio" name="textSize" value="small"><span class="doc-text-size-label" data-size="small">A</span></label>
-              <label class="doc-text-size-option" title="Default"><input type="radio" name="textSize" value="base" checked><span class="doc-text-size-label" data-size="base">A</span></label>
-              <label class="doc-text-size-option" title="Large"><input type="radio" name="textSize" value="large"><span class="doc-text-size-label" data-size="large">A</span></label>
-            </div>
-          </fieldset>
+      <div class="doc-header-right">
+        <% if (searchOn) { %>
+        <pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
+        <% } %>
+        <div class="doc-theme-toggle no-js-hidden" data-theme-toggle>
+          <button type="button" class="doc-theme-toggle-btn" aria-label="Change theme" aria-expanded="false" aria-haspopup="true" aria-controls="doc-theme-dropdown" data-theme-toggle-btn>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>
+          </button>
+          <div id="doc-theme-dropdown" class="doc-theme-dropdown" data-theme-dropdown hidden>
+            <fieldset class="doc-theme-group">
+              <legend>Appearance</legend>
+              <label class="doc-theme-option" data-scheme="auto"><input type="radio" name="colorScheme" value="auto" checked> Auto</label>
+              <label class="doc-theme-option" data-scheme="light"><input type="radio" name="colorScheme" value="light"> Light</label>
+              <label class="doc-theme-option" data-scheme="dark"><input type="radio" name="colorScheme" value="dark"> Dark</label>
+            </fieldset>
+            <fieldset class="doc-theme-group">
+              <legend>Theme</legend>
+              <label class="doc-theme-option" data-theme="paper"><input type="radio" name="theme" value="paper" checked> Paper</label>
+              <label class="doc-theme-option" data-theme="high-contrast"><input type="radio" name="theme" value="high-contrast"> High Contrast</label>
+            </fieldset>
+            <fieldset class="doc-theme-group">
+              <legend>Text Size</legend>
+              <div class="doc-text-size-options">
+                <label class="doc-text-size-option" title="Small"><input class="sr-only" type="radio" name="textSize" value="small"><span class="doc-text-size-label" data-size="small" aria-hidden="true">A</span><span class="sr-only">Small text size</span></label>
+                <label class="doc-text-size-option" title="Default"><input class="sr-only" type="radio" name="textSize" value="base" checked><span class="doc-text-size-label" data-size="base" aria-hidden="true">A</span><span class="sr-only">Default text size</span></label>
+                <label class="doc-text-size-option" title="Large"><input class="sr-only" type="radio" name="textSize" value="large"><span class="doc-text-size-label" data-size="large" aria-hidden="true">A</span><span class="sr-only">Large text size</span></label>
+              </div>
+            </fieldset>
         </div>
       </div>
-      <pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
     </div>
   </header>
 
   <% if (isHome) { %>
-  <main class="doc-home">
+  <main id="doc-main-content" class="doc-home" tabindex="-1">
     <div class="doc-home-content" data-pagefind-body>
       <%- body %>
       <footer class="doc-footer">
@@ -155,7 +151,7 @@
       </nav>
     </aside>
 
-    <main class="doc-main" data-pagefind-body>
+    <main class="doc-main">
       <%- body %>
       <% if (typeof prev !== 'undefined' || typeof next !== 'undefined') { %>
         <nav class="doc-article-nav" aria-label="Page navigation">
@@ -177,7 +173,7 @@
       <% } %>
       <footer class="doc-footer">
         <% if ((typeof editUrl !== 'undefined' && editUrl) || (typeof lastUpdated !== 'undefined' && lastUpdated)) { %>
-          <div class="doc-page-footer-meta">
+          <div class="doc-page-meta">
             <% if (typeof editUrl !== 'undefined' && editUrl) { %>
               <a href="<%= editUrl %>" class="doc-edit-link" target="_blank" rel="noopener noreferrer">Edit this page</a>
             <% } %>
@@ -225,6 +221,7 @@
   </div>
   <% } %>
 
+  <% if (searchOn) { %>
   <pagefind-modal reset-on-close>
     <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
     <pagefind-modal-body>
@@ -233,6 +230,7 @@
     </pagefind-modal-body>
     <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
   </pagefind-modal>
+  <% } %>
 
   <dialog class="doc-sidebar-modal" id="sidebar-modal">
     <div class="doc-sidebar-modal-backdrop" data-sidebar-close></div>
@@ -246,10 +244,12 @@
     </div>
   </dialog>
 
-  <% if (typeof js !== 'undefined' && js) { %>
-  <script><%- js %></script>
+  <% if (typeof jsPath !== 'undefined' && jsPath) { %>
+  <script src="<%= jsPath %>" type="module"></script>
   <% } %>
+  <% if (searchOn) { %>
   <script src="<%= basePath %>pagefind/pagefind-component-ui.js" type="module"></script>
+  <% } %>
   <script>
     (function() {
       // Sidebar modal

@@ -91,6 +91,8 @@ Customizes the unified markdown processing pipeline:
 type MarkdownConfig = {
   remarkPlugins?: any[]
   rehypePlugins?: any[]
+  allowDangerousHtml?: boolean
+  math?: boolean | 'auto'
   shiki?: {
     themes: { light: string; dark: string }
     langAlias?: Record<string, string>
@@ -103,7 +105,9 @@ type MarkdownConfig = {
 |---|---|---|---|
 | `remarkPlugins` | `any[]` | `[]` | Additional remark plugins, injected after built-in plugins and before remark-to-rehype conversion |
 | `rehypePlugins` | `any[]` | `[]` | Additional rehype plugins, injected after built-in plugins and before HTML serialization |
-| `shiki.themes` | `{ light: string; dark: string }` | `{ light: 'github-light', dark: 'github-dark' }` | Dual theme names for Expressive Code syntax highlighting |
+| `allowDangerousHtml` | `boolean` | `true` | Preserve raw HTML from markdown. Disable this when rendering untrusted content. |
+| `math` | `boolean \| 'auto'` | `'auto'` | Always enable math plugins, disable them, or auto-enable them only for markdown that contains math markers. |
+| `shiki.themes` | `{ light: string; dark: string }` | `{ light: 'github-light', dark: 'github-dark' }` | Dual theme names for built-in code renderer syntax highlighting |
 | `shiki.langAlias` | `Record<string, string>` | `undefined` | Map of custom language aliases to language identifiers (e.g., `{ dockerfile: 'docker' }`) |
 | `shiki.defaultShowLineNumbers` | `boolean` | `true` | Show line numbers on code blocks by default. Individual blocks can override with `showLineNumbers=false`. |
 

@@ -11,24 +11,23 @@ seriesOrder: 1
 
 # Layouts & Rendering
 
-The React example uses `renderToStaticMarkup` from `react-dom/server` to convert JSX components into static HTML at build time. No React runtime ships to the browser -- the output is plain HTML enhanced by a small vanilla JS runtime.
+This example uses **`renderToStaticMarkup`** from `react-dom/server` at **build time only**. The browser never hydrates a React tree; it receives static HTML plus a small **`src/runtime.ts`** bundle for TOC, sidebar, and theme controls.
 
-## The SSR entry contract
+## The SSG entry contract
 
-The SSG plugin expects the entry file to export two functions:
+`pagesmithSsg` loads `./src/entry-server.tsx` and expects:
 
 ```ts
 export async function getRoutes(): Promise<string[]>
 export async function render(url: string, config: SsgRenderConfig): Promise<string>
 ```
 
-**`getRoutes()`** returns every URL the site should generate. The React example builds this list from the three content collections:
+**`getRoutes()`** lists every URL to emit. This example derives routes from the guide collection plus `/`, `/404`, and `pages` (e.g. `/about`):
 
 ```ts title="src/entry-server.tsx (excerpt)"
 export async function getRoutes(): Promise<string[]> {
   const routes = ['/', '/404']
   routes.push(...guideEntries.map((entry) => routeFor(entry, 'guide')))
-  routes.push(...blogEntries.map((entry) => routeFor(entry, 'blog')))
 
   const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, 'pages') === 'about')
   if (aboutPage) {
@@ -39,59 +38,25 @@ export async function getRoutes(): Promise<string[]> {
 }
 ```
 
-**`render(url, config)`** receives a URL and an `SsgRenderConfig` object (containing `base`, `cssPath`, `jsPath`, and `searchEnabled`), then returns a complete HTML document string.
+**`render(url, config)`** normalizes the path, picks the matching entry (guide or pages), builds layout markup with **`renderToStaticMarkup`**, then wraps the result in a full HTML document.
 
-## Component architecture
+## Document shell (`renderDocumentShell`)
 
-The entry server defines several React components that compose the page structure:
+Body fragments from React are **strings**. The complete document — `<html>`, `<head>` (CSS, optional Pagefind Component UI assets), skip links, sidebar dialog, and the script tag for **`client.js`** — comes from **`renderDocumentShell`** in `@pagesmith/core/ssg-utils`. This file assigns `const renderDocument = renderDocumentShell` and passes **`bodyHtml`**, optional **`sidebarHtml`**, **`config.base`**, **`cssPath`**, **`jsPath`**, and **`searchEnabled`** so the shell stays consistent with other framework examples.
 
-### `HomeBody`
+## Component roles
 
-Renders the landing page with a hero section, recent blog posts, and a guide listing. Receives navigation entries as props and renders them into card-style lists.
+- **`HomeBody`** — Landing page: hero, kitchen-sink CTA, guide links.
+- **`PageBody`** — Shared article chrome for guide and standalone pages: optional TOC, prose HTML via **`dangerouslySetInnerHTML`**, prev/next, footer.
+- **`SiteHeader`** — Top nav (Home, Guide) and optional **`<pagefind-modal-trigger>`** when `searchEnabled` is true.
+- **`SidebarNav`** — Desktop sidebar: primary links plus guide groups (`series`).
 
-### `PageBody`
+## Render pipeline (one URL)
 
-Handles all content pages (guide articles, blog posts, standalone pages). Includes:
-- A sidebar with grouped navigation (`SidebarNav`)
-- An article area with optional date/read-time metadata
-- A table of contents in the right aside (desktop) and a collapsible `<details>` element (mobile)
-- A footer with external links
+1. SSG plugin calls `render('/guide/installation', config)`.
+2. Entry resolves the guide entry, builds props from `html` / `headings` / frontmatter.
+3. **`renderToStaticMarkup`** runs for `PageBody` (and sometimes a standalone `SidebarNav` string for the shell’s sidebar slot).
+4. **`renderDocumentShell`** merges those strings into a full HTML page.
+5. Output is written under `gh-pages/examples/react/…` per `vite.config.ts` `build.outDir`.
 
-### `SiteHeader`
-
-The top navigation bar with a logo, navigation links (Home, Guide, Blog), a mobile sidebar toggle, and an optional search trigger button.
-
-### `SidebarNav`
-
-A sidebar component that renders navigation sections, guide groups (organized by series), and blog entries. Highlights the currently active page based on the URL path.
-
-## The render document function
-
-After React components produce the body HTML, `renderDocument()` wraps it in a full HTML shell:
-
-```ts title="src/entry-server.tsx (excerpt)"
-function renderDocument(props: {
-  title: string
-  description?: string
-  basePath: string
-  cssPath: string
-  jsPath?: string
-  searchEnabled?: boolean
-  bodyHtml: string
-  sidebarHtml?: string
-}) { /* ... */ }
-```
-
-This function assembles the `<head>` (meta tags, stylesheets, Pagefind assets) and `<body>` (rendered content, sidebar modal dialog, search modal dialog, and the client JS bundle). It handles HTML escaping of dynamic values like titles and descriptions.
-
-## How a page gets built
-
-The full rendering flow for a single page:
-
-1. The SSG plugin calls `render('/guide/installation', config)`
-2. The function normalizes the route and looks up the matching guide entry
-3. `SidebarNav` and `PageBody` are rendered with `renderToStaticMarkup`
-4. `renderDocument` wraps the markup in a complete HTML document
-5. The plugin writes the result to `gh-pages/examples/react/guide/installation/index.html`
-
-The same flow applies to blog posts and standalone pages, each selecting the appropriate entry and passing it to `PageBody`.
+The same pattern applies to `/guide/kitchen-sink` and `/about`, swapping which entry supplies `html` and metadata.

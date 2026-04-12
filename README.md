@@ -4,7 +4,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 
 Two main user-facing packages:
 
-- `@pagesmith/core` for the shared content layer: collections, loaders, markdown (Expressive Code syntax highlighting), validation, JSX/runtime utilities, and Vite plugins (`pagesmithContent`, `pagesmithSsg`) exposed from `@pagesmith/core/vite`
+- `@pagesmith/core` for the shared content layer: collections, loaders, markdown with a built-in Shiki-backed code renderer, validation, JSX/runtime utilities, and Vite plugins (`pagesmithContent`, `pagesmithSsg`) exposed from `@pagesmith/core/vite`
 - `@pagesmith/docs` for convention-based documentation on top of core: default layouts, navigation from `content/`, bundled Pagefind search, and the `pagesmith` docs CLI for `dev`, `build`, and `preview`
 
 Use `@pagesmith/docs` when you want a batteries-included docs site from `pagesmith.config.json5`. Use `@pagesmith/core` when you want a custom site, a framework integration (React, Solid, Svelte, EJS, Handlebars), or full control over layouts and rendering.
@@ -141,7 +141,7 @@ export default defineConfig({
 | `@pagesmith/core/css/fonts`      | Bundled Open Sans + JetBrains Mono |
 
 
-Code block styling is handled by Expressive Code through inline styles injected during markdown processing.
+Code block styling ships in the shared Pagesmith CSS bundles, while syntax token colors and copy/collapse runtime hooks are injected during markdown processing.
 
 ## Import Map
 
@@ -183,26 +183,26 @@ This generates:
 
 Point your AI assistant at the package-shipped usage guide:
 
-> Add documentation to this repo using @pagesmith/docs. Follow `node_modules/@pagesmith/docs/docs/agents/usage.md` — install the package, run `npx pagesmith init`, set up the `content/` directory structure with a home page and initial guide section based on the project's README, add markdown guidelines, and update CLAUDE.md with the project's docs structure.
+> Add documentation to this repo using @pagesmith/docs. Follow `node_modules/@pagesmith/docs/ai-guidelines/usage.md` — install the package, run `npx pagesmith init`, set up the `content/` directory structure with a home page and initial guide section based on the project's README, add markdown guidelines, and update CLAUDE.md with the project's docs structure.
 
 ### Set up core via an AI assistant
 
-> Add content collections to this repo using @pagesmith/core. Follow `node_modules/@pagesmith/core/docs/agents/usage.md` — install the package, create `content.config.ts`, configure Vite, add markdown guidelines, and update CLAUDE.md.
+> Add content collections to this repo using @pagesmith/core. Follow `node_modules/@pagesmith/core/ai-guidelines/usage.md` — install the package, create `content.config.ts`, configure Vite, add markdown guidelines, and update CLAUDE.md.
 
 ### Reference files in npm packages
 
 Both packages ship `REFERENCE.md`, agent guidance files, and `llms*.txt` inside the npm package. After installing, link to them from your project's `CLAUDE.md` or `AGENTS.md`:
 
 ```markdown
-For @pagesmith/docs usage and prompts, read node_modules/@pagesmith/docs/docs/agents/usage.md
+For @pagesmith/docs usage and prompts, read node_modules/@pagesmith/docs/ai-guidelines/usage.md
 For the full @pagesmith/docs reference, see node_modules/@pagesmith/docs/REFERENCE.md
-For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/docs/agents/usage.md
+For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/ai-guidelines/usage.md
 For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REFERENCE.md
 ```
 
 Or copy the AGENTS.md template from the package:
-- `node_modules/@pagesmith/docs/docs/agents/AGENTS.md.template`
-- `node_modules/@pagesmith/core/docs/agents/AGENTS.md.template`
+- `node_modules/@pagesmith/docs/ai-guidelines/AGENTS.md.template`
+- `node_modules/@pagesmith/core/ai-guidelines/AGENTS.md.template`
 
 ### AI guidance files in each package
 
@@ -212,14 +212,14 @@ Both packages ship these files under `node_modules/@pagesmith/<pkg>/`:
 |---|---|
 | `REFERENCE.md` | Complete reference (config, API, markdown, layouts, deployment) |
 | `README.md` | User-facing quick start and API overview |
-| `docs/agents/usage.md` | Agent rules, integration shape, copy-paste prompts for common workflows |
-| `docs/agents/recipes.md` | Step-by-step recipes for common tasks |
-| `docs/agents/errors.md` | Error catalog with patterns and fixes |
-| `docs/agents/migration.md` | Pre-1.0 upgrade notes |
-| `docs/agents/changelog-notes.md` | Version highlights |
-| `docs/agents/AGENTS.md.template` | Template for project-level AGENTS.md |
-| `docs/llms.txt` | Compact AI context index |
-| `docs/llms-full.txt` | Full AI context with all file pointers |
+| `ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts for common workflows |
+| `ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
+| `ai-guidelines/errors.md` | Error catalog with patterns and fixes |
+| `ai-guidelines/migration.md` | Pre-1.0 upgrade notes |
+| `ai-guidelines/changelog-notes.md` | Version highlights |
+| `ai-guidelines/AGENTS.md.template` | Template for project-level AGENTS.md |
+| `ai-guidelines/llms.txt` | Compact AI context index |
+| `ai-guidelines/llms-full.txt` | Full AI context with all file pointers |
 
 
 ## Docs

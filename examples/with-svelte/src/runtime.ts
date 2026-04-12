@@ -1,8 +1,9 @@
 /**
- * Runtime entry — browser only.
+ * Example-specific client JS (no Svelte in the browser).
  *
- * Progressive enhancements on top of static HTML.
- * The site works without JS — this adds TOC highlighting, search, and sidebar.
+ * Why separate from client.js: Vite's entry stays a one-liner so bundling order is obvious;
+ * everything interactive for *this* layout lives here. The HTML shell and Pagefind UI are
+ * already emitted at build time; this file only wires DOM behavior Pagefind does not own.
  */
 
 // ── TOC highlight on scroll ──
@@ -88,6 +89,34 @@
     sidebarModal.addEventListener('cancel', () => {
       document.body.style.overflow = ''
     })
+  }
+}
+
+// ── Search trigger compact mode ──
+{
+  if (typeof window.matchMedia === 'function') {
+    const mediaQuery = window.matchMedia('(max-width: 640px)')
+    const sync = () => {
+      document
+        .querySelectorAll<HTMLElement>('pagefind-modal-trigger.doc-search-trigger')
+        .forEach((trigger) => {
+          if (mediaQuery.matches) {
+            trigger.setAttribute('compact', '')
+            trigger.setAttribute('hide-shortcut', '')
+          } else {
+            trigger.removeAttribute('compact')
+            trigger.removeAttribute('hide-shortcut')
+          }
+        })
+    }
+
+    sync()
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', sync)
+    } else {
+      mediaQuery.addListener(sync)
+    }
   }
 }
 

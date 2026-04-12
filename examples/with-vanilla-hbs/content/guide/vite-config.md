@@ -11,16 +11,16 @@ seriesOrder: 2
 
 # Vite Configuration
 
-The entire build is driven by Vite with two Pagesmith plugins. No custom build scripts, no webpack -- just a standard `vite.config.ts`.
+Vite is the only build driver: `vite dev` for local preview and `vite build` for static output. Pagesmith supplies Vite plugins from `@pagesmith/core/vite`; there is no separate Node CLI step for HTML in this example.
 
-## The full config
+## Full config
 
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite-plus'
 import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
-  base: '/pagesmith/examples/vanilla-hbs/',
+  base: '/pagesmith/examples/vanilla-hbs',
   plugins: [
     sharedAssetsPlugin(),
     ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
@@ -43,67 +43,24 @@ export default defineConfig({
 })
 ```
 
-## Plugin breakdown
+## Plugins
 
 ### `sharedAssetsPlugin()`
 
-Copies shared assets (fonts, icons) from `@pagesmith/core` into the build output. This ensures that font files referenced by CSS are available in production without manual copying.
+Copies assets such as fonts shipped with `@pagesmith/core` so CSS `url()` references resolve in the built folder.
 
 ### `pagesmithSsg({ entry, contentDirs })`
 
-The SSG plugin handles static site generation. It accepts two key options:
+Spread into `plugins` because it returns an array. Wires dev middleware to your `render()` export, runs `getRoutes` + `render` for production HTML, and invokes Pagefind after the HTML pass.
 
-- **`entry`** -- Path to the SSR entry file that exports `getRoutes()` and `render()`.
-- **`contentDirs`** -- Directories to watch for content changes during development.
+**No `pagesmithContent` here** — the Handlebars entry never imports `virtual:content/*`. It uses `createContentLayer` instead, which fits a non-framework template pipeline.
 
-Note that `pagesmithSsg` returns an array of plugins (hence the spread `...`), which is why it is spread into the plugins array.
+## `base` and `outDir`
 
-**In development**, it provides middleware that calls `render()` on each request, giving you live preview with hot reload when content or templates change.
+`base` is the public URL prefix for assets and in-app links; the SSR entry receives the same value via `SsgRenderConfig` to prefix internal links.
 
-**In production**, it:
-1. Calls `getRoutes()` to discover all URLs
-2. Calls `render()` for each URL in parallel
-3. Writes the HTML files to the output directory
-4. Runs Pagefind to index the generated pages and produce a search index
+`outDir` points at the workspace `gh-pages` tree so this example can deploy next to other demos.
 
-## No `pagesmithContent` plugin
+## JSX / `.tsx` entry
 
-Unlike the React or Solid examples, this config does not include `pagesmithContent`. The Handlebars example uses `createContentLayer` directly in the SSR entry instead of relying on virtual modules. This means:
-
-- No `virtual:content/guide` imports -- content is loaded programmatically
-- No auto-generated TypeScript declarations for virtual modules
-- Full control over when and how content is loaded and cached
-
-This is the simpler approach when your templates do not need framework-specific module imports.
-
-## Base path
-
-```ts
-base: '/pagesmith/examples/vanilla-hbs/'
-```
-
-The `base` option configures the public URL prefix for all assets. This is passed through to the `render()` function via `config.base`, where it is used to prefix all internal links and asset references. This makes the site deployable under a subdirectory (e.g., GitHub Pages).
-
-## JSX configuration
-
-```ts
-oxc: {
-  jsx: {
-    runtime: 'automatic',
-    importSource: '@pagesmith/core',
-  },
-}
-```
-
-This configures the OXC transpiler to use `@pagesmith/core` as the JSX import source. Even though this example uses Handlebars for page templates, the SSR entry file uses `.tsx` extension for TypeScript support, and the JSX runtime is available if needed.
-
-## Build output
-
-```ts
-build: {
-  outDir: '../../gh-pages/examples/vanilla-hbs',
-  emptyOutDir: true,
-}
-```
-
-The output directory is set relative to the example directory, placing the built site into the workspace-level `gh-pages/` folder. The `emptyOutDir` flag ensures a clean build every time.
+The SSR file uses `.tsx` and sets `importSource: '@pagesmith/core'` so JSX pragma is available if you add JSX-based helpers later. Handlebars remains the page template system.

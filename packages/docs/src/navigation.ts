@@ -1,5 +1,11 @@
 import { basename } from 'path'
-import { toTitleCase, type ResolvedDocsConfig } from './config.js'
+import {
+  toTitleCase,
+  type FooterLink,
+  type FooterLinkGroup,
+  type FooterLinks,
+  type ResolvedDocsConfig,
+} from './config.js'
 import type {
   DocsPage,
   DocsSectionMeta,
@@ -11,18 +17,81 @@ import type {
   SiteModel,
 } from './content.js'
 
+type SectionPageLookup = {
+  byContentSlug: Map<string, DocsPage>
+  byRelativeSlug: Map<string, DocsPage>
+  byLeafSlug: Map<string, DocsPage | null>
+}
+
 function getOrder(page: DocsPage): number {
   return typeof page.frontmatter.order === 'number'
     ? page.frontmatter.order
     : Number.MAX_SAFE_INTEGER
 }
 
+function comparePages(left: DocsPage, right: DocsPage): number {
+  const orderDelta = getOrder(left) - getOrder(right)
+  if (orderDelta !== 0) return orderDelta
+  return left.routePath.localeCompare(right.routePath)
+}
+
 function sortPages(pages: DocsPage[]): DocsPage[] {
-  return [...pages].sort((left, right) => {
-    const orderDelta = getOrder(left) - getOrder(right)
-    if (orderDelta !== 0) return orderDelta
-    return left.routePath.localeCompare(right.routePath)
-  })
+  return [...pages].sort(comparePages)
+}
+
+function getSectionRelativeSlug(page: DocsPage, sectionSlug: string): string {
+  if (page.contentSlug === sectionSlug) return sectionSlug
+  return page.contentSlug.startsWith(`${sectionSlug}/`)
+    ? page.contentSlug.slice(sectionSlug.length + 1)
+    : page.contentSlug
+}
+
+function getLeafSlug(page: DocsPage): string {
+  return page.contentSlug.split('/').at(-1) ?? page.contentSlug
+}
+
+function buildSectionPageLookup(sectionSlug: string, sectionPages: DocsPage[]): SectionPageLookup {
+  const byContentSlug = new Map<string, DocsPage>()
+  const byRelativeSlug = new Map<string, DocsPage>()
+  const byLeafSlug = new Map<string, DocsPage | null>()
+
+  for (const page of sectionPages) {
+    byContentSlug.set(page.contentSlug, page)
+    byRelativeSlug.set(getSectionRelativeSlug(page, sectionSlug), page)
+
+    const leafSlug = getLeafSlug(page)
+    if (!byLeafSlug.has(leafSlug)) {
+      byLeafSlug.set(leafSlug, page)
+    } else {
+      byLeafSlug.set(leafSlug, null)
+    }
+  }
+
+  return { byContentSlug, byRelativeSlug, byLeafSlug }
+}
+
+function findSectionPageBySlug(
+  lookup: SectionPageLookup,
+  rawSlug: string,
+): { page?: DocsPage; ambiguous?: boolean } {
+  const slug = rawSlug.replace(/^\/+/, '').replace(/\/+$/, '')
+  if (!slug) return {}
+
+  const direct = lookup.byRelativeSlug.get(slug) ?? lookup.byContentSlug.get(slug)
+  if (direct) return { page: direct }
+
+  const byLeaf = lookup.byLeafSlug.get(slug)
+  if (byLeaf === null) return { ambiguous: true }
+  if (byLeaf) return { page: byLeaf }
+
+  return {}
+}
+
+function toSidebarItem(page: DocsPage, basePath: string): SidebarItem {
+  return {
+    title: page.frontmatter.sidebarLabel ?? page.title,
+    path: `${basePath}${page.routePath}`,
+  }
 }
 
 function sortSectionPages(pages: DocsPage[], meta?: DocsSectionMeta): DocsPage[] {
@@ -51,12 +120,31 @@ function sortSectionPages(pages: DocsPage[], meta?: DocsSectionMeta): DocsPage[]
 
   if (meta.orderBy === 'manual' && meta.items) {
     const order = new Map(meta.items.map((slug, i) => [slug, i]))
+    const getPosition = (page: DocsPage): number | undefined => {
+      const candidates = [
+        page.contentSlug,
+        page.section ? getSectionRelativeSlug(page, page.section) : undefined,
+        getLeafSlug(page),
+      ]
+
+      for (const candidate of candidates) {
+        if (!candidate) continue
+        const position = order.get(candidate)
+        if (position != null) return position
+      }
+
+      return undefined
+    }
+
     return [...pages].sort((a, b) => {
-      const slugA = a.contentSlug.split('/').pop() ?? ''
-      const slugB = b.contentSlug.split('/').pop() ?? ''
-      const posA = order.get(slugA) ?? Number.MAX_SAFE_INTEGER
-      const posB = order.get(slugB) ?? Number.MAX_SAFE_INTEGER
-      return posA - posB
+      const posA = getPosition(a)
+      const posB = getPosition(b)
+
+      if (posA != null && posB != null) return posA - posB
+      if (posA != null) return -1
+      if (posB != null) return 1
+
+      return comparePages(a, b)
     })
   }
 
@@ -70,36 +158,54 @@ function buildSidebarWithSeries(
   basePath: string,
 ): SidebarSection[] {
   const sections: SidebarSection[] = []
-  const pageBySlug = new Map(sectionPages.map((p) => [p.contentSlug.split('/').pop(), p]))
-  const landing = sectionPages.find((p) => p.contentSlug === sectionSlug)
+  const lookup = buildSectionPageLookup(sectionSlug, sectionPages)
+  const includedPages = new Set<DocsPage>()
 
   for (const series of meta.series!) {
+    const items: SidebarItem[] = []
+
     for (const slug of series.articles) {
-      if (!pageBySlug.has(slug)) {
+      const { page, ambiguous } = findSectionPageBySlug(lookup, slug)
+      if (ambiguous) {
+        console.warn(
+          `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${series.displayName}" references article slug "${slug}" which matches multiple loaded pages. Use the full section-relative slug to disambiguate.`,
+        )
+        continue
+      }
+
+      if (!page) {
         console.warn(
           `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${series.displayName}" references article slug "${slug}" which does not match any loaded page.`,
         )
+        continue
       }
+
+      if (includedPages.has(page)) continue
+      includedPages.add(page)
+      items.push(toSidebarItem(page, basePath))
     }
 
-    const items: SidebarItem[] = series.articles
-      .map((slug) => pageBySlug.get(slug))
-      .filter((p): p is DocsPage => p != null)
-      .map((page) => ({
-        title: page.frontmatter.sidebarLabel ?? page.title,
-        path: `${basePath}${page.routePath}`,
-      }))
-
     if (items.length > 0) {
-      sections.push({ title: series.displayName, slug: series.slug, items })
+      sections.push({
+        title: series.displayName,
+        slug: series.slug,
+        collapsed: meta.collapsed,
+        items,
+      })
     }
   }
 
-  // Prepend landing page to first section if exists
-  if (landing && sections.length > 0) {
-    sections[0].items.unshift({
-      title: landing.frontmatter.sidebarLabel ?? landing.title,
-      path: `${basePath}${landing.routePath}`,
+  const miscItems = sortSectionPages(
+    sectionPages.filter((page) => !includedPages.has(page)),
+    meta,
+  ).map((page) => toSidebarItem(page, basePath))
+
+  if (miscItems.length > 0) {
+    sections.push({
+      title: 'Miscellaneous',
+      slug: `${sectionSlug}-misc`,
+      collapsed: meta.collapsed,
+      items: miscItems,
     })
   }
 
@@ -107,83 +213,11 @@ function buildSidebarWithSeries(
 }
 
 function buildSidebarItems(
-  sectionSlug: string,
   sectionPages: DocsPage[],
   basePath: string,
   sectionMeta?: DocsSectionMeta,
 ): SidebarItem[] {
-  type Node = {
-    key: string
-    title: string
-    path: string
-    order: number
-    children: Map<string, Node>
-  }
-
-  const roots = new Map<string, Node>()
-  const landingPage = sectionPages.find((page) => page.contentSlug === sectionSlug)
-
-  for (const page of sortSectionPages(
-    sectionPages.filter((entry) => entry.contentSlug !== sectionSlug),
-    sectionMeta,
-  )) {
-    const remainder = page.contentSlug.slice(sectionSlug.length + 1)
-    if (!remainder) continue
-
-    const segments = remainder.split('/')
-    let level = roots
-    let accumulated = sectionSlug
-
-    for (const [index, segment] of segments.entries()) {
-      accumulated = `${accumulated}/${segment}`
-      let node = level.get(segment)
-      if (!node) {
-        node = {
-          key: accumulated,
-          title: toTitleCase(segment),
-          path: `${basePath}${page.routePath}`,
-          order: getOrder(page),
-          children: new Map<string, Node>(),
-        }
-        level.set(segment, node)
-      }
-
-      if (index === segments.length - 1) {
-        node.title = page.frontmatter.sidebarLabel ?? page.title
-        node.path = `${basePath}${page.routePath}`
-        node.order = getOrder(page)
-      }
-
-      level = node.children
-    }
-  }
-
-  const toItems = (nodes: Map<string, Node>): SidebarItem[] =>
-    Array.from(nodes.values())
-      .sort((left, right) => {
-        const orderDelta = left.order - right.order
-        if (orderDelta !== 0) return orderDelta
-        return left.title.localeCompare(right.title)
-      })
-      .map((node) => ({
-        title: node.title,
-        path: node.path,
-        ...(node.children.size > 0 ? { children: toItems(node.children) } : {}),
-      }))
-
-  const items = toItems(roots)
-
-  if (!landingPage) {
-    return items
-  }
-
-  return [
-    {
-      title: landingPage.frontmatter.sidebarLabel ?? landingPage.title,
-      path: `${basePath}${landingPage.routePath}`,
-    },
-    ...items,
-  ]
+  return sortSectionPages(sectionPages, sectionMeta).map((page) => toSidebarItem(page, basePath))
 }
 
 /**
@@ -197,13 +231,13 @@ function findFirstSectionPage(
 ): DocsPage | undefined {
   const nonLanding = sectionPages.filter((p) => p.contentSlug !== sectionSlug)
   if (nonLanding.length === 0) return undefined
+  const lookup = buildSectionPageLookup(sectionSlug, nonLanding)
 
-  // For manual ordering with series, the first article of the first series wins
-  if (meta?.orderBy === 'manual' && meta.series && meta.series.length > 0) {
-    const pageBySlug = new Map(nonLanding.map((p) => [p.contentSlug.split('/').pop(), p]))
+  // When series exist, the first referenced article of the first series wins.
+  if (meta?.series && meta.series.length > 0) {
     for (const series of meta.series) {
       for (const slug of series.articles) {
-        const page = pageBySlug.get(slug)
+        const { page } = findSectionPageBySlug(lookup, slug)
         if (page) return page
       }
     }
@@ -211,9 +245,8 @@ function findFirstSectionPage(
 
   // For manual ordering with items array
   if (meta?.orderBy === 'manual' && meta.items && meta.items.length > 0) {
-    const pageBySlug = new Map(nonLanding.map((p) => [p.contentSlug.split('/').pop(), p]))
     for (const slug of meta.items) {
-      const page = pageBySlug.get(slug)
+      const { page } = findSectionPageBySlug(lookup, slug)
       if (page) return page
     }
   }
@@ -275,7 +308,7 @@ export function buildSiteModel(
           title: label,
           slug: sectionSlug,
           collapsed: sectionMeta?.collapsed,
-          items: buildSidebarItems(sectionSlug, sectionPages, config.basePath, sectionMeta),
+          items: buildSidebarItems(sectionPages, config.basePath, sectionMeta),
         },
       ])
     }
@@ -379,27 +412,73 @@ export function getPrevNext(
   }
 }
 
+function isFooterLinkGroup(link: FooterLink | FooterLinkGroup): link is FooterLinkGroup {
+  return 'links' in link
+}
+
+function isGroupedFooterLinks(footerLinks: FooterLinks): footerLinks is FooterLinkGroup[] {
+  return footerLinks.length > 0 && isFooterLinkGroup(footerLinks[0]!)
+}
+
+function prefixFooterLinkPath(path: string, basePath: string): string {
+  return path.startsWith('/') && !path.startsWith('//') && !path.startsWith(basePath)
+    ? `${basePath}${path}`
+    : path
+}
+
+function withResolvedFooterLinks(
+  footerLinks: FooterLinks,
+  basePath: string,
+  needsBasePrefix: boolean,
+): FooterLinks {
+  if (!needsBasePrefix || !basePath || footerLinks.length === 0) {
+    return footerLinks
+  }
+
+  if (isGroupedFooterLinks(footerLinks)) {
+    return footerLinks.map((group) => ({
+      ...group,
+      links: group.links.map((link) => ({
+        ...link,
+        path: prefixFooterLinkPath(link.path, basePath),
+      })),
+    }))
+  }
+
+  return footerLinks.map((link) => ({
+    ...link,
+    path: prefixFooterLinkPath(link.path, basePath),
+  }))
+}
+
 export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
   const base = config.basePath
 
-  // Use root meta footer links if provided, otherwise config footer links
-  const rawFooterLinks = model.rootMeta?.footerLinks ?? config.footerLinks
+  // Root meta wins, explicit config is next, otherwise reuse the primary nav
+  // so the footer always exposes the site's major destinations by default.
+  const footerLinkSource =
+    model.rootMeta?.footerLinks !== undefined
+      ? { links: model.rootMeta.footerLinks, needsBasePrefix: true }
+      : config._userConfig?.footerLinks !== undefined || config.footerLinks.length > 0
+        ? { links: config.footerLinks, needsBasePrefix: true }
+        : { links: model.navItems, needsBasePrefix: false }
 
-  // Prefix internal footer link paths with basePath
-  const footerLinks = base
-    ? rawFooterLinks.map((link) => ({
-        ...link,
-        path:
-          link.path.startsWith('/') && !link.path.startsWith('//') && !link.path.startsWith(base)
-            ? `${base}${link.path}`
-            : link.path,
-      }))
-    : rawFooterLinks
+  const footerLinks = withResolvedFooterLinks(
+    footerLinkSource.links,
+    base,
+    footerLinkSource.needsBasePrefix,
+  )
+  const withBasePath = (value: string): string => {
+    const cleaned = value.replace(/^\//, '')
+    return base ? `${base}/${cleaned}` : `/${cleaned}`
+  }
 
   return {
     origin: config.origin,
     basePath: config.basePath,
     homeLink: config.homeLink,
+    maintainer: config.maintainer,
+    copyright: config.copyright,
     name: config.name,
     title: config.title,
     description: config.description,
@@ -414,13 +493,13 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
     socialImage: config.socialImage
       ? config.socialImage.startsWith('http')
         ? config.socialImage
-        : `${config.basePath}/${config.socialImage.replace(/^\//, '')}`
+        : withBasePath(config.socialImage)
       : undefined,
     icon: config.icon,
-    favicon: config.favicon !== false ? `${config.basePath}/${basename(config.favicon)}` : false,
+    favicon: config.favicon !== false ? withBasePath(basename(config.favicon)) : false,
     faviconFallback: config.faviconFallback
-      ? `${config.basePath}/${basename(config.faviconFallback)}`
+      ? withBasePath(basename(config.faviconFallback))
       : false,
-    appleTouchIcon: config.appleTouchIcon ? `${config.basePath}/apple-touch-icon.png` : false,
+    appleTouchIcon: config.appleTouchIcon ? withBasePath('apple-touch-icon.png') : false,
   }
 }

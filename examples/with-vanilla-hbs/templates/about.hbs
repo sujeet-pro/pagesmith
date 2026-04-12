@@ -1,6 +1,8 @@
+{{!-- Standalone page from the `pages` collection; mirrors article.hbs skip + Pagefind markers. --}}
 {{#> layout}}
   {{#*inline "body"}}
-    <article>
+    {{!-- Match article.hbs: skip target, keyboard focus, and Pagefind body scope --}}
+    <article id="doc-main-content" tabindex="-1" data-pagefind-body>
       <div class="prose">
         {{{content}}}
       </div>

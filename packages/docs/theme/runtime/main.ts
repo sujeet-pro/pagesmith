@@ -3,15 +3,17 @@
  *
  * All features are progressive enhancements on top of CSS-only behavior.
  * The site works without JS — this adds TOC highlighting,
- * sidebar toggle behavior, and search. Code block interactivity
- * (copy button, etc.) is handled by Expressive Code inline scripts.
+ * sidebar toggle behavior, search, and the shared Pagesmith code runtime.
  */
 
+import '@pagesmith/core/runtime/content'
+import { initFooterCopyrightYear } from './copyright'
 import { initSearch } from './search'
 import { initSidebar } from './sidebar'
 import { initTheme } from './theme'
 import { initTocHighlight } from './toc-highlight'
 
+initFooterCopyrightYear()
 initTheme()
 initSidebar()
 initTocHighlight()

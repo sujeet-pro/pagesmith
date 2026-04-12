@@ -1,6 +1,6 @@
 ---
 title: Vite Configuration
-description: Configuring Vite plugins for Pagesmith with Solid
+description: Vite plugins for Pagesmith content, Solid SSR, and static generation in this example.
 date: 2026-03-16
 tags:
   - vite
@@ -11,9 +11,9 @@ seriesOrder: 2
 
 # Vite Configuration
 
-The entire build is driven by Vite with three Pagesmith plugins and one Solid plugin. No custom build scripts, no webpack -- just a standard `vite.config.ts`.
+The build is a normal Vite project: `vite.config.ts` registers shared assets, Solid with SSR, `pagesmithContent`, and the spread `pagesmithSsg` plugin array.
 
-## The full config
+## Current config
 
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite-plus'
@@ -22,7 +22,7 @@ import solid from 'vite-plugin-solid'
 import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
-  base: '/pagesmith/examples/solid/',
+  base: '/pagesmith/examples/solid',
   plugins: [
     sharedAssetsPlugin(),
     solid({ ssr: true }),
@@ -32,62 +32,22 @@ export default defineConfig({
   build: {
     outDir: '../../gh-pages/examples/solid',
     emptyOutDir: true,
+    rolldownOptions: {
+      checks: {
+        pluginTimings: false,
+      },
+    },
   },
 })
 ```
 
-## Plugin breakdown
+## Plugin roles
 
-### `sharedAssetsPlugin()`
+- **`sharedAssetsPlugin()`** — copies shared assets (for example bundled fonts) referenced from CSS into the output so production paths resolve.
+- **`solid({ ssr: true })`** — compiles JSX in `src/entry-server.tsx` for **server** output (`renderToString`), not hydration.
+- **`pagesmithContent({ collections })`** — reads `content.config.ts`, validates frontmatter, runs the markdown pipeline, and registers **`virtual:content/<collection>`** modules consumed by the entry.
+- **`...pagesmithSsg({ entry, contentDirs })`** — dev middleware that SSR-renders requests, and the production pipeline that calls `getRoutes` / `render`, writes HTML, and runs Pagefind. `contentDirs` is what Vite watches for markdown HMR.
 
-Copies shared assets (fonts, icons) from `@pagesmith/core` into the build output. This ensures that font files referenced by CSS are available in production without manual copying.
+## `base` and `outDir`
 
-### `solid({ ssr: true })`
-
-The Solid Vite plugin handles Solid's JSX transform and compilation. The `ssr: true` option is critical -- it tells the plugin to compile components for server-side rendering rather than client-side hydration. Without this flag, the generated output would include hydration markers instead of clean static HTML.
-
-### `pagesmithContent({ collections })`
-
-The content plugin takes the collections object exported from `content.config.ts` and does three things:
-
-1. **Processes markdown** -- Runs each `.md` file through the unified pipeline (remark, rehype, Expressive Code for syntax highlighting) and extracts headings.
-2. **Validates frontmatter** -- Checks every file's YAML frontmatter against the collection's Zod schema. Build fails on validation errors.
-3. **Creates virtual modules** -- Registers `virtual:content/guide`, `virtual:content/features`, and `virtual:content/pages` so your rendering code can import content directly.
-
-It also generates `src/pagesmith-content.d.ts` with TypeScript declarations for those virtual modules.
-
-### `pagesmithSsg({ entry, contentDirs })`
-
-The SSG plugin handles static site generation. It accepts two key options:
-
-- **`entry`** -- Path to the SSR entry file that exports `getRoutes()` and `render()`.
-- **`contentDirs`** -- Directories to watch for content changes during development.
-
-Note that `pagesmithSsg` returns an array of plugins (hence the spread `...`), which is why it is spread into the plugins array.
-
-**In development**, it provides middleware that calls `render()` on each request, giving you live preview with hot reload when content or templates change.
-
-**In production**, it:
-1. Calls `getRoutes()` to discover all URLs
-2. Calls `render()` for each URL in parallel
-3. Writes the HTML files to the output directory
-4. Runs Pagefind to index the generated pages and produce a search index
-
-## Base path
-
-```ts
-base: '/pagesmith/examples/solid/'
-```
-
-The `base` option configures the public URL prefix for all assets. This is passed through to the `render()` function via `config.base`, where it is used to prefix all internal links and asset references. This makes the site deployable under a subdirectory (e.g., GitHub Pages).
-
-## Build output
-
-```ts
-build: {
-  outDir: '../../gh-pages/examples/solid',
-  emptyOutDir: true,
-}
-```
-
-The output directory is set relative to the example directory, placing the built site into the workspace-level `gh-pages/` folder. The `emptyOutDir` flag ensures a clean build every time.
+`base` is the public path prefix for GitHub Pages (`config.base` in `render()` prefixes internal links). `outDir` points at the monorepo’s `gh-pages/examples/solid` tree so this example can be deployed alongside other demos.

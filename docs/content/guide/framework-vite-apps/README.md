@@ -6,7 +6,7 @@ description: Build content-driven static sites using React, SolidJS, or Svelte w
 # Vite Framework Apps
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Set up a Pagesmith content-driven static site with [React/SolidJS/Svelte]. Create `content.config.ts`, `vite.config.ts` with `pagesmithContent` and `pagesmithSsg`, and an SSR entry that exports `getRoutes()` and `render()`. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for reference."
+> Ask your AI agent: "Set up a Pagesmith content-driven static site with [React/SolidJS/Svelte]. Create `content.config.ts`, `vite.config.ts` with `pagesmithContent` and `pagesmithSsg`, and an SSR entry that exports `getRoutes()` and `render()`. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for reference."
 > Then read on to understand what happened and customize further.
 
 All three Vite framework integrations follow the same pattern: define collections in `content.config.ts`, wire up the `pagesmithContent` and `pagesmithSsg` Vite plugins, and write an SSR entry that exports `getRoutes()` and `render()`. The framework-specific differences are limited to the JSX/template syntax, the rendering function, and how raw HTML is injected.
@@ -94,7 +94,7 @@ The `SsgRenderConfig` provides:
 
 ## React
 
-Source: [`examples/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-react) | Output: <a href="/pagesmith/examples/react/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-react) | Output: <a href="/pagesmith/examples/react" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 
@@ -180,7 +180,7 @@ import './src/runtime.ts'
 
 ## SolidJS
 
-Source: [`examples/with-solid/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-solid) | Output: <a href="/pagesmith/examples/solid/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/with-solid/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-solid) | Output: <a href="/pagesmith/examples/solid" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 
@@ -253,7 +253,7 @@ const bodyHtml = renderToString(() => (
 
 ## Svelte
 
-Source: [`examples/with-svelte/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-svelte) | Output: <a href="/pagesmith/examples/svelte/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/with-svelte/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-svelte) | Output: <a href="/pagesmith/examples/svelte" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 

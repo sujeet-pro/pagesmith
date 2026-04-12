@@ -24,17 +24,6 @@ async function loadUserThemeModule(
   const cacheDir = join(rootDir, 'node_modules', '.cache', 'pagesmith-docs-layouts')
   mkdirSync(cacheDir, { recursive: true })
 
-  // Clean up old cached files before writing a new one
-  for (const file of readdirSync(cacheDir)) {
-    if (file.endsWith('.mjs')) {
-      try {
-        rmSync(join(cacheDir, file))
-      } catch {
-        // Ignore errors from concurrent cleanup
-      }
-    }
-  }
-
   // Use content-hash-based filename for stability
   const entryContent = readFileSync(entryPath, 'utf-8')
   const contentHash = createHash('md5').update(entryContent).digest('hex').slice(0, 12)
@@ -61,6 +50,19 @@ async function loadUserThemeModule(
         '.tsx': 'tsx',
       },
     })
+  }
+
+  // Drop stale builds for the same logical layout entry without invalidating
+  // cached siblings that are still in active use.
+  for (const file of readdirSync(cacheDir)) {
+    if (file === basename(outFile) || !file.startsWith(`${safeBase}-`) || !file.endsWith('.mjs')) {
+      continue
+    }
+    try {
+      rmSync(join(cacheDir, file))
+    } catch {
+      // Ignore errors from concurrent cleanup
+    }
   }
 
   return import(`${pathToFileURL(outFile).href}?t=${Date.now()}`) as Promise<
@@ -164,18 +166,17 @@ export async function renderDocs(
       if (frontmatter.hero?.actions) {
         frontmatter.hero = {
           ...frontmatter.hero,
-          actions: frontmatter.hero.actions.map((a: Record<string, unknown>) => ({
-            ...a,
-            link:
-              typeof a.link === 'string' && a.link.startsWith('/') ? `${base}${a.link}` : a.link,
+          actions: frontmatter.hero.actions.map((action) => ({
+            ...action,
+            link: action.link.startsWith('/') ? `${base}${action.link}` : action.link,
           })),
         }
       }
       const homeActions = Array.isArray(frontmatter.actions) ? frontmatter.actions : undefined
       if (homeActions) {
-        frontmatter.actions = homeActions.map((a: Record<string, unknown>) => ({
-          ...a,
-          link: typeof a.link === 'string' && a.link.startsWith('/') ? `${base}${a.link}` : a.link,
+        frontmatter.actions = homeActions.map((action) => ({
+          ...action,
+          link: action.link.startsWith('/') ? `${base}${action.link}` : action.link,
         }))
       }
 

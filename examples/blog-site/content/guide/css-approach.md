@@ -20,7 +20,7 @@ The `@pagesmith/core/css/content` import bundles:
 - **Reset** -- A minimal CSS reset (box-sizing, margin removal)
 - **Viewport** -- Responsive viewport base styles
 - **Prose** -- Typography for rendered markdown (headings, lists, links, blockquotes, tables, images)
-- **Inline code** -- Styling for inline `code` elements (Expressive Code handles fenced code blocks)
+- **Inline code** -- Styling for inline `code` elements (the built-in Pagesmith renderer handles fenced code blocks)
 
 ## What the example adds
 

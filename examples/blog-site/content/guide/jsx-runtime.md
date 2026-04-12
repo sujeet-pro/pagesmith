@@ -13,6 +13,8 @@ seriesOrder: 1
 
 The `@pagesmith/core/jsx-runtime` module provides a lightweight JSX-to-HTML runtime for server-side rendering. It is designed for static site generation -- no virtual DOM, no hydration, no client-side runtime.
 
+In `src/entry-server.tsx`, layout components return `HtmlString` trees that are coerced with **`String(...)`** before being embedded in the larger HTML document string returned from `render()`.
+
 ## How it works
 
 The runtime exports three primitives:

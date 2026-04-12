@@ -1,6 +1,7 @@
 import { basename, resolve } from 'path'
 import { existsSync } from 'fs'
 import type { ConfigValidationIssue, ResolvedDocsConfig } from './types'
+import { DocsConfigSchema } from '../schemas/index.js'
 
 /**
  * Validate a resolved docs config. Returns issues found.
@@ -10,6 +11,17 @@ export function validateConfig(config: ResolvedDocsConfig): ConfigValidationIssu
   const issues: ConfigValidationIssue[] = []
 
   const uc = config._userConfig
+  const schemaResult = DocsConfigSchema.safeParse(uc ?? {})
+  if (!schemaResult.success) {
+    for (const issue of schemaResult.error.issues) {
+      const field = issue.path.length > 0 ? issue.path.join('.') : 'config'
+      issues.push({
+        field,
+        message: issue.message,
+        severity: 'error',
+      })
+    }
+  }
   const hasExplicitName = uc ? !!(uc.name || uc.title) : config.name !== basename(config.rootDir)
   const hasExplicitTitle = uc ? !!(uc.title || uc.name) : config.title !== basename(config.rootDir)
 

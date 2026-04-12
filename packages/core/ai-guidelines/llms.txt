@@ -1,0 +1,79 @@
+# @pagesmith/core
+
+Version-matched AI context for the installed `@pagesmith/core` package.
+
+## Install
+
+```bash
+npm add @pagesmith/core
+```
+
+## Use this package when
+
+- You need a custom content architecture, custom layouts, or framework-specific rendering.
+- You want typed content collections with explicit schemas and runtime control.
+
+## Start here
+
+- **Full API reference:** `node_modules/@pagesmith/core/REFERENCE.md`
+- **Agent rules + prompts:** `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- **Upgrade prompt:** `node_modules/@pagesmith/core/ai-guidelines/migration.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
+
+## Requirements
+
+- **Node.js 24+** (`engines.node` in package.json).
+
+## Content layer snapshot
+
+- **`ContentLayerConfig`** (via `defineConfig`): `collections`, optional `root`, `markdown`, `assets`, `plugins`, and optional **`strict`** (throw on load errors). There is no top-level `cache` or `eager` field on this config.
+- **`defineCollections({ ... })`** — helper to build the `collections` map in one call (same as registering multiple `defineCollection` defs).
+- **`ContentLayer`** methods include: `getCollection`, `getEntry`, `convert`, `invalidate` / `invalidateCollection` / `invalidateAll`, `validate`, `getCollectionNames`, `getCollectionDef`, `getCollections`, `invalidateWhere`, `watch`, `getCacheStats`.
+
+## CLI
+
+The **`pagesmith`** CLI (init, dev, build, preview, mcp, etc.) ships with **`@pagesmith/docs`**, not `@pagesmith/core`.
+
+## All guidance files
+
+| File | Purpose |
+|---|---|
+| `node_modules/@pagesmith/core/REFERENCE.md` | Complete API: content layer, collections, loaders, markdown, JSX, CSS, Vite plugins |
+| `node_modules/@pagesmith/core/README.md` | User-facing quick start and API overview |
+| `node_modules/@pagesmith/core/ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `node_modules/@pagesmith/core/ai-guidelines/recipes.md` | Task-specific step-by-step recipes |
+| `node_modules/@pagesmith/core/ai-guidelines/errors.md` | Error catalog with patterns and fixes |
+| `node_modules/@pagesmith/core/ai-guidelines/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
+| `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md` | Version highlights |
+| `node_modules/@pagesmith/core/ai-guidelines/AGENTS.md.template` | Template for project-level AGENTS.md |
+
+## Project memory pointer
+
+In the consuming project, add this to `CLAUDE.md` or `AGENTS.md`:
+
+```
+For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/ai-guidelines/usage.md
+For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REFERENCE.md
+```
+
+## Related package
+
+- Docs reference: `node_modules/@pagesmith/docs/REFERENCE.md`
+- Docs usage: `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
+
+## Theme system
+
+Class-based multi-theme system with two orthogonal axes on `<html>`:
+- **Color scheme**: `color-scheme-auto` | `color-scheme-light` | `color-scheme-dark` — controls `light-dark()` via CSS `color-scheme` property.
+- **Theme**: `theme-paper` | `theme-high-contrast` — overrides CSS custom properties.
+- Image switching: `.only-light`/`.only-dark`, `.show-on-light`/`.show-on-dark`, `.invert-on-dark`.
+- FOUC prevention via inline `<script>` reading `localStorage('pagesmith-theme')`.
+- The built-in renderer maps Shiki light/dark themes to Pagesmith's color-scheme classes for code block theming.
+
+## Recent changes
+
+- Multi-theme system: class-based color scheme control and theme variants with FOUC prevention.
+- `ValidationIssue` now includes an optional `source` field (`'schema' | 'content' | 'plugin' | 'custom'`) to identify which validation phase produced the issue.
+- New `core_search_entries` MCP tool: search entries across collections by title, description, tags, and slug (case-insensitive, max 20 results).
+- `@pagesmith/core/mcp` now exports shared MCP utilities (`getPackageVersion`, `resolvePackageDocPath`, `asTextResource`) alongside the server factory.
+- Error catalog added at `ai-guidelines/errors.md` with machine-readable patterns and fixes for schema, content, plugin, load, and MCP errors.

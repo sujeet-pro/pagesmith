@@ -5,8 +5,6 @@ import JSON5 from 'json5'
 import { basename, dirname, join, resolve } from 'path'
 import type { DocsUserConfig, GitOriginInfo, ResolvedDocsConfig } from './types'
 
-const DEFAULT_FOOTER_TEXT = 'Built with love using pagesmith'
-
 export function defineDocsConfig(config: DocsUserConfig): DocsUserConfig {
   return config
 }
@@ -44,7 +42,9 @@ export function detectGitOrigin(rootDir: string): GitOriginInfo | undefined {
       return {
         basePath: `/${repo}`,
         origin: `https://${owner}.github.io`,
+        repoOwner: owner,
         repoName: repo,
+        repoUrl: `https://github.com/${owner}/${repo}`,
         editLinkHost: 'github',
       }
     }
@@ -55,17 +55,21 @@ export function detectGitOrigin(rootDir: string): GitOriginInfo | undefined {
       return {
         basePath: `/${repo}`,
         origin: `https://${owner}.gitlab.io`,
+        repoOwner: owner,
         repoName: repo,
+        repoUrl: `https://gitlab.com/${owner}/${repo}`,
         editLinkHost: 'gitlab',
       }
     }
 
     match = remoteUrl.match(/bitbucket\.org[:/]([^/]+)\/([^/.]+?)(?:\.git)?$/)
     if (match) {
-      const [, , repo] = match
+      const [, owner, repo] = match
       return {
         basePath: `/${repo}`,
+        repoOwner: owner,
         repoName: repo,
+        repoUrl: `https://bitbucket.org/${owner}/${repo}`,
         editLinkHost: 'bitbucket',
       }
     }
@@ -75,15 +79,87 @@ export function detectGitOrigin(rootDir: string): GitOriginInfo | undefined {
   return undefined
 }
 
-function readPackageJson(
+export async function probeHostedOrigin(origin: string): Promise<string> {
+  try {
+    const response = await fetch(origin, {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(4000),
+    })
+
+    const finalUrl = response.url || origin
+    return new URL(finalUrl).origin
+  } catch {
+    return origin
+  }
+}
+
+export async function resolveInitOrigin(
   rootDir: string,
-): { name?: string; description?: string; homepage?: string } | undefined {
+  gitInfo = detectGitOrigin(rootDir),
+): Promise<string | undefined> {
+  if (!gitInfo?.origin) return undefined
+  if (gitInfo.editLinkHost !== 'github') return gitInfo.origin
+  return probeHostedOrigin(gitInfo.origin)
+}
+
+export function detectFirstCommitYear(rootDir: string): number | undefined {
+  try {
+    const firstCommitDate = execSync('git log --reverse --format=%cI --max-count=1', {
+      cwd: rootDir,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'utf-8',
+    }).trim()
+    if (!firstCommitDate) return undefined
+
+    const year = new Date(firstCommitDate).getFullYear()
+    return Number.isFinite(year) ? year : undefined
+  } catch {
+    return undefined
+  }
+}
+
+function readPackageJson(rootDir: string):
+  | {
+      name?: string
+      description?: string
+      homepage?: string
+      author?: string | { name?: string; url?: string }
+    }
+  | undefined {
   const pkgPath = join(rootDir, 'package.json')
   if (!existsSync(pkgPath)) return undefined
   try {
     return JSON.parse(readFileSync(pkgPath, 'utf-8'))
   } catch {
     return undefined
+  }
+}
+
+function parseMaintainer(
+  author: string | { name?: string; url?: string } | undefined,
+): ResolvedDocsConfig['maintainer'] {
+  if (!author) return undefined
+
+  if (typeof author === 'string') {
+    const match = author.trim().match(/^([^<(]+?)\s*(?:<[^>]*>)?\s*(?:\(([^)]+)\))?$/)
+    if (!match) return undefined
+
+    const name = match[1]?.trim()
+    const link = match[2]?.trim()
+    if (!name) return undefined
+
+    return {
+      name,
+      ...(link ? { link } : {}),
+    }
+  }
+
+  const name = author.name?.trim()
+  if (!name) return undefined
+
+  return {
+    name,
+    ...(author.url?.trim() ? { link: author.url.trim() } : {}),
   }
 }
 
@@ -122,9 +198,11 @@ export function resolveDocsConfig(
   const pkg = readPackageJson(rootDir)
   const pkgDisplayName = pkg?.name?.replace(/^@[^/]+\//, '')
   const gitInfo = detectGitOrigin(rootDir)
+  const rawEnvBasePath = process.env.BASE_URL?.trim()
+  const envBasePath = rawEnvBasePath && rawEnvBasePath !== '/' ? rawEnvBasePath : undefined
 
   const rawBase =
-    overrides?.basePath ?? process.env.BASE_URL ?? userConfig.basePath ?? gitInfo?.basePath ?? '/'
+    overrides?.basePath ?? envBasePath ?? userConfig.basePath ?? gitInfo?.basePath ?? '/'
   let basePath = rawBase.replace(/\/+$/, '')
   if (basePath && !basePath.startsWith('/')) {
     basePath = '/' + basePath
@@ -132,6 +210,22 @@ export function resolveDocsConfig(
   const contentDir = resolveContentDir(rootDir, userConfig.contentDir)
   const publicDir = resolve(rootDir, userConfig.publicDir ?? 'public')
   const siteName = userConfig.name ?? userConfig.title ?? pkgDisplayName ?? packageName
+  const maintainer = userConfig.maintainer ?? parseMaintainer(pkg?.author)
+  const buildYear = new Date().getFullYear()
+
+  let copyright: ResolvedDocsConfig['copyright']
+  if (userConfig.copyright) {
+    const startYear = userConfig.copyright.startYear ?? detectFirstCommitYear(rootDir) ?? buildYear
+    const configuredEndYear = userConfig.copyright.endYear ?? undefined
+    const normalizedEndYear =
+      configuredEndYear !== undefined ? Math.max(configuredEndYear, startYear) : undefined
+
+    copyright = {
+      projectName: userConfig.copyright.projectName?.trim() || siteName,
+      startYear,
+      ...(normalizedEndYear !== undefined ? { endYear: normalizedEndYear } : {}),
+    }
+  }
 
   let resolvedFavicon: string | false
   let resolvedFaviconFallback: string | false = false
@@ -168,9 +262,9 @@ export function resolveDocsConfig(
   } else {
     const letter = (siteName.charAt(0) || 'P').toUpperCase()
     resolvedIcon = [
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">',
-      '  <rect width="32" height="32" rx="6" fill="#111"/>',
-      `  <text x="16" y="24" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="20" font-weight="700">${letter}</text>`,
+      '<svg class="doc-default-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">',
+      '  <rect class="doc-default-icon-bg" width="32" height="32" rx="6"/>',
+      `  <text class="doc-default-icon-letter" x="16" y="24" text-anchor="middle" font-family="system-ui" font-size="20" font-weight="700">${letter}</text>`,
       '</svg>',
     ].join('')
   }
@@ -199,10 +293,17 @@ export function resolveDocsConfig(
   }
 
   let editLink: ResolvedDocsConfig['editLink']
-  if (userConfig.editLink) {
-    const repo = userConfig.editLink.repo.replace(/\/+$/, '')
-    const branch = userConfig.editLink.branch ?? 'main'
-    const label = userConfig.editLink.label ?? 'Edit this page'
+  const rawEditLink =
+    userConfig.editLink === false
+      ? undefined
+      : (userConfig.editLink ??
+        (gitInfo?.repoUrl
+          ? { repo: gitInfo.repoUrl, branch: undefined, label: undefined }
+          : undefined))
+  if (rawEditLink) {
+    const repo = rawEditLink.repo.replace(/\/+$/, '')
+    const branch = rawEditLink.branch ?? 'main'
+    const label = rawEditLink.label ?? 'Edit this page'
     let editPattern: string
     if (repo.includes('gitlab.com') || repo.includes('gitlab.')) {
       editPattern = `${repo}/-/edit/${branch}`
@@ -221,14 +322,16 @@ export function resolveDocsConfig(
     publicDir,
     basePath,
     homeLink: userConfig.homeLink,
+    maintainer,
     name: siteName,
     title: userConfig.title ?? siteName,
     description:
       userConfig.description ?? pkg?.description ?? 'Documentation site powered by @pagesmith/docs',
-    origin: userConfig.origin ?? pkg?.homepage ?? gitInfo?.origin ?? 'https://example.com',
+    origin: userConfig.origin ?? gitInfo?.origin ?? pkg?.homepage ?? 'https://example.com',
     language: userConfig.language ?? 'en',
     footerLinks: userConfig.footerLinks ?? [],
-    footerText: userConfig.footerText ?? DEFAULT_FOOTER_TEXT,
+    footerText: userConfig.footerText,
+    copyright,
     search: {
       enabled: userConfig.search?.enabled ?? true,
       showImages: userConfig.search?.showImages ?? false,
@@ -243,7 +346,7 @@ export function resolveDocsConfig(
     faviconFallback: resolvedFaviconFallback,
     appleTouchIcon: resolvedAppleTouchIcon,
     editLink,
-    lastUpdated: userConfig.lastUpdated ?? false,
+    lastUpdated: userConfig.lastUpdated ?? true,
     sitemap: userConfig.sitemap ?? true,
     socialImage,
     theme: userConfig.theme,
@@ -254,6 +357,7 @@ export function resolveDocsConfig(
       : resolve(rootDir, contentDir, 'home.json5'),
     packages: userConfig.packages,
     server: {
+      host: userConfig.server?.host ?? '127.0.0.1',
       devPort: userConfig.server?.devPort ?? 3000,
       previewPort: userConfig.server?.previewPort ?? 4000,
       strictPort: userConfig.server?.strictPort ?? false,

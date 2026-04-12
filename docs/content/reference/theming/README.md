@@ -338,7 +338,7 @@ These classes are tied to the color-scheme class on `<html>`, not to `@media (pr
 
 ## Code Block Themes
 
-Syntax-highlighted code blocks use separate Shiki/Expressive Code themes for light and dark modes. The default pair is `github-light` / `github-dark`. Configure alternatives in the markdown settings:
+Syntax-highlighted code blocks use separate Shiki themes for light and dark modes. The default pair is `github-light` / `github-dark`. Configure alternatives in the markdown settings:
 
 ```json5 title="pagesmith.config.json5"
 {
@@ -353,7 +353,7 @@ Syntax-highlighted code blocks use separate Shiki/Expressive Code themes for lig
 }
 ```
 
-Expressive Code's theme selection is wired to the color-scheme classes, so code blocks respond to the same toggle as the rest of the site.
+The built-in Pagesmith renderer maps its light and dark Shiki themes to the color-scheme classes, so code blocks respond to the same toggle as the rest of the site.
 
 ## Custom Sites with @pagesmith/core
 

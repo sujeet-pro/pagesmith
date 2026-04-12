@@ -1,6 +1,11 @@
 import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      'vite-plus/test': 'vitest',
+    },
+  },
   test: {
     projects: ['packages/core', 'packages/docs', 'tests/e2e'],
     coverage: {

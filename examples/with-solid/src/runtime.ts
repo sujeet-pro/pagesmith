@@ -1,8 +1,9 @@
 /**
  * Runtime entry — browser only.
  *
- * Progressive enhancements on top of static HTML.
- * The site works without JS — this adds TOC highlighting, search, and sidebar.
+ * Progressive enhancements on top of static HTML (no Solid hydration — keep DOM-only logic here).
+ * The site works without JS — this adds TOC highlighting, sidebar, theme controls, and small
+ * Pagefind trigger tweaks; opening the search modal is handled by Pagefind Component UI.
  */
 
 // ── TOC highlight on scroll ──
@@ -88,6 +89,34 @@
     sidebarModal.addEventListener('cancel', () => {
       document.body.style.overflow = ''
     })
+  }
+}
+
+// ── Search trigger compact mode ──
+{
+  if (typeof window.matchMedia === 'function') {
+    const mediaQuery = window.matchMedia('(max-width: 640px)')
+    const sync = () => {
+      document
+        .querySelectorAll<HTMLElement>('pagefind-modal-trigger.doc-search-trigger')
+        .forEach((trigger) => {
+          if (mediaQuery.matches) {
+            trigger.setAttribute('compact', '')
+            trigger.setAttribute('hide-shortcut', '')
+          } else {
+            trigger.removeAttribute('compact')
+            trigger.removeAttribute('hide-shortcut')
+          }
+        })
+    }
+
+    sync()
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', sync)
+    } else {
+      mediaQuery.addListener(sync)
+    }
   }
 }
 

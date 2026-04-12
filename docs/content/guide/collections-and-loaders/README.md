@@ -6,7 +6,7 @@ description: Define content collections with loaders, Zod schemas, transforms, c
 # Collections and Loaders
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Set up a content collection with schema validation for my blog posts in `content/posts/`. Use a Zod schema with title, date, tags, and draft fields. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for reference."
+> Ask your AI agent: "Set up a content collection with schema validation for my blog posts in `content/posts/`. Use a Zod schema with title, date, tags, and draft fields. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for reference."
 > Then read on to understand what happened and customize further.
 
 Collections are the core FS-CMS primitive in Pagesmith. Each collection maps a filesystem directory to:

@@ -19,13 +19,13 @@ type Props = {
 
 export default function DocNotFound(props: Props) {
   const { site, slug } = props
-  const homePath = site.homeLink || (site.basePath ? `${site.basePath}/` : '/')
+  const homePath = site.homeLink || site.basePath || '/'
 
   return (
     <Html
       title={`Page Not Found — ${site.title}`}
       description="The requested page could not be found."
-      url={`${slug}/`}
+      url={slug}
       site={site}
     >
       <DocHeader
@@ -37,8 +37,8 @@ export default function DocNotFound(props: Props) {
         slug={slug}
         searchEnabled={site.search?.enabled}
       />
-      <main class="doc-not-found">
-        <div class="doc-not-found-container">
+      <main id="doc-main-content" class="doc-not-found" tabindex="-1">
+        <article class="doc-not-found-container" data-pagefind-body="">
           <p class="doc-not-found-code">404</p>
           <h1 class="doc-not-found-title">Page Not Found</h1>
           <p class="doc-not-found-text">
@@ -49,7 +49,7 @@ export default function DocNotFound(props: Props) {
               Go Home
             </a>
           </div>
-        </div>
+        </article>
       </main>
     </Html>
   )

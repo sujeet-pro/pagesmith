@@ -6,7 +6,7 @@
 
 - Two main packages: `@pagesmith/core` for the shared content/runtime layer and `@pagesmith/docs` for convention-based documentation with built-in Pagefind search
 - Typed filesystem collections for markdown and structured data (JSON, JSONC, JSON5, YAML, TOML)
-- Lazy markdown rendering with Expressive Code syntax highlighting (dual themes, line numbers, file titles, mark/ins/del, collapse, copy button), headings, and read-time metadata
+- Lazy markdown rendering with the built-in Shiki-backed code renderer (dual themes, line numbers, file titles, mark/ins/del, collapse, copy button), headings, and read-time metadata
 - GitHub Flavored Markdown, GitHub Alerts, math (LaTeX/MathJax), smart typography, accessible emojis, and auto-linked headings
 - Vite-native: content plugin (`pagesmithContent`) and SSG plugin (`pagesmithSsg`) for Vite
 - Schema validation with Zod at the boundary, plus AST-level content validators (links, headings, code blocks)

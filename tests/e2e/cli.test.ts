@@ -38,6 +38,7 @@ describe('cli (programmatic equivalents)', () => {
     const md = readFileSync(resolve(FIXTURES, 'posts/hello-world.md'), 'utf-8')
     const result = await convert(md)
     // hello-world.md has code blocks with syntax highlighting
-    expect(result.html).toContain('expressive-code')
+    expect(result.html).toContain('ps-code-block')
+    expect(result.html).toContain('data-ps-code-renderer="pagesmith"')
   })
 })

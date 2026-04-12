@@ -12,5 +12,10 @@
       displayName: 'Customization',
       articles: ['layouts-and-rendering', 'configuration', 'search-integration'],
     },
+    {
+      slug: 'markdown-showcase',
+      displayName: 'Markdown Showcase',
+      articles: ['kitchen-sink'],
+    },
   ],
 }

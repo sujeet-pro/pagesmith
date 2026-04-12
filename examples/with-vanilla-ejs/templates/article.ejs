@@ -1,4 +1,5 @@
-<article>
+<%# Indexed body is this element (not the whole layout) so nav/chrome stays out of Pagefind. %>
+<article id="doc-main-content" tabindex="-1" data-pagefind-body>
   <% if (headings && headings.length > 0) { %>
     <% const tocItems = headings.filter(h => h.depth >= 2 && h.depth <= 3) %>
     <% if (tocItems.length > 0) { %>
@@ -18,7 +19,7 @@
   <% } %>
 
   <% if (date) { %>
-    <p class="doc-page-meta" style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem;">
+    <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem;">
       <time><%= formatDate(date) %></time>
       <% if (typeof readTime !== 'undefined' && readTime) { %>
         &middot; <%= readTime %> min read

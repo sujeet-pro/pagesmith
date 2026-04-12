@@ -10,31 +10,25 @@ seriesOrder: 1
 
 # Installation
 
-This guide walks through setting up a static site that uses **EJS** for template rendering and **Pagesmith** for the content layer. The example produces a fully static site -- EJS templates are evaluated at build time and only plain HTML ships to the browser.
+This guide is **example-local**: it describes how to run and build `examples/with-vanilla-ejs/`. For general Markdown and package behavior, see the main Pagesmith documentation.
 
 ## Dependencies
 
-The project requires three groups of packages:
-
-**Content layer** -- `@pagesmith/core` provides the markdown pipeline, collection schemas, and Vite plugins:
+**Content + build** — `@pagesmith/core` supplies the content layer, markdown pipeline, and Vite plugins. **EJS** renders templates at SSG time only. **Pagefind** is a dependency so the SSG plugin can index the generated HTML after `vite build`.
 
 ```json title="package.json (excerpt)"
 {
   "dependencies": {
     "@pagesmith/core": "*",
-    "ejs": "^3.1.10",
+    "ejs": "^5.0.1",
     "pagefind": "^1.3.0"
   }
 }
 ```
 
-**EJS** -- The `ejs` package is the sole templating dependency. Templates are rendered server-side at build time using `ejs.render()`, so no template engine runs in the browser.
-
-**Pagefind** -- Listed as a dependency so the SSG plugin can index generated pages and produce a search index automatically.
-
 ## Quick start
 
-Clone the repository and install from the workspace root:
+From the monorepo root:
 
 ```bash
 git clone https://github.com/sujeet-pro/pagesmith.git
@@ -42,26 +36,31 @@ cd pagesmith
 vp install
 ```
 
-Run the development server for this example:
+Run the dev server for this example:
 
 ```bash
-vp run dev:eg:ejs
+vp run dev:eg:vanilla-ejs
 ```
 
-Or build for production:
+Or from this directory:
 
 ```bash
 cd examples/with-vanilla-ejs
-vp build
+npm run dev
 ```
 
-The production build writes to `gh-pages/examples/vanilla-ejs/` (configured via `build.outDir` in the Vite config).
+Production build (static HTML + Pagefind index):
 
-## What the Vite plugins provide
+```bash
+cd examples/with-vanilla-ejs
+npm run build
+```
 
-Two Pagesmith plugins handle the heavy lifting:
+Output goes to `../../gh-pages/examples/vanilla-ejs/` as configured in `vite.config.ts`.
 
-1. **`pagesmithSsg`** -- Runs the SSR entry at build time to produce static HTML files, sets up dev middleware for live reload, and indexes the output with Pagefind.
-2. **`sharedAssetsPlugin`** -- Copies shared assets (fonts, icons) from `@pagesmith/core` into the build output.
+## What the Vite plugins do
 
-Unlike the React or Solid examples, the EJS example does not use `pagesmithContent` for virtual modules. Instead, it uses `createContentLayer` directly in the SSR entry to load and render collections at build time. This approach gives you full control over how content is fetched and passed to templates.
+1. **`sharedAssetsPlugin`** — Copies shared assets (for example fonts) from `@pagesmith/core` into the build output.
+2. **`pagesmithSsg`** — Dev: SSR middleware calling `render()` from `src/entry-server.tsx`. Production: runs `getRoutes` / `render`, writes HTML, then runs Pagefind.
+
+This example does **not** use `pagesmithContent` virtual modules. The SSR entry imports `content.config.mjs` and calls `createContentLayer()` directly so templates stay decoupled from any framework loader.

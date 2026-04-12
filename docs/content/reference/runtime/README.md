@@ -51,11 +51,13 @@ The content CSS bundle includes everything needed for styled markdown output wit
 foundations/reset.css       CSS reset
 foundations/tokens.css      Design tokens as custom properties
 content/prose.css           Typography for rendered markdown
+code/block.css              Code block frame, line, and copy styles
 code/inline.css             Inline code styling
+code/tabs.css               Tab chrome for grouped code blocks
 viewport.css                Viewport overflow protection
 ```
 
-Code block styling is **not** included because Expressive Code injects its own CSS inline during markdown processing. You do not need to import separate code block CSS.
+Code block styling **is** included in the shared CSS bundle. Shiki token colors still arrive inline per block, but the frame chrome, line layout, copy button styling, and tabs come from the shipped Pagesmith CSS.
 
 #### `@pagesmith/core/css/standalone` (Standalone Tier)
 
@@ -66,7 +68,9 @@ foundations/reset.css       CSS reset
 foundations/tokens.css      Design tokens as custom properties
 content/prose.css           Typography for rendered markdown
 content/toc.css             Table of contents sidebar
+code/block.css              Code block frame, line, and copy styles
 code/inline.css             Inline code styling
+code/tabs.css               Tab chrome for grouped code blocks
 viewport.css                Viewport overflow protection
 layout/grid.css             Page grid
 layout/sidebar.css          Sidebar layout
@@ -85,15 +89,15 @@ Font face declarations for the two bundled variable fonts:
 
 The font files are distributed as woff2 in the `@pagesmith/core/assets/fonts/` directory. The `fonts.css` file references them with relative URLs.
 
-## How Expressive Code Handles Code Block CSS
+## How Pagesmith Handles Code Block CSS
 
-Expressive Code injects its CSS inline as a `<style>` element in the rendered HTML output during markdown processing. This means:
+Pagesmith splits code block rendering into two layers:
 
-- You do **not** need to import any separate CSS for code block styling (frames, titles, line numbers, copy buttons, syntax highlighting, line highlighting, tabs).
-- The injected styles automatically include dual-theme support for light and dark modes.
-- Expressive Code respects Pagesmith design tokens via CSS custom properties (`--ps-font-sans`, `--ps-font-mono`, `--ps-font-size-sm`, `--ps-radius-lg`, `--ps-color-border-subtle`).
+- Shared CSS bundles provide frame chrome, line layout, tabs, diff markers, and button styling.
+- The renderer adds inline theme variables for syntax token colors and per-block light/dark backgrounds.
+- The shared Pagesmith content runtime enables tabs, copy, and collapse interactions.
 
-If you want to customize code block appearance, override the `--ps-*` custom properties or target the Expressive Code CSS classes in your own stylesheet.
+If you want to customize code block appearance, override the `--ps-*` custom properties or target the Pagesmith code block classes in your own stylesheet.
 
 ## Runtime JS Accessor Functions
 
@@ -138,15 +142,15 @@ The standalone runtime initializes:
 
 - **TOC Highlight** (`toc-highlight.ts`) -- Uses `IntersectionObserver` with a root margin of `-80px 0px -66% 0px` to track which heading is near the top of the viewport. When the active heading changes, the corresponding TOC item gets the `.active` class and is scrolled into view.
 
-Code block interactivity (copy buttons, etc.) is handled by Expressive Code through inline scripts injected during markdown processing.
+Code block interactivity such as copy and collapse is handled by the built-in renderer through inline scripts injected during markdown processing.
 
 ### Content Runtime
 
-The content runtime is a minimal placeholder. Code block interactivity is handled by Expressive Code's inline scripts, and projects using the content tier have their own navigation and TOC implementation.
+The content runtime is a minimal placeholder. Code block interactivity is handled by the built-in renderer's inline script, and projects using the content tier have their own navigation and TOC implementation.
 
 ### Progressive Enhancement
 
-The runtime JavaScript is strictly a progressive enhancement layer. All content is readable and functional without JavaScript. Copy buttons are rendered in the HTML output by Expressive Code during markdown processing, but require JavaScript to function.
+The runtime JavaScript is strictly a progressive enhancement layer. All content is readable and functional without JavaScript. Copy buttons and collapse controls are rendered in the HTML output during markdown processing, but require JavaScript to function.
 
 ## Design Tokens (CSS Custom Properties)
 
@@ -238,9 +242,9 @@ Since all visual properties flow through CSS custom properties, you can retheme 
 }
 ```
 
-For Expressive Code integration, override the `--ps-*` prefixed variables:
+For code-block styling and renderer chrome, override the `--ps-*` prefixed variables:
 
-```css title="expressive-code-overrides.css"
+```css title="code-block-overrides.css"
 :root {
   --ps-font-sans: "Inter", system-ui, sans-serif;
   --ps-font-mono: "Fira Code", monospace;

@@ -136,13 +136,18 @@ h4 {
 }
 
 /* ─── Tables ─── */
-.prose table {
-  display: block;
-  width: max-content;
+.prose .ps-table-scroll {
   max-width: 100%;
   overflow-x: auto;
-  border-collapse: collapse;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   margin-bottom: 1.25rem;
+}
+.prose table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  margin-bottom: 0;
   font-size: var(--font-size-sm);
 }
 .prose th, .prose td {
@@ -150,6 +155,7 @@ h4 {
   text-align: left;
   border-bottom: 1px solid var(--color-border);
   min-width: 10ch;
+  vertical-align: top;
 }
 .prose th {
   font-weight: 600;

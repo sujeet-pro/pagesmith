@@ -5,13 +5,26 @@ description: Full pagesmith.config.json5 reference — site metadata, paths, bas
 
 # Docs Configuration Reference
 
-The `@pagesmith/docs` package is configured through a `pagesmith.config.json5` file placed at the root of your documentation project. This file uses the [JSON5](https://json5.org/) format, which supports comments, trailing commas, unquoted keys, and other conveniences that make configuration files more readable.
+The `@pagesmith/docs` package can run with no config when your repository already follows the default `docs/` plus `gh-pages/` conventions, but `pagesmith.config.json5` remains the place to override those defaults. The file lives at the root of your documentation project and uses the [JSON5](https://json5.org/) format, which supports comments, trailing commas, unquoted keys, and other conveniences that make configuration files more readable.
+
+> [!TIP]
+> For agent-driven setup, use the version-matched config schema at `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` or the hosted copy at [https://projects.sujeet.pro/pagesmith/schemas/pagesmith-config.schema.json](https://projects.sujeet.pro/pagesmith/schemas/pagesmith-config.schema.json).
 
 ## DocsUserConfig Type
 
 The full TypeScript type for the configuration file is:
 
 ```ts title="DocsUserConfig"
+type FooterLink = {
+  label: string
+  path: string
+}
+
+type FooterLinkGroup = {
+  header?: string
+  links: FooterLink[]
+}
+
 type DocsUserConfig = {
   name?: string
   title?: string
@@ -23,7 +36,17 @@ type DocsUserConfig = {
   publicDir?: string
   basePath?: string
   homeLink?: string
-  footerLinks?: Array<{ label: string; path: string }>
+  maintainer?: {
+    name: string
+    link?: string
+  }
+  footerLinks?: FooterLink[] | FooterLinkGroup[]
+  footerText?: string
+  copyright?: {
+    projectName?: string
+    startYear?: number
+    endYear?: number | null
+  }
   sidebar?: {
     collapsible?: boolean
   }
@@ -45,13 +68,21 @@ type DocsUserConfig = {
     repo: string
     branch?: string
     label?: string
-  }
+  } | false
   lastUpdated?: boolean
   sitemap?: boolean
   analytics?: {
     googleAnalytics?: string
   }
-  markdown?: MarkdownConfig
+  markdown?: {
+    allowDangerousHtml?: boolean
+    math?: boolean | 'auto'
+    shiki?: {
+      themes?: { light: string; dark: string }
+      langAlias?: Record<string, string>
+      defaultShowLineNumbers?: boolean
+    }
+  }
   home?: {
     configFile?: string
   }
@@ -60,6 +91,7 @@ type DocsUserConfig = {
   icon?: string | false
   assets?: Record<string, string[]>
   server?: {
+    host?: string
     devPort?: number
     previewPort?: number
     strictPort?: boolean
@@ -76,32 +108,32 @@ type DocsUserConfig = {
 | `name` | `string` | package.json name &rarr; directory name | Short site name displayed in the header and used for OpenGraph `og:site_name`. Falls back to `title`, then package.json `name` (scope stripped), then directory name. |
 | `title` | `string` | package.json name &rarr; directory name | Full site title used in `<title>` tags and document metadata. Falls back to `name`, then package.json `name` (scope stripped), then directory name. |
 | `description` | `string` | package.json description &rarr; placeholder | Site-level description used for the default meta description and OpenGraph tags. |
-| `origin` | `string` | package.json homepage &rarr; placeholder | The canonical origin URL of the site (e.g. `https://pagesmith.dev`). Used for canonical links, OpenGraph URLs, and sitemap generation. Should not include a trailing slash. |
+| `origin` | `string` | git-detected GitHub Pages host &rarr; package.json homepage &rarr; placeholder | The canonical origin URL of the site (e.g. `https://pagesmith.dev`). Used for canonical links, OpenGraph URLs, and sitemap generation. Should not include a trailing slash. |
 | `language` | `string` | `"en"` | The language code set on the `<html lang>` attribute. |
 
 ### Directory Paths
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `contentDir` | `string` | `"docs/"` if exists, else `"content/"` | Path to the content directory, relative to the config file. This directory contains your markdown documentation organized in folders. Smart detection checks for a `docs/` directory first. |
-| `outDir` | `string` | `"gh-pages"` | Output directory for the static build. Can be overridden by the `--out-dir` CLI flag. |
+| `contentDir` | `string` | `"docs/"` if exists, else `"content/"` | Path to the content directory, relative to the config file. The same default is used in zero-config mode. |
+| `outDir` | `string` | `"gh-pages"` | Output directory for the static build. The same default is used in zero-config mode and can be overridden by the `--out-dir` CLI flag. |
 | `publicDir` | `string` | `"public"` | Directory for static files that are copied as-is to the build output (favicons, images, etc.). |
 
 ### Base Path
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `basePath` | `string` | `"/"` | Base URL path prefix for deployment under a subdirectory (e.g. `"/docs"` or `"/pagesmith"`). Trailing slashes are automatically stripped. |
+| `basePath` | `string` | git-detected repo name &rarr; `"/"` | Base URL path prefix for deployment under a subdirectory (e.g. `"/docs"` or `"/pagesmith"`). Trailing slashes are automatically stripped. CLI `--base-path` wins, and `BASE_URL` only overrides when it is set to a non-root value. |
 
 The base path follows a priority resolution order:
 
 1. `--base-path` CLI flag (highest priority)
-2. `BASE_URL` environment variable
+2. `BASE_URL` environment variable (when set to a non-root value)
 3. `basePath` in `pagesmith.config.json5`
 4. Auto-detected from git remote URL (repo name as base path)
 5. Default: `"/"` (root)
 
-This resolution order allows CI/CD pipelines to override the base path without modifying the config file. For example, GitHub Pages deployments commonly set `BASE_URL` in the build environment.
+This resolution order allows CI/CD pipelines to override the base path without modifying the config file. Root-like values such as `"/"` are ignored so default toolchain env vars do not accidentally erase an explicit docs `basePath`.
 
 ### Home Link
 
@@ -109,13 +141,28 @@ This resolution order allows CI/CD pipelines to override the base path without m
 |---|---|---|---|
 | `homeLink` | `string` | Same as `basePath` | Override the header logo link destination. Useful when the docs site is part of a larger site and you want the logo to link to the parent site root instead of the docs root. |
 
+### Maintainer
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `maintainer` | `{ name: string; link?: string }` | `package.json author` | Maintainer credit used by the default footer sign-off. If omitted, Pagesmith falls back to the project's `package.json` `author` field when available. |
+
+Example:
+
+```json5 title="pagesmith.config.json5"
+maintainer: {
+  name: 'Sujeet Jaiswal',
+  link: 'https://sujeet.pro',
+}
+```
+
 ### Footer Links
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `footerLinks` | `Array<{ label: string; path: string }>` | `[]` | Links displayed in the page footer. Each entry has a `label` (display text) and `path` (URL or path). External URLs are supported. |
+| `footerLinks` | `Array<{ label: string; path: string }> \| Array<{ header?: string; links: Array<{ label: string; path: string }> }>` | top-level nav links | Links displayed in the page footer. Use a flat array for a link grid of major links, or grouped objects for column layouts with optional headers. On wide screens, the footer uses up to 4 evenly spaced columns. External URLs are supported. When omitted, the footer reuses the site's primary top-level navigation links. Set `footerLinks: []` to hide the footer links entirely. |
 
-Example:
+Flat row example:
 
 ```json5 title="pagesmith.config.json5"
 footerLinks: [
@@ -123,6 +170,49 @@ footerLinks: [
   { label: 'Reference', path: '/reference' },
   { label: 'GitHub', path: 'https://github.com/your-org/your-repo' },
 ]
+```
+
+Grouped columns example:
+
+```json5 title="pagesmith.config.json5"
+footerLinks: [
+  {
+    header: 'Docs',
+    links: [
+      { label: 'Guide', path: '/guide' },
+      { label: 'Reference', path: '/reference' },
+    ],
+  },
+  {
+    header: 'Project',
+    links: [{ label: 'GitHub', path: 'https://github.com/your-org/your-repo' }],
+  },
+]
+```
+
+### Footer Sign-off
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `footerText` | `string` | default Pagesmith attribution | Override only the Pagesmith sign-off segment in the footer's bottom legal line. When omitted, the default footer renders "Made with ❤️ using Pagesmith" and appends a maintainer credit when `maintainer` (or `package.json` `author`) is available. |
+
+### Footer Copyright
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `copyright` | `{ projectName?: string; startYear?: number; endYear?: number \| null }` | — | Configures the copyright segment that appears before the Pagesmith sign-off in the footer's bottom legal line. |
+| `copyright.projectName` | `string` | `name` / `title` fallback | Project name shown after the copyright years. |
+| `copyright.startYear` | `number` | first git commit year | Starting year shown in the copyright range. |
+| `copyright.endYear` | `number \| null` | `null` | Optional fixed end year. Leave `null` or omit it to render the build year and let the browser update it later when the viewer's current year is different. |
+
+Example:
+
+```json5 title="pagesmith.config.json5"
+copyright: {
+  projectName: 'Pagesmith',
+  startYear: 2026,
+  endYear: null,
+}
 ```
 
 ### Sidebar Configuration
@@ -214,7 +304,8 @@ theme: {
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `editLink.repo` | `string` | — | Repository URL (e.g. `"https://github.com/user/repo"`). When set, an "Edit this page" link appears on every documentation page. |
+| `editLink` | `{ repo: string; branch?: string; label?: string } \| false` | auto-detected | Edit link configuration. When omitted, Pagesmith tries to infer the repository URL from a supported git remote (`GitHub`, `GitLab`, or `Bitbucket`). Set `false` to disable the default edit link. |
+| `editLink.repo` | `string` | auto-detected | Repository URL (e.g. `"https://github.com/user/repo"`). When set, an "Edit this page" link appears on every documentation page. |
 | `editLink.branch` | `string` | `"main"` | Branch name for the edit link URL. |
 | `editLink.label` | `string` | `"Edit this page"` | Custom label for the edit link. |
 
@@ -233,7 +324,7 @@ The edit link generates a URL like `https://github.com/my-org/my-project/edit/ma
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `lastUpdated` | `boolean` | `false` | Show a git-based "last updated" timestamp on each documentation page. Uses `git log` to determine when each content file was last modified. |
+| `lastUpdated` | `boolean` | `true` | Show a git-based "last updated" timestamp on each documentation page. Uses `git log` to determine when each content file was last modified. Set `false` to opt out. |
 
 Example:
 
@@ -267,21 +358,25 @@ analytics: {
 
 ### Markdown Configuration
 
-The `markdown` field accepts a `MarkdownConfig` object that customizes the unified markdown processing pipeline used for all content.
+The `markdown` field accepts a JSON-safe subset of `MarkdownConfig` for the docs package's shared pipeline.
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `markdown.remarkPlugins` | `any[]` | `[]` | Additional remark plugins injected into the pipeline after the built-in plugins (remark-gfm, remark-math, remark-frontmatter) and before the remark-to-rehype conversion. |
-| `markdown.rehypePlugins` | `any[]` | `[]` | Additional rehype plugins injected into the pipeline after the built-in plugins (Expressive Code, rehype-mathjax, rehype-slug, rehype-autolink-headings, heading extraction) and before final HTML serialization. |
-| `markdown.shiki` | `object` | `undefined` | Configuration for syntax highlighting via Expressive Code. |
-| `markdown.shiki.themes` | `{ light: string; dark: string }` | `{ light: "github-light", dark: "github-dark" }` | Dual theme names for light and dark mode syntax highlighting. Any theme supported by Expressive Code is accepted. |
+| `markdown.allowDangerousHtml` | `boolean` | `true` | Preserve raw HTML from markdown. Disable this when rendering untrusted content. |
+| `markdown.math` | `boolean \| 'auto'` | `'auto'` | Always enable math plugins, disable them, or auto-enable them only for markdown that contains math markers. |
+| `markdown.shiki` | `object` | `undefined` | Configuration for syntax highlighting in the built-in code renderer. |
+| `markdown.shiki.themes` | `{ light: string; dark: string }` | `{ light: "github-light", dark: "github-dark" }` | Dual theme names for light and dark mode syntax highlighting. Any Shiki-supported theme name is accepted. |
 | `markdown.shiki.langAlias` | `Record<string, string>` | `undefined` | Map of custom language aliases to language identifiers. For example, `{ "dockerfile": "docker" }` lets you use `dockerfile` as a code block language tag. |
 | `markdown.shiki.defaultShowLineNumbers` | `boolean` | `true` | Whether to show line numbers on code blocks by default. Individual blocks can override this with `showLineNumbers=false`. |
+
+Function-based `remarkPlugins` and `rehypePlugins` are not supported in `pagesmith.config.json5`. Use the lower-level `@pagesmith/core` APIs when you need custom plugin code.
 
 Example:
 
 ```json5 title="pagesmith.config.json5"
 markdown: {
+  allowDangerousHtml: true,
+  math: 'auto',
   shiki: {
     themes: { light: 'github-light', dark: 'github-dark-dimmed' },
     langAlias: { hbs: 'handlebars' },
@@ -315,16 +410,31 @@ packages: {
 
 In addition to the root `pagesmith.config.json5`, each content section (top-level directory in `contentDir`) can have a `meta.json5` file and the content root itself can have one.
 
+Use these version-matched schema files when generating or validating them:
+
+- `node_modules/@pagesmith/docs/schemas/docs-root-meta.schema.json`
+- `node_modules/@pagesmith/docs/schemas/docs-section-meta.schema.json`
+
 ### Root meta.json5 (content/meta.json5)
 
 Controls the root-level navigation and site-wide overrides:
 
 ```ts title="DocsRootMeta Type"
+type FooterLink = {
+  label: string
+  path: string
+}
+
+type FooterLinkGroup = {
+  header?: string
+  links: FooterLink[]
+}
+
 type DocsRootMeta = {
   displayName?: string
   description?: string
-  headerLinks?: Array<{ label: string; path: string }>
-  footerLinks?: Array<{ label: string; path: string }>
+  headerLinks?: FooterLink[]
+  footerLinks?: FooterLink[] | FooterLinkGroup[]
 }
 ```
 
@@ -335,6 +445,15 @@ Example:
   headerLinks: [
     { label: "Guide", path: "/guide" },
     { label: "Reference", path: "/reference" },
+  ],
+  footerLinks: [
+    {
+      header: "Docs",
+      links: [
+        { label: "Guide", path: "/guide" },
+        { label: "Reference", path: "/reference" },
+      ],
+    },
   ],
 }
 ```
@@ -413,11 +532,32 @@ Here is a complete `pagesmith.config.json5` showing all available fields:
   // Header logo link override
   homeLink: '/',
 
+  // Footer attribution
+  maintainer: {
+    name: 'Sujeet Jaiswal',
+    link: 'https://sujeet.pro',
+  },
+
+  // Footer copyright
+  copyright: {
+    projectName: 'My Project',
+    startYear: 2024,
+    endYear: null,
+  },
+
   // Footer navigation
   footerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'API', path: '/reference' },
-    { label: 'GitHub', path: 'https://github.com/org/my-project' },
+    {
+      header: 'Docs',
+      links: [
+        { label: 'Guide', path: '/guide' },
+        { label: 'API', path: '/reference' },
+      ],
+    },
+    {
+      header: 'Project',
+      links: [{ label: 'GitHub', path: 'https://github.com/org/my-project' }],
+    },
   ],
 
   // Sidebar behavior
@@ -444,7 +584,7 @@ Here is a complete `pagesmith.config.json5` showing all available fields:
     socialImage: '/og-image.png',
   },
 
-  // Edit link on each page
+  // Edit link on each page (auto-detected from git remotes when omitted)
   editLink: {
     repo: 'https://github.com/org/my-project',
     branch: 'main',
@@ -493,12 +633,22 @@ type ResolvedDocsConfig = {
   publicDir: string        // Absolute path to public directory
   basePath: string         // Resolved base path (no trailing slash)
   homeLink?: string        // Header logo link destination
+  maintainer?: {
+    name: string
+    link?: string
+  }
   name: string             // Resolved site name
   title: string            // Resolved site title
   description: string      // Resolved description
   origin: string           // Resolved origin URL
   language: string         // Resolved language code
-  footerLinks: FooterLink[]
+  footerLinks: FooterLink[] | FooterLinkGroup[]
+  footerText?: string
+  copyright?: {
+    projectName: string
+    startYear: number
+    endYear?: number
+  }
   sidebar: {
     collapsible: boolean   // Defaults to true
   }
@@ -509,7 +659,7 @@ type ResolvedDocsConfig = {
     pagefindFlags: string[]
   }
   editLink?: { repo: string; branch: string; label: string; editPattern: string }
-  lastUpdated: boolean        // Defaults to false
+  lastUpdated: boolean        // Defaults to true
   sitemap: boolean            // Defaults to true
   socialImage?: string
   favicon: string | false      // Resolved favicon path (false disables)
@@ -523,6 +673,7 @@ type ResolvedDocsConfig = {
   packages?: Record<string, { label: string }>
   assets: Map<string, string[]>  // Resolved asset mappings
   server: {
+    host: string             // Defaults to '127.0.0.1'
     devPort: number          // Defaults to 3000
     previewPort: number      // Defaults to 4000
     strictPort: boolean      // Defaults to false
@@ -534,11 +685,14 @@ The resolution logic in `resolveDocsConfig()` works as follows:
 
 - `rootDir` is set to the directory containing `pagesmith.config.json5`.
 - `contentDir`, `outDir`, and `publicDir` are resolved to absolute paths from `rootDir`.
-- `basePath` follows the priority chain: CLI `--base-path` > `BASE_URL` env > config `basePath` > auto-detected from git remote (repo name) > `"/"`. Trailing slashes are stripped.
+- `basePath` follows the priority chain: CLI `--base-path` > non-root `BASE_URL` env > config `basePath` > auto-detected from git remote (repo name) > `"/"`. Trailing slashes are stripped.
 - `name` falls back to `title`, then package.json `name` (scope stripped), then directory name.
 - `title` falls back to `name`, then package.json `name` (scope stripped), then directory name.
 - `name`, `title`, `description`, and `origin` fall back to package.json fields before using placeholder defaults.
+- `maintainer` falls back to the parsed `package.json` `author` field when not explicitly configured.
 - `contentDir` resolves to `docs/` if the directory exists, otherwise `content/`.
+- `footerLinks` fall back to the major top-level nav items when not explicitly configured in config or root `meta.json5`.
 - `sidebar.collapsible` defaults to `true`.
 - `search.enabled` defaults to `true`, `search.showImages` defaults to `false`, `search.showSubResults` defaults to `true`.
+- `editLink` is auto-detected from supported git remotes unless set to `false`.
 - `homeConfigFile` resolves to the absolute path of `home.configFile` or defaults to `content/home.json5` in the project root.

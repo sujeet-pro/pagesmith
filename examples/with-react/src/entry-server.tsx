@@ -1,3 +1,4 @@
+// SSG entry for pagesmithSsg: virtual collections → React layout → static HTML via renderDocumentShell.
 import { renderToStaticMarkup } from 'react-dom/server'
 import type { SsgRenderConfig } from '@pagesmith/core/vite'
 import {
@@ -18,7 +19,6 @@ import {
   groupByField,
   renderDocumentShell,
 } from '@pagesmith/core/ssg-utils'
-import featuresCollection from 'virtual:content/features'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 
@@ -40,10 +40,6 @@ const guideEntries = [...(guideCollection as Entry[])].sort((left, right) => {
   return getTime(left.frontmatter.date) - getTime(right.frontmatter.date)
 })
 
-const featuresEntries = [...(featuresCollection as Entry[])].sort(
-  (left, right) => getTime(right.frontmatter.date) - getTime(left.frontmatter.date),
-)
-
 const pageEntries = [...(pagesCollection as Entry[])]
 
 function groupBySeries(base: string): GuideGroup[] {
@@ -61,22 +57,10 @@ function SidebarNav(props: {
   currentPath: string
   basePath: string
   isGuide: boolean
-  isFeatures: boolean
   firstGuideUrl: string
-  firstFeaturesUrl: string
   guideGroups: GuideGroup[]
-  featuresEntries: NavEntry[]
 }) {
-  const {
-    currentPath,
-    basePath,
-    isGuide,
-    isFeatures,
-    firstGuideUrl,
-    firstFeaturesUrl,
-    guideGroups,
-    featuresEntries,
-  } = props
+  const { currentPath, basePath, isGuide, firstGuideUrl, guideGroups } = props
 
   return (
     <>
@@ -91,11 +75,6 @@ function SidebarNav(props: {
           <li className={`doc-sidebar-item${isGuide ? ' active' : ''}`}>
             <a href={firstGuideUrl} className="doc-sidebar-link">
               Guide
-            </a>
-          </li>
-          <li className={`doc-sidebar-item${isFeatures ? ' active' : ''}`}>
-            <a href={firstFeaturesUrl} className="doc-sidebar-link">
-              Features
             </a>
           </li>
           <li className={`doc-sidebar-item${currentPath === '/about' ? ' active' : ''}`}>
@@ -133,22 +112,6 @@ function SidebarNav(props: {
           ))}
         </ul>
       </div>
-
-      <div className="doc-sidebar-section">
-        <p className="doc-sidebar-heading">Features</p>
-        <ul className="doc-sidebar-list">
-          {featuresEntries.map((entry) => (
-            <li
-              key={entry.slug}
-              className={`doc-sidebar-item${currentPath === `/features/${entry.slug}` ? ' active' : ''}`}
-            >
-              <a href={entry.url} className="doc-sidebar-link">
-                {entry.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
     </>
   )
 }
@@ -161,15 +124,16 @@ function SiteHeader(props: {
   basePath: string
   currentPath: string
   firstGuideUrl: string
-  firstFeaturesUrl: string
   searchEnabled?: boolean
 }) {
-  const { basePath, currentPath, firstGuideUrl, firstFeaturesUrl, searchEnabled } = props
+  const { basePath, currentPath, firstGuideUrl, searchEnabled } = props
   const isGuide = currentPath.startsWith('/guide')
-  const isFeatures = currentPath.startsWith('/features')
 
   return (
     <header className="doc-header">
+      <a href="#doc-main-content" className="doc-skip-link">
+        Skip to main content
+      </a>
       <div className="doc-header-inner">
         <div className="doc-header-left">
           <button
@@ -190,73 +154,87 @@ function SiteHeader(props: {
           <a href={firstGuideUrl} className={isGuide ? 'active' : ''}>
             Guide
           </a>
-          <a href={firstFeaturesUrl} className={isFeatures ? 'active' : ''}>
-            Blog
-          </a>
         </nav>
-        <div className="doc-theme-toggle no-js-hidden" data-theme-toggle="">
-          <button
-            type="button"
-            className="doc-theme-toggle-btn"
-            aria-label="Change theme"
-            aria-expanded="false"
-            aria-haspopup="true"
-            data-theme-toggle-btn=""
-            dangerouslySetInnerHTML={{ __html: themeIcon }}
-          />
-          <div className="doc-theme-dropdown" data-theme-dropdown="" hidden>
-            <fieldset className="doc-theme-group">
-              <legend>Appearance</legend>
-              <label className="doc-theme-option" data-scheme="auto">
-                <input type="radio" name="colorScheme" defaultValue="auto" defaultChecked />
-                Auto
-              </label>
-              <label className="doc-theme-option" data-scheme="light">
-                <input type="radio" name="colorScheme" defaultValue="light" />
-                Light
-              </label>
-              <label className="doc-theme-option" data-scheme="dark">
-                <input type="radio" name="colorScheme" defaultValue="dark" />
-                Dark
-              </label>
-            </fieldset>
-            <fieldset className="doc-theme-group">
-              <legend>Theme</legend>
-              <label className="doc-theme-option" data-theme="paper">
-                <input type="radio" name="theme" defaultValue="paper" defaultChecked />
-                Paper
-              </label>
-              <label className="doc-theme-option" data-theme="high-contrast">
-                <input type="radio" name="theme" defaultValue="high-contrast" />
-                High Contrast
-              </label>
-            </fieldset>
-            <fieldset className="doc-theme-group">
-              <legend>Text Size</legend>
-              <div className="doc-text-size-options">
-                <label className="doc-text-size-option" title="Small">
-                  <input type="radio" name="textSize" defaultValue="small" />
-                  <span className="doc-text-size-label" data-size="small">
-                    A
-                  </span>
+        <div className="doc-header-right">
+          {searchEnabled ? <SearchTrigger /> : null}
+          <div className="doc-theme-toggle no-js-hidden" data-theme-toggle="">
+            <button
+              type="button"
+              className="doc-theme-toggle-btn"
+              aria-label="Change theme"
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-controls="doc-theme-dropdown"
+              data-theme-toggle-btn=""
+              dangerouslySetInnerHTML={{ __html: themeIcon }}
+            />
+            <div
+              id="doc-theme-dropdown"
+              className="doc-theme-dropdown"
+              data-theme-dropdown=""
+              hidden
+            >
+              <fieldset className="doc-theme-group">
+                <legend>Appearance</legend>
+                <label className="doc-theme-option" data-scheme="auto">
+                  <input type="radio" name="colorScheme" defaultValue="auto" defaultChecked />
+                  Auto
                 </label>
-                <label className="doc-text-size-option" title="Default">
-                  <input type="radio" name="textSize" defaultValue="base" defaultChecked />
-                  <span className="doc-text-size-label" data-size="base">
-                    A
-                  </span>
+                <label className="doc-theme-option" data-scheme="light">
+                  <input type="radio" name="colorScheme" defaultValue="light" />
+                  Light
                 </label>
-                <label className="doc-text-size-option" title="Large">
-                  <input type="radio" name="textSize" defaultValue="large" />
-                  <span className="doc-text-size-label" data-size="large">
-                    A
-                  </span>
+                <label className="doc-theme-option" data-scheme="dark">
+                  <input type="radio" name="colorScheme" defaultValue="dark" />
+                  Dark
                 </label>
-              </div>
-            </fieldset>
+              </fieldset>
+              <fieldset className="doc-theme-group">
+                <legend>Theme</legend>
+                <label className="doc-theme-option" data-theme="paper">
+                  <input type="radio" name="theme" defaultValue="paper" defaultChecked />
+                  Paper
+                </label>
+                <label className="doc-theme-option" data-theme="high-contrast">
+                  <input type="radio" name="theme" defaultValue="high-contrast" />
+                  High Contrast
+                </label>
+              </fieldset>
+              <fieldset className="doc-theme-group">
+                <legend>Text Size</legend>
+                <div className="doc-text-size-options">
+                  <label className="doc-text-size-option" title="Small">
+                    <input className="sr-only" type="radio" name="textSize" defaultValue="small" />
+                    <span className="doc-text-size-label" data-size="small" aria-hidden="true">
+                      A
+                    </span>
+                    <span className="sr-only">Small text size</span>
+                  </label>
+                  <label className="doc-text-size-option" title="Default">
+                    <input
+                      className="sr-only"
+                      type="radio"
+                      name="textSize"
+                      defaultValue="base"
+                      defaultChecked
+                    />
+                    <span className="doc-text-size-label" data-size="base" aria-hidden="true">
+                      A
+                    </span>
+                    <span className="sr-only">Default text size</span>
+                  </label>
+                  <label className="doc-text-size-option" title="Large">
+                    <input className="sr-only" type="radio" name="textSize" defaultValue="large" />
+                    <span className="doc-text-size-label" data-size="large" aria-hidden="true">
+                      A
+                    </span>
+                    <span className="sr-only">Large text size</span>
+                  </label>
+                </div>
+              </fieldset>
+            </div>
           </div>
         </div>
-        {searchEnabled ? <SearchTrigger /> : null}
       </div>
     </header>
   )
@@ -265,19 +243,11 @@ function SiteHeader(props: {
 function HomeBody(props: {
   basePath: string
   firstGuideUrl: string
-  firstFeaturesUrl: string
+  kitchenSinkUrl: string
   searchEnabled?: boolean
   guideEntries: NavEntry[]
-  featuresEntries: NavEntry[]
 }) {
-  const {
-    basePath,
-    firstGuideUrl,
-    firstFeaturesUrl,
-    searchEnabled,
-    guideEntries,
-    featuresEntries,
-  } = props
+  const { basePath, firstGuideUrl, kitchenSinkUrl, searchEnabled, guideEntries } = props
 
   return (
     <>
@@ -285,10 +255,9 @@ function HomeBody(props: {
         basePath={basePath}
         currentPath="/"
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={searchEnabled}
       />
-      <main className="doc-home" data-pagefind-body="">
+      <main id="doc-main-content" className="doc-home" tabIndex={-1} data-pagefind-body="">
         <section className="doc-home-section doc-hero">
           <h1 className="doc-hero-text">Pagesmith + React</h1>
           <p className="doc-hero-tagline">
@@ -299,59 +268,21 @@ function HomeBody(props: {
             <a href={firstGuideUrl} className="doc-hero-action doc-hero-action-brand">
               Read the Guide
             </a>
-            <a href={firstFeaturesUrl} className="doc-hero-action doc-hero-action-alt">
-              Browse Features
+            <a href={kitchenSinkUrl} className="doc-hero-action doc-hero-action-alt">
+              Open Kitchen Sink
             </a>
           </div>
         </section>
 
         <section className="doc-home-section">
-          <h2>Markdown Features</h2>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {featuresEntries.map((post) => (
-              <li
-                key={post.slug}
-                style={{
-                  padding: '1rem 1.25rem',
-                  border: '1px solid var(--color-border-subtle)',
-                  borderRadius: 'var(--radius-lg)',
-                }}
-              >
-                <a href={post.url}>
-                  <h3 style={{ margin: 0, fontSize: 'var(--font-size-lg)' }}>{post.title}</h3>
-                </a>
-                {post.description ? (
-                  <p
-                    style={{
-                      margin: '0.5rem 0 0',
-                      color: 'var(--color-text-muted)',
-                      fontSize: 'var(--font-size-sm)',
-                    }}
-                  >
-                    {post.description}
-                  </p>
-                ) : null}
-                {post.date ? (
-                  <p
-                    style={{
-                      margin: '0.375rem 0 0',
-                      fontSize: 'var(--font-size-xs)',
-                      color: 'var(--color-text-muted)',
-                    }}
-                  >
-                    <time dateTime={post.date}>{formatDate(post.date)}</time>
-                    {post.tags && post.tags.length > 0 ? (
-                      <>
-                        {' '}
-                        {' · '}
-                        {post.tags.join(', ')}
-                      </>
-                    ) : null}
-                  </p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          <h2>Markdown Kitchen Sink</h2>
+          <p>
+            This example keeps one dedicated regression page for markdown rendering instead of
+            separate markdown smoke-test pages.
+          </p>
+          <p>
+            <a href={kitchenSinkUrl}>Open the kitchen sink page</a>
+          </p>
         </section>
 
         <section className="doc-home-section">
@@ -467,10 +398,8 @@ function PageBody(props: {
   currentPath: string
   basePath: string
   firstGuideUrl: string
-  firstFeaturesUrl: string
   searchEnabled?: boolean
   sidebar: GuideGroup[]
-  featuresEntries: NavEntry[]
   date?: string
   readTime?: number
   prev?: { title: string; url: string }
@@ -484,10 +413,8 @@ function PageBody(props: {
     currentPath,
     basePath,
     firstGuideUrl,
-    firstFeaturesUrl,
     searchEnabled,
     sidebar,
-    featuresEntries,
     date,
     readTime,
     prev,
@@ -502,7 +429,6 @@ function PageBody(props: {
         basePath={basePath}
         currentPath={currentPath}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={searchEnabled}
       />
       <div className="doc-layout">
@@ -512,17 +438,14 @@ function PageBody(props: {
               currentPath={currentPath}
               basePath={basePath}
               isGuide={currentPath.startsWith('/guide')}
-              isFeatures={currentPath.startsWith('/features')}
               firstGuideUrl={firstGuideUrl}
-              firstFeaturesUrl={firstFeaturesUrl}
               guideGroups={sidebar}
-              featuresEntries={featuresEntries}
             />
           </nav>
         </aside>
 
-        <main className="doc-main" data-pagefind-body>
-          <article>
+        <main className="doc-main">
+          <article id="doc-main-content" tabIndex={-1} data-pagefind-body="">
             {filteredHeadings.length > 0 ? (
               <details className="doc-toc-mobile">
                 <summary>On this page</summary>
@@ -540,7 +463,6 @@ function PageBody(props: {
 
             {date ? (
               <p
-                className="doc-page-meta"
                 style={{
                   color: 'var(--color-text-muted)',
                   fontSize: 'var(--font-size-sm)',
@@ -581,7 +503,7 @@ function PageBody(props: {
 
           <footer className="doc-footer">
             {editUrl || date ? (
-              <div className="doc-page-footer-meta">
+              <div className="doc-page-meta">
                 {editUrl ? (
                   <a
                     href={editUrl}
@@ -716,7 +638,6 @@ function renderNotFound(config: SsgRenderConfig) {
 export async function getRoutes(): Promise<string[]> {
   const routes = ['/', '/404']
   routes.push(...guideEntries.map((entry) => routeFor(entry, 'guide')))
-  routes.push(...featuresEntries.map((entry) => routeFor(entry, 'features')))
 
   const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, 'pages') === 'about')
   if (aboutPage) {
@@ -733,10 +654,14 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
   })()
 
   const guideNavEntries = buildNavEntries(guideEntries, config.base, 'guide')
-  const featuresNavEntries = buildNavEntries(featuresEntries, config.base, 'features')
   const guideGroups = groupBySeries(config.base)
   const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`
-  const firstFeaturesUrl = featuresNavEntries[0]?.url ?? `${config.base}/features`
+  const kitchenSinkEntry = guideEntries.find(
+    (entry) => leafSlug(entry.contentSlug, 'guide') === 'kitchen-sink',
+  )
+  const kitchenSinkUrl = kitchenSinkEntry
+    ? `${config.base}/guide/${leafSlug(kitchenSinkEntry.contentSlug, 'guide')}`
+    : firstGuideUrl
 
   if (routePath === '/') {
     const sidebarHtml = renderToStaticMarkup(
@@ -753,11 +678,6 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
               Guide
             </a>
           </li>
-          <li className="doc-sidebar-item">
-            <a href={firstFeaturesUrl} className="doc-sidebar-link">
-              Features
-            </a>
-          </li>
         </ul>
       </div>,
     )
@@ -765,10 +685,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       <HomeBody
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
+        kitchenSinkUrl={kitchenSinkUrl}
         searchEnabled={config.searchEnabled}
         guideEntries={guideNavEntries}
-        featuresEntries={featuresNavEntries}
       />,
     )
 
@@ -799,11 +718,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         isGuide={true}
-        isFeatures={false}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         guideGroups={guideGroups}
-        featuresEntries={featuresNavEntries}
       />,
     )
     const bodyHtml = renderToStaticMarkup(
@@ -814,10 +730,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
-        featuresEntries={featuresNavEntries}
         date={toIso(guideEntry.frontmatter.date)}
         readTime={estimateReadTime(guideEntry.html)}
         prev={
@@ -852,70 +766,6 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
     })
   }
 
-  const featuresEntry = featuresEntries.find((entry) => routeFor(entry, 'features') === routePath)
-  if (featuresEntry) {
-    const featuresIdx = featuresEntries.indexOf(featuresEntry)
-    const featuresPrev = featuresIdx > 0 ? featuresEntries[featuresIdx - 1] : undefined
-    const featuresNext =
-      featuresIdx < featuresEntries.length - 1 ? featuresEntries[featuresIdx + 1] : undefined
-    const sidebarHtml = renderToStaticMarkup(
-      <SidebarNav
-        currentPath={routePath}
-        basePath={config.base}
-        isGuide={false}
-        isFeatures={true}
-        firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
-        guideGroups={guideGroups}
-        featuresEntries={featuresNavEntries}
-      />,
-    )
-    const bodyHtml = renderToStaticMarkup(
-      <PageBody
-        title={featuresEntry.frontmatter.title}
-        content={featuresEntry.html}
-        headings={featuresEntry.headings}
-        currentPath={routePath}
-        basePath={config.base}
-        firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
-        searchEnabled={config.searchEnabled}
-        sidebar={guideGroups}
-        featuresEntries={featuresNavEntries}
-        date={toIso(featuresEntry.frontmatter.date)}
-        readTime={estimateReadTime(featuresEntry.html)}
-        prev={
-          featuresPrev
-            ? {
-                title: featuresPrev.frontmatter.title,
-                url: `${config.base}/features/${leafSlug(featuresPrev.contentSlug, 'features')}`,
-              }
-            : undefined
-        }
-        next={
-          featuresNext
-            ? {
-                title: featuresNext.frontmatter.title,
-                url: `${config.base}/features/${leafSlug(featuresNext.contentSlug, 'features')}`,
-              }
-            : undefined
-        }
-        editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-react/content/${featuresEntry.contentSlug}.md`}
-      />,
-    )
-
-    return renderDocument({
-      title: `${featuresEntry.frontmatter.title} - Pagesmith + React`,
-      description: featuresEntry.frontmatter.description,
-      basePath: config.base,
-      cssPath: config.cssPath,
-      jsPath: config.jsPath,
-      searchEnabled: config.searchEnabled,
-      bodyHtml,
-      sidebarHtml,
-    })
-  }
-
   const aboutEntry = pageEntries.find((entry) => routeFor(entry, 'pages') === routePath)
   if (aboutEntry) {
     const sidebarHtml = renderToStaticMarkup(
@@ -923,11 +773,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         isGuide={false}
-        isFeatures={false}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         guideGroups={guideGroups}
-        featuresEntries={featuresNavEntries}
       />,
     )
     const bodyHtml = renderToStaticMarkup(
@@ -938,10 +785,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
-        featuresEntries={featuresNavEntries}
         date={toIso(aboutEntry.frontmatter.date)}
         editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-react/content/${aboutEntry.contentSlug}.md`}
       />,

@@ -1,0 +1,28 @@
+# Pagesmith + Handlebars (examples/with-vanilla-hbs)
+
+Agent-oriented notes for this monorepo example: `@pagesmith/core` content layer, Vite SSG, and Handlebars (no `@pagesmith/docs` app shell).
+
+## Integration shape
+
+1. **Collections** — `content.config.mjs` exports `defineCollection` / `defineCollections` with Zod frontmatter schemas. Plain `.mjs` keeps the config loadable from the SSR bundle without a separate TS build for the config file.
+
+2. **Content layer** — `src/entry-server.tsx` imports that config and calls `createContentLayer({ collections, root })`. The layer is cached per `root` so repeated `render()` calls in dev stay cheap. Collections are read with `getCollection()`, then each entry uses `entry.render()` for HTML + headings + read time (markdown pipeline lives in core).
+
+3. **SSR contract for SSG** — The Vite plugin `pagesmithSsg` loads the entry module and calls exported `getRoutes(config)` and `render(url, config)`. Return full HTML strings. Routes are whatever you emit (this example prefixes stripping uses `config.base` from Vite).
+
+4. **Template boundary** — Handlebars runs only at build/dev SSR time: templates under `templates/*.hbs`, `Handlebars.compile()`, and `registerPartial('layout', ...)`. The layout partial is **re-registered on every `render()`** so edits to `layout.hbs` hot-reload in dev; helpers are registered once at module load.
+
+5. **Vite** — `vite.config.ts` uses `vite-plus`, `sharedAssetsPlugin()`, and `...pagesmithSsg({ entry, contentDirs })`. No `pagesmithContent` virtual modules: all content access goes through the layer in the entry file.
+
+6. **Client / runtime split** — `client.js` is the browser entry (bundled by Vite). It pulls in `src/theme.css` and `@pagesmith/core/runtime/content` for progressive enhancements on top of static HTML (e.g. prose/code behavior shipped by core). It is not responsible for primary page HTML.
+
+7. **Pagefind** — `pagesmithSsg` runs Pagefind after HTML is written. Scope indexed body with `data-pagefind-body`: home uses the wrapper in `templates/layout.hbs` (`.doc-home-content`); guide/feature articles use `<article data-pagefind-body>` in `templates/article.hbs`; align standalone pages the same way.
+
+## Human docs in this example
+
+Start with `README.md` and `content/guide/installation.md`. Markdown regression coverage lives in `content/guide/kitchen-sink.md`.
+
+## Repo commands (monorepo root)
+
+- Dev: `vp run dev:eg:vanilla-hbs`
+- Production build: `npm run build:eg:vanilla-hbs` (or `npm run build` inside this package)

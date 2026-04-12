@@ -1,37 +1,47 @@
-/**
- * Rehype plugin: transform relative markdown links to website URLs.
- *
- * Converts inter-article links like `../crp-cssom-construction/README.md`
- * into site-relative URLs like `/articles/crp-cssom-construction/`.
- *
- * Preserves hash fragments (e.g., `../slug/README.md#section` ->
- * `/articles/slug/#section`).
- */
-
 import type { Element, Root } from 'hast'
+import { dirname, extname, relative, resolve } from 'path'
 import { visit } from 'unist-util-visit'
+import { getDocsTransformContext } from './context'
 
-export interface LinkTransformOptions {
-  /** The URL prefix for the current content type, e.g. '/articles' */
-  urlPrefix?: string
+function toContentSlug(filePath: string, contentDir: string): string {
+  const ext = extname(filePath)
+  let slug = relative(contentDir, filePath).replace(/\\/g, '/')
+
+  if (ext) {
+    slug = slug.slice(0, -ext.length)
+  }
+
+  if (slug === 'README' || slug === 'index') return '/'
+  if (slug.endsWith('/README')) slug = slug.slice(0, -7)
+  if (slug.endsWith('/index')) slug = slug.slice(0, -6)
+
+  return slug
 }
 
-/**
- * Match relative markdown links like:
- *   ../slug/README.md
- *   ../slug/index.md
- *   ../slug/README.md#section
- *
- * Capture groups:
- *   1: the slug (directory name)
- *   2: optional hash fragment including the '#'
- */
-const RELATIVE_MD_LINK = /^\.\.\/([^/]+)\/(?:README|index)\.md(#.*)?$/
+function isInsideRoot(targetPath: string, rootDir: string): boolean {
+  const rel = relative(rootDir, targetPath)
+  return rel === '' || !rel.startsWith('..')
+}
 
-export function rehypeLinkTransform(options: LinkTransformOptions = {}) {
-  const { urlPrefix = '' } = options
+function splitPathSuffix(href: string): { pathPart: string; suffix: string } {
+  const queryIndex = href.indexOf('?')
+  const hashIndex = href.indexOf('#')
+  const boundaryCandidates = [queryIndex, hashIndex].filter((index) => index >= 0)
+  const boundary = boundaryCandidates.length > 0 ? Math.min(...boundaryCandidates) : -1
+  return boundary >= 0
+    ? { pathPart: href.slice(0, boundary), suffix: href.slice(boundary) }
+    : { pathPart: href, suffix: '' }
+}
 
+export function rehypeLinkTransform() {
   return (tree: Root) => {
+    const docsData = getDocsTransformContext()
+    const basePath = docsData?.basePath ?? ''
+    const contentDir = docsData?.contentDir
+    const currentFilePath = docsData?.filePath
+
+    if (!contentDir || !currentFilePath) return
+
     visit(tree, 'element', (node: Element) => {
       if (node.tagName !== 'a') return
 
@@ -39,23 +49,40 @@ export function rehypeLinkTransform(options: LinkTransformOptions = {}) {
       if (typeof href !== 'string') return
 
       // Skip external URLs
-      if (href.startsWith('http://') || href.startsWith('https://')) return
+      if (
+        href.startsWith('http://') ||
+        href.startsWith('https://') ||
+        href.startsWith('mailto:') ||
+        href.startsWith('tel:')
+      ) {
+        return
+      }
 
-      // Skip non-markdown relative links
-      if (!href.includes('.md')) return
+      if (href.includes('.md')) {
+        const { pathPart, suffix } = splitPathSuffix(href)
+        if (!pathPart.endsWith('.md')) return
 
-      // Skip self-links like ./README.md
-      if (href.startsWith('./')) return
+        const targetPath = resolve(dirname(currentFilePath), pathPart)
+        if (!isInsideRoot(targetPath, contentDir)) return
 
-      const match = href.match(RELATIVE_MD_LINK)
-      if (!match) return
+        const slug = toContentSlug(targetPath, contentDir)
+        const routePath = slug === '/' ? '/' : `/${slug}`
 
-      const slug = match[1]
-      const hash = match[2] || ''
+        node.properties = node.properties || {}
+        node.properties.href = `${basePath}${routePath}${suffix}`
+        return
+      }
 
-      // Build the transformed URL: /articles/slug/ + optional #fragment
-      node.properties = node.properties || {}
-      node.properties.href = `${urlPrefix}/${slug}/${hash}`
+      if (
+        basePath &&
+        href.startsWith('/') &&
+        !href.startsWith('//') &&
+        href !== basePath &&
+        !href.startsWith(`${basePath}/`)
+      ) {
+        node.properties = node.properties || {}
+        node.properties.href = `${basePath}${href}`
+      }
     })
   }
 }

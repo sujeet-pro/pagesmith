@@ -18,7 +18,7 @@ Paste one of these prompts into your AI assistant (Claude, Codex, Gemini) and yo
 
 **Custom site with a framework (React, Solid, Svelte, etc.):**
 
-> Install `@pagesmith/core` and set up a content layer with Vite plugins. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for the full setup guide, then scaffold a blog with a markdown collection.
+> Install `@pagesmith/core` and set up a content layer with Vite plugins. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for the full setup guide, then scaffold a blog with a markdown collection.
 
 That's it. The AI assistant will create the config, content structure, collections, and AI context files. Read on if you want to understand the details or decide manually.
 
@@ -48,7 +48,7 @@ Use this for custom sites with schema-validated collections, a rich markdown pip
 
 **Best for:** Blogs, portfolios, marketing sites, custom documentation.
 
-**AI setup:** Ask your agent to read `node_modules/@pagesmith/core/docs/agents/usage.md` for step-by-step scaffolding.
+**AI setup:** Ask your agent to read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for step-by-step scaffolding.
 
 -> [Manual setup guide](/guide/getting-started/)
 

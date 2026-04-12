@@ -9,7 +9,7 @@ description: Build a documentation site from configuration alone using @pagesmit
 
 The Doc Site pattern uses `@pagesmith/docs` to build a full documentation site from configuration alone. Unlike the other examples that use `@pagesmith/core` directly, this relies entirely on the higher-level `@pagesmith/docs` package, which provides a CLI, a default theme, convention-based navigation generated from the `content/` directory, Pagefind search, and layout override support. You write markdown in a content tree, configure the site in `pagesmith.config.json5`, and optionally override the default layouts with custom JSX files using `@pagesmith/core/jsx-runtime`.
 
-Source: [`examples/doc-site/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/doc-site) | Output: <a href="/pagesmith/examples/doc-site/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/doc-site/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/doc-site) | Output: <a href="/pagesmith/examples/doc-site" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ## Prerequisites
 
@@ -82,11 +82,24 @@ The site is configured entirely through this file:
   sidebar: {
     collapsible: true,
   },
+  copyright: {
+    projectName: 'Example Docs',
+    startYear: 2024,
+    endYear: null,
+  },
   footerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'API', path: '/api' },
-    { label: 'Reference', path: '/reference' },
-    { label: 'Blog', path: '/blog' },
+    {
+      header: 'Docs',
+      links: [
+        { label: 'Guide', path: '/guide' },
+        { label: 'API', path: '/api' },
+        { label: 'Reference', path: '/reference' },
+      ],
+    },
+    {
+      header: 'More',
+      links: [{ label: 'Blog', path: '/blog' }],
+    },
   ],
   search: {
     enabled: true,
@@ -107,7 +120,8 @@ Key configuration options:
 | `homeLink` | Where the logo links to (useful when nested under a parent site) |
 | `sidebar.collapsible` | When `true`, sidebar sections use collapsible `<details>` elements |
 | `search.enabled` | Enables Pagefind search with Cmd+K keyboard shortcut |
-| `footerLinks` | Links displayed in the page footer |
+| `footerLinks` | Links displayed in the page footer as a flat wrapped row or grouped columns |
+| `copyright` | Footer copyright config for the legal line at the bottom |
 
 ## Content Structure
 
@@ -252,36 +266,38 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
             {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}
           </div>
         </header>
-        <main class="doc-home" data-pagefind-body="">
-          <section class="doc-hero">
-            {hero.name ? <p class="doc-hero-name">{hero.name}</p> : null}
-            <h1 class="doc-hero-text">{hero.text ?? frontmatter.title}</h1>
-            {hero.tagline ? <p class="doc-hero-tagline">{hero.tagline}</p> : null}
-            {actions.length > 0 ? (
-              <div class="doc-hero-actions">
-                {actions.map((action: any) => (
-                  <a
-                    href={action.link}
-                    class={`doc-hero-action ${action.theme === 'brand' ? 'doc-hero-action-brand' : 'doc-hero-action-alt'}`}
-                  >
-                    {action.text}
-                  </a>
-                ))}
-              </div>
-            ) : null}
-          </section>
-          {features.length > 0 ? (
-            <section class="doc-features">
-              {features.map((feature: any) => (
-                <div class="doc-feature-card">
-                  {feature.icon ? <span class="doc-feature-icon">{feature.icon}</span> : null}
-                  <h3 class="doc-feature-title">{feature.title}</h3>
-                  <p class="doc-feature-details">{feature.details}</p>
+        <main class="doc-home">
+          <article class="doc-home-body" data-pagefind-body="">
+            <section class="doc-hero">
+              {hero.name ? <p class="doc-hero-name">{hero.name}</p> : null}
+              <h1 class="doc-hero-text">{hero.text ?? frontmatter.title}</h1>
+              {hero.tagline ? <p class="doc-hero-tagline">{hero.tagline}</p> : null}
+              {actions.length > 0 ? (
+                <div class="doc-hero-actions">
+                  {actions.map((action: any) => (
+                    <a
+                      href={action.link}
+                      class={`doc-hero-action ${action.theme === 'brand' ? 'doc-hero-action-brand' : 'doc-hero-action-alt'}`}
+                    >
+                      {action.text}
+                    </a>
+                  ))}
                 </div>
-              ))}
+              ) : null}
             </section>
-          ) : null}
-          {content ? <div class="prose" innerHTML={content} /> : null}
+            {features.length > 0 ? (
+              <section class="doc-features">
+                {features.map((feature: any) => (
+                  <div class="doc-feature-card">
+                    {feature.icon ? <span class="doc-feature-icon">{feature.icon}</span> : null}
+                    <h3 class="doc-feature-title">{feature.title}</h3>
+                    <p class="doc-feature-details">{feature.details}</p>
+                  </div>
+                ))}
+              </section>
+            ) : null}
+            {content ? <div class="prose" innerHTML={content} /> : null}
+          </article>
         </main>
         {searchEnabled ? (
           <pagefind-modal reset-on-close="">
@@ -372,7 +388,7 @@ Search is configured in `pagesmith.config.json5`:
 
 When enabled, `@pagesmith/docs` automatically:
 
-1. Adds `data-pagefind-body` to content areas
+1. Adds `data-pagefind-body` to the content body only so search indexes article/home content instead of header, sidebar, breadcrumbs, or footer chrome
 2. Includes Pagefind Component UI CSS and JS assets (`pagefind-component-ui.css`, `pagefind-component-ui.js` as a module)
 3. Renders `<pagefind-modal-trigger>` and a `<pagefind-modal>` tree (with `<pagefind-input>` for the query field instead of Default UI `.pagefind-ui__search-input`)
 4. Wires Cmd+K and modal behavior through Component UI web components (no `new PagefindUI({ ... })`)

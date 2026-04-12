@@ -1,8 +1,10 @@
+// Core-only example: no pagesmithContent — the SSR entry calls createContentLayer directly.
+// pagesmithSsg still needs contentDirs so companion assets under content/ copy to /assets/.
 import { defineConfig } from 'vite-plus'
 import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
-  base: '/pagesmith/examples/blog-site/',
+  base: '/pagesmith/examples/blog-site',
   plugins: [
     sharedAssetsPlugin(),
     ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),

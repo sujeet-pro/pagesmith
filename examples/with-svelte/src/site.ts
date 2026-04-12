@@ -13,7 +13,6 @@ import {
   buildNavEntries,
   groupByField,
 } from '@pagesmith/core/ssg-utils'
-import featuresCollection from 'virtual:content/features'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 
@@ -49,10 +48,6 @@ export const guideEntries = [...(guideCollection as Entry[])].sort((left, right)
   if (orderDelta !== 0) return orderDelta
   return getTime(left.frontmatter.date) - getTime(right.frontmatter.date)
 })
-
-export const featuresEntries = [...(featuresCollection as Entry[])].sort(
-  (left, right) => getTime(right.frontmatter.date) - getTime(left.frontmatter.date),
-)
 
 export const pageEntries = [...(pagesCollection as Entry[])]
 

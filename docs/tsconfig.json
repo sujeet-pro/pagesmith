@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["content/**/*.ts", "pagesmith.config.json5"]
+  "include": ["content/**/*.ts", "../pagesmith.config.json5"]
 }

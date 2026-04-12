@@ -5,7 +5,7 @@ description: Root and section meta.json5 files for header and footer links, side
 
 # Meta Files and Navigation
 
-`@pagesmith/docs` uses `meta.json5` files to control navigation, sidebar ordering, series grouping, and section-level layout assignments. There are two types: a root meta file for site-wide navigation, and section meta files for per-section configuration.
+`@pagesmith/docs` uses `meta.json5` files to control navigation, sidebar ordering, series grouping, and section-level layout assignments. In the default convention, top-level folders define the major docs sections, nested markdown files stay in that top-level section, and the reader-facing sidebar stays flat. There are two types of meta files: a root meta file for site-wide navigation, and section meta files for per-section configuration.
 
 ## Root meta.json5
 
@@ -23,9 +23,17 @@ Place a `meta.json5` file directly inside the content directory to control the s
 
   // Footer navigation links
   footerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'Reference', path: '/reference' },
-    { label: 'GitHub', path: 'https://github.com/example/repo' },
+    {
+      header: 'Docs',
+      links: [
+        { label: 'Guide', path: '/guide' },
+        { label: 'Reference', path: '/reference' },
+      ],
+    },
+    {
+      header: 'Project',
+      links: [{ label: 'GitHub', path: 'https://github.com/example/repo' }],
+    },
   ],
 }
 ```
@@ -51,6 +59,8 @@ Internal paths are automatically prefixed with `basePath` at build time.
 ### Footer Links
 
 Footer links defined in the root meta file take precedence over `footerLinks` in `pagesmith.config.json5`. This lets you keep navigation configuration in one place alongside your content. Internal paths are also prefixed with `basePath`.
+
+Use a flat array of `{ label, path }` objects for a simple wrapped link row, or use grouped objects with `{ header?, links }` for column-based footer navigation. When neither root meta nor config defines `footerLinks`, Pagesmith falls back to the major top-level navigation links so the footer still exposes the primary destinations in the docs. Set `footerLinks: []` in config or root meta to hide the footer links entirely.
 
 ## Section meta.json5
 
@@ -89,10 +99,7 @@ Page ordering determines the sidebar order and the prev/next navigation links at
 
 ### Default Ordering
 
-When no `orderBy` is specified, pages are sorted by:
-
-1. The `order` frontmatter field (ascending). Pages without `order` get `Number.MAX_SAFE_INTEGER`.
-2. Alphabetical by route path for pages with the same order value.
+When no `orderBy` is specified, Pagesmith keeps section pages in flat slug order. If you add an explicit `order` frontmatter value, those pages still sort before unordered pages:
 
 ```yaml
 ---
@@ -108,7 +115,7 @@ order: 2
 ---
 ```
 
-Pages without an `order` field appear after all explicitly ordered pages, sorted alphabetically.
+Pages without an `order` field appear after all explicitly ordered pages, sorted by route path.
 
 ### Manual Ordering with items
 
@@ -201,13 +208,11 @@ Each series entry has:
 
 ### How Series Affect the Sidebar
 
-When a section has series defined, the sidebar is built from the series groups instead of a flat list. Each series becomes a collapsible group in the sidebar with the `displayName` as the heading.
+When a section has series defined, the sidebar is built from the series groups instead of a single flat list. Each series becomes a group in the sidebar with the `displayName` as the heading.
 
-The `articles` array controls the order of pages within each series. Pages are matched by their slug -- the last segment of the content path (the folder name).
+The `articles` array controls the order of pages within each series. Pages can be matched by a section-relative slug such as `advanced/setup`, or by a unique leaf slug when there is no ambiguity.
 
-The section landing page (the section's `README.md`) is prepended to the first series group in the sidebar, so it always appears at the top.
-
-Pages not listed in any series are excluded from the sidebar when series are active.
+Pages not listed in any series stay visible under an automatic `Miscellaneous` group instead of disappearing from the sidebar.
 
 ## How the Sidebar Is Built
 
@@ -215,11 +220,11 @@ The sidebar is generated per-section and reflects the structure of content withi
 
 ### Without Series
 
-When no series are defined, the sidebar shows a flat (or nested) list of pages:
+When no series are defined, the sidebar shows one flat list of pages for the section:
 
-1. The section landing page appears first.
-2. Remaining pages are sorted according to `orderBy` and `items` (or the default order).
-3. Nested folders create nested sidebar items with expandable children.
+1. The section landing page appears first when its slug sorts first or when explicit ordering puts it there.
+2. Remaining pages are sorted according to `orderBy` and `items` (or the default slug order).
+3. Nested folders keep their URL paths, but they do not create nested sidebar trees.
 
 The sidebar title comes from the section `displayName`, falling back to the landing page title, then to the folder name in title case.
 
@@ -229,7 +234,7 @@ When series are defined, the sidebar shows grouped sections:
 
 1. Each series becomes a sidebar group with its `displayName` as the heading.
 2. Within each group, pages appear in the order listed in `articles`.
-3. The section landing page is prepended to the first group.
+3. Pages not referenced by any series appear in a final `Miscellaneous` group.
 
 ### Sidebar Labels
 
@@ -263,7 +268,7 @@ The link points to the section landing page if it exists, otherwise to the first
 
 ## Prev/Next Navigation
 
-At the bottom of each page, prev/next links are generated from the flattened sidebar order. The sidebar items (including nested children) are flattened into a single list, and the current page's neighbors become the prev and next links.
+At the bottom of each non-home page, prev/next links are generated from the flattened sidebar order. The sidebar items (including nested children) are flattened into a single list, and the current page's neighbors become the prev and next links.
 
 This means the ordering in `items`, `series`, or the default sort directly determines the prev/next flow through the documentation.
 

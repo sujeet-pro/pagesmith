@@ -1,167 +1,133 @@
 import { h } from '@pagesmith/core/jsx-runtime'
+import { Html } from '@pagesmith/docs/theme'
+import {
+  buildHomeSidebarSections,
+  DocFooter,
+  DocHeader,
+  DocSidebar,
+  resolveSocialImage,
+  toHtmlSite,
+  type ExampleSite,
+} from './shared'
+
+/**
+ * Home layout override — maps `content/README.md` frontmatter (hero, features,
+ * packages, install banner, code sample) onto the stock docs home structure while
+ * reusing `shared` header/footer/sidebar so search + theme behavior match inner pages.
+ */
 
 type Props = {
   content: string
   frontmatter: Record<string, any>
+  headings: Array<{ depth: number; text: string; slug: string }>
   slug: string
-  site: {
-    name: string
-    title: string
-    description: string
-    basePath?: string
-    origin: string
-    language?: string
-    navItems?: Array<{ label: string; path: string }>
-    footerLinks?: Array<{ label: string; path: string }>
-    search?: { enabled?: boolean; showImages?: boolean; showSubResults?: boolean }
-    theme?: { lightColor?: string; darkColor?: string }
-    footerText?: string
-    copyright?: { holder: string; startYear: number }
-  }
+  site: ExampleSite
+  [key: string]: any
 }
 
-function assetPath(site: Props['site'], path: string): string {
-  const base = site.basePath && site.basePath !== '/' ? site.basePath.replace(/\/+$/, '') : ''
-  return base ? `${base}${path}` : path
-}
+export default function DocHome(props: Props) {
+  const { content, frontmatter, slug, site } = props
 
-const themeIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
+  const hero =
+    frontmatter.hero ??
+    (frontmatter.title || frontmatter.tagline || frontmatter.actions
+      ? {
+          name: frontmatter.title || site.name,
+          text: frontmatter.tagline || frontmatter.title,
+          tagline: frontmatter.description,
+          badge: frontmatter.badge,
+          actions: frontmatter.actions,
+        }
+      : undefined)
 
-export default function DocHome({ content, frontmatter, slug, site }: Props) {
-  const title = frontmatter.title || site.title
-  const description = frontmatter.description || site.description
-  const base = site.basePath || ''
-  const searchEnabled = site.search?.enabled !== false
-  const lightColor = site.theme?.lightColor || '#f8fafc'
-  const darkColor = site.theme?.darkColor || '#020617'
-
-  const hero = frontmatter.hero ?? {}
-  const features = frontmatter.features ?? []
-  const actions = hero.actions ?? frontmatter.actions ?? []
+  const features = frontmatter.features
+  const install = frontmatter.install
+  const packages = frontmatter.packages
+  const codeExample = frontmatter.codeExample
+  const sidebarSections = buildHomeSidebarSections(site.navItems)
+  const htmlSite = toHtmlSite(site)
 
   return (
-    <html lang={site.language || 'en'} class="no-js color-scheme-auto theme-paper">
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="color-scheme" content="light dark" />
-        <script innerHTML="(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})()" />
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta name="theme-color" content={lightColor} media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content={darkColor} media="(prefers-color-scheme: dark)" />
-        {searchEnabled ? (
-          <link rel="stylesheet" href={assetPath(site, '/pagefind/pagefind-component-ui.css')} />
-        ) : null}
-        <link rel="stylesheet" href={assetPath(site, '/assets/style.css')} />
-        <script innerHTML="document.documentElement.classList.remove('no-js')" />
-        {searchEnabled ? (
-          <script src={assetPath(site, '/pagefind/pagefind-component-ui.js')} type="module" />
-        ) : null}
-      </head>
-      <body>
-        <header class="doc-header">
-          <div class="doc-header-inner">
-            <div class="doc-header-left">
-              <a href={(site as any).homeLink || (base ? `${base}/` : '/')} class="doc-logo">
-                {site.name}
-              </a>
-            </div>
-            {site.navItems && site.navItems.length > 0 ? (
-              <nav class="doc-nav">
-                {site.navItems.map((item) => (
-                  <a href={item.path}>{item.label}</a>
-                ))}
-              </nav>
-            ) : null}
-            <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
-              <button
-                type="button"
-                class="doc-theme-toggle-btn"
-                aria-label="Change theme"
-                aria-expanded="false"
-                aria-haspopup="true"
-                data-theme-toggle-btn=""
-                innerHTML={themeIcon}
-              />
-              <div class="doc-theme-dropdown" data-theme-dropdown="" hidden>
-                <fieldset class="doc-theme-group">
-                  <legend>Appearance</legend>
-                  <label class="doc-theme-option" data-scheme="auto">
-                    <input type="radio" name="colorScheme" value="auto" checked />
-                    Auto
-                  </label>
-                  <label class="doc-theme-option" data-scheme="light">
-                    <input type="radio" name="colorScheme" value="light" />
-                    Light
-                  </label>
-                  <label class="doc-theme-option" data-scheme="dark">
-                    <input type="radio" name="colorScheme" value="dark" />
-                    Dark
-                  </label>
-                </fieldset>
-                <fieldset class="doc-theme-group">
-                  <legend>Theme</legend>
-                  <label class="doc-theme-option" data-theme="paper">
-                    <input type="radio" name="theme" value="paper" checked />
-                    Paper
-                  </label>
-                  <label class="doc-theme-option" data-theme="high-contrast">
-                    <input type="radio" name="theme" value="high-contrast" />
-                    High Contrast
-                  </label>
-                </fieldset>
-                <fieldset class="doc-theme-group">
-                  <legend>Text Size</legend>
-                  <div class="doc-text-size-options">
-                    <label class="doc-text-size-option" title="Small">
-                      <input type="radio" name="textSize" value="small" />
-                      <span class="doc-text-size-label" data-size="small">
-                        A
-                      </span>
-                    </label>
-                    <label class="doc-text-size-option" title="Default">
-                      <input type="radio" name="textSize" value="base" checked />
-                      <span class="doc-text-size-label" data-size="base">
-                        A
-                      </span>
-                    </label>
-                    <label class="doc-text-size-option" title="Large">
-                      <input type="radio" name="textSize" value="large" />
-                      <span class="doc-text-size-label" data-size="large">
-                        A
-                      </span>
-                    </label>
-                  </div>
-                </fieldset>
-              </div>
-            </div>
-            {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}
-          </div>
-        </header>
-        <main class="doc-home" data-pagefind-body="">
-          <section class="doc-hero">
-            {hero.name ? <p class="doc-hero-name">{hero.name}</p> : null}
-            <h1 class="doc-hero-text">{hero.text ?? title}</h1>
-            {(hero.tagline ?? frontmatter.tagline) ? (
-              <p class="doc-hero-tagline">{hero.tagline ?? frontmatter.tagline}</p>
-            ) : null}
-            {actions.length > 0 ? (
-              <div class="doc-hero-actions">
-                {actions.map((action: any) => (
-                  <a
-                    href={action.link}
-                    class={`doc-hero-action ${action.theme === 'brand' ? 'doc-hero-action-brand' : 'doc-hero-action-alt'}`}
+    <Html
+      title={hero?.name || frontmatter.title || site.title}
+      description={hero?.tagline || frontmatter.description || site.description}
+      url={slug}
+      socialImage={resolveSocialImage(site, frontmatter.socialImage)}
+      site={htmlSite}
+    >
+      <DocHeader
+        siteName={site.name}
+        siteIcon={site.icon}
+        basePath={site.basePath}
+        homeLink={site.homeLink}
+        navItems={site.navItems}
+        slug={slug}
+        searchEnabled={site.search?.enabled}
+      />
+      <main id="doc-main-content" class="doc-home" tabindex="-1">
+        <DocSidebar sections={sidebarSections} currentSlug={slug} />
+
+        <article class="doc-home-body" data-pagefind-body="">
+          {hero ? (
+            <section class="doc-home-section doc-hero">
+              {hero.badge ? (
+                <div class="doc-hero-badge">
+                  <span class="doc-hero-badge-dot" />
+                  {hero.badge}
+                </div>
+              ) : null}
+              {hero.name ? <p class="doc-hero-name">{hero.name}</p> : null}
+              {hero.text ? <h1 class="doc-hero-text">{hero.text}</h1> : null}
+              {hero.tagline ? <p class="doc-hero-tagline">{hero.tagline}</p> : null}
+              {hero.actions && hero.actions.length > 0 ? (
+                <div class="doc-hero-actions">
+                  {hero.actions.map((action: any) => (
+                    <a
+                      href={action.link}
+                      class={`doc-hero-action doc-hero-action-${action.theme || 'brand'}`}
+                    >
+                      {action.icon ? (
+                        <span class="doc-hero-action-icon" innerHTML={action.icon} />
+                      ) : null}
+                      {action.text}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {install ? (
+            <div class="doc-home-section doc-home-install">
+              <div class="doc-install-bar">
+                <div class="doc-install-header">
+                  <span class="doc-install-dot doc-install-dot-r" />
+                  <span class="doc-install-dot doc-install-dot-y" />
+                  <span class="doc-install-dot doc-install-dot-g" />
+                  <span class="doc-install-title">Terminal</span>
+                  <span style="width:36px" />
+                </div>
+                <div class="doc-install-body">
+                  <code>
+                    <span class="doc-install-prompt">$ </span>
+                    {install}
+                  </code>
+                  <button
+                    type="button"
+                    class="doc-install-copy"
+                    data-copy-text={install}
+                    onclick={`navigator.clipboard.writeText(this.dataset.copyText);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)`}
                   >
-                    {action.text}
-                  </a>
-                ))}
+                    Copy
+                  </button>
+                </div>
               </div>
-            ) : null}
-          </section>
-          {features.length > 0 ? (
+            </div>
+          ) : null}
+
+          {features && features.length > 0 ? (
             <section class="doc-home-section">
+              <p class="doc-home-section-label">Features</p>
               <div class="doc-features">
                 {features.map((feature: any) => (
                   <div class="doc-feature-card">
@@ -175,124 +141,64 @@ export default function DocHome({ content, frontmatter, slug, site }: Props) {
               </div>
             </section>
           ) : null}
+
+          {packages && packages.length > 0 ? (
+            <section class="doc-home-section">
+              <p class="doc-home-section-label">Packages</p>
+              <div class="doc-packages">
+                {packages.map((pkg: any) => {
+                  const Tag = pkg.href ? 'a' : 'div'
+                  return (
+                    <Tag class="doc-package-card" href={pkg.href || undefined}>
+                      <div class="doc-package-name">{pkg.name}</div>
+                      <p class="doc-package-desc">{pkg.description}</p>
+                      {pkg.version || pkg.tag ? (
+                        <div class="doc-package-meta">
+                          {pkg.version ? (
+                            <span class="doc-package-version">{pkg.version}</span>
+                          ) : null}
+                          {pkg.tag ? <span class="doc-package-tag">{pkg.tag}</span> : null}
+                        </div>
+                      ) : null}
+                    </Tag>
+                  )
+                })}
+              </div>
+            </section>
+          ) : null}
+
+          {codeExample ? (
+            <section class="doc-home-section">
+              <p class="doc-home-section-label">{codeExample.label || 'Quick Start'}</p>
+              <div class="doc-home-code">
+                <div class="doc-home-code-header">
+                  <span class="doc-install-dot doc-install-dot-r" />
+                  <span class="doc-install-dot doc-install-dot-y" />
+                  <span class="doc-install-dot doc-install-dot-g" />
+                  <span class="doc-home-code-title">{codeExample.title || ''}</span>
+                  <span style="width:36px" />
+                </div>
+                <pre innerHTML={codeExample.code} />
+              </div>
+            </section>
+          ) : null}
+
           {content ? (
             <section class="doc-home-content">
               <div class="prose" innerHTML={content} />
             </section>
           ) : null}
-          <div class="doc-home-footer">
-            <footer class="doc-footer">
-              {site.footerLinks && site.footerLinks.length > 0 ? (
-                <nav class="doc-footer-links" aria-label="Footer links">
-                  {site.footerLinks.map((link) => (
-                    <a href={link.path}>{link.label}</a>
-                  ))}
-                </nav>
-              ) : null}
-              <div class="doc-footer-theme no-js-hidden" data-footer-theme="">
-                <div class="doc-footer-theme-group">
-                  <span class="doc-footer-theme-label">Appearance</span>
-                  <div class="doc-footer-theme-options" data-footer-scheme="">
-                    <button type="button" data-scheme="auto" class="active" aria-pressed="true">
-                      Auto
-                    </button>
-                    <button type="button" data-scheme="light" aria-pressed="false">
-                      Light
-                    </button>
-                    <button type="button" data-scheme="dark" aria-pressed="false">
-                      Dark
-                    </button>
-                  </div>
-                </div>
-                <div class="doc-footer-theme-group">
-                  <span class="doc-footer-theme-label">Theme</span>
-                  <div class="doc-footer-theme-options" data-footer-theme-type="">
-                    <button type="button" data-theme="paper" class="active" aria-pressed="true">
-                      Paper
-                    </button>
-                    <button type="button" data-theme="high-contrast" aria-pressed="false">
-                      High Contrast
-                    </button>
-                  </div>
-                </div>
-                <div class="doc-footer-theme-group">
-                  <span class="doc-footer-theme-label">Text Size</span>
-                  <div class="doc-footer-theme-options" data-footer-text-size="">
-                    <button
-                      type="button"
-                      data-size="small"
-                      aria-pressed="false"
-                      aria-label="Small text"
-                    >
-                      <span class="doc-text-size-label" data-size="small">
-                        A
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      data-size="base"
-                      class="active"
-                      aria-pressed="true"
-                      aria-label="Default text"
-                    >
-                      <span class="doc-text-size-label" data-size="base">
-                        A
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      data-size="large"
-                      aria-pressed="false"
-                      aria-label="Large text"
-                    >
-                      <span class="doc-text-size-label" data-size="large">
-                        A
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <p class="doc-footer-signoff">
-                Built with &#10084; using{' '}
-                <a
-                  href="https://github.com/sujeet-pro/pagesmith"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  pagesmith
-                </a>
-              </p>
-              {site.copyright ? (
-                <p class="doc-footer-copyright">
-                  &copy;{' '}
-                  {site.copyright.startYear < new Date().getFullYear()
-                    ? `${site.copyright.startYear}\u2013${new Date().getFullYear()}`
-                    : `${new Date().getFullYear()}`}{' '}
-                  {site.copyright.holder}
-                </p>
-              ) : null}
-            </footer>
-          </div>
-        </main>
-        {searchEnabled ? (
-          <pagefind-modal reset-on-close="">
-            <pagefind-modal-header>
-              <pagefind-input />
-            </pagefind-modal-header>
-            <pagefind-modal-body>
-              <pagefind-summary />
-              <pagefind-results
-                show-images={site.search?.showImages ? '' : undefined}
-                hide-sub-results={site.search?.showSubResults === false ? '' : undefined}
-              />
-            </pagefind-modal-body>
-            <pagefind-modal-footer>
-              <pagefind-keyboard-hints />
-            </pagefind-modal-footer>
-          </pagefind-modal>
-        ) : null}
-        <script src={assetPath(site, '/assets/main.js')} defer />
-      </body>
-    </html>
+        </article>
+
+        <div class="doc-home-footer">
+          <DocFooter
+            links={site.footerLinks}
+            footerText={site.footerText}
+            maintainer={site.maintainer}
+            copyright={site.copyright}
+          />
+        </div>
+      </main>
+    </Html>
   )
 }

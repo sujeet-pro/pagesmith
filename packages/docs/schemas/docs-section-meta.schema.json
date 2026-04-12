@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projects.sujeet.pro/pagesmith/schemas/docs-section-meta.schema.json",
+  "title": "Pagesmith Docs Section Meta",
+  "description": "Schema for content/<section>/meta.json5 ordering and series metadata.",
+  "type": "object",
+  "properties": {
+    "displayName": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "layout": {
+      "type": "string"
+    },
+    "itemLayout": {
+      "type": "string"
+    },
+    "orderBy": {
+      "type": "string",
+      "enum": ["manual", "publishedDate"]
+    },
+    "collapsed": {
+      "type": "boolean"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "series": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "articles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["slug", "displayName", "articles"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

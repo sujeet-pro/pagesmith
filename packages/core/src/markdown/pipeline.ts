@@ -2,10 +2,6 @@ import matter from 'gray-matter'
 import { parse as parseYaml } from 'yaml'
 import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeExpressiveCode, {
-  type BundledShikiTheme,
-  type RehypeExpressiveCodeOptions,
-} from 'rehype-expressive-code'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeMathjax from 'rehype-mathjax/svg'
 import rehypeSlug from 'rehype-slug'
@@ -20,12 +16,20 @@ import remarkSmartypants from 'remark-smartypants'
 import { unified } from 'unified'
 import type { Heading } from '../schemas/heading'
 import type { MarkdownConfig } from '../schemas/markdown-config'
+import { applyPagesmithCodeRenderer } from './code/renderer'
 import rehypeCodeTabs from './plugins/rehype-code-tabs'
+import rehypeScrollableTables from './plugins/rehype-scrollable-tables'
 
 export type MarkdownResult = {
   html: string
   headings: Heading[]
   frontmatter: Record<string, unknown>
+}
+
+type PreExtractedMarkdown = {
+  content: string
+  frontmatter: Record<string, unknown>
+  fileData?: Record<string, unknown>
 }
 
 export type { MarkdownConfig }
@@ -65,16 +69,34 @@ function extractHeadings(tree: any, headings: Heading[]): void {
   }
 }
 
-function createProcessor(config: MarkdownConfig) {
+function contentMayContainMath(content: string): boolean {
+  return (
+    content.includes('$$') ||
+    content.includes('\\(') ||
+    content.includes('\\[') ||
+    /(^|[^\\])\$(?![\s$])/.test(content)
+  )
+}
+
+function shouldEnableMath(content: string, config: MarkdownConfig): boolean {
+  const mathMode = config.math ?? 'auto'
+  return mathMode === true || (mathMode === 'auto' && contentMayContainMath(content))
+}
+
+function createProcessor(config: MarkdownConfig, options: { enableMath: boolean }) {
+  const allowDangerousHtml = config.allowDangerousHtml ?? true
   const processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(remarkMath)
     .use(remarkFrontmatter, ['yaml'])
     // GitHub-flavored alerts: > [!NOTE], > [!TIP], > [!IMPORTANT], > [!WARNING], > [!CAUTION]
     .use(remarkGithubAlerts)
     // Smart typography: "smart quotes", em—dashes, el…lipses
     .use(remarkSmartypants)
+
+  if (options.enableMath) {
+    processor.use(remarkMath)
+  }
 
   if (config.remarkPlugins) {
     for (const plugin of config.remarkPlugins) {
@@ -83,7 +105,7 @@ function createProcessor(config: MarkdownConfig) {
     }
   }
 
-  // Apply language aliases to fenced code blocks before Expressive Code processes them.
+  // Apply language aliases to fenced code blocks before the built-in code renderer processes them.
   // Merge defaults with user-provided aliases (user overrides take precedence).
   const langAlias = { ...DEFAULT_LANG_ALIASES, ...config.shiki?.langAlias }
   processor.use(() => (tree: any) => {
@@ -98,37 +120,22 @@ function createProcessor(config: MarkdownConfig) {
     visit(tree)
   })
 
-  processor.use(remarkRehype, { allowDangerousHtml: true })
+  processor.use(remarkRehype, { allowDangerousHtml })
 
-  // MathJax must run before Expressive Code so that math elements (from remark-math)
-  // are rendered to SVG before Expressive Code tries to highlight them as code blocks.
-  processor.use(rehypeMathjax)
+  // MathJax must run before the built-in code renderer so math is rendered to SVG
+  // before code highlighting touches the HAST tree.
+  if (options.enableMath) {
+    processor.use(rehypeMathjax)
+  }
 
-  // Expressive Code — syntax highlighting, code frames, tabs, copy button
-  const lightTheme = (config.shiki?.themes?.light || 'github-light') as BundledShikiTheme
-  const darkTheme = (config.shiki?.themes?.dark || 'github-dark') as BundledShikiTheme
-
-  processor.use(rehypeExpressiveCode, {
-    themes: [lightTheme, darkTheme],
-    useDarkModeMediaQuery: true,
-    themeCssSelector: (theme) => {
-      if (theme.type === 'dark') return '.color-scheme-dark'
-      if (theme.type === 'light') return '.color-scheme-light'
-      return `[data-theme='${theme.name}']`
-    },
-    styleOverrides: {
-      uiFontFamily: 'var(--ps-font-sans, var(--font-family, system-ui, sans-serif))',
-      codeFontFamily: 'var(--ps-font-mono, var(--font-mono, ui-monospace, monospace))',
-      codeFontSize: 'var(--ps-font-size-sm, 0.875rem)',
-      codeLineHeight: '1.7',
-      borderRadius: 'var(--ps-radius-lg, 0.5rem)',
-      borderColor: 'var(--ps-color-border-subtle, var(--color-border-subtle, #e5e7eb))',
-    },
-  } satisfies RehypeExpressiveCodeOptions)
+  // Built-in code renderer stage. Downstream plugins target the
+  // Pagesmith-owned code block contract instead of renderer internals.
+  applyPagesmithCodeRenderer(processor, config)
 
   // Group consecutive titled code blocks into a tabbed interface.
-  // Must run after Expressive Code so we can inspect its rendered output.
+  // Must run after the built-in code renderer so it can inspect the Pagesmith contract.
   processor.use(rehypeCodeTabs)
+  processor.use(rehypeScrollableTables)
 
   processor
     .use(rehypeSlug)
@@ -154,7 +161,7 @@ function createProcessor(config: MarkdownConfig) {
     }
   }
 
-  processor.use(rehypeStringify, { allowDangerousHtml: true })
+  processor.use(rehypeStringify, { allowDangerousHtml })
   return processor
 }
 
@@ -168,6 +175,10 @@ function createProcessor(config: MarkdownConfig) {
  * (the common case) skip all of that setup on subsequent calls. The WeakMap
  * also ensures that if a config object is garbage-collected, its processor is
  * too, so long-running processes don't leak memory.
+ *
+ * Pagesmith keeps separate processor instances per config reference for the
+ * math-enabled and math-disabled variants because the auto math mode can
+ * choose a cheaper pipeline for content that does not contain math markers.
  *
  * **Why is the config frozen?**
  * The cache assumes the config does not change after the processor is built.
@@ -190,15 +201,21 @@ function deepFreeze<T extends object>(obj: T): T {
   return obj
 }
 
-const processorCache = new WeakMap<MarkdownConfig, ReturnType<typeof createProcessor>>()
+type CachedProcessors = {
+  withMath?: ReturnType<typeof createProcessor>
+  withoutMath?: ReturnType<typeof createProcessor>
+}
+
+const processorCache = new WeakMap<MarkdownConfig, CachedProcessors>()
 
 export async function processMarkdown(
   raw: string,
   config?: MarkdownConfig,
-  preExtracted?: { content: string; frontmatter: Record<string, unknown> },
+  preExtracted?: PreExtractedMarkdown,
 ): Promise<MarkdownResult> {
   let frontmatter: Record<string, unknown>
   let content: string
+  const fileData = preExtracted?.fileData ?? {}
   if (preExtracted) {
     frontmatter = preExtracted.frontmatter
     content = preExtracted.content
@@ -210,13 +227,23 @@ export async function processMarkdown(
   const resolvedConfig = config && Object.keys(config).length > 0 ? config : DEFAULT_MARKDOWN_CONFIG
   // Freeze to prevent mutation after caching — see processorCache JSDoc above.
   if (Object.isFrozen(resolvedConfig) === false) deepFreeze(resolvedConfig)
-  let processor = processorCache.get(resolvedConfig)
+  const enableMath = shouldEnableMath(content, resolvedConfig)
+  let cachedProcessors = processorCache.get(resolvedConfig)
+  if (!cachedProcessors) {
+    cachedProcessors = {}
+    processorCache.set(resolvedConfig, cachedProcessors)
+  }
+  let processor = enableMath ? cachedProcessors.withMath : cachedProcessors.withoutMath
   if (!processor) {
-    processor = createProcessor(resolvedConfig)
-    processorCache.set(resolvedConfig, processor)
+    processor = createProcessor(resolvedConfig, { enableMath })
+    if (enableMath) cachedProcessors.withMath = processor
+    else cachedProcessors.withoutMath = processor
   }
   try {
-    const result = await processor.process(content)
+    const result = await processor.process({
+      value: content,
+      data: fileData,
+    })
     const headings = Array.isArray(result.data.headings) ? (result.data.headings as Heading[]) : []
     return { html: String(result), headings, frontmatter }
   } catch (err) {

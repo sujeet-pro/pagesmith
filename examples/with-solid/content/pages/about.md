@@ -17,4 +17,6 @@ It showcases:
 - Solid primitives such as `For` and `Show` in the example layouts
 - A base-path aware static output for GitHub Pages
 
-The result is a fully static site with progressive enhancement: Solid renders the HTML at build time, while the runtime script adds search and table-of-contents behavior in the browser.
+The result is a fully static site with progressive enhancement: Solid renders the HTML at build time, while the runtime script adds table-of-contents behavior, layout chrome, and (after a **build**) Pagefind search in the browser.
+
+For a compact integration checklist aimed at agents, read **`llms.txt`** at the example root next to this file’s source tree.

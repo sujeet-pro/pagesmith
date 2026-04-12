@@ -19,15 +19,17 @@ src/
 
   markdown/
     index.ts                      Re-exports processMarkdown, MarkdownResult
-    pipeline.ts                   Unified pipeline: remark-parse → remark-gfm → remark-math →
-                                    remark-frontmatter → remark-github-alerts → remark-smartypants →
-                                    (user remark plugins) → lang-alias transform → remark-rehype →
-                                    rehype-mathjax → rehype-expressive-code →
+    pipeline.ts                   Unified pipeline: remark-parse → remark-gfm → remark-frontmatter →
+                                    remark-github-alerts → remark-smartypants →
+                                    optional remark-math/rehype-mathjax → (user remark plugins) →
+                                    lang-alias transform → remark-rehype → applyPagesmithCodeRenderer →
+                                    rehype-code-tabs → rehype-scrollable-tables →
                                     rehype-slug → rehype-autolink-headings →
                                     rehype-external-links → rehype-accessible-emojis →
                                     heading extraction → (user rehype plugins) → rehype-stringify
     plugins/
-      index.ts                    (Kept for backward compat — exports nothing)
+      rehype-code-tabs.ts         Group consecutive titled code blocks into tabs
+      rehype-scrollable-tables.ts Wrap markdown tables for horizontal scrolling
 
   jsx-runtime/
     index.ts                      h(), Fragment(), HtmlString — server-side JSX-to-HTML runtime
@@ -81,7 +83,7 @@ src/
   runtime/
     index.ts                      CSS/JS asset accessors (getRuntimeCSS, getContentCSS, etc.)
     standalone.ts                 Standalone runtime JS (TOC highlight)
-    content.ts                    Content-only runtime JS (placeholder)
+    content.ts                    Content-only runtime JS (code tabs + code block enhancements)
     toc-highlight.ts              Active TOC heading highlight on scroll
 
   styles/
@@ -95,7 +97,7 @@ src/
       prose.css                   Prose typography
       toc.css                     Table of contents sidebar
     code/
-      inline.css                  Inline code (block code handled by Expressive Code)
+      inline.css                  Inline code
     layout/
       grid.css                    Page grid
       sidebar.css                 Sidebar layout
@@ -144,11 +146,11 @@ Collection definition passed to `defineCollection()`. Fields: `loader`, `directo
 ### ConvertOptions / ConvertResult (convert.ts)
 
 `ConvertOptions`: `markdown` (MarkdownConfig).
-`ConvertResult`: `html`, `toc` (Heading[]), `frontmatter`.
+`ConvertResult`: `html`, `headings` (Heading[]), deprecated alias `toc`, `frontmatter`.
 
 ### MarkdownConfig (schemas/markdown-config.ts)
 
-Pipeline customization: `remarkPlugins`, `rehypePlugins`, `shiki` (themes, langAlias, defaultShowLineNumbers).
+Pipeline customization: `remarkPlugins`, `rehypePlugins`, `allowDangerousHtml`, `math` (`true` | `false` | `'auto'`), and `shiki` (themes, langAlias, defaultShowLineNumbers).
 
 ### Heading (schemas/heading.ts)
 
@@ -167,15 +169,17 @@ The pipeline is built in `src/markdown/pipeline.ts` using `unified`. The full ch
 ```
 remark-parse                       Parse markdown to MDAST
   -> remark-gfm                   Tables, strikethrough, task lists, autolinks
-  -> remark-math                  Math blocks ($...$, $$...$$)
   -> remark-frontmatter            Strip YAML frontmatter from AST
   -> remark-github-alerts          GitHub-style alert/callout blocks
   -> remark-smartypants            Typographic quotes, dashes, ellipses
+  -> remark-math (optional)        Enabled when `markdown.math` is `true` or `'auto'` detects math markers
   -> [user remark plugins]         From MarkdownConfig.remarkPlugins
-  -> lang-alias transform          Resolve language aliases for Expressive Code
-  -> remark-rehype                 MDAST -> HAST (allowDangerousHtml: true)
-  -> rehype-mathjax/svg            Render math to SVG (must run before Expressive Code)
-  -> rehype-expressive-code        Syntax highlighting + code frames + copy + tabs
+  -> lang-alias transform          Resolve language aliases for the built-in code renderer
+  -> remark-rehype                 MDAST -> HAST (`allowDangerousHtml` defaults to true)
+  -> rehype-mathjax/svg            Render math to SVG when math is enabled
+  -> applyPagesmithCodeRenderer    Syntax highlighting + code frames + copy + tabs
+  -> rehype-code-tabs              Group consecutive titled code blocks into tabs
+  -> rehype-scrollable-tables      Wrap markdown tables for overflow-safe scrolling
   -> rehype-slug                   Add id="" to headings
   -> rehype-autolink-headings      Wrap heading text in anchor links
   -> rehype-external-links         Add target/rel to external links
@@ -187,7 +191,7 @@ remark-parse                       Parse markdown to MDAST
 
 The processor is cached per `MarkdownConfig` object reference (WeakMap).
 
-Expressive Code handles all code block features: syntax highlighting with dual themes (default: github-light/github-dark), language badges, file titles, line numbers, copy buttons, collapsible sections, line highlighting (mark/ins/del), text wrapping, and frame styles. Styles and scripts are injected inline into the HTML output.
+The built-in Pagesmith code renderer handles syntax highlighting with dual themes (default: github-light/github-dark), file titles, line numbers, copy buttons, collapsible sections, line highlighting (mark/ins/del), text wrapping, and frame styles. Shared frame chrome ships in the CSS bundles, while the shared content runtime handles tabs, copy, and collapse interactions in the browser.
 
 Code block meta string syntax:
 ```
@@ -340,8 +344,8 @@ The package exposes multiple entry points via `exports` in package.json:
 
 These files are part of the package contract and must be kept current when `@pagesmith/core` behavior changes:
 
-- `docs/llms.txt`
-- `docs/llms-full.txt`
-- `docs/agents/usage.md`
-- `docs/agents/recipes.md`
-- `docs/agents/changelog-notes.md`
+- `ai-guidelines/llms.txt`
+- `ai-guidelines/llms-full.txt`
+- `ai-guidelines/usage.md`
+- `ai-guidelines/recipes.md`
+- `ai-guidelines/changelog-notes.md`

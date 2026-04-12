@@ -4,12 +4,21 @@ import type { Heading } from '@pagesmith/core/schemas'
 import { execFileSync } from 'child_process'
 import { existsSync, readFileSync, readdirSync } from 'fs'
 import { availableParallelism } from 'os'
-import { basename, dirname, extname, join, relative } from 'path'
-import { z } from 'zod'
+import { extname, join, relative, resolve } from 'path'
 import { collectContentAssets as collectAssets, CONTENT_ASSET_EXTS } from '@pagesmith/core/assets'
 import { readJson5File, toTitleCase, type ResolvedDocsConfig } from './config.js'
+import { runWithDocsTransformContext } from './markdown/plugins/context.js'
+import { rehypeAssetTransform, rehypeLinkTransform } from './markdown/plugins/index.js'
+import {
+  DocsFrontmatterSchema,
+  type DocsFrontmatter,
+  type DocsRootMeta,
+  type DocsSectionMeta,
+} from './schemas/docs-content.js'
 
 export { CONTENT_ASSET_EXTS }
+export { DocsFrontmatterSchema } from './schemas/docs-content.js'
+export type { DocsFrontmatter, DocsRootMeta, DocsSectionMeta } from './schemas/docs-content.js'
 
 export type NavItem = {
   label: string
@@ -33,47 +42,6 @@ export type PrevNextLink = {
   title: string
   path: string
 }
-
-export type DocsRootMeta = {
-  displayName?: string
-  description?: string
-  headerLinks?: Array<{ label: string; path: string }>
-  footerLinks?: Array<{ label: string; path: string }>
-}
-
-export type DocsSectionMeta = {
-  displayName?: string
-  description?: string
-  layout?: string
-  itemLayout?: string
-  orderBy?: 'manual' | 'publishedDate'
-  /** Start the sidebar section collapsed (only effective when sidebar.collapsible is true) */
-  collapsed?: boolean
-  items?: string[]
-  series?: Array<{
-    slug: string
-    displayName: string
-    shortName?: string
-    description?: string
-    articles: string[]
-  }>
-}
-
-export const DocsFrontmatterSchema = z
-  .object({
-    title: z.string().optional(),
-    description: z.string().optional(),
-    navLabel: z.string().optional(),
-    sidebarLabel: z.string().optional(),
-    order: z.number().optional(),
-    draft: z.boolean().optional(),
-    socialImage: z.string().optional(),
-    hero: z.record(z.string(), z.any()).optional(),
-    features: z.array(z.record(z.string(), z.any())).optional(),
-  })
-  .passthrough()
-
-export type DocsFrontmatter = z.infer<typeof DocsFrontmatterSchema>
 
 export type DocsPage = {
   title: string
@@ -99,6 +67,10 @@ export type SiteModel = {
   sectionMetas: Map<string, DocsSectionMeta>
 }
 
+function shouldIgnoreContentEntry(name: string): boolean {
+  return name.startsWith('.') || name.startsWith('_')
+}
+
 export function toContentSlug(filePath: string, contentDir: string): string {
   const ext = extname(filePath)
   let slug = relative(contentDir, filePath).replace(/\\/g, '/')
@@ -122,7 +94,7 @@ export function loadSectionMetas(contentDir: string): Map<string, DocsSectionMet
   const metas = new Map<string, DocsSectionMeta>()
   if (!existsSync(contentDir)) return metas
   for (const entry of readdirSync(contentDir, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith('.')) continue
+    if (!entry.isDirectory() || shouldIgnoreContentEntry(entry.name)) continue
     const meta = readJson5File<DocsSectionMeta>(join(contentDir, entry.name, 'meta.json5'))
     if (meta) metas.set(entry.name, meta)
   }
@@ -134,7 +106,7 @@ function collectMarkdownFiles(contentDir: string): string[] {
 
   function walk(currentDir: string): void {
     for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
-      if (entry.name.startsWith('.')) continue
+      if (shouldIgnoreContentEntry(entry.name)) continue
       const fullPath = join(currentDir, entry.name)
 
       if (entry.isDirectory()) {
@@ -155,92 +127,91 @@ function collectMarkdownFiles(contentDir: string): string[] {
   return files.sort()
 }
 
-const ASSET_EXTS_RE = /\.(svg|png|jpg|jpeg|gif|webp|avif|ico)$/i
-
-/**
- * Post-process HTML to transform relative .md links into site route paths
- * and prefix absolute internal links with basePath.
- */
-function transformContentLinks(
-  html: string,
+function resolvePageSection(
   filePath: string,
   contentDir: string,
-  basePath: string,
-): string {
+  isHome: boolean,
+): string | undefined {
+  if (isHome) return undefined
+
+  const relativePath = relative(contentDir, filePath).replace(/\\/g, '/')
+  const segments = relativePath.split('/')
+
+  // Top-level folders define docs categories. Root-level markdown files are still
+  // valid pages, but they do not become top-level navigation categories.
+  return segments.length > 1 ? segments[0] : undefined
+}
+
+const GIT_LOG_MARKER = '__PAGESMITH_COMMIT__'
+
+function getGitLastUpdatedMap(rootDir: string, contentDir: string): Map<string, string> {
+  const updated = new Map<string, string>()
+
+  try {
+    const target = relative(rootDir, contentDir) || '.'
+    const output = execFileSync(
+      'git',
+      ['log', `--format=${GIT_LOG_MARKER}%n%cI`, '--name-only', '--', target],
+      {
+        cwd: rootDir,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    )
+
+    let currentDate: string | undefined
+    let expectingDate = false
+
+    for (const rawLine of output.split(/\r?\n/)) {
+      const line = rawLine.trim()
+      if (!line) continue
+
+      if (line === GIT_LOG_MARKER) {
+        expectingDate = true
+        continue
+      }
+
+      if (expectingDate) {
+        currentDate = line
+        expectingDate = false
+        continue
+      }
+
+      if (!currentDate) continue
+      const filePath = resolve(rootDir, rawLine)
+      if (!updated.has(filePath)) {
+        updated.set(filePath, currentDate)
+      }
+    }
+  } catch {
+    // Git is unavailable, the content directory is outside the repo, or the
+    // target path has no tracked history.
+  }
+
+  return updated
+}
+
+function prefixBasePathLinks(html: string, basePath: string): string {
+  if (!basePath) return html
+
   return html.replace(/<a\s[^>]*>/g, (tag) => {
     const hrefMatch = tag.match(/href=(?:"([^"]*)"|'([^']*)')/)
     if (!hrefMatch) return tag
-    const href = hrefMatch[1] ?? hrefMatch[2]
-    const quote = tag.includes(`href="`) ? '"' : "'"
 
-    if (href.includes('.md') && !href.startsWith('http')) {
-      const hashIdx = href.indexOf('#')
-      const rawPath = hashIdx >= 0 ? href.slice(0, hashIdx) : href
-      const hash = hashIdx >= 0 ? href.slice(hashIdx) : ''
-      const targetPath = join(dirname(filePath), rawPath)
-      const slug = toContentSlug(targetPath, contentDir)
-      const routePath = slug === '/' ? '/' : `/${slug}/`
-      const fullPath = `${basePath}${routePath}`
-      const newHref = hash ? `${fullPath}${hash}` : fullPath
-      return tag.replace(`href=${quote}${href}${quote}`, `href=${quote}${newHref}${quote}`)
-    }
+    const href = hrefMatch[1] ?? hrefMatch[2]
+    const quote = tag.includes('href="') ? '"' : "'"
 
     if (
-      basePath &&
-      href.startsWith('/') &&
-      !href.startsWith('//') &&
-      href !== basePath &&
-      !href.startsWith(basePath + '/')
+      !href.startsWith('/') ||
+      href.startsWith('//') ||
+      href === basePath ||
+      href.startsWith(`${basePath}/`)
     ) {
-      return tag.replace(`href=${quote}${href}${quote}`, `href=${quote}${basePath}${href}${quote}`)
+      return tag
     }
 
-    return tag
+    return tag.replace(`href=${quote}${href}${quote}`, `href=${quote}${basePath}${href}${quote}`)
   })
-}
-
-/**
- * Post-process HTML to transform relative asset references (./image.png)
- * into site-relative /assets/ URLs. Handles inline SVG embedding and
- * dark-mode inversion classes.
- */
-function transformContentAssets(html: string, fileDir: string): string {
-  let result = html
-
-  // Inline SVGs: replace <img> tags with embedded SVG content
-  result = result.replace(/<img\s[^>]*?src="(\.\/.+?\.inline\.svg)"[^>]*?\/?>/g, (tag, src) => {
-    const svgPath = join(fileDir, src.replace('./', ''))
-    if (!existsSync(svgPath)) return tag
-    let svg = readFileSync(svgPath, 'utf-8')
-      .replace(/<\?xml[^?]*\?>\s*/g, '')
-      .replace(/<!DOCTYPE[^>]*>\s*/g, '')
-    const altMatch = tag.match(/alt="([^"]*)"/)
-    const alt = altMatch?.[1] ?? ''
-    svg = svg.replace(
-      '<svg',
-      `<svg role="img" aria-label="${alt.replace(/"/g, '&quot;')}" class="inline-svg"`,
-    )
-    return svg
-  })
-
-  // Transform remaining relative asset references in src/href/srcset
-  result = result.replace(/(src|href|srcset)="(\.\/.+?)"/g, (match, attr, ref) => {
-    if (!ASSET_EXTS_RE.test(ref)) return match
-    return `${attr}="/assets/${basename(ref)}"`
-  })
-
-  // Add invert-on-dark class to images with .invert. in filename
-  result = result.replace(
-    /(<img\s)([^>]*?src="\/assets\/[^"]*\.invert\.[^"]*"[^>]*?)\/?>/g,
-    (match, open, attrs) => {
-      if (attrs.includes('class="')) {
-        return match.replace(/class="([^"]*)"/, 'class="$1 invert-on-dark"')
-      }
-      return `${open}${attrs} class="invert-on-dark"/>`
-    },
-  )
-
-  return result
 }
 
 /**
@@ -265,22 +236,6 @@ async function mapWithConcurrency<T, R>(
   const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker())
   await Promise.all(workers)
   return results
-}
-
-/**
- * Get the git last-modified date for a file.
- * Returns ISO date string or undefined if git is unavailable or the file isn't tracked.
- */
-function getGitLastUpdated(filePath: string): string | undefined {
-  try {
-    const output = execFileSync('git', ['log', '-1', '--format=%cI', '--', filePath], {
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim()
-    return output || undefined
-  } catch {
-    return undefined
-  }
 }
 
 /**
@@ -325,10 +280,12 @@ export async function loadDocsPages(
 
   const files = collectMarkdownFiles(config.contentDir)
   const concurrency = Math.max(1, availableParallelism() * 2)
+  const lastUpdatedByFile = config.lastUpdated
+    ? getGitLastUpdatedMap(config.rootDir, config.contentDir)
+    : undefined
 
   // Build a single shared config — same object reference enables the processor
-  // WeakMap cache so the expensive Shiki/Expressive Code setup runs only once.
-  // Per-file transforms (asset URLs, .md links) are applied as HTML post-processing.
+  // WeakMap cache so the expensive markdown processor and Shiki setup run only once.
   const sharedMarkdownConfig: MarkdownConfig = {
     ...(config.markdown ?? {}),
     shiki: {
@@ -339,7 +296,7 @@ export async function loadDocsPages(
       defaultShowLineNumbers: config.markdown?.shiki?.defaultShowLineNumbers,
       langAlias: config.markdown?.shiki?.langAlias,
     },
-    rehypePlugins: [...(config.markdown?.rehypePlugins ?? [])],
+    rehypePlugins: [rehypeLinkTransform, rehypeAssetTransform],
   }
 
   // Process markdown files with bounded concurrency to manage memory at scale
@@ -356,17 +313,22 @@ export async function loadDocsPages(
       isHome && homeConfig ? { ...homeConfig, ...earlyFrontmatter } : earlyFrontmatter
     if (frontmatter.draft) return null
 
-    const result = await processMarkdown(raw, sharedMarkdownConfig, {
-      content: extracted.content,
-      frontmatter: extracted.frontmatter,
-    })
-    const html = transformContentAssets(
-      transformContentLinks(result.html, filePath, config.contentDir, config.basePath),
-      dirname(filePath),
+    const result = await runWithDocsTransformContext(
+      {
+        basePath: config.basePath,
+        contentDir: config.contentDir,
+        filePath,
+      },
+      () =>
+        processMarkdown(raw, sharedMarkdownConfig, {
+          content: extracted.content,
+          frontmatter: extracted.frontmatter,
+        }),
     )
+    const html = prefixBasePathLinks(result.html, config.basePath)
 
     const routePath = isHome ? '/' : `/${contentSlug}`
-    const section = isHome ? undefined : contentSlug.split('/')[0]
+    const section = resolvePageSection(filePath, config.contentDir, isHome)
     const title =
       frontmatter.title ??
       (isHome ? config.title : toTitleCase(contentSlug.split('/').at(-1) ?? section ?? 'Home'))
@@ -386,7 +348,7 @@ export async function loadDocsPages(
     }
 
     // Git last-updated timestamp (only when enabled)
-    const lastUpdated = config.lastUpdated ? getGitLastUpdated(filePath) : undefined
+    const lastUpdated = config.lastUpdated ? lastUpdatedByFile?.get(filePath) : undefined
 
     return {
       title,

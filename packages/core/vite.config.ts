@@ -47,6 +47,11 @@ function fixPostcssDtsImports() {
 }
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      'vite-plus/test': 'vitest',
+    },
+  },
   pack: {
     entry: {
       index: 'src/index.ts',
@@ -57,6 +62,11 @@ export default defineConfig({
       'loaders/index': 'src/loaders/index.ts',
       'assets/index': 'src/assets/index.ts',
       'runtime/index': 'src/runtime/index.ts',
+      'runtime/content': 'src/runtime/content.ts',
+      'runtime/standalone': 'src/runtime/standalone.ts',
+      'runtime/code-blocks': 'src/runtime/code-blocks.ts',
+      'runtime/code-tabs': 'src/runtime/code-tabs.ts',
+      'runtime/toc-highlight': 'src/runtime/toc-highlight.ts',
       'ai/index': 'src/ai/index.ts',
       'vite/index': 'src/vite/index.ts',
       'ssg-utils/index': 'src/ssg-utils/index.ts',

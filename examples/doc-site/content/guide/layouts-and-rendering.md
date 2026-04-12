@@ -1,7 +1,7 @@
 ---
 title: Layout Overrides
 description: Customizing page layouts with JSX components
-date: 2026-03-17
+publishedDate: 2026-03-17
 tags: [layouts, customization]
 series: Customization
 seriesOrder: 1
@@ -17,7 +17,7 @@ seriesOrder: 1
 
 ## Overriding Layouts
 
-Override any layout by adding a JSX file and mapping it in the config:
+Override any layout by adding a JSX file and mapping it in the config (this example’s real paths):
 
 ```json5
 {
@@ -30,20 +30,6 @@ Override any layout by adding a JSX file and mapping it in the config:
 }
 ```
 
-Layout components receive props with the page content, frontmatter, headings, navigation data, and site configuration. They use the `@pagesmith/core` JSX runtime to render HTML:
+Layout components receive props such as rendered `content`, `frontmatter`, `headings`, `slug`, `site`, plus docs-only navigation props (`sidebarSections`, `breadcrumbs`, `prev`/`next`, `editUrl`, …). They render HTML with the `@pagesmith/core` JSX runtime (`h`, `Fragment`) and should import the document shell from `@pagesmith/docs/theme` (`Html`) so head tags, theme script bootstrapping, and assets stay consistent with the package.
 
-```tsx title="theme/layouts/DocHome.tsx"
-export default function DocHome(props) {
-  const { frontmatter, site } = props
-  return (
-    <main class="doc-home">
-      <section class="doc-hero">
-        <h1>{frontmatter.hero?.text ?? site.title}</h1>
-        <p>{frontmatter.hero?.tagline}</p>
-      </section>
-    </main>
-  )
-}
-```
-
-Overridden layouts produce output matching the structure built from scratch in the framework examples — the same CSS classes and HTML hierarchy apply.
+This repository’s `theme/layouts/DocHome.tsx` and `DocPage.tsx` mirror the default docs structure on purpose: same landmark classes, `data-pagefind-body` on the indexed regions, and shared header/footer/sidebar helpers from `theme/layouts/shared.tsx`. Start from those files when customizing rather than inventing new DOM shapes.

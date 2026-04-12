@@ -26,7 +26,8 @@
   "files": [
     "dist/",
     "theme/",
-    "docs/",
+    "ai-guidelines/",
+    "schemas/",
     "REFERENCE.md"
   ],
   "type": "module",
@@ -55,17 +56,20 @@
       "types": "./dist/mcp/server.d.mts",
       "import": "./dist/mcp/server.mjs"
     },
-    "./llms": "./docs/llms.txt",
-    "./llms-full": "./docs/llms-full.txt",
-    "./agents/usage": "./docs/agents/usage.md",
-    "./agents/recipes": "./docs/agents/recipes.md",
-    "./agents/changelog-notes": "./docs/agents/changelog-notes.md",
-    "./agents/errors": "./docs/agents/errors.md",
-    "./agents/migration": "./docs/agents/migration.md",
-    "./agents/template": "./docs/agents/AGENTS.md.template"
+    "./ai-guidelines/*": "./ai-guidelines/*",
+    "./llms": "./ai-guidelines/llms.txt",
+    "./llms-full": "./ai-guidelines/llms-full.txt",
+    "./agents/setup-docs": "./ai-guidelines/setup-docs.md",
+    "./agents/usage": "./ai-guidelines/usage.md",
+    "./agents/recipes": "./ai-guidelines/recipes.md",
+    "./agents/changelog-notes": "./ai-guidelines/changelog-notes.md",
+    "./agents/errors": "./ai-guidelines/errors.md",
+    "./agents/migration": "./ai-guidelines/migration.md",
+    "./agents/template": "./ai-guidelines/AGENTS.md.template"
   },
   "scripts": {
     "build": "vp pack",
+    "generate:schemas": "vp pack && node ./scripts/generate-json-schemas.mjs",
     "test": "vp test run"
   },
   "dependencies": {
@@ -89,9 +93,9 @@
     "node": ">=24"
   },
   "ai": {
-    "context": "./docs/llms.txt",
-    "fullContext": "./docs/llms-full.txt",
-    "agentsDir": "./docs/agents",
+    "context": "./ai-guidelines/llms.txt",
+    "fullContext": "./ai-guidelines/llms-full.txt",
+    "agentsDir": "./ai-guidelines",
     "mcp": {
       "entry": "./dist/mcp/server.mjs",
       "command": "pagesmith mcp --stdio"

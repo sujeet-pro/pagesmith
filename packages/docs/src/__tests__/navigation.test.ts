@@ -33,16 +33,16 @@ const mockConfig: ResolvedDocsConfig = {
   origin: 'https://example.com',
   language: 'en',
   footerLinks: [],
-  footerText: 'Built with love using pagesmith',
+  footerText: undefined,
   sidebar: { collapsible: false },
   search: { enabled: true, showImages: false, showSubResults: true, pagefindFlags: [] },
   favicon: false,
   icon: false,
   faviconFallback: false,
   appleTouchIcon: false,
-  lastUpdated: false,
+  lastUpdated: true,
   sitemap: true,
-  server: { devPort: 3000, previewPort: 4000, strictPort: false },
+  server: { host: '127.0.0.1', devPort: 3000, previewPort: 4000, strictPort: false },
   assets: new Map(),
 }
 
@@ -388,6 +388,12 @@ describe('buildSiteModel', () => {
         contentSlug: 'guide/advanced',
         section: 'guide',
       }),
+      mockPage({
+        title: 'FAQ',
+        routePath: '/guide/faq',
+        contentSlug: 'guide/faq',
+        section: 'guide',
+      }),
     ]
     const sectionMetas = new Map([
       [
@@ -415,9 +421,42 @@ describe('buildSiteModel', () => {
     const sidebar = model.sidebarBySection.get('guide')
 
     expect(sidebar).toBeDefined()
-    expect(sidebar!.length).toBe(2)
+    expect(sidebar!.length).toBe(3)
     expect(sidebar![0].title).toBe('Basics')
     expect(sidebar![1].title).toBe('Deep Dives')
+    expect(sidebar![2].title).toBe('Miscellaneous')
+    expect(sidebar![2].items.map((item) => item.title)).toEqual(['Guide Landing', 'FAQ'])
+  })
+
+  it('matches series items by nested section-relative slug', () => {
+    const pages = [
+      mockPage({
+        title: 'Setup',
+        routePath: '/guide/advanced/setup',
+        contentSlug: 'guide/advanced/setup',
+        section: 'guide',
+      }),
+    ]
+    const sectionMetas = new Map([
+      [
+        'guide',
+        {
+          series: [
+            {
+              slug: 'advanced',
+              displayName: 'Advanced',
+              articles: ['advanced/setup'],
+            },
+          ],
+        },
+      ],
+    ])
+
+    const model = buildSiteModel(mockConfig, pages, undefined, sectionMetas)
+    const sidebar = model.sidebarBySection.get('guide')
+
+    expect(sidebar).toBeDefined()
+    expect(sidebar![0].items[0].title).toBe('Setup')
   })
 
   it('uses sidebarLabel from frontmatter when available', () => {
@@ -505,7 +544,7 @@ describe('buildSiteModel', () => {
     expect(model.navItems[0].path).toBe('/guide')
   })
 
-  it('builds nested sidebar items for deep content', () => {
+  it('builds flat sidebar items for deep content', () => {
     const pages = [
       mockPage({
         title: 'Parent Page',
@@ -525,8 +564,8 @@ describe('buildSiteModel', () => {
     const sidebar = model.sidebarBySection.get('guide')
 
     expect(sidebar).toBeDefined()
-    const setupItem = sidebar![0].items.find((i) => i.title === 'Parent Page')
-    expect(setupItem).toBeDefined()
+    expect(sidebar![0].items.map((item) => item.title)).toEqual(['Parent Page', 'Install'])
+    expect(sidebar![0].items.every((item) => item.children == null)).toBe(true)
   })
 
   it('builds folderPaths pointing to index page when it exists', () => {
@@ -650,6 +689,27 @@ describe('getSitePayload', () => {
     expect(payload.basePath).toBe('')
   })
 
+  it('falls back to the primary nav items when footerLinks are omitted', () => {
+    const pages = [
+      mockPage({
+        title: 'Guide Intro',
+        routePath: '/guide/intro',
+        contentSlug: 'guide/intro',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Reference API',
+        routePath: '/reference/api',
+        contentSlug: 'reference/api',
+        section: 'reference',
+      }),
+    ]
+    const model = buildSiteModel(mockConfig, pages)
+    const payload = getSitePayload(mockConfig, model)
+
+    expect(payload.footerLinks).toEqual(model.navItems)
+  })
+
   it('prefixes internal footer link paths with basePath', () => {
     const config = {
       ...mockConfig,
@@ -662,9 +722,10 @@ describe('getSitePayload', () => {
     const model = buildSiteModel(config, [])
     const payload = getSitePayload(config, model)
 
-    expect(payload.footerLinks[0].path).toBe('/docs/about')
-    // External links should not be prefixed
-    expect(payload.footerLinks[1].path).toBe('https://example.com')
+    expect(payload.footerLinks).toEqual([
+      { label: 'About', path: '/docs/about' },
+      { label: 'External', path: 'https://example.com' },
+    ])
   })
 
   it('does not double-prefix footer links that already have basePath', () => {
@@ -676,7 +737,7 @@ describe('getSitePayload', () => {
     const model = buildSiteModel(config, [])
     const payload = getSitePayload(config, model)
 
-    expect(payload.footerLinks[0].path).toBe('/docs/about')
+    expect(payload.footerLinks).toEqual([{ label: 'About', path: '/docs/about' }])
   })
 
   it('leaves footer links unchanged when basePath is empty', () => {
@@ -688,7 +749,7 @@ describe('getSitePayload', () => {
     const model = buildSiteModel(config, [])
     const payload = getSitePayload(config, model)
 
-    expect(payload.footerLinks[0].path).toBe('/about')
+    expect(payload.footerLinks).toEqual([{ label: 'About', path: '/about' }])
   })
 
   it('uses rootMeta footer links when available', () => {
@@ -703,9 +764,55 @@ describe('getSitePayload', () => {
     const model = buildSiteModel(config, [], rootMeta)
     const payload = getSitePayload(config, model)
 
-    expect(payload.footerLinks.length).toBe(1)
-    expect(payload.footerLinks[0].label).toBe('Meta Link')
-    expect(payload.footerLinks[0].path).toBe('/docs/meta')
+    expect(payload.footerLinks).toEqual([{ label: 'Meta Link', path: '/docs/meta' }])
+  })
+
+  it('prefixes grouped footer link paths with basePath', () => {
+    const config = {
+      ...mockConfig,
+      basePath: '/docs',
+      footerLinks: [
+        {
+          header: 'Docs',
+          links: [
+            { label: 'Guide', path: '/guide' },
+            { label: 'GitHub', path: 'https://example.com/repo' },
+          ],
+        },
+      ],
+    }
+    const model = buildSiteModel(config, [])
+    const payload = getSitePayload(config, model)
+
+    expect(payload.footerLinks).toEqual([
+      {
+        header: 'Docs',
+        links: [
+          { label: 'Guide', path: '/docs/guide' },
+          { label: 'GitHub', path: 'https://example.com/repo' },
+        ],
+      },
+    ])
+  })
+
+  it('respects an explicitly empty footerLinks array', () => {
+    const pages = [
+      mockPage({
+        title: 'Guide Intro',
+        routePath: '/guide/intro',
+        contentSlug: 'guide/intro',
+        section: 'guide',
+      }),
+    ]
+    const config = {
+      ...mockConfig,
+      footerLinks: [],
+      _userConfig: { footerLinks: [] },
+    }
+    const model = buildSiteModel(config, pages)
+    const payload = getSitePayload(config, model)
+
+    expect(payload.footerLinks).toEqual([])
   })
 
   it('includes favicon path with basePath prefix when favicon is set', () => {
@@ -758,6 +865,6 @@ describe('getSitePayload', () => {
     const model = buildSiteModel(mockConfig, [])
     const payload = getSitePayload(mockConfig, model)
 
-    expect(payload.footerText).toBe('Built with love using pagesmith')
+    expect(payload.footerText).toBeUndefined()
   })
 })

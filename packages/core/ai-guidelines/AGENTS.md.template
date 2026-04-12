@@ -1,0 +1,29 @@
+# Project AI Pointers (Template)
+
+## @pagesmith/core
+
+Install: `npm add @pagesmith/core`
+
+Use the installed package guidance — these files are version-matched to what you have installed:
+
+### Primary references
+
+- `node_modules/@pagesmith/core/REFERENCE.md` — complete API reference: content layer, collections, loaders, markdown, JSX, CSS, Vite plugins
+- `node_modules/@pagesmith/core/ai-guidelines/usage.md` — agent rules, integration shape, and copy-paste prompts for common workflows
+- `node_modules/@pagesmith/core/ai-guidelines/errors.md` — error catalog with patterns and fixes
+
+### Task-specific files
+
+| Task | Read |
+|---|---|
+| Initial Vite setup | `node_modules/@pagesmith/core/REFERENCE.md`, `node_modules/@pagesmith/core/ai-guidelines/recipes.md` |
+| Defining collections and schemas | `node_modules/@pagesmith/core/REFERENCE.md` |
+| Writing markdown content (code blocks, mermaid, frontmatter) | `node_modules/@pagesmith/core/REFERENCE.md` |
+| Customizing the markdown pipeline | `node_modules/@pagesmith/core/REFERENCE.md`, `node_modules/@pagesmith/core/ai-guidelines/recipes.md` |
+| Troubleshooting validation errors | `node_modules/@pagesmith/core/ai-guidelines/errors.md` |
+| Migration and upgrades | `node_modules/@pagesmith/core/ai-guidelines/migration.md`, `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md` |
+
+### Docs package (if also using @pagesmith/docs)
+
+- `node_modules/@pagesmith/docs/REFERENCE.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/usage.md`

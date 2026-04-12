@@ -15,12 +15,15 @@ The blog-site example uses the same build pipeline as all Pagesmith examples: th
 
 ## Build process
 
-Running `vp build` triggers the following sequence:
+Running `npm run build` in `examples/blog-site/` triggers the following sequence:
 
 1. **Vite build** -- Bundles `client.js` into hashed CSS and JS assets
 2. **SSG plugin** -- Calls `getRoutes()` to discover all URLs, then `render()` for each in parallel
 3. **HTML output** -- Writes static HTML files to `gh-pages/examples/blog-site/`
 4. **Pagefind** -- Indexes the generated HTML to produce a client-side search index
+
+Each `render()` invocation reloads collections in this example (`loadSite` → `createContentLayer` → `entry.render()`), which keeps the implementation obvious for readers; production sites often cache the layer between routes if profiling shows it matters.
+
 
 ## The SSR entry contract
 
@@ -38,15 +41,19 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 ## Development
 
 ```bash
-vp dev
+cd examples/blog-site
+npm run dev
 ```
+
+From the monorepo root you can instead run `vp run dev:eg:blog-site`, which starts the same dev server for this package.
 
 In development mode, the SSG plugin provides middleware that calls `render()` on each request. Content changes trigger automatic re-rendering.
 
 ## Production build
 
 ```bash
-vp build
+cd examples/blog-site
+npm run build
 ```
 
 The output directory is configured in `vite.config.ts`:

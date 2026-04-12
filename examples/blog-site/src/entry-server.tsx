@@ -1,3 +1,7 @@
+/**
+ * SSG entry for pagesmithSsg: owns collection config, Markdown rendering, and HTML shell.
+ * Why one file: shows the full core-only integration without splitting into a framework app.
+ */
 import { resolve } from 'path'
 import { Fragment, h } from '@pagesmith/core/jsx-runtime'
 import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
@@ -42,9 +46,11 @@ const themeIcon =
 
 // ── Content Layer ──
 
+/** Fresh layer per call so `config.root` from SSG always wins over local dev paths. */
 function buildLayer(root?: string) {
   const contentRoot = root ? resolve(root) : resolve(import.meta.dirname, '..')
 
+  // Inline collections replace pagesmithContent: same APIs, no virtual modules.
   return createContentLayer(
     defineConfig({
       root: contentRoot,
@@ -59,16 +65,6 @@ function buildLayer(root?: string) {
             tags: z.array(z.string()).default([]),
             series: z.string().optional(),
             seriesOrder: z.number().optional(),
-          }),
-        }),
-        features: defineCollection({
-          loader: 'markdown',
-          directory: resolve(contentRoot, 'content/features'),
-          schema: z.object({
-            title: z.string(),
-            description: z.string().optional(),
-            date: z.coerce.date(),
-            tags: z.array(z.string()).default([]),
           }),
         }),
         pages: defineCollection({
@@ -86,6 +82,7 @@ function buildLayer(root?: string) {
 
 // ── Helpers ──
 
+/** Central Markdown seam: `entry.render()` runs the shared pipeline (not app-level processMarkdown). */
 async function renderEntries(
   entries: ContentEntry<any>[],
   collection: string,
@@ -183,22 +180,10 @@ function SidebarNav(props: {
   currentPath: string
   basePath: string
   isGuide: boolean
-  isFeatures: boolean
   firstGuideUrl: string
-  firstFeaturesUrl: string
   guideGroups: GuideGroup[]
-  featuresEntries: NavEntry[]
 }) {
-  const {
-    currentPath,
-    basePath,
-    isGuide,
-    isFeatures,
-    firstGuideUrl,
-    firstFeaturesUrl,
-    guideGroups,
-    featuresEntries,
-  } = props
+  const { currentPath, basePath, isGuide, firstGuideUrl, guideGroups } = props
 
   return (
     <Fragment>
@@ -213,11 +198,6 @@ function SidebarNav(props: {
           <li class={`doc-sidebar-item${isGuide ? ' active' : ''}`}>
             <a href={firstGuideUrl} class="doc-sidebar-link">
               Guide
-            </a>
-          </li>
-          <li class={`doc-sidebar-item${isFeatures ? ' active' : ''}`}>
-            <a href={firstFeaturesUrl} class="doc-sidebar-link">
-              Features
             </a>
           </li>
           <li class={`doc-sidebar-item${currentPath === '/about' ? ' active' : ''}`}>
@@ -254,21 +234,6 @@ function SidebarNav(props: {
           ))}
         </ul>
       </div>
-
-      <div class="doc-sidebar-section">
-        <p class="doc-sidebar-heading">Features</p>
-        <ul class="doc-sidebar-list">
-          {featuresEntries.map((entry) => (
-            <li
-              class={`doc-sidebar-item${currentPath === `/features/${entry.slug}` ? ' active' : ''}`}
-            >
-              <a href={entry.url} class="doc-sidebar-link">
-                {entry.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
     </Fragment>
   )
 }
@@ -281,15 +246,20 @@ function SiteHeader(props: {
   basePath: string
   currentPath: string
   firstGuideUrl: string
-  firstFeaturesUrl: string
   searchEnabled?: boolean
 }) {
-  const { basePath, currentPath, firstGuideUrl, firstFeaturesUrl, searchEnabled } = props
+  const { basePath, currentPath, firstGuideUrl, searchEnabled } = props
   const isGuide = currentPath.startsWith('/guide')
-  const isFeatures = currentPath.startsWith('/features')
 
   return (
     <header class="doc-header">
+      <a
+        href="#doc-main-content"
+        class="doc-skip-link"
+        onclick="document.getElementById('doc-main-content')?.focus()"
+      >
+        Skip to main content
+      </a>
       <div class="doc-header-inner">
         <div class="doc-header-left">
           <button
@@ -310,73 +280,76 @@ function SiteHeader(props: {
           <a href={firstGuideUrl} class={isGuide ? 'active' : ''}>
             Guide
           </a>
-          <a href={firstFeaturesUrl} class={isFeatures ? 'active' : ''}>
-            Blog
-          </a>
         </nav>
-        <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
-          <button
-            type="button"
-            class="doc-theme-toggle-btn"
-            aria-label="Change theme"
-            aria-expanded="false"
-            aria-haspopup="true"
-            data-theme-toggle-btn=""
-            innerHTML={themeIcon}
-          />
-          <div class="doc-theme-dropdown" data-theme-dropdown="" hidden>
-            <fieldset class="doc-theme-group">
-              <legend>Appearance</legend>
-              <label class="doc-theme-option" data-scheme="auto">
-                <input type="radio" name="colorScheme" value="auto" checked />
-                Auto
-              </label>
-              <label class="doc-theme-option" data-scheme="light">
-                <input type="radio" name="colorScheme" value="light" />
-                Light
-              </label>
-              <label class="doc-theme-option" data-scheme="dark">
-                <input type="radio" name="colorScheme" value="dark" />
-                Dark
-              </label>
-            </fieldset>
-            <fieldset class="doc-theme-group">
-              <legend>Theme</legend>
-              <label class="doc-theme-option" data-theme="paper">
-                <input type="radio" name="theme" value="paper" checked />
-                Paper
-              </label>
-              <label class="doc-theme-option" data-theme="high-contrast">
-                <input type="radio" name="theme" value="high-contrast" />
-                High Contrast
-              </label>
-            </fieldset>
-            <fieldset class="doc-theme-group">
-              <legend>Text Size</legend>
-              <div class="doc-text-size-options">
-                <label class="doc-text-size-option" title="Small">
-                  <input type="radio" name="textSize" value="small" />
-                  <span class="doc-text-size-label" data-size="small">
-                    A
-                  </span>
+        <div class="doc-header-right">
+          {searchEnabled ? <SearchTrigger /> : null}
+          <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
+            <button
+              type="button"
+              class="doc-theme-toggle-btn"
+              aria-label="Change theme"
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-controls="doc-theme-dropdown"
+              data-theme-toggle-btn=""
+              innerHTML={themeIcon}
+            />
+            <div id="doc-theme-dropdown" class="doc-theme-dropdown" data-theme-dropdown="" hidden>
+              <fieldset class="doc-theme-group">
+                <legend>Appearance</legend>
+                <label class="doc-theme-option" data-scheme="auto">
+                  <input type="radio" name="colorScheme" value="auto" checked />
+                  Auto
                 </label>
-                <label class="doc-text-size-option" title="Default">
-                  <input type="radio" name="textSize" value="base" checked />
-                  <span class="doc-text-size-label" data-size="base">
-                    A
-                  </span>
+                <label class="doc-theme-option" data-scheme="light">
+                  <input type="radio" name="colorScheme" value="light" />
+                  Light
                 </label>
-                <label class="doc-text-size-option" title="Large">
-                  <input type="radio" name="textSize" value="large" />
-                  <span class="doc-text-size-label" data-size="large">
-                    A
-                  </span>
+                <label class="doc-theme-option" data-scheme="dark">
+                  <input type="radio" name="colorScheme" value="dark" />
+                  Dark
                 </label>
-              </div>
-            </fieldset>
+              </fieldset>
+              <fieldset class="doc-theme-group">
+                <legend>Theme</legend>
+                <label class="doc-theme-option" data-theme="paper">
+                  <input type="radio" name="theme" value="paper" checked />
+                  Paper
+                </label>
+                <label class="doc-theme-option" data-theme="high-contrast">
+                  <input type="radio" name="theme" value="high-contrast" />
+                  High Contrast
+                </label>
+              </fieldset>
+              <fieldset class="doc-theme-group">
+                <legend>Text Size</legend>
+                <div class="doc-text-size-options">
+                  <label class="doc-text-size-option" title="Small">
+                    <input class="sr-only" type="radio" name="textSize" value="small" />
+                    <span class="doc-text-size-label" data-size="small" aria-hidden="true">
+                      A
+                    </span>
+                    <span class="sr-only">Small text size</span>
+                  </label>
+                  <label class="doc-text-size-option" title="Default">
+                    <input class="sr-only" type="radio" name="textSize" value="base" checked />
+                    <span class="doc-text-size-label" data-size="base" aria-hidden="true">
+                      A
+                    </span>
+                    <span class="sr-only">Default text size</span>
+                  </label>
+                  <label class="doc-text-size-option" title="Large">
+                    <input class="sr-only" type="radio" name="textSize" value="large" />
+                    <span class="doc-text-size-label" data-size="large" aria-hidden="true">
+                      A
+                    </span>
+                    <span class="sr-only">Large text size</span>
+                  </label>
+                </div>
+              </fieldset>
+            </div>
           </div>
         </div>
-        {searchEnabled ? <SearchTrigger /> : null}
       </div>
     </header>
   )
@@ -385,19 +358,11 @@ function SiteHeader(props: {
 function HomeBody(props: {
   basePath: string
   firstGuideUrl: string
-  firstFeaturesUrl: string
+  kitchenSinkUrl: string
   searchEnabled?: boolean
   guideEntries: NavEntry[]
-  featuresEntries: NavEntry[]
 }) {
-  const {
-    basePath,
-    firstGuideUrl,
-    firstFeaturesUrl,
-    searchEnabled,
-    guideEntries,
-    featuresEntries,
-  } = props
+  const { basePath, firstGuideUrl, kitchenSinkUrl, searchEnabled, guideEntries } = props
 
   return (
     <Fragment>
@@ -405,10 +370,9 @@ function HomeBody(props: {
         basePath={basePath}
         currentPath="/"
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={searchEnabled}
       />
-      <main class="doc-home" data-pagefind-body="">
+      <main id="doc-main-content" class="doc-home" tabindex="-1" data-pagefind-body="">
         <section class="doc-home-section doc-hero">
           <h1 class="doc-hero-text">Pagesmith + Core JSX</h1>
           <p class="doc-hero-tagline">
@@ -419,39 +383,21 @@ function HomeBody(props: {
             <a href={firstGuideUrl} class="doc-hero-action doc-hero-action-brand">
               Read the Guide
             </a>
-            <a href={firstFeaturesUrl} class="doc-hero-action doc-hero-action-alt">
-              Browse Features
+            <a href={kitchenSinkUrl} class="doc-hero-action doc-hero-action-alt">
+              Open Kitchen Sink
             </a>
           </div>
         </section>
 
         <section class="doc-home-section">
-          <h2>Markdown Features</h2>
-          <ul style="display: flex; flex-direction: column; gap: 1rem">
-            {featuresEntries.map((post) => (
-              <li style="padding: 1rem 1.25rem; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-lg)">
-                <a href={post.url}>
-                  <h3 style="margin: 0; font-size: var(--font-size-lg)">{post.title}</h3>
-                </a>
-                {post.description ? (
-                  <p style="margin: 0.5rem 0 0; color: var(--color-text-muted); font-size: var(--font-size-sm)">
-                    {post.description}
-                  </p>
-                ) : null}
-                {post.date ? (
-                  <p style="margin: 0.375rem 0 0; font-size: var(--font-size-xs); color: var(--color-text-muted)">
-                    <time dateTime={post.date}>{formatDate(post.date)}</time>
-                    {post.tags && post.tags.length > 0 ? (
-                      <Fragment>
-                        {' \u00b7 '}
-                        {post.tags.join(', ')}
-                      </Fragment>
-                    ) : null}
-                  </p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          <h2>Markdown Kitchen Sink</h2>
+          <p>
+            This example keeps one dedicated regression page for markdown rendering instead of
+            separate markdown smoke-test pages.
+          </p>
+          <p>
+            <a href={kitchenSinkUrl}>Open the kitchen sink page</a>
+          </p>
         </section>
 
         <section class="doc-home-section">
@@ -562,10 +508,8 @@ function PageBody(props: {
   currentPath: string
   basePath: string
   firstGuideUrl: string
-  firstFeaturesUrl: string
   searchEnabled?: boolean
   sidebar: GuideGroup[]
-  featuresEntries: NavEntry[]
   date?: string
   readTime?: number
 }) {
@@ -575,10 +519,8 @@ function PageBody(props: {
     currentPath,
     basePath,
     firstGuideUrl,
-    firstFeaturesUrl,
     searchEnabled,
     sidebar,
-    featuresEntries,
     date,
     readTime,
   } = props
@@ -590,7 +532,6 @@ function PageBody(props: {
         basePath={basePath}
         currentPath={currentPath}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={searchEnabled}
       />
       <div class="doc-layout">
@@ -600,17 +541,14 @@ function PageBody(props: {
               currentPath={currentPath}
               basePath={basePath}
               isGuide={currentPath.startsWith('/guide')}
-              isFeatures={currentPath.startsWith('/features')}
               firstGuideUrl={firstGuideUrl}
-              firstFeaturesUrl={firstFeaturesUrl}
               guideGroups={sidebar}
-              featuresEntries={featuresEntries}
             />
           </nav>
         </aside>
 
-        <main class="doc-main" data-pagefind-body="">
-          <article>
+        <main class="doc-main">
+          <article id="doc-main-content" tabindex="-1" data-pagefind-body="">
             {filteredHeadings.length > 0 ? (
               <details class="doc-toc-mobile">
                 <summary>On this page</summary>
@@ -627,10 +565,7 @@ function PageBody(props: {
             ) : null}
 
             {date ? (
-              <p
-                class="doc-page-meta"
-                style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem"
-              >
+              <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem">
                 <time dateTime={date}>{formatDate(date)}</time>
                 {readTime ? (
                   <Fragment>
@@ -806,11 +741,11 @@ function renderDocument(props: {
 
 // ── Data loading ──
 
+/** Loads every collection up front so routing + nav see a consistent snapshot per request/build. */
 async function loadSite(config: SsgRenderConfig) {
   const layer = buildLayer(config.root)
 
   const guideRaw = await layer.getCollection('guide')
-  const featuresRaw = await layer.getCollection('features')
   const pagesRaw = await layer.getCollection('pages')
 
   const guideEntries = (await renderEntries(guideRaw, 'guide')).sort((left, right) => {
@@ -819,23 +754,19 @@ async function loadSite(config: SsgRenderConfig) {
     return getTime(left.data.date) - getTime(right.data.date)
   })
 
-  const featuresEntries = (await renderEntries(featuresRaw, 'features')).sort(
-    (left, right) => getTime(right.data.date) - getTime(left.data.date),
-  )
-
   const pageEntries = await renderEntries(pagesRaw, 'pages')
 
-  return { guideEntries, featuresEntries, pageEntries }
+  return { guideEntries, pageEntries }
 }
 
-// ── Exports ──
+// ── Exports (pagesmithSsg contract) ──
 
+/** Route manifest: plugin walks these URLs and calls `render` for each (plus dev middleware). */
 export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
-  const { guideEntries, featuresEntries, pageEntries } = await loadSite(config)
+  const { guideEntries, pageEntries } = await loadSite(config)
 
   const routes = ['/', '/404']
   routes.push(...guideEntries.map((entry) => routeFor(entry)))
-  routes.push(...featuresEntries.map((entry) => routeFor(entry)))
 
   const aboutPage = pageEntries.find((entry) => entry.slug === 'about')
   if (aboutPage) {
@@ -845,19 +776,22 @@ export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
   return routes
 }
 
+/** Full HTML document per URL — includes base-aware links and optional Pagefind assets. */
 export async function render(url: string, config: SsgRenderConfig): Promise<string> {
   const routePath = (() => {
     const normalized = normalizeRoute(url, config.base)
     return normalized !== '/' && normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
   })()
 
-  const { guideEntries, featuresEntries, pageEntries } = await loadSite(config)
+  const { guideEntries, pageEntries } = await loadSite(config)
 
   const guideNavEntries = buildNavEntries(guideEntries, config.base)
-  const featuresNavEntries = buildNavEntries(featuresEntries, config.base)
   const guideGroups = groupBySeries(guideEntries, config.base)
   const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`
-  const firstFeaturesUrl = featuresNavEntries[0]?.url ?? `${config.base}/features`
+  const kitchenSinkEntry = guideEntries.find((entry) => entry.slug === 'kitchen-sink')
+  const kitchenSinkUrl = kitchenSinkEntry
+    ? `${config.base}/guide/${kitchenSinkEntry.slug}`
+    : firstGuideUrl
 
   if (routePath === '/') {
     const sidebarHtml = String(
@@ -874,11 +808,6 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
               Guide
             </a>
           </li>
-          <li class="doc-sidebar-item">
-            <a href={firstFeaturesUrl} class="doc-sidebar-link">
-              Features
-            </a>
-          </li>
         </ul>
       </div>,
     )
@@ -886,10 +815,9 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       <HomeBody
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
+        kitchenSinkUrl={kitchenSinkUrl}
         searchEnabled={config.searchEnabled}
         guideEntries={guideNavEntries}
-        featuresEntries={featuresNavEntries}
       />,
     )
 
@@ -927,11 +855,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         isGuide={true}
-        isFeatures={false}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         guideGroups={guideGroups}
-        featuresEntries={featuresNavEntries}
       />,
     )
     const bodyHtml = String(
@@ -942,10 +867,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
-        featuresEntries={featuresNavEntries}
         date={toIso(guideEntry.data.date)}
         readTime={guideEntry.readTime}
       />,
@@ -963,50 +886,6 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
     })
   }
 
-  // Features page
-  const featuresEntry = featuresEntries.find((entry) => routeFor(entry) === routePath)
-  if (featuresEntry) {
-    const sidebarHtml = String(
-      <SidebarNav
-        currentPath={routePath}
-        basePath={config.base}
-        isGuide={false}
-        isFeatures={true}
-        firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
-        guideGroups={guideGroups}
-        featuresEntries={featuresNavEntries}
-      />,
-    )
-    const bodyHtml = String(
-      <PageBody
-        title={featuresEntry.data.title}
-        content={featuresEntry.html}
-        headings={featuresEntry.headings}
-        currentPath={routePath}
-        basePath={config.base}
-        firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
-        searchEnabled={config.searchEnabled}
-        sidebar={guideGroups}
-        featuresEntries={featuresNavEntries}
-        date={toIso(featuresEntry.data.date)}
-        readTime={featuresEntry.readTime}
-      />,
-    )
-
-    return renderDocument({
-      title: `${featuresEntry.data.title} - Pagesmith + Core JSX`,
-      description: featuresEntry.data.description,
-      basePath: config.base,
-      cssPath: config.cssPath,
-      jsPath: config.jsPath,
-      searchEnabled: config.searchEnabled,
-      bodyHtml,
-      sidebarHtml,
-    })
-  }
-
   // Pages (about, etc.)
   const pageEntry = pageEntries.find((entry) => routeFor(entry) === routePath)
   if (pageEntry) {
@@ -1015,11 +894,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         isGuide={false}
-        isFeatures={false}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         guideGroups={guideGroups}
-        featuresEntries={featuresNavEntries}
       />,
     )
     const bodyHtml = String(
@@ -1030,10 +906,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         currentPath={routePath}
         basePath={config.base}
         firstGuideUrl={firstGuideUrl}
-        firstFeaturesUrl={firstFeaturesUrl}
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
-        featuresEntries={featuresNavEntries}
       />,
     )
 

@@ -1,12 +1,29 @@
-import { afterAll, describe, expect, it } from 'vite-plus/test'
+import { afterAll, afterEach, describe, expect, it } from 'vite-plus/test'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { createServer } from 'net'
-import { createLogger, findAvailablePort, isPortAvailable } from '../server/shared.js'
+import { join } from 'path'
+import { tmpdir } from 'os'
+import {
+  createLogger,
+  findAvailablePort,
+  isPortAvailable,
+  resolveStaticRequest,
+} from '../server/shared.js'
 
 const servers: ReturnType<typeof createServer>[] = []
+const tempDirs: string[] = []
 
 afterAll(() => {
   for (const server of servers) {
     server.close()
+  }
+})
+
+afterEach(() => {
+  for (const dir of tempDirs.splice(0)) {
+    if (existsSync(dir)) {
+      rmSync(dir, { recursive: true, force: true })
+    }
   }
 })
 
@@ -46,5 +63,62 @@ describe('server shared logger', () => {
     expect(infoLogger.shouldLog('info')).toBe(true)
     // Verbose includes everything.
     expect(verboseLogger.shouldLog('verbose')).toBe(true)
+  })
+})
+
+describe('server shared static routing', () => {
+  it('redirects basePath requests to slashless URLs', () => {
+    const outDir = mkdtempSync(join(tmpdir(), 'ps-docs-static-'))
+    tempDirs.push(outDir)
+
+    mkdirSync(join(outDir, 'guide', 'intro'), { recursive: true })
+    writeFileSync(join(outDir, 'index.html'), '<h1>Home</h1>')
+    writeFileSync(join(outDir, 'guide', 'intro', 'index.html'), '<h1>Intro</h1>')
+    writeFileSync(join(outDir, '404.html'), '<h1>Not Found</h1>')
+
+    expect(resolveStaticRequest('/', '/pagesmith', outDir)).toEqual({
+      type: 'redirect',
+      location: '/pagesmith',
+    })
+    expect(resolveStaticRequest('/pagesmith/', '/pagesmith', outDir)).toEqual({
+      type: 'redirect',
+      location: '/pagesmith',
+    })
+    expect(resolveStaticRequest('/pagesmith/guide/intro/', '/pagesmith', outDir)).toEqual({
+      type: 'redirect',
+      location: '/pagesmith/guide/intro',
+    })
+  })
+
+  it('serves slashless clean URLs under the basePath and rejects unrelated roots', () => {
+    const outDir = mkdtempSync(join(tmpdir(), 'ps-docs-static-'))
+    tempDirs.push(outDir)
+
+    mkdirSync(join(outDir, 'guide', 'intro'), { recursive: true })
+    writeFileSync(join(outDir, 'index.html'), '<h1>Home</h1>')
+    writeFileSync(join(outDir, 'guide', 'intro', 'index.html'), '<h1>Intro</h1>')
+    writeFileSync(join(outDir, '404.html'), '<h1>Not Found</h1>')
+
+    expect(resolveStaticRequest('/pagesmith/guide/intro', '/pagesmith', outDir)).toEqual({
+      type: 'file',
+      filePath: join(outDir, 'guide', 'intro', 'index.html'),
+      statusCode: 200,
+    })
+    expect(resolveStaticRequest('/outside', '/pagesmith', outDir)).toEqual({ type: 'not-found' })
+  })
+
+  it('rejects traversal attempts outside the output directory', () => {
+    const rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-static-'))
+    const outDir = join(rootDir, 'site')
+    tempDirs.push(rootDir)
+
+    mkdirSync(outDir, { recursive: true })
+    writeFileSync(join(outDir, 'index.html'), '<h1>Home</h1>')
+    writeFileSync(join(rootDir, 'secret.txt'), 'do not read me')
+
+    expect(resolveStaticRequest('/../secret.txt', '', outDir)).toEqual({ type: 'not-found' })
+    expect(resolveStaticRequest('/pagesmith/../secret.txt', '/pagesmith', outDir)).toEqual({
+      type: 'not-found',
+    })
   })
 })

@@ -2,7 +2,11 @@
 
 Convention-based documentation package built on `@pagesmith/core`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with built-in Pagefind search, sidebar generation, and an optional layout override system.
 
-Package docs shipped inside npm (`node_modules/@pagesmith/docs/docs/*`) are version-matched to the installed package. The hosted docs site in this repository tracks the latest implementation.
+Package guidance shipped inside npm (`node_modules/@pagesmith/docs/ai-guidelines/*` and `node_modules/@pagesmith/docs/schemas/*`) is version-matched to the installed package. The hosted docs site in this repository tracks the latest implementation.
+
+## Requirements
+
+- Node.js 24+
 
 ## Install
 
@@ -17,21 +21,68 @@ npm add @pagesmith/docs
 If you use an agent workflow, initialize docs and assistant context together:
 
 ```bash
-npx pagesmith init --ai
+npx pagesmith init --yes --ai
 ```
 
-This scaffolds config/content plus AI guidance and Claude docs skills (`/update-docs`, `/ps-update-all-docs`).
+This scaffolds a root `pagesmith.config.json5`, a docs content directory, starter pages, and version-matched AI guidance. If your assistant supports generated Pagesmith skills, they are installed too. If you use a different agent, paste the prompt files below directly into that agent instead of relying on tool-specific slash commands.
+
+Copy-paste playbooks:
+
+- Fresh setup or retrofit: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
+- Upgrade an existing integration: `node_modules/@pagesmith/docs/ai-guidelines/migration.md`
+
 If your project already has custom root `llms.txt` files, use `npx pagesmith init --ai --no-llms` to skip regenerating them.
 
-1. Create `pagesmith.config.json5`:
+For agent-driven setup in an existing repository, use the dedicated prompt file instead of a vague install request:
+
+- Package path: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
+- Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md)
+
+That prompt tells the agent to inspect existing docs-like folders, confirm the chosen docs directory, detect a GitHub Pages-friendly `origin` and `basePath`, prefer running `npx pagesmith init` with explicit values, wire `docs:dev` / `docs:build` / `docs:preview` scripts, update `CLAUDE.md` / `AGENTS.md`, and use the version-matched schema files under `node_modules/@pagesmith/docs/schemas/`.
+
+Typical non-interactive init flow for a GitHub repo:
+
+```bash
+npx pagesmith init --yes --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
+```
+
+If `https://my-user.github.io` redirects to a custom host, use the redirected origin. If you want docs hosted at the root instead of `/<repo-name>`, edit `pagesmith.config.json5` manually after init.
+`pagesmith init` also writes a `copyright` block by default, seeding `startYear` from the first git commit year when available and leaving `endYear: null` for build/browser-time year updates.
+
+### Manual setup
+
+Use the same layout that `pagesmith init` creates by default:
+
+```text
+<repo-root>/
+  pagesmith.config.json5
+  docs/
+    README.md
+    guide/
+      meta.json5
+      README.md
+      getting-started/README.md
+      configuration/README.md
+    reference/
+      meta.json5
+      README.md
+      overview/README.md
+      api/README.md
+```
+
+If your repository already follows those conventions, `npx pagesmith dev`, `npx pagesmith build`, `npx pagesmith preview`, and the docs MCP can also run with no `pagesmith.config.json5` at all. In zero-config mode, Pagesmith resolves `<repo-root>/docs` as the content directory when it exists, falls back to `<repo-root>/content`, and writes the build to `<repo-root>/gh-pages`.
+
+1. Create `pagesmith.config.json5` at the repository root:
 
 ```json5
 {
+  // origin: 'https://my-user.github.io',
   // basePath: '/my-project',  // uncomment if hosting under a subdirectory
+  contentDir: 'docs',
 }
 ```
 
-2. Add content in a `docs/` directory:
+2. Add content in the configured `contentDir` (shown here as `docs/`):
 
 ```
 docs/
@@ -57,16 +108,23 @@ npx pagesmith dev
 npx pagesmith build
 ```
 
-For pre-1.0 upgrade notes, see `docs/agents/migration.md`.
+For upgrade playbooks and pre-1.0 notes, see `ai-guidelines/migration.md`.
+
+## Playbooks
+
+- `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` — copy-paste prompt for fresh setup or retrofitting docs into an existing repo
+- `node_modules/@pagesmith/docs/ai-guidelines/migration.md` — copy-paste prompt for upgrading an existing `@pagesmith/docs` integration and adopting the latest guidance/features
+- `node_modules/@pagesmith/docs/ai-guidelines/usage.md` — agent operating rules plus follow-up prompts after the docs integration exists
 
 ## Content Structure
 
-Content follows a folder convention:
+Content follows a folder convention. In the examples below, `docs/` means whatever your `contentDir` points to:
 
-- **`docs/README.md`** (or `content/README.md`) — home page (renders with the `DocHome` layout)
-- **Top-level folders** (`content/guide/`, `content/reference/`) — become navigation sections in the sidebar
-- **Subfolders with `README.md`** (`content/guide/getting-started/README.md`) — become individual pages
-- **`meta.json5` files** — control section ordering and metadata
+- **`docs/README.md`** — home page (renders with the `DocHome` layout)
+- **Top-level folders** (`docs/guide/`, `docs/reference/`) — define the top-level docs categories shown in the header and sidebar
+- **Markdown files inside a top-level folder** — become pages for that category, even when nested; nested folders keep their URL path but the section sidebar stays flat
+- **`meta.json5` files** — control section ordering and series metadata; when series exist, unlisted pages fall into an automatic `Miscellaneous` group
+- **Entries starting with `.` or `_`** — are ignored during docs discovery
 
 The content directory defaults to `docs/` if it exists, otherwise `content/`.
 
@@ -88,7 +146,7 @@ All fields are optional. Additional custom fields are passed through to layouts.
 
 ### Home Page Frontmatter
 
-The home page (`content/README.md`) supports additional frontmatter for the default `DocHome` layout:
+The home page (`<contentDir>/README.md`, usually `docs/README.md`) supports additional frontmatter for the default `DocHome` layout:
 
 ```yaml
 ---
@@ -171,7 +229,7 @@ Each section can have a `meta.json5` file to control page ordering and section m
 | `series` | `array` | Group pages into named series |
 | `collapsed` | `boolean` | Start sidebar section collapsed |
 
-Pages not listed in `items` appear after listed pages. When `orderBy` is `'publishedDate'`, pages are sorted by their `publishedDate` frontmatter field.
+Pages not listed in `items` appear after listed pages. When `series` is present, any section pages not referenced by a series are collected into an automatic `Miscellaneous` group. When `orderBy` is `'publishedDate'`, pages are sorted by their `publishedDate` frontmatter field.
 
 ## Configuration (`pagesmith.config.json5`)
 
@@ -180,15 +238,17 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
 | `name` | `string` | `pkg name` | Site name (header). Falls back to package.json name. |
 | `title` | `string` | `pkg name` | Browser tab title |
 | `description` | `string` | `pkg desc` | Default meta description |
-| `origin` | `string` | `pkg homepage` | Production URL for canonical links |
+| `origin` | `string` | `git GitHub Pages host` / `pkg homepage` | Production URL for canonical links |
 | `language` | `string` | `'en'` | HTML lang attribute |
 | `contentDir` | `string` | `'docs/' or 'content/'` | Path to content directory |
 | `outDir` | `string` | `'gh-pages'` | Build output directory |
 | `publicDir` | `string` | `'public'` | Static assets directory |
-| `basePath` | `string` | `'/'` | URL base path (overridden by `BASE_URL` env) |
+| `basePath` | `string` | `git repo name` or `'/'` | URL base path (CLI `--base-path` wins; `BASE_URL` only overrides when it is set to a non-root value) |
 | `homeLink` | `string` | `basePath` | Header logo link destination |
-| `footerLinks` | `array` | `[]` | Footer navigation links (`{ label, path }`) |
-| `footerText` | `string` | `'Built with love using pagesmith'` | Footer sign-off text shown beneath theme controls |
+| `maintainer` | `object` | `package.json author` | Maintainer credit used by the default footer sign-off (`{ name, link? }`) |
+| `footerLinks` | `array` | top-level nav links | Footer links rendered either as a flat link grid (`[{ label, path }]`) or grouped columns (`[{ header?, links: [...] }]`). On wide screens, the footer uses up to 4 evenly spaced columns. When omitted, the major section links from the top nav are reused. |
+| `footerText` | `string` | — | Override only the Pagesmith sign-off segment in the footer's bottom legal line |
+| `copyright` | `object` | — | Footer copyright config (`{ projectName?, startYear?, endYear?: number \| null }`). `endYear: null` keeps the rendered year dynamic. |
 | `sidebar.collapsible` | `boolean` | `true` | Enable collapsible sidebar sections |
 | `search.enabled` | `boolean` | `true` | Enable Pagefind search |
 | `search.showImages` | `boolean` | `false` | Show images in search results |
@@ -198,11 +258,12 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
 | `theme.darkColor` | `string` | — | Dark theme meta color |
 | `theme.layouts` | `Record<string, string>` | — | Layout override file paths |
 | `analytics.googleAnalytics` | `string` | — | Google Analytics tracking ID |
-| `editLink` | `object` | — | Edit link config (`{ repo, branch?, label? }`) |
-| `lastUpdated` | `boolean` | `false` | Show git-based last updated timestamp on pages |
+| `editLink` | `object \| false` | auto-detected | Edit link config (`{ repo, branch?, label? }`) or `false` to disable the default git-remote detection |
+| `lastUpdated` | `boolean` | `true` | Show git-based last updated timestamp on pages |
 | `sitemap` | `boolean` | `true` | Generate sitemap.xml (when origin is set) |
 | `theme.socialImage` | `string` | — | Default OG image for social sharing |
-| `markdown` | `MarkdownConfig` | — | Markdown pipeline config (from `@pagesmith/core`) |
+| `markdown` | `MarkdownConfig` | — | JSON-safe markdown config (`allowDangerousHtml`, `math`, and `shiki`) |
+| `server.host` | `string` | `'127.0.0.1'` | Interface for dev/preview binding. Use `0.0.0.0` only when you intentionally want LAN exposure. |
 | `packages` | `Record<string, { label }>` | — | Multi-package section labels |
 
 ### Example Configuration
@@ -211,15 +272,31 @@ Pages not listed in `items` appear after listed pages. When `orderBy` is `'publi
 {
   origin: 'https://docs.example.com',
   basePath: '/docs',
+  maintainer: {
+    name: 'Sujeet Jaiswal',
+    link: 'https://sujeet.pro',
+  },
+  copyright: {
+    projectName: 'Example Docs',
+    startYear: 2024,
+    endYear: null,
+  },
   sidebar: {
     collapsible: true,
   },
   footerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'API', path: '/api' },
-    { label: 'GitHub', path: 'https://github.com/example/repo' },
+    {
+      header: 'Docs',
+      links: [
+        { label: 'Guide', path: '/guide' },
+        { label: 'API', path: '/api' },
+      ],
+    },
+    {
+      header: 'Project',
+      links: [{ label: 'GitHub', path: 'https://github.com/example/repo' }],
+    },
   ],
-  footerText: 'Built with love using pagesmith',
   search: {
     enabled: true,
     showSubResults: true,
@@ -251,7 +328,7 @@ pagesmith build [--out-dir path] [--base-path path] [--config path]
 
 ### `pagesmith preview`
 
-Preview the built site locally.
+Preview the built site locally. The dev and preview servers bind to `127.0.0.1` by default; set `server.host` if you intentionally want a different interface.
 
 ```bash
 pagesmith preview [--port 4000] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
@@ -350,11 +427,11 @@ Layouts are resolved in order: `default` export, then named export matching the 
 
 ## Navigation
 
-- **Top nav** — auto-generated from top-level content folders. Override with `headerLinks` in `content/meta.json5`.
-- **Sidebar** — auto-generated from folder structure within each section. Ordering from `meta.json5` `items` array.
+- **Top nav** — auto-generated from top-level content folders. Override with `headerLinks` in your content root's `meta.json5` (for example `docs/meta.json5`).
+- **Sidebar** — auto-generated per top-level section as a flat page list. Nested files stay in the same section, and `series` groups plus `items` ordering come from `meta.json5`.
 - **Breadcrumbs** — auto-generated from the slug path on non-home pages with depth > 1. No configuration needed.
-- **Prev/next** — auto-generated from flattened sidebar items.
-- **Footer** — configured via `footerLinks` and `footerText` in config.
+- **Prev/next** — auto-generated from flattened sidebar items on every non-home page.
+- **Footer** — renders either a flat link grid or grouped link columns. On wide screens it uses up to 4 evenly spaced columns. Uses `footerLinks` when configured, otherwise falls back to the top nav items. The bottom legal line combines `copyright` with the Pagesmith sign-off, and `footerText` overrides only the sign-off segment.
 
 ## Search
 
@@ -367,7 +444,7 @@ All markdown features from `@pagesmith/core` are available, including:
 - GitHub Flavored Markdown (tables, strikethrough, task lists)
 - GitHub Alerts (`> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`)
 - Math blocks (LaTeX via MathJax)
-- Expressive Code syntax highlighting (dual themes, line numbers, file titles, mark/ins/del, collapse, copy button)
+- Built-in Shiki-backed code rendering (dual themes, line numbers, file titles, mark/ins/del, collapse, copy button)
 - Smart typography (curly quotes, em-dashes, ellipses)
 - Accessible emojis
 - Auto-linked headings
@@ -414,11 +491,14 @@ These files are available at `node_modules/@pagesmith/docs/` after installation:
 | File | Purpose |
 |---|---|
 | `REFERENCE.md` | Full reference for config, CLI, content, markdown, layouts, deployment |
-| `docs/agents/usage.md` | Agent rules, integration shape, copy-paste prompts |
-| `docs/agents/recipes.md` | Step-by-step recipes for common tasks |
-| `docs/agents/errors.md` | Error catalog with patterns and fixes |
-| `docs/llms.txt` | Compact AI context index |
-| `docs/llms-full.txt` | Full AI context with all file pointers |
+| `ai-guidelines/setup-docs.md` | Bootstrap/retrofit prompt for setting up docs in an existing repo |
+| `ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
+| `ai-guidelines/errors.md` | Error catalog with patterns and fixes |
+| `ai-guidelines/migration.md` | Upgrade playbook and prompt for existing integrations |
+| `schemas/*.schema.json` | Version-matched schemas for config, meta.json5, and docs frontmatter |
+| `ai-guidelines/llms.txt` | Compact AI context index |
+| `ai-guidelines/llms-full.txt` | Full AI context with all file pointers |
 
 ## License
 

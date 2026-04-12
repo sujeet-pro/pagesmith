@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projects.sujeet.pro/pagesmith/schemas/docs-root-meta.schema.json",
+  "title": "Pagesmith Docs Root Meta",
+  "description": "Schema for content/meta.json5 root navigation overrides.",
+  "type": "object",
+  "properties": {
+    "displayName": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "headerLinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Display label for a navigation or footer link."
+          },
+          "path": {
+            "type": "string",
+            "description": "Destination URL or site-relative path."
+          }
+        },
+        "required": ["label", "path"],
+        "additionalProperties": false
+      }
+    },
+    "footerLinks": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Display label for a navigation or footer link."
+              },
+              "path": {
+                "type": "string",
+                "description": "Destination URL or site-relative path."
+              }
+            },
+            "required": ["label", "path"],
+            "additionalProperties": false
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "header": {
+                "description": "Optional column header for a grouped footer section.",
+                "type": "string"
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "description": "Display label for a navigation or footer link."
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "Destination URL or site-relative path."
+                    }
+                  },
+                  "required": ["label", "path"],
+                  "additionalProperties": false
+                },
+                "description": "Links rendered vertically within a grouped footer column."
+              }
+            },
+            "required": ["links"],
+            "additionalProperties": false
+          }
+        }
+      ]
+    }
+  },
+  "additionalProperties": false
+}

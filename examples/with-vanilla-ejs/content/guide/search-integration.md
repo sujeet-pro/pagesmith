@@ -1,6 +1,6 @@
 ---
 title: Search Integration
-description: Adding Pagefind search to your site
+description: Pagefind search in the EJS + core stack
 date: 2026-03-15
 tags:
   - search
@@ -11,35 +11,39 @@ seriesOrder: 3
 
 # Search Integration
 
-Search is powered by [Pagefind](https://pagefind.app/), a static search library that indexes the generated HTML at build time and runs entirely in the browser -- no server required.
+Search uses [Pagefind](https://pagefind.app/) Component UI. The `pagesmithSsg` plugin runs the indexer after static HTML is written; the browser loads the generated `pagefind/` assets.
 
-## How indexing works
+## Indexing boundary
 
-The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind Component UI CSS and JavaScript.
+Pagefind only indexes subtrees marked with `data-pagefind-body`. In this example:
 
-Pages opt into indexing with the `data-pagefind-body` attribute. In the EJS example, both the home page and article pages include this attribute in the layout template:
+- **Home** — the wrapper around the home body inside `layout.ejs` (`doc-home-content`).
+- **Guide pages** — the `<article>` root in `article.ejs` (not the full layout).
+- **About** — the `<article>` root in `about.ejs`.
 
-```ejs title="templates/layout.ejs (excerpt)"
-<%# Home page layout %>
-<main class="doc-home">
-  <div class="doc-home-content" data-pagefind-body>
-    <%- body %>
+```ejs title="templates/article.ejs (excerpt)"
+<article id="doc-main-content" tabindex="-1" data-pagefind-body>
+  …
+  <div class="prose">
+    <%- content %>
   </div>
-</main>
-
-<%# Article page layout %>
-<main class="doc-main" data-pagefind-body>
-  <%- body %>
-</main>
+</article>
 ```
 
-Only content inside elements with `data-pagefind-body` is indexed, keeping navigation chrome and boilerplate out of search results.
+## `searchEnabled` from `SsgRenderConfig`
 
-## The search modal (Pagefind Component UI)
+`@pagesmith/core` passes `searchEnabled: false` while the dev server SSRs HTML, and `true` for the production SSG pass (after the index exists). `layout.ejs` gates Pagefind CSS, JS, the modal, and the header trigger on that flag so development does not request missing `pagefind/*` URLs.
 
-Search uses Pagefind **Component UI** web components instead of the legacy Default UI (`PagefindUI`). The query field is provided by the `<pagefind-input>` custom element in the modal header. The modal structure is defined at the end of the layout template:
+## Component UI
 
-```html title="templates/layout.ejs (excerpt)"
+When search is enabled, the shell includes the modal and trigger:
+
+```ejs title="templates/layout.ejs (excerpt)"
+<% if (searchOn) { %>
+  <pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
+<% } %>
+…
+<% if (searchOn) { %>
 <pagefind-modal reset-on-close>
   <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
   <pagefind-modal-body>
@@ -48,31 +52,15 @@ Search uses Pagefind **Component UI** web components instead of the legacy Defau
   </pagefind-modal-body>
   <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
 </pagefind-modal>
+<% } %>
 ```
 
-The components load and query the index when the user opens the modal, keeping the initial page load fast.
+Keyboard shortcuts and modal behavior come from those web components.
 
-## Keyboard shortcut
+## Client bundle
 
-Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) opens search, and the header control is wired through `<pagefind-modal-trigger>`. That behavior is handled natively by Pagefind Component UI web components (`<pagefind-modal>`, `<pagefind-modal-trigger>`).
+`client.js` imports `@pagesmith/core/runtime/content` and tweaks `<pagefind-modal-trigger>` for small screens. It is optional for static reading; search still works without those layout tweaks.
 
-## Search trigger
+## Development vs production
 
-The header includes the trigger component (styled with `doc-search-trigger` to match the theme):
-
-```ejs title="templates/layout.ejs (excerpt)"
-<pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>
-```
-
-The trigger is hidden when JavaScript is disabled using a `<noscript>` style rule in the layout's `<head>`.
-
-## Development vs. production
-
-During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The Pagefind Component UI CSS and JS are still referenced in the layout, but the assets do not exist until a production build runs. In production builds, the SSG plugin generates the index after writing all HTML files, and the Pagefind assets become available:
-
-```ejs title="templates/layout.ejs (excerpt)"
-<link rel="stylesheet" href="<%= basePath %>pagefind/pagefind-component-ui.css" />
-<script src="<%= basePath %>pagefind/pagefind-component-ui.js" type="module"></script>
-```
-
-The site remains fully functional without search -- it is a progressive enhancement on top of the static HTML.
+Run `npm run build` and preview the output (or deploy) to exercise search end-to-end. In `vite dev`, `searchEnabled` stays false by design — there is no index on disk yet.

@@ -1,24 +1,19 @@
 <script lang="ts">
-  import type { GuideGroup, NavEntry } from '../site'
+  import type { GuideGroup } from '../site'
 
   let {
     currentPath,
     basePath,
     firstGuideUrl,
-    firstFeaturesUrl,
     guideGroups,
-    featuresEntries,
   }: {
     currentPath: string
     basePath: string
     firstGuideUrl: string
-    firstFeaturesUrl: string
     guideGroups: GuideGroup[]
-    featuresEntries: NavEntry[]
   } = $props()
 
   const isGuide = $derived(currentPath.startsWith('/guide'))
-  const isFeatures = $derived(currentPath.startsWith('/features'))
 </script>
 
 <div class="doc-sidebar-section">
@@ -29,9 +24,6 @@
     </li>
     <li class:active={isGuide} class="doc-sidebar-item">
       <a href={firstGuideUrl} class="doc-sidebar-link">Guide</a>
-    </li>
-    <li class:active={isFeatures} class="doc-sidebar-item">
-      <a href={firstFeaturesUrl} class="doc-sidebar-link">Features</a>
     </li>
     <li class:active={currentPath === '/about'} class="doc-sidebar-item">
       <a href={`${basePath}/about`} class="doc-sidebar-link">About</a>
@@ -54,17 +46,6 @@
             </li>
           {/each}
         </ul>
-      </li>
-    {/each}
-  </ul>
-</div>
-
-<div class="doc-sidebar-section">
-  <p class="doc-sidebar-heading">Features</p>
-  <ul class="doc-sidebar-list">
-    {#each featuresEntries as entry (entry.slug)}
-      <li class:active={currentPath === `/features/${entry.slug}`} class="doc-sidebar-item">
-        <a href={entry.url} class="doc-sidebar-link">{entry.title}</a>
       </li>
     {/each}
   </ul>

@@ -1,8 +1,10 @@
 /**
- * SSR entry for the Handlebars example.
+ * SSR entry for the Handlebars example — this is the integration seam for @pagesmith/core + SSG.
  *
- * Exports `getRoutes()` and `render()` for the pagesmithSsg Vite plugin.
- * All content loading, sorting, and layout rendering lives here.
+ * - pagesmithSsg imports this module and calls `getRoutes` / `render` (no virtual content modules).
+ * - `createContentLayer` loads markdown from disk using `content.config.mjs` schemas.
+ * - Handlebars compiles templates per request in dev so .hbs edits reload; the content layer is cached per root.
+ * - Returned strings are full HTML documents consumed as static output in production.
  */
 
 import { createContentLayer } from '@pagesmith/core'
@@ -13,7 +15,7 @@ import { join } from 'path'
 import contentConfig from '../content.config.mjs'
 import type { SsgRenderConfig } from '@pagesmith/core/vite'
 
-const { guide, features, pages } = contentConfig as Record<string, any>
+const { guide, pages } = contentConfig as Record<string, any>
 
 // ── Handlebars helpers (registered once) ──
 
@@ -48,7 +50,7 @@ let layerRoot: string
 function getLayer(root: string) {
   if (!layer || layerRoot !== root) {
     layerRoot = root
-    layer = createContentLayer({ collections: { guide, features, pages }, root })
+    layer = createContentLayer({ collections: { guide, pages }, root })
   }
   return layer
 }
@@ -65,7 +67,6 @@ type RenderedEntry = {
 async function loadContent(root: string) {
   const l = getLayer(root)
   const allGuide = await l.getCollection('guide')
-  const allFeatures = await l.getCollection('features')
   const allPages = await l.getCollection('pages')
 
   async function renderAll(entries: any[]): Promise<RenderedEntry[]> {
@@ -78,7 +79,6 @@ async function loadContent(root: string) {
   }
 
   const renderedGuide = await renderAll(allGuide)
-  const renderedFeatures = await renderAll(allFeatures)
   const renderedPages = await renderAll(allPages)
 
   const sortedGuide = [...renderedGuide].sort((a, b) => {
@@ -87,11 +87,7 @@ async function loadContent(root: string) {
     return a.entry.data.date.getTime() - b.entry.data.date.getTime()
   })
 
-  const sortedFeatures = [...renderedFeatures].sort(
-    (a, b) => b.entry.data.date.getTime() - a.entry.data.date.getTime(),
-  )
-
-  return { sortedGuide, sortedFeatures, renderedPages }
+  return { sortedGuide, renderedPages }
 }
 
 function groupBySeries(entries: RenderedEntry[]) {
@@ -151,7 +147,7 @@ function articleNeighbors(
   list: RenderedEntry[],
   index: number,
   basePath: string,
-  section: 'guide' | 'features',
+  section: 'guide',
 ): Record<string, { title: string; url: string } | undefined> {
   const out: Record<string, { title: string; url: string } | undefined> = {}
   if (index > 0) {
@@ -172,32 +168,32 @@ function loadTemplate(root: string, name: string) {
 // ── Route + render API ──
 
 export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
-  const { sortedGuide, sortedFeatures, renderedPages } = await loadContent(config.root)
+  const { sortedGuide, renderedPages } = await loadContent(config.root)
   const routes = ['/']
   for (const item of sortedGuide) routes.push(`/guide/${item.entry.slug}`)
-  for (const item of sortedFeatures) routes.push(`/features/${item.entry.slug}`)
   if (renderedPages.find((p) => p.entry.slug === 'about')) routes.push('/about')
   return routes
 }
 
 export async function render(url: string, config: SsgRenderConfig): Promise<string> {
   const { base, root, cssPath, jsPath, searchEnabled } = config
-  const { sortedGuide, sortedFeatures, renderedPages } = await loadContent(root)
+  const { sortedGuide, renderedPages } = await loadContent(root)
 
   const guideGroups = groupBySeries(sortedGuide)
-  const css = readFileSync(join(root, 'src/theme.css'), 'utf-8')
   const basePath = base.endsWith('/') ? base : base + '/'
+  const kitchenSinkSlug =
+    sortedGuide.find((entry) => entry.entry.slug === 'kitchen-sink')?.entry.slug ??
+    sortedGuide[0]?.entry.slug ??
+    ''
 
   const sidebarData = {
     guideGroups,
-    featuresEntries: sortedFeatures.map((e) => ({ title: e.entry.data.title, slug: e.entry.slug })),
     firstGuideSlug: sortedGuide[0]?.entry.slug ?? '',
-    firstFeaturesSlug: sortedFeatures[0]?.entry.slug ?? '',
   }
 
-  const shared = { basePath, css, js: '', sidebar: sidebarData }
+  const shared = { basePath, cssPath, jsPath, sidebar: sidebarData }
 
-  // Register the layout partial (re-register each render to pick up changes in dev)
+  // Re-register layout each render so template file edits apply without restarting Vite (helpers stay module-scoped).
   Handlebars.registerPartial('layout', loadTemplate(root, 'layout'))
 
   const articleTemplate = Handlebars.compile(loadTemplate(root, 'article'))
@@ -226,15 +222,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         description: e.entry.data.description,
         slug: e.entry.slug,
       })),
-      sortedFeatures: sortedFeatures.map((e) => ({
-        title: e.entry.data.title,
-        description: e.entry.data.description,
-        date: e.entry.data.date,
-        tags: e.entry.data.tags,
-        slug: e.entry.slug,
-      })),
       firstGuideSlug: sortedGuide[0]?.entry.slug ?? '',
-      firstFeaturesSlug: sortedFeatures[0]?.entry.slug ?? '',
+      kitchenSinkSlug,
     })
   }
 
@@ -259,33 +248,6 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         aside: renderTocAside(item.headings),
         isHome: false,
         ...articleNeighbors(sortedGuide, guideIndex, basePath, 'guide'),
-        editUrl: editUrlForEntry(item.entry),
-        lastUpdated: formatArticleDate(item.entry.data.date),
-      })
-    }
-  }
-
-  // Features pages
-  const featuresMatch = routePath.match(/^\/features\/(.+)$/)
-  if (featuresMatch) {
-    const featuresIndex = sortedFeatures.findIndex((e) => e.entry.slug === featuresMatch[1])
-    const item = featuresIndex >= 0 ? sortedFeatures[featuresIndex] : undefined
-    if (item) {
-      const tocHeadings = (item.headings || []).filter((h: any) => h.depth >= 2 && h.depth <= 3)
-      return articleTemplate({
-        ...shared,
-        title: item.entry.data.title,
-        date: item.entry.data.date,
-        tags: item.entry.data.tags,
-        description: item.entry.data.description,
-        content: item.html,
-        headings: item.headings,
-        tocHeadings,
-        readTime: item.readTime,
-        activePath: `/features/${item.entry.slug}`,
-        aside: renderTocAside(item.headings),
-        isHome: false,
-        ...articleNeighbors(sortedFeatures, featuresIndex, basePath, 'features'),
         editUrl: editUrlForEntry(item.entry),
         lastUpdated: formatArticleDate(item.entry.data.date),
       })

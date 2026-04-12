@@ -3,7 +3,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { basename, resolve } from 'path'
 import { createInterface } from 'readline/promises'
-import { detectGitOrigin, toTitleCase } from '../config'
+import { detectFirstCommitYear, detectGitOrigin, resolveInitOrigin, toTitleCase } from '../config'
 import { startDocsMcpServer } from '../mcp/server'
 import { build, preview, startDev } from '../site'
 import {
@@ -37,6 +37,14 @@ Init options:
   --ai                                Install AI integrations (skills, guidelines)
   --no-llms                           Skip llms.txt / llms-full.txt generation during AI install
   --config <path>                     Config file path
+  --name <value>                      Project name used in docs metadata
+  --title <value>                     Site title used in docs metadata
+  --origin <url>                      Canonical site origin (default: detected GitHub Pages host)
+  --base-path <path>                  Base URL path (default: /<repo-name>)
+  --content-dir <path>                Docs content directory (default: docs)
+  --search / --no-search              Enable or disable built-in search
+  --starter-content / --no-starter-content
+                                      Create or skip starter guide/reference pages
 
 Server options:
   -p, --port <number>                 Server port (dev: 3000, preview: 4000)
@@ -83,8 +91,10 @@ async function ensureDocsConfig(
 type InitAnswers = {
   name: string
   title: string
+  origin: string
   basePath: string
   contentDir: string
+  copyrightStartYear: number
   search: boolean
   ai: boolean
   starterContent: boolean
@@ -100,16 +110,22 @@ function readPackageName(projectDir: string): string | undefined {
   }
 }
 
-function detectDefaults(projectDir: string): InitAnswers {
+async function detectDefaults(projectDir: string): Promise<InitAnswers> {
   const gitInfo = detectGitOrigin(projectDir)
   const pkgName = readPackageName(projectDir)
   const name = gitInfo?.repoName ?? pkgName ?? basename(projectDir)
+  const basePath = gitInfo?.basePath ?? `/${name}`
+  const origin =
+    (await resolveInitOrigin(projectDir, gitInfo)) ?? gitInfo?.origin ?? 'https://example.com'
+  const copyrightStartYear = detectFirstCommitYear(projectDir) ?? new Date().getFullYear()
 
   return {
     name,
     title: toTitleCase(name),
-    basePath: gitInfo?.basePath ?? '/',
+    origin,
+    basePath,
     contentDir: 'docs',
+    copyrightStartYear,
     search: true,
     ai: false,
     starterContent: true,
@@ -147,7 +163,10 @@ async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
   console.log(`\n  Pagesmith v${getVersion()}\n`)
 
   const name = await ask('Project name', defaults.name)
-  const title = await ask('Site title', toTitleCase(name))
+  const titleFallback =
+    defaults.title === toTitleCase(defaults.name) ? toTitleCase(name) : defaults.title
+  const title = await ask('Site title', titleFallback)
+  const origin = await ask('Site origin', defaults.origin)
   const basePath = await ask('Base path', defaults.basePath)
   const contentDir = await ask('Content directory', defaults.contentDir)
   const search = await confirm('Enable search?', defaults.search)
@@ -157,23 +176,88 @@ async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
   cleanup()
   console.log()
 
-  return { name, title, basePath, contentDir, search, ai, starterContent }
+  return {
+    name,
+    title,
+    origin,
+    basePath,
+    contentDir,
+    copyrightStartYear: defaults.copyrightStartYear,
+    search,
+    ai,
+    starterContent,
+  }
 }
 
 // ---------------------------------------------------------------------------
 // Init logic
 // ---------------------------------------------------------------------------
 
-function buildConfigContent(answers: InitAnswers, gitOrigin?: string): string {
+function buildConfigContent(answers: InitAnswers): string {
   const lines: string[] = ['{']
   lines.push(`  name: "${answers.name}",`)
   lines.push(`  title: "${answers.title}",`)
+  lines.push(`  origin: "${answers.origin}",`)
   lines.push(`  basePath: "${answers.basePath}",`)
   lines.push(`  contentDir: "${answers.contentDir}",`)
-  if (gitOrigin) lines.push(`  origin: "${gitOrigin}",`)
-  if (answers.search) lines.push('  search: { enabled: true },')
+  lines.push('  outDir: "gh-pages",')
+  lines.push('  copyright: {')
+  lines.push(`    projectName: "${answers.title}",`)
+  lines.push(`    startYear: ${answers.copyrightStartYear},`)
+  lines.push('    endYear: null,')
+  lines.push('  },')
+  lines.push(`  search: { enabled: ${answers.search ? 'true' : 'false'} },`)
   lines.push('}', '')
   return lines.join('\n')
+}
+
+function scriptCommand(command: 'dev' | 'build' | 'preview', configPath?: string): string {
+  const base = `pagesmith ${command}`
+  if (!configPath || configPath === 'pagesmith.config.json5') {
+    return base
+  }
+  return `${base} --config ${configPath}`
+}
+
+function ensureDocsScripts(projectDir: string, configPath?: string): string[] {
+  const pkgPath = resolve(projectDir, 'package.json')
+  if (!existsSync(pkgPath)) return []
+
+  try {
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as {
+      scripts?: Record<string, string>
+    }
+    const scripts = { ...(pkg.scripts ?? {}) }
+    const desired = {
+      'docs:dev': scriptCommand('dev', configPath),
+      'docs:build': scriptCommand('build', configPath),
+      'docs:preview': scriptCommand('preview', configPath),
+    }
+    const created: string[] = []
+    let changed = false
+
+    for (const [name, value] of Object.entries(desired)) {
+      if (!scripts[name]) {
+        scripts[name] = value
+        created.push(`package.json#scripts.${name}`)
+        changed = true
+      }
+    }
+
+    if (!changed) return created
+
+    pkg.scripts = scripts
+    writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
+    return created
+  } catch {
+    return []
+  }
+}
+
+function writeIfMissing(filePath: string, content: string): boolean {
+  if (existsSync(filePath)) return false
+  writeFileSync(filePath, content)
+  return true
 }
 
 async function runInit(argv: string[]): Promise<void> {
@@ -184,11 +268,19 @@ async function runInit(argv: string[]): Promise<void> {
   }
   const projectDir = resolve('.')
   const configPath = resolve(args.config ?? 'pagesmith.config.json5')
+  const hasPackageJson = existsSync(resolve(projectDir, 'package.json'))
 
-  const defaults = detectDefaults(projectDir)
+  const defaults = await detectDefaults(projectDir)
 
   // --ai flag pre-selects AI integrations even in interactive mode
   if (args.ai) defaults.ai = true
+  if (args.name) defaults.name = args.name
+  if (args.title) defaults.title = args.title
+  if (args.origin) defaults.origin = args.origin
+  if (args.basePath) defaults.basePath = args.basePath
+  if (args.contentDir) defaults.contentDir = args.contentDir
+  if (typeof args.search === 'boolean') defaults.search = args.search
+  if (typeof args.starterContent === 'boolean') defaults.starterContent = args.starterContent
 
   // Resolve answers: interactive or accept defaults
   const answers = args.yes ? defaults : await promptInteractive(defaults)
@@ -197,31 +289,38 @@ async function runInit(argv: string[]): Promise<void> {
 
   // 1. Create config file
   if (!existsSync(configPath)) {
-    const gitInfo = detectGitOrigin(projectDir)
-    const configContent = buildConfigContent(answers, gitInfo?.origin)
+    const configContent = buildConfigContent(answers)
     writeFileSync(configPath, configContent)
     created.push(args.config ?? 'pagesmith.config.json5')
   } else {
     console.log(`  Config already exists: ${configPath}`)
   }
 
-  // 2. Create content directory structure
+  // 2. Add docs scripts to package.json when available
+  const scriptEntries = ensureDocsScripts(projectDir, args.config ?? 'pagesmith.config.json5')
+  created.push(...scriptEntries)
+
+  // 3. Create content directory structure
   const contentDir = resolve(answers.contentDir)
   const dirs = [
     contentDir,
     resolve(contentDir, 'guide'),
+    resolve(contentDir, 'reference'),
     resolve(contentDir, 'guide', 'getting-started'),
+    resolve(contentDir, 'guide', 'configuration'),
+    resolve(contentDir, 'reference', 'overview'),
+    resolve(contentDir, 'reference', 'api'),
   ]
 
   for (const dir of dirs) {
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
   }
 
-  // 3. Starter content
+  // 4. Starter content
   if (answers.starterContent) {
     const homePath = resolve(contentDir, 'README.md')
-    if (!existsSync(homePath)) {
-      writeFileSync(
+    if (
+      writeIfMissing(
         homePath,
         [
           '---',
@@ -232,34 +331,175 @@ async function runInit(argv: string[]): Promise<void> {
           '  - text: Get Started',
           '    link: /guide/getting-started',
           '    theme: brand',
+          '  - text: Reference',
+          '    link: /reference/overview',
+          '    theme: alt',
+          'features:',
+          '  - title: Convention-based docs',
+          '    details: Organize docs with folders, README.md pages, and meta.json5 ordering.',
+          '  - title: GitHub Pages friendly',
+          '    details: Defaults to a GitHub Pages base path using the repo name.',
           '---',
+          '',
+          '# Welcome',
+          '',
+          'Start from the guide, then expand the reference as your project grows.',
           '',
         ].join('\n'),
       )
+    ) {
       created.push(`${answers.contentDir}/README.md`)
     }
 
+    if (
+      writeIfMissing(
+        resolve(contentDir, 'guide', 'meta.json5'),
+        [
+          '{',
+          "  displayName: 'Guide',",
+          "  orderBy: 'manual',",
+          "  items: ['getting-started', 'configuration'],",
+          '}',
+          '',
+        ].join('\n'),
+      )
+    ) {
+      created.push(`${answers.contentDir}/guide/meta.json5`)
+    }
+
+    if (
+      writeIfMissing(
+        resolve(contentDir, 'guide', 'README.md'),
+        [
+          '---',
+          'title: Guide',
+          'description: Start here to learn how this project is documented.',
+          '---',
+          '',
+          '# Guide',
+          '',
+          'Use this section for onboarding, setup, and configuration walkthroughs.',
+          '',
+        ].join('\n'),
+      )
+    ) {
+      created.push(`${answers.contentDir}/guide/README.md`)
+    }
+
     const gettingStartedPath = resolve(contentDir, 'guide', 'getting-started', 'README.md')
-    if (!existsSync(gettingStartedPath)) {
-      writeFileSync(
+    if (
+      writeIfMissing(
         gettingStartedPath,
         [
           '---',
           'title: Getting Started',
-          'description: Learn the basics.',
+          'description: Learn the basics of this project and its docs site.',
           '---',
           '',
           '# Getting Started',
           '',
-          'Start here.',
+          'Explain how to install, run, and explore the project here.',
           '',
         ].join('\n'),
       )
+    ) {
       created.push(`${answers.contentDir}/guide/getting-started/README.md`)
+    }
+
+    if (
+      writeIfMissing(
+        resolve(contentDir, 'guide', 'configuration', 'README.md'),
+        [
+          '---',
+          'title: Configuration',
+          'description: Document the key configuration and setup decisions for this project.',
+          '---',
+          '',
+          '# Configuration',
+          '',
+          'Document environment variables, config files, and deployment expectations here.',
+          '',
+        ].join('\n'),
+      )
+    ) {
+      created.push(`${answers.contentDir}/guide/configuration/README.md`)
+    }
+
+    if (
+      writeIfMissing(
+        resolve(contentDir, 'reference', 'meta.json5'),
+        [
+          '{',
+          "  displayName: 'Reference',",
+          "  orderBy: 'manual',",
+          "  items: ['overview', 'api'],",
+          '}',
+          '',
+        ].join('\n'),
+      )
+    ) {
+      created.push(`${answers.contentDir}/reference/meta.json5`)
+    }
+
+    if (
+      writeIfMissing(
+        resolve(contentDir, 'reference', 'README.md'),
+        [
+          '---',
+          'title: Reference',
+          'description: API and implementation reference for this project.',
+          '---',
+          '',
+          '# Reference',
+          '',
+          'Use this section for API details, commands, and integration notes.',
+          '',
+        ].join('\n'),
+      )
+    ) {
+      created.push(`${answers.contentDir}/reference/README.md`)
+    }
+
+    if (
+      writeIfMissing(
+        resolve(contentDir, 'reference', 'overview', 'README.md'),
+        [
+          '---',
+          'title: Overview',
+          'description: A high-level reference map for the project.',
+          '---',
+          '',
+          '# Overview',
+          '',
+          'Summarize the major modules, packages, or subsystems here.',
+          '',
+        ].join('\n'),
+      )
+    ) {
+      created.push(`${answers.contentDir}/reference/overview/README.md`)
+    }
+
+    if (
+      writeIfMissing(
+        resolve(contentDir, 'reference', 'api', 'README.md'),
+        [
+          '---',
+          'title: API',
+          'description: Public API reference for this project.',
+          '---',
+          '',
+          '# API',
+          '',
+          'List commands, exports, endpoints, or interfaces here.',
+          '',
+        ].join('\n'),
+      )
+    ) {
+      created.push(`${answers.contentDir}/reference/api/README.md`)
     }
   }
 
-  // 4. AI integrations
+  // 5. AI integrations
   if (answers.ai) {
     const { installAiArtifacts } = await import('@pagesmith/core/ai')
     const results = installAiArtifacts({
@@ -274,7 +514,7 @@ async function runInit(argv: string[]): Promise<void> {
     }
   }
 
-  // 5. Summary
+  // 6. Summary
   if (created.length > 0) {
     console.log('  Created:')
     for (const file of created) {
@@ -283,7 +523,12 @@ async function runInit(argv: string[]): Promise<void> {
   }
 
   console.log('\n  Done! Next steps:')
-  console.log(`    npx pagesmith dev`)
+  console.log(
+    `    ${hasPackageJson ? 'npm run docs:dev' : `npx ${scriptCommand('dev', args.config ?? 'pagesmith.config.json5')}`}`,
+  )
+  console.log(
+    '    If you want to host docs at the root of a GitHub Pages site, edit basePath/origin in pagesmith.config.json5 manually.',
+  )
   if (!answers.ai) {
     console.log('    npx pagesmith init --ai  # Optional: install AI integrations')
   }
@@ -313,7 +558,7 @@ async function runBuild(argv: string[]): Promise<void> {
     return
   }
   await build({
-    configPath: await ensureDocsConfig(args.config),
+    configPath: await ensureDocsConfig(args.config, { allowMissing: true }),
     outDir: args.outDir,
     basePath: args.basePath,
   })
@@ -326,7 +571,7 @@ async function runPreview(argv: string[]): Promise<void> {
     return
   }
   await preview({
-    configPath: await ensureDocsConfig(args.config),
+    configPath: await ensureDocsConfig(args.config, { allowMissing: true }),
     port: args.port,
     open: args.open,
     logLevel: args.logLevel,

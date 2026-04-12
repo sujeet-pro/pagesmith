@@ -1,8 +1,8 @@
 # Pagesmith + EJS
 
-A content-driven static site using `@pagesmith/core` with EJS templates for server-side rendering. Demonstrates the content plugin flow with classic template-based rendering, Pagefind search, and progressive client-side enhancements.
+Best-practice **`@pagesmith/core` + Vite + EJS** static site: filesystem collections, SSR entry contract, EJS boundaries, SSG, and Pagefind — without `@pagesmith/docs` or virtual content modules.
 
-## Quick Start
+## Quick start
 
 ```bash
 # From the monorepo root
@@ -10,36 +10,28 @@ vp install
 vp run dev:eg:vanilla-ejs
 ```
 
-## Architecture
+Agent-oriented notes for this stack: [`llms.txt`](./llms.txt).
 
-Content is defined in `content.config.mjs` using `defineCollection` with Zod schemas. The SSR entry calls `createContentLayer()` with that config and loads collections at render time (no virtual content modules). EJS templates (`layout.ejs`, `index.ejs`, `article.ejs`, `about.ejs`) render pages to HTML strings via `ejs.render()`. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
+## Integration flow (read this before copying files)
 
-The site works without JavaScript. Inline client-side scripts add progressive enhancements: TOC scroll highlighting, Pagefind search modal (Cmd/Ctrl+K), and mobile sidebar toggle.
+1. **`content.config.mjs`** — Declares collections (`defineCollection` / `defineCollections`) and Zod schemas. This is the typed boundary between markdown files and code.
+2. **`src/entry-server.tsx`** — Imports that config, calls **`createContentLayer`**, implements **`getRoutes`** + **`render`** expected by `pagesmithSsg` (`@pagesmith/core/vite`). All routing, sorting, and `ejs.render()` calls live here.
+3. **`templates/`** — **Fragment** templates (`article`, `index`, `about`) produce HTML strings; **`layout.ejs`** wraps them with site chrome. **`data-pagefind-body`** sits on the indexed region (see `article.ejs` / `about.ejs` / home branch in `layout.ejs`), not on the entire document.
+4. **`vite.config.ts`** — `sharedAssetsPlugin()` plus **`...pagesmithSsg({ entry, contentDirs })`**. `contentDirs` feeds dev watching and companion asset copying.
+5. **Client vs SSR** — **`client.js`** is the Vite client bundle (theme CSS + `@pagesmith/core/runtime/content` + small Pagefind trigger tweaks). **`layout.ejs`** still ships inline scripts for sidebar, TOC, and theme — that split is intentional.
+6. **Pagefind** — After production SSG, the plugin indexes HTML. **`SsgRenderConfig.searchEnabled`** is `false` in dev and `true` when the index exists; **`layout.ejs`** gates Pagefind CSS/JS/modal/trigger on that flag.
 
-## Content
+## Content layout
 
-| Directory | Collection | Description |
-|-----------|-----------|-------------|
-| `content/guide/` | `guide` | How this example works (series-ordered) |
-| `content/features/` | `features` | Markdown feature showcase |
+| Directory | Collection | Role |
+|-----------|------------|------|
+| `content/guide/` | `guide` | How this example works, including `guide/kitchen-sink.md` for markdown regression |
 | `content/pages/` | `pages` | Standalone pages (about) |
 
-## Theme System
+## Theme
 
-This example implements the full Pagesmith theme system using `@pagesmith/core` with EJS templates:
-
-- **Header theme dropdown** — Sun icon button with Appearance (Auto/Light/Dark), Theme (Paper/High Contrast), and Text Size (Small/Default/Large) controls
-- **Footer theme controls** — Segmented button groups for Appearance, Theme, and Text Size
-- **FOUC prevention** — Inline script restores `colorScheme`, `theme`, and `textSize` from `localStorage` before CSS paints
-- **Theme persistence** — All preferences stored in `localStorage` under `pagesmith-theme`
-
-### CSS Theme Features
-
-- Color scheme classes: `.color-scheme-auto`, `.color-scheme-light`, `.color-scheme-dark`
-- Theme variants: `.theme-paper` (warm, low-contrast), `.theme-high-contrast` (WCAG AAA)
-- Text size scaling: `html[data-text-size="small|base|large"]`
-- All design tokens use `light-dark()` for automatic light/dark mode support
+This example implements the Pagesmith standalone theme controls (appearance, paper/high-contrast, text size) with FOUC prevention via an inline snippet in `layout.ejs` and persistence in `localStorage`.
 
 ## Deployed
 
-[View live example](https://projects.sujeet.pro/pagesmith/examples/vanilla-ejs/)
+[View live example](https://projects.sujeet.pro/pagesmith/examples/vanilla-ejs)

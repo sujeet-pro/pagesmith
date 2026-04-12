@@ -12,16 +12,17 @@ vp run dev:eg:solid
 
 ## Architecture
 
-Content is defined in `content.config.ts` using `defineCollection` with Zod schemas. The `pagesmithContent` Vite plugin generates virtual modules that the SSR entry imports. Solid components using `For`, `Show`, and `renderToString` render each page to static HTML. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
+Content is defined in `content.config.ts` using `defineCollection` with Zod schemas. **`pagesmithContent`** validates markdown and exposes **`virtual:content/*`** modules that **`src/entry-server.tsx`** imports at build time. Solid’s **`renderToString`** turns layout JSX into HTML fragments; **`renderDocument()`** wraps them in the full document (meta, assets, optional Pagefind Component UI, deferred **`client.js`**). **`pagesmithSsg`** wires dev SSR middleware and the production pass: **`getRoutes`**, per-URL **`render`**, writing `index.html`, then Pagefind indexing.
 
-The site works without JavaScript. Client-side `runtime.ts` adds progressive enhancements: TOC scroll highlighting, Pagefind search modal (Cmd/Ctrl+K), and mobile sidebar toggle.
+The site works without JavaScript. **`client.js`** loads site CSS, **`@pagesmith/core/runtime/content`** for code-block UI, and **`src/runtime.ts`** for TOC highlighting, mobile sidebar, theme controls, and small Pagefind trigger tweaks. Search UI is emitted on **production** builds only (`searchEnabled` is false in dev SSR).
+
+See **`llms.txt`** in this folder for agent-oriented integration notes, and **`content/guide/`** for the same story in prose.
 
 ## Content
 
 | Directory | Collection | Description |
 |-----------|-----------|-------------|
-| `content/guide/` | `guide` | How this example works (series-ordered) |
-| `content/features/` | `features` | Markdown feature showcase |
+| `content/guide/` | `guide` | How this example works, including `guide/kitchen-sink.md` for markdown regression |
 | `content/pages/` | `pages` | Standalone pages (about) |
 
 ## Theme System
@@ -42,4 +43,4 @@ This example implements the full Pagesmith theme system using `@pagesmith/core` 
 
 ## Deployed
 
-[View live example](https://projects.sujeet.pro/pagesmith/examples/solid/)
+[View live example](https://projects.sujeet.pro/pagesmith/examples/solid)

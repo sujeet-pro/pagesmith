@@ -6,13 +6,16 @@
 
 These files are part of the package contract and must be kept current when `@pagesmith/docs` behavior changes:
 
-- `docs/llms.txt`
-- `docs/llms-full.txt`
-- `docs/agents/usage.md`
-- `docs/agents/recipes.md`
-- `docs/agents/changelog-notes.md`
+- `ai-guidelines/llms.txt`
+- `ai-guidelines/llms-full.txt`
+- `ai-guidelines/setup-docs.md`
+- `ai-guidelines/usage.md`
+- `ai-guidelines/recipes.md`
+- `ai-guidelines/changelog-notes.md`
+- `schemas/*.schema.json`
 
 ## Canonical references
 
 - `REFERENCE.md` for complete API/config details
-- `docs/agents/usage.md` for package operating guidance
+- `ai-guidelines/setup-docs.md` for bootstrap/retrofit setup prompts
+- `ai-guidelines/usage.md` for package operating guidance

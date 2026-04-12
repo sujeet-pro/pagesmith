@@ -115,7 +115,7 @@ h4 {
 .prose figure {
   margin: 2rem 0;
 }
-.prose .expressive-code + .expressive-code {
+.prose .ps-code-block + .ps-code-block {
   margin-top: 1.5rem;
 }
 .prose figure img {
@@ -139,20 +139,26 @@ h4 {
 }
 
 /* ─── Tables ─── */
-.prose table {
-  display: block;
-  width: max-content;
+.prose .ps-table-scroll {
   max-width: 100%;
   overflow-x: auto;
-  border-collapse: collapse;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   margin-bottom: 1.25rem;
+}
+.prose table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  margin-bottom: 0;
   font-size: var(--font-size-sm);
 }
 .prose th, .prose td {
   padding: 0.6rem 1rem;
   text-align: left;
   border-bottom: 1px solid var(--color-border);
-  white-space: nowrap;
+  min-width: 10ch;
+  vertical-align: top;
 }
 .prose th {
   font-weight: 600;

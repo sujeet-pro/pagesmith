@@ -1,21 +1,22 @@
+<!--
+  Landing page: data-pagefind-body marks what Pagefind indexes (hero + lists), excluding
+  duplicated chrome that lives outside this subtree.
+-->
 <script lang="ts">
-  import { formatDate } from '../site'
   import type { NavEntry } from '../site'
 
   let {
     firstGuideUrl,
-    firstFeaturesUrl,
+    kitchenSinkUrl,
     guideEntries,
-    featuresEntries,
   }: {
     firstGuideUrl: string
-    firstFeaturesUrl: string
+    kitchenSinkUrl: string
     guideEntries: NavEntry[]
-    featuresEntries: NavEntry[]
   } = $props()
 </script>
 
-<main class="doc-home" data-pagefind-body="">
+<main id="doc-main-content" class="doc-home" tabindex="-1" data-pagefind-body="">
   <section class="doc-home-section doc-hero">
     <h1 class="doc-hero-text">Pagesmith + Svelte</h1>
     <p class="doc-hero-tagline">
@@ -24,36 +25,19 @@
     </p>
     <div class="doc-hero-actions">
       <a href={firstGuideUrl} class="doc-hero-action doc-hero-action-brand">Read the Guide</a>
-      <a href={firstFeaturesUrl} class="doc-hero-action doc-hero-action-alt">Browse Features</a>
+      <a href={kitchenSinkUrl} class="doc-hero-action doc-hero-action-alt">Open Kitchen Sink</a>
     </div>
   </section>
 
   <section class="doc-home-section">
-    <h2>Markdown Features</h2>
-    <ul style="display:flex;flex-direction:column;gap:1rem">
-      {#each featuresEntries as post (post.slug)}
-        <li
-          style="padding:1rem 1.25rem;border:1px solid var(--color-border-subtle);border-radius:var(--radius-lg)"
-        >
-          <a href={post.url}>
-            <h3 style="margin:0;font-size:var(--font-size-lg)">{post.title}</h3>
-          </a>
-          {#if post.description}
-            <p style="margin:0.5rem 0 0;color:var(--color-text-muted);font-size:var(--font-size-sm)">
-              {post.description}
-            </p>
-          {/if}
-          {#if post.date}
-            <p style="margin:0.375rem 0 0;font-size:var(--font-size-xs);color:var(--color-text-muted)">
-              <time datetime={post.date}>{formatDate(post.date)}</time>
-              {#if post.tags && post.tags.length > 0}
-                {' · '}{post.tags.join(', ')}
-              {/if}
-            </p>
-          {/if}
-        </li>
-      {/each}
-    </ul>
+    <h2>Markdown Kitchen Sink</h2>
+    <p>
+      This example keeps one dedicated regression page for markdown rendering instead of separate
+      markdown smoke-test pages.
+    </p>
+    <p>
+      <a href={kitchenSinkUrl}>Open the kitchen sink page</a>
+    </p>
   </section>
 
   <section class="doc-home-section">

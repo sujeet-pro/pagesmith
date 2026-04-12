@@ -12,16 +12,17 @@ vp run dev:eg:react
 
 ## Architecture
 
-Content is defined in `content.config.ts` using `defineCollection` with Zod schemas for typed frontmatter. The `pagesmithContent` Vite plugin generates virtual modules (`virtual:content/guide`, `virtual:content/features`, `virtual:content/pages`) that the SSR entry imports. React components (`SiteHeader`, `SidebarNav`, `HomeBody`, `PageBody`) render each page to static HTML via `renderToStaticMarkup`. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
+Content is defined in `content.config.ts` using `defineCollection` with Zod schemas for typed frontmatter. The `pagesmithContent` Vite plugin generates virtual modules (`virtual:content/guide`, `virtual:content/pages`) that the SSR entry imports. React components (`SiteHeader`, `SidebarNav`, `HomeBody`, `PageBody`) render each page to static HTML via `renderToStaticMarkup`. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
 
 The site works without JavaScript. Client-side `runtime.ts` adds progressive enhancements: TOC scroll highlighting, Pagefind search modal (Cmd/Ctrl+K), and mobile sidebar toggle.
+
+Agent-oriented notes for this example live in **`llms.txt`** (collections, virtual modules, shell vs client split, Pagefind).
 
 ## Content
 
 | Directory | Collection | Description |
 |-----------|-----------|-------------|
-| `content/guide/` | `guide` | How this example works (series-ordered) |
-| `content/features/` | `features` | Markdown feature showcase |
+| `content/guide/` | `guide` | How this example works, including `guide/kitchen-sink.md` for markdown regression |
 | `content/pages/` | `pages` | Standalone pages (about) |
 
 ## Theme System
@@ -42,4 +43,4 @@ This example implements the full Pagesmith theme system using `@pagesmith/core` 
 
 ## Deployed
 
-[View live example](https://projects.sujeet.pro/pagesmith/examples/react/)
+[View live example](https://projects.sujeet.pro/pagesmith/examples/react)

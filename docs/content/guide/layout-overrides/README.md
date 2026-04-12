@@ -78,7 +78,7 @@ The `site` prop contains:
 | `site.description` | `string` | Site description |
 | `site.language` | `string` | HTML lang attribute value |
 | `site.navItems` | `Array<{ label: string; path: string }>` | Header navigation items |
-| `site.footerLinks` | `Array<{ label: string; path: string }>` | Footer links |
+| `site.footerLinks` | `Array<{ label: string; path: string }> \| Array<{ header?: string; links: Array<{ label: string; path: string }> }>` | Footer links as a flat row or grouped columns |
 | `site.search` | `{ enabled: boolean; showImages: boolean; showSubResults: boolean }` | Search configuration |
 | `site.analytics` | `{ googleAnalytics?: string }` | Analytics config |
 | `site.theme` | `{ lightColor?: string; darkColor?: string }` | Theme colors |
@@ -169,7 +169,7 @@ Key points:
 
 - Import `h` from `@pagesmith/core/jsx-runtime` for JSX support.
 - Use `innerHTML={content}` to render the processed markdown HTML. This is a special prop that sets the element's inner HTML without escaping.
-- Include `data-pagefind-body=""` on the main content wrapper so Pagefind indexes the page.
+- Include `data-pagefind-body=""` on the content-only wrapper so Pagefind indexes the page body without header, sidebar, breadcrumb, or footer chrome. For article layouts, prefer the `<article>` element instead of a larger shell wrapper.
 - Reference theme assets at `${site.basePath}/assets/style.css` for the bundled theme CSS and `${site.basePath}/assets/main.js` for the theme runtime.
 - If search is enabled, include the Pagefind CSS and JS assets from `${site.basePath}/pagefind/`.
 

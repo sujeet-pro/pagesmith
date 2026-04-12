@@ -1,7 +1,7 @@
 import { exec, execFile } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { createServer as createNetServer } from 'net'
-import { extname, join } from 'path'
+import { extname, join, resolve, sep } from 'path'
 import type { ServerResponse } from 'http'
 import type { SiteModel } from '../content'
 import type { DocsLogLevel, ResolvedDocsConfig } from '../config'
@@ -106,7 +106,7 @@ export function logStartupSummary(
     const title = sections[0]?.title ?? '(unknown)'
     const firstPath = sections[0]?.items[0]?.path ?? ''
     const origin = new URL(baseUrl).origin
-    const url = firstPath ? `${origin}${firstPath}/` : baseUrl
+    const url = firstPath ? `${origin}${firstPath}` : baseUrl
     console.log(`  ${title} (${itemCount} pages)  ${url}`)
   }
 
@@ -128,6 +128,14 @@ export type StaticRequestResult =
   | { type: 'file'; filePath: string; statusCode: number }
   | { type: 'not-found' }
 
+function resolvePathWithinRoot(rootDir: string, requestPath: string): string | undefined {
+  const resolvedRoot = resolve(rootDir)
+  const resolvedPath = resolve(resolvedRoot, `.${requestPath}`)
+  return resolvedPath === resolvedRoot || resolvedPath.startsWith(`${resolvedRoot}${sep}`)
+    ? resolvedPath
+    : undefined
+}
+
 /**
  * Resolve an incoming request pathname to a static file, handling basePath
  * stripping, directory index resolution, and 404 fallback. Shared between
@@ -139,15 +147,37 @@ export function resolveStaticRequest(
   outDir: string,
 ): StaticRequestResult {
   if (basePath && (pathname === '/' || pathname === '')) {
-    return { type: 'redirect', location: `${basePath}/` }
+    return { type: 'redirect', location: basePath }
+  }
+  if (basePath && pathname === `${basePath}/`) {
+    return { type: 'redirect', location: basePath }
+  }
+
+  if (basePath && pathname !== basePath && pathname !== `${basePath}/`) {
+    if (!pathname.startsWith(`${basePath}/`)) {
+      return { type: 'not-found' }
+    }
   }
 
   let stripped = pathname
-  if (basePath && pathname.startsWith(basePath)) {
+  if (basePath && (pathname === basePath || pathname.startsWith(`${basePath}/`))) {
     stripped = pathname.slice(basePath.length) || '/'
   }
 
-  let filePath = join(outDir, stripped)
+  if (stripped.length > 1 && stripped.endsWith('/')) {
+    const trimmed = stripped.replace(/\/+$/, '')
+    return {
+      type: 'redirect',
+      location: basePath ? `${basePath}${trimmed}` : trimmed,
+    }
+  }
+
+  const resolvedPath = resolvePathWithinRoot(outDir, stripped)
+  if (!resolvedPath) {
+    return { type: 'not-found' }
+  }
+
+  let filePath = resolvedPath
   if (existsSync(filePath) && !extname(filePath)) {
     filePath = join(filePath, 'index.html')
   }

@@ -1,8 +1,32 @@
-import type { MarkdownConfig } from '@pagesmith/core/markdown'
+import type { DocsMarkdownConfig } from '../schemas/docs-config'
 
 export type FooterLink = {
   label: string
   path: string
+}
+
+export type FooterLinkGroup = {
+  header?: string
+  links: FooterLink[]
+}
+
+export type FooterLinks = FooterLink[] | FooterLinkGroup[]
+
+export type Maintainer = {
+  name: string
+  link?: string
+}
+
+export type CopyrightConfig = {
+  projectName?: string
+  startYear?: number
+  endYear?: number | null
+}
+
+export type ResolvedCopyright = {
+  projectName: string
+  startYear: number
+  endYear?: number
 }
 
 export type DocsLogLevel = 'silent' | 'error' | 'warn' | 'info' | 'verbose'
@@ -20,9 +44,14 @@ export type DocsUserConfig = {
   basePath?: string
   /** Override the header logo link destination (defaults to basePath). */
   homeLink?: string
-  footerLinks?: FooterLink[]
-  /** Footer sign-off text shown beneath theme controls. */
+  /** Maintainer credit shown in the default footer sign-off. Falls back to package.json author when omitted. */
+  maintainer?: Maintainer
+  /** Footer links can be a flat link row or grouped columns with optional headers. */
+  footerLinks?: FooterLinks
+  /** Override the footer sign-off text shown beneath theme controls. */
   footerText?: string
+  /** Footer copyright line shown before the Pagesmith attribution. */
+  copyright?: CopyrightConfig
   sidebar?: {
     /** Enable collapsible sidebar section groups (default: true) */
     collapsible?: boolean
@@ -54,20 +83,22 @@ export type DocsUserConfig = {
   favicon?: string | false
   /** SVG string or path for the header logo icon. Defaults to the first letter of the site name. Set to false to disable. */
   icon?: string | false
-  /** Show "Edit this page" link on each page. */
-  editLink?: {
-    /** GitHub/GitLab repo URL (e.g. 'https://github.com/user/repo') */
-    repo: string
-    /** Branch name (default: 'main') */
-    branch?: string
-    /** Label for the link (default: 'Edit this page') */
-    label?: string
-  }
-  /** Show git-based "last updated" timestamp on pages (default: false) */
+  /** Show "Edit this page" link on each page. Auto-detected from git remote when omitted. Set to false to disable. */
+  editLink?:
+    | {
+        /** GitHub/GitLab repo URL (e.g. 'https://github.com/user/repo') */
+        repo: string
+        /** Branch name (default: 'main') */
+        branch?: string
+        /** Label for the link (default: 'Edit this page') */
+        label?: string
+      }
+    | false
+  /** Show git-based "last updated" timestamp on pages (default: true) */
   lastUpdated?: boolean
   /** Generate sitemap.xml during build (default: true when origin is set). Set false to disable. */
   sitemap?: boolean
-  markdown?: MarkdownConfig
+  markdown?: DocsMarkdownConfig
   home?: {
     configFile?: string
   }
@@ -82,6 +113,8 @@ export type DocsUserConfig = {
   assets?: Record<string, string[]>
   /** Server port and behavior settings for dev and preview commands. */
   server?: {
+    /** Interface to bind the dev and preview servers to. Default: '127.0.0.1'. */
+    host?: string
     /** Default port for the dev server (default: 3000). */
     devPort?: number
     /** Default port for the preview server (default: 4000). */
@@ -98,13 +131,15 @@ export type ResolvedDocsConfig = {
   publicDir: string
   basePath: string
   homeLink?: string
+  maintainer?: Maintainer
   name: string
   title: string
   description: string
   origin: string
   language: string
-  footerLinks: FooterLink[]
-  footerText: string
+  footerLinks: FooterLinks
+  footerText?: string
+  copyright?: ResolvedCopyright
   sidebar: {
     collapsible: boolean
   }
@@ -143,13 +178,14 @@ export type ResolvedDocsConfig = {
   }
   lastUpdated: boolean
   sitemap: boolean
-  markdown?: MarkdownConfig
+  markdown?: DocsMarkdownConfig
   homeConfigFile?: string
   packages?: Record<string, { label: string }>
   /** Resolved asset mappings: output path -> array of resolved absolute source paths. */
   assets: Map<string, string[]>
   /** Resolved server settings. */
   server: {
+    host: string
     devPort: number
     previewPort: number
     strictPort: boolean
@@ -182,6 +218,8 @@ export type ConfigValidationIssue = {
 export type GitOriginInfo = {
   basePath?: string
   origin?: string
+  repoOwner?: string
   repoName?: string
+  repoUrl?: string
   editLinkHost?: 'github' | 'gitlab' | 'bitbucket'
 }

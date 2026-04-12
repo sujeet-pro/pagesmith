@@ -27,10 +27,17 @@
       articles: ['meta-and-navigation', 'layout-overrides'],
     },
     {
-      slug: 'core-features',
-      displayName: 'Core Features',
-      description: 'Features available in @pagesmith/core.',
-      articles: ['markdown-features', 'code-blocks'],
+      slug: 'markdown-feature-guides',
+      displayName: 'Markdown Features',
+      description: 'Built-in markdown, typography, math, and code rendering in @pagesmith/core.',
+      articles: [
+        'markdown-features',
+        'alerts-and-callouts',
+        'gfm-extensions',
+        'typography',
+        'math-and-latex',
+        'code-blocks',
+      ],
     },
     {
       slug: 'framework-integrations',

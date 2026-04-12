@@ -10,6 +10,9 @@ Frontmatter is YAML metadata at the top of each markdown file, enclosed in `---`
 > [!TIP]
 > **AI quick-start:** Tell your AI agent "add frontmatter to my page" or "set up a blog post with tags and a cover image" and it will generate the correct fields for your content type.
 
+> [!NOTE]
+> For version-matched docs-site frontmatter rules, point the agent at `node_modules/@pagesmith/docs/schemas/docs-page-frontmatter.schema.json` for regular pages and `node_modules/@pagesmith/docs/schemas/docs-home-frontmatter.schema.json` for the home page.
+
 ## Frontmatter Format
 
 Frontmatter is written in YAML at the very beginning of a markdown file:

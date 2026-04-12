@@ -73,13 +73,5 @@ pagefind-modal {
 
 /* ─── Trigger button positioning in header ─── */
 pagefind-modal-trigger.doc-search-trigger {
-  margin-left: auto;
   flex-shrink: 0;
-}
-
-/* ─── Responsive ─── */
-@media (min-width: 768px) {
-  pagefind-modal-trigger.doc-search-trigger {
-    margin-left: unset;
-  }
 }

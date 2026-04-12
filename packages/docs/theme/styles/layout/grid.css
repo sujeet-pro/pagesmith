@@ -10,6 +10,11 @@
    Sidebars always render in the DOM when space allows, even if empty.
    ═══════════════════════════════════════════════════════════════ */
 
+:root {
+  --doc-content-max-width: 100ch;
+  --doc-content-padding-inline: 1.25rem;
+}
+
 /* ─── Base: single column (< 110ch) ─── */
 .doc-layout {
   display: grid;
@@ -20,10 +25,10 @@
 
 /* ─── Main content column ─── */
 .doc-content {
-  max-width: 100ch;
+  max-width: var(--doc-content-max-width);
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1.25rem;
+  padding: 2rem var(--doc-content-padding-inline);
 }
 
 /* ─── Right aside — hidden by default, visible when space allows ─── */
@@ -50,6 +55,10 @@
    ≥ 110ch — show right aside
    ═══════════════════════════════════════════════════════════════ */
 @media (min-width: 110ch) {
+  :root {
+    --doc-content-padding-inline: 2.5rem;
+  }
+
   .doc-layout {
     grid-template-columns: minmax(0, 1fr) 30ch;
   }
@@ -70,7 +79,8 @@
   }
 
   .doc-content {
-    padding: 2rem 2.5rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 }
 
@@ -88,7 +98,7 @@
    ═══════════════════════════════════════════════════════════════ */
 @media (min-width: 160ch) {
   .doc-layout {
-    grid-template-columns: 30ch minmax(0, 100ch) 30ch;
+    grid-template-columns: 30ch minmax(0, var(--doc-content-max-width)) 30ch;
     justify-content: center;
   }
 }

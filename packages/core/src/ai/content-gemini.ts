@@ -12,8 +12,11 @@ export function renderGeminiCommand(skillName: string, profile: AiInstallProfile
     '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
     ...(profile === 'docs'
       ? [
+          '- for docs bootstrap or retrofit tasks, start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`',
+          '- read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` and `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` before editing docs content or structure',
           '- for docs sites, follow the convention-based `content/` structure',
           '- drive top navigation from top-level folders and use frontmatter for labels/order',
+          '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits',
           '- keep Pagefind as the built-in search strategy',
         ]
       : []),
@@ -21,13 +24,21 @@ export function renderGeminiCommand(skillName: string, profile: AiInstallProfile
     'For package usage guidance and full API reference, read:',
     ...(profile === 'docs'
       ? [
-          '- `node_modules/@pagesmith/docs/docs/agents/usage.md`',
+          '- `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`',
+          '- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`',
+          '- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`',
+          '- `node_modules/@pagesmith/docs/ai-guidelines/usage.md`',
           '- `node_modules/@pagesmith/docs/REFERENCE.md`',
-          '- `node_modules/@pagesmith/core/docs/agents/usage.md`',
+          '- `node_modules/@pagesmith/docs/schemas/*.schema.json`',
+          '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`',
+          '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`',
+          '- `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
           '- `node_modules/@pagesmith/core/REFERENCE.md`',
         ]
       : [
-          '- `node_modules/@pagesmith/core/docs/agents/usage.md`',
+          '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`',
+          '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`',
+          '- `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
           '- `node_modules/@pagesmith/core/REFERENCE.md`',
         ]),
     '',

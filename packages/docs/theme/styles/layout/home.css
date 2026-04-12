@@ -5,10 +5,17 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ─── Shared section container ─── */
-.doc-home-section {
-  max-width: 84ch;
+.doc-home-body {
   width: 100%;
-  padding: 0 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.doc-home-section {
+  max-width: var(--doc-content-max-width);
+  width: 100%;
+  padding: 0 var(--doc-content-padding-inline);
 }
 
 .doc-home-section + .doc-home-section {
@@ -218,7 +225,7 @@
    ═══════════════════════════════════════════════════════════════ */
 .doc-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(22ch, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(max(22ch, calc((100% - 2px) / 3)), 1fr));
   gap: 1px;
   background: var(--color-border);
   border: 1px solid var(--color-border);
@@ -276,7 +283,7 @@
    ═══════════════════════════════════════════════════════════════ */
 .doc-packages {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(22ch, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(max(22ch, calc((100% - 2rem) / 3)), 1fr));
   gap: 1rem;
 }
 
@@ -380,28 +387,31 @@
    MARKDOWN CONTENT
    ═══════════════════════════════════════════════════════════════ */
 .doc-home-content {
-  max-width: 84ch;
+  max-width: var(--doc-content-max-width);
   width: 100%;
-  padding: 3rem 2.5rem;
+  padding: 2rem var(--doc-content-padding-inline);
 }
 
 /* ═══════════════════════════════════════════════════════════════
    HOME FOOTER (links + copyright, no prev/next)
    ═══════════════════════════════════════════════════════════════ */
 .doc-home-footer {
-  max-width: 84ch;
+  max-width: var(--doc-content-max-width);
   width: 100%;
-  padding: 0 2.5rem;
+  padding: 0 var(--doc-content-padding-inline);
+}
+
+@media (min-width: 110ch) {
+  .doc-home-content {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
-  .doc-home-section {
-    padding: 0 1.25rem;
-  }
-
   .doc-home-section + .doc-home-section {
     margin-top: 3.5rem;
   }
@@ -439,11 +449,4 @@
     grid-template-columns: 1fr;
   }
 
-  .doc-home-content {
-    padding: 2rem 1.25rem;
-  }
-
-  .doc-home-footer {
-    padding: 0 1.25rem;
-  }
 }

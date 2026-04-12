@@ -86,6 +86,12 @@
   color: var(--color-text);
   background: var(--color-bg-hover);
 }
+.doc-theme-option:has(input:focus-visible) {
+  color: var(--color-text);
+  background: var(--color-bg-hover);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 .doc-theme-option input[type="radio"] {
   accent-color: var(--color-accent);
 }
@@ -129,12 +135,15 @@
   color: var(--color-text);
   background: var(--color-bg-hover);
 }
+.doc-text-size-option:has(input:focus-visible) {
+  color: var(--color-text);
+  background: var(--color-bg-hover);
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
 .doc-text-size-option:has(input:checked) {
   color: var(--color-text);
   background: var(--color-accent-subtle);
-}
-.doc-text-size-option input[type="radio"] {
-  display: none;
 }
 
 /* ─── Footer theme selector ─── */

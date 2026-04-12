@@ -1,6 +1,7 @@
 ---
 layout: DocHome
 title: Example Docs
+badge: Layout Overrides + Search
 tagline: Documentation powered by Pagesmith
 description: A fully featured documentation site with search, series navigation, and custom layout overrides -- built entirely from configuration and markdown.
 install: npm install @pagesmith/docs
@@ -30,14 +31,41 @@ features:
   - icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M5 12l4-4m-4 4l4 4"/></svg>
     title: Static Output
     details: Produces plain HTML files deployable to any static host -- GitHub Pages, Netlify, Vercel, or a file server.
+packages:
+  - name: "@pagesmith/docs"
+    description: Convention-based docs with search, navigation, frontmatter validation, and layout overrides.
+    href: /guide/configuration
+    tag: Docs
+  - name: "@pagesmith/core"
+    description: Shared content layer, markdown pipeline, JSX runtime, and Vite integrations that power the docs package.
+    href: /guide/content-collections
+    tag: Core
+codeExample:
+  label: Quick Start
+  title: pagesmith.config.json5 (excerpt)
+  code: |
+    {
+      name: 'Pagesmith',
+      title: 'Example Docs',
+      contentDir: './content',
+      outDir: '../../gh-pages/examples/doc-site',
+      basePath: '/pagesmith/examples/doc-site',
+      theme: {
+        layouts: {
+          home: './theme/layouts/DocHome.tsx',
+          page: './theme/layouts/DocPage.tsx',
+        },
+      },
+      search: { enabled: true, showSubResults: true },
+    }
 ---
 
 ## Welcome to Example Docs
 
-This is a demonstration documentation site built with `@pagesmith/docs`. It showcases the default docs workflow: convention-based navigation, search, series grouping, and layout overrides.
+This site is the `@pagesmith/docs` package example: config-first (`pagesmith.config.json5`), markdown in `content/`, section `meta.json5` for sidebars and series, optional JSX layout overrides, and Pagefind search wired by the docs build.
 
 ## Explore
 
-- **[Guide](/guide/installation)** -- Learn the basics of setting up and configuring a docs site.
-- **[Reference](/guide/configuration)** -- Configuration options used in this example.
-- **[Features](/features/kitchen-sink)** -- Markdown and layout features demonstrated on this site.
+- **[Guide](/guide/installation)** — install, dev/build/preview/MCP, project layout, `meta.json5`, layouts, search, and how `@pagesmith/core` backs the markdown pipeline.
+- **[Configuration](/guide/configuration)** — the same options as this repo’s `pagesmith.config.json5`, explained field-by-field.
+- **[Kitchen sink](/guide/kitchen-sink)** — single markdown regression page for this example's rendered output.

@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { asTextResource, getPackageVersion, resolvePackageDocPath } from '@pagesmith/core/mcp'
 import { existsSync, readFileSync } from 'fs'
-import { basename, isAbsolute, resolve } from 'path'
+import { basename, isAbsolute, relative, resolve } from 'path'
 import { z } from 'zod'
 import { loadDocsPages, loadSectionMetas } from '../content.js'
 import { resolveDocsConfig, validateConfig, type ResolvedDocsConfig } from '../config.js'
@@ -12,18 +12,27 @@ export type DocsMcpServerOptions = {
   configPath?: string
 }
 
-function withConfigPath(baseRoot: string, configPath?: string): string {
-  const candidate = configPath ?? 'pagesmith.config.json5'
-  return isAbsolute(candidate) ? candidate : resolve(baseRoot, candidate)
-}
-
-function resolveConfigOrThrow(baseRoot: string, configPath?: string): ResolvedDocsConfig {
-  const absolutePath = withConfigPath(baseRoot, configPath)
-  if (!existsSync(absolutePath)) {
+function ensurePathWithinRoot(baseRoot: string, candidatePath: string): string {
+  const resolvedRoot = resolve(baseRoot)
+  const resolvedPath = isAbsolute(candidatePath)
+    ? resolve(candidatePath)
+    : resolve(resolvedRoot, candidatePath)
+  const rel = relative(resolvedRoot, resolvedPath)
+  if (rel && rel.startsWith('..')) {
     throw new Error(
-      `No pagesmith.config.json5 file found at ${absolutePath}. Pass --config or tool input configPath.`,
+      `Config path must stay within the docs root directory: ${resolvedRoot}. Received: ${candidatePath}`,
     )
   }
+  return resolvedPath
+}
+
+function withConfigPath(baseRoot: string, configPath?: string): string {
+  const candidate = configPath ?? 'pagesmith.config.json5'
+  return ensurePathWithinRoot(baseRoot, candidate)
+}
+
+function resolveConfig(baseRoot: string, configPath?: string): ResolvedDocsConfig {
+  const absolutePath = withConfigPath(baseRoot, configPath)
   return resolveDocsConfig(absolutePath)
 }
 
@@ -53,7 +62,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       },
     },
     async ({ configPath }: { configPath?: string }) => {
-      const config = resolveConfigOrThrow(baseRoot, configPath)
+      const config = resolveConfig(baseRoot, configPath)
       const issues = validateConfig(config)
       const hasErrors = issues.some((issue) => issue.severity === 'error')
       return {
@@ -84,7 +93,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       },
     },
     async ({ configPath }: { configPath?: string }) => {
-      const config = resolveConfigOrThrow(baseRoot, configPath)
+      const config = resolveConfig(baseRoot, configPath)
       return {
         content: [
           {
@@ -121,7 +130,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       },
     },
     async ({ configPath, section }: { configPath?: string; section?: string }) => {
-      const config = resolveConfigOrThrow(baseRoot, configPath)
+      const config = resolveConfig(baseRoot, configPath)
       const sectionMetas = loadSectionMetas(config.contentDir)
       const pages = await loadDocsPages(config, sectionMetas)
       const filtered = section ? pages.filter((page) => page.section === section) : pages
@@ -164,7 +173,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
     async ({ slug, configPath }: { slug: string; configPath?: string }) => {
       const normalized =
         slug === '/' ? '/' : `/${slug}`.replace(/\/+/g, '/').replace(/\/$/, '').replace(/^\//, '')
-      const config = resolveConfigOrThrow(baseRoot, configPath)
+      const config = resolveConfig(baseRoot, configPath)
       const sectionMetas = loadSectionMetas(config.contentDir)
       const pages = await loadDocsPages(config, sectionMetas)
 
@@ -239,7 +248,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
         }
       }
 
-      const config = resolveConfigOrThrow(baseRoot, configPath)
+      const config = resolveConfig(baseRoot, configPath)
       const sectionMetas = loadSectionMetas(config.contentDir)
       const pages = await loadDocsPages(config, sectionMetas)
       const filtered = section ? pages.filter((page) => page.section === section) : pages
@@ -327,7 +336,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
     async () =>
       asTextResource(
         'pagesmith://docs/agents/usage',
-        resolvePackageDocPath(import.meta.dirname, 'docs/agents/usage.md'),
+        resolvePackageDocPath(import.meta.dirname, 'ai-guidelines/usage.md'),
       ),
   )
 
@@ -342,7 +351,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
     async () =>
       asTextResource(
         'pagesmith://docs/llms-full',
-        resolvePackageDocPath(import.meta.dirname, 'docs/llms-full.txt'),
+        resolvePackageDocPath(import.meta.dirname, 'ai-guidelines/llms-full.txt'),
       ),
   )
 

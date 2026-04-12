@@ -1,0 +1,21 @@
+# Pagesmith + Svelte (examples/with-svelte)
+
+Use this path as the **@pagesmith/core + Svelte SSG** reference: filesystem collections, Vite virtual modules, `svelte/server` HTML, shared document shell, vanilla client enhancements.
+
+## Stack
+
+- **Content**: `content.config.ts` → `pagesmithContent({ collections })` → `virtual:content/<name>` (imports live in `src/site.ts`).
+- **Static HTML**: `pagesmithSsg({ entry: './src/entry-server.ts', contentDirs })` calls `getRoutes()` / `render()` at build time (and dev middleware).
+- **Svelte**: `import { render } from 'svelte/server'` in `src/entry-server.ts` — no client-side Svelte bundle; output is strings fed to `renderDocumentShell`.
+- **Shell**: `import { renderDocumentShell } from '@pagesmith/core/ssg-utils'` wraps `bodyHtml` with `<html>`, FOUC theme script, CSS/JS links, and when `searchEnabled` is true injects Pagefind Component UI **after** `bodyHtml` (modal + scripts). Do **not** duplicate `<pagefind-modal>` inside Svelte; keep `<pagefind-modal-trigger>` in the header only.
+- **Browser**: `client.js` → theme CSS, `@pagesmith/core/runtime/content` (code tabs/copy), then `src/runtime.ts` (TOC, sidebar dialog, theme persistence, compact search trigger).
+
+## Editing rules
+
+- Keep guides in `content/guide/` aligned with `vite.config.ts`, `entry-server.ts`, and components.
+- Keep markdown showcase content concentrated in `content/guide/kitchen-sink.md`. Full markdown contract: repo root docs / package `markdown-guidelines`.
+- Indexable body: elements carrying `data-pagefind-body` (`HomeBody` `<main>`, `PageBody` `<article>`).
+
+## Commands (monorepo)
+
+From repo root: `vp install`, `vp run dev:eg:svelte`, or `cd examples/with-svelte && npm run build`.

@@ -11,11 +11,11 @@ seriesOrder: 3
 
 # Content Collections
 
-Content collections are the bridge between your markdown files and your template rendering code. Each collection maps a directory of markdown files to a typed schema, and Pagesmith validates frontmatter at build time.
+Collections connect markdown files on disk to typed frontmatter and `entry.render()` output used in Handlebars.
 
 ## Defining collections
 
-Collections are defined in `content.config.mjs` using `defineCollection` and `defineCollections` from `@pagesmith/core`:
+`content.config.mjs`:
 
 ```js title="content.config.mjs"
 import { defineCollection, defineCollections, z } from '@pagesmith/core'
@@ -34,17 +34,6 @@ export const guide = defineCollection({
   }),
 })
 
-export const features = defineCollection({
-  loader: 'markdown',
-  directory: './content/features',
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-  }),
-})
-
 export const pages = defineCollection({
   loader: 'markdown',
   directory: './content/pages',
@@ -54,52 +43,37 @@ export const pages = defineCollection({
   }),
 })
 
-export default defineCollections({ guide, features, pages })
+export default defineCollections({ guide, pages })
 ```
 
-## Why `.mjs`?
+## Why `.mjs`
 
-This example uses `content.config.mjs` instead of the `.ts` variant used by framework examples. The `.mjs` extension ensures the file is treated as plain ESM without requiring a TypeScript build step. The `createContentLayer` API in the SSR entry imports it directly:
+The SSR entry imports this file directly. Using `.mjs` avoids needing the config compiled as TypeScript before Vite runs.
 
 ```ts title="src/entry-server.tsx (excerpt)"
 // @ts-expect-error -- the example intentionally keeps the content config as .mjs
 import contentConfig from '../content.config.mjs'
 ```
 
-The `@ts-expect-error` comment suppresses the TypeScript error from importing a `.mjs` file in a `.tsx` context -- this is intentional and harmless.
+## Schemas and validation
 
-## How schemas work
+Zod validates frontmatter when entries load. Typical patterns: `z.coerce.date()` for ISO date strings, `.default([])` for optional arrays, `.optional()` for optional strings.
 
-Each collection's `schema` property is a Zod object that validates the YAML frontmatter in every markdown file. If a file's frontmatter does not match the schema, the build fails with a clear error message.
+## `createContentLayer` in this example
 
-Key patterns used in this example:
-
-- **`z.coerce.date()`** -- Accepts date strings in frontmatter (e.g., `2026-03-20`) and coerces them into `Date` objects.
-- **`z.array(z.string()).default([])`** -- Tags default to an empty array when omitted.
-- **`z.string().optional()`** -- Fields like `description` and `series` are not required.
-
-The `z` import is re-exported from `@pagesmith/core`, so you do not need to install Zod separately.
-
-## Using `createContentLayer`
-
-Unlike the React or Solid examples that use virtual modules via `pagesmithContent`, the Handlebars example uses `createContentLayer` directly to load content at build time:
+The layer is memoized **per project root** so dev re-renders do not reconstruct it unnecessarily when only templates change:
 
 ```ts title="src/entry-server.tsx (excerpt)"
-import { createContentLayer } from '@pagesmith/core'
+let layer: ReturnType<typeof createContentLayer>
+let layerRoot: string
 
-const { guide, features, pages } = contentConfig
-
-let layer
-function getLayer(root) {
-  if (!layer) {
-    layer = createContentLayer({ collections: { guide, features, pages }, root })
+function getLayer(root: string) {
+  if (!layer || layerRoot !== root) {
+    layerRoot = root
+    layer = createContentLayer({ collections: { guide, pages }, root })
   }
   return layer
 }
 ```
 
-The layer is created once and reused across renders. Collections are accessed via `layer.getCollection('guide')`, which returns an array of entry objects. Each entry provides:
-
-- **`entry.data`** -- The validated frontmatter matching the collection's Zod schema
-- **`entry.slug`** -- The filename-based slug (e.g., `installation`)
-- **`entry.render()`** -- An async function that returns `{ html, headings, readTime }`
+Entries from `getCollection(name)` expose `entry.data`, `entry.slug`, and `await entry.render()` → `{ html, headings, readTime }` for templates.

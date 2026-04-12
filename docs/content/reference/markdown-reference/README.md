@@ -92,7 +92,7 @@ Five alert types are available using blockquote syntax. This is the same format 
 
 ## Math
 
-LaTeX math is processed by `remark-math` (parsing) and `rehype-mathjax` (SVG rendering). MathJax runs before Expressive Code so math blocks are not mistakenly treated as code.
+LaTeX math is processed by `remark-math` (parsing) and `rehype-mathjax` (SVG rendering). MathJax runs before the built-in code renderer so math blocks are not mistakenly treated as code.
 
 ### Inline Math
 
@@ -166,7 +166,7 @@ These IDs power the table-of-contents sidebar and enable deep-linking to any sec
 
 ## Code Blocks
 
-Code blocks are rendered by [Expressive Code](https://expressive-code.com/) with syntax highlighting, dual themes, copy buttons, and inline styles. No external CSS or JS is needed.
+Code blocks are rendered by the built-in Pagesmith renderer on top of Shiki with syntax highlighting, dual themes, copy/collapse controls, and shared Pagesmith chrome.
 
 ### Basic Highlighting
 
@@ -334,6 +334,21 @@ bun add @pagesmith/core
 ```
 ````
 
+Rendered sample:
+
+```bash title="npm"
+npm install @pagesmith/core
+```
+```bash title="pnpm"
+pnpm add @pagesmith/core
+```
+```bash title="yarn"
+yarn add @pagesmith/core
+```
+```bash title="bun"
+bun add @pagesmith/core
+```
+
 The `title` value becomes the tab label. The first tab is active by default.
 
 ### Rules
@@ -367,6 +382,27 @@ type Config struct {
 }
 ```
 ````
+
+Rendered sample:
+
+```ts title="TypeScript"
+interface Config {
+  host: string
+  port: number
+}
+```
+```python title="Python"
+@dataclass
+class Config:
+    host: str = "localhost"
+    port: int = 3000
+```
+```go title="Go"
+type Config struct {
+    Host string
+    Port int
+}
+```
 
 ## Language Aliases
 
@@ -438,9 +474,11 @@ Tuple form `[plugin, options]` is supported for both remark and rehype.
 **Injection points:**
 
 - **Remark plugins** run after the built-in remark plugins (GFM, math, frontmatter, alerts, smartypants) but before `remark-rehype`.
-- **Rehype plugins** run after all built-in rehype plugins (Expressive Code, code tabs, slug, autolink, external links, emojis, heading extraction) but before `rehype-stringify`.
+- **Rehype plugins** run after all built-in rehype plugins (built-in code renderer, code tabs, slug, autolink, external links, emojis, heading extraction) but before `rehype-stringify`.
 
 Content plugins (`ContentPlugin.remarkPlugin` / `ContentPlugin.rehypePlugin`) are appended after the config-level plugins.
+
+`allowDangerousHtml` defaults to `true`, so raw HTML is preserved unless you explicitly disable it. `math` defaults to `'auto'`, which enables `remark-math` and `rehype-mathjax` only for content that contains math markers.
 
 ## Pipeline Order
 
@@ -456,8 +494,8 @@ remark-smartypants        Smart quotes, dashes, ellipses
 [user remark plugins]     From MarkdownConfig.remarkPlugins
 lang-alias transform      Map fenced-code language tags via shiki.langAlias
 remark-rehype             Markdown AST → HTML AST
-rehype-mathjax            Render math to SVG (before Expressive Code)
-rehype-expressive-code    Syntax highlighting, code frames, copy button
+rehype-mathjax            Render math to SVG (before the built-in code renderer)
+applyPagesmithCodeRenderer Syntax highlighting, code frames, copy button
 rehype-code-tabs          Group consecutive titled blocks into tabs
 rehype-slug               Add id="" to headings
 rehype-autolink-headings  Wrap heading text in anchor links

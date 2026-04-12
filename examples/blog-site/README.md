@@ -1,6 +1,6 @@
 # Pagesmith + Core (No Framework)
 
-A content-driven static site built from scratch using `@pagesmith/core` primitives — no React, Solid, Svelte, or template engine. Demonstrates that the same output as the framework examples can be achieved using `createContentLayer`, `processMarkdown`, and the `@pagesmith/core` JSX runtime directly.
+A content-driven static site built with **@pagesmith/core** only: `createContentLayer`, **`ContentEntry.render()`** for Markdown, and the package JSX runtime (`h`, `Fragment`, `innerHTML`). No React, Solid, Svelte, or template engine.
 
 ## Quick Start
 
@@ -10,36 +10,36 @@ vp install
 vp run dev:eg:blog-site
 ```
 
-## Architecture
+## How it fits together
 
-Collections are defined inline in `entry-server.tsx` using `defineCollection` with Zod schemas. Content is loaded via `createContentLayer` (not virtual modules). Pages are rendered using `@pagesmith/core`'s built-in JSX runtime (`h()`, `Fragment`, `HtmlString`) — configured via `jsxImportSource: '@pagesmith/core'` in the Vite config. The `pagesmithSsg` plugin handles route discovery, HTML generation, and Pagefind indexing.
+| Layer | Role |
+|-------|------|
+| **Vite** | Bundles `client.js` (CSS + vanilla runtime). `oxc.jsx.importSource` is `@pagesmith/core` so `.tsx` in `src/` compiles to the core JSX runtime. |
+| **`pagesmithSsg`** | Discovers routes via `getRoutes()`, renders each URL with `render()`, copies `public/`, runs Pagefind, writes HTML under `gh-pages/examples/blog-site/`. |
+| **`createContentLayer`** | Filesystem-backed collections (`guide`, `pages`) with Zod-validated frontmatter. |
+| **`entry.render()`** | Markdown → HTML for each entry (headings + read time for layout/TOC). |
+| **JSX shell** | `src/entry-server.tsx` composes chrome (header, sidebar, home, article wrapper) and returns full document strings. |
+| **Runtime** | `src/runtime.ts` — progressive enhancement (TOC scroll spy, sidebar dialog, theme controls, Pagefind trigger tweaks). |
 
-This is the key differentiator from framework examples: no `pagesmithContent` plugin, no virtual modules, no framework dependency. The CSS is the same as the React example, proving identical visual output.
+**Compared to `examples/with-*`:** those examples add **`pagesmithContent`** so collections load through virtual modules and framework components render pages. Here, the SSR entry owns collection config and calls **`layer.getCollection` + `entry.render()`** instead — same Markdown output, different bundler integration.
+
+Agent-oriented notes for this layout: `llms.txt` in this directory.
 
 ## Content
 
 | Directory | Collection | Description |
 |-----------|-----------|-------------|
-| `content/guide/` | `guide` | How this example works (series-ordered) |
-| `content/features/` | `features` | Markdown feature showcase |
+| `content/guide/` | `guide` | How this example works, including `guide/kitchen-sink.md` for markdown regression |
 | `content/pages/` | `pages` | Standalone pages (about) |
 
-## Theme System
+## Theme system
 
-This example implements the full Pagesmith theme system using `@pagesmith/core` directly with custom layouts:
+Implemented in HTML/CSS/JS in this repo (not a separate framework):
 
-- **Header theme dropdown** — Sun icon button with Appearance (Auto/Light/Dark), Theme (Paper/High Contrast), and Text Size (Small/Default/Large) controls
-- **Footer theme controls** — Segmented button groups for Appearance, Theme, and Text Size
-- **FOUC prevention** — Inline script restores `colorScheme`, `theme`, and `textSize` from `localStorage` before CSS paints
-- **Theme persistence** — All preferences stored in `localStorage` under `pagesmith-theme`
-
-### CSS Theme Features
-
-- Color scheme classes: `.color-scheme-auto`, `.color-scheme-light`, `.color-scheme-dark`
-- Theme variants: `.theme-paper` (warm, low-contrast), `.theme-high-contrast` (WCAG AAA)
-- Text size scaling: `html[data-text-size="small|base|large"]`
-- All design tokens use `light-dark()` for automatic light/dark mode support
+- Header theme menu and footer segmented controls (appearance, theme variant, text size)
+- FOUC guard inline script reads `localStorage` key `pagesmith-theme` before paint
+- Tokens and layout live in `src/theme.css` on top of `@pagesmith/core/css/content`
 
 ## Deployed
 
-[View live example](https://projects.sujeet.pro/pagesmith/examples/blog-site/)
+[View live example](https://projects.sujeet.pro/pagesmith/examples/blog-site)

@@ -9,7 +9,7 @@ This reference covers the performance characteristics of Pagesmith builds and th
 
 ## Markdown Processor Caching
 
-The unified markdown processor is the most expensive object to create -- it initializes Expressive Code (which loads Shiki grammars and themes), all remark and rehype plugins, and the serialization layer. Pagesmith caches the processor using a `WeakMap` keyed by the `MarkdownConfig` object reference.
+The unified markdown processor is the most expensive object to create -- it initializes the built-in code renderer (which creates the Shiki highlighter and loads grammars/themes), all remark and rehype plugins, and the serialization layer. Pagesmith caches the processor using a `WeakMap` keyed by the `MarkdownConfig` object reference.
 
 ```ts title="How processor caching works"
 // Internal: pipeline.ts
@@ -320,4 +320,4 @@ node --prof $(which pagesmith) build
 node --prof-process isolate-*.log > processed.txt
 ```
 
-The processed output shows which functions consumed the most CPU time. For most sites, the majority of time is spent in Expressive Code / Shiki syntax highlighting.
+The processed output shows which functions consumed the most CPU time. For most sites, the majority of time is spent in the built-in renderer / Shiki syntax highlighting.

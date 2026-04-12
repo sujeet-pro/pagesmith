@@ -1,8 +1,17 @@
+import { execSync } from 'child_process'
 import { describe, it, expect, afterEach } from 'vite-plus/test'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
-import { toTitleCase, validateConfig, readJson5File, resolveDocsConfig } from '../config.js'
+import {
+  detectGitOrigin,
+  probeHostedOrigin,
+  readJson5File,
+  resolveDocsConfig,
+  resolveInitOrigin,
+  toTitleCase,
+  validateConfig,
+} from '../config.js'
 import type { ResolvedDocsConfig } from '../config.js'
 
 // ---------------------------------------------------------------------------
@@ -56,12 +65,14 @@ describe('readJson5File', () => {
 // ---------------------------------------------------------------------------
 describe('resolveDocsConfig', () => {
   let tmpDir: string
+  const originalFetch = globalThis.fetch
 
   afterEach(() => {
     if (tmpDir && existsSync(tmpDir)) {
       rmSync(tmpDir, { recursive: true, force: true })
     }
     delete process.env.BASE_URL
+    globalThis.fetch = originalFetch
   })
 
   function setupTmpConfig(json5Content: string): string {
@@ -81,11 +92,34 @@ describe('resolveDocsConfig', () => {
     expect(resolved.description).toBe('Documentation site powered by @pagesmith/docs')
     expect(resolved.origin).toBe('https://example.com')
     expect(resolved.footerLinks).toEqual([])
-    expect(resolved.footerText).toBe('Built with love using pagesmith')
+    expect(resolved.footerText).toBeUndefined()
+    expect(resolved.copyright).toBeUndefined()
     expect(resolved.search.enabled).toBe(true)
     expect(resolved.search.showImages).toBe(false)
     expect(resolved.search.showSubResults).toBe(true)
     expect(resolved.sidebar.collapsible).toBe(true)
+    expect(resolved.server.host).toBe('127.0.0.1')
+  })
+
+  it('uses docs and gh-pages defaults when the config file is missing', () => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'ps-resolve-'))
+    mkdirSync(join(tmpDir, 'docs'), { recursive: true })
+
+    const resolved = resolveDocsConfig(join(tmpDir, 'pagesmith.config.json5'))
+
+    expect(resolved.rootDir).toBe(tmpDir)
+    expect(resolved.contentDir).toBe(join(tmpDir, 'docs'))
+    expect(resolved.outDir).toBe(join(tmpDir, 'gh-pages'))
+  })
+
+  it('generates a theme-aware default header icon from the site name', () => {
+    const configPath = setupTmpConfig('{ name: "Pagesmith" }')
+    const resolved = resolveDocsConfig(configPath)
+
+    expect(resolved.icon).toContain('class="doc-default-icon"')
+    expect(resolved.icon).toContain('class="doc-default-icon-bg"')
+    expect(resolved.icon).toContain('class="doc-default-icon-letter"')
+    expect(resolved.icon).toContain('>P</text>')
   })
 
   it('strips trailing slash from basePath', () => {
@@ -156,6 +190,89 @@ describe('resolveDocsConfig', () => {
     expect(resolved.name).toBe('MyProject')
     expect(resolved.title).toBe('MyProject')
   })
+
+  it('prefers git-derived GitHub Pages origin over package homepage fallback', () => {
+    const configPath = setupTmpConfig('{}')
+    writeFileSync(
+      join(tmpDir, 'package.json'),
+      JSON.stringify({ homepage: 'https://custom.dev' }),
+      'utf-8',
+    )
+    execSync('git init', { cwd: tmpDir, stdio: 'ignore' })
+    execSync('git remote add origin git@github.com:owner/repo.git', {
+      cwd: tmpDir,
+      stdio: 'ignore',
+    })
+
+    const resolved = resolveDocsConfig(configPath)
+
+    expect(resolved.origin).toBe('https://owner.github.io')
+  })
+})
+
+describe('git origin helpers', () => {
+  let tmpDir: string
+  const originalFetch = globalThis.fetch
+
+  afterEach(() => {
+    if (tmpDir && existsSync(tmpDir)) {
+      rmSync(tmpDir, { recursive: true, force: true })
+    }
+    globalThis.fetch = originalFetch
+  })
+
+  it('detects repo owner and repo name from a GitHub origin remote', () => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'ps-git-origin-'))
+    execSync('git init', { cwd: tmpDir, stdio: 'ignore' })
+    execSync('git remote add origin git@github.com:pagesmith-owner/pagesmith-repo.git', {
+      cwd: tmpDir,
+      stdio: 'ignore',
+    })
+
+    const gitInfo = detectGitOrigin(tmpDir)
+
+    expect(gitInfo?.repoOwner).toBe('pagesmith-owner')
+    expect(gitInfo?.repoName).toBe('pagesmith-repo')
+    expect(gitInfo?.origin).toBe('https://pagesmith-owner.github.io')
+    expect(gitInfo?.basePath).toBe('/pagesmith-repo')
+  })
+
+  it('uses the redirected hosted origin when probing GitHub Pages', async () => {
+    globalThis.fetch = (async () =>
+      ({
+        url: 'https://docs.example.com/landing',
+      }) as Response) as typeof fetch
+
+    await expect(probeHostedOrigin('https://owner.github.io')).resolves.toBe(
+      'https://docs.example.com',
+    )
+  })
+
+  it('falls back to the default GitHub Pages host when probing fails', async () => {
+    globalThis.fetch = (async () => {
+      throw new Error('network unavailable')
+    }) as typeof fetch
+
+    await expect(probeHostedOrigin('https://owner.github.io')).resolves.toBe(
+      'https://owner.github.io',
+    )
+  })
+
+  it('resolves init origin from a probed GitHub Pages host', async () => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'ps-init-origin-'))
+    execSync('git init', { cwd: tmpDir, stdio: 'ignore' })
+    execSync('git remote add origin git@github.com:pagesmith-owner/pagesmith-repo.git', {
+      cwd: tmpDir,
+      stdio: 'ignore',
+    })
+
+    globalThis.fetch = (async () =>
+      ({
+        url: 'https://docs.example.com/project',
+      }) as Response) as typeof fetch
+
+    await expect(resolveInitOrigin(tmpDir)).resolves.toBe('https://docs.example.com')
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -187,16 +304,16 @@ describe('validateConfig', () => {
       origin: 'https://mysite.com',
       language: 'en',
       footerLinks: [],
-      footerText: 'Built with love using pagesmith',
+      footerText: undefined,
       sidebar: { collapsible: false },
       search: { enabled: true, showImages: false, showSubResults: true, pagefindFlags: [] },
       favicon: false,
       icon: false,
       faviconFallback: false,
       appleTouchIcon: false,
-      lastUpdated: false,
+      lastUpdated: true,
       sitemap: true,
-      server: { devPort: 3000, previewPort: 4000, strictPort: false },
+      server: { host: '127.0.0.1', devPort: 3000, previewPort: 4000, strictPort: false },
       assets: new Map(),
       ...overrides,
     }

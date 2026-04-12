@@ -81,140 +81,145 @@ export default function DocHome(props: Props) {
         slug={slug}
         searchEnabled={site.search?.enabled}
       />
-      <main class="doc-home" data-pagefind-body="">
+      <main id="doc-main-content" class="doc-home" tabindex="-1">
         {/* Mobile sidebar (visible on small screens via hamburger toggle) */}
         <DocSidebar sections={sidebarSections} currentSlug={slug} />
 
-        {/* Hero section */}
-        {hero ? (
-          <section class="doc-home-section doc-hero">
-            {hero.badge ? (
-              <div class="doc-hero-badge">
-                <span class="doc-hero-badge-dot" />
-                {hero.badge}
-              </div>
-            ) : null}
-            {hero.name ? <p class="doc-hero-name">{hero.name}</p> : null}
-            {hero.text ? <h1 class="doc-hero-text">{hero.text}</h1> : null}
-            {hero.tagline ? <p class="doc-hero-tagline">{hero.tagline}</p> : null}
-            {hero.actions && hero.actions.length > 0 ? (
-              <div class="doc-hero-actions">
-                {hero.actions.map((action: any) => (
-                  <a
-                    href={action.link}
-                    class={`doc-hero-action doc-hero-action-${action.theme || 'brand'}`}
+        <article class="doc-home-body" data-pagefind-body="">
+          {/* Hero section */}
+          {hero ? (
+            <section class="doc-home-section doc-hero">
+              {hero.badge ? (
+                <div class="doc-hero-badge">
+                  <span class="doc-hero-badge-dot" />
+                  {hero.badge}
+                </div>
+              ) : null}
+              {hero.name ? <p class="doc-hero-name">{hero.name}</p> : null}
+              {hero.text ? <h1 class="doc-hero-text">{hero.text}</h1> : null}
+              {hero.tagline ? <p class="doc-hero-tagline">{hero.tagline}</p> : null}
+              {hero.actions && hero.actions.length > 0 ? (
+                <div class="doc-hero-actions">
+                  {hero.actions.map((action: any) => (
+                    <a
+                      href={action.link}
+                      class={`doc-hero-action doc-hero-action-${action.theme || 'brand'}`}
+                    >
+                      {action.icon ? (
+                        <span class="doc-hero-action-icon" innerHTML={action.icon} />
+                      ) : null}
+                      {action.text}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {/* Install snippet */}
+          {install ? (
+            <div class="doc-home-section doc-home-install">
+              <div class="doc-install-bar">
+                <div class="doc-install-header">
+                  <span class="doc-install-dot doc-install-dot-r" />
+                  <span class="doc-install-dot doc-install-dot-y" />
+                  <span class="doc-install-dot doc-install-dot-g" />
+                  <span class="doc-install-title">Terminal</span>
+                  <span style="width:36px" />
+                </div>
+                <div class="doc-install-body">
+                  <code>
+                    <span class="doc-install-prompt">$ </span>
+                    {install}
+                  </code>
+                  <button
+                    type="button"
+                    class="doc-install-copy"
+                    data-copy-text={install}
+                    onclick={`navigator.clipboard.writeText(this.dataset.copyText);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)`}
                   >
-                    {action.icon ? (
-                      <span class="doc-hero-action-icon" innerHTML={action.icon} />
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {/* Features grid */}
+          {features && features.length > 0 ? (
+            <section class="doc-home-section">
+              <p class="doc-home-section-label">Features</p>
+              <div class="doc-features">
+                {features.map((feature: any) => (
+                  <div class="doc-feature-card">
+                    {feature.icon ? (
+                      <span class="doc-feature-icon" innerHTML={feature.icon} />
                     ) : null}
-                    {action.text}
-                  </a>
+                    <h3 class="doc-feature-title">{feature.title}</h3>
+                    <p class="doc-feature-details">{feature.details}</p>
+                  </div>
                 ))}
               </div>
-            ) : null}
-          </section>
-        ) : null}
+            </section>
+          ) : null}
 
-        {/* Install snippet */}
-        {install ? (
-          <div class="doc-home-section doc-home-install">
-            <div class="doc-install-bar">
-              <div class="doc-install-header">
-                <span class="doc-install-dot doc-install-dot-r" />
-                <span class="doc-install-dot doc-install-dot-y" />
-                <span class="doc-install-dot doc-install-dot-g" />
-                <span class="doc-install-title">Terminal</span>
-                <span style="width:36px" />
+          {/* Packages grid (monorepo) */}
+          {packages && packages.length > 0 ? (
+            <section class="doc-home-section">
+              <p class="doc-home-section-label">Packages</p>
+              <div class="doc-packages">
+                {packages.map((pkg: any) => {
+                  const Tag = pkg.href ? 'a' : 'div'
+                  return (
+                    <Tag class="doc-package-card" href={pkg.href || undefined}>
+                      <div class="doc-package-name">{pkg.name}</div>
+                      <p class="doc-package-desc">{pkg.description}</p>
+                      {pkg.version || pkg.tag ? (
+                        <div class="doc-package-meta">
+                          {pkg.version ? (
+                            <span class="doc-package-version">{pkg.version}</span>
+                          ) : null}
+                          {pkg.tag ? <span class="doc-package-tag">{pkg.tag}</span> : null}
+                        </div>
+                      ) : null}
+                    </Tag>
+                  )
+                })}
               </div>
-              <div class="doc-install-body">
-                <code>
-                  <span class="doc-install-prompt">$ </span>
-                  {install}
-                </code>
-                <button
-                  type="button"
-                  class="doc-install-copy"
-                  data-copy-text={install}
-                  onclick={`navigator.clipboard.writeText(this.dataset.copyText);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)`}
-                >
-                  Copy
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : null}
+            </section>
+          ) : null}
 
-        {/* Features grid */}
-        {features && features.length > 0 ? (
-          <section class="doc-home-section">
-            <p class="doc-home-section-label">Features</p>
-            <div class="doc-features">
-              {features.map((feature: any) => (
-                <div class="doc-feature-card">
-                  {feature.icon ? <span class="doc-feature-icon" innerHTML={feature.icon} /> : null}
-                  <h3 class="doc-feature-title">{feature.title}</h3>
-                  <p class="doc-feature-details">{feature.details}</p>
+          {/* Code example */}
+          {codeExample ? (
+            <section class="doc-home-section">
+              <p class="doc-home-section-label">{codeExample.label || 'Quick Start'}</p>
+              <div class="doc-home-code">
+                <div class="doc-home-code-header">
+                  <span class="doc-install-dot doc-install-dot-r" />
+                  <span class="doc-install-dot doc-install-dot-y" />
+                  <span class="doc-install-dot doc-install-dot-g" />
+                  <span class="doc-home-code-title">{codeExample.title || ''}</span>
+                  <span style="width:36px" />
                 </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {/* Packages grid (monorepo) */}
-        {packages && packages.length > 0 ? (
-          <section class="doc-home-section">
-            <p class="doc-home-section-label">Packages</p>
-            <div class="doc-packages">
-              {packages.map((pkg: any) => {
-                const Tag = pkg.href ? 'a' : 'div'
-                return (
-                  <Tag class="doc-package-card" href={pkg.href || undefined}>
-                    <div class="doc-package-name">{pkg.name}</div>
-                    <p class="doc-package-desc">{pkg.description}</p>
-                    {pkg.version || pkg.tag ? (
-                      <div class="doc-package-meta">
-                        {pkg.version ? (
-                          <span class="doc-package-version">{pkg.version}</span>
-                        ) : null}
-                        {pkg.tag ? <span class="doc-package-tag">{pkg.tag}</span> : null}
-                      </div>
-                    ) : null}
-                  </Tag>
-                )
-              })}
-            </div>
-          </section>
-        ) : null}
-
-        {/* Code example */}
-        {codeExample ? (
-          <section class="doc-home-section">
-            <p class="doc-home-section-label">{codeExample.label || 'Quick Start'}</p>
-            <div class="doc-home-code">
-              <div class="doc-home-code-header">
-                <span class="doc-install-dot doc-install-dot-r" />
-                <span class="doc-install-dot doc-install-dot-y" />
-                <span class="doc-install-dot doc-install-dot-g" />
-                <span class="doc-home-code-title">{codeExample.title || ''}</span>
-                <span style="width:36px" />
+                <pre innerHTML={codeExample.code} />
               </div>
-              <pre innerHTML={codeExample.code} />
-            </div>
-          </section>
-        ) : null}
+            </section>
+          ) : null}
 
-        {/* Content (if any markdown content is provided) */}
-        {content ? (
-          <section class="doc-home-content">
-            <div class="prose" innerHTML={content} />
-          </section>
-        ) : null}
+          {/* Content (if any markdown content is provided) */}
+          {content ? (
+            <section class="doc-home-content">
+              <div class="prose" innerHTML={content} />
+            </section>
+          ) : null}
+        </article>
 
         {/* Footer */}
         <div class="doc-home-footer">
           <DocFooter
             links={site.footerLinks}
             footerText={site.footerText}
+            maintainer={site.maintainer}
             copyright={site.copyright}
           />
         </div>

@@ -60,11 +60,15 @@ The production build writes to `gh-pages/examples/react/` (configured via `build
 
 ## What the Vite plugins provide
 
-Two Pagesmith plugins handle the heavy lifting:
+1. **`pagesmithContent`** — Markdown pipeline, Zod validation, and **`virtual:content/<collection>`** modules consumed by **`src/entry-server.tsx`**.
+2. **`pagesmithSsg`** — Imports the entry, calls **`getRoutes()`** / **`render()`**, writes HTML, runs **Pagefind** on the output, and sets **`searchEnabled`** in **`SsgRenderConfig`** when appropriate.
+3. **`sharedAssetsPlugin`** — Copies shared core assets (fonts, etc.) into the build.
 
-1. **`pagesmithContent`** -- Processes markdown files, validates frontmatter against Zod schemas, and exposes each collection as a virtual module (e.g., `virtual:content/guide`).
-2. **`pagesmithSsg`** -- Runs the SSR entry at build time to produce static HTML files, sets up dev middleware for live reload, and indexes the output with Pagefind.
+Everything else is normal Vite (client entry, CSS, TypeScript).
 
-A third plugin, `sharedAssetsPlugin`, copies font files and other shared assets into the build output.
+## Build-time React vs browser bundle
 
-These three plugins are the only Pagesmith-specific configuration needed -- everything else is standard Vite.
+- **Build** — React + **`renderToStaticMarkup`** turn JSX into HTML strings. **`renderDocumentShell`** wraps them in a full document (meta, styles, optional Pagefind shell, **`client.js`** script).
+- **Browser** — **`client.js`** loads **`theme.css`**, **`@pagesmith/core/runtime/content`** (markdown/code presentation aligned with the server HTML), then **`src/runtime.ts`** for TOC, sidebar, and theme UI. There is no React hydration step.
+
+See **Layouts & rendering** and **Search integration** for **`data-pagefind-body`** placement and Pagefind behavior.

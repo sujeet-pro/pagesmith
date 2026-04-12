@@ -36,17 +36,42 @@ You can also run init interactively and choose AI integrations when prompted:
 npx pagesmith init
 ```
 
+## Setup Prompt For Existing Repos
+
+If you want an agent to retrofit `@pagesmith/docs` into an existing repository, use the dedicated setup prompt instead of giving the agent a vague install request.
+
+| Location | Value |
+|---|---|
+| Package path | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` |
+| Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md) |
+
+That prompt tells the agent to inspect the repo for an existing docs-like folder, confirm the chosen folder with the user, add `docs:dev` / `docs:build` / `docs:preview` scripts, wire `CLAUDE.md` and `AGENTS.md`, and use the version-matched schema files from `node_modules/@pagesmith/docs/schemas/`.
+When a GitHub remote is available, the prompt also prefers a GitHub Pages-style default: `basePath` set to `/<repo-name>` and `origin` derived from `https://<owner>.github.io`, following redirects when possible.
+
+## Copy-Paste Prompt Set
+
+The docs site now exposes two copyable `@pagesmith/docs` workflows in [Agent Prompts Cookbook](/guide/prompts-cookbook/):
+
+| Workflow | Canonical file |
+|---|---|
+| Configure docs for a repo | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` |
+| Upgrade an existing `@pagesmith/docs` integration | `node_modules/@pagesmith/docs/ai-guidelines/migration.md` |
+
+Use the cookbook page when you want the full prompt body in one place for copy-paste, and use the package files above when you want the version-matched source of truth inside an installed project.
+
 ## Context Window Management
 
 When working with Pagesmith, your AI agent should read the right file for the task:
 
 | Task | Read This | Size |
 |------|-----------|------|
-| Quick API lookup | `node_modules/@pagesmith/core/docs/llms.txt` | ~200 lines |
-| Full reference | `node_modules/@pagesmith/core/docs/llms-full.txt` | ~1000 lines |
-| Usage patterns & recipes | `node_modules/@pagesmith/core/docs/agents/usage.md` | ~500 lines |
-| Docs package reference | `node_modules/@pagesmith/docs/docs/llms-full.txt` | ~800 lines |
-| Error troubleshooting | `node_modules/@pagesmith/core/docs/agents/errors.md` | ~200 lines |
+| Docs bootstrap / retrofit | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` | ~100 lines |
+| Docs upgrade / migration | `node_modules/@pagesmith/docs/ai-guidelines/migration.md` | ~60 lines |
+| Quick API lookup | `node_modules/@pagesmith/core/ai-guidelines/llms.txt` | ~200 lines |
+| Full reference | `node_modules/@pagesmith/core/ai-guidelines/llms-full.txt` | ~1000 lines |
+| Usage patterns & recipes | `node_modules/@pagesmith/core/ai-guidelines/usage.md` | ~500 lines |
+| Docs package reference | `node_modules/@pagesmith/docs/ai-guidelines/llms-full.txt` | ~800 lines |
+| Error troubleshooting | `node_modules/@pagesmith/core/ai-guidelines/errors.md` | ~200 lines |
 
 **Tip:** For routine tasks (add a page, update frontmatter), `llms.txt` alone is sufficient. Load `llms-full.txt` only when you need complete type signatures or configuration details.
 
@@ -67,7 +92,7 @@ The installer automatically creates `.pagesmith/markdown-guidelines.md` in the p
 
 - The full markdown pipeline order
 - All supported markdown features (GFM, alerts, math, smart typography)
-- Expressive Code features (titles, line numbers, mark/ins/del, collapse)
+- Built-in code renderer features (titles, line numbers, mark/ins/del, collapse)
 - Built-in validator rules (heading hierarchy, link validation, code block checks)
 - Key authoring rules that assistants should follow
 
@@ -214,9 +239,9 @@ Both `@pagesmith/core` and `@pagesmith/docs` ship versioned AI files in their np
 Link to it from your project's `CLAUDE.md` or `AGENTS.md`:
 
 ```markdown
-For @pagesmith/core usage, see: node_modules/@pagesmith/core/docs/agents/usage.md
+For @pagesmith/core usage, see: node_modules/@pagesmith/core/ai-guidelines/usage.md
 For @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
-For @pagesmith/docs usage, see: node_modules/@pagesmith/docs/docs/agents/usage.md
+For @pagesmith/docs usage, see: node_modules/@pagesmith/docs/ai-guidelines/usage.md
 For @pagesmith/docs reference, see: node_modules/@pagesmith/docs/REFERENCE.md
 ```
 

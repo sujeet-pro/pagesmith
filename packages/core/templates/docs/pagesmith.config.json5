@@ -5,6 +5,11 @@
   origin: 'https://example.com',
   contentDir: './content',
   outDir: './dist',
+  copyright: {
+    projectName: 'My Docs',
+    startYear: 2026,
+    endYear: null,
+  },
   footerLinks: [
     { label: 'Guide', path: '/guide' },
     { label: 'Reference', path: '/reference' },

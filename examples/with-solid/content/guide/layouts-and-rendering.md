@@ -1,6 +1,6 @@
 ---
 title: Layouts & Rendering
-description: How Solid renders pages to static HTML
+description: Solid SSR for static HTML, the document shell, and how the browser bundle differs.
 date: 2026-03-17
 tags:
   - solid
@@ -11,79 +11,37 @@ seriesOrder: 1
 
 # Layouts & Rendering
 
-The Solid example uses `renderToString` from `solid-js/web` to convert JSX components into static HTML at build time. No Solid runtime ships to the browser -- the output is plain HTML enhanced by a small vanilla JS runtime.
+This example uses **`renderToString`** from `solid-js/web` at **build time** only. There is no client-side Solid tree: the shipped JS is plain `client.js` → CSS, `@pagesmith/core/runtime/content`, and `src/runtime.ts`.
 
-## The SSR entry contract
+## SSG entry contract
 
-The SSG plugin expects the entry file to export two functions:
+`pagesmithSsg` loads `src/entry-server.tsx` as a Node module and expects:
 
 ```ts
 export async function getRoutes(): Promise<string[]>
 export async function render(url: string, config: SsgRenderConfig): Promise<string>
 ```
 
-**`getRoutes()`** returns every URL the site should generate. The Solid example builds this list from the three content collections:
+`getRoutes()` returns `/`, `/404`, every guide URL derived from the virtual collections, plus `/about` when that page exists. `render(url, config)` returns a **full HTML document string** for one URL.
 
-```tsx title="src/entry-server.tsx (excerpt)"
-export async function getRoutes(): Promise<string[]> {
-  const routes = ['/', '/404']
-  routes.push(...guideEntries.map((entry) => routeFor(entry, 'guide')))
-  routes.push(...featuresEntries.map((entry) => routeFor(entry, 'features')))
+`config` includes `base`, hashed `cssPath` / `jsPath` for the client bundle, `searchEnabled`, and `isDev`. The same Solid code paths run in dev and build; branching (e.g. search markup) uses `config` rather than ad-hoc `process.env` checks in this file.
 
-  const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, 'pages') === 'about')
-  if (aboutPage) {
-    routes.push(routeFor(aboutPage, 'pages'))
-  }
+## Solid inside `render()`
 
-  return routes
-}
-```
+For each route, the entry:
 
-**`render(url, config)`** receives a URL and an `SsgRenderConfig` object (containing `base`, `cssPath`, `jsPath`, and `searchEnabled`), then returns a complete HTML document string.
+1. Normalizes `url` against `config.base`.
+2. Looks up the matching collection entry (or home / 404).
+3. Calls `renderToString` on layout components (`HomeBody`, `PageBody`, `SidebarNav` for the mobile dialog, etc.).
+4. Passes the resulting fragment HTML into **`renderDocument()`**, which concatenates the outer document: charset, title, FOUC inline script, stylesheet links, optional Pagefind tags, `bodyHtml`, optional sidebar `<dialog>`, deferred `jsPath` script.
 
-## Component architecture
+Markdown body strings come from the virtual modules as **`html`**; the article uses Solid’s `innerHTML` prop on a wrapper `<div class="prose">` so the pipeline’s HTML is injected without escaping.
 
-All components are defined directly in `entry-server.tsx` as Solid functional components:
+## Why a string document shell
 
-### `HomeBody`
+`renderDocument()` builds `<html>…</html>` as a template string so the SSG plugin can write `index.html` files without running a second framework root for the shell. Solid is reserved for the **repeatable layout** pieces you want to express as components; the shell stays easy to audit for SEO, Pagefind, and asset URLs.
 
-Renders the landing page with a hero section, feature listings, and a guide listing. Uses Solid's `<For>` component to iterate over navigation entries and `<Show>` for conditional rendering.
+## Related guides
 
-### `PageBody`
-
-Handles all content pages (guide articles, feature posts, standalone pages). Includes:
-- A sidebar with grouped navigation (`SidebarNav`)
-- An article area with optional date/read-time metadata
-- A table of contents in the right aside (desktop) and a collapsible `<details>` element (mobile)
-- A footer with external links
-
-### `SiteHeader`
-
-The top navigation bar with a logo, navigation links (Home, Guide, Features), a mobile sidebar toggle, and an optional search trigger button rendered with `<Show>`.
-
-### `SidebarNav`
-
-A sidebar component that renders navigation sections and guide groups organized by series. Uses nested `<For>` loops to render series groups and their entries, highlighting the currently active page.
-
-## Solid-specific patterns
-
-The entry server uses two key Solid primitives for templating:
-
-- **`<For each={items}>`** -- Efficient list rendering. Used throughout for navigation entries, headings, and content listings.
-- **`<Show when={condition}>`** -- Conditional rendering. Used for optional elements like search triggers, dates, and descriptions.
-
-Raw HTML content from the markdown pipeline is injected using Solid's `innerHTML` prop:
-
-```tsx title="src/entry-server.tsx (excerpt)"
-<div class="prose" innerHTML={content} />
-```
-
-## How a page gets built
-
-The full rendering flow for a single page:
-
-1. The SSG plugin calls `render('/guide/installation', config)`
-2. The function normalizes the route and looks up the matching guide entry
-3. `SidebarNav` and `PageBody` are rendered with `renderToString`
-4. `renderDocument` wraps the markup in a complete HTML document
-5. The plugin writes the result to `gh-pages/examples/solid/guide/installation/index.html`
+- [Vite Configuration](./vite-config) — plugin order and `pagesmithSsg` options.
+- [Search Integration](./search-integration) — Pagefind indexing and dev vs build.

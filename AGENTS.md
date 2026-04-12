@@ -1,108 +1,106 @@
-# Pagesmith Agent Guide
+# Pagesmith Maintainer Guide
 
-Use this file as the default architectural context for AI-assisted edits in this repository.
+Use this file when working inside the Pagesmith monorepo.
 
-## 1.0 Architecture Snapshot
+## Scope Split
 
-Pagesmith is a filesystem-first content toolkit with two public packages under the `@pagesmith/` scope:
+- **Repo-maintainer guidance**: this file, `CLAUDE.md`, root `ai-guidelines/`, and `.claude/skills/`.
+- **Published user guidance**: `packages/core/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`.
+- **Latest-project docs**: `docs/content/` plus the repo-root `pagesmith.config.json5` describe the current main-branch behavior.
+- **Installed-package contract**: anything under `node_modules/@pagesmith/*/ai-guidelines/` and `node_modules/@pagesmith/docs/schemas/` must stay version-matched with the package release.
 
-- `@pagesmith/core` (`packages/core/`) for shared content/runtime primitives:
-  - content layer (`createContentLayer`, collections, loaders, validation),
-  - markdown pipeline (unified + Expressive Code),
-  - JSX runtime (`h`, `Fragment`, `HtmlString`),
-  - CSS builder (LightningCSS) and runtime assets,
-  - Vite plugins (`pagesmithContent`, `pagesmithSsg`, `sharedAssetsPlugin`),
-  - MCP server (`createCoreMcpServer`) for AI tool integration.
-- `@pagesmith/docs` (`packages/docs/`) for convention-based documentation:
-  - docs CLI (`pagesmith init|dev|build|preview|mcp`),
-  - docs config resolution/validation (`pagesmith.config.json5`),
-  - navigation/sidebar generation from `content/` with `meta.json5` ordering,
-  - default theme + layout override slots (`theme.layouts.*`),
-  - bundled Pagefind search, sitemap, robots.txt generation,
-  - MCP server (`createDocsMcpServer`) for docs tool integration.
+## Architecture Snapshot
 
-## Dependency Graph
+Pagesmith ships two public packages under the `@pagesmith/` scope:
+
+- `@pagesmith/core` (`packages/core/`) for the content layer, markdown pipeline, JSX runtime, CSS/runtime exports, Vite plugins, and the core MCP server.
+- `@pagesmith/docs` (`packages/docs/`) for the config-driven docs site, build/dev/preview/MCP CLI, navigation generation, default theme, Pagefind integration, schema generation, and docs-specific runtime helpers.
+
+Dependency graph:
 
 ```text
-@pagesmith/core         -> standalone (no workspace deps)
-@pagesmith/docs         -> @pagesmith/core (runtime dep)
+@pagesmith/core -> standalone
+@pagesmith/docs -> @pagesmith/core
 ```
 
-## 1.0 Architecture Principles (Guardrails)
+## Locked Principles
 
-These principles are locked for 1.0 and should drive all future edits unless an explicit architecture RFC supersedes them:
+1. Filesystem-first source of truth.
+2. Strict package boundaries: shared primitives in `@pagesmith/core`, docs conventions in `@pagesmith/docs`.
+3. Validation at content boundaries before render/runtime use.
+4. Vite-native execution model.
+5. Progressive enhancement over JS-heavy runtime.
+6. Configuration before customization.
+7. Docs, examples, and published AI guidance must move together when behavior changes.
 
-1. **Filesystem-first source of truth** — content and companion assets live in the repo, not in an external CMS or database.
-2. **Strict package boundaries** — shared primitives belong in `@pagesmith/core`; docs conventions and orchestration belong in `@pagesmith/docs`.
-3. **Validation at content boundaries** — schema and markdown/content validation must happen before render/runtime usage. The pipeline order is: discover -> load -> transform -> computed fields -> filter -> schema validate -> custom validate -> content validators -> plugin validators -> cache.
-4. **Vite-native execution model** — no custom bundler layer; build/dev/preview flows stay Vite-centric.
-5. **Progressive enhancement over JS-heavy runtime** — static-first HTML output with minimal client JS for UX improvements.
-6. **Configuration before customization** — defaults should cover common docs workflows; advanced overrides remain opt-in.
-7. **Docs and AI guidance in lockstep with behavior** — release-impacting changes must update user docs plus package AI guidance files in the same PR.
+## Source Of Truth
 
-## Content Loading Pipeline
+### `@pagesmith/core`
 
-The content layer follows a strict pipeline when `getCollection(name)` is called:
+- Implementation: `packages/core/src/**`
+- Markdown pipeline: `packages/core/src/markdown/pipeline.ts`, `packages/core/src/markdown/code/**`
+- Runtime/CSS/Vite exports: `packages/core/src/runtime/**`, `packages/core/src/styles/**`, `packages/core/src/vite/**`
+- Published user guidance: `packages/core/ai-guidelines/**`, `packages/core/README.md`, `packages/core/REFERENCE.md`
+- AI installer strings: `packages/core/src/ai/**`
 
-```text
-1. Discover files (fast-glob with loader-derived include patterns)
-2. Load each file through the registered loader
-3. Generate slug (custom slugify or toSlug)
-4. Apply transform (def.transform)
-5. Apply computed fields (def.computed)
-6. Apply filter (def.filter) — false excludes from results
-7. Schema validation (Zod safeParse)
-8. Custom validation (def.validate)
-9. Content validators (MDAST-based; built-in: link, heading, code-block)
-10. Plugin validators
-11. Cache in ContentStore (keyed by collection + slug)
-```
+### `@pagesmith/docs`
 
-## Markdown Pipeline
+- Implementation: `packages/docs/src/**`, `packages/docs/theme/**`
+- Config/build/render/server flow: `packages/docs/src/config/**`, `packages/docs/src/build.ts`, `packages/docs/src/render.ts`, `packages/docs/src/server.ts`, `packages/docs/src/server/shared.ts`
+- Published user guidance: `packages/docs/ai-guidelines/**`, `packages/docs/schemas/**`, `packages/docs/README.md`, `packages/docs/REFERENCE.md`
+- Schema generation: `packages/docs/src/schemas/**`, `packages/docs/scripts/generate-json-schemas.mjs`
 
-```text
-remark-parse -> remark-gfm -> remark-math -> remark-frontmatter
-  -> remark-github-alerts -> remark-smartypants -> [user remark plugins]
-  -> lang-alias transform -> remark-rehype
-  -> rehype-mathjax (must run before Expressive Code)
-  -> rehype-expressive-code (dual themes, code frames, line numbers, copy)
-  -> rehype-slug -> rehype-autolink-headings
-  -> rehype-external-links -> rehype-accessible-emojis
-  -> heading extraction -> [user rehype plugins] -> rehype-stringify
-```
+### Monorepo Docs And Examples
 
-## Theme System
+- Root docs site content: `docs/content/**`
+- Root docs site config: `pagesmith.config.json5`
+- Example sites: `examples/**`
+- Release/build helpers: `scripts/**`
 
-Class-based multi-theme with two orthogonal axes on `<html>`:
-- **Color scheme**: `color-scheme-auto` | `color-scheme-light` | `color-scheme-dark` — controls `light-dark()` via CSS `color-scheme` property.
-- **Theme**: `theme-paper` | `theme-high-contrast` — overrides CSS custom properties.
-- Server default: `<html class="color-scheme-auto theme-paper">`.
-- FOUC prevention: inline `<script>` reads `localStorage('pagesmith-theme')` before paint.
-- Image switching uses `.only-light`/`.only-dark` classes (not `@media (prefers-color-scheme)`).
-- Docs config: `theme.defaultColorScheme` (`'auto'|'light'|'dark'`) and `theme.defaultTheme` (`'paper'|'high-contrast'`).
+## Repo Rules
 
-## Practical Editing Rules
+- Package `ai-guidelines` are for library users. Root `ai-guidelines` are for maintaining this repo.
+- The repo docs site uses the repo-root `pagesmith.config.json5`; in this repo the docs content lives in `docs/content/`.
+- Public behavior changes must update, in the same branch:
+  - package `ai-guidelines`
+  - package `README.md` / `REFERENCE.md`
+  - root docs site content under `docs/content/`
+  - affected examples under `examples/`
+  - AI installer references under `packages/core/src/ai/`
+- Markdown/code-renderer changes must update the implementation plus:
+  - `packages/core/ai-guidelines/markdown-guidelines.md`
+  - `packages/docs/ai-guidelines/markdown-guidelines.md`
+  - root docs pages covering markdown/code blocks
+  - example feature pages across all examples
+  - markdown-related tests and validations
+- Docs-package behavior changes must update:
+  - `packages/docs/ai-guidelines/setup-docs.md`
+  - `packages/docs/ai-guidelines/docs-guidelines.md`
+  - `packages/docs/schemas/*.schema.json`
+  - root docs pages for config/frontmatter/navigation/deployment
+  - `examples/doc-site/`
+- Keep parity across docs and all examples for advertised markdown features, config/frontmatter rules, asset passthrough, and deployment behavior.
+- Canonical browser URLs should be slashless while remaining GitHub Pages-friendly (`.nojekyll`, root `404.html`, fs-backed preview, direct asset passthrough).
+- The preview server must continue serving directly from disk so rebuilds do not require server restarts.
 
-- Prefer `@pagesmith/docs` for docs-site workflows; prefer `@pagesmith/core` for custom sites/framework integrations.
-- Keep validation logic centralized in `@pagesmith/core` rather than scattering checks in app code.
-- Prefer folder-based markdown entries when pages reference sibling assets.
-- Doc-specific schemas (site config, layout props, page data) live in `@pagesmith/docs/schemas/`.
-- Keep AI files updated for release-impacting changes:
-  - `packages/core/docs/llms*.txt`, `packages/core/docs/agents/*.md`
-  - `packages/docs/docs/llms*.txt`, `packages/docs/docs/agents/*.md`
-- Keep repository docs aligned when behavior changes: `README.md`, `CLAUDE.md`, `docs/content/**`, package READMEs/REFERENCE docs.
-- All packages use the `@pagesmith/` npm scope.
-- Top-level folders under `content/` define the main docs navigation in `@pagesmith/docs`.
-- Everything is Vite-native. No webpack, no custom bundlers.
+## Repo Skills
 
-## Repo Commands
+Use the project skills in `.claude/skills/` when relevant:
+
+- `update-content` — refresh root docs, examples, and package AI guidance together
+- `examples-parity` — keep examples aligned with docs/package behavior
+- `sync-package-ai-guidelines` — update published package AI guidance and schemas
+- `pagesmith-review` — review diffs for behavior, parity, and release readiness
+
+## Commands
 
 ```bash
 vp install
 vp check
 vp test
 vp run build
+vp run build:docs
+vp run build:examples
 vp run validate:examples
+npm run validate
 ```
-
-Use `npm run validate` before release-oriented merges.

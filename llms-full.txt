@@ -5,15 +5,15 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 ## Agent Onboarding (Read In This Order)
 
 1. Run `npx pagesmith init --ai` in the target project to scaffold assistant context and markdown guidelines.
-2. For docs workflows, read `node_modules/@pagesmith/docs/docs/agents/usage.md`.
-3. For core/custom-site workflows, read `node_modules/@pagesmith/core/docs/agents/usage.md`.
-4. Use `node_modules/@pagesmith/docs/docs/llms.txt` or `node_modules/@pagesmith/core/docs/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
+2. For docs workflows, read `node_modules/@pagesmith/docs/ai-guidelines/usage.md`.
+3. For core/custom-site workflows, read `node_modules/@pagesmith/core/ai-guidelines/usage.md`.
+4. Use `node_modules/@pagesmith/docs/ai-guidelines/llms.txt` or `node_modules/@pagesmith/core/ai-guidelines/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
 5. If MCP is enabled, use `pagesmith mcp --stdio` (docs) and `@pagesmith/core/mcp` tools for collection-aware inspection and validation.
 6. For upgrades across pre-1.0 versions, review `MIGRATING.md` before proposing refactors.
 
 ## Packages
 
-- `@pagesmith/core`: shared content/runtime layer with collections, loaders, markdown pipeline (Expressive Code), validation, JSX runtime, CSS builder, `z` re-export, runtime CSS exports, and Vite plugins (`pagesmithContent`, `pagesmithSsg`)
+- `@pagesmith/core`: shared content/runtime layer with collections, loaders, markdown pipeline (built-in Pagesmith renderer on top of Shiki), validation, JSX runtime, CSS builder, `z` re-export, runtime CSS exports, and Vite plugins (`pagesmithContent`, `pagesmithSsg`)
 - `@pagesmith/docs`: convention-based documentation built on `@pagesmith/core` with the docs CLI, nav/sidebar generation from `content/`, bundled Pagefind search, a default theme, and fixed layout override slots
 
 ## Core APIs
@@ -49,7 +49,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 
 ### Markdown Pipeline
 - `processMarkdown(raw, config?, preExtracted?)` → `{ html, headings, frontmatter }`
-- Pipeline: remark-parse → remark-gfm → remark-math → remark-frontmatter → remark-github-alerts → remark-smartypants → (user remark plugins) → remark-rehype → rehype-mathjax → rehype-expressive-code → rehype-slug → rehype-autolink-headings → rehype-external-links → rehype-accessible-emojis → heading extraction → (user rehype plugins) → rehype-stringify
+- Pipeline: remark-parse → remark-gfm → remark-math → remark-frontmatter → remark-github-alerts → remark-smartypants → (user remark plugins) → remark-rehype → rehype-mathjax → applyPagesmithCodeRenderer → rehype-slug → rehype-autolink-headings → rehype-external-links → rehype-accessible-emojis → heading extraction → (user rehype plugins) → rehype-stringify
 - Processor cached per MarkdownConfig reference via WeakMap
 
 ### Markdown Features
@@ -61,9 +61,9 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 - **Accessible Emojis** (rehype-accessible-emojis): wrapped in `<span role="img" aria-label="...">`
 - **Heading Links** (rehype-slug + rehype-autolink-headings): auto `id` attributes and anchor links
 
-### Expressive Code Features
-Syntax highlighting via rehype-expressive-code with dual themes (default: github-light/github-dark):
-- **Dual themes**: auto-switch via `prefers-color-scheme` media query. Configure: `shiki.themes.light`, `shiki.themes.dark`
+### Built-in Code Renderer Features
+Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dual themes (default: github-light/github-dark):
+- **Dual themes**: light/dark themes are mapped to Pagesmith's color-scheme classes. Configure: `shiki.themes.light`, `shiki.themes.dark`
 - **Line numbers**: code block meta `showLineNumbers` or config `shiki.defaultShowLineNumbers`
 - **File titles**: code block meta `title="filename.js"`
 - **Line highlighting**: `mark={3}` (highlight), `ins={4}` (insertion/green), `del={5}` (deletion/red)
@@ -72,7 +72,7 @@ Syntax highlighting via rehype-expressive-code with dual themes (default: github
 - **Language badges**: automatic language indicator
 - **Text wrapping**: handled automatically
 - **Frame styles**: multiple code frame options
-- **Inline styles**: all styles injected directly into HTML (no external CSS needed)
+- **Shared chrome + inline tokens**: shared code block layout ships in Pagesmith CSS bundles; Shiki token colors and copy/collapse runtime are injected into the rendered HTML
 - **Custom CSS variables**: respects `--ps-font-*`, `--ps-color-*`, `--ps-radius-*` tokens
 - **Combined meta example**: `` ```ts title="server.ts" showLineNumbers mark={3} ins={7-8} collapse={1-2} ``
 
@@ -81,7 +81,7 @@ Syntax highlighting via rehype-expressive-code with dual themes (default: github
 - `BlogFrontmatterSchema` — extends base with category, featured, coverImage
 - `ProjectFrontmatterSchema` — extends base with gitRepo, links
 - `HeadingSchema` — depth, text, slug
-- `MarkdownConfigSchema` — remarkPlugins, rehypePlugins, shiki (themes, langAlias, defaultShowLineNumbers)
+- `MarkdownConfigSchema` — remarkPlugins, rehypePlugins, allowDangerousHtml, math, shiki (themes, langAlias, defaultShowLineNumbers)
 - `z` re-exported from Zod for convenience
 
 ### Validation

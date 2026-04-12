@@ -6,21 +6,36 @@ order: 3
 
 # Getting Started with @pagesmith/docs
 
-`@pagesmith/docs` is a convention-based documentation site builder that sits on top of `@pagesmith/core`. It turns a directory of markdown files and a single JSON5 config into a complete docs site with navigation, sidebar, table of contents, Pagefind search, and a default theme -- all without writing any JavaScript or layout code.
+`@pagesmith/docs` is a convention-based documentation site builder that sits on top of `@pagesmith/core`. It turns a directory of markdown files -- with optional JSON5 config when you need overrides -- into a complete docs site with navigation, sidebar, table of contents, Pagefind search, and a default theme -- all without writing any JavaScript or layout code.
 
 This guide covers everything you need to go from an empty project to a running docs site.
 
 ## AI-First Setup
 
-Paste this into your AI assistant to set up a complete docs site in under a minute:
+Paste this into your AI assistant when you want it to retrofit docs into an existing repo or create a fresh docs section with the right Pagesmith structure:
 
-> Install `@pagesmith/docs` and run `npx pagesmith init --ai`. Accept the defaults or customize when prompted. Then run `npx pagesmith dev --open` to start the dev server.
+> Set up docs using Pagesmith for this repository. Read `https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md` first and follow it exactly.
+
+If `@pagesmith/docs` is already installed and you want the version-matched local file instead of the hosted one:
+
+> Set up docs using Pagesmith for this repository. Read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` first and follow it exactly.
+
+If you want full copy-paste prompt bodies for both initial setup and upgrades, use [Agent Prompts Cookbook](/guide/prompts-cookbook/). That page includes the repo-configuration prompt plus the upgrade prompt for an existing `@pagesmith/docs` integration.
 
 Your agent will create:
 - `pagesmith.config.json5` -- site configuration
-- `content/README.md` and starter sections
+- a chosen docs folder (`docs/` by default, or an existing docs-like folder after confirmation)
+- starter `guide/` and `reference/` sections with `meta.json5` and `README.md` pages
+- root `package.json` scripts: `docs:dev`, `docs:build`, `docs:preview`
 - AI context files and markdown guidelines
-- Claude skills for docs maintenance (`/update-docs`, `/ps-update-all-docs`)
+- `CLAUDE.md` / `AGENTS.md` pointers to the package guidance, setup prompt, and schema files
+- Claude skills for docs maintenance (`/update-docs`, `/ps-update-all-docs`) when AI artifacts are installed
+
+When the repo has a GitHub remote, the setup flow defaults to GitHub Pages:
+
+- `basePath` defaults to `/<repo-name>`
+- `origin` starts from `https://<owner>.github.io` and uses the resolved host if that URL redirects
+- if you want root-hosted docs instead, edit `pagesmith.config.json5` manually after setup
 
 The rest of this guide explains each piece in detail for manual setup or customization.
 
@@ -36,9 +51,27 @@ This pulls in `@pagesmith/core` as a dependency automatically. You do not need t
 
 After installation, the `pagesmith` CLI is available via `npx pagesmith` or through package scripts.
 
+## Quick Init
+
+The fastest non-interactive setup flow is:
+
+```bash
+npx pagesmith init --yes --ai
+```
+
+For an agent or scriptable workflow, pass explicit values:
+
+```bash
+npx pagesmith init --yes --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
+```
+
+If `https://my-user.github.io` redirects to a custom host, use the redirected origin. If you want the docs site hosted at the root instead of `/<repo-name>`, edit `pagesmith.config.json5` manually after init.
+
 ## Create a Configuration File
 
-Every `@pagesmith/docs` site is driven by a `pagesmith.config.json5` file in the project root. This is the only required configuration.
+If your repository already follows the default conventions, `pagesmith dev`, `pagesmith build`, `pagesmith preview`, and `pagesmith mcp --stdio` work without a config file at all. In zero-config mode, Pagesmith uses `<repo-root>/docs` when it exists, falls back to `<repo-root>/content`, and writes the build to `<repo-root>/gh-pages`.
+
+Add `pagesmith.config.json5` at the project root when you want to override those defaults:
 
 ```json5
 {
@@ -55,11 +88,32 @@ Every `@pagesmith/docs` site is driven by a `pagesmith.config.json5` file in the
   // Optional: deployment under a subdirectory
   basePath: '/docs',
 
+  // Optional: footer attribution
+  maintainer: {
+    name: 'Sujeet Jaiswal',
+    link: 'https://sujeet.pro',
+  },
+
+  // Optional: footer copyright
+  copyright: {
+    projectName: 'Acme Docs',
+    startYear: 2024,
+    endYear: null,
+  },
+
   // Optional: footer navigation
   footerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'API Reference', path: '/reference' },
-    { label: 'GitHub', path: 'https://github.com/example/repo' },
+    {
+      header: 'Docs',
+      links: [
+        { label: 'Guide', path: '/guide' },
+        { label: 'API Reference', path: '/reference' },
+      ],
+    },
+    {
+      header: 'Project',
+      links: [{ label: 'GitHub', path: 'https://github.com/example/repo' }],
+    },
   ],
 
   // Optional: search (enabled by default)
@@ -76,21 +130,26 @@ Every `@pagesmith/docs` site is driven by a `pagesmith.config.json5` file in the
 | `name` | `string` | directory name | Short site name shown in the header |
 | `title` | `string` | same as `name` | Full site title used in page titles and meta tags |
 | `description` | `string` | `"Documentation site powered by @pagesmith/docs"` | Meta description for the site |
-| `origin` | `string` | `"https://example.com"` | Production URL origin (used for canonical links, sitemap) |
+| `origin` | `string` | git-detected GitHub Pages host or `"https://example.com"` | Production URL origin (used for canonical links, sitemap) |
 | `language` | `string` | `"en"` | HTML `lang` attribute |
 | `contentDir` | `string` | `"docs/"` if exists, else `"content/"` | Path to the content directory, relative to the config file |
 | `outDir` | `string` | `"gh-pages"` | Build output directory, relative to the config file |
 | `publicDir` | `string` | `"./public"` | Static assets directory copied verbatim to output |
-| `basePath` | `string` | `"/"` | URL prefix for deployment under a subdirectory. Can also be set via the `BASE_URL` environment variable or the `--base-path` CLI flag. Priority: CLI flag > `BASE_URL` env > config value > git-detected repo name > default `"/"` |
-| `footerLinks` | `array` | `[]` | Links shown in the page footer. Each entry has `label` and `path` |
+| `basePath` | `string` | git-detected repo name or `"/"` | URL prefix for deployment under a subdirectory. Can also be set via the `BASE_URL` environment variable or the `--base-path` CLI flag. Priority: CLI flag > `BASE_URL` env > config value > git-detected repo name > default `"/"` |
+| `maintainer` | `object` | `package.json author` | Maintainer credit used by the default footer sign-off |
+| `footerLinks` | `array` | top-level nav links | Links shown in the page footer as either a flat wrapped row or grouped columns with optional headers. When omitted, Pagesmith reuses the major top-level nav links |
+| `footerText` | `string` | — | Override only the Pagesmith sign-off segment in the footer's bottom legal line |
+| `copyright` | `object` | — | Footer copyright config. `startYear` defaults to the repo's first git commit year when available, and `endYear: null` keeps the rendered year dynamic |
 | `search` | `object` | `{ enabled: true }` | Search configuration. Set `{ enabled: false }` to disable |
 | `theme` | `object` | -- | Theme overrides including `lightColor`, `darkColor`, and `layouts` |
 | `analytics` | `object` | -- | Analytics config, currently supports `googleAnalytics` tracking ID |
+| `editLink` | `object \| false` | auto-detected | "Edit this page" link configuration, or `false` to disable the default git-remote detection |
+| `lastUpdated` | `boolean` | `true` | Git-based last updated timestamps. Set `false` to opt out |
 | `markdown` | `object` | -- | Markdown pipeline config passed to `@pagesmith/core` (custom remark/rehype plugins) |
 
 ## Content Directory Structure
 
-The content directory is the source of truth for your docs site. Top-level folders become navigation sections, and each markdown file becomes a page.
+The content directory is the source of truth for your docs site. Top-level folders become navigation sections, and each markdown file inside one of those folders becomes a page for that section.
 
 ```text
 content/
@@ -114,11 +173,11 @@ content/
 Key conventions:
 
 - **`content/README.md`** is always the home page, rendered at `/`.
-- **Top-level folders** (e.g. `guide/`, `reference/`) become navigation sections. By default they appear in the header; use `headerLinks` in `meta.json5` to control which sections are shown.
+- **Top-level folders** (e.g. `guide/`, `reference/`) define the docs sections. By default they appear in the header; use `headerLinks` in `meta.json5` to control which sections are shown.
 - **`README.md` inside a section folder** is the section landing page (e.g. `guide/README.md` serves `/guide`).
-- **Subfolders with `README.md`** become individual pages. The folder name is the URL slug.
-- All `.md` files are collected recursively. Nested subfolders create nested URL paths.
-- Files and folders starting with `.` are ignored.
+- **Markdown files inside a section** become pages even when nested. Nested folders keep their URL paths, but the section sidebar stays flat from the docs reader's perspective.
+- **`meta.json5` series** group pages into sidebar buckets. Pages not referenced by any series stay visible under an automatic `Miscellaneous` group.
+- Files and folders starting with `.` or `_` are ignored.
 - Files with `draft: true` in frontmatter are excluded from the build.
 
 ## README.md Files as Pages

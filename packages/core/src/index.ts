@@ -86,9 +86,12 @@ export {
 
 // ── Loaders ──
 export {
+  defaultIncludePatterns,
   JsoncLoader,
   JsonLoader,
+  LoaderError,
   MarkdownLoader,
+  resolveLoader,
   registerLoader,
   TomlLoader,
   YamlLoader,

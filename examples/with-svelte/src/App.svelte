@@ -1,3 +1,9 @@
+<!--
+  Root layout router only: picks home / article / 404 and owns the mobile nav dialog.
+  Pagefind Component UI is not declared here — renderDocumentShell() appends <pagefind-modal>
+  after this tree when search is enabled, so the trigger in SiteHeader stays paired with
+  a single modal instance from @pagesmith/core/ssg-utils.
+-->
 <script lang="ts">
   import HomeBody from './components/HomeBody.svelte'
   import NotFoundBody from './components/NotFoundBody.svelte'
@@ -18,10 +24,9 @@
     currentPath,
     basePath,
     firstGuideUrl,
-    firstFeaturesUrl,
+    kitchenSinkUrl,
     searchEnabled = false,
     guideEntries = [],
-    featuresEntries = [],
     guideGroups = [],
     pageDate = undefined,
     pageReadTime = undefined,
@@ -37,10 +42,9 @@
     currentPath: string
     basePath: string
     firstGuideUrl: string
-    firstFeaturesUrl: string
+    kitchenSinkUrl: string
     searchEnabled?: boolean
     guideEntries?: NavEntry[]
-    featuresEntries?: NavEntry[]
     guideGroups?: GuideGroup[]
     pageDate?: string
     pageReadTime?: number
@@ -51,11 +55,11 @@
 </script>
 
 {#if pageKind !== 'not-found'}
-  <SiteHeader {basePath} {currentPath} {firstGuideUrl} {firstFeaturesUrl} {searchEnabled} />
+  <SiteHeader {basePath} {currentPath} {firstGuideUrl} {searchEnabled} />
 {/if}
 
 {#if pageKind === 'home'}
-  <HomeBody {firstGuideUrl} {firstFeaturesUrl} {guideEntries} {featuresEntries} />
+  <HomeBody {firstGuideUrl} {kitchenSinkUrl} {guideEntries} />
 {:else if pageKind === 'page'}
   <PageBody
     title={pageTitle}
@@ -65,9 +69,7 @@
     {currentPath}
     {basePath}
     {firstGuideUrl}
-    {firstFeaturesUrl}
     {guideGroups}
-    {featuresEntries}
     date={pageDate}
     readTime={pageReadTime}
     prev={pagePrev}
@@ -86,19 +88,8 @@
         {@html closeIcon}
       </button>
       <nav class="doc-sidebar-nav" aria-label="Sidebar navigation">
-        <SidebarNav {currentPath} {basePath} {firstGuideUrl} {firstFeaturesUrl} {guideGroups} {featuresEntries} />
+        <SidebarNav {currentPath} {basePath} {firstGuideUrl} {guideGroups} />
       </nav>
     </div>
   </dialog>
-{/if}
-
-{#if searchEnabled && pageKind !== 'not-found'}
-  <pagefind-modal reset-on-close>
-    <pagefind-modal-header><pagefind-input></pagefind-input></pagefind-modal-header>
-    <pagefind-modal-body>
-      <pagefind-summary></pagefind-summary>
-      <pagefind-results></pagefind-results>
-    </pagefind-modal-body>
-    <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
-  </pagefind-modal>
 {/if}

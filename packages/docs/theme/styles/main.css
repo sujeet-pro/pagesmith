@@ -9,8 +9,12 @@
 @import "./content/toc.css";
 @import "./content/alerts.css";
 @import "./content/page-meta.css";
-/* Code (inline only — block styling handled by Expressive Code) */
-@import "./code/inline.css";
+/* Code */
+@import "../../../core/src/styles/code/block.css";
+@import "../../../core/src/styles/code/inline.css";
+@import "../../../core/src/styles/code/tabs.css";
+/* Viewport */
+@import "./viewport.css";
 /* Layout */
 @import "./layout/grid.css";
 @import "./layout/header.css";

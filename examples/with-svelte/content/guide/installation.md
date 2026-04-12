@@ -10,43 +10,36 @@ seriesOrder: 1
 
 # Installation
 
-This guide walks through setting up a static site that uses **Svelte** for rendering and **Pagesmith** for the content layer. The example produces a fully static site -- no client-side Svelte runtime ships to the browser.
+This guide walks through a static site that uses **Svelte** only on the server (`svelte/server`) and **@pagesmith/core** for collections, the markdown pipeline, and Vite plugins.
 
 ## Dependencies
 
-The project requires three groups of packages:
-
-**Content layer** -- `@pagesmith/core` provides the markdown pipeline, collection schemas, virtual modules, and Vite plugins:
+**Runtime / build-time packages** (see `package.json` in this folder for exact versions):
 
 ```json title="package.json (excerpt)"
 {
   "dependencies": {
     "@pagesmith/core": "*",
-    "svelte": "^5.55.1",
-    "pagefind": "^1.3.0"
-  }
-}
-```
-
-**Svelte** -- `svelte` (v5) is used exclusively at build time. The `render` function from `svelte/server` converts components into HTML strings during static generation.
-
-**Pagefind** -- listed as a dependency so the SSG plugin can index generated pages and produce a search index automatically.
-
-The dev dependencies include `@sveltejs/vite-plugin-svelte` for Svelte compilation:
-
-```json title="package.json (excerpt)"
-{
+    "pagefind": "^1.3.0",
+    "svelte": "^5.55.1"
+  },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
-    "typescript": "^5.7.0",
-    "vite-plus": "^0.1.13"
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vite-plus": "0.1.13"
   }
 }
 ```
+
+- **`@pagesmith/core`** — collections, virtual modules, markdown, `pagesmithContent` / `pagesmithSsg`, `renderDocumentShell`.
+- **`svelte`** — `render` from `svelte/server` at SSG time only.
+- **`pagefind`** — indexer dependency for the SSG plugin’s post-build step.
+- **`vite` + `vite-plus` + `@sveltejs/vite-plugin-svelte`** — dev server and Svelte compilation.
 
 ## Quick start
 
-Clone the repository and install from the workspace root:
+From the monorepo root:
 
 ```bash
 git clone https://github.com/sujeet-pro/pagesmith.git
@@ -54,28 +47,23 @@ cd pagesmith
 vp install
 ```
 
-Run the development server for this example:
+Run this example:
 
 ```bash
 vp run dev:eg:svelte
 ```
 
-Or build for production:
+Production build:
 
 ```bash
 cd examples/with-svelte
-vp build
+npm run build
 ```
 
-The production build writes to `gh-pages/examples/svelte/` (configured via `build.outDir` in the Vite config).
+Output goes to `../../gh-pages/examples/svelte/` per `vite.config.ts`.
 
-## What the Vite plugins provide
+## Vite plugins
 
-Two Pagesmith plugins handle the heavy lifting:
-
-1. **`pagesmithContent`** -- Processes markdown files, validates frontmatter against Zod schemas, and exposes each collection as a virtual module (e.g., `virtual:content/guide`).
-2. **`pagesmithSsg`** -- Runs the SSR entry at build time to produce static HTML files, sets up dev middleware for live reload, and indexes the output with Pagefind.
-
-A third plugin, `sharedAssetsPlugin`, copies font files and other shared assets into the build output.
-
-These three plugins are the only Pagesmith-specific configuration needed -- everything else is standard Vite.
+1. **`pagesmithContent`** — markdown → validated entries → `virtual:content/*`.
+2. **`pagesmithSsg`** — `getRoutes` / `render`, dev middleware, Pagefind after build.
+3. **`sharedAssetsPlugin`** — shared fonts/assets from core into the output.

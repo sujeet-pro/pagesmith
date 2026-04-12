@@ -92,8 +92,8 @@ describe('MCP shared utilities', () => {
   describe('resolvePackageDocPath', () => {
     it('resolves doc path relative to package root', () => {
       const moduleDir = resolve(import.meta.dirname, '..', 'mcp')
-      const docPath = resolvePackageDocPath(moduleDir, 'docs/agents/usage.md')
-      expect(docPath).toContain('docs/agents/usage.md')
+      const docPath = resolvePackageDocPath(moduleDir, 'ai-guidelines/usage.md')
+      expect(docPath).toContain('ai-guidelines/usage.md')
     })
   })
 

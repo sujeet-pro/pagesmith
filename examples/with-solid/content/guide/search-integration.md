@@ -1,6 +1,6 @@
 ---
 title: Search Integration
-description: Adding Pagefind search to your site
+description: How Pagefind fits this Solid SSG example — build-time indexing, UI wiring, and dev vs production.
 date: 2026-03-15
 tags:
   - search
@@ -11,86 +11,28 @@ seriesOrder: 3
 
 # Search Integration
 
-Search is powered by [Pagefind](https://pagefind.app/), a static search library that indexes the generated HTML at build time and runs entirely in the browser -- no server required.
+Search uses [Pagefind](https://pagefind.app/) with **Component UI** web components. The `pagesmithSsg` plugin runs Pagefind’s indexer **after** static HTML is written on `vite build`, producing a `pagefind/` directory next to the site output.
 
-## How indexing works
+## What gets indexed
 
-The `pagesmithSsg` plugin handles Pagefind integration automatically. After all HTML pages are written to the output directory, the plugin runs Pagefind's indexer over the generated files. This produces a search index in the `pagefind/` directory alongside the site output, including the Pagefind UI CSS and JavaScript.
+Pagefind walks the generated HTML and indexes content inside elements with `data-pagefind-body`. In `src/entry-server.tsx` this example sets that attribute in two places, matching the layout:
 
-Pages opt into indexing with the `data-pagefind-body` attribute. In the Solid example, both the home page and article pages include this attribute on their main content area:
+- **Home** — on the primary `<main class="doc-home" …>` (hero + listings live inside that main).
+- **Guide and standalone pages** — on the inner `<article …>` inside `<main class="doc-main">`, so chrome such as the desktop TOC aside and outer main wrapper stay outside the indexed subtree unless you move the attribute.
 
-```tsx title="src/entry-server.tsx (excerpt)"
-// Home page
-<main class="doc-home" data-pagefind-body="">
+Navigation, header, footer, and the sidebar dialog markup are outside those nodes, so they do not dominate search snippets.
 
-// Article pages
-<main class="doc-main" data-pagefind-body="">
-```
+## Component UI wiring
 
-Only content inside elements with `data-pagefind-body` is indexed, keeping navigation chrome and boilerplate out of search results.
+When `config.searchEnabled` is true, `renderDocument()` adds the Component UI stylesheet and module in `<head>`, and appends the `<pagefind-modal>…</pagefind-modal>` tree before `</body>`. The header renders `<pagefind-modal-trigger>` only in that mode (`SearchTrigger` inside `SiteHeader`).
 
-## The search dialog
+Opening the modal, **Cmd+K** / **Ctrl+K**, and result rendering are handled by Pagefind’s scripts — `src/runtime.ts` only adjusts trigger layout on small viewports and does not bootstrap search itself.
 
-Search is presented in a modal dialog that overlays the page. The HTML structure is generated in the `renderDocument` function when `searchEnabled` is true:
+## Development vs production
 
-```html
-<dialog class="doc-search-modal" id="search-modal" aria-label="Search">
-  <div class="doc-search-modal-inner">
-    <div class="doc-search-modal-header">
-      <span class="doc-search-modal-title">Search</span>
-      <button type="button" class="doc-search-modal-close" aria-label="Close">...</button>
-    </div>
-    <div class="doc-search-modal-body" id="search-container" data-pagefind-search=""></div>
-  </div>
-</dialog>
-```
+Behavior comes from `@pagesmith/core`’s SSG integration:
 
-The dialog uses the native `<dialog>` element for proper modal behavior including focus trapping and backdrop handling.
+- **`vite build`** — `render()` receives `searchEnabled: true`. The HTML includes Pagefind tags, and the plugin runs the indexer on the output directory, so `pagefind/` exists for `vite preview` or static hosting.
+- **`vite dev`** — the dev middleware calls `render()` with **`searchEnabled: false`**, so Pagefind link/script tags and the modal markup are **not** emitted. There is nothing to index in dev, and the UI would point at assets that are only guaranteed after a build.
 
-## Keyboard shortcut
-
-The runtime script in `src/runtime.ts` binds the standard search shortcut:
-
-```ts title="src/runtime.ts (excerpt)"
-document.addEventListener('keydown', (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault()
-    if (modal.open) {
-      modal.close()
-    } else {
-      openSearch()
-    }
-  }
-})
-```
-
-Pressing **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) toggles the search dialog. The trigger button in the header also opens it.
-
-## Lazy initialization
-
-Pagefind UI is initialized lazily -- only when the search dialog is opened for the first time. This avoids loading and parsing the search index until the user actually requests it, keeping the initial page load fast.
-
-## Search trigger button
-
-The header includes a search button rendered with Solid's `<Show>` component, only appearing when search is enabled:
-
-```tsx title="src/entry-server.tsx (excerpt)"
-function SearchTrigger() {
-  return (
-    <button type="button" class="doc-search-trigger" data-search-trigger="" aria-label="Search">
-      <span class="doc-search-icon" innerHTML={searchIcon} />
-      <kbd class="doc-search-shortcut">
-        <span class="doc-search-shortcut-key">⌘</span>K
-      </kbd>
-    </button>
-  )
-}
-```
-
-The button displays a search icon alongside the keyboard shortcut hint, giving users a visual affordance and teaching them the shortcut.
-
-## Development vs. production
-
-During development (`vp dev`), search is not available because Pagefind needs a completed build to create its index. The `searchEnabled` flag in `SsgRenderConfig` controls whether search UI elements are rendered. In production builds, the SSG plugin sets this to `true` after indexing completes, and the Pagefind CSS and JS are included in the document `<head>`.
-
-The site remains fully functional without search -- it is a progressive enhancement on top of the static HTML.
+So: treat search as a **production-build** feature; use `npm run build` (or the monorepo’s example build) plus preview or deploy to verify search end-to-end.

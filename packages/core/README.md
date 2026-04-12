@@ -1,12 +1,27 @@
 # @pagesmith/core
 
-File-based content toolkit for Vite. Schema-validated collections, lazy markdown rendering with Expressive Code syntax highlighting, and runtime CSS/JS exports.
+File-based content toolkit for Vite. Schema-validated collections, lazy markdown rendering with a built-in Shiki-backed code renderer, and runtime CSS/JS exports.
+
+## Requirements
+
+- Node.js 24+
+
+## Choose The Package
+
+- Use `@pagesmith/core` when you want a custom app or site architecture, framework-specific rendering, or direct control over collections, routing, and rendering.
+- Use `@pagesmith/docs` when you want a convention-based docs site with `pagesmith.config.json5`, built-in navigation, search, and docs-specific AI guidance.
 
 ## Install
 
 ```bash
 npm add @pagesmith/core
 ```
+
+## Adoption Paths
+
+- AI-first bootstrap or retrofit: start with `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- Upgrade an existing integration: start with `node_modules/@pagesmith/core/ai-guidelines/migration.md`
+- Manual setup: follow the Quick Start and Vite Integration sections below
 
 ## Quick Start
 
@@ -29,7 +44,7 @@ const rendered = await entries[0]?.render()
 // rendered.html, rendered.headings, rendered.readTime
 ```
 
-For pre-1.0 upgrade notes, see `docs/agents/migration.md`.
+For AI-first prompts and pre-1.0 upgrade notes, see `ai-guidelines/usage.md` and `ai-guidelines/migration.md`.
 
 ### Vite Integration
 
@@ -50,7 +65,7 @@ export default defineConfig({
   plugins: [
     sharedAssetsPlugin(),
     pagesmithContent({ collections }),
-    pagesmithSsg({ entry: './src/entry-server.tsx' }),
+    ...pagesmithSsg({ entry: './src/entry-server.tsx' }),
   ],
 })
 ```
@@ -59,6 +74,8 @@ Import collections as virtual modules in your SSR entry:
 
 ```ts
 import posts from 'virtual:content/posts'
+// markdown entries: { id, contentSlug, html, headings, frontmatter }[]
+// data loaders: { id, contentSlug, data }[]
 ```
 
 ## Content Layer API
@@ -147,11 +164,13 @@ Custom loaders: implement `Loader { name, kind, extensions, load(filePath) }`.
 The pipeline is built with unified and processes markdown through these stages:
 
 ```
-remark-parse → remark-gfm → remark-math → remark-frontmatter
-  → remark-github-alerts → remark-smartypants → [user remark plugins]
-  → lang-alias transform → remark-rehype
-  → rehype-mathjax (must run before Expressive Code)
-  → rehype-expressive-code (syntax highlighting)
+remark-parse → remark-gfm → remark-frontmatter
+  → remark-github-alerts → remark-smartypants
+  → remark-math (when `markdown.math` is `true` or `'auto'` detects math markers)
+  → [user remark plugins] → lang-alias transform → remark-rehype
+  → rehype-mathjax (when math is enabled, before the built-in code renderer)
+  → applyPagesmithCodeRenderer (syntax highlighting, frames, copy, collapse)
+  → rehype-code-tabs → rehype-scrollable-tables
   → rehype-slug → rehype-autolink-headings
   → rehype-external-links → rehype-accessible-emojis
   → heading extraction → [user rehype plugins] → rehype-stringify
@@ -204,9 +223,9 @@ $$
 **Heading Links (rehype-slug + rehype-autolink-headings):**
 - Auto-generated `id` attributes and anchor links on all headings
 
-### Expressive Code Features
+### Built-in Code Block Features
 
-Syntax highlighting is handled by [Expressive Code](https://expressive-code.com/) with dual themes (default: `github-light` / `github-dark`). All styling is injected inline — no external CSS required.
+Pagesmith ships a built-in Shiki-backed code renderer with dual themes (default: `github-light` / `github-dark`), frames, copy buttons, collapse controls, line numbers, and line highlighting. Shared chrome and layout styles ship in the core CSS bundles, and the shared content runtime handles tabs, copy, and collapse interactions in the browser.
 
 **Dual Themes:**
 Automatically switches between light and dark themes via `prefers-color-scheme` media query. Configure themes:
@@ -299,6 +318,8 @@ defineConfig({
   },
 })
 ```
+
+`markdown.allowDangerousHtml` defaults to `true` so trusted content can embed raw HTML. Disable it when rendering untrusted markdown. `markdown.math` defaults to `'auto'`, which only enables the math plugins for content that contains math markers.
 
 ## Validation
 
@@ -412,11 +433,14 @@ function Page({ title, content }: { title: string; content: string }) {
 | Import Path | Contents |
 |---|---|
 | `@pagesmith/core/css/content` | Prose typography + inline code styles |
+| `@pagesmith/core/css/code-block` | Block code frame chrome and toolbar styles |
+| `@pagesmith/core/css/code-inline` | Inline code styles only |
 | `@pagesmith/core/css/standalone` | Full layout + prose + TOC |
 | `@pagesmith/core/css/viewport` | Responsive viewport base |
 | `@pagesmith/core/css/fonts` | Bundled Open Sans + JetBrains Mono |
 
-Code block styling is handled entirely by Expressive Code through inline styles injected during processing.
+Code block styling is included in `@pagesmith/core/css/content` and `@pagesmith/core/css/standalone`.
+Load `@pagesmith/core/runtime/content` (or `getContentJS()` / `getContentJSPath()`) to enable code tabs, copy buttons, and collapsed code ranges.
 
 ## Runtime Exports
 
@@ -468,6 +492,8 @@ Generates: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, skills, `llms.txt`, `llms-full
 | `@pagesmith/core/markdown` | processMarkdown |
 | `@pagesmith/core/css` | buildCss (LightningCSS) |
 | `@pagesmith/core/css/content` | Content CSS file |
+| `@pagesmith/core/css/code-block` | Block code CSS file |
+| `@pagesmith/core/css/code-inline` | Inline code CSS file |
 | `@pagesmith/core/css/standalone` | Standalone CSS file |
 | `@pagesmith/core/css/viewport` | Viewport CSS file |
 | `@pagesmith/core/css/fonts` | Bundled font faces |
@@ -475,6 +501,8 @@ Generates: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, skills, `llms.txt`, `llms-full
 | `@pagesmith/core/loaders` | Loader classes and registry |
 | `@pagesmith/core/assets` | Asset copying and hashing |
 | `@pagesmith/core/runtime` | Pre-built CSS/JS accessors |
+| `@pagesmith/core/runtime/content` | Browser runtime for code tabs, copy, and collapsed lines |
+| `@pagesmith/core/runtime/standalone` | Browser runtime for content interactivity + TOC highlight |
 | `@pagesmith/core/ai` | AI assistant artifact generator |
 | `@pagesmith/core/vite` | Vite plugins (pagesmithContent, pagesmithSsg, sharedAssetsPlugin) |
 | `@pagesmith/core/ssg-utils` | Shared SSG utility helpers |
@@ -483,9 +511,11 @@ Generates: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, skills, `llms.txt`, `llms-full
 
 ## Further Reading
 
-- **[REFERENCE.md](REFERENCE.md)** — complete AI reference covering the content layer API, collections, loaders, markdown pipeline, Expressive Code, validators, JSX runtime, CSS exports, and Vite plugins
-- **[`@pagesmith/docs` README](../docs/README.md)** — convention-based docs site package with built-in navigation, search, and theme
-- **[`@pagesmith/docs` REFERENCE.md](../docs/REFERENCE.md)** — full docs reference for AI assistants
+- **[REFERENCE.md](REFERENCE.md)** — complete AI reference covering the content layer API, collections, loaders, markdown pipeline, code renderer, validators, JSX runtime, CSS exports, and Vite plugins
+- **`node_modules/@pagesmith/core/ai-guidelines/usage.md`** — AI-first prompts for setup, retrofit, and follow-up workflows
+- **`node_modules/@pagesmith/core/ai-guidelines/migration.md`** — upgrade playbook for existing integrations
+- **`node_modules/@pagesmith/docs/README.md`** — convention-based docs site package with built-in navigation, search, and theme
+- **`node_modules/@pagesmith/docs/REFERENCE.md`** — full docs reference for AI assistants
 
 ### AI agent guidance (shipped inside the package)
 
@@ -494,11 +524,12 @@ These files are available at `node_modules/@pagesmith/core/` after installation:
 | File | Purpose |
 |---|---|
 | `REFERENCE.md` | Full API reference for content layer, collections, markdown, JSX, CSS, Vite |
-| `docs/agents/usage.md` | Agent rules, integration shape, copy-paste prompts |
-| `docs/agents/recipes.md` | Step-by-step recipes for common tasks |
-| `docs/agents/errors.md` | Error catalog with patterns and fixes |
-| `docs/llms.txt` | Compact AI context index |
-| `docs/llms-full.txt` | Full AI context with all file pointers |
+| `ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
+| `ai-guidelines/errors.md` | Error catalog with patterns and fixes |
+| `ai-guidelines/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
+| `ai-guidelines/llms.txt` | Compact AI context index |
+| `ai-guidelines/llms-full.txt` | Full AI context with all file pointers |
 
 ## License
 

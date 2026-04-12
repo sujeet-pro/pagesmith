@@ -1,3 +1,7 @@
+<!--
+  Article layout: data-pagefind-body is on the <article> (prose + in-article nav), not the
+  outer <main>, so sidebars/footers stay out of the search index while keeping one indexable root.
+-->
 <script lang="ts">
   import SidebarNav from './SidebarNav.svelte'
   import { formatDate } from '../site'
@@ -11,9 +15,7 @@
     currentPath,
     basePath,
     firstGuideUrl,
-    firstFeaturesUrl,
     guideGroups,
-    featuresEntries,
     date = undefined,
     readTime = undefined,
     prev = undefined,
@@ -27,9 +29,7 @@
     currentPath: string
     basePath: string
     firstGuideUrl: string
-    firstFeaturesUrl: string
     guideGroups: GuideGroup[]
-    featuresEntries: NavEntry[]
     date?: string
     readTime?: number
     prev?: { title: string; url: string }
@@ -43,12 +43,12 @@
 <div class="doc-layout">
   <aside class="doc-sidebar">
     <nav class="doc-sidebar-nav" aria-label="Documentation navigation">
-      <SidebarNav {currentPath} {basePath} {firstGuideUrl} {firstFeaturesUrl} {guideGroups} {featuresEntries} />
+      <SidebarNav {currentPath} {basePath} {firstGuideUrl} {guideGroups} />
     </nav>
   </aside>
 
-  <main class="doc-main" data-pagefind-body="">
-    <article>
+  <main class="doc-main">
+    <article id="doc-main-content" tabindex="-1" data-pagefind-body="">
       {#if filteredHeadings.length > 0}
         <details class="doc-toc-mobile">
           <summary>On this page</summary>
@@ -65,7 +65,7 @@
       {/if}
 
       {#if date}
-        <p class="doc-page-meta" style="color:var(--color-text-muted);font-size:var(--font-size-sm);margin-bottom:1rem">
+        <p style="color:var(--color-text-muted);font-size:var(--font-size-sm);margin-bottom:1rem">
           <time datetime={date}>{formatDate(date)}</time>
           {#if readTime}
             {' · '}{readTime} min read
@@ -99,7 +99,7 @@
 
     <footer class="doc-footer">
       {#if editUrl || date}
-        <div class="doc-page-footer-meta">
+        <div class="doc-page-meta">
           {#if editUrl}
             <a href={editUrl} class="doc-edit-link" target="_blank" rel="noopener noreferrer">
               Edit this page

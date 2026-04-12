@@ -1,0 +1,32 @@
+# Pagesmith + Solid (examples/with-solid)
+
+Agent-oriented notes for this monorepo example only. Authoritative package docs live under `node_modules/@pagesmith/core/ai-guidelines/` after install.
+
+## What this example proves
+
+- **Collections**: `content.config.ts` defines `guide` and `pages` with Zod frontmatter schemas. `pagesmithContent({ collections })` validates markdown and exposes build-time virtual modules, and `guide/kitchen-sink.md` is the dedicated markdown regression page.
+- **Virtual modules**: `src/entry-server.tsx` imports `virtual:content/guide|pages`. Each export is an array of `{ contentSlug, html, headings, frontmatter }` — already rendered HTML from the core markdown pipeline (not raw markdown at runtime).
+- **SSG contract**: `pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] })` expects the entry module to export `getRoutes()` and `render(url, config)`. Solid is used only inside `renderToString` during generation, not for hydration.
+- **Document shell**: `renderDocument()` in `entry-server.tsx` emits the outer `<html>` string (head meta, FOUC script, hashed CSS/JS paths, optional Pagefind Component UI tags, sidebar dialog, deferred client script). Inner chrome (`SiteHeader`, `PageBody`, etc.) is Solid JSX rendered to strings and injected as `bodyHtml`.
+- **Client vs server split**: `client.js` is the browser entry (theme CSS, `@pagesmith/core/runtime/content` for code-block UI, `src/runtime.ts` for TOC/sidebar/theme/search trigger layout). No `solid-js` in the browser bundle for this pattern.
+- **Pagefind**: Runs after static HTML is written on **`vite build`** only. `SsgRenderConfig.searchEnabled` is `true` in that path, so `render()` emits Pagefind Component UI assets and `<pagefind-*>` markup. In **`vite dev`**, the SSG middleware passes `searchEnabled: false`, so search UI and Pagefind scripts are omitted — expect search only after a production build (e.g. `vite build` then `vite preview` or static hosting of `outDir`).
+- **Indexing boundary**: `data-pagefind-body` is on the home `<main class="doc-home">` and on inner pages’ `<article>` (inside `<main class="doc-main">`). Pagefind indexes those subtrees, not the whole layout.
+
+## Files to read first
+
+1. `vite.config.ts` — plugin order and `base` / `outDir`.
+2. `content.config.ts` — collection keys map 1:1 to `virtual:content/<key>`.
+3. `src/entry-server.tsx` — routing, Solid components, `renderDocument`, Pagefind hooks.
+4. `client.js` — what actually ships to the browser.
+5. `src/runtime.ts` — progressive enhancement on top of static HTML.
+6. `content/guide/*.md` — integration narrative for this repo layout.
+
+## Commands (from monorepo root)
+
+- `vp install` then `vp run dev:eg:solid` for dev SSR preview.
+- `cd examples/with-solid && npm run build` for static output + Pagefind index (see `build.outDir` in Vite config).
+
+## Do not assume
+
+- Do not treat this example’s `src/pagesmith-content.d.ts` as hand-authored; it is generated for editor types.
+- Do not assume Pagefind works in dev without aligning with `@pagesmith/core` dev behavior (`searchEnabled: false` in the SSG dev middleware).

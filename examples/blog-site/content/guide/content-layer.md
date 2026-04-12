@@ -11,79 +11,72 @@ seriesOrder: 3
 
 # Content Layer API
 
-The blog-site example uses `createContentLayer` from `@pagesmith/core` to load and process content collections. This is the lower-level API that the `pagesmithContent` Vite plugin wraps internally.
+The blog-site wires **`createContentLayer`** from `@pagesmith/core` at the SSR entry. That is the same content layer the `pagesmithContent` plugin uses internally; this example skips the plugin and calls the API directly.
 
 ## Defining collections
 
-Collections are defined inline when creating the content layer:
+Collections are defined when the layer is created (see `buildLayer` in `src/entry-server.tsx`):
 
 ```ts title="src/entry-server.tsx (excerpt)"
+import { resolve } from 'path'
 import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
 
-const config = defineConfig({
-  collections: {
-    guide: defineCollection({
-      loader: 'markdown',
-      directory: './content/guide',
-      schema: z.object({
-        title: z.string(),
-        description: z.string().optional(),
-        date: z.coerce.date(),
-        tags: z.array(z.string()).default([]),
-        series: z.string().optional(),
-        seriesOrder: z.number().optional(),
-      }),
-    }),
-    features: defineCollection({
-      loader: 'markdown',
-      directory: './content/features',
-      schema: z.object({
-        title: z.string(),
-        description: z.string().optional(),
-        date: z.coerce.date(),
-        tags: z.array(z.string()).default([]),
-      }),
-    }),
-    pages: defineCollection({
-      loader: 'markdown',
-      directory: './content/pages',
-      schema: z.object({
-        title: z.string(),
-        description: z.string().optional(),
-      }),
-    }),
-  },
-})
+function buildLayer(root?: string) {
+  const contentRoot = root ? resolve(root) : resolve(import.meta.dirname, '..')
 
-const layer = createContentLayer(config)
+  return createContentLayer(
+    defineConfig({
+      root: contentRoot,
+      collections: {
+        guide: defineCollection({
+          loader: 'markdown',
+          directory: resolve(contentRoot, 'content/guide'),
+          schema: z.object({
+            title: z.string(),
+            description: z.string().optional(),
+            date: z.coerce.date(),
+            tags: z.array(z.string()).default([]),
+            series: z.string().optional(),
+            seriesOrder: z.number().optional(),
+          }),
+        }),
+        pages: defineCollection({
+          loader: 'markdown',
+          directory: resolve(contentRoot, 'content/pages'),
+          schema: z.object({
+            title: z.string(),
+            description: z.string().optional(),
+          }),
+        }),
+      },
+    }),
+  )
+}
 ```
 
-## Loading entries
+## Loading and rendering entries
 
-Each collection is loaded asynchronously. Entries are `ContentEntry` objects with typed frontmatter data and a lazy `render()` method:
+`getCollection` returns `ContentEntry` values with validated `data` and a lazy **`render()`** method. **That** is the supported seam for Markdown in this example: it runs the shared pipeline and returns `{ html, headings, readTime }`.
 
 ```ts
 const entries = await layer.getCollection('guide')
 
 for (const entry of entries) {
-  console.log(entry.slug)          // e.g. "overview"
-  console.log(entry.data.title)    // validated frontmatter
-
   const rendered = await entry.render()
-  console.log(rendered.html)       // processed HTML
-  console.log(rendered.headings)   // extracted headings
-  console.log(rendered.readTime)   // estimated read time
+  // rendered.html, rendered.headings, rendered.readTime
 }
 ```
+
+For ad-hoc strings (not collection files), the package also exposes `processMarkdown` / `convert` — this site does not need them because every page comes from the filesystem collections above.
 
 ## Comparison with virtual modules
 
 | Virtual modules (`pagesmithContent`) | Direct API (`createContentLayer`) |
 |--------------------------------------|-----------------------------------|
-| Collections defined in `content.config.ts` | Collections defined inline |
+| Collections defined in `content.config.ts` | Collections defined inline in the SSR entry |
 | Imported via `virtual:content/guide` | Loaded via `layer.getCollection('guide')` |
-| Markdown pre-rendered at import time | Markdown rendered via `entry.render()` |
-| Type declarations auto-generated | Types inferred from Zod schemas |
-| Requires the `pagesmithContent` plugin | No plugin needed |
+| Markdown resolved through the plugin graph | Markdown resolved when you `await entry.render()` |
+| Type declarations auto-generated | Types inferred from your Zod schemas |
+| Requires the `pagesmithContent` plugin | No content plugin — only `pagesmithSsg` |
 
-Both approaches use the same underlying markdown pipeline and produce identical HTML output.
+Both paths share the same markdown implementation once content is rendered.

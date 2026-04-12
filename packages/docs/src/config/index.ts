@@ -1,4 +1,12 @@
-export { defineDocsConfig, detectGitOrigin, loadDocsConfig, resolveDocsConfig } from './resolve'
+export {
+  detectFirstCommitYear,
+  defineDocsConfig,
+  detectGitOrigin,
+  loadDocsConfig,
+  probeHostedOrigin,
+  resolveDocsConfig,
+  resolveInitOrigin,
+} from './resolve'
 export {
   getPackageDir,
   getThemeRoot,
@@ -11,11 +19,15 @@ export {
 export { reportConfigIssues, validateConfig } from './validate'
 export type {
   ConfigValidationIssue,
+  CopyrightConfig,
   DocsLogLevel,
   DocsBuildOptions,
   DocsDevOptions,
   DocsUserConfig,
   FooterLink,
+  FooterLinkGroup,
+  FooterLinks,
   GitOriginInfo,
+  ResolvedCopyright,
   ResolvedDocsConfig,
 } from './types'

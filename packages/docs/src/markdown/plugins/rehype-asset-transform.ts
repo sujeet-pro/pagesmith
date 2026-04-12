@@ -1,29 +1,66 @@
-/**
- * Rehype plugin: transform relative asset references to /assets/ URLs.
- *
- * Converts references like `./image.png` or `./assets/image.png`
- * into site-relative URLs like `/assets/image.png`.
- *
- * Special handling:
- *   - `.inline.svg` files: read from disk and embed as inline SVG (supports currentColor)
- *   - `.invert.` files: add `invert-on-dark` class for CSS dark-mode inversion
- *
- * Handles <img src="...">, <source srcset="...">, and <a href="..."> for asset files.
- */
-
 import { existsSync, readFileSync } from 'fs'
 import type { Element, Root } from 'hast'
-import { basename, join } from 'path'
+import { basename, dirname, relative, resolve } from 'path'
 import { SKIP, visit } from 'unist-util-visit'
+import { getDocsTransformContext } from './context'
 
 const ASSET_EXTS = /\.(svg|png|jpg|jpeg|gif|webp|avif|ico)$/i
 
-interface AssetTransformOptions {
-  contentDir?: string
+function isInsideRoot(targetPath: string, rootDir: string): boolean {
+  const rel = relative(rootDir, targetPath)
+  return rel === '' || !rel.startsWith('..')
 }
 
-export function rehypeAssetTransform(options: AssetTransformOptions = {}) {
+function resolveLocalAssetPath(currentFilePath: string, ref: string): string | undefined {
+  if (!ref.startsWith('./')) return undefined
+  const assetRoot = dirname(currentFilePath)
+  const resolvedPath = resolve(assetRoot, ref.slice(2))
+  return isInsideRoot(resolvedPath, assetRoot) ? resolvedPath : undefined
+}
+
+function toPublishedAssetUrl(ref: string): string {
+  return `/assets/${basename(ref)}`
+}
+
+function appendClassName(node: Element, className: string): void {
+  const existing = node.properties?.className
+  if (Array.isArray(existing)) {
+    if (!existing.includes(className)) {
+      node.properties = node.properties || {}
+      node.properties.className = [...existing, className]
+    }
+    return
+  }
+  if (typeof existing === 'string') {
+    const values = existing.split(/\s+/).filter(Boolean)
+    if (!values.includes(className)) {
+      node.properties = node.properties || {}
+      node.properties.className = [...values, className]
+    }
+    return
+  }
+  node.properties = node.properties || {}
+  node.properties.className = [className]
+}
+
+function rewriteSrcset(srcset: string): string {
+  return srcset
+    .split(',')
+    .map((entry) => {
+      const [rawUrl, ...descriptor] = entry.trim().split(/\s+/)
+      if (rawUrl.startsWith('./') && ASSET_EXTS.test(rawUrl)) {
+        return [toPublishedAssetUrl(rawUrl), ...descriptor].join(' ')
+      }
+      return entry.trim()
+    })
+    .join(', ')
+}
+
+export function rehypeAssetTransform() {
   return (tree: Root) => {
+    const currentFilePath = getDocsTransformContext()?.filePath
+    if (!currentFilePath) return
+
     visit(tree, 'element', (node: Element, index, parent) => {
       // Transform img src
       if (node.tagName === 'img') {
@@ -31,9 +68,9 @@ export function rehypeAssetTransform(options: AssetTransformOptions = {}) {
         if (typeof src !== 'string' || !src.startsWith('./') || !ASSET_EXTS.test(src)) return
 
         // Inline SVG: embed content directly in HTML
-        if (src.endsWith('.inline.svg') && options.contentDir) {
-          const filePath = join(options.contentDir, src.replace('./', ''))
-          if (existsSync(filePath)) {
+        if (src.endsWith('.inline.svg')) {
+          const filePath = resolveLocalAssetPath(currentFilePath, src)
+          if (filePath && existsSync(filePath)) {
             let svgContent = readFileSync(filePath, 'utf-8')
             // Strip XML declaration and DOCTYPE
             svgContent = svgContent.replace(/<\?xml[^?]*\?>\s*/g, '')
@@ -55,26 +92,20 @@ export function rehypeAssetTransform(options: AssetTransformOptions = {}) {
         }
 
         node.properties = node.properties || {}
-        node.properties.src = `/assets/${basename(src)}`
+        node.properties.src = toPublishedAssetUrl(src)
 
         // Add invert class for .invert. images
         if (basename(src).includes('.invert.')) {
-          const existing = node.properties.className
-          node.properties.className = existing
-            ? ([...(Array.isArray(existing) ? existing : [existing]), 'invert-on-dark'] as (
-                | string
-                | number
-              )[])
-            : ['invert-on-dark']
+          appendClassName(node, 'invert-on-dark')
         }
       }
 
       // Transform source srcset (for <picture> elements)
       if (node.tagName === 'source') {
         const srcset = node.properties?.srcset
-        if (typeof srcset === 'string' && srcset.startsWith('./') && ASSET_EXTS.test(srcset)) {
+        if (typeof srcset === 'string' && srcset.includes('./')) {
           node.properties = node.properties || {}
-          node.properties.srcset = `/assets/${basename(srcset)}`
+          node.properties.srcset = rewriteSrcset(srcset)
         }
       }
 
@@ -83,7 +114,7 @@ export function rehypeAssetTransform(options: AssetTransformOptions = {}) {
         const href = node.properties?.href
         if (typeof href === 'string' && href.startsWith('./') && ASSET_EXTS.test(href)) {
           node.properties = node.properties || {}
-          node.properties.href = `/assets/${basename(href)}`
+          node.properties.href = toPublishedAssetUrl(href)
         }
       }
     })

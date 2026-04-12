@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node ../packages/docs/dist/cli/bin.mjs dev --config ./pagesmith.config.json5",
-    "build": "node ../packages/docs/dist/cli/bin.mjs build --config ./pagesmith.config.json5"
+    "dev": "node ../packages/docs/dist/cli/bin.mjs dev --config ../pagesmith.config.json5",
+    "build": "node ../packages/docs/dist/cli/bin.mjs build --config ../pagesmith.config.json5"
   },
   "dependencies": {
     "@pagesmith/docs": "*"

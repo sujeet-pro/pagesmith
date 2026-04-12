@@ -1,0 +1,36 @@
+# Example Docs (@pagesmith/docs)
+
+This directory is the Pagesmith monorepo’s **docs-package** example. Treat it as the reference shape for a config-driven docs site, not a Vite-app or `content.config.ts` collection example.
+
+## Source of truth
+
+- `pagesmith.config.json5` — site metadata, `contentDir`, `outDir`, `basePath`, `theme.layouts`, `search`, footer, `editLink`, sidebar.
+- `content/` — markdown pages; each top-level folder is a nav section. Section `meta.json5` controls labels, ordering, and series.
+- `theme/layouts/` — optional JSX overrides (`DocHome`, `DocPage`) using `@pagesmith/core/jsx-runtime` and `@pagesmith/docs/theme` (`Html`). Shared chrome lives in `theme/layouts/shared.tsx`.
+- `public/` — static assets copied through the build.
+
+## Stack relationship
+
+- `@pagesmith/docs` — CLI (`init`, `dev`, `build`, `preview`, `mcp`), default theme, navigation from folders, Pagefind wiring, frontmatter rules for docs pages.
+- `@pagesmith/core` — markdown pipeline, JSX runtime, validators, and primitives the docs package composes. You rarely import docs-only APIs from core for layout work; layouts use core’s JSX runtime plus docs theme helpers.
+
+## Commands (published CLI)
+
+After `npm install @pagesmith/docs`, typical invocations use the `pagesmith` binary (often via `npx`):
+
+- `pagesmith dev` — local dev with content rebuilds.
+- `pagesmith build` — static HTML to `outDir`; Pagefind indexes when search is enabled.
+- `pagesmith preview` — serve the last build output locally.
+- `pagesmith mcp --stdio` — run the docs MCP server on stdio for editor/agent integrations.
+
+In this monorepo, `package.json` scripts point at the workspace CLI build with `--config ./pagesmith.config.json5`.
+
+## Markdown regression vs guides
+
+- `/guide/kitchen-sink` — intentional “everything at once” markdown regression page for this site's pipeline.
+- `/guide/*` — explain this **docs** workflow (config, content layout, `meta.json5`, layouts, search, build/preview/MCP, core vs docs).
+
+## Agent constraints
+
+- Prefer reading the real `pagesmith.config.json5` and layout files here before inventing APIs (e.g. do not assume `defineDocsConfig` in this example — config is JSON5 on disk).
+- When suggesting edits to example content, keep markdown showcase content concentrated in `guide/kitchen-sink.md` instead of splitting it into a separate features section.

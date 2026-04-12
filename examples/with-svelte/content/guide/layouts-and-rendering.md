@@ -1,6 +1,6 @@
 ---
 title: Layouts & Rendering
-description: How Svelte renders pages to static HTML
+description: Svelte server rendering, the document shell, and the browser runtime split
 date: 2026-03-17
 tags:
   - svelte
@@ -11,98 +11,56 @@ seriesOrder: 1
 
 # Layouts & Rendering
 
-The Svelte example uses the `render` function from `svelte/server` to convert `.svelte` components into static HTML at build time. No Svelte runtime ships to the browser -- the output is plain HTML enhanced by a small vanilla JS runtime.
+This example is **static-first**: `svelte/server` turns `.svelte` files into HTML strings at build time. There is no Svelte hydration bundle — the shipped JS is Pagesmith’s small markdown helpers plus this project’s `src/runtime.ts`.
 
-## The SSR entry contract
+## SSG entry contract
 
-The SSG plugin expects the entry file to export two functions:
+`src/entry-server.ts` exports:
 
 ```ts
 export async function getRoutes(): Promise<string[]>
 export async function render(url: string, config: SsgRenderConfig): Promise<string>
 ```
 
-**`getRoutes()`** returns every URL the site should generate. **`render(url, config)`** receives a URL and an `SsgRenderConfig` object, then returns a complete HTML document string.
+`pagesmithSsg` imports that module, collects routes, and calls `render()` per URL.
 
-## How rendering works
+## Data flow
 
-The entry server builds a props object based on the current route, then passes it to the root `App.svelte` component:
+1. **Collections** — `content.config.ts` defines `guide` and `pages`, with `guide/kitchen-sink.md` serving as the single markdown regression page.
+2. **Virtual modules** — `pagesmithContent` exposes `virtual:content/guide` and `virtual:content/pages`. This example imports them once in `src/site.ts` and exports sorted lists, nav helpers, and types shared by the entry and components.
+3. **Route → props** — `render()` resolves the URL to a content entry (or home/404), builds an `appProps` object, and passes it to the root Svelte component.
+4. **Svelte output** — `renderSvelte(App, { props: appProps })` returns `{ body, head }`. `body` is everything inside the document body **except** the shared shell extras (see below). `head` is merged into `<head>` via `headHtml`.
 
-```ts title="src/entry-server.ts (excerpt)"
-import { render as renderSvelte } from 'svelte/server'
-import App from './App.svelte'
+## Document shell (`renderDocumentShell`)
 
-const rendered = renderSvelte(App, { props: appProps })
+The final HTML string is **not** only Svelte output. `renderDocumentShell` from `@pagesmith/core/ssg-utils` wraps `bodyHtml` with:
 
-return renderDocument({
-  title,
-  description,
-  headHtml: rendered.head,
-  basePath: config.base,
-  cssPath: config.cssPath,
-  bodyHtml: rendered.body,
-})
-```
+- `<html>` classes, charset/viewport, FOUC-prevention inline script for saved theme prefs
+- Linked CSS (site bundle, fonts, optional Pagefind Component UI stylesheet)
+- Optional Pagefind Component UI `<script type="module">`
+- **`bodyHtml`** — your Svelte-rendered markup (header, main layout, sidebar dialog markup this example keeps inside Svelte)
+- **Optional** trailing `<pagefind-modal>` when `searchEnabled` is true (single instance — do not duplicate in `.svelte`)
+- Deferred `client.js` script reference
 
-The `render` function from `svelte/server` returns an object with `body` (the HTML string) and `head` (any `<svelte:head>` content). Both are incorporated into the final document.
+So: **Svelte owns the primary layout markup** that becomes `bodyHtml`, while **cross-cutting document concerns** (shell wrapper, Pagefind modal placement, deferred client script) stay in `renderDocumentShell` so framework examples stay consistent.
 
-## Component architecture
+## Component roles
 
-Unlike the Solid example where everything lives in a single file, the Svelte example uses separate `.svelte` component files:
+| File | Role |
+|------|------|
+| `App.svelte` | `pageKind` router: `HomeBody`, `PageBody`, or `NotFoundBody`; mobile sidebar `<dialog>`. |
+| `PageBody.svelte` | Sidebar + article + TOC + footer; `{@html content}` for markdown. |
+| `HomeBody.svelte` | Landing sections and listings. |
+| `SiteHeader.svelte` | Nav + optional `pagefind-modal-trigger`. |
 
-### `App.svelte`
+## Client vs server split
 
-The root component that acts as a layout router. It receives a `pageKind` prop and uses Svelte's `{#if}` blocks to select the appropriate child:
+| Surface | Responsibility |
+|---------|------------------|
+| `entry-server.ts` + `.svelte` | All HTML strings for each URL. |
+| `client.js` | Vite browser entry: CSS import order, `@pagesmith/core/runtime/content`, then `runtime.ts`. |
+| `src/runtime.ts` | Vanilla progressive enhancement: TOC active state, sidebar `<dialog>`, theme controls, compact search trigger. |
 
-```svelte title="src/App.svelte (excerpt)"
-{#if pageKind === 'home'}
-  <HomeBody {firstGuideUrl} {firstFeaturesUrl} {guideEntries} {featuresEntries} />
-{:else if pageKind === 'page'}
-  <PageBody title={pageTitle} content={pageContent} headings={pageHeadings} ... />
-{:else}
-  <NotFoundBody />
-{/if}
-```
+## Build output path
 
-### `PageBody.svelte`
-
-Handles all content pages with a sidebar, article area, table of contents, and footer. Uses `{@html content}` to inject the rendered markdown.
-
-### `SidebarNav.svelte`
-
-Renders navigation sections and guide groups organized by series. Uses `{#each}` blocks to iterate over groups and entries.
-
-### `SiteHeader.svelte`
-
-The top navigation bar with logo, links, mobile sidebar toggle, and conditional search trigger.
-
-## Svelte 5 patterns
-
-All components use Svelte 5's `$props()` rune for type-safe prop declarations:
-
-```svelte title="src/App.svelte (excerpt)"
-let {
-  pageKind,
-  pageTitle = '',
-  currentPath,
-  basePath,
-  ...
-}: { pageKind: 'home' | 'page' | 'not-found', ... } = $props()
-```
-
-Raw HTML from the markdown pipeline is injected using Svelte's `{@html}` tag:
-
-```svelte
-<div class="prose">{@html content}</div>
-```
-
-## How a page gets built
-
-The full rendering flow for a single page:
-
-1. The SSG plugin calls `render('/guide/installation', config)`
-2. The entry server normalizes the route and looks up the matching content entry
-3. Props are assembled and passed to `App.svelte`
-4. `renderSvelte(App, { props })` produces `{ body, head }`
-5. `renderDocument` wraps the output in a complete HTML document
-6. The plugin writes the result to `gh-pages/examples/svelte/guide/installation/index.html`
+For each route, the plugin writes HTML under the configured `outDir` (see `content/guide/vite-config.md`).

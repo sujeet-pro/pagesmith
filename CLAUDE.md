@@ -1,155 +1,97 @@
 # Pagesmith
 
-Pagesmith is a filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope.
+Repo-level maintainer context for the Pagesmith monorepo.
 
-Two main user-facing packages: `@pagesmith/core` for the shared content/runtime layer and `@pagesmith/docs` for convention-based documentation built on top of core.
+## Guidance Surfaces
+
+- **Use this file, `AGENTS.md`, root `ai-guidelines/`, and `.claude/skills/`** when maintaining this repository.
+- **Use `packages/core/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`** when updating the published package contract for library users.
+- **Use `docs/content/` plus the repo-root `pagesmith.config.json5`** for the latest docs site that documents current main-branch behavior.
 
 ## What matters most
 
-- **`@pagesmith/core`** (`packages/core/`) — Content layer, markdown pipeline (Expressive Code for syntax highlighting), JSX runtime, CSS builder, schemas, loaders, validation, `z` re-export, and Vite plugins (`pagesmithContent`, `pagesmithSsg`) at `@pagesmith/core/vite`.
-- **`@pagesmith/docs`** (`packages/docs/`) — Docs-site implementation on top of core: build/dev/preview CLI, default theme, bundled Pagefind search, nav/sidebar generation from `content/`, layout overrides through `theme.layouts.*`, asset mapping via `assets`, and config validation in `pagesmith.config.json5`. Features include `editLink` ("Edit this page" links), `lastUpdated` (git-based timestamps), auto-generated breadcrumbs, parallel page building, and an incremental dev server that skips CSS/JS/Pagefind for content-only changes. Default output is `gh-pages/`. Hosted at `projects.sujeet.pro/pagesmith`.
-- The root docs site in [`docs/`](/Users/sujeet/personal/pagesmith/docs) uses the default docs package setup.
-- [`examples/doc-site/`](/Users/sujeet/personal/pagesmith/examples/doc-site) demonstrates docs layout overrides.
-- [`examples/blog-site/`](/Users/sujeet/personal/pagesmith/examples/blog-site) demonstrates a custom site built on `@pagesmith/core` with its own layouts and asset pipeline.
-- Framework examples in `examples/with-*` demonstrate integration with React, Solid, Svelte, EJS, and Handlebars.
-- Assistant artifact generation via CLI: `npx pagesmith init --ai`.
-- MCP servers: `@pagesmith/docs/mcp` (docs tools) and `@pagesmith/core/mcp` (collection tools).
+- **`@pagesmith/core`** (`packages/core/`) — content layer, markdown pipeline, JSX runtime, CSS/runtime exports, Vite plugins, and core MCP server.
+- **`@pagesmith/docs`** (`packages/docs/`) — config-driven docs site, CLI (`init|dev|build|preview|mcp`), default theme, Pagefind integration, schema generation, and docs-specific MCP server.
+- **Root docs site** — config lives at `pagesmith.config.json5`; content lives in `docs/content/`.
+- **Examples** — `examples/blog-site/`, `examples/doc-site/`, and `examples/with-*` are part of the contract and must stay behaviorally aligned with the packages and docs.
+- **AI installer** — `packages/core/src/ai/` generates project memory files and skills; those generated references must track the published package paths under `node_modules/@pagesmith/*/ai-guidelines/` and `node_modules/@pagesmith/docs/schemas/`.
 
-## 1.0 Architecture Principles (Locked)
+## Locked principles
 
-These principles are locked for 1.0 and should drive all future edits unless an explicit architecture RFC supersedes them:
+1. Filesystem-first source of truth.
+2. Strict package boundaries.
+3. Validation before render/runtime use.
+4. Vite-native execution.
+5. Progressive enhancement.
+6. Configuration before customization.
+7. Docs, examples, and published AI guidance change together.
 
-1. **Filesystem-first source of truth** — content and companion assets live in the repo, not in an external CMS or database.
-2. **Strict package boundaries** — keep shared primitives in `@pagesmith/core`; keep docs-site conventions and orchestration in `@pagesmith/docs`.
-3. **Validation at content boundaries** — schema and markdown/content validation must happen before render/runtime usage. The content loading pipeline order is: discover -> load -> transform -> computed fields -> filter -> schema validate -> custom validate -> content validators -> plugin validators -> cache.
-4. **Vite-native execution model** — no custom bundler layer; build/dev/preview flows stay Vite-centric.
-5. **Progressive enhancement over JS-heavy runtime** — static-first HTML output with minimal client JS for UX improvements.
-6. **Configuration before customization** — defaults should cover common docs workflows; advanced overrides remain opt-in.
-7. **Docs and AI guidance in lockstep with behavior** — release-impacting changes must update user docs plus package AI guidance files in the same PR.
+## Package user contract
 
-## Repo workflow
+These files are part of the published package surface and must stay version-matched with each release:
 
-Use Vite+ commands:
+- `packages/core/ai-guidelines/*.md`
+- `packages/core/ai-guidelines/llms*.txt`
+- `packages/core/README.md`
+- `packages/core/REFERENCE.md`
+- `packages/docs/ai-guidelines/*.md`
+- `packages/docs/ai-guidelines/llms*.txt`
+- `packages/docs/schemas/*.schema.json`
+- `packages/docs/README.md`
+- `packages/docs/REFERENCE.md`
+
+For consuming projects, the installed package paths should look like:
+
+- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`
+- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`
+- `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
+- `node_modules/@pagesmith/docs/schemas/*.schema.json`
+
+## Maintainer workflow
+
+When behavior changes:
+
+- Update implementation first in `packages/core/src/**` or `packages/docs/src/**`.
+- Update published package guidance in `packages/*/ai-guidelines/**`, package READMEs/REFERENCE docs, and `packages/docs/schemas/**` when relevant.
+- Update generated AI artifact references under `packages/core/src/ai/**`.
+- Update the root docs site under `docs/content/**`.
+- Update all affected examples under `examples/**`.
+- Update tests and validation checks.
+
+## High-risk drift areas
+
+- Markdown/code renderer facts versus docs/examples/package `markdown-guidelines.md`
+- Docs frontmatter/meta/schema rules versus `packages/docs/schemas/*.schema.json`
+- Docs hosting behavior versus `packages/docs/src/build.ts`, `packages/docs/src/server.ts`, and deployment docs
+- Example content versus the root docs site and package AI guidance
+
+## Repo-specific rules
+
+- Keep slashless URLs as the canonical browser form while preserving GitHub Pages compatibility.
+- Keep the preview server serving current files from disk after rebuilds.
+- Keep asset passthrough first-class for files like `llms.txt`, `llms-full.txt`, prompts, and schemas.
+- Never treat root `ai-guidelines/` as the published package contract; those files are for maintaining this repo.
+
+## Project skills
+
+- `.claude/skills/update-content/`
+- `.claude/skills/examples-parity/`
+- `.claude/skills/sync-package-ai-guidelines/`
+- `.claude/skills/pagesmith-review/`
+
+## Commands
 
 ```bash
 vp install
 vp check
 vp test
 vp run build
-```
-
-Useful commands:
-
-```bash
 vp run build:docs
 vp run build:examples
 vp run validate:examples
-vp run dev:docs
-vp run dev:eg:react
-vp run dev:eg:doc-site
+npm run validate
 ```
-
-## Repo layout
-
-```text
-packages/
-  core/                 @pagesmith/core — shared content/runtime layer + vite plugins
-  docs/                 @pagesmith/docs — docs implementation + docs CLI
-
-examples/
-  blog-site/            Custom site using @pagesmith/core (own layouts/styles/runtime)
-  doc-site/             @pagesmith/docs with layout overrides
-  with-react/           Content layer + React
-  with-solid/           Content layer + SolidJS
-  with-svelte/          Content layer + Svelte
-  with-vanilla-ejs/     Content layer + EJS
-  with-vanilla-hbs/     Content layer + Handlebars
-
-docs/                   Pagesmith's own docs (uses @pagesmith/docs defaults)
-
-tests/
-  e2e/
-```
-
-## Dependency graph
-
-```text
-@pagesmith/core         → standalone
-@pagesmith/docs         → @pagesmith/core (dep)
-```
-
-## Config formats
-
-- **`@pagesmith/core`** → Vite/plugin flow with `content.config.ts` or direct `createContentLayer(...)` usage
-- **`@pagesmith/docs`** → `pagesmith.config.json5` plus a `content/` tree
-- Docs layout overrides use fixed keys under `theme.layouts` such as `home`, `page`, and `notFound`
-
-## Markdown pipeline
-
-The markdown pipeline uses unified with Expressive Code for syntax highlighting:
-
-```
-remark-parse → remark-gfm → remark-math → remark-frontmatter
-  → remark-github-alerts → remark-smartypants → [user remark plugins]
-  → lang-alias transform → remark-rehype
-  → rehype-mathjax (must run before Expressive Code so math is rendered to SVG first)
-  → rehype-expressive-code (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
-  → rehype-slug → rehype-autolink-headings
-  → rehype-external-links → rehype-accessible-emojis
-  → heading extraction → [user rehype plugins] → rehype-stringify
-```
-
-Code block styling is handled entirely by Expressive Code through inline styles and scripts injected during processing.
-
-## CSS exports
-
-- `@pagesmith/core/css/content` — prose + inline code styles
-- `@pagesmith/core/css/standalone` — full layout + prose + TOC
-- `@pagesmith/core/css/viewport` — responsive viewport base
-- `@pagesmith/core/css/fonts` — bundled Open Sans + JetBrains Mono
-
-## Theme system
-
-Class-based multi-theme with two orthogonal CSS class axes on `<html>`:
-- **Color scheme**: `color-scheme-auto` | `color-scheme-light` | `color-scheme-dark` — controls `light-dark()` via CSS `color-scheme` property.
-- **Theme variant**: `theme-paper` | `theme-high-contrast` — overrides CSS custom properties.
-- Server default: `<html class="color-scheme-auto theme-paper">`.
-- FOUC prevention: inline `<script>` reads `localStorage('pagesmith-theme')` before CSS paints.
-- Progressive enhancement: without JS, site follows OS preference; JS adds toggle UI and persistence.
-- Image switching: `.only-light`/`.only-dark` classes (class-based, not `@media`).
-- Docs theme: header toggle dropdown, footer selector, config options `theme.defaultColorScheme`/`theme.defaultTheme`.
-
-## AI guidelines
-
-Package-local AI guidance is the canonical source of truth and must stay version-matched with each package.
-
-- `packages/core/docs/llms.txt`
-- `packages/core/docs/llms-full.txt`
-- `packages/core/docs/agents/usage.md`
-- `packages/core/docs/agents/migration.md`
-- `packages/docs/docs/llms.txt`
-- `packages/docs/docs/llms-full.txt`
-- `packages/docs/docs/agents/usage.md`
-- `packages/docs/docs/agents/migration.md`
-
-For consuming projects, point `CLAUDE.md`/`AGENTS.md` to installed package files under `node_modules`:
-
-- `node_modules/@pagesmith/core/docs/agents/usage.md`
-- `node_modules/@pagesmith/docs/docs/agents/usage.md`
-
-The AI installer CLI (`npx pagesmith init --ai`) generates assistant context files including markdown guidelines (`.pagesmith/markdown-guidelines.md`) and a `/update-docs` Claude command for keeping docs in sync with implementation. The AI module code lives in `packages/core/src/ai/` (split into types, writers, and per-assistant content modules) and is used internally by the CLI.
-
-## Guidance
-
-- Prefer `defineCollection`, `defineCollections`, and `pagesmithContent` for the Vite content flow.
-- Prefer `createContentLayer` and `defineConfig` when working directly with the lower-level content layer.
-- Prefer `@pagesmith/docs` for docs sites that should work from configuration alone.
-- Prefer `@pagesmith/core` for custom sites, custom layouts, and framework integrations.
-- Prefer folder-based markdown entries when content references sibling assets.
-- Keep schema validation and content validation in `@pagesmith/core` instead of scattering it into app code.
-- Doc-specific schemas (site config, layout props, page data) live in `@pagesmith/docs/schemas/`.
-- Keep README, docs, and `CLAUDE.md` aligned when user-facing behavior changes.
-- Every release-impacting package change must update package-local AI files (`docs/llms*.txt`, `docs/agents/*.md`) in the same PR.
-- All packages use the `@pagesmith/` npm scope.
-- Top-level folders under `content/` define the main docs navigation in `@pagesmith/docs`.
-- Everything is Vite-native. No webpack, no custom bundlers.

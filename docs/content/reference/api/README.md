@@ -136,7 +136,7 @@ import { convert } from '@pagesmith/core'
 const result = await convert('# Hello\n\nWorld', {
   markdown: { shiki: { themes: { light: 'github-light', dark: 'github-dark' } } },
 })
-// result.html, result.toc, result.frontmatter
+// result.html, result.headings, result.toc, result.frontmatter
 ```
 
 ### ConvertResult
@@ -144,6 +144,8 @@ const result = await convert('# Hello\n\nWorld', {
 ```ts
 type ConvertResult = {
   html: string
+  headings: Heading[]
+  /** @deprecated Use `headings` instead. */
   toc: Heading[]
   frontmatter: Record<string, any>
 }
@@ -191,6 +193,8 @@ type Heading = {
 type MarkdownConfig = {
   remarkPlugins?: any[]
   rehypePlugins?: any[]
+  allowDangerousHtml?: boolean
+  math?: boolean | 'auto'
   shiki?: {
     themes: { light: string; dark: string }
     langAlias?: Record<string, string>

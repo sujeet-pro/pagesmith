@@ -1,7 +1,7 @@
 ---
 title: Configuration
 description: Configuring your docs site
-date: 2026-03-16
+publishedDate: 2026-03-16
 tags: [config]
 series: Customization
 seriesOrder: 2
@@ -18,6 +18,28 @@ All site configuration lives in a single JSON5 file:
   description: 'Documentation for my project',
   origin: 'https://user.github.io',
   basePath: '/my-project',
+  maintainer: {
+    name: 'Sujeet Jaiswal',
+    link: 'https://sujeet.pro',
+  },
+  copyright: {
+    projectName: 'My Documentation',
+    startYear: 2024,
+    endYear: null,
+  },
+  footerLinks: [
+    {
+      header: 'Docs',
+      links: [
+        { label: 'Guide', path: '/guide' },
+        { label: 'Reference', path: '/reference' },
+      ],
+    },
+    {
+      header: 'Project',
+      links: [{ label: 'GitHub', path: 'https://github.com/user/my-project' }],
+    },
+  ],
   sidebar: { collapsible: true },
   search: { enabled: true },
   editLink: {
@@ -41,7 +63,13 @@ When you run `pagesmith init`, the CLI detects your git remote and pre-populates
 |--------|---------|-------------|
 | `basePath` | Auto-detected | URL prefix for subdirectory hosting |
 | `origin` | Auto-detected | Production URL for canonical links and sitemap |
+| `maintainer` | `package.json author` | Maintainer credit used by the default footer sign-off |
+| `copyright` | first git commit year + dynamic end year | Footer legal line config |
+| `footerLinks` | top-level nav links | Footer links as a flat row or grouped columns |
 | `search.enabled` | `true` | Enable Pagefind full-text search |
 | `sidebar.collapsible` | `true` | Allow sidebar sections to collapse |
-| `lastUpdated` | `false` | Show git-based timestamps on pages |
-| `editLink` | — | "Edit this page" link configuration |
+| `lastUpdated` | `true` | Show git-based timestamps on pages |
+| `editLink` | Auto-detected | "Edit this page" link configuration (`false` disables it) |
+| `theme.layouts` | package defaults | Optional `{ home, page, notFound }` JSX overrides (this example sets `home` + `page`) |
+
+CLI commands such as `pagesmith build`, `pagesmith preview`, and `pagesmith mcp --stdio` read the same config file you point at with `--config` (see [Installation](./installation)).

@@ -14,7 +14,7 @@ The theme is located in the `theme/` directory of the `@pagesmith/docs` package:
 ```
 theme/
   components/
-    DocFooter.tsx         Prev/next navigation and copyright footer
+    DocFooter.tsx         Page footer with metadata, footer links, legal line, and controls
     DocHeader.tsx         Sticky top bar with logo, nav, and search trigger
     DocSidebar.tsx        Left navigation sidebar with section grouping
     DocTOC.tsx            Table of contents (right sidebar and mobile accordion)
@@ -25,6 +25,7 @@ theme/
     DocNotFound.tsx       404 error page
   runtime/
     main.ts              Browser entry point, initializes all runtime modules
+    copyright.ts         Footer copyright year hydration
     theme.ts              Color scheme + theme variant toggle, localStorage sync
     search.ts             Search modal with Pagefind UI
     sidebar.ts            Mobile sidebar toggle and close behavior
@@ -50,7 +51,7 @@ theme/
       grid.css            Responsive 3-column grid system
       header.css          Sticky header bar
       sidebar.css         Left sidebar navigation
-      footer.css          Footer with prev/next cards
+      footer.css          Footer with prev/next cards, footer links, and legal line
       home.css            Home page specific styles
     components/
       search.css          Search trigger button and modal dialog
@@ -81,7 +82,7 @@ The features grid accepts a `features` array in frontmatter, where each feature 
 
 Any markdown content below the frontmatter is rendered in a centered content section beneath the features.
 
-The DocHome layout uses the `.doc-home` CSS class with a single-column centered layout (max-width `100ch`).
+The DocHome layout uses the `.doc-home` CSS class with a single-column centered layout. Its sections, markdown content, and footer share the same `100ch` content column and inline padding profile as `DocPage`, so navigating between the home page and content pages keeps the main reading width visually consistent while sidebars appear or disappear around it.
 
 ### DocPage
 
@@ -98,7 +99,7 @@ The layout includes:
 - A page header with the `<h1>` title and optional description from frontmatter
 - A mobile TOC accordion (`<details>`) that appears when the right aside is hidden
 - The rendered prose content
-- A footer with prev/next page navigation cards and copyright information
+- A footer with page metadata, then prev/next navigation when available, then responsive footer links, default attribution, and copyright information. On wide screens, footer links use up to 4 evenly spaced columns.
 
 Props include `sidebarSections` (auto-generated from the content tree), `prev`/`next` links for sequential navigation, and `headings` for the TOC.
 
@@ -170,10 +171,12 @@ The right-side table of contents:
 
 The page footer:
 
-- Prev/next navigation cards for sequential page browsing (2-column grid, collapses to single column below `800px`)
-- Footer links from the `footerLinks` config
-- **Theme selector** — segmented button groups for Appearance (Auto/Light/Dark) and Theme (Paper/High Contrast) with `aria-pressed` for accessibility. Wrapped in `.no-js-hidden`. Stays synced with the header dropdown via the shared `theme.ts` runtime.
-- Copyright line
+- Edit-link and last-updated metadata when enabled for the page
+- Prev/next navigation cards rendered directly below the page metadata for sequential page browsing on every non-home page (2-column grid, collapses to single column below `800px`)
+- Footer links rendered either as a flat link grid or grouped columns with optional headers. On wide screens, the footer uses up to 4 evenly spaced columns. Uses `footerLinks` when configured, otherwise falls back to the primary top-level nav links
+- Default attribution line: "Made with ❤️ using Pagesmith" with an optional maintainer credit from `maintainer` or `package.json` author. `footerText` overrides only that sign-off segment
+- **Theme selector** — segmented button groups for Appearance (Auto/Light/Dark), Theme (Paper/High Contrast), and Text Size. Wrapped in `.no-js-hidden` and kept in sync with the header controls via the shared `theme.ts` runtime.
+- Footer legal line with copyright and the Pagesmith sign-off on one wrap-friendly row
 
 ## CSS Architecture
 
@@ -345,13 +348,14 @@ The theme's runtime JavaScript is a progressive enhancement layer. The site work
 `runtime/main.ts` initializes all modules on page load:
 
 ```ts
+initFooterCopyrightYear()
 initTheme()
 initSidebar()
 initTocHighlight()
 initSearch()
 ```
 
-Code block interactivity (copy buttons) is handled by Expressive Code through inline scripts injected during markdown processing.
+Code block interactivity (tabs, copy, and collapse controls) is handled by the shared Pagesmith content runtime loaded by the docs theme.
 
 ### Theme Toggle (`theme.ts`)
 
@@ -421,9 +425,11 @@ The left sidebar displays hierarchical navigation organized by content sections:
 
 The page footer appears at the bottom of each `DocPage` and contains:
 
-- **Prev/Next navigation** -- a 2-column grid of card-style links for sequential page browsing. Each card shows a directional label ("Previous" / "Next") and the page title. On screens below `800px`, the grid collapses to a single column.
-- **Footer links** -- a centered row of links from the `footerLinks` config
-- **Copyright** -- a centered copyright line at the bottom
+- **Page metadata** -- "Edit this page" and "Last updated" appear by default on non-home pages when the repo can be resolved and git history is available.
+- **Prev/Next navigation** -- a 2-column grid of card-style links for sequential page browsing on non-home pages. It renders directly below the page metadata and above the footer link area. Each card shows a directional label ("Previous" / "Next") and the page title. On screens below `800px`, the grid collapses to a single column.
+- **Footer links** -- either a flat link grid of major links or grouped link columns with optional headers, from `footerLinks`, or from the top nav when `footerLinks` is omitted. On wide screens, the footer uses up to 4 evenly spaced columns.
+- **Footer attribution** -- "Made with ❤️ using Pagesmith" plus an optional maintainer credit. Set `footerText` to replace only this sign-off segment.
+- **Copyright** -- configured via `copyright` and rendered alongside the sign-off in a single wrap-friendly legal line. When `endYear` is omitted or `null`, the server renders the build year and the browser can advance it later if the viewer's current year differs.
 
 ## Overriding Layouts
 

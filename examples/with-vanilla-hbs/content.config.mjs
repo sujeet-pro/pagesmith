@@ -1,3 +1,7 @@
+/**
+ * Single source of truth for collection shapes: Zod validates frontmatter before render().
+ * Kept as .mjs so the SSR entry can import it without a separate TS compile step for config.
+ */
 import { defineCollection, defineCollections, z } from '@pagesmith/core'
 
 export const guide = defineCollection({
@@ -14,17 +18,6 @@ export const guide = defineCollection({
   }),
 })
 
-export const features = defineCollection({
-  loader: 'markdown',
-  directory: './content/features',
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-  }),
-})
-
 export const pages = defineCollection({
   loader: 'markdown',
   directory: './content/pages',
@@ -34,4 +27,4 @@ export const pages = defineCollection({
   }),
 })
 
-export default defineCollections({ guide, features, pages })
+export default defineCollections({ guide, pages })

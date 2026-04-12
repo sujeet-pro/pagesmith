@@ -34,17 +34,6 @@ export const guide = defineCollection({
   }),
 })
 
-export const features = defineCollection({
-  loader: 'markdown',
-  directory: './content/features',
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-  }),
-})
-
 export const pages = defineCollection({
   loader: 'markdown',
   directory: './content/pages',
@@ -54,7 +43,7 @@ export const pages = defineCollection({
   }),
 })
 
-export default defineCollections({ guide, features, pages })
+export default defineCollections({ guide, pages })
 ```
 
 ## Why `.mjs`?
@@ -87,12 +76,14 @@ Unlike the React or Solid examples that use virtual modules via `pagesmithConten
 ```ts title="src/entry-server.tsx (excerpt)"
 import { createContentLayer } from '@pagesmith/core'
 
-const { guide, features, pages } = contentConfig
+const { guide, pages } = contentConfig as Record<string, any>
 
-let layer
-function getLayer(root) {
-  if (!layer) {
-    layer = createContentLayer({ collections: { guide, features, pages }, root })
+let layer: ReturnType<typeof createContentLayer>
+let layerRoot: string
+function getLayer(root: string) {
+  if (!layer || layerRoot !== root) {
+    layerRoot = root
+    layer = createContentLayer({ collections: { guide, pages }, root })
   }
   return layer
 }

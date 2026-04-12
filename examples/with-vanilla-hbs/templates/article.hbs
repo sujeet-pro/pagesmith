@@ -1,6 +1,7 @@
+{{!-- Article routes: layout supplies nav/footer; this file defines searchable body + prose HTML from entry.render(). --}}
 {{#> layout}}
   {{#*inline "body"}}
-    <article>
+    <article id="doc-main-content" tabindex="-1" data-pagefind-body>
       {{#if tocHeadings.length}}
         <details class="doc-toc-mobile">
           <summary>On this page</summary>
@@ -17,7 +18,7 @@
       {{/if}}
 
       {{#if date}}
-        <p class="doc-page-meta" style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem;">
+        <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 1rem;">
           <time>{{formatDate date}}</time>
           {{#if readTime}}
             &middot; {{readTime}} min read

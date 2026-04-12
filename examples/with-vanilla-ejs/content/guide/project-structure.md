@@ -17,8 +17,7 @@ The EJS example follows a conventional layout where content, templates, and rend
 ```text
 examples/with-vanilla-ejs/
   content/
-    features/           Markdown articles for the features collection
-    guide/              Markdown articles for the guide collection (this section)
+    guide/              Markdown articles for the guide collection, including `kitchen-sink.md`
     pages/              Standalone pages (e.g., about)
   public/
     favicon.svg         Static assets copied directly to the output
@@ -35,39 +34,46 @@ examples/with-vanilla-ejs/
   vite.config.ts        Vite config with Pagesmith plugins
   package.json          Dependencies and scripts
   tsconfig.json         TypeScript configuration
+  llms.txt              Agent-oriented notes for this example (not loaded at runtime)
 ```
 
 ## Key files explained
 
 ### `templates/layout.ejs`
 
-The main HTML shell that wraps every page. It receives variables like `title`, `basePath`, `css`, `body`, `sidebar`, `activePath`, and `isHome`. The layout handles:
+The main HTML shell that wraps every page. It receives variables such as `title`, `basePath`, `cssPath`, `jsPath`, `body`, `sidebar`, `activePath`, `isHome`, **`searchEnabled`**, and **`isDev`**. The layout handles:
 
-- The document `<head>` with inlined CSS, font references, and Pagefind assets
-- A top navigation header with search trigger
-- Conditional rendering: home pages get a single-column layout, while article pages get a three-column layout with sidebar and table of contents
-- A reusable `renderSidebarContent()` function defined inline to render navigation in both the desktop sidebar and the mobile drawer
-
-EJS uses `<%= %>` for escaped output and `<%- %>` for unescaped HTML (used for the body content and CSS):
+- The document `<head>` with font CSS, hashed theme CSS via `cssPath`, and Pagefind assets when `searchEnabled` is true
+- A top navigation header and optional Pagefind trigger
+- Conditional rendering: home uses a single `<main>`; inner pages use the sidebar + `<main class="doc-main">` + aside grid
+- A reusable `renderSidebarContent()` function defined inline so the desktop sidebar and mobile drawer stay identical
 
 ```ejs title="templates/layout.ejs (excerpt)"
 <title><%= title %></title>
-<style><%- css %></style>
+<% if (typeof cssPath !== 'undefined' && cssPath) { %>
+<link rel="stylesheet" href="<%= cssPath %>" />
+<% } %>
 ```
 
 ### `templates/article.ejs`
 
-Renders guide and feature pages. Receives `content` (rendered HTML), `headings`, `date`, `readTime`, and `tags`. Includes a mobile table of contents using `<details>` and displays article metadata:
+Renders guide and standalone markdown pages. Receives `content` (rendered HTML), `headings`, `date`, `readTime`, and `tags`. Includes a mobile table of contents using `<details>` and displays article metadata:
 
 ```ejs title="templates/article.ejs (excerpt)"
-<div class="prose">
-  <%- content %>
-</div>
+<article id="doc-main-content" tabindex="-1" data-pagefind-body>
+  <div class="prose">
+    <%- content %>
+  </div>
+</article>
 ```
 
 ### `templates/index.ejs` and `templates/about.ejs`
 
-The home page template renders a hero section with feature cards and guide listings. The about template is minimal -- just a prose wrapper around the rendered markdown content.
+The home page template renders a hero section with feature cards and guide listings. The about template wraps markdown in an `<article data-pagefind-body>` so Pagefind indexes the about page the same way as guides.
+
+### `client.js`
+
+Vite client entry referenced from the built `index.html` / injected `jsPath`. Imports `src/theme.css` and `@pagesmith/core/runtime/content` for progressive markdown-related behavior, plus a small viewport tweak for Pagefind triggers. **Not** where routing or EJS runs — keep SSR logic in `entry-server.tsx`.
 
 ### `src/entry-server.tsx`
 
@@ -75,7 +81,7 @@ The heart of the rendering pipeline. This file uses `createContentLayer` to load
 
 ### `content.config.mjs`
 
-Defines three content collections -- `guide`, `features`, and `pages` -- each backed by a directory of markdown files and validated with a Zod schema. Uses `.mjs` extension for plain ESM compatibility with `createContentLayer`.
+Defines two content collections -- `guide` and `pages` -- each backed by a directory of markdown files and validated with a Zod schema. The markdown showcase now lives at `content/guide/kitchen-sink.md`. Uses `.mjs` extension for plain ESM compatibility with `createContentLayer`.
 
 ### `src/theme.css`
 

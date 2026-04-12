@@ -8,12 +8,13 @@
  * - "Runtime" (standalone): full site — reset, prose, layout, TOC
  * - "Content": just markdown rendering — reset, prose, viewport
  *
- * Code block styling is handled by Expressive Code (injected inline
- * during markdown processing). The CSS bundles here cover prose,
- * inline code, and layout only.
+ * Code block styling is included in the shipped CSS bundles. Load
+ * `@pagesmith/core/runtime/content` (or the JS returned here) to
+ * enable tabs, copy buttons, and collapsed code ranges.
  */
 
 import { existsSync, readFileSync } from 'fs'
+import { createRequire } from 'module'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -22,6 +23,8 @@ const ASSET_PATHS: Record<string, string> = {
   'content.css': 'styles/content.css',
   'styles/viewport.css': 'styles/viewport.css',
 }
+
+const require = createRequire(import.meta.url)
 
 function getPackageDir(): string {
   const thisDir = dirname(fileURLToPath(import.meta.url))
@@ -47,6 +50,47 @@ function readAsset(relPath: string): string {
   return ''
 }
 
+function stripSourceMapComment(source: string): string {
+  return source.replace(/^\s*\/\/# sourceMappingURL=.*$/gm, '').trim()
+}
+
+function readModuleSource(relPath: string): string {
+  const pkgDir = getPackageDir()
+  const distPath = join(pkgDir, 'dist', `${relPath}.mjs`)
+  if (existsSync(distPath)) {
+    return stripSourceMapComment(readFileSync(distPath, 'utf-8'))
+  }
+
+  const srcPath = join(pkgDir, 'src', `${relPath}.ts`)
+  if (!existsSync(srcPath)) {
+    console.warn(`[pagesmith] Runtime module not found: ${relPath}`)
+    return ''
+  }
+
+  try {
+    const ts = require('typescript') as typeof import('typescript')
+    return stripSourceMapComment(
+      ts.transpileModule(readFileSync(srcPath, 'utf-8'), {
+        compilerOptions: {
+          module: ts.ModuleKind.ESNext,
+          target: ts.ScriptTarget.ES2022,
+        },
+        fileName: srcPath,
+        reportDiagnostics: false,
+      }).outputText,
+    )
+  } catch {
+    console.warn(`[pagesmith] Runtime module not built and typescript is unavailable: ${relPath}`)
+    return ''
+  }
+}
+
+function concatModuleSources(relPaths: string[], initStatements: string[]): string {
+  const chunks = relPaths.map((relPath) => readModuleSource(relPath)).filter(Boolean)
+  if (chunks.length === 0) return ''
+  return `${chunks.join('\n\n')}\n\n${initStatements.join('\n')}\n`
+}
+
 function resolveAssetPath(relPath: string): string {
   const pkgDir = getPackageDir()
   const mapped = ASSET_PATHS[relPath]
@@ -66,13 +110,16 @@ export function getRuntimeCSS(): string {
   return readAsset('standalone.css')
 }
 export function getRuntimeJS(): string {
-  return readAsset('standalone.js')
+  return concatModuleSources(
+    ['runtime/code-blocks', 'runtime/code-tabs', 'runtime/toc-highlight'],
+    ['initCodeBlocks()', 'initCodeTabs()', 'initTocHighlight()'],
+  )
 }
 export function getRuntimeCSSPath(): string {
   return resolveAssetPath('standalone.css')
 }
 export function getRuntimeJSPath(): string {
-  return resolveAssetPath('standalone.js')
+  return resolveAssetPath('runtime/standalone.mjs')
 }
 
 // Content (markdown rendering only)
@@ -80,13 +127,16 @@ export function getContentCSS(): string {
   return readAsset('content.css')
 }
 export function getContentJS(): string {
-  return readAsset('content.js')
+  return concatModuleSources(
+    ['runtime/code-blocks', 'runtime/code-tabs'],
+    ['initCodeBlocks()', 'initCodeTabs()'],
+  )
 }
 export function getContentCSSPath(): string {
   return resolveAssetPath('content.css')
 }
 export function getContentJSPath(): string {
-  return resolveAssetPath('content.js')
+  return resolveAssetPath('runtime/content.mjs')
 }
 
 // Individual CSS files

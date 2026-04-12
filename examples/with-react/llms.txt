@@ -1,0 +1,28 @@
+# Pagesmith + React (examples/with-react)
+
+Agent-focused notes for this static-site example. Scope: `@pagesmith/core` + Vite + React at **build time only** (no client React runtime).
+
+## Integration flow (mental model)
+
+1. **Collections** — `content.config.ts` exports `defineCollections({ guide, pages })`. Zod schemas validate frontmatter at build time, and `guide/kitchen-sink.md` is the dedicated markdown regression page.
+2. **`pagesmithContent`** — Runs markdown through the core pipeline, emits `virtual:content/<key>` modules and regenerates `src/pagesmith-content.d.ts`.
+3. **`src/entry-server.tsx`** — Imports those virtual modules, sorts/groups entries, defines layout JSX, exports `getRoutes()` and `render(url, config)` consumed by **`pagesmithSsg`**.
+4. **`renderToStaticMarkup`** — Converts layout + body subtree to HTML strings. The full document (head, Pagefind shell, asset tags) comes from **`renderDocumentShell`** in `@pagesmith/core/ssg-utils` (this file aliases it as `renderDocument`).
+5. **`client.js`** — Browser entry: site `theme.css`, **`@pagesmith/core/runtime/content`** (prose/code styles aligned with rendered markdown), then **`src/runtime.ts`** (TOC, sidebar, theme UI — not search init).
+6. **Pagefind** — Indexed HTML only inside nodes marked `data-pagefind-body`. Here: home `<main>`, article `<article>`. Search UI is Component UI via the document shell when `config.searchEnabled` is true (production build after index), not in plain `npm run dev`.
+
+## Files to read first
+
+- `vite.config.ts` — plugin order: `sharedAssetsPlugin`, `pagesmithContent`, spread `pagesmithSsg`.
+- `src/entry-server.tsx` — routes, per-route `renderToStaticMarkup`, `renderDocumentShell`.
+- `client.js` / `src/runtime.ts` — client vs server split.
+- `content/guide/*.md` — how this repo wires the above (avoid duplicating generic Markdown reference; use `content/guide/kitchen-sink.md` for exhaustive Markdown samples).
+
+## Conventions
+
+- **Base path** — `base` in Vite and `config.base` in `render()` must stay consistent for deployed subdirectory hosting.
+- **Do not** add a browser React root unless you intentionally change the architecture; this example is SSG-first.
+
+## Upstream docs
+
+For Markdown syntax, validators, and package APIs, follow the published Pagesmith docs and `packages/core/ai-guidelines/` — this directory only demonstrates wiring.

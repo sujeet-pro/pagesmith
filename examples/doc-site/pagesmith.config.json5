@@ -7,20 +7,48 @@
   outDir: '../../gh-pages/examples/doc-site',
   basePath: '/pagesmith/examples/doc-site',
   homeLink: '/pagesmith',
+  maintainer: {
+    name: 'Sujeet Jaiswal',
+    link: 'https://sujeet.pro',
+  },
+  copyright: {
+    projectName: 'Example Docs',
+    startYear: 2024,
+    endYear: null,
+  },
   sidebar: {
     collapsible: true,
   },
   theme: {
+    defaultColorScheme: 'auto',
+    defaultTheme: 'paper',
     layouts: {
       home: './theme/layouts/DocHome.tsx',
       page: './theme/layouts/DocPage.tsx',
     },
   },
   footerLinks: [
-    { label: 'Guide', path: '/guide/installation' },
-    { label: 'API', path: '/guide/content-collections' },
-    { label: 'Reference', path: '/guide/configuration' },
-    { label: 'Features', path: '/features/kitchen-sink' },
+    {
+      header: 'Guide',
+      links: [
+        { label: 'Installation', path: '/guide/installation' },
+        { label: 'Configuration', path: '/guide/configuration' },
+      ],
+    },
+    {
+      header: 'Reference',
+      links: [
+        { label: 'Content Collections', path: '/guide/content-collections' },
+        { label: 'Kitchen Sink', path: '/guide/kitchen-sink' },
+      ],
+    },
+    {
+      header: 'Project',
+      links: [
+        { label: 'GitHub', path: 'https://github.com/sujeet-pro/pagesmith' },
+        { label: 'Hosted Docs', path: 'https://projects.sujeet.pro/pagesmith/' },
+      ],
+    },
   ],
   editLink: {
     repo: 'https://github.com/sujeet-pro/pagesmith',
@@ -31,5 +59,6 @@
   search: {
     enabled: true,
     showImages: false,
+    showSubResults: true,
   },
 }

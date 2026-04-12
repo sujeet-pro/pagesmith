@@ -15,7 +15,7 @@
  * import { pagesmithSsg } from '@pagesmith/core/vite'
  *
  * export default defineConfig({
- *   base: '/my-site/',
+ *   base: '/my-site',
  *   plugins: [pagesmithSsg({ entry: './src/entry-server.tsx' })],
  * })
  * ```

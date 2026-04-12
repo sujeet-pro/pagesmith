@@ -1,11 +1,11 @@
 ---
 title: Code Blocks
-description: Syntax highlighting, line numbers, titles, tabs, and more with Expressive Code.
+description: Syntax highlighting, line numbers, titles, tabs, and more with the built-in Pagesmith renderer.
 ---
 
 # Code Blocks
 
-Pagesmith uses [Expressive Code](https://expressive-code.com/) for code block rendering. All features are configured by default in `@pagesmith/core` and require no additional setup. Code block styles are injected inline during markdown processing, so you do not need to include any additional CSS for code blocks.
+Pagesmith uses a built-in Shiki-backed code renderer for code blocks. All features are configured by default in `@pagesmith/core` and require no additional setup. Include `@pagesmith/core/css/content` or `@pagesmith/core/css/standalone` so the shared frame, layout, and tab styles are present; theme colors and frame markup are generated during markdown processing, and the shared content runtime enables copy, collapse, and tab interactions in the browser.
 
 ## Basic Syntax Highlighting
 
@@ -18,7 +18,14 @@ console.log(greeting)
 ```
 ````
 
-Expressive Code supports 100+ languages through Shiki (the same syntax highlighting engine used by VS Code).
+Rendered sample:
+
+```js
+const greeting = 'Hello, world!'
+console.log(greeting)
+```
+
+The built-in renderer supports 100+ languages through Shiki (the same syntax highlighting engine used by VS Code).
 
 ## Dual Themes
 
@@ -66,6 +73,13 @@ export default defineConfig({})
 ```
 ````
 
+Rendered sample:
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+export default defineConfig({})
+```
+
 ## Line Numbers
 
 Line numbers are shown by default. Hide them for a specific block:
@@ -76,6 +90,12 @@ npm install @pagesmith/core
 ```
 ````
 
+Rendered sample:
+
+```bash showLineNumbers=false
+npm install @pagesmith/core
+```
+
 Or start line numbers from a specific number:
 
 ````markdown
@@ -83,6 +103,12 @@ Or start line numbers from a specific number:
 const answer = getAnswer()
 ```
 ````
+
+Rendered sample:
+
+```ts startLineNumber=42
+const answer = getAnswer()
+```
 
 To change the default for your entire site, set `defaultShowLineNumbers` in the markdown config:
 
@@ -109,6 +135,14 @@ const highlighted = true  // this line is highlighted
 ```
 ````
 
+Rendered sample:
+
+```ts mark={3}
+const name = 'Pagesmith'
+const version = '0.1.0'
+const highlighted = true  // this line is highlighted
+```
+
 ### Diff-Style Highlighting
 
 Show inserted and deleted lines:
@@ -119,6 +153,13 @@ const old = 'before'
 const updated = 'after'
 ```
 ````
+
+Rendered sample:
+
+```ts ins={2} del={1}
+const old = 'before'
+const updated = 'after'
+```
 
 ### Range Syntax
 
@@ -133,6 +174,16 @@ const d = 4
 const e = 5
 ```
 ````
+
+Rendered sample:
+
+```ts mark={1, 3-5}
+const a = 1
+const b = 2
+const c = 3
+const d = 4
+const e = 5
+```
 
 ## Collapsible Sections
 
@@ -152,6 +203,20 @@ export default defineConfig({
 ```
 ````
 
+Rendered sample:
+
+```ts collapse={1-5}
+// These lines are collapsed by default
+import { defineConfig } from 'vite'
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithSsg } from '@pagesmith/core/vite'
+import collections from './content.config'
+// This line is visible
+export default defineConfig({
+  plugins: [pagesmithContent(collections), pagesmithSsg()],
+})
+```
+
 Users can click to expand the collapsed section.
 
 ## Text Wrapping
@@ -164,9 +229,15 @@ Enable word wrapping for long lines:
 ```
 ````
 
+Rendered sample:
+
+```json wrap
+{"name": "@pagesmith/core", "description": "File-based CMS — schema-validated collections, lazy markdown rendering, and runtime CSS/JS exports", "version": "0.1.0"}
+```
+
 ## Frame Styles
 
-Expressive Code automatically detects terminal languages (bash, sh, zsh, shell, powershell) and renders them with a terminal-style frame. All other languages use an editor-style frame.
+The built-in renderer automatically detects terminal languages (bash, sh, zsh, shell, powershell) and renders them with a terminal-style frame. All other languages use an editor-style frame.
 
 Override the frame style explicitly:
 
@@ -176,11 +247,17 @@ npm install @pagesmith/core
 ```
 ````
 
+Rendered sample:
+
+```bash frame="none"
+npm install @pagesmith/core
+```
+
 Available frame values: `"code"` (editor), `"terminal"`, `"none"`, `"auto"` (default).
 
 ## Copy Button
 
-Every code block includes a copy button by default. Users can click it to copy the code to their clipboard. The button is rendered by Expressive Code and requires no additional runtime JavaScript.
+Every code block includes a copy button by default. Users can click it to copy the code to their clipboard. Copy, collapse, and tabs are progressively enhanced by the shared Pagesmith content runtime.
 
 ## Code Tabs
 
@@ -199,6 +276,18 @@ pnpm add @pagesmith/core
 yarn add @pagesmith/core
 ```
 ````
+
+Rendered sample:
+
+```bash title="npm"
+npm install @pagesmith/core
+```
+```bash title="pnpm"
+pnpm add @pagesmith/core
+```
+```bash title="yarn"
+yarn add @pagesmith/core
+```
 
 The `title` value becomes the tab label. The first tab is active by default and readers can click to switch between them. Without JavaScript, all blocks stack vertically as a fallback.
 
@@ -227,20 +316,40 @@ struct Config {
 ```
 ````
 
+Rendered sample:
+
+```ts title="TypeScript"
+interface Config {
+  host: string
+  port: number
+}
+```
+```python title="Python"
+@dataclass
+class Config:
+    host: str = "localhost"
+    port: int = 3000
+```
+```rust title="Rust"
+struct Config {
+    host: String,
+    port: u16,
+}
+```
+
 Any non-code content (a paragraph, heading, or untitled code block) between titled blocks breaks the group — each group is independent.
 
 ## How It Works
 
-Expressive Code runs as a rehype plugin in the unified markdown pipeline. During markdown processing, it:
+Pagesmith's built-in code renderer runs inside the unified markdown pipeline. During markdown processing, it:
 
-1. Finds all fenced code blocks in the HTML AST
+1. Finds fenced code blocks in the HTML AST after `remark-rehype`
 2. Applies syntax highlighting using Shiki
-3. Adds code frames, line numbers, titles, and other decorations
-4. Generates CSS custom properties for theme support
-5. Injects a `<style>` element with all necessary styles
-6. Injects a `<script>` element for interactive features (copy button)
+3. Builds Pagesmith-owned frame markup for titles, line numbers, tabs, copy buttons, diff markers, and collapse controls
+4. Adds inline theme variables for light/dark token colors
+5. Relies on the shared Pagesmith content runtime for tabs, copy, and collapse interactions
 
-The styles and scripts are injected inline into the rendered HTML, so there is no external CSS or JavaScript file to include for code blocks. This means code block styling works automatically in any layout or framework.
+Shared code-block styling ships in the core CSS bundles, and interactive behavior ships in the shared Pagesmith content runtime. Custom layouts and framework integrations should load those shared assets instead of recreating per-block JavaScript.
 
 ## Meta String Reference
 
@@ -271,3 +380,15 @@ const posts = defineCollection({
 })
 ```
 ````
+
+Rendered sample:
+
+```ts title="example.ts" mark={3} ins={5} collapse={1-2}
+import { z } from 'zod'
+import { defineCollection } from '@pagesmith/core'
+const posts = defineCollection({
+  loader: 'markdown',
+  directory: 'content/posts',
+  schema: z.object({ title: z.string() }),
+})
+```

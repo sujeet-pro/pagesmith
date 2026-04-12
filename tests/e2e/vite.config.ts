@@ -4,6 +4,7 @@ import { defineConfig } from 'vite-plus'
 export default defineConfig({
   resolve: {
     alias: {
+      'vite-plus/test': 'vitest',
       '@pagesmith/core': resolve(import.meta.dirname, '../../packages/core/src/index.ts'),
       '@pagesmith/core/runtime': resolve(
         import.meta.dirname,

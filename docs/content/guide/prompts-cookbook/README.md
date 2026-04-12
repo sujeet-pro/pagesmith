@@ -12,17 +12,61 @@ If you are deciding between docs-first and core-first setup, start with [Choose 
 
 ## Project Setup
 
-### New docs site from scratch
+### Configure docs for a repo
 
-> Install `@pagesmith/docs` and run `npx pagesmith init --ai`. Accept defaults. Start the dev server with `npx pagesmith dev --open`.
+Use this when the repo does not use `@pagesmith/docs` yet, or when you want to retrofit it into an existing codebase.
+
+| Source | Value |
+|---|---|
+| Package path | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` |
+| Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md) |
+
+```text
+Set up docs for this repository using @pagesmith/docs. Read node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md first and follow it exactly.
+
+Requirements:
+1. Install @pagesmith/docs in the correct root package or workspace.
+2. Keep pagesmith.config.json5 at the repository root and point contentDir at the chosen docs directory.
+3. Inspect the repo for an existing docs-like directory before creating anything, and confirm before reusing or moving existing docs.
+4. Prefer npx pagesmith init with explicit values such as --yes, --content-dir, --base-path, --origin, and --ai when that fits the repo.
+5. Add docs:dev, docs:build, and docs:preview scripts.
+6. Use the version-matched schema files under node_modules/@pagesmith/docs/schemas/ when editing config, meta.json5, and frontmatter.
+7. Preserve useful existing docs content instead of replacing it with starter files.
+8. Update CLAUDE.md and AGENTS.md to point future agents at setup-docs.md, usage.md, REFERENCE.md, and the docs schemas.
+9. Verify the docs build before finishing and summarize any decisions you still need from me.
+```
+
+### Upgrade an existing @pagesmith/docs integration
+
+Use this after the repo already uses `@pagesmith/docs` and you want the agent to upgrade the package, refresh AI guidance, and adopt the latest compatible features.
+
+| Source | Value |
+|---|---|
+| Package path | `node_modules/@pagesmith/docs/ai-guidelines/migration.md` |
+
+```text
+Upgrade the existing @pagesmith/docs integration in this repository. Read node_modules/@pagesmith/docs/ai-guidelines/migration.md first and follow it exactly.
+
+Requirements:
+1. Use the repo's existing package manager and workspace conventions to upgrade @pagesmith/docs.
+2. Read node_modules/@pagesmith/docs/ai-guidelines/migration.md, changelog-notes.md, setup-docs.md, usage.md, REFERENCE.md, and node_modules/@pagesmith/docs/schemas/*.schema.json before making changes.
+3. Keep the existing pagesmith.config.json5 location and contentDir unless a schema or config problem requires a change. Ask before moving docs content.
+4. Reuse the existing docs tree. Do not scaffold a second docs directory.
+5. Revalidate origin, basePath, docs:dev/docs:build/docs:preview scripts, and project memory pointers in CLAUDE.md / AGENTS.md.
+6. Refresh AI artifacts only when they are missing or stale. Prefer npx pagesmith init --ai --no-llms with explicit existing values when that is less invasive than hand-editing.
+7. Review changelog-notes.md and adopt any compatible new features, config fields, or guidance improvements that make this repo easier for both humans and agents to maintain.
+8. Validate config, meta.json5, and frontmatter against node_modules/@pagesmith/docs/schemas/.
+9. Run npx pagesmith build and, if useful, npx pagesmith dev before finishing.
+10. Summarize what changed, which new features or guidance were adopted, and what still needs a user decision.
+```
 
 ### New custom site with React
 
-> Install `@pagesmith/core`. Create `content.config.ts` with a markdown collection for `content/posts`. Set up `vite.config.ts` with `pagesmithContent` and `pagesmithSsg` plugins pointing to `./src/entry-server.tsx`. Create an SSR entry that imports from `virtual:content/posts` and renders with React. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for the complete setup.
+> Install `@pagesmith/core`. Create `content.config.ts` with a markdown collection for `content/posts`. Set up `vite.config.ts` with `pagesmithContent` and `pagesmithSsg` plugins pointing to `./src/entry-server.tsx`. Create an SSR entry that imports from `virtual:content/posts` and renders with React. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for the complete setup.
 
 ### New blog with the built-in JSX runtime
 
-> Install `@pagesmith/core`. Create a blog using `createContentLayer` with the `BlogFrontmatterSchema`. Use `@pagesmith/core/jsx-runtime` for layouts and `@pagesmith/core/css/standalone` for styling. Read `node_modules/@pagesmith/core/docs/agents/usage.md` and look at `examples/blog-site/` for a complete working example.
+> Install `@pagesmith/core`. Create a blog using `createContentLayer` with the `BlogFrontmatterSchema`. Use `@pagesmith/core/jsx-runtime` for layouts and `@pagesmith/core/css/standalone` for styling. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` and look at `examples/blog-site/` for a complete working example.
 
 ### Add AI context to an existing project
 
@@ -40,7 +84,7 @@ If you are deciding between docs-first and core-first setup, start with [Choose 
 
 ### Scaffold docs from API code
 
-> Read the source code in `src/` and generate documentation pages for each public API. For each exported function/class, create a page under `content/reference/` with: a description, parameters table, return type, and a usage example. Add pages to `content/reference/meta.json5`. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for conventions.
+> Read the source code in `src/` and generate documentation pages for each public API. For each exported function/class, create a page under `content/reference/` with: a description, parameters table, return type, and a usage example. Add pages to `content/reference/meta.json5`. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for conventions.
 
 ### Write a tutorial from a code example
 
@@ -58,15 +102,15 @@ If you are deciding between docs-first and core-first setup, start with [Choose 
 
 ### Create a custom collection schema
 
-> Add a new "{name}" collection to `content.config.ts` using the `markdown` loader. Define a Zod schema with these fields: {list your fields}. Wire it into the Vite config with `pagesmithContent`. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for collection definition options.
+> Add a new "{name}" collection to `content.config.ts` using the `markdown` loader. Define a Zod schema with these fields: {list your fields}. Wire it into the Vite config with `pagesmithContent`. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for collection definition options.
 
 ### Add computed fields to a collection
 
-> Add computed fields to the "{collection}" collection that derive {field-name} from {source}. Use the `computed` option in `defineCollection` to add fields that are calculated at load time. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for the computed fields API.
+> Add computed fields to the "{collection}" collection that derive {field-name} from {source}. Use the `computed` option in `defineCollection` to add fields that are calculated at load time. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for the computed fields API.
 
 ### Add custom content validators
 
-> Create custom content validators for the "{collection}" collection that check for {rules}. Implement the `ContentValidator` interface with a `validate(context)` method that walks the MDAST tree. Add validators to the collection's `validators` array. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for the validator API.
+> Create custom content validators for the "{collection}" collection that check for {rules}. Implement the `ContentValidator` interface with a `validate(context)` method that walks the MDAST tree. Add validators to the collection's `validators` array. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for the validator API.
 
 ### Fix validation errors
 

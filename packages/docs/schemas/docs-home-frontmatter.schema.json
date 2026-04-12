@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projects.sujeet.pro/pagesmith/schemas/docs-home-frontmatter.schema.json",
+  "title": "Pagesmith Docs Home Frontmatter",
+  "description": "Schema for the home page frontmatter used by the default DocHome layout.",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "publishedDate": {
+      "type": "string"
+    },
+    "lastUpdatedOn": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "draft": {
+      "type": "boolean"
+    },
+    "navLabel": {
+      "type": "string"
+    },
+    "sidebarLabel": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    },
+    "socialImage": {
+      "type": "string"
+    },
+    "layout": {
+      "type": "string"
+    },
+    "tagline": {
+      "type": "string"
+    },
+    "badge": {
+      "type": "string"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string",
+            "enum": ["brand", "alt"]
+          },
+          "icon": {
+            "type": "string"
+          }
+        },
+        "required": ["text", "link"],
+        "additionalProperties": false
+      }
+    },
+    "hero": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "badge": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "link": {
+                "type": "string"
+              },
+              "theme": {
+                "type": "string",
+                "enum": ["brand", "alt"]
+              },
+              "icon": {
+                "type": "string"
+              }
+            },
+            "required": ["text", "link"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": {}
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "details": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        },
+        "required": ["title", "details"],
+        "additionalProperties": {}
+      }
+    },
+    "install": {
+      "type": "string"
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": ["name", "description"],
+        "additionalProperties": {}
+      }
+    },
+    "codeExample": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        }
+      },
+      "required": ["code"],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": {}
+}

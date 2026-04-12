@@ -6,7 +6,7 @@ description: Build content-driven static sites using EJS or Handlebars templates
 # Template Engines (EJS & Handlebars)
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Set up a Pagesmith static site using [EJS/Handlebars] templates with `createContentLayer`. Create `content.config.mjs`, templates for layout and articles, and an SSR entry. Read `node_modules/@pagesmith/core/docs/agents/usage.md` for reference."
+> Ask your AI agent: "Set up a Pagesmith static site using [EJS/Handlebars] templates with `createContentLayer`. Create `content.config.mjs`, templates for layout and articles, and an SSR entry. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for reference."
 > Then read on to understand what happened and customize further.
 
 The template engine integrations use `@pagesmith/core` with plain templates instead of a component framework. Unlike the React, Solid, and Svelte examples that use virtual content modules (`virtual:content/*`), these examples use the programmatic `createContentLayer` API directly. The result is a fully static site with no framework runtime shipped to the browser.
@@ -132,7 +132,7 @@ async function loadContent(root: string) {
 
 ## EJS
 
-Source: [`examples/with-vanilla-ejs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-vanilla-ejs) | Output: <a href="/pagesmith/examples/vanilla-ejs/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/with-vanilla-ejs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-vanilla-ejs) | Output: <a href="/pagesmith/examples/vanilla-ejs" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 
@@ -212,7 +212,7 @@ EJS uses `<%-` for unescaped output (rendered markdown HTML) and `<%=` for escap
 
 ## Handlebars
 
-Source: [`examples/with-vanilla-hbs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-vanilla-hbs) | Output: <a href="/pagesmith/examples/vanilla-hbs/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/with-vanilla-hbs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-vanilla-hbs) | Output: <a href="/pagesmith/examples/vanilla-hbs" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 

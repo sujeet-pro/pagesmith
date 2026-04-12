@@ -15,9 +15,43 @@ describe('code tabs', () => {
 
     const result = await processMarkdown(md)
     expect(result.html).toContain('ps-code-tabs')
+    expect(result.html).toContain('ps-code-tabs-nav')
     expect(result.html).toContain('role="tablist"')
     expect(result.html).toContain('role="tab"')
-    expect(result.html).toContain('role="tabpanel"')
+    expect(result.html).toContain('ps-code-tab-panel')
+  })
+
+  it('adds a dedicated header action area for the active tab copy button', async () => {
+    const md = [
+      '```js title="npm"',
+      'npm install foo',
+      '```',
+      '',
+      '```js title="pnpm"',
+      'pnpm add foo',
+      '```',
+    ].join('\n')
+
+    const result = await processMarkdown(md)
+    expect(result.html).toContain('ps-code-tabs-header')
+    expect(result.html).toContain('ps-code-tabs-actions')
+    expect(result.html).toMatch(/ps-code-tabs-actions[\s\S]*data-ps-code-copy="true"/)
+  })
+
+  it('inherits the code theme variables onto the tab container', async () => {
+    const md = [
+      '```ts title="TypeScript"',
+      'const a = 1',
+      '```',
+      '',
+      '```python title="Python"',
+      'print("hello")',
+      '```',
+    ].join('\n')
+
+    const result = await processMarkdown(md)
+    expect(result.html).toMatch(/class="ps-code-tabs" style="[^"]*--ps-code-light-bg:/)
+    expect(result.html).toMatch(/class="ps-code-tabs" style="[^"]*--ps-code-dark-bg:/)
   })
 
   it('uses titles as tab button labels', async () => {
@@ -36,7 +70,7 @@ describe('code tabs', () => {
     expect(result.html).toContain('>yarn<')
   })
 
-  it('sets the first tab as active', async () => {
+  it('marks the first tab as active by default', async () => {
     const md = [
       '```ts title="First"',
       'const a = 1',
@@ -52,7 +86,7 @@ describe('code tabs', () => {
     expect(result.html).toContain('aria-selected="false"')
   })
 
-  it('sets hidden attribute on non-active panels', async () => {
+  it('does not pre-hide panels before JS activation', async () => {
     const md = [
       '```ts title="A"',
       'const a = 1',
@@ -64,11 +98,10 @@ describe('code tabs', () => {
     ].join('\n')
 
     const result = await processMarkdown(md)
-    // First panel should not be hidden, second should
-    const panels = result.html.match(/role="tabpanel"[^>]*/g) || []
+    const panels = result.html.match(/role="tabpanel"[^>]*>/g) || []
     expect(panels.length).toBe(2)
     expect(panels[0]).not.toContain('hidden')
-    expect(panels[1]).toContain('hidden')
+    expect(panels[1]).not.toContain('hidden')
   })
 
   it('does not group a single titled block', async () => {
@@ -76,7 +109,8 @@ describe('code tabs', () => {
 
     const result = await processMarkdown(md)
     expect(result.html).not.toContain('ps-code-tabs')
-    expect(result.html).toContain('expressive-code')
+    expect(result.html).toContain('ps-code-block')
+    expect(result.html).toContain('data-ps-code-title="Only One"')
   })
 
   it('does not group when an untitled block breaks the run', async () => {
@@ -137,7 +171,7 @@ describe('code tabs', () => {
 
     const result = await processMarkdown(md)
     const tabButtons = result.html.match(/role="tab"/g) || []
-    const tabPanels = result.html.match(/role="tabpanel"/g) || []
+    const tabPanels = result.html.match(/ps-code-tab-panel/g) || []
     expect(tabButtons.length).toBe(4)
     expect(tabPanels.length).toBe(4)
   })
@@ -154,11 +188,10 @@ describe('code tabs', () => {
     ].join('\n')
 
     const result = await processMarkdown(md)
-    // Tab 0 should control panel 0
     expect(result.html).toContain('aria-controls="ct-0-p0"')
     expect(result.html).toContain('id="ct-0-p0"')
-    expect(result.html).toContain('aria-labelledby="ct-0-t0"')
     expect(result.html).toContain('id="ct-0-t0"')
+    expect(result.html).toContain('aria-labelledby="ct-0-t0"')
   })
 
   it('handles multiple separate tab groups on the same page', async () => {
@@ -191,7 +224,7 @@ describe('code tabs', () => {
     expect(result.html).toContain('ct-1-t0')
   })
 
-  it('preserves EC code content within tab panels', async () => {
+  it('preserves rendered code content within tab panels', async () => {
     const md = [
       '```js title="JavaScript"',
       'console.log("hello")',
@@ -206,5 +239,6 @@ describe('code tabs', () => {
     expect(result.html).toContain('console')
     expect(result.html).toContain('hello')
     expect(result.html).toContain('print')
+    expect(result.html).toContain('ps-code-block')
   })
 })

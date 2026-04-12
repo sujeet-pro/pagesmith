@@ -60,6 +60,7 @@ describe('processMarkdown', () => {
     it('renders tables', async () => {
       const md = '| A | B |\n|---|---|\n| 1 | 2 |'
       const result = await processMarkdown(md)
+      expect(result.html).toContain('ps-table-scroll')
       expect(result.html).toContain('<table>')
       expect(result.html).toContain('<td>1</td>')
       expect(result.html).toContain('<td>2</td>')
@@ -73,14 +74,70 @@ describe('processMarkdown', () => {
   })
 
   describe('code blocks', () => {
-    it('applies Expressive Code treatment', async () => {
-      const md = '```js\nconsole.log("hello")\n```'
+    it('applies the built-in code renderer contract', async () => {
+      const md = '```js title="app.js"\nconsole.log("hello")\n```'
       const result = await processMarkdown(md)
-      // Expressive Code wraps code blocks in its own markup
       expect(result.html).toContain('console')
       expect(result.html).toContain('hello')
-      // EC generates a figure with specific classes/attributes
-      expect(result.html).toContain('expressive-code')
+      expect(result.html).toContain('ps-code-block')
+      expect(result.html).toContain('data-ps-code-renderer="pagesmith"')
+      expect(result.html).toContain('data-ps-code-title="app.js"')
+      expect(result.html).toContain('ps-code-toolbar')
+      expect(result.html).toContain('ps-code-copy')
+      expect(result.html).toContain('data-ps-code-lang="js"')
+    })
+
+    it('renders line metadata, collapse controls, and frame options', async () => {
+      const md = [
+        '```ts title="demo.ts" showLineNumbers startLineNumber=10 mark={2} ins={3} del={4} collapse={1} wrap',
+        'const a = 1',
+        'const b = 2',
+        'const c = 3',
+        'const d = 4',
+        '```',
+        '',
+        '```bash frame="terminal"',
+        'npm install @pagesmith/core',
+        '```',
+        '',
+        '```txt frame="none"',
+        'plain text',
+        '```',
+      ].join('\n')
+
+      const result = await processMarkdown(md)
+      expect(result.html).toContain('data-ps-code-line-numbers="true"')
+      expect(result.html).toContain('>10<')
+      expect(result.html).toContain('ps-code-line--mark')
+      expect(result.html).toContain('ps-code-line--ins')
+      expect(result.html).toContain('ps-code-line--del')
+      expect(result.html).toContain('data-ps-code-collapse="true"')
+      expect(result.html).toContain('Show 1 hidden line')
+      expect(result.html).toContain('data-ps-code-wrap="true"')
+      expect(result.html).toContain('data-ps-code-frame="terminal"')
+      expect(result.html).toContain('ps-code-traffic-lights')
+      expect(result.html).toContain('data-ps-code-frame="plain"')
+      expect(result.html).toContain('ps-code-toolbar--plain')
+    })
+
+    it('honors multi-line range syntax for marks and collapsed sections', async () => {
+      const md = [
+        '```ts mark={1, 3-5} collapse={1-5}',
+        'const a = 1',
+        'const b = 2',
+        'const c = 3',
+        'const d = 4',
+        'const e = 5',
+        'const f = 6',
+        '```',
+      ].join('\n')
+
+      const result = await processMarkdown(md)
+      const markedLines = result.html.match(/ps-code-line--mark/g) || []
+
+      expect(markedLines.length).toBe(4)
+      expect(result.html).toContain('Show 5 hidden lines')
+      expect(result.html).toContain('Hide 5 hidden lines')
     })
   })
 

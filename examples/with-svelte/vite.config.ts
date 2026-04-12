@@ -4,7 +4,7 @@ import collections from './content.config'
 import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
-  base: '/pagesmith/examples/svelte/',
+  base: '/pagesmith/examples/svelte',
   plugins: [
     sharedAssetsPlugin(),
     svelte(),

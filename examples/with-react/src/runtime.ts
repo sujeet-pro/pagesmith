@@ -91,6 +91,34 @@
   }
 }
 
+// ── Search trigger compact mode ──
+{
+  if (typeof window.matchMedia === 'function') {
+    const mediaQuery = window.matchMedia('(max-width: 640px)')
+    const sync = () => {
+      document
+        .querySelectorAll<HTMLElement>('pagefind-modal-trigger.doc-search-trigger')
+        .forEach((trigger) => {
+          if (mediaQuery.matches) {
+            trigger.setAttribute('compact', '')
+            trigger.setAttribute('hide-shortcut', '')
+          } else {
+            trigger.removeAttribute('compact')
+            trigger.removeAttribute('hide-shortcut')
+          }
+        })
+    }
+
+    sync()
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', sync)
+    } else {
+      mediaQuery.addListener(sync)
+    }
+  }
+}
+
 // ── Sidebar scroll to current ──
 {
   const active = document.querySelector('.doc-sidebar-item.active .doc-sidebar-link')

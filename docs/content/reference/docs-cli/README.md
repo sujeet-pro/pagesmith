@@ -80,7 +80,7 @@ pagesmith init --ai -y
 pagesmith init --ai --no-llms -y
 
 # Init with a custom config path
-pagesmith init --config ./docs/pagesmith.config.json5
+pagesmith init --config ./pagesmith.config.json5
 ```
 
 The command is idempotent — it will not overwrite existing files. Run it safely on an existing project to fill in any missing files.
@@ -116,7 +116,7 @@ pagesmith dev
 pagesmith dev --port 8080 --open
 
 # Use a specific config file
-pagesmith dev --config ./docs/pagesmith.config.json5
+pagesmith dev --config ./pagesmith.config.json5
 ```
 
 The development server includes:
@@ -143,7 +143,7 @@ The build process performs the following steps:
 
 1. **Config resolution** -- Loads `pagesmith.config.json5`, resolves all paths to absolute, applies CLI overrides and environment variables
 2. **Content discovery** -- Walks the content directory, reads `meta.json5` files for navigation order and section configuration
-3. **Markdown processing** -- Parses each markdown file through the unified pipeline (remark + Expressive Code + rehype chain), extracts frontmatter, headings, and rendered HTML
+3. **Markdown processing** -- Parses each markdown file through the unified pipeline (remark + built-in Pagesmith code renderer + rehype chain), extracts frontmatter, headings, and rendered HTML
 4. **Site model construction** -- Builds navigation items, sidebar sections (grouped by content directory), page map, and prev/next links
 5. **Page rendering** -- Renders each page through JSX theme layouts (DocHome, DocPage, DocNotFound, or custom layouts from `theme.layouts`)
 6. **CSS bundling** -- Bundles theme CSS using LightningCSS with minification (targets Chrome 100+, Firefox 100+, Safari 16+)
@@ -232,7 +232,7 @@ Use this to expose docs-aware tools to MCP-compatible assistants and editors.
 pagesmith mcp --stdio
 
 # Start MCP server for another docs workspace
-pagesmith mcp --stdio --root ./docs --config ./docs/pagesmith.config.json5
+pagesmith mcp --stdio --root . --config ./pagesmith.config.json5
 ```
 
 Tools exposed by the server include `docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, and `docs_get_page`.
@@ -368,7 +368,7 @@ The resolution logic uses `path.resolve()` against the current working directory
 Use the `--config` flag to point to a config file in a different location:
 
 ```bash title="Terminal"
-pagesmith dev --config ./docs/pagesmith.config.json5
+pagesmith dev --config ./pagesmith.config.json5
 ```
 
 ## Exit Codes

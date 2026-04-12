@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projects.sujeet.pro/pagesmith/schemas/pagesmith-config.schema.json",
+  "title": "Pagesmith Docs Config",
+  "description": "Schema for pagesmith.config.json5 in @pagesmith/docs projects.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "origin": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "contentDir": {
+      "type": "string"
+    },
+    "outDir": {
+      "type": "string"
+    },
+    "publicDir": {
+      "type": "string"
+    },
+    "basePath": {
+      "type": "string"
+    },
+    "homeLink": {
+      "type": "string"
+    },
+    "maintainer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Maintainer name shown in the default footer sign-off."
+        },
+        "link": {
+          "description": "Optional maintainer URL.",
+          "type": "string"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "footerLinks": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Display label for a navigation or footer link."
+              },
+              "path": {
+                "type": "string",
+                "description": "Destination URL or site-relative path."
+              }
+            },
+            "required": ["label", "path"],
+            "additionalProperties": false
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "header": {
+                "description": "Optional column header for a grouped footer section.",
+                "type": "string"
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "description": "Display label for a navigation or footer link."
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "Destination URL or site-relative path."
+                    }
+                  },
+                  "required": ["label", "path"],
+                  "additionalProperties": false
+                },
+                "description": "Links rendered vertically within a grouped footer column."
+              }
+            },
+            "required": ["links"],
+            "additionalProperties": false
+          }
+        }
+      ]
+    },
+    "footerText": {
+      "type": "string"
+    },
+    "copyright": {
+      "type": "object",
+      "properties": {
+        "projectName": {
+          "description": "Project name shown in the copyright line. Defaults to the site name when omitted.",
+          "type": "string"
+        },
+        "startYear": {
+          "description": "Starting copyright year. Defaults to the first git commit year when available.",
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "endYear": {
+          "description": "Optional fixed end year. Use null or omit it to render the build year and let the browser update it when needed.",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sidebar": {
+      "type": "object",
+      "properties": {
+        "collapsible": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "search": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "showImages": {
+          "type": "boolean"
+        },
+        "showSubResults": {
+          "type": "boolean"
+        },
+        "pagefindFlags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "theme": {
+      "type": "object",
+      "properties": {
+        "lightColor": {
+          "type": "string"
+        },
+        "darkColor": {
+          "type": "string"
+        },
+        "layouts": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "socialImage": {
+          "type": "string"
+        },
+        "defaultColorScheme": {
+          "type": "string",
+          "enum": ["auto", "light", "dark"]
+        },
+        "defaultTheme": {
+          "type": "string",
+          "enum": ["paper", "high-contrast"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "analytics": {
+      "type": "object",
+      "properties": {
+        "googleAnalytics": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "favicon": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean",
+          "const": false
+        }
+      ]
+    },
+    "icon": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean",
+          "const": false
+        }
+      ]
+    },
+    "editLink": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          },
+          "required": ["repo"],
+          "additionalProperties": false
+        },
+        {
+          "type": "boolean",
+          "const": false
+        }
+      ]
+    },
+    "lastUpdated": {
+      "type": "boolean"
+    },
+    "sitemap": {
+      "type": "boolean"
+    },
+    "markdown": {
+      "type": "object",
+      "properties": {
+        "allowDangerousHtml": {
+          "description": "Whether to preserve raw HTML in markdown output. Defaults to true for trusted content sources.",
+          "type": "boolean"
+        },
+        "math": {
+          "description": "Math processing mode. Use \"auto\" to enable remark-math and MathJax only for pages that contain math markers.",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "const": "auto"
+            }
+          ]
+        },
+        "shiki": {
+          "type": "object",
+          "properties": {
+            "themes": {
+              "description": "Dual Shiki theme names used for light and dark syntax highlighting.",
+              "type": "object",
+              "properties": {
+                "light": {
+                  "type": "string"
+                },
+                "dark": {
+                  "type": "string"
+                }
+              },
+              "required": ["light", "dark"],
+              "additionalProperties": false
+            },
+            "langAlias": {
+              "description": "Map custom language aliases to Shiki-supported languages.",
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "defaultShowLineNumbers": {
+              "description": "Whether code blocks show line numbers by default.",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "home": {
+      "type": "object",
+      "properties": {
+        "configFile": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "packages": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": ["label"],
+        "additionalProperties": false
+      }
+    },
+    "assets": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "server": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "devPort": {
+          "type": "number"
+        },
+        "previewPort": {
+          "type": "number"
+        },
+        "strictPort": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

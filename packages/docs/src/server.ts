@@ -22,6 +22,10 @@ import {
   serveFile,
 } from './server/shared'
 
+function getDisplayHost(host: string): string {
+  return host === '0.0.0.0' || host === '::' ? 'localhost' : host
+}
+
 async function loadSiteModel(config: ResolvedDocsConfig): Promise<SiteModel> {
   const rootMeta = loadRootMeta(config.contentDir)
   const sectionMetas = loadSectionMetas(config.contentDir)
@@ -170,12 +174,12 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
     logger.warn(`  WS server error: ${error instanceof Error ? error.message : String(error)}`),
   )
 
-  const devUrl = `http://localhost:${port}${base}/`
+  const devUrl = `http://${getDisplayHost(config.server.host)}:${port}${base || ''}`
 
   // Load site model for startup summary
   const model = await loadSiteModel(config)
 
-  server.listen(port, () => {
+  server.listen(port, config.server.host, () => {
     console.log()
     console.log(`  Docs dev: ${devUrl}`)
     console.log()
@@ -285,12 +289,12 @@ export async function preview(options: DocsDevOptions = {}): Promise<void> {
     }
   })
 
-  const previewUrl = `http://localhost:${port}${previewBase}/`
+  const previewUrl = `http://${getDisplayHost(config.server.host)}:${port}${previewBase || ''}`
 
   // Load site model for startup summary
   const model = await loadSiteModel(config)
 
-  server.listen(port, () => {
+  server.listen(port, config.server.host, () => {
     console.log()
     console.log(`  Docs preview: ${previewUrl}`)
     console.log()

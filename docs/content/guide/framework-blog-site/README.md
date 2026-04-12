@@ -9,7 +9,7 @@ description: Build a fully custom blog with Pagesmith's core content layer, cust
 
 The Blog Site example demonstrates how to build a fully custom site on top of `@pagesmith/core` with its own JSX layouts, design system, and content pipeline. Unlike the Doc Site (which uses `@pagesmith/docs` for convention-based setup), this example uses the core content layer directly with `processMarkdown` from `@pagesmith/core/markdown`, custom layout components rendered via `@pagesmith/core/jsx-runtime`, and a `site.json5` configuration file. It supports multiple content types (articles, blogs, projects), series-based article grouping, tag indexes, and a rich navigation system -- all rendered as static HTML through the `pagesmithSsg` Vite plugin.
 
-Source: [`examples/blog-site/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site) | Output: <a href="/pagesmith/examples/blog-site/" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/blog-site/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site) | Output: <a href="/pagesmith/examples/blog-site" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ## Prerequisites
 
@@ -99,7 +99,7 @@ import { defineConfig } from 'vite-plus'
 import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
-  base: '/my-blog/',
+  base: '/my-blog',
   plugins: [
     sharedAssetsPlugin(),
     ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),

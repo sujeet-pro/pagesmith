@@ -11,6 +11,13 @@ export type ServerCliArgs = {
 export type InitCliArgs = {
   ai?: boolean
   config?: string
+  name?: string
+  title?: string
+  origin?: string
+  basePath?: string
+  contentDir?: string
+  search?: boolean
+  starterContent?: boolean
   yes?: boolean
   noLlms?: boolean
   _help?: boolean
@@ -171,6 +178,61 @@ export function parseInitArgs(argv: string[]): InitCliArgs {
       const value = argv[++index]
       if (!value) throw new Error('--config requires a path')
       args.config = value
+      continue
+    }
+
+    if (arg === '--name') {
+      const value = argv[++index]
+      if (!value) throw new Error('--name requires a value')
+      args.name = value
+      continue
+    }
+
+    if (arg === '--title') {
+      const value = argv[++index]
+      if (!value) throw new Error('--title requires a value')
+      args.title = value
+      continue
+    }
+
+    if (arg === '--origin') {
+      const value = argv[++index]
+      if (!value) throw new Error('--origin requires a value')
+      args.origin = value
+      continue
+    }
+
+    if (arg === '--base-path') {
+      const value = argv[++index]
+      if (!value) throw new Error('--base-path requires a value')
+      args.basePath = value
+      continue
+    }
+
+    if (arg === '--content-dir') {
+      const value = argv[++index]
+      if (!value) throw new Error('--content-dir requires a path')
+      args.contentDir = value
+      continue
+    }
+
+    if (arg === '--search') {
+      args.search = true
+      continue
+    }
+
+    if (arg === '--no-search') {
+      args.search = false
+      continue
+    }
+
+    if (arg === '--starter-content') {
+      args.starterContent = true
+      continue
+    }
+
+    if (arg === '--no-starter-content') {
+      args.starterContent = false
       continue
     }
 

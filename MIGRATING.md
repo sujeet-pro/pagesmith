@@ -39,7 +39,7 @@ This guide captures the current migration expectations for projects upgrading fr
 
 ## Where to look for version-matched details
 
-- `node_modules/@pagesmith/core/docs/agents/changelog-notes.md`
-- `node_modules/@pagesmith/docs/docs/agents/changelog-notes.md`
+- `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/changelog-notes.md`
 - `node_modules/@pagesmith/core/REFERENCE.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md`

@@ -1,6 +1,6 @@
 # @pagesmith/docs — AI Reference
 
-Versioning note: files shipped in `node_modules/@pagesmith/docs/docs/*` match the exact installed package version. The Pagesmith docs site content in this repository reflects the latest implementation.
+Versioning note: files shipped in `node_modules/@pagesmith/docs/ai-guidelines/*` and `node_modules/@pagesmith/docs/schemas/*` match the exact installed package version. The Pagesmith docs site content in this repository reflects the latest implementation.
 
 Link this file from your project's CLAUDE.md or AGENTS.md to give AI assistants a comprehensive reference for `@pagesmith/docs`.
 
@@ -18,24 +18,64 @@ For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/RE
 
 `@pagesmith/docs` includes `@pagesmith/core` — no need to install core separately.
 
+## Requirements
+
+- Node.js 24+
+
+## Setup Prompt And Schemas
+
+For agent-driven setup in an existing repository, start with the dedicated prompt file:
+
+- Package path: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
+- Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md)
+
+Version-matched schema files are available under `node_modules/@pagesmith/docs/schemas/` and hosted under [https://projects.sujeet.pro/pagesmith/schemas/](https://projects.sujeet.pro/pagesmith/schemas/):
+
+- `pagesmith-config.schema.json`
+- `docs-root-meta.schema.json`
+- `docs-section-meta.schema.json`
+- `docs-page-frontmatter.schema.json`
+- `docs-home-frontmatter.schema.json`
+
+For GitHub repositories, prefer a GitHub Pages-style default when bootstrapping docs:
+
+- `origin`: probe `https://<owner>.github.io` and use the resolved origin if it redirects
+- `basePath`: default to `/<repo-name>`
+- If you want root-hosted docs instead, edit `pagesmith.config.json5` manually after init
+
+## Adoption Playbooks
+
+- Bootstrap or retrofit docs in an existing repo: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
+- Upgrade an existing docs integration and adopt the latest guidance/features: `node_modules/@pagesmith/docs/ai-guidelines/migration.md`
+- Follow the manual path in `node_modules/@pagesmith/docs/README.md` when you want to wire the same structure without delegating the work to an agent
+
 ## Recommended Project Structure
+
+This is the default layout that `pagesmith init` creates. Keep `pagesmith.config.json5` at the repository root and point `contentDir` at the docs directory:
 
 ```
 <project-root>/
+  pagesmith.config.json5
   docs/
-    pagesmith.config.json5
-    content/
-      README.md               # Home page
-      guide/
-        meta.json5
-        getting-started/README.md
-      reference/
-        meta.json5
-        api/README.md
-    public/                   # Static assets (optional)
+    README.md                 # Home page
+    guide/
+      meta.json5
+      README.md
+      getting-started/README.md
+      configuration/README.md
+    reference/
+      meta.json5
+      README.md
+      overview/README.md
+      api/README.md
+  public/                     # Static assets (optional)
   gh-pages/                   # Build output (git-ignored)
   .github/workflows/gh-pages.yml
 ```
+
+If your repository already follows those conventions, `pagesmith dev`, `pagesmith build`, `pagesmith preview`, and `pagesmith mcp --stdio` also work with no `pagesmith.config.json5` at all. Zero-config resolution uses `<repo-root>/docs` when it exists, falls back to `<repo-root>/content`, and writes output to `<repo-root>/gh-pages`.
+
+Alternate layouts are still supported through `--config` and `contentDir`, but the root-config layout above should be the default story for both agents and manual setup.
 
 ## CLI Commands
 
@@ -50,6 +90,13 @@ pagesmith mcp --stdio [--config path]    # Start stdio MCP server for docs tooli
 ### pagesmith init
 
 Creates a minimal `pagesmith.config.json5` and a starter `docs/` directory structure. Site metadata (name, description) is auto-detected from `package.json`. With `--ai`, also installs AI assistant integrations (CLAUDE.md, skills, markdown guidelines). Add `--no-llms` to skip writing `llms.txt` and `llms-full.txt` when the project already maintains its own LLM files.
+The generated config includes a `copyright` block by default, using the first git commit year when it can be detected and leaving `endYear: null` so the browser can advance the rendered year when needed.
+
+When a GitHub remote is present, `pagesmith init` defaults to GitHub Pages-style values:
+
+- repo name -> `basePath: "/<repo-name>"`
+- `https://<owner>.github.io` -> `origin`, following redirects when possible
+- root hosting is a manual edit after init
 
 ### Dev Server
 
@@ -68,6 +115,21 @@ The dev server uses incremental rebuilds for fast iteration:
 | `--out-dir <path>` | string | Config `outDir` | Override output directory |
 | `--base-path <path>` | string | Config `basePath` | Override URL base path |
 
+Useful `init` flags for non-interactive setup:
+
+| Option | Type | Description |
+|---|---|---|
+| `--yes` | boolean | Accept detected defaults without prompting |
+| `--name <value>` | string | Override detected project name |
+| `--title <value>` | string | Override detected site title |
+| `--origin <url>` | string | Override detected site origin |
+| `--base-path <path>` | string | Override detected GitHub Pages-style base path |
+| `--content-dir <path>` | string | Choose docs content directory |
+| `--search` / `--no-search` | boolean | Enable or disable built-in search |
+| `--starter-content` / `--no-starter-content` | boolean | Create or skip starter docs pages |
+| `--ai` | boolean | Install AI artifacts during init |
+| `--no-llms` | boolean | Skip root `llms.txt` / `llms-full.txt` generation |
+
 ## Configuration (pagesmith.config.json5)
 
 | Field | Type | Default | Description |
@@ -75,15 +137,17 @@ The dev server uses incremental rebuilds for fast iteration:
 | `name` | `string` | pkg name | Site name (shown in header) |
 | `title` | `string` | pkg name | Browser tab title |
 | `description` | `string` | pkg desc | Default meta description |
-| `origin` | `string` | pkg homepage | Production URL for canonical links |
+| `origin` | `string` | git GitHub Pages host / pkg homepage | Production URL for canonical links |
 | `language` | `string` | `'en'` | HTML lang attribute |
-| `contentDir` | `string` | `'docs/' or 'content/'` | Content directory path |
+| `contentDir` | `string` | `'docs/' or 'content/'` | Content directory path. The same defaults apply in zero-config mode when the config file is omitted entirely. |
 | `outDir` | `string` | `'gh-pages'` | Build output directory |
 | `publicDir` | `string` | `'public'` | Static assets directory |
-| `basePath` | `string` | `'/'` | URL base path (overridden by `BASE_URL` env) |
+| `basePath` | `string` | git repo name or `'/'` | URL base path (CLI `--base-path` wins; `BASE_URL` only overrides when it is set to a non-root value) |
 | `homeLink` | `string` | `basePath` | Header logo link destination |
-| `footerLinks` | `array` | `[]` | Footer navigation links (`{ label, path }`) |
-| `footerText` | `string` | `'Built with love using pagesmith'` | Footer sign-off text shown beneath theme controls |
+| `maintainer` | `object` | package.json author | Maintainer credit used by the default footer sign-off (`{ name, link? }`) |
+| `footerLinks` | `array` | top-level nav links | Footer links rendered either as a flat link grid (`[{ label, path }]`) or grouped columns (`[{ header?, links: [...] }]`). On wide screens, the footer uses up to 4 evenly spaced columns. When omitted, the major section links from the top nav are reused. |
+| `footerText` | `string` | — | Override only the Pagesmith sign-off segment in the footer's bottom legal line |
+| `copyright` | `object` | — | Footer copyright config (`{ projectName?, startYear?, endYear?: number \| null }`). Leave `endYear` as `null` or omit it to render the build year and let the browser advance it later. |
 | `sidebar.collapsible` | `boolean` | `true` | Enable collapsible sidebar sections |
 | `search.enabled` | `boolean` | `true` | Enable Pagefind search |
 | `search.showImages` | `boolean` | `false` | Show images in search results |
@@ -98,16 +162,17 @@ The dev server uses incremental rebuilds for fast iteration:
 | `analytics.googleAnalytics` | `string` | — | Google Analytics tracking ID |
 | `markdown` | `MarkdownConfig` | — | Markdown pipeline config |
 | `packages` | `Record<string, { label }>` | — | Multi-package section labels |
-| `editLink` | `object` | — | Edit link config (`{ repo, branch?, label? }`) |
-| `editLink.repo` | `string` | — | Repository URL (e.g. `https://github.com/user/repo`) |
+| `editLink` | `object \| false` | auto-detected | Edit link config (`{ repo, branch?, label? }`) or `false` to disable the default git-remote detection |
+| `editLink.repo` | `string` | auto-detected | Repository URL (e.g. `https://github.com/user/repo`) |
 | `editLink.branch` | `string` | `'main'` | Branch name for edit links |
 | `editLink.label` | `string` | `'Edit this page'` | Link text displayed on each page |
-| `lastUpdated` | `boolean` | `false` | Show git-based last updated timestamp on pages |
+| `lastUpdated` | `boolean` | `true` | Show git-based last updated timestamp on pages |
 | `sitemap` | `boolean` | `true` | Generate sitemap.xml (when origin is set) |
 | `favicon` | `string \| false` | auto-detect | Path to favicon or `false` to disable |
 | `assets` | `Record<string, string[]>` | — | Asset mapping (output path → source files/folders) |
 | `home.configFile` | `string` | `content/home.json5` | Path to home page configuration file |
 | `icon` | `string \| false` | auto-generated | SVG string or path for header logo icon. Set to `false` to disable |
+| `server.host` | `string` | `'127.0.0.1'` | Interface to bind the dev and preview servers to. Use `0.0.0.0` only when you intentionally want LAN exposure. |
 | `server.devPort` | `number` | `3000` | Default port for the dev server |
 | `server.previewPort` | `number` | `4000` | Default port for the preview server |
 | `server.strictPort` | `boolean` | `false` | Fail if port is in use instead of finding next available |
@@ -116,7 +181,7 @@ The dev server uses incremental rebuilds for fast iteration:
 
 The build validates `pagesmith.config.json5` automatically:
 - **Warnings**: Missing `name`, `title`, `description`, or `origin` fields (suppressed when provided by package.json)
-- **Errors**: Non-existent `contentDir`, non-existent asset sources, non-existent layout files
+- **Errors**: Invalid config field types, unsupported markdown config keys, non-existent `contentDir`, non-existent asset sources, non-existent layout files
 - Errors halt the build; warnings are logged but the build continues
 
 ### Example Configuration
@@ -130,13 +195,29 @@ The build validates `pagesmith.config.json5` automatically:
   contentDir: './content',
   outDir: '../gh-pages',
   basePath: '/my-project',
+  maintainer: {
+    name: 'Sujeet Jaiswal',
+    link: 'https://sujeet.pro',
+  },
+  copyright: {
+    projectName: 'My Docs',
+    startYear: 2024,
+    endYear: null,
+  },
   sidebar: { collapsible: true },
   footerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'API', path: '/reference/api' },
-    { label: 'GitHub', path: 'https://github.com/my-org/my-project' },
+    {
+      header: 'Docs',
+      links: [
+        { label: 'Guide', path: '/guide' },
+        { label: 'API', path: '/reference/api' },
+      ],
+    },
+    {
+      header: 'Project',
+      links: [{ label: 'GitHub', path: 'https://github.com/my-org/my-project' }],
+    },
   ],
-  footerText: 'Built with love using pagesmith',
   search: { enabled: true },
   editLink: {
     repo: 'https://github.com/my-org/my-project',
@@ -197,8 +278,8 @@ All generated pages include security-hardened meta tags by default:
 
 **Content Security Policy** — `<meta http-equiv="Content-Security-Policy">` with a restrictive self-only policy:
 - `default-src 'self'` — only load resources from the same origin
-- `script-src 'self' 'unsafe-inline'` — same-origin scripts + inline scripts (needed for Expressive Code and theme initialization)
-- `style-src 'self' 'unsafe-inline'` — same-origin styles + inline styles (needed for Expressive Code syntax highlighting)
+- `script-src 'self' 'unsafe-inline'` — same-origin scripts + inline scripts (needed for theme initialization and the built-in code renderer's copy/collapse runtime)
+- `style-src 'self' 'unsafe-inline'` — same-origin styles + inline styles (needed for Shiki token colors and theme initialization)
 - `img-src 'self' data:` — same-origin images + data URIs
 - `font-src 'self'` — same-origin fonts only
 - `connect-src 'self'` — same-origin fetch/XHR (covers Pagefind search)
@@ -223,6 +304,8 @@ All generated pages include performance optimizations:
 
 ## Content Structure
 
+In the example below, `content/` means whatever your `contentDir` points to.
+
 ```
 content/
   README.md                 # Home page (DocHome layout)
@@ -241,11 +324,12 @@ content/
       README.md
 ```
 
-- `content/README.md` — home page (renders with `DocHome` layout)
+- `<contentDir>/README.md` — home page (renders with `DocHome` layout)
 - Content directory defaults to `docs/` if it exists, otherwise `content/`.
-- Top-level folders — become navigation sections in sidebar
-- Subfolders with `README.md` — become individual pages
-- `meta.json5` — control section ordering and metadata
+- Top-level folders — define the main docs categories shown in the header and sidebar
+- Markdown files inside a top-level folder — become pages for that category, even when nested; nested folders keep their URL path but section navigation stays flat
+- `meta.json5` — controls section ordering and series metadata. When series are present, unlisted pages fall into an automatic `Miscellaneous` group.
+- Entries starting with `.` or `_` — are ignored during docs discovery
 
 ## Frontmatter
 
@@ -304,6 +388,7 @@ content/
 | `collapsed` | `boolean` | Start sidebar section collapsed |
 
 Pages not listed in `items` appear after listed pages.
+When `series` is present, pages not referenced by any series are collected into an automatic `Miscellaneous` group.
 
 ## Layout Overrides
 
@@ -340,8 +425,10 @@ export default function DocPage(props) {
     <html lang={site.language}>
       <head><title>{frontmatter.title} — {site.title}</title></head>
       <body>
-        <main data-pagefind-body="">
-          <div class="prose" innerHTML={content} />
+        <main>
+          <article data-pagefind-body="">
+            <div class="prose" innerHTML={content} />
+          </article>
         </main>
       </body>
     </html>
@@ -351,15 +438,15 @@ export default function DocPage(props) {
 
 ## Navigation
 
-- **Top nav** — auto-generated from top-level content folders; override with `headerLinks` in `content/meta.json5`
-- **Sidebar** — auto-generated from section structure; order from `meta.json5` `items`
+- **Top nav** — auto-generated from top-level content folders; override with `headerLinks` in your content root's `meta.json5` (for example `docs/meta.json5`)
+- **Sidebar** — auto-generated per top-level section as a flat page list. Nested files stay in the same section, and `series` groups plus `items` ordering come from `meta.json5`.
 - **Breadcrumbs** — auto-generated from the content slug path on every non-home page with depth > 1 (e.g. `guide/getting-started/intro` shows "Guide / Getting Started / Intro"). No configuration needed.
-- **Prev/next** — auto-generated from flattened sidebar items
-- **Footer** — configured via `footerLinks` and `footerText` in config
+- **Prev/next** — auto-generated from flattened sidebar items on every non-home page
+- **Footer** — renders either a flat link grid or grouped link columns. On wide screens it uses up to 4 evenly spaced columns. Uses `footerLinks` when configured, otherwise falls back to the top nav items. The bottom legal line combines `copyright` with the Pagesmith sign-off, and `footerText` overrides only the sign-off segment.
 
 ## Search
 
-Pagefind full-text search is bundled. Enable with `search.enabled: true` (default). Trigger with `Cmd+K` / `Ctrl+K`.
+Pagefind full-text search is bundled. Enable with `search.enabled: true` (default). Trigger with `Cmd+K` / `Ctrl+K`. When overriding layouts, put `data-pagefind-body` on the content-only wrapper, ideally the page `<article>` or a dedicated home-page body wrapper, rather than the full shell that includes navigation or footer chrome.
 
 ## Programmatic API
 
@@ -425,7 +512,7 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
-      - run: cd docs && npx pagesmith build
+      - run: npx pagesmith build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: gh-pages
@@ -443,7 +530,7 @@ jobs:
 
 ## When Adding New Pages
 
-1. Create `content/<section>/<slug>/README.md` with title and description frontmatter
+1. Create `<contentDir>/<section>/<slug>/README.md` with title and description frontmatter
 2. Add the slug to the section's `meta.json5` `items` array
 3. Write content following the markdown guidelines below
 4. Run `npx pagesmith dev` to verify rendering
@@ -453,15 +540,24 @@ jobs:
 The markdown pipeline processes content through unified with these plugins in order:
 
 ```
-remark-parse → remark-gfm → remark-math → remark-frontmatter
-  → remark-github-alerts → remark-smartypants → [user remark plugins]
+remark-parse → remark-gfm → remark-frontmatter
+  → remark-github-alerts → remark-smartypants
+  → remark-math (when `markdown.math` is `true` or `'auto'` detects math markers)
   → lang-alias transform → remark-rehype
-  → rehype-mathjax (must run before Expressive Code so math is rendered to SVG first)
-  → rehype-expressive-code (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
+  → rehype-mathjax (when math is enabled, before the built-in code renderer)
+  → applyPagesmithCodeRenderer (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
   → rehype-slug → rehype-autolink-headings
   → rehype-external-links → rehype-accessible-emojis
-  → heading extraction → [user rehype plugins] → rehype-stringify
+  → heading extraction → docs link/asset transforms → rehype-stringify
 ```
+
+In `pagesmith.config.json5`, the `markdown` field is intentionally JSON-safe:
+
+- `allowDangerousHtml?: boolean`
+- `math?: boolean | 'auto'`
+- `shiki.themes`, `shiki.langAlias`, `shiki.defaultShowLineNumbers`
+
+Function-based `remarkPlugins` and `rehypePlugins` remain available through the lower-level `@pagesmith/core` APIs, not through the JSON5 docs config.
 
 ### Supported features
 
@@ -480,7 +576,7 @@ remark-parse → remark-gfm → remark-math → remark-frontmatter
 | Heading anchors | Auto `id` + wrapped anchor | All headings |
 | Accessible emoji | Unicode emoji | Auto `role="img"` + `aria-label` |
 
-### Code block features (Expressive Code)
+### Code block features (Built-in renderer)
 
 | Meta | Example | Description |
 |---|---|---|
@@ -499,8 +595,8 @@ remark-parse → remark-gfm → remark-math → remark-frontmatter
 - One `# h1` per page — validators enforce this
 - Sequential heading depth — no jumping from h2 to h4
 - Prefer relative links for internal content
-- Do NOT add manual copy-button JS — Expressive Code handles it
-- Do NOT import separate code block CSS — styles are injected inline
+- Do NOT add manual copy-button JS inside markdown content — the built-in renderer injects its own copy/collapse runtime
+- Do NOT omit the shared Pagesmith CSS bundles — code block chrome and tabs depend on them
 - Code block themes default to `github-light` / `github-dark` with auto light/dark switching
 
 ## Build Performance
@@ -511,19 +607,21 @@ Pages are processed with bounded concurrency using `os.availableParallelism() * 
 
 - `@pagesmith/docs` depends on `@pagesmith/core` — no need to install core separately
 - No `vite.config.ts` or `content.config.ts` needed — docs uses `pagesmith.config.json5`
-- Top-level folders in `content/` define the main navigation
+- Top-level folders in your content directory define the main navigation
 - Pagefind search is bundled — no separate `pagefind` dependency needed
 - All markdown features from `@pagesmith/core` are available
-- Code block styling is inline via Expressive Code — do NOT import separate code block CSS
+- Code block styling ships in the shared Pagesmith CSS bundles — include the normal docs/theme CSS so rendered markdown code blocks look correct
 - Config is validated at build time — missing fields and non-existent asset references are reported
 - `name`, `title`, `description`, and `origin` auto-fallback to `package.json` fields — most projects need only `basePath` in config
 - Build auto-generates `.nojekyll`, `sitemap.xml`, `robots.txt`, and copies `llms.txt` if present
 
 ## Related Docs
 
-- **Agent prompts and rules:** `node_modules/@pagesmith/docs/docs/agents/usage.md`
-- **Step-by-step recipes:** `node_modules/@pagesmith/docs/docs/agents/recipes.md`
-- **Error catalog:** `node_modules/@pagesmith/docs/docs/agents/errors.md`
+- **Setup prompt:** `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
+- **Agent prompts and rules:** `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/docs/ai-guidelines/recipes.md`
+- **Error catalog:** `node_modules/@pagesmith/docs/ai-guidelines/errors.md`
+- **JSON schemas:** `node_modules/@pagesmith/docs/schemas/*.schema.json`
 - **User README:** `node_modules/@pagesmith/docs/README.md`
 - **Core package reference:** `node_modules/@pagesmith/core/REFERENCE.md`
 - **Core package README:** `node_modules/@pagesmith/core/README.md`

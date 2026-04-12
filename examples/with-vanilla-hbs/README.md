@@ -1,6 +1,16 @@
 # Pagesmith + Handlebars
 
-A content-driven static site using `@pagesmith/core` with Handlebars templates for server-side rendering. Demonstrates the content plugin flow with template-based rendering, custom helpers, Pagefind search, and progressive client-side enhancements.
+A **filesystem-first** static site: `@pagesmith/core` validates and renders markdown, **Vite** (`pagesmithSsg`) drives dev + build, **Handlebars** emits HTML at SSR time, and a small **`client.js`** entry adds progressive enhancements (core runtime, responsive search trigger). No `@pagesmith/docs` shell — the example shows the direct integration path.
+
+## Integration flow (read this first)
+
+1. **`content.config.mjs`** — Collections + Zod schemas.
+2. **`src/entry-server.tsx`** — `createContentLayer`, `getRoutes` / `render` for `pagesmithSsg`, Handlebars compile.
+3. **`templates/*.hbs`** — Layout shell vs page body (`{{#> layout}}` + inline `body` partial).
+4. **`vite.config.ts`** — `sharedAssetsPlugin` + `pagesmithSsg` (watches `content/`).
+5. **`client.js`** — Browser-only: theme CSS + `@pagesmith/core/runtime/content`; not used for primary HTML.
+
+Agent-oriented checklist: `llms.txt` in this directory.
 
 ## Quick Start
 
@@ -20,8 +30,7 @@ The site works without JavaScript. Inline client-side scripts add progressive en
 
 | Directory | Collection | Description |
 |-----------|-----------|-------------|
-| `content/guide/` | `guide` | How this example works (series-ordered) |
-| `content/features/` | `features` | Markdown feature showcase |
+| `content/guide/` | `guide` | How this example works, including `guide/kitchen-sink.md` for markdown regression |
 | `content/pages/` | `pages` | Standalone pages (about) |
 
 ## Theme System
@@ -42,4 +51,4 @@ This example implements the full Pagesmith theme system using `@pagesmith/core` 
 
 ## Deployed
 
-[View live example](https://projects.sujeet.pro/pagesmith/examples/vanilla-hbs/)
+[View live example](https://projects.sujeet.pro/pagesmith/examples/vanilla-hbs)

@@ -8,11 +8,18 @@ export type ConvertOptions = {
 
 export type ConvertResult = {
   html: string
+  headings: Heading[]
+  /** @deprecated Use `headings` for consistency with `processMarkdown()` and `entry.render()`. */
   toc: Heading[]
   frontmatter: Record<string, unknown>
 }
 
 export async function convert(input: string, options: ConvertOptions = {}): Promise<ConvertResult> {
   const result = await processMarkdown(input, options.markdown || {})
-  return { html: result.html, toc: result.headings, frontmatter: result.frontmatter }
+  return {
+    html: result.html,
+    headings: result.headings,
+    toc: result.headings,
+    frontmatter: result.frontmatter,
+  }
 }

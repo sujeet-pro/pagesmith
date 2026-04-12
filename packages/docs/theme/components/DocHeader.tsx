@@ -25,7 +25,7 @@ export function DocHeader({
   slug,
   searchEnabled,
 }: Props) {
-  const homePath = homeLink || (basePath ? `${basePath}/` : '/')
+  const homePath = homeLink || basePath || '/'
   const hasNav = navItems && navItems.length > 0
   const base = (basePath || '').replace(/\/+$/, '')
 
@@ -38,6 +38,13 @@ export function DocHeader({
 
   return (
     <header class="doc-header">
+      <a
+        href="#doc-main-content"
+        class="doc-skip-link"
+        onclick="document.getElementById('doc-main-content')?.focus()"
+      >
+        Skip to main content
+      </a>
       <div class="doc-header-inner">
         <div class="doc-header-left">
           {hasNav ? (
@@ -65,69 +72,75 @@ export function DocHeader({
             ))}
           </nav>
         ) : null}
-        <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
-          <button
-            type="button"
-            class="doc-theme-toggle-btn"
-            aria-label="Change theme"
-            aria-expanded="false"
-            aria-haspopup="true"
-            data-theme-toggle-btn=""
-            innerHTML={themeIcon}
-          />
-          <div class="doc-theme-dropdown" data-theme-dropdown="" hidden>
-            <fieldset class="doc-theme-group">
-              <legend>Appearance</legend>
-              <label class="doc-theme-option" data-scheme="auto">
-                <input type="radio" name="colorScheme" value="auto" checked />
-                Auto
-              </label>
-              <label class="doc-theme-option" data-scheme="light">
-                <input type="radio" name="colorScheme" value="light" />
-                Light
-              </label>
-              <label class="doc-theme-option" data-scheme="dark">
-                <input type="radio" name="colorScheme" value="dark" />
-                Dark
-              </label>
-            </fieldset>
-            <fieldset class="doc-theme-group">
-              <legend>Theme</legend>
-              <label class="doc-theme-option" data-theme="paper">
-                <input type="radio" name="theme" value="paper" checked />
-                Paper
-              </label>
-              <label class="doc-theme-option" data-theme="high-contrast">
-                <input type="radio" name="theme" value="high-contrast" />
-                High Contrast
-              </label>
-            </fieldset>
-            <fieldset class="doc-theme-group">
-              <legend>Text Size</legend>
-              <div class="doc-text-size-options">
-                <label class="doc-text-size-option" title="Small">
-                  <input type="radio" name="textSize" value="small" />
-                  <span class="doc-text-size-label" data-size="small">
-                    A
-                  </span>
+        <div class="doc-header-right">
+          {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}
+          <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
+            <button
+              type="button"
+              class="doc-theme-toggle-btn"
+              aria-label="Change theme"
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-controls="doc-theme-dropdown"
+              data-theme-toggle-btn=""
+              innerHTML={themeIcon}
+            />
+            <div id="doc-theme-dropdown" class="doc-theme-dropdown" data-theme-dropdown="" hidden>
+              <fieldset class="doc-theme-group">
+                <legend>Appearance</legend>
+                <label class="doc-theme-option" data-scheme="auto">
+                  <input type="radio" name="colorScheme" value="auto" checked />
+                  Auto
                 </label>
-                <label class="doc-text-size-option" title="Default">
-                  <input type="radio" name="textSize" value="base" checked />
-                  <span class="doc-text-size-label" data-size="base">
-                    A
-                  </span>
+                <label class="doc-theme-option" data-scheme="light">
+                  <input type="radio" name="colorScheme" value="light" />
+                  Light
                 </label>
-                <label class="doc-text-size-option" title="Large">
-                  <input type="radio" name="textSize" value="large" />
-                  <span class="doc-text-size-label" data-size="large">
-                    A
-                  </span>
+                <label class="doc-theme-option" data-scheme="dark">
+                  <input type="radio" name="colorScheme" value="dark" />
+                  Dark
                 </label>
-              </div>
-            </fieldset>
+              </fieldset>
+              <fieldset class="doc-theme-group">
+                <legend>Theme</legend>
+                <label class="doc-theme-option" data-theme="paper">
+                  <input type="radio" name="theme" value="paper" checked />
+                  Paper
+                </label>
+                <label class="doc-theme-option" data-theme="high-contrast">
+                  <input type="radio" name="theme" value="high-contrast" />
+                  High Contrast
+                </label>
+              </fieldset>
+              <fieldset class="doc-theme-group">
+                <legend>Text Size</legend>
+                <div class="doc-text-size-options">
+                  <label class="doc-text-size-option" title="Small">
+                    <input class="sr-only" type="radio" name="textSize" value="small" />
+                    <span class="doc-text-size-label" data-size="small" aria-hidden="true">
+                      A
+                    </span>
+                    <span class="sr-only">Small text size</span>
+                  </label>
+                  <label class="doc-text-size-option" title="Default">
+                    <input class="sr-only" type="radio" name="textSize" value="base" checked />
+                    <span class="doc-text-size-label" data-size="base" aria-hidden="true">
+                      A
+                    </span>
+                    <span class="sr-only">Default text size</span>
+                  </label>
+                  <label class="doc-text-size-option" title="Large">
+                    <input class="sr-only" type="radio" name="textSize" value="large" />
+                    <span class="doc-text-size-label" data-size="large" aria-hidden="true">
+                      A
+                    </span>
+                    <span class="sr-only">Large text size</span>
+                  </label>
+                </div>
+              </fieldset>
+            </div>
           </div>
         </div>
-        {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}
       </div>
     </header>
   )

@@ -10,56 +10,45 @@ seriesOrder: 2
 
 # Project Structure
 
-The Svelte example follows a conventional layout where content, configuration, and rendering are clearly separated. Unlike the React and Solid examples that use a single entry file, the Svelte example splits rendering across multiple `.svelte` component files.
+Content, Vite config, and SSG entry are separated so the **integration path** stays obvious: collections → virtual imports in `site.ts` → `entry-server.ts` → `renderDocumentShell` → disk.
 
 ## Directory overview
 
 ```text
 examples/with-svelte/
   content/
-    features/          Markdown articles for the features collection
-    guide/             Markdown articles for the guide collection (this section)
-    pages/             Standalone pages (e.g., about)
+    guide/             How this example is wired, including `kitchen-sink.md`
+    pages/             Standalone pages (about)
   public/
-    favicon.svg        Static assets copied directly to the output
+    favicon.svg
   src/
-    components/
-      HomeBody.svelte      Landing page layout
-      NotFoundBody.svelte  404 page content
-      PageBody.svelte      Article page layout with sidebar and TOC
-      SidebarNav.svelte    Navigation sidebar with series grouping
-      SiteHeader.svelte    Top navigation bar with search trigger
-    App.svelte         Root component that selects the page layout
-    entry-server.ts    SSR entry -- orchestrates rendering with svelte/server
-    site.ts            Shared data, types, and utility functions
-    runtime.ts         Client-side JS (TOC highlighting, search, sidebar)
-    theme.css          Complete site stylesheet
-  client.js            Client entry -- imports theme.css and runtime.ts
-  content.config.ts    Collection definitions with Zod schemas
-  svelte.config.js     Svelte preprocessor configuration
-  vite.config.ts       Vite config with Pagesmith plugins
-  package.json         Dependencies and scripts
-  tsconfig.json        TypeScript configuration
+    components/        Layout pieces (header, bodies, nav)
+    App.svelte         Route-level layout; sidebar dialog only (no Pagefind modal)
+    entry-server.ts    getRoutes + render → HTML string
+    site.ts            virtual:content imports, nav, types
+    runtime.ts         Browser-only behavior (not Svelte)
+    theme.css
+  client.js            Vite client entry (CSS + core content runtime + runtime.ts)
+  content.config.ts    defineCollection / defineCollections
+  vite.config.ts
+  package.json
+  llms.txt             Agent-oriented summary of this example
 ```
 
-## Key files explained
+## Key files
 
 ### `src/site.ts`
 
-Shared data and utilities extracted into a standalone module. Imports the virtual content modules, defines TypeScript types (`MarkdownEntry`, `NavEntry`, `GuideGroup`, `Heading`), and exports sorted collections and helper functions used by both the entry server and Svelte components.
+Single place that imports `virtual:content/*`, sorts entries, builds nav structures, and exports helpers (`routeFor`, `groupBySeries`, …). Keeps `entry-server.ts` thin.
 
 ### `src/App.svelte`
 
-The root component that acts as a layout router. It receives a `pageKind` prop (`'home'`, `'page'`, or `'not-found'`) and conditionally renders the appropriate child component. It also renders the sidebar modal dialog and search modal when applicable.
-
-### `src/components/`
-
-Five Svelte components handle the page structure. Each uses Svelte 5's `$props()` rune for type-safe prop declarations. `PageBody.svelte` handles content pages with sidebar, TOC, and metadata. `HomeBody.svelte` renders the landing page with hero and content listings.
+Root layout router (`pageKind`). Renders the mobile navigation dialog. Search **trigger** only lives in `SiteHeader.svelte`; the Pagefind **modal** comes from `renderDocumentShell` when search is enabled.
 
 ### `src/entry-server.ts`
 
-The SSR entry that imports `App.svelte` and calls `render()` from `svelte/server` to produce HTML. This file is kept thin -- it builds props from the route and content data, then delegates all rendering to the Svelte component tree.
+Maps `url` + `SsgRenderConfig` to props, calls `render` from `svelte/server`, then `renderDocumentShell({ …, bodyHtml, searchEnabled })`.
 
-### `svelte.config.js`
+### `client.js` and `src/runtime.ts`
 
-Configures the Svelte preprocessor using `vitePreprocess` from the Svelte Vite plugin, enabling TypeScript support in `.svelte` files.
+`client.js` is the Vite multi-page client entry. `runtime.ts` holds example-specific DOM code; it intentionally does not implement global search shortcuts (Pagefind does).

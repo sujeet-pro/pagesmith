@@ -1,7 +1,7 @@
 ---
 title: Content Collections
 description: How @pagesmith/docs organizes content
-date: 2026-03-18
+publishedDate: 2026-03-18
 tags: [content]
 series: Getting Started
 seriesOrder: 3
@@ -9,14 +9,16 @@ seriesOrder: 3
 
 ## Automatic Collection Discovery
 
-Unlike the framework examples that define collections in `content.config.ts`, `@pagesmith/docs` discovers collections automatically from the `content/` directory structure.
+Unlike Vite-first framework examples that often pair `@pagesmith/core` with a root `content.config.ts`, `@pagesmith/docs` discovers “collections” implicitly from the docs directory tree. There is no separate collection registration file in this workflow — the filesystem layout is the source of truth, and the docs build maps folders to routes and sidebars. The default convention is `docs/` at the repo root, with `content/` as the fallback when you choose a different explicit setup like this example.
 
-Each top-level folder becomes a section with its own sidebar navigation:
+Each top-level folder becomes a section with its own header/sidebar navigation:
 
 | Folder | Route | Navigation |
 |--------|-------|------------|
 | `content/guide/` | `/guide/*` | Guide section |
-| `content/features/` | `/features/*` | Features section |
+| `content/guide/kitchen-sink.md` | `/guide/kitchen-sink` | Single markdown regression page inside the Guide |
+
+Nested markdown files stay in the same top-level section even when their URLs are deeper, and the section sidebar stays flat from the reader's perspective. Files or folders starting with `.` or `_` are ignored during discovery.
 
 ## Frontmatter Schema
 
@@ -49,3 +51,5 @@ Each section can include a `meta.json5` file for ordering and series grouping:
   ],
 }
 ```
+
+When a section defines `series`, any pages not referenced by a series remain visible under an automatic `Miscellaneous` group instead of disappearing from the sidebar.

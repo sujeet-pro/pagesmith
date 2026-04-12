@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projects.sujeet.pro/pagesmith/schemas/docs-page-frontmatter.schema.json",
+  "title": "Pagesmith Docs Page Frontmatter",
+  "description": "Schema for regular @pagesmith/docs page frontmatter.",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "publishedDate": {
+      "type": "string"
+    },
+    "lastUpdatedOn": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "draft": {
+      "type": "boolean"
+    },
+    "navLabel": {
+      "type": "string"
+    },
+    "sidebarLabel": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    },
+    "socialImage": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": {}
+}

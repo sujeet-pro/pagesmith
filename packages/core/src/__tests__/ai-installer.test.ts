@@ -45,6 +45,9 @@ describe('getAiArtifacts', () => {
     const docsContent = getAiArtifactContent('claude', 'memory', { profile: 'docs' })
     expect(docsContent).toContain('Docs-specific rules')
     expect(defaultContent).not.toContain('Docs-specific rules')
+    expect(docsContent).toContain('node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md')
+    expect(docsContent).toContain('node_modules/@pagesmith/docs/schemas/')
+    expect(docsContent).not.toContain('node_modules/@pagesmith/docs/docs/')
   })
 
   it('generates valid managed block markers', () => {
@@ -72,5 +75,20 @@ describe('getAiArtifacts', () => {
   it('uses custom skill name', () => {
     const content = getAiArtifactContent('claude', 'skill', { skillName: 'my-tool' })
     expect(content).toContain('name: my-tool')
+  })
+
+  it('references packaged docs guidance and schemas in docs profile skills', () => {
+    const content = getAiArtifactContent('claude', 'skill', { profile: 'docs' })
+    expect(content).toContain('node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md')
+    expect(content).toContain('node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md')
+    expect(content).toContain('node_modules/@pagesmith/docs/schemas/*.schema.json')
+    expect(content).not.toContain('node_modules/@pagesmith/docs/docs/')
+  })
+
+  it('keeps docs update skills aligned to root config and packaged guidance paths', () => {
+    const content = getAiArtifactContent('claude', 'update-docs', { profile: 'docs' })
+    expect(content).toContain('node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md')
+    expect(content).toContain('Read `pagesmith.config.json5` to understand the docs configuration')
+    expect(content).not.toContain('docs/pagesmith.config.json5')
   })
 })

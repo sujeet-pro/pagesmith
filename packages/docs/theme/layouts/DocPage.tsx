@@ -56,13 +56,12 @@ export default function DocPage(props: Props) {
       ? frontmatter.socialImage
       : `${site.basePath || ''}/${frontmatter.socialImage.replace(/^\//, '')}`
     : undefined
-  const hasPrevNext = prev || next
 
   return (
     <Html
       title={pageTitle}
       description={frontmatter.description || site.description}
-      url={`${slug}/`}
+      url={slug}
       socialImage={ogImage}
       site={site}
     >
@@ -81,7 +80,7 @@ export default function DocPage(props: Props) {
           currentSlug={slug}
           collapsible={site.sidebar?.collapsible}
         />
-        <div class="doc-content" data-pagefind-body="">
+        <div class="doc-content">
           {breadcrumbs && breadcrumbs.length > 1 ? (
             <nav class="doc-breadcrumbs" aria-label="Breadcrumbs">
               {breadcrumbs.map((crumb, i) =>
@@ -116,39 +115,21 @@ export default function DocPage(props: Props) {
           ) : null}
 
           <main>
-            <article>
+            <article id="doc-main-content" tabindex="-1" data-pagefind-body="">
               <div class="prose" innerHTML={content} />
             </article>
-
-            {hasPrevNext ? (
-              <nav class="doc-article-nav" aria-label="Page navigation">
-                {prev ? (
-                  <a href={prev.path + '/'} class="doc-article-link doc-article-prev">
-                    <span class="doc-article-label">Previous</span>
-                    <span class="doc-article-title">{prev.title}</span>
-                  </a>
-                ) : (
-                  <span />
-                )}
-                {next ? (
-                  <a href={next.path + '/'} class="doc-article-link doc-article-next">
-                    <span class="doc-article-label">Next</span>
-                    <span class="doc-article-title">{next.title}</span>
-                  </a>
-                ) : (
-                  <span />
-                )}
-              </nav>
-            ) : null}
           </main>
 
           <DocFooter
             links={site.footerLinks}
             footerText={site.footerText}
+            maintainer={site.maintainer}
             copyright={site.copyright}
             editUrl={editUrl}
             editLabel={editLabel}
             lastUpdated={lastUpdated}
+            prev={prev}
+            next={next}
           />
         </div>
         <aside class="doc-aside">

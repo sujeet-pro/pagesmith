@@ -20,7 +20,7 @@ import { defineConfig } from 'vite-plus'
 import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
 
 export default defineConfig({
-  base: '/pagesmith/examples/vanilla-ejs/',
+  base: '/pagesmith/examples/vanilla-ejs',
   plugins: [
     sharedAssetsPlugin(),
     ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
@@ -79,7 +79,7 @@ This is the simpler approach when your templates do not need framework-specific 
 ## Base path
 
 ```ts
-base: '/pagesmith/examples/vanilla-ejs/'
+base: '/pagesmith/examples/vanilla-ejs'
 ```
 
 The `base` option configures the public URL prefix for all assets. This is passed through to the `render()` function via `config.base`, where it is used to prefix all internal links and asset references. This makes the site deployable under a subdirectory (e.g., GitHub Pages).

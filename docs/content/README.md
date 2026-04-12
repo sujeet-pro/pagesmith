@@ -31,7 +31,7 @@ features:
     title: Schema Validation
     details: Validate frontmatter with Zod schemas and run AST-level content checks for links, headings, and code blocks at build time.
   - icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-    title: Expressive Code
+    title: Built-in Code Renderer
     details: Syntax highlighting with dual themes, line numbers, file titles, diff markers, collapsible sections, and copy buttons — zero config.
   - icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
     title: AI Assistant Artifacts

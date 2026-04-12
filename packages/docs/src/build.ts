@@ -118,13 +118,22 @@ async function runPagefind(outDir: string, extraFlags: string[] = []): Promise<v
   })
 }
 
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
 function generateSitemap(pages: DocsPage[], config: ResolvedDocsConfig): string {
   const base = `${config.origin}${config.basePath}`
   const urls = pages
     .filter((p) => !p.frontmatter.draft)
     .map((p) => {
-      const loc = p.isHome ? `${base}/` : `${base}${p.routePath}/`
-      return `  <url><loc>${loc}</loc></url>`
+      const loc = p.isHome ? base : `${base}${p.routePath}`
+      return `  <url><loc>${escapeXml(loc)}</loc></url>`
     })
 
   return [
@@ -251,6 +260,7 @@ export async function rebuildContent(options: DocsBuildOptions = {}): Promise<vo
   copyPublicAssets(config)
   copyMappedAssets(config)
   copyContentAssetsToOutput(config.outDir, contentAssets)
+  copyLlmsFiles(config)
 
   if (config.favicon) {
     const faviconDest = join(config.outDir, basename(config.favicon))

@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach } from 'vite-plus/test'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
+import { resolveDocsConfig } from '../config.js'
 import {
   toContentSlug,
   collectContentAssets,
@@ -9,6 +10,7 @@ import {
   loadSectionMetas,
   buildBreadcrumbs,
   DocsFrontmatterSchema,
+  loadDocsPages,
 } from '../content.js'
 
 // ---------------------------------------------------------------------------
@@ -257,6 +259,16 @@ describe('loadSectionMetas', () => {
 
     expect(result.size).toBe(0)
   })
+
+  it('ignores underscore-prefixed directories', () => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'ps-secmeta-'))
+    mkdirSync(join(tmpDir, '_hidden'), { recursive: true })
+    writeFileSync(join(tmpDir, '_hidden', 'meta.json5'), '{ displayName: "Hidden" }', 'utf-8')
+
+    const result = loadSectionMetas(tmpDir)
+
+    expect(result.size).toBe(0)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -378,5 +390,139 @@ describe('DocsFrontmatterSchema', () => {
     expect(result.order).toBe(5)
     expect(result.draft).toBe(false)
     expect(result.socialImage).toBe('/images/og.png')
+  })
+
+  it('parses home page frontmatter fields', () => {
+    const result = DocsFrontmatterSchema.parse({
+      title: 'Home',
+      tagline: 'Ship docs faster',
+      badge: 'Stable',
+      install: 'npm add @pagesmith/docs',
+      actions: [{ text: 'Get Started', link: '/guide/getting-started', theme: 'brand' }],
+      hero: {
+        name: 'Acme',
+        text: 'Acme Docs',
+        tagline: 'Ship docs faster',
+      },
+      features: [{ title: 'Fast setup', details: 'Bootstrap docs from the repo itself.' }],
+      packages: [{ name: '@acme/core', description: 'Main package', href: '/reference/api' }],
+      codeExample: {
+        label: 'Install',
+        title: 'Getting started',
+        code: 'npm add @pagesmith/docs',
+      },
+    })
+
+    expect(result.tagline).toBe('Ship docs faster')
+    expect(result.badge).toBe('Stable')
+    expect(result.install).toBe('npm add @pagesmith/docs')
+    expect(result.actions?.[0]?.theme).toBe('brand')
+    expect(result.codeExample?.label).toBe('Install')
+  })
+})
+
+describe('loadDocsPages', () => {
+  let rootDir = ''
+
+  afterEach(() => {
+    if (rootDir && existsSync(rootDir)) {
+      rmSync(rootDir, { recursive: true, force: true })
+    }
+  })
+
+  it('rewrites markdown links and asset references during markdown processing', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ basePath: "/docs", origin: "https://example.dev", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      ['# Intro', '', '[Home](../README.md)', '', '![Diagram](./diagram.png)'].join('\n'),
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'guide', 'diagram.png'), 'png', 'utf-8')
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    expect(config.basePath).toBe('/docs')
+    const pages = await loadDocsPages(config)
+    const intro = pages.find((page) => page.contentSlug === 'guide/intro')
+
+    expect(intro).toBeDefined()
+    expect(intro!.html).toContain('href="/docs/"')
+    expect(intro!.html).toContain('src="/assets/diagram.png"')
+  })
+
+  it('does not inline SVG files outside the page directory subtree', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ origin: "https://example.dev", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'secret.inline.svg'),
+      '<svg><text>secret</text></svg>',
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'local.inline.svg'),
+      '<svg><text>local</text></svg>',
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      ['# Intro', '', '![Inline](./local.inline.svg)', '![Escape](./../../secret.inline.svg)'].join(
+        '\n',
+      ),
+      'utf-8',
+    )
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    const pages = await loadDocsPages(config)
+    const intro = pages.find((page) => page.contentSlug === 'guide/intro')
+
+    expect(intro).toBeDefined()
+    expect(intro!.html).toContain('class="inline-svg"')
+    expect(intro!.html).toContain('local')
+    expect(intro!.html).toContain('src="/assets/secret.inline.svg"')
+    expect(intro!.html).not.toContain('<text>secret</text>')
+  })
+
+  it('uses zero-config docs conventions and ignores underscore-prefixed markdown', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
+    mkdirSync(join(rootDir, 'docs', 'guide', 'deep'), { recursive: true })
+    mkdirSync(join(rootDir, 'docs', '_partials'), { recursive: true })
+
+    writeFileSync(join(rootDir, 'docs', 'README.md'), '# Home\n', 'utf-8')
+    writeFileSync(join(rootDir, 'docs', 'about.md'), '# About\n', 'utf-8')
+    writeFileSync(join(rootDir, 'docs', '_draft.md'), '# Draft\n', 'utf-8')
+    writeFileSync(join(rootDir, 'docs', '_partials', 'hidden.md'), '# Hidden\n', 'utf-8')
+    writeFileSync(join(rootDir, 'docs', 'guide', 'README.md'), '# Guide\n', 'utf-8')
+    writeFileSync(join(rootDir, 'docs', 'guide', 'intro.md'), '# Intro\n', 'utf-8')
+    writeFileSync(join(rootDir, 'docs', 'guide', '_hidden.md'), '# Hidden\n', 'utf-8')
+    writeFileSync(join(rootDir, 'docs', 'guide', 'deep', 'setup.md'), '# Setup\n', 'utf-8')
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    const pages = await loadDocsPages(config)
+
+    expect(config.contentDir).toBe(join(rootDir, 'docs'))
+    expect(pages.map((page) => page.contentSlug)).toEqual([
+      '/',
+      'about',
+      'guide',
+      'guide/deep/setup',
+      'guide/intro',
+    ])
+    expect(pages.find((page) => page.contentSlug === 'about')?.section).toBeUndefined()
+    expect(pages.find((page) => page.contentSlug === 'guide')?.section).toBe('guide')
+    expect(pages.find((page) => page.contentSlug === 'guide/deep/setup')?.section).toBe('guide')
   })
 })

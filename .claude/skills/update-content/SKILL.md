@@ -1,41 +1,44 @@
+---
+name: update-content
+description: Update the Pagesmith monorepo docs site, examples, and published package ai-guidelines to match current implementation. Use when public behavior, markdown features, CLI/config rules, or examples change.
+---
 # Update Content
 
-Update documentation and example app content to match the current implementation of `@pagesmith/core` and `@pagesmith/docs`.
+## Quick Start
 
-## When to use
-
-Use this skill when docs or example content has drifted from the implementation — e.g., after a feature change, API rename, or plugin swap.
+1. Read the repo-maintainer guides first:
+   - `ai-guidelines/core-guidelines.md`
+   - `ai-guidelines/docs-guidelines.md`
+   - `ai-guidelines/markdown-guidelines.md`
+2. Read the published package guidance that consumers will actually receive:
+   - `packages/core/ai-guidelines/core-guidelines.md`
+   - `packages/core/ai-guidelines/markdown-guidelines.md`
+   - `packages/core/ai-guidelines/usage.md`
+   - `packages/docs/ai-guidelines/setup-docs.md`
+   - `packages/docs/ai-guidelines/docs-guidelines.md`
+   - `packages/docs/ai-guidelines/markdown-guidelines.md`
+   - `packages/docs/ai-guidelines/usage.md`
+   - `packages/docs/schemas/*.schema.json`
 
 ## Workflow
 
-1. **Load package-shipped AI guidance first (source of truth)**:
-   - `node_modules/@pagesmith/core/docs/agents/usage.md`
-   - `node_modules/@pagesmith/core/docs/agents/recipes.md`
-   - `node_modules/@pagesmith/docs/docs/agents/usage.md`
-   - `node_modules/@pagesmith/docs/docs/agents/recipes.md`
-   - If running inside the Pagesmith monorepo, use:
-     - `packages/core/docs/agents/usage.md`
-     - `packages/docs/docs/agents/usage.md`
+1. Audit the implementation that changed.
+2. Update the root docs site under `docs/content/` and the repo docs config at `pagesmith.config.json5` if docs-package behavior changed.
+3. Update all affected example content and READMEs under `examples/`.
+4. Update the published package guidance under `packages/core/ai-guidelines/` and `packages/docs/ai-guidelines/`.
+5. Update package READMEs / REFERENCE docs when user-facing behavior changed.
+6. Update `packages/core/src/ai/**` when generated assistant artifacts or packaged guidance paths changed.
+7. Verify no stale terminology remains.
 
-2. **Audit implementation** — Read the source files that changed and map deltas against package guidance.
+## Key Facts
 
-3. **Scan docs for references** — Grep `docs/content/` for keywords related to the changed feature. Read each matching file to determine if the content is accurate.
+- The current markdown/code story is the built-in Pagesmith renderer on top of Shiki.
+- Package `ai-guidelines` are for library users; root `ai-guidelines` are for maintaining this repo.
+- In this repo, the docs-site config lives at `pagesmith.config.json5` and the root docs content lives at `docs/content/`.
+- Canonical browser URLs should be slashless while remaining GitHub Pages-friendly.
 
-4. **Scan examples for references** — Grep `examples/` (both content markdown files and READMEs) for the same keywords. Also check template files (`templates/*.ejs`, `templates/*.hbs`) and runtime files (`src/runtime.ts`).
+## Verification
 
-5. **Fix discrepancies** — Edit each file to match the current implementation and package guidance. Common patterns:
-   - Feature described as "manual JS" but now handled by a plugin → remove manual JS docs, reference the plugin
-   - API renamed or signature changed → update code examples
-   - Config option added/removed → update config reference tables
-   - CSS export changed → update import path tables
-
-6. **Verify consistency** — After edits, grep for the old terminology to confirm no references remain.
-
-## Key facts about current implementation
-
-- **Copy buttons** on code blocks are provided by Expressive Code inline scripts. No runtime JS needed.
-- **Runtime JS** (both core standalone and docs) provides only: TOC highlighting, search modal, sidebar toggle. No copy-code.
-- **Expressive Code** handles: syntax highlighting, dual themes, line numbers, file titles, copy button, collapse, mark/ins/del, language badges, text wrapping, frame styles. All injected inline.
-- **CSS exports** from core: `content`, `standalone`, `viewport`, `fonts`. Code block CSS is NOT in these — Expressive Code injects its own.
-- **Frontmatter** for docs pages: title, description, navLabel, sidebarLabel, order, draft (all optional). Home page has additional: hero, install, actions, features, packages, codeExample.
-- **Vite plugins**: `pagesmithContent`, `pagesmithSsg`, `sharedAssetsPlugin` — all from `@pagesmith/core/vite`.
+- Search for stale package paths or old renderer terminology.
+- Run targeted tests for changed behavior.
+- Run `vp run validate:examples` when example output or example content changed.
