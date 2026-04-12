@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/docs",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Convention-based documentation package built on @pagesmith/core",
   "keywords": [
     "cms",
