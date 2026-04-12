@@ -52,6 +52,41 @@ describe('docs quality guards', () => {
     )
   })
 
+  it('keeps repo docs configs pointing at the version-matched package schema', () => {
+    const rootConfigPath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'pagesmith.config.json5',
+    )
+    const exampleConfigPath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'examples',
+      'doc-site',
+      'pagesmith.config.json5',
+    )
+
+    const rootConfig = JSON5.parse(readFileSync(rootConfigPath, 'utf-8')) as {
+      $schema?: string
+    }
+    const exampleConfig = JSON5.parse(readFileSync(exampleConfigPath, 'utf-8')) as {
+      $schema?: string
+    }
+
+    expect(rootConfig.$schema).toBe(
+      './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
+    )
+    expect(exampleConfig.$schema).toBe(
+      '../../node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
+    )
+  })
+
   it('ships published AI guidance and schemas from package manifests', () => {
     const corePackagePath = join(import.meta.dirname, '..', '..', '..', 'core', 'package.json')
     const docsPackagePath = join(import.meta.dirname, '..', '..', 'package.json')

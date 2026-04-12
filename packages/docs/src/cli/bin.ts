@@ -7,6 +7,12 @@ import { detectFirstCommitYear, detectGitOrigin, resolveInitOrigin, toTitleCase 
 import { startDocsMcpServer } from '../mcp/server'
 import { build, preview, startDev } from '../site'
 import {
+  applyExistingConfigDefaults,
+  type InitAnswers,
+  parseInitConfigFile,
+  updateInitConfigFile,
+} from './init'
+import {
   type InitCliArgs,
   parseBuildArgs,
   parseInitArgs,
@@ -87,18 +93,6 @@ async function ensureDocsConfig(
 // ---------------------------------------------------------------------------
 // Interactive prompts (Node built-in readline/promises)
 // ---------------------------------------------------------------------------
-
-type InitAnswers = {
-  name: string
-  title: string
-  origin: string
-  basePath: string
-  contentDir: string
-  copyrightStartYear: number
-  search: boolean
-  ai: boolean
-  starterContent: boolean
-}
 
 function readPackageName(projectDir: string): string | undefined {
   try {
@@ -193,24 +187,6 @@ async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
 // Init logic
 // ---------------------------------------------------------------------------
 
-function buildConfigContent(answers: InitAnswers): string {
-  const lines: string[] = ['{']
-  lines.push(`  name: "${answers.name}",`)
-  lines.push(`  title: "${answers.title}",`)
-  lines.push(`  origin: "${answers.origin}",`)
-  lines.push(`  basePath: "${answers.basePath}",`)
-  lines.push(`  contentDir: "${answers.contentDir}",`)
-  lines.push('  outDir: "gh-pages",')
-  lines.push('  copyright: {')
-  lines.push(`    projectName: "${answers.title}",`)
-  lines.push(`    startYear: ${answers.copyrightStartYear},`)
-  lines.push('    endYear: null,')
-  lines.push('  },')
-  lines.push(`  search: { enabled: ${answers.search ? 'true' : 'false'} },`)
-  lines.push('}', '')
-  return lines.join('\n')
-}
-
 function scriptCommand(command: 'dev' | 'build' | 'preview', configPath?: string): string {
   const base = `pagesmith ${command}`
   if (!configPath || configPath === 'pagesmith.config.json5') {
@@ -269,8 +245,10 @@ async function runInit(argv: string[]): Promise<void> {
   const projectDir = resolve('.')
   const configPath = resolve(args.config ?? 'pagesmith.config.json5')
   const hasPackageJson = existsSync(resolve(projectDir, 'package.json'))
+  const existingConfig = parseInitConfigFile(configPath)
 
-  const defaults = await detectDefaults(projectDir)
+  let defaults = await detectDefaults(projectDir)
+  defaults = applyExistingConfigDefaults(defaults, existingConfig)
 
   // --ai flag pre-selects AI integrations even in interactive mode
   if (args.ai) defaults.ai = true
@@ -286,14 +264,14 @@ async function runInit(argv: string[]): Promise<void> {
   const answers = args.yes ? defaults : await promptInteractive(defaults)
 
   const created: string[] = []
+  const updated: string[] = []
 
   // 1. Create config file
-  if (!existsSync(configPath)) {
-    const configContent = buildConfigContent(answers)
-    writeFileSync(configPath, configContent)
+  const configResult = updateInitConfigFile({ projectDir, configPath, answers })
+  if (configResult.created) {
     created.push(args.config ?? 'pagesmith.config.json5')
-  } else {
-    console.log(`  Config already exists: ${configPath}`)
+  } else if (configResult.updated) {
+    updated.push(args.config ?? 'pagesmith.config.json5')
   }
 
   // 2. Add docs scripts to package.json when available
@@ -518,6 +496,12 @@ async function runInit(argv: string[]): Promise<void> {
   if (created.length > 0) {
     console.log('  Created:')
     for (const file of created) {
+      console.log(`    ${file}`)
+    }
+  }
+  if (updated.length > 0) {
+    console.log('  Updated:')
+    for (const file of updated) {
       console.log(`    ${file}`)
     }
   }

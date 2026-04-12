@@ -4,6 +4,7 @@
 
 - Added a dedicated `ai-guidelines/setup-docs.md` bootstrap/retrofit prompt for AI agents working in existing repositories.
 - Added version-matched JSON schemas under `schemas/` for `pagesmith.config.json5`, `meta.json5`, and docs frontmatter, plus hosted copies on the docs site.
+- `pagesmith init` now writes a config `$schema` pointer to the installed docs package schema and safely backfills missing scaffold fields when rerun against an existing config file.
 - Footer links now support either a flat link grid or grouped columns with optional headers. On wide screens the footer uses up to 4 evenly spaced columns, prev/next navigation now renders between page metadata and the footer link area, and footer links still fall back to the major top-level nav links when `footerLinks` is omitted.
 - The `DocHome` layout now uses the same main content-column width and inline padding as `DocPage`, so the home page and content pages stay visually aligned as sidebars appear or disappear.
 - Added `copyright` config for footer legal lines, with `pagesmith init` seeding `startYear` from the first git commit year when available and leaving `endYear: null` for build/browser-time year updates.

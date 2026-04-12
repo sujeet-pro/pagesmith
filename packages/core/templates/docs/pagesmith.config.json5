@@ -1,4 +1,5 @@
 {
+  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
   name: 'My Docs',
   title: 'My Docs',
   description: 'Documentation built with @pagesmith/docs',

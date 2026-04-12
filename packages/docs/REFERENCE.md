@@ -89,7 +89,7 @@ pagesmith mcp --stdio [--config path]    # Start stdio MCP server for docs tooli
 
 ### pagesmith init
 
-Creates a minimal `pagesmith.config.json5` and a starter `docs/` directory structure. Site metadata (name, description) is auto-detected from `package.json`. With `--ai`, also installs AI assistant integrations (CLAUDE.md, skills, markdown guidelines). Add `--no-llms` to skip writing `llms.txt` and `llms-full.txt` when the project already maintains its own LLM files.
+Creates a minimal `pagesmith.config.json5` and a starter `docs/` directory structure. The generated config includes a `$schema` pointer to the installed package schema, and rerunning `pagesmith init` safely backfills missing scaffold fields instead of skipping the config file. Init defaults are derived from the repository name, git remote, and existing config values when present. With `--ai`, also installs AI assistant integrations (CLAUDE.md, skills, markdown guidelines). Add `--no-llms` to skip writing `llms.txt` and `llms-full.txt` when the project already maintains its own LLM files.
 The generated config includes a `copyright` block by default, using the first git commit year when it can be detected and leaving `endYear: null` so the browser can advance the rendered year when needed.
 
 When a GitHub remote is present, `pagesmith init` defaults to GitHub Pages-style values:
@@ -131,6 +131,8 @@ Useful `init` flags for non-interactive setup:
 | `--no-llms` | boolean | Skip root `llms.txt` / `llms-full.txt` generation |
 
 ## Configuration (pagesmith.config.json5)
+
+When the config file is committed, keep `$schema` pointing at the installed version-matched schema file: `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` from the repo root, or the equivalent relative path for custom config locations.
 
 | Field | Type | Default | Description |
 |---|---|---|---|
@@ -188,6 +190,7 @@ The build validates `pagesmith.config.json5` automatically:
 
 ```json5
 {
+  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
   name: 'My Docs',
   title: 'My Docs',
   description: 'Documentation for My Project',

@@ -23,7 +23,7 @@ If `@pagesmith/docs` is already installed and you want the version-matched local
 If you want full copy-paste prompt bodies for both initial setup and upgrades, use [Agent Prompts Cookbook](/guide/prompts-cookbook/). That page includes the repo-configuration prompt plus the upgrade prompt for an existing `@pagesmith/docs` integration.
 
 Your agent will create:
-- `pagesmith.config.json5` -- site configuration
+- `pagesmith.config.json5` -- site configuration, including a `$schema` pointer to the installed package schema
 - a chosen docs folder (`docs/` by default, or an existing docs-like folder after confirmation)
 - starter `guide/` and `reference/` sections with `meta.json5` and `README.md` pages
 - root `package.json` scripts: `docs:dev`, `docs:build`, `docs:preview`
@@ -67,6 +67,8 @@ npx pagesmith init --yes --ai --content-dir docs --base-path /my-repo --origin h
 
 If `https://my-user.github.io` redirects to a custom host, use the redirected origin. If you want the docs site hosted at the root instead of `/<repo-name>`, edit `pagesmith.config.json5` manually after init.
 
+It is safe to rerun `pagesmith init` later. The command updates `pagesmith.config.json5` to add missing scaffold fields and refresh the `$schema` path instead of skipping the file outright.
+
 ## Create a Configuration File
 
 If your repository already follows the default conventions, `pagesmith dev`, `pagesmith build`, `pagesmith preview`, and `pagesmith mcp --stdio` work without a config file at all. In zero-config mode, Pagesmith uses `<repo-root>/docs` when it exists, falls back to `<repo-root>/content`, and writes the build to `<repo-root>/gh-pages`.
@@ -75,6 +77,7 @@ Add `pagesmith.config.json5` at the project root when you want to override those
 
 ```json5
 {
+  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
   // Required: site identity
   name: 'My Docs',
   title: 'My Docs',

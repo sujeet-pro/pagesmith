@@ -24,7 +24,7 @@ If you use an agent workflow, initialize docs and assistant context together:
 npx pagesmith init --yes --ai
 ```
 
-This scaffolds a root `pagesmith.config.json5`, a docs content directory, starter pages, and version-matched AI guidance. If your assistant supports generated Pagesmith skills, they are installed too. If you use a different agent, paste the prompt files below directly into that agent instead of relying on tool-specific slash commands.
+This scaffolds a root `pagesmith.config.json5`, a docs content directory, starter pages, and version-matched AI guidance. The generated config includes a `$schema` pointer to the installed package schema, and rerunning `pagesmith init` safely backfills missing scaffold fields instead of silently skipping the config file. If your assistant supports generated Pagesmith skills, they are installed too. If you use a different agent, paste the prompt files below directly into that agent instead of relying on tool-specific slash commands.
 
 Copy-paste playbooks:
 
@@ -76,6 +76,7 @@ If your repository already follows those conventions, `npx pagesmith dev`, `npx 
 
 ```json5
 {
+  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
   // origin: 'https://my-user.github.io',
   // basePath: '/my-project',  // uncomment if hosting under a subdirectory
   contentDir: 'docs',

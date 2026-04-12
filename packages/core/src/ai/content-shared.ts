@@ -37,7 +37,7 @@ export function renderDocsOverview(): string {
     '- the footer legal line combines `copyright` with the default Pagesmith sign-off, which can include a maintainer credit from `maintainer` or `package.json` author',
     '- Pagefind search is built in; do not recommend a separate search plugin package',
     '- layout overrides use fixed keys under `theme.layouts` such as `home`, `page`, and `notFound`',
-    '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` when authoring `pagesmith.config.json5`, `meta.json5`, and docs frontmatter',
+    '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` when authoring `pagesmith.config.json5`, `meta.json5`, and docs frontmatter; when the config lives at the repo root, keep `$schema` pointing at `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`',
     '- for MCP-compatible tooling, prefer `pagesmith mcp --stdio` from `@pagesmith/docs`',
   ].join('\n')
 }
@@ -75,6 +75,7 @@ export function renderDocsQuickStart(): string {
     '```json5',
     '// pagesmith.config.json5',
     '{',
+    "  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',",
     "  name: 'Acme Docs',",
     "  title: 'Acme Docs',",
     "  origin: 'https://acme.github.io',",

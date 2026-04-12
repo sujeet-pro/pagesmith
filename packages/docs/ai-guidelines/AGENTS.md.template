@@ -30,6 +30,7 @@ Use the installed package guidance — these files are version-matched to what y
 - CLI commands: `pagesmith init`, `dev`, `build`, `preview`, `mcp`
 - Default ports: dev `3000`, preview `4000`
 - Content directory: `docs/` if it exists, otherwise `content/`
+- Config `$schema`: `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` when `pagesmith.config.json5` is at the repo root
 - Schema files: `node_modules/@pagesmith/docs/schemas/*.schema.json`
 - Config fields: `name`, `title`, `description`, `basePath`, `contentDir`, `origin`, `home`, `server`, `icon`, `favicon`, `maintainer`, `footerLinks`, `footerText`, `copyright`, `search`, `sidebar`, `theme`, `editLink`, `lastUpdated`, `assets`, `analytics`, `packages`
 

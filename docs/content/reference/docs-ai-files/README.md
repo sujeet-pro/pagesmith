@@ -69,10 +69,11 @@ The setup prompt tells the agent to:
 
 - install `@pagesmith/docs` at the repo root
 - prefer `npx pagesmith init` with explicit values after installation when the repo is a good fit for the built-in scaffolder
+- treat rerunning `npx pagesmith init` as safe for backfilling missing config fields and refreshing the config `$schema`
 - inspect the repo for an existing docs-like directory before creating a new one
 - detect a GitHub Pages-style `origin` and `basePath` from the repo owner and repo name
 - confirm the chosen docs folder with the user when an existing candidate is found
-- create root `pagesmith.config.json5` and root `package.json` docs scripts
+- create root `pagesmith.config.json5` with `$schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json'` and root `package.json` docs scripts
 - scaffold a working home page plus `guide/` and `reference/` sections
 - update `CLAUDE.md` and `AGENTS.md` so future sessions read the package guidance and schema files
 - use `.pagesmith/markdown-guidelines.md` for markdown authoring once AI artifacts are installed

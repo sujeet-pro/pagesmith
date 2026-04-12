@@ -8,7 +8,7 @@ description: Full pagesmith.config.json5 reference — site metadata, paths, bas
 The `@pagesmith/docs` package can run with no config when your repository already follows the default `docs/` plus `gh-pages/` conventions, but `pagesmith.config.json5` remains the place to override those defaults. The file lives at the root of your documentation project and uses the [JSON5](https://json5.org/) format, which supports comments, trailing commas, unquoted keys, and other conveniences that make configuration files more readable.
 
 > [!TIP]
-> For agent-driven setup, use the version-matched config schema at `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` or the hosted copy at [https://projects.sujeet.pro/pagesmith/schemas/pagesmith-config.schema.json](https://projects.sujeet.pro/pagesmith/schemas/pagesmith-config.schema.json).
+> For agent-driven setup, use the version-matched config schema at `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` or the hosted copy at [https://projects.sujeet.pro/pagesmith/schemas/pagesmith-config.schema.json](https://projects.sujeet.pro/pagesmith/schemas/pagesmith-config.schema.json). When `pagesmith.config.json5` lives at the repo root, add `$schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json'`.
 
 ## DocsUserConfig Type
 
@@ -514,6 +514,7 @@ Here is a complete `pagesmith.config.json5` showing all available fields:
 
 ```json5 title="pagesmith.config.json5"
 {
+  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
   // Site metadata
   name: 'My Project',
   title: 'My Project Documentation',

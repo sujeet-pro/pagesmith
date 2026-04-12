@@ -14,7 +14,7 @@
    - `node_modules/@pagesmith/docs/schemas/*.schema.json`
 3. Keep `pagesmith.config.json5` at the repo root unless the project intentionally uses a custom `--config` path.
 4. Reconfirm `contentDir`, `origin`, `basePath`, and the root `docs:dev`, `docs:build`, `docs:preview` scripts.
-5. Refresh `CLAUDE.md` / `AGENTS.md` pointers to the version-matched package guidance. If AI artifacts are stale or missing, prefer `npx pagesmith init --ai --no-llms` with explicit existing values instead of scaffolding a second docs tree.
+5. Refresh `CLAUDE.md` / `AGENTS.md` pointers to the version-matched package guidance. If AI artifacts are stale or missing, prefer `npx pagesmith init --ai --no-llms` with explicit existing values instead of scaffolding a second docs tree. It is safe to rerun init to backfill missing config fields and refresh the root config `$schema`.
 6. Run `npx pagesmith build` and optionally `npx pagesmith dev`.
 7. Adopt relevant new features only after the existing docs build is green again.
 
@@ -46,7 +46,7 @@ Requirements:
 
 - Use `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` for fresh setup or retrofit work, and use this file for upgrades.
 - The installed package guidance under `node_modules/@pagesmith/docs/ai-guidelines/` and `node_modules/@pagesmith/docs/schemas/` is the version-matched source of truth for agents.
-- The default adoption story is a repo-root `pagesmith.config.json5` plus a docs directory wired through `contentDir`.
+- The default adoption story is a repo-root `pagesmith.config.json5` plus a docs directory wired through `contentDir`, with `$schema` pointing at `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`.
 
 ## Related docs
 

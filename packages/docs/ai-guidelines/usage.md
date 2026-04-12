@@ -29,7 +29,7 @@ Use this file as the primary instruction source for `@pagesmith/docs`.
 
 ## Required integration shape
 
-1. Configure site via `pagesmith.config.json5` when you need overrides. Zero-config also works when the repo follows the default `docs/` (or `content/`) plus `gh-pages/` conventions.
+1. Configure site via `pagesmith.config.json5` when you need overrides. Zero-config also works when the repo follows the default `docs/` (or `content/`) plus `gh-pages/` conventions. For committed configs, keep `$schema` pointing at the installed package file in `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` using a path relative to the config file.
 2. Keep docs content in the content directory (default: `docs/` if it exists, otherwise `content/`).
 3. Keep `README.md` in the content root as docs home page.
 4. Use `meta.json5` plus frontmatter for ordering and labels. Top-level folders define sections, nested markdown pages stay in their top-level section, and section sidebars stay flat.
@@ -38,7 +38,7 @@ Use this file as the primary instruction source for `@pagesmith/docs`.
 ## Adoption paths
 
 - AI-first bootstrap or retrofit: start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
-- Manual setup: follow the quick start in `node_modules/@pagesmith/docs/README.md`, keeping `pagesmith.config.json5` at the repo root and pointing `contentDir` at the docs directory
+- Manual setup: follow the quick start in `node_modules/@pagesmith/docs/README.md`, keeping `pagesmith.config.json5` at the repo root, pointing `contentDir` at the docs directory, and adding `$schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json'`
 - Upgrade an existing integration: start with `node_modules/@pagesmith/docs/ai-guidelines/migration.md`
 
 ## AI-first docs workflow
@@ -63,7 +63,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 
 ### Prompt: Initial installation and setup
 
-> Set up docs using Pagesmith for this repository. Read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` first and follow it exactly.
+> Set up docs using Pagesmith for this repository. Read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` first and follow it exactly. Ensure `pagesmith.config.json5` includes a `$schema` entry that points at the installed `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` file.
 
 **Files to read:**
 - `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`

@@ -30,6 +30,7 @@ npm add @pagesmith/docs
 - Keep search configuration inside `pagesmith.config.json5`; Pagefind is built in, and layout overrides should scope `data-pagefind-body` to the content-only wrapper rather than the full shell.
 - Use `theme.layouts` keys (`home`, `page`, `notFound`) for layout overrides.
 - Use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` when editing config, meta.json5, or frontmatter.
+- When `pagesmith.config.json5` is committed, keep its `$schema` pointing at the installed file in `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`.
 - For GitHub repos, bootstrap flows should default to GitHub Pages values: probe `https://<owner>.github.io` for `origin`, keep `basePath` as `/<repo-name>`, and treat root hosting as a manual config edit.
 - Prefer the package MCP server for config/page introspection: `pagesmith mcp --stdio`.
 - Prefer AI-first setup with `pagesmith init --ai` so docs structure + assistant context stay aligned from day one.

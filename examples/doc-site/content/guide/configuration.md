@@ -13,6 +13,7 @@ All site configuration lives in a single JSON5 file:
 
 ```json5 title="pagesmith.config.json5"
 {
+  $schema: '../../node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
   name: 'My Docs',
   title: 'My Documentation',
   description: 'Documentation for my project',
@@ -56,6 +57,8 @@ When you run `pagesmith init`, the CLI detects your git remote and pre-populates
 
 - `basePath: '/my-project'`
 - `origin: 'https://user.github.io'`
+
+It is also safe to rerun `pagesmith init` later. The CLI updates `pagesmith.config.json5` to add missing scaffold fields and refresh the `$schema` path instead of skipping the config file once it exists.
 
 ## Key Options
 

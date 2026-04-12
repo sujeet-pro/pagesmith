@@ -22,6 +22,16 @@ Create `pagesmith.config.json5` at the repository root.
 
 For committed project setups, explicit config is still the preferred path. When the repo already follows the default conventions, `pagesmith dev`, `build`, `preview`, and `mcp` can also run with zero config using `<repo-root>/docs` (or `<repo-root>/content` as a fallback) and `<repo-root>/gh-pages`.
 
+When the config lives at the repository root, include:
+
+```json5
+{
+  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
+}
+```
+
+If you place the config somewhere else, keep the same installed schema target but rewrite the path relative to that config file.
+
 Choose the docs content folder with `contentDir`:
 
 - use `./docs` when the repository already has a docs folder
@@ -32,6 +42,7 @@ Example root config:
 
 ```json5
 {
+  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
   name: 'Acme Docs',
   title: 'Acme Docs',
   description: 'Project documentation',
@@ -97,7 +108,7 @@ Prefer:
 npx pagesmith init --ai
 ```
 
-This installs config/content scaffolding plus assistant memory files, skills, markdown guidelines, and optional `llms*.txt` files.
+This installs config/content scaffolding plus assistant memory files, skills, markdown guidelines, and optional `llms*.txt` files. It is also safe to rerun later to backfill missing scaffold fields and refresh the config `$schema` pointer.
 
 For retrofit work in an existing repo, start with `setup-docs.md`.
 

@@ -82,6 +82,7 @@ describe('getAiArtifacts', () => {
     expect(content).toContain('node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md')
     expect(content).toContain('node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md')
     expect(content).toContain('node_modules/@pagesmith/docs/schemas/*.schema.json')
+    expect(content).toContain('./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json')
     expect(content).not.toContain('node_modules/@pagesmith/docs/docs/')
   })
 

@@ -16,7 +16,7 @@ export function renderGeminiCommand(skillName: string, profile: AiInstallProfile
           '- read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` and `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` before editing docs content or structure',
           '- for docs sites, follow the convention-based `content/` structure',
           '- drive top navigation from top-level folders and use frontmatter for labels/order',
-          '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits',
+          '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits; when the config lives at the repo root, keep `$schema` pointing at `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`',
           '- keep Pagefind as the built-in search strategy',
         ]
       : []),

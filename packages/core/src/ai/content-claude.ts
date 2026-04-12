@@ -25,7 +25,7 @@ export function renderClaudeSkill(skillName: string, profile: AiInstallProfile):
           '- for docs sites, derive top navigation from top-level content folders',
           '- use `content/README.md` for the home page',
           '- use frontmatter fields like `sidebarLabel`, `navLabel`, and `order` for docs navigation',
-          '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits',
+          '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits; when the config lives at the repo root, keep `$schema` pointing at `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`',
           '- Pagefind search is built in — do not suggest separate search plugins',
           '- layout overrides: `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.notFound`',
         ]

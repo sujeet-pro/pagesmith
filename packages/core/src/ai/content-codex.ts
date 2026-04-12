@@ -19,7 +19,7 @@ export function renderCodexSkill(profile: AiInstallProfile): string {
           '- top-level content folders define the main docs navigation',
           '- docs frontmatter may use `sidebarLabel`, `navLabel`, and `order` to shape navigation',
           '- `pagesmith.config.json5` should own footer links and high-level site metadata',
-          '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits',
+          '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits; when the config lives at the repo root, keep `$schema` pointing at `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`',
           '- built-in search is Pagefind; do not suggest separate search plugin packages',
         ]
       : []),

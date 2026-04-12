@@ -45,7 +45,7 @@ Press Enter to accept the default shown in parentheses, or type a new value.
 
 The init command creates:
 
-1. **`pagesmith.config.json5`** — site configuration with the values you provided
+1. **`pagesmith.config.json5`** — site configuration with the values you provided, including a `$schema` pointer to the installed `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` file
 2. **`docs/README.md`** — home page with frontmatter (if starter content enabled)
 3. **`docs/guide/getting-started/README.md`** — starter getting-started page (if starter content enabled)
 
@@ -83,7 +83,7 @@ pagesmith init --ai --no-llms -y
 pagesmith init --config ./pagesmith.config.json5
 ```
 
-The command is idempotent — it will not overwrite existing files. Run it safely on an existing project to fill in any missing files.
+The command is idempotent — rerunning it safely updates `pagesmith.config.json5` to backfill missing scaffold fields and refresh the `$schema` pointer, while leaving existing starter content files in place unless they are missing.
 
 ### pagesmith dev
 

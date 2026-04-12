@@ -22,7 +22,7 @@ export function renderMemoryFile(assistant: AiAssistant, profile: AiInstallProfi
         '- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` — supported markdown features for docs projects\n' +
         '- `node_modules/@pagesmith/docs/ai-guidelines/usage.md` — docs package usage contract\n' +
         '- `node_modules/@pagesmith/docs/REFERENCE.md` — docs config, CLI, content structure, layout overrides\n' +
-        '- `node_modules/@pagesmith/docs/schemas/*.schema.json` — version-matched schemas for config, meta.json5, and docs frontmatter\n' +
+        '- `node_modules/@pagesmith/docs/schemas/*.schema.json` — version-matched schemas for config, meta.json5, and docs frontmatter; when `pagesmith.config.json5` is at the repo root, keep `$schema` pointing at `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`\n' +
         '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md` — core package workflow guidance\n' +
         '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md` — supported markdown features for content projects\n' +
         '- `node_modules/@pagesmith/core/ai-guidelines/usage.md` — core package usage contract\n' +
