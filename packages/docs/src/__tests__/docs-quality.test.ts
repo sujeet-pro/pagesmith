@@ -107,7 +107,7 @@ describe('docs quality guards', () => {
     )
   })
 
-  it('keeps public package versions and internal dependency ranges in lockstep', () => {
+  it('keeps internal package dependency pins aligned with sibling package versions', () => {
     const corePackagePath = join(import.meta.dirname, '..', '..', '..', 'core', 'package.json')
     const sitePackagePath = join(import.meta.dirname, '..', '..', '..', 'site', 'package.json')
     const docsPackagePath = join(import.meta.dirname, '..', '..', 'package.json')
@@ -124,11 +124,12 @@ describe('docs quality guards', () => {
       dependencies?: Record<string, string>
     }
 
-    expect(corePackage.version).toBe(sitePackage.version)
-    expect(corePackage.version).toBe(docsPackage.version)
+    expect(corePackage.version).toMatch(/^\d+\.\d+\.\d+/)
+    expect(sitePackage.version).toMatch(/^\d+\.\d+\.\d+/)
+    expect(docsPackage.version).toMatch(/^\d+\.\d+\.\d+/)
     expect(sitePackage.dependencies?.['@pagesmith/core']).toBe(corePackage.version)
     expect(docsPackage.dependencies?.['@pagesmith/core']).toBe(corePackage.version)
-    expect(docsPackage.dependencies?.['@pagesmith/site']).toBe(corePackage.version)
+    expect(docsPackage.dependencies?.['@pagesmith/site']).toBe(sitePackage.version)
   })
 
   it('keeps the publish workflow using the shared version sync and full release validation', () => {
