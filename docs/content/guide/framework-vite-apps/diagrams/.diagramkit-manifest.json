@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "vite-framework-shared-flow.mermaid": {
+      "hash": "sha256:40669e01b4cda272",
+      "generatedAt": "2026-04-13T21:19:22.975Z",
+      "outputs": [
+        {
+          "file": "vite-framework-shared-flow-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 2087.3125,
+          "height": 82.5999984741211
+        },
+        {
+          "file": "vite-framework-shared-flow-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 2087.3125,
+          "height": 82.5999984741211
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113111550.5085,
+      "size": 419
+    }
+  }
+}

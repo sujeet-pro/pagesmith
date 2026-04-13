@@ -1,0 +1,12 @@
+%%{init: {'htmlLabels': false}}%%
+flowchart TD
+  subgraph DocsSite["Docs site"]
+    DO["DocsFrontmatterSchema"]
+  end
+  subgraph Collections["defineCollection markdown"]
+    BA["BaseFrontmatterSchema"]
+    BL["BlogFrontmatterSchema"]
+    PR["ProjectFrontmatterSchema"]
+    BA --> BL
+    BA --> PR
+  end

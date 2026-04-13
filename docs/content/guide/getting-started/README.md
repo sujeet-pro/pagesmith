@@ -33,6 +33,14 @@ Pagesmith works best when you treat content as typed data first and rendered HTM
 
 If you want a convention-based docs site with built-in navigation and search, see the [Docs Getting Started](/guide/docs-getting-started) guide instead.
 
+Use this diagram as the mental map: both integration styles start from the same typed content config, then branch into direct `entry.render()` usage or a Vite workflow with virtual content modules and optional SSG helpers.
+
+<figure>
+  <img src="./diagrams/core-integration-paths-light.svg" class="only-light" alt="Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg">
+  <img src="./diagrams/core-integration-paths-dark.svg" class="only-dark" alt="Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg">
+  <figcaption>Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg</figcaption>
+</figure>
+
 ## Install
 
 ```bash title="Terminal"

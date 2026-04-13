@@ -13,7 +13,15 @@
  */
 
 import { createHash } from 'crypto'
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'fs'
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'fs'
 import { basename, dirname, extname, join, relative } from 'path'
 
 const HASHABLE_EXTS = new Set([
@@ -44,9 +52,21 @@ const CONTENT_ASSET_EXTS = new Set([
   '.ico',
 ])
 
-/** Build a basename → source path lookup for content assets. */
-function buildContentAssetMap(contentDir: string): Map<string, string> {
-  const map = new Map<string, string>()
+const HASH_SUFFIX_PATTERN = /\.[a-f0-9]{8}$/i
+
+type ContentAssetLookup = {
+  byPath: Map<string, string>
+  byBasename: Map<string, string[]>
+}
+
+function normalizePath(value: string): string {
+  return value.replace(/\\/g, '/')
+}
+
+/** Build a content-relative lookup for content assets. */
+function buildContentAssetMap(contentDir: string): ContentAssetLookup {
+  const byPath = new Map<string, string>()
+  const byBasename = new Map<string, string[]>()
   function walk(dir: string) {
     if (!existsSync(dir)) return
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -58,15 +78,123 @@ function buildContentAssetMap(contentDir: string): Map<string, string> {
       const ext = extname(entry.name)
       if (!CONTENT_ASSET_EXTS.has(ext)) continue
       if (entry.name.endsWith('.inline.svg')) continue
-      map.set(entry.name, full)
+      const relPath = normalizePath(relative(contentDir, full))
+      byPath.set(relPath, full)
+
+      const existing = byBasename.get(entry.name)
+      if (existing) {
+        if (!existing.includes(relPath)) existing.push(relPath)
+      } else {
+        byBasename.set(entry.name, [relPath])
+      }
     }
   }
   walk(contentDir)
-  return map
+  return { byPath, byBasename }
 }
 
 function computeHash(content: Buffer): string {
   return createHash('sha256').update(content).digest('hex').slice(0, 8)
+}
+
+function stripHashSuffix(name: string): string {
+  return name.replace(HASH_SUFFIX_PATTERN, '')
+}
+
+function isHashedAssetFileName(fileName: string): boolean {
+  const ext = extname(fileName)
+  return HASH_SUFFIX_PATTERN.test(basename(fileName, ext))
+}
+
+function toLogicalAssetFileName(assetPath: string): string {
+  const ext = extname(assetPath)
+  const logicalName = `${stripHashSuffix(basename(assetPath, ext))}${ext}`
+  const assetDir = dirname(assetPath)
+  return assetDir === '.' ? logicalName : normalizePath(join(assetDir, logicalName))
+}
+
+function toHashedAssetFileName(assetPath: string, hash: string): string {
+  const ext = extname(assetPath)
+  const hashedName = `${stripHashSuffix(basename(assetPath, ext))}.${hash}${ext}`
+  const assetDir = dirname(assetPath)
+  return assetDir === '.' ? hashedName : normalizePath(join(assetDir, hashedName))
+}
+
+function isExternalRef(ref: string): boolean {
+  return (
+    ref.startsWith('http:') ||
+    ref.startsWith('https:') ||
+    ref.startsWith('//') ||
+    ref.startsWith('#') ||
+    ref.startsWith('data:') ||
+    ref.startsWith('mailto:')
+  )
+}
+
+function resolveAssetReference(
+  ref: string,
+): { basePrefix: string; assetPath: string; suffix: string; isContentAsset: boolean } | undefined {
+  const pathname = ref.split(/[?#]/u, 1)[0] ?? ref
+  const suffix = ref.slice(pathname.length)
+
+  if (pathname.startsWith('./')) {
+    const assetPath = normalizePath(pathname.slice(2))
+    const ext = extname(pathname).toLowerCase()
+    if (!CONTENT_ASSET_EXTS.has(ext)) return undefined
+    if (!assetPath) return undefined
+    return { basePrefix: '', assetPath, suffix, isContentAsset: true }
+  }
+
+  if (!pathname.startsWith('/')) return undefined
+
+  const marker = '/assets/'
+  const markerIndex = pathname.indexOf(marker)
+  if (markerIndex < 0) return undefined
+
+  const basePrefix = pathname.slice(0, markerIndex)
+  const assetPath = normalizePath(pathname.slice(markerIndex + marker.length))
+  if (!assetPath || assetPath.startsWith('/')) return undefined
+
+  return {
+    basePrefix,
+    assetPath,
+    suffix,
+    isContentAsset: CONTENT_ASSET_EXTS.has(extname(assetPath).toLowerCase()),
+  }
+}
+
+function toPublishedAssetUrl(basePrefix: string, assetPath: string): string {
+  return `${basePrefix}/assets/${assetPath}`.replace(/^\/\//, '/')
+}
+
+function listAssetFiles(dir: string, prefix = ''): string[] {
+  const files: string[] = []
+  if (!existsSync(dir)) return files
+
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const relPath = prefix ? normalizePath(join(prefix, entry.name)) : entry.name
+    const fullPath = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      files.push(...listAssetFiles(fullPath, relPath))
+      continue
+    }
+    files.push(relPath)
+  }
+
+  return files
+}
+
+function rewriteSrcsetValue(srcset: string, rewriteRef: (ref: string) => string): string {
+  return srcset
+    .split(',')
+    .map((entry) => {
+      const trimmed = entry.trim()
+      if (!trimmed) return trimmed
+      const [ref, ...descriptor] = trimmed.split(/\s+/)
+      const rewrittenRef = rewriteRef(ref)
+      return [rewrittenRef, ...descriptor].join(' ')
+    })
+    .join(', ')
 }
 
 /**
@@ -83,24 +211,81 @@ export function hashAssets(outDir: string, contentDir: string): void {
   const contentAssets = buildContentAssetMap(contentDir)
 
   // Phase 1: Collect and hash pre-existing files in dist/assets/ (CSS, JS, fonts)
-  const existing: Array<{ full: string; ext: string; name: string }> = []
-  if (existsSync(assetsDir)) {
-    for (const entry of readdirSync(assetsDir, { withFileTypes: true })) {
-      if (entry.isDirectory()) continue
-      const ext = extname(entry.name)
-      if (!HASHABLE_EXTS.has(ext)) continue
-      existing.push({ full: join(assetsDir, entry.name), ext, name: basename(entry.name, ext) })
-    }
-  }
+  const existing: Array<{ ext: string; full: string; isHashed: boolean; logicalFileName: string }> =
+    listAssetFiles(assetsDir)
+      .map((assetPath) => ({
+        ext: extname(assetPath),
+        full: join(assetsDir, assetPath),
+        isHashed: isHashedAssetFileName(assetPath),
+        logicalFileName: toLogicalAssetFileName(assetPath),
+      }))
+      .filter((asset) => HASHABLE_EXTS.has(asset.ext))
+
+  // Process already-hashed files first so fresh unhashed copies from content rebuilds win.
+  existing.sort((left, right) => Number(right.isHashed) - Number(left.isHashed))
+
   for (const file of existing) {
     const content = readFileSync(file.full)
     const hash = computeHash(content)
-    const hashedPath = join(assetsDir, `${file.name}.${hash}${file.ext}`)
-    renameSync(file.full, hashedPath)
-    renames.set(file.full, hashedPath)
+    const hashedFileName = toHashedAssetFileName(file.logicalFileName, hash)
+    const hashedPath = join(assetsDir, hashedFileName)
+    const logicalPath = join(assetsDir, file.logicalFileName)
+
+    mkdirSync(dirname(hashedPath), { recursive: true })
+
+    if (file.full !== hashedPath) {
+      if (existsSync(hashedPath)) {
+        rmSync(file.full, { force: true })
+      } else {
+        renameSync(file.full, hashedPath)
+      }
+    }
+
+    renames.set(file.logicalFileName, hashedFileName)
   }
 
   // Phase 2: Scan HTML — resolve content assets on demand, rewrite all references
+  function rewriteAssetReference(ref: string): string {
+    if (isExternalRef(ref)) return ref
+
+    const resolved = resolveAssetReference(ref)
+    if (!resolved) return ref
+
+    const { assetPath, basePrefix, suffix, isContentAsset } = resolved
+
+    // Already hashed in phase 1 (CSS, JS, fonts) or a prior HTML file
+    const already = renames.get(assetPath)
+    if (already) {
+      return `${toPublishedAssetUrl(basePrefix, already)}${suffix}`
+    }
+
+    if (!isContentAsset) return ref
+
+    const sourcePath =
+      contentAssets.byPath.get(assetPath) ??
+      (() => {
+        const fileName = basename(assetPath)
+        const candidates = contentAssets.byBasename.get(fileName)
+        if (!candidates || candidates.length !== 1) return undefined
+        return contentAssets.byPath.get(candidates[0])
+      })()
+    if (!sourcePath) return ref
+
+    const content = readFileSync(sourcePath)
+    const hash = computeHash(content)
+    const hashedName = toHashedAssetFileName(assetPath, hash)
+    const hashedDest = join(assetsDir, hashedName)
+
+    mkdirSync(dirname(hashedDest), { recursive: true })
+
+    if (!existsSync(hashedDest)) {
+      writeFileSync(hashedDest, content)
+    }
+
+    renames.set(assetPath, hashedName)
+    return `${toPublishedAssetUrl(basePrefix, hashedName)}${suffix}`
+  }
+
   function processHtml(dir: string) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const full = join(dir, entry.name)
@@ -112,53 +297,16 @@ export function hashAssets(outDir: string, contentDir: string): void {
 
       let html = readFileSync(full, 'utf-8')
 
-      html = html.replace(/(src|href|srcset)="([^"]+)"/g, (match, attr: string, ref: string) => {
-        if (
-          ref.startsWith('http:') ||
-          ref.startsWith('https:') ||
-          ref.startsWith('//') ||
-          ref.startsWith('#') ||
-          ref.startsWith('data:') ||
-          ref.startsWith('mailto:')
-        ) {
-          return match
-        }
-
-        // Normalize relative refs (shouldn't exist after rehype, but just in case)
-        let assetRef = ref
-        if (ref.startsWith('./') && /\.(svg|png|jpg|jpeg|gif|webp|avif|ico)$/i.test(ref)) {
-          assetRef = '/assets/' + basename(ref)
-        }
-
-        // Non-asset paths (e.g. page links, anchors)
-        if (!assetRef.startsWith('/assets/')) return match
-
-        const fileName = assetRef.slice('/assets/'.length)
-        const distPath = join(assetsDir, fileName)
-
-        // Already hashed in phase 1 (CSS, JS, fonts) or a prior HTML file
-        const already = renames.get(distPath)
-        if (already) {
-          return `${attr}="/${relative(outDir, already)}"`
-        }
-
-        // Content asset — find source, copy + hash on demand
-        const sourcePath = contentAssets.get(fileName)
-        if (!sourcePath) {
-          return `${attr}="${assetRef}"`
-        }
-
-        const content = readFileSync(sourcePath)
-        const hash = computeHash(content)
-        const ext = extname(fileName)
-        const name = basename(fileName, ext)
-        const hashedName = `${name}.${hash}${ext}`
-        const hashedDest = join(assetsDir, hashedName)
-
-        writeFileSync(hashedDest, content)
-        renames.set(distPath, hashedDest)
-
-        return `${attr}="/assets/${hashedName}"`
+      html = html.replace(
+        /\b(src|href)=("|')([^"']*)\2/g,
+        (match, attr: string, quote: string, ref: string) => {
+          const rewrittenRef = rewriteAssetReference(ref)
+          return rewrittenRef === ref ? match : `${attr}=${quote}${rewrittenRef}${quote}`
+        },
+      )
+      html = html.replace(/\bsrcset=("|')([^"']*)\1/g, (match, quote: string, srcset: string) => {
+        const rewrittenSrcset = rewriteSrcsetValue(srcset, rewriteAssetReference)
+        return rewrittenSrcset === srcset ? match : `srcset=${quote}${rewrittenSrcset}${quote}`
       })
 
       writeFileSync(full, html)

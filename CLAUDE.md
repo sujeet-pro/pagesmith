@@ -4,18 +4,19 @@ Repo-level maintainer context for the Pagesmith monorepo.
 
 ## Guidance Surfaces
 
-- **Use this file, `AGENTS.md`, root `ai-guidelines/`, and `.claude/skills/`** when maintaining this repository.
+- **Use this file, `AGENTS.md`, root `ai-guidelines/` (especially `docs-guidelines.md`, `markdown-guidelines.md`, `diagram-guidelines.md`, and `docs-diagram-pass-prompt.md`), and `.claude/skills/`** when maintaining this repository.
 - **Use `packages/core/ai-guidelines/`, `packages/site/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`** when updating the published package contract for library users.
 - **Use `docs/content/` plus the repo-root `pagesmith.config.json5`** for the latest docs site that documents current main-branch behavior.
 
 ## What matters most
 
-- **`@pagesmith/core`** (`packages/core/`) — headless content layer, markdown pipeline, validation, assets helpers, `pagesmithContent`, and the core MCP server.
-- **`@pagesmith/site`** (`packages/site/`) — `pagesmith-site` CLI, preset loading, JSX runtime, CSS/runtime exports, Vite SSG helpers, and shared assets/runtime behavior.
-- **`@pagesmith/docs`** (`packages/docs/`) — config-driven docs preset/theme built on top of core + site, Pagefind integration, schema generation, listing pages, and docs-specific MCP server.
+- `**@pagesmith/core**` (`packages/core/`) — headless content layer, markdown pipeline, validation, assets helpers, `pagesmithContent`, and the core MCP server.
+- `**@pagesmith/site**` (`packages/site/`) — `pagesmith-site` CLI, preset loading, JSX runtime, CSS/runtime exports, Vite SSG helpers, and shared assets/runtime behavior.
+- `**@pagesmith/docs**` (`packages/docs/`) — config-driven docs preset/theme built on top of core + site, Pagefind integration, schema generation, listing pages, and docs-specific MCP server.
 - **Root docs site** — config lives at `pagesmith.config.json5`; content lives in `docs/content/`.
 - **Examples** — `examples/blog-site/`, `examples/doc-site/`, and `examples/with-*` are part of the contract and must stay behaviorally aligned with the packages and docs.
 - **AI installer** — `packages/core/src/ai/` generates project memory files and skills; those generated references must track the published package paths under `node_modules/@pagesmith/*/ai-guidelines/` and `node_modules/@pagesmith/docs/schemas/`.
+- **Diagram workflow** — repo docs visuals use `diagramkit` with `diagramkit.config.json5`, page-local `diagrams/` folders, and light/dark SVG renders as siblings of each source diagram file.
 
 ## Locked principles
 
@@ -63,11 +64,12 @@ For consuming projects, the installed package paths should look like:
 
 When behavior changes:
 
-- Update implementation first in `packages/core/src/**`, `packages/site/src/**`, or `packages/docs/src/**`.
+- Update implementation first in `packages/core/src/`**, `packages/site/src/**`, or `packages/docs/src/**`.
 - Update published package guidance in `packages/*/ai-guidelines/**`, package READMEs/REFERENCE docs, and `packages/docs/schemas/**` when relevant.
 - Update generated AI artifact references under `packages/core/src/ai/**`.
 - Update the root docs site under `docs/content/**`.
 - Update all affected examples under `examples/**`.
+- Update diagrams when they materially simplify docs, README, REFERENCE, or AI-guidance explanations.
 - Update tests and validation checks.
 
 ## High-risk drift areas
@@ -84,13 +86,20 @@ When behavior changes:
 - Keep the preview server serving current files from disk after rebuilds.
 - Keep asset passthrough first-class for files like `llms.txt`, `llms-full.txt`, prompts, and schemas.
 - Never treat root `ai-guidelines/` as the published package contract; those files are for maintaining this repo.
+- Keep diagram source files plus rendered light/dark SVG outputs together in sibling `diagrams/` folders.
+- Render repo diagrams with `npm run render:diagrams` and do not hand-edit generated SVG outputs.
 
 ## Project skills
 
-- `.claude/skills/update-content/`
-- `.claude/skills/examples-parity/`
-- `.claude/skills/sync-package-ai-guidelines/`
-- `.claude/skills/pagesmith-review/`
+- `.claude/skills/prj-update-content/`
+- `.claude/skills/prj-examples-parity/`
+- `.claude/skills/prj-sync-package-ai-guidelines/`
+- `.claude/skills/prj-pagesmith-review/`
+- `.claude/skills/prj-docs-diagrams/`
+
+## Project prompts
+
+- `ai-guidelines/docs-diagram-pass-prompt.md`
 
 ## Commands
 
@@ -102,5 +111,8 @@ vp run build
 vp run build:docs
 vp run build:examples
 vp run validate:examples
+npm run diagramkit:warmup
+npm run render:diagrams
 npm run validate
 ```
+

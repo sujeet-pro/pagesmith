@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "cache-and-rebuilds.mermaid": {
+      "hash": "sha256:d5e784d6f3bba641",
+      "generatedAt": "2026-04-13T21:19:22.979Z",
+      "outputs": [
+        {
+          "file": "cache-and-rebuilds-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 2172.046875,
+          "height": 300
+        },
+        {
+          "file": "cache-and-rebuilds-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 2172.046875,
+          "height": 300
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113120074.4724,
+      "size": 1451
+    }
+  }
+}

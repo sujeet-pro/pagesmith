@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "theme-customization-layers.mermaid": {
+      "hash": "sha256:01dd6b90a79c30ea",
+      "generatedAt": "2026-04-13T21:19:22.977Z",
+      "outputs": [
+        {
+          "file": "theme-customization-layers-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 1177.5078125,
+          "height": 707
+        },
+        {
+          "file": "theme-customization-layers-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 1177.5078125,
+          "height": 707
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113116955.1108,
+      "size": 786
+    }
+  }
+}

@@ -1,8 +1,8 @@
 # Markdown Guidelines
 
-Standalone markdown reference for both `@pagesmith/core` and `@pagesmith/docs`. This file covers all supported markdown features, the processing pipeline, code block syntax, and frontmatter schemas for both packages. Pass this single file to any AI agent regardless of which package your project uses.
+Standalone markdown reference for the shared Pagesmith markdown pipeline. This file covers the base features that `@pagesmith/core` exposes directly and that `@pagesmith/docs` builds on top of.
 
-Both packages share the same unified pipeline. The `@pagesmith/docs` package adds docs-specific frontmatter fields on top of the core schemas.
+Both packages share the same core unified pipeline. `@pagesmith/docs` then adds docs-specific frontmatter plus a docs-only link and asset rewrite pass after heading extraction. For stock docs-site authoring rules such as page-local diagram/image publishing, `.inline.svg`, and theme-aware image embedding, also read `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`.
 
 ## Pipeline Order
 

@@ -1,0 +1,17 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  config["pagesmith.config.json5"]
+  content["content pages and meta.json5"]
+  layouts["theme/layouts optional overrides"]
+  docs["@pagesmith/docs preset"]
+  pages["Generated docs pages"]
+  nav["Navigation and sidebar"]
+  search["Pagefind search"]
+
+  config --> docs
+  content --> docs
+  layouts --> docs
+  docs --> pages
+  docs --> nav
+  docs --> search

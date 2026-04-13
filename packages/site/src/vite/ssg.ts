@@ -31,7 +31,7 @@ export type PrerenderOptions = {
  * @example
  * ```ts
  * import { build } from 'vite'
- * import { prerenderRoutes } from '@pagesmith/core/vite'
+ * import { prerenderRoutes } from '@pagesmith/site/vite'
  *
  * // 1. Client build
  * await build({ build: { outDir: 'dist' } })

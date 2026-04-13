@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "docs-bootstrap-flow.mermaid": {
+      "hash": "sha256:c7323542e915f9e9",
+      "generatedAt": "2026-04-13T21:19:22.973Z",
+      "outputs": [
+        {
+          "file": "docs-bootstrap-flow-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 1024.96875,
+          "height": 315.79998779296875
+        },
+        {
+          "file": "docs-bootstrap-flow-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 1024.96875,
+          "height": 315.79998779296875
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776114728687.2222,
+      "size": 470
+    }
+  }
+}

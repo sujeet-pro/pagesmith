@@ -1,0 +1,23 @@
+digraph ValidationRenderingFlow {
+  graph [rankdir=TB, nodesep=0.45, ranksep=0.65, pad=0.2]
+  node [shape=box, style="rounded", margin="0.18,0.12"]
+  edge [fontsize=10]
+
+  start [label="getCollection()\nload collection files"]
+  schema [label="Phase 1\nschema validation\nZod safeParse + coercion"]
+  mdast [label="Parse markdown once\ninto shared MDAST"]
+  validators [label="Phase 2\nbuilt-in + custom\ncontent validators"]
+  plugins [label="Phase 3\nplugin validate() hooks"]
+  entry [label="Return ContentEntry\nwith data, rawContent,\nand validation issues"]
+  render [shape=diamond, label="entry.render()\ncalled?"]
+  wait [label="Keep loading fast\nuntil HTML is needed"]
+  pipeline [label="Run markdown pipeline\nand build HTML"]
+  headings [label="Extract headings\nand compute read time"]
+  cache [label="Cache RenderedContent"]
+  reuse [label="Later render() calls\nreuse cached output"]
+
+  start -> schema -> mdast -> validators -> plugins -> entry -> render
+  render -> wait [label="No"]
+  render -> pipeline [label="Yes"]
+  pipeline -> headings -> cache -> reuse
+}

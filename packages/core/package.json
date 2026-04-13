@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/core",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Headless content layer — schema-validated collections, lazy markdown rendering, and Vite content access",
   "keywords": [
     "cms",
@@ -18,11 +18,11 @@
   "author": "Sujeet <hello@sujeet.pro> (https://sujeet.pro)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sujeet-pro/pagesmith.git",
+    "url": "git+https://github.com/sujeet-pro/pagesmith.git",
     "directory": "packages/core"
   },
   "bin": {
-    "pagesmith-core": "./dist/cli/bin.mjs"
+    "pagesmith-core": "dist/cli/bin.mjs"
   },
   "files": [
     "dist/",

@@ -19,6 +19,7 @@
     "dev": "vp run dev:docs",
     "build": "vp run clean && vp run build:library && vp run build:landing && vp run build:docs && vp run build:examples",
     "build:library": "node --strip-types --no-warnings scripts/build-packages.ts",
+    "sync:versions": "node --strip-types --no-warnings scripts/sync-package-versions.ts",
     "build:docs": "vp run --filter @pagesmith/docs-site build",
     "build:examples": "npm run build:eg:blog-site && npm run build:eg:doc-site && npm run build:eg:nextjs && npm run build:eg:vanilla-ejs && npm run build:eg:vanilla-hbs && npm run build:eg:react && npm run build:eg:solid && npm run build:eg:svelte",
     "build:eg:blog-site": "npm run --workspace @pagesmith/example-blog-site build",
@@ -46,9 +47,16 @@
     "test": "vp test run",
     "test:watch": "vp test",
     "test:coverage": "vp test run --coverage",
+    "diagramkit:warmup": "diagramkit warmup",
+    "validate:diagrams": "node --strip-types --no-warnings scripts/render-diagrams.ts --validate-only",
+    "render:diagrams": "node --strip-types --no-warnings scripts/render-diagrams.ts",
+    "render:diagrams:watch": "diagramkit render . --watch",
     "check": "vp check",
     "check:fix": "vp check --fix",
     "prepare": "vp config"
+  },
+  "dependencies": {
+    "diagramkit": "^0.2.1"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.3",

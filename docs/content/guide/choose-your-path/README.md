@@ -8,6 +8,14 @@ order: 1
 
 Need ready-to-run prompt templates for setup and maintenance? See the [Prompts Cookbook](/guide/prompts-cookbook/).
 
+Use this diagram as the fast filter: docs-first projects go to `@pagesmith/docs`, host-owned apps start with `@pagesmith/core`, and `@pagesmith/site` is the extra site layer when that core-based app also wants shared JSX, CSS/runtime, and Vite SSG helpers.
+
+<figure>
+  <img src="./diagrams/package-decision-path-light.svg" class="only-light" alt="Package decision paths: docs-first to @pagesmith/docs, host-owned shell to @pagesmith/core, optional @pagesmith/site for shared JSX, CSS, runtime, and Vite SSG helpers">
+  <img src="./diagrams/package-decision-path-dark.svg" class="only-dark" alt="Package decision paths: docs-first to @pagesmith/docs, host-owned shell to @pagesmith/core, optional @pagesmith/site for shared JSX, CSS, runtime, and Vite SSG helpers">
+  <figcaption>Match the branch to your goal: notice who owns the site shell versus when you want the full docs preset and navigation.</figcaption>
+</figure>
+
 ## AI-First Starting Point
 
 Pick the package that matches your goal, then give your agent the package-owned setup prompt instead of a vague install request.
@@ -92,14 +100,16 @@ Manual guide: [Docs Getting Started](/guide/docs-getting-started/)
 
 ## Decision Matrix
 
-| Question | `@pagesmith/core` | `@pagesmith/site` | `@pagesmith/docs` |
-|---|---|---|---|
-| Do I already have my own router/build? | Yes | Maybe | Usually no |
-| Do I want Pagesmith to own the site shell? | No | Partly | Yes |
-| Do I need built-in docs navigation and search? | No | No | Yes |
-| Do I want shared Pagesmith CSS/runtime and JSX? | Optional via site | Yes | Included |
-| Canonical CLI | `pagesmith-core` | `pagesmith-site` | `pagesmith-docs` |
-| Fastest AI entrypoint | `setup-core.md` | `setup-site.md` | `setup-docs.md` |
+
+| Question                                        | `@pagesmith/core` | `@pagesmith/site` | `@pagesmith/docs` |
+| ----------------------------------------------- | ----------------- | ----------------- | ----------------- |
+| Do I already have my own router/build?          | Yes               | Maybe             | Usually no        |
+| Do I want Pagesmith to own the site shell?      | No                | Partly            | Yes               |
+| Do I need built-in docs navigation and search?  | No                | No                | Yes               |
+| Do I want shared Pagesmith CSS/runtime and JSX? | Optional via site | Yes               | Included          |
+| Canonical CLI                                   | `pagesmith-core`  | `pagesmith-site`  | `pagesmith-docs`  |
+| Fastest AI entrypoint                           | `setup-core.md`   | `setup-site.md`   | `setup-docs.md`   |
+
 
 Start with `@pagesmith/docs` when the project is truly docs-first. Start with `@pagesmith/core` when the host app already owns the shell. Add `@pagesmith/site` only when that core-based app also wants the shared Pagesmith site layer.
 

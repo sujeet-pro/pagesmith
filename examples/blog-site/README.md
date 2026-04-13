@@ -26,7 +26,7 @@ vp run dev:eg:blog-site
 - `src/entry-server.tsx` defines the collections inline and implements `getRoutes()` plus `render()`
 - `client.js` and `src/runtime.ts` add the shared content runtime plus small site-specific enhancements
 - `content/guide/` explains the setup and includes `guide/kitchen-sink.md` for markdown regression coverage
-- `llms.txt` is the compact AI map for this example
+- `llms.txt` is the compact AI map for this example; `llms-full.txt` is the fuller file-pointer variant
 
 ## When To Use This Shape
 

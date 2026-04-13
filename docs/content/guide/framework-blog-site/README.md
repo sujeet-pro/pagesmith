@@ -11,6 +11,14 @@ The Blog Site example demonstrates how to build a fully custom site on top of `@
 
 Source: [`examples/blog-site/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site) | Output: <a href="/pagesmith/examples/blog-site" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
+The diagram below highlights the custom-site flow: this pattern keeps routing and page assembly in your own entry server and layouts, while Pagesmith provides the markdown processing, JSX runtime, and static generation pieces underneath.
+
+<figure>
+  <img src="./diagrams/blog-site-assembly-light.svg" class="only-light" alt="Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, derived navigation, and search">
+  <img src="./diagrams/blog-site-assembly-dark.svg" class="only-dark" alt="Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, derived navigation, and search">
+  <figcaption>Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, derived navigation, and search</figcaption>
+</figure>
+
 ## Prerequisites
 
 - Node.js 20+

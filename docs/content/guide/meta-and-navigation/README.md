@@ -7,6 +7,16 @@ description: Root and section meta.json5 files for header and footer links, side
 
 `@pagesmith/docs` uses `meta.json5` files to control navigation, sidebar ordering, series grouping, and section-level layout assignments. In the default convention, top-level folders define the major docs sections, nested markdown files stay in that top-level section, and the reader-facing sidebar stays flat. There are two types of meta files: a root meta file for site-wide navigation, and section meta files for per-section configuration.
 
+## Navigation at a Glance
+
+This diagram shows which file controls each navigation surface. Notice that root `meta.json5` owns site-wide header and footer links, while section meta plus page frontmatter determine sidebar grouping, ordering, and the flattened sequence that powers `prev` and `next`.
+
+<figure>
+  <img src="./diagrams/navigation-sources-light.svg" class="only-light" alt="Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs">
+  <img src="./diagrams/navigation-sources-dark.svg" class="only-dark" alt="Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs">
+  <figcaption>Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs</figcaption>
+</figure>
+
 ## Root meta.json5
 
 Place a `meta.json5` file directly inside the content directory to control the site header and footer navigation.

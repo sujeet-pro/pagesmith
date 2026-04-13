@@ -1,0 +1,13 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  config["content.config.ts collections"]
+  content["pagesmithContent"]
+  virtual["virtual:content modules"]
+  entry["SSR entry getRoutes and render"]
+  renderer["React, SolidJS, or Svelte renderer"]
+  html["HTML document"]
+  ssg["pagesmithSsg"]
+  output["Built site and search index"]
+
+  config --> content --> virtual --> entry --> renderer --> html --> ssg --> output

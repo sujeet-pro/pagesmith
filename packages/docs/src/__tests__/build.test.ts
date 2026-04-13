@@ -1,8 +1,30 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
-import { build } from '../build.js'
+import { build, rebuildContent } from '../build.js'
+
+function expectCaptured(value: string, pattern: RegExp): string {
+  const match = value.match(pattern)
+  expect(match).toBeTruthy()
+  return match![1]
+}
+
+function findHashedAsset(outDir: string, prefix: string, ext: string): string {
+  const assetFile = readdirSync(join(outDir, 'assets')).find((file) =>
+    new RegExp(`^${prefix}\\.[a-f0-9]{8}\\${ext}$`).test(file),
+  )
+  expect(assetFile).toBeDefined()
+  return assetFile!
+}
 
 describe('build', () => {
   let rootDir = ''
@@ -32,13 +54,18 @@ describe('build', () => {
     expect(existsSync(join(outDir, 'index.html'))).toBe(true)
     expect(existsSync(join(outDir, '404.html'))).toBe(true)
     expect(existsSync(join(outDir, '.nojekyll'))).toBe(true)
-    expect(existsSync(join(outDir, 'assets', 'style.css'))).toBe(true)
-    expect(existsSync(join(outDir, 'assets', 'main.js'))).toBe(true)
+
+    const styleAsset = findHashedAsset(outDir, 'style', '.css')
+    const mainAsset = findHashedAsset(outDir, 'main', '.js')
+    expect(existsSync(join(outDir, 'assets', 'style.css'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'main.js'))).toBe(false)
 
     const html = readFileSync(join(outDir, 'index.html'), 'utf-8')
-    const css = readFileSync(join(outDir, 'assets', 'style.css'), 'utf-8')
-    const js = readFileSync(join(outDir, 'assets', 'main.js'), 'utf-8')
+    const css = readFileSync(join(outDir, 'assets', styleAsset), 'utf-8')
+    const js = readFileSync(join(outDir, 'assets', mainAsset), 'utf-8')
     expect(html).toContain('Build Test')
+    expect(html).toContain(`/docs/assets/${styleAsset}`)
+    expect(html).toContain(`/docs/assets/${mainAsset}`)
     expect(css).toContain('--doc-content-max-width:100ch')
     expect(css).toContain('.doc-content{max-width:var(--doc-content-max-width)')
     expect(css).toContain('.doc-home-section{max-width:var(--doc-content-max-width)')
@@ -50,6 +77,76 @@ describe('build', () => {
     expect(js).toContain('ps-code-tabs-ready')
     expect(js).toContain('data-ps-code-copy')
     expect(css).not.toContain('84ch')
+  })
+
+  it('hashes raw HTML figure assets and keeps hashed references after content rebuilds', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-build-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ name: "Build Test", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n\nBuild test.', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      [
+        '# Intro',
+        '',
+        '<figure>',
+        '  <img src="./diagram-light.svg" class="only-light" alt="Light diagram">',
+        '  <img src="./diagram-dark.svg" class="only-dark" alt="Dark diagram">',
+        '</figure>',
+      ].join('\n'),
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'guide', 'diagram-light.svg'), '<svg />', 'utf-8')
+    writeFileSync(join(rootDir, 'content', 'guide', 'diagram-dark.svg'), '<svg />', 'utf-8')
+
+    await build({ configPath: join(rootDir, 'pagesmith.config.json5'), basePath: '/docs' })
+
+    const outDir = join(rootDir, 'gh-pages')
+    const pagePath = join(outDir, 'guide', 'intro', 'index.html')
+    let html = readFileSync(pagePath, 'utf-8')
+    const lightAsset = expectCaptured(
+      html,
+      /src="\/docs\/assets\/(guide\/diagram-light\.[a-f0-9]{8}\.svg)"/,
+    )
+    const darkAsset = expectCaptured(
+      html,
+      /src="\/docs\/assets\/(guide\/diagram-dark\.[a-f0-9]{8}\.svg)"/,
+    )
+
+    expect(html).toContain('<figure>')
+    expect(existsSync(join(outDir, 'assets', lightAsset))).toBe(true)
+    expect(existsSync(join(outDir, 'assets', darkAsset))).toBe(true)
+    expect(existsSync(join(outDir, 'assets', 'guide', 'diagram-light.svg'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'guide', 'diagram-dark.svg'))).toBe(false)
+
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      [
+        '# Intro',
+        '',
+        'Updated docs content.',
+        '',
+        '<figure>',
+        '  <img src="./diagram-light.svg" class="only-light" alt="Light diagram">',
+        '  <img src="./diagram-dark.svg" class="only-dark" alt="Dark diagram">',
+        '</figure>',
+      ].join('\n'),
+      'utf-8',
+    )
+
+    await rebuildContent({ configPath: join(rootDir, 'pagesmith.config.json5'), basePath: '/docs' })
+
+    html = readFileSync(pagePath, 'utf-8')
+    expect(html).toContain('Updated docs content.')
+    expect(html).toContain(`/docs/assets/${lightAsset}`)
+    expect(html).toContain(`/docs/assets/${darkAsset}`)
+    expect(html).not.toContain('/docs/assets/style.css')
+    expect(html).not.toContain('/docs/assets/main.js')
   })
 
   it('builds in zero-config mode when a docs directory exists', async () => {

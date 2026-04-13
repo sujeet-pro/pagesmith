@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "template-ssg-pipeline.mermaid": {
+      "hash": "sha256:7f92bbd76f3b7985",
+      "generatedAt": "2026-04-13T21:19:22.975Z",
+      "outputs": [
+        {
+          "file": "template-ssg-pipeline-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 550.1328125,
+          "height": 665.5999755859375
+        },
+        {
+          "file": "template-ssg-pipeline-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 550.1328125,
+          "height": 665.5999755859375
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776114731848.0176,
+      "size": 517
+    }
+  }
+}

@@ -1,5 +1,6 @@
 /**
- * Vite plugin for static site generation with @pagesmith/core.
+ * Legacy internal copy of the Vite SSG plugin kept during the core/site split.
+ * Public site-building APIs ship from `@pagesmith/site`.
  *
  * Handles development (on-the-fly SSR via middleware), production
  * (post-build SSG + pagefind indexing), and preview (clean-URL
@@ -12,7 +13,7 @@
  * @example
  * ```ts
  * // vite.config.ts
- * import { pagesmithSsg } from '@pagesmith/core/vite'
+ * import { pagesmithSsg } from '@pagesmith/site/vite'
  *
  * export default defineConfig({
  *   base: '/my-site',

@@ -1,0 +1,12 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TD
+    pick{"Project shape?"}
+    docs["npx pagesmith-docs init --ai<br/>scaffold + AI artifacts"]
+    coreai["npx pagesmith-core ai --profile default<br/>AI artifacts only"]
+    shared["Installed AI artifacts<br/>memory files skills commands<br/>markdown rules llms.txt"]
+
+    pick -->|"docs site"| docs
+    pick -->|"core or site app"| coreai
+    docs --> shared
+    coreai --> shared

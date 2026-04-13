@@ -12,6 +12,14 @@ Source: [`examples/with-nextjs/`](https://github.com/sujeet-pro/pagesmith/tree/m
 
 The Next.js example uses Pagesmith as a headless content layer. Next.js owns routing, layouts, metadata, and static export. Pagesmith handles collection definitions, markdown rendering, headings, and read time, with `@pagesmith/site` used only for the shared content CSS/runtime when you want the shipped prose and code-block UI.
 
+The diagram highlights the boundary: the App Router stays in charge of the shell while `@pagesmith/core` supplies rendered markdown data; `@pagesmith/site` is an optional presentation add-on.
+
+<figure>
+  <img src="./diagrams/nextjs-pagesmith-boundary-light.svg" class="only-light" alt="Next.js App Router owning routes and shell while @pagesmith/core provides collections and entry.render output and optional @pagesmith/site adds content CSS and runtime">
+  <img src="./diagrams/nextjs-pagesmith-boundary-dark.svg" class="only-dark" alt="Next.js App Router owning routes and shell while @pagesmith/core provides collections and entry.render output and optional @pagesmith/site adds content CSS and runtime">
+  <figcaption>Integration boundary: Next.js owns the shell; Pagesmith stays a headless content and markdown layer.</figcaption>
+</figure>
+
 ## When to Choose This Pattern
 
 - You already have a Next.js App Router project.

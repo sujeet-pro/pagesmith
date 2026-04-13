@@ -1,0 +1,11 @@
+%%{init: {'htmlLabels': false}}%%
+flowchart TD
+  A["CLI --base-path"]
+  B["BASE_URL"]
+  C["pagesmith.config.json5 basePath"]
+  D["Git remote repo name"]
+  E["Default /"]
+  A -->|"if unset"| B
+  B -->|"if unset"| C
+  C -->|"if unset"| D
+  D -->|"if unset"| E

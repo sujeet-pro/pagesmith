@@ -11,6 +11,14 @@ The Doc Site pattern uses `@pagesmith/docs` to build a full documentation site f
 
 Source: [`examples/doc-site/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/doc-site) | Output: <a href="/pagesmith/examples/doc-site" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
+The diagram below shows the key ownership boundary: your project supplies content, site config, and optional layout overrides, while `@pagesmith/docs` still owns navigation generation, search wiring, and the docs build/runtime pipeline.
+
+<figure>
+  <img src="./diagrams/doc-site-assembly-light.svg" class="only-light" alt="Doc site project inputs flowing through the @pagesmith/docs preset into generated pages, navigation, and search">
+  <img src="./diagrams/doc-site-assembly-dark.svg" class="only-dark" alt="Doc site project inputs flowing through the @pagesmith/docs preset into generated pages, navigation, and search">
+  <figcaption>Doc site project inputs flowing through the @pagesmith/docs preset into generated pages, navigation, and search</figcaption>
+</figure>
+
 ## Prerequisites
 
 - Node.js 20+

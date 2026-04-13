@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "mcp-surfaces-overview.mermaid": {
+      "hash": "sha256:73b517271c946ab6",
+      "generatedAt": "2026-04-13T21:19:22.976Z",
+      "outputs": [
+        {
+          "file": "mcp-surfaces-overview-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 1105.3828125,
+          "height": 409.20001220703125
+        },
+        {
+          "file": "mcp-surfaces-overview-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 1105.3828125,
+          "height": 409.20001220703125
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113132259.8262,
+      "size": 704
+    }
+  }
+}

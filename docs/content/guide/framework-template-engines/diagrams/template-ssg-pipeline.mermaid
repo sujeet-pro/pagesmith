@@ -1,0 +1,17 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TD
+    cfg["content.config.mjs<br/>defineCollection + schemas"]
+    vite["Vite config<br/>pagesmithSsg + sharedAssetsPlugin"]
+    entry["SSR entry server<br/>getLayer per root"]
+    layer["createContentLayer()"]
+    md["entry.render()<br/>markdown to HTML"]
+    tpl["EJS or Handlebars<br/>layout + page bodies"]
+    out["Static HTML + assets<br/>Pagefind optional"]
+
+    cfg --> layer
+    vite --> entry
+    entry --> layer
+    layer --> md
+    md --> tpl
+    tpl --> out

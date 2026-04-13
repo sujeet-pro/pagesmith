@@ -13,6 +13,14 @@ description: Overview of the Pagesmith framework integration matrix and how each
 
 Pagesmith's content layer is framework-agnostic. Define collections once in `content.config.ts`, then consume entries through virtual imports or the programmatic content-layer API in any rendering stack.
 
+Read this diagram left to right: every integration starts from `@pagesmith/core`, Vite and custom-site paths usually add `@pagesmith/site`, and `@pagesmith/docs` is the convention-based path when you want a docs site with built-in navigation, search, and theme.
+
+<figure>
+  <img src="./diagrams/framework-integration-patterns-light.svg" class="only-light" alt="Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites">
+  <img src="./diagrams/framework-integration-patterns-dark.svg" class="only-dark" alt="Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites">
+  <figcaption>Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites</figcaption>
+</figure>
+
 ## Three Approaches
 
 ### Virtual Content Modules (pagesmithContent)

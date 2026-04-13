@@ -17,6 +17,14 @@ Pagesmith exposes two MCP surfaces that give AI assistants direct access to your
 
 This enables workflows like "validate my config, list all pages, then update the one about getting started."
 
+Use this diagram as the mental model: the docs server is a ready-made CLI entry point, while the core server only exists after you wrap a live `ContentLayer` from your app code.
+
+<figure>
+  <img src="./diagrams/mcp-surfaces-overview-light.svg" class="only-light" alt="Overview of an AI assistant connecting over stdio either to the Pagesmith docs MCP server or to a custom core MCP wrapper, with each branch exposing different tools and project data">
+  <img src="./diagrams/mcp-surfaces-overview-dark.svg" class="only-dark" alt="Overview of an AI assistant connecting over stdio either to the Pagesmith docs MCP server or to a custom core MCP wrapper, with each branch exposing different tools and project data">
+  <figcaption>Overview of an AI assistant connecting over stdio either to the Pagesmith docs MCP server or to a custom core MCP wrapper, with each branch exposing different tools and project data</figcaption>
+</figure>
+
 ## Quick Setup
 
 ### Claude Code

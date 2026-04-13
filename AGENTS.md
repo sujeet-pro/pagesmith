@@ -4,7 +4,7 @@ Use this file when working inside the Pagesmith monorepo.
 
 ## Scope Split
 
-- **Repo-maintainer guidance**: this file, `CLAUDE.md`, root `ai-guidelines/`, and `.claude/skills/`.
+- **Repo-maintainer guidance**: this file, `CLAUDE.md`, root `ai-guidelines/` (especially `docs-guidelines.md`, `markdown-guidelines.md`, `diagram-guidelines.md`, and `docs-diagram-pass-prompt.md`), and `.claude/skills/`.
 - **Published user guidance**: `packages/core/ai-guidelines/`, `packages/site/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`.
 - **Latest-project docs**: `docs/content/` plus the repo-root `pagesmith.config.json5` describe the current main-branch behavior.
 - **Installed-package contract**: anything under `node_modules/@pagesmith/*/ai-guidelines/` and `node_modules/@pagesmith/docs/schemas/` must stay version-matched with the package release.
@@ -93,6 +93,8 @@ Dependency graph:
   - `packages/docs/schemas/*.schema.json`
   - root docs pages for config/frontmatter/navigation/deployment
   - `examples/doc-site/`
+- When writing or updating docs, read `ai-guidelines/diagram-guidelines.md` and create diagrams wherever they materially simplify the explanation.
+- Keep diagram source files plus rendered light/dark SVG outputs in sibling `diagrams/` folders, and render them with `npm run render:diagrams`.
 - Keep parity across docs and all examples for advertised markdown features, config/frontmatter rules, asset passthrough, and deployment behavior.
 - Canonical browser URLs should be slashless while remaining GitHub Pages-friendly (`.nojekyll`, root `404.html`, fs-backed preview, direct asset passthrough).
 - The preview server must continue serving directly from disk so rebuilds do not require server restarts.
@@ -101,10 +103,15 @@ Dependency graph:
 
 Use the project skills in `.claude/skills/` when relevant:
 
-- `update-content` — refresh root docs, examples, and package AI guidance together
-- `examples-parity` — keep examples aligned with docs/package behavior
-- `sync-package-ai-guidelines` — update published package AI guidance and schemas
-- `pagesmith-review` — review diffs for behavior, parity, and release readiness
+- `prj-update-content` — refresh root docs, examples, package AI guidance, and diagrams together
+- `prj-examples-parity` — keep examples aligned with docs/package behavior and diagram conventions
+- `prj-sync-package-ai-guidelines` — update published package AI guidance, schemas, and docs/diagram guidance
+- `prj-pagesmith-review` — review diffs for behavior, parity, diagram drift, and release readiness
+- `prj-docs-diagrams` — review docs pages and add diagrams with `diagramkit`
+
+## Repo Prompts
+
+- `ai-guidelines/docs-diagram-pass-prompt.md` — copy-paste prompt for a full repo docs review that adds diagrams and updates markdown embeds
 
 ## Commands
 
@@ -116,5 +123,8 @@ vp run build
 vp run build:docs
 vp run build:examples
 vp run validate:examples
+npm run diagramkit:warmup
+npm run render:diagrams
 npm run validate
 ```
+

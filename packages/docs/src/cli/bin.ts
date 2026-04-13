@@ -576,6 +576,48 @@ async function runMcp(argv: string[]): Promise<void> {
   })
 }
 
+function formatUnknownCause(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    return String(value)
+  }
+  if (typeof value === 'symbol') return value.toString()
+
+  try {
+    const json = JSON.stringify(value)
+    if (json) return json
+  } catch {
+    // Fall through to the generic object tag below.
+  }
+
+  return Object.prototype.toString.call(value)
+}
+
+function formatCliError(error: unknown): string {
+  if (!(error instanceof Error)) return String(error)
+
+  const lines: string[] = []
+  let current: unknown = error
+  let depth = 0
+
+  while (current instanceof Error) {
+    const prefix = depth === 0 ? '' : 'Caused by: '
+    const message = current.message || current.name
+    const line = `${prefix}${message}`
+    if (line !== lines.at(-1)) {
+      lines.push(line)
+    }
+    current = current.cause
+    depth += 1
+  }
+
+  if (current != null) {
+    lines.push(`Caused by: ${formatUnknownCause(current)}`)
+  }
+
+  return lines.join('\n')
+}
+
 async function main(): Promise<void> {
   const [command, ...rest] = process.argv.slice(2)
 
@@ -620,6 +662,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error))
+  console.error(formatCliError(error))
   process.exit(1)
 })

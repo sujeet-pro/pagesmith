@@ -1,0 +1,17 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TD
+  start([Project or existing repo])
+  init["pagesmith-docs init<br/>Scaffold or backfill config and starter docs"]
+  dev["pagesmith-docs dev<br/>Live-reload editing loop"]
+  build["pagesmith-docs build<br/>Static output + assets + Pagefind"]
+  preview["pagesmith-docs preview<br/>Serve built output from disk"]
+  mcp["pagesmith-docs mcp --stdio<br/>Expose docs-aware MCP tools"]
+
+  start --> init
+  start --> dev
+  init --> dev
+  dev --> build
+  build --> preview
+  start -. "assistant or tooling access" .-> mcp
+  init -. "project metadata + content" .-> mcp

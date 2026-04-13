@@ -1,0 +1,11 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TD
+    start([Start here]) --> docsQ{"Need built-in docs navigation,<br/>search, and the default theme?"}
+    docsQ -- Yes --> docs["@pagesmith/docs<br/>Docs preset with config,<br/>navigation, search, and theme"]
+    docsQ -- No --> hostQ{"Does the host app already own<br/>routing, layout, and build tooling?"}
+    hostQ -- Yes --> core["@pagesmith/core<br/>Headless content layer with<br/>schemas, loaders, and markdown"]
+    hostQ -- No --> site["@pagesmith/site + @pagesmith/core<br/>Custom site shell with shared<br/>JSX, CSS/runtime, and Vite SSG"]
+    core --> siteQ{"Need the shared Pagesmith<br/>site layer too?"}
+    siteQ -- Yes --> site
+    siteQ -- No --> coreOnly["Stay on @pagesmith/core"]

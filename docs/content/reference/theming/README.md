@@ -17,6 +17,16 @@ The theme system sits on two independent CSS class axes applied to `<html>`:
 | **Theme variant** | `theme-paper`, `theme-high-contrast` | Which set of token overrides is active |
 | **Text size** | `html[data-text-size="small\|base\|large"]` | Root font size scaling |
 
+### Theme State Flow
+
+This state-flow view shows how server defaults, stored preferences, and theme controls all feed the `<html>` state. Notice that color scheme drives light/dark asset switching and code themes, while theme variant and text size change token resolution and typography.
+
+<figure>
+  <img src="./diagrams/theme-state-flow-light.svg" class="only-light" alt="Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size">
+  <img src="./diagrams/theme-state-flow-dark.svg" class="only-dark" alt="Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size">
+  <figcaption>Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size</figcaption>
+</figure>
+
 The server-rendered default is:
 
 ```html
@@ -329,11 +339,13 @@ The runtime reads this on page load, applies the stored classes and data attribu
 
 ## Image Switching
 
-For content images that need different versions in light and dark modes, use the `.only-light` and `.only-dark` utility classes:
+For content images that need different versions in light and dark modes, wrap the pair in a `<figure>` and use the `.only-light` and `.only-dark` utility classes:
 
 ```html
-<img src="diagram-light.png" class="only-light" alt="Architecture diagram">
-<img src="diagram-dark.png" class="only-dark" alt="Architecture diagram">
+<figure>
+  <img src="diagram-light.png" class="only-light" alt="Architecture diagram">
+  <img src="diagram-dark.png" class="only-dark" alt="Architecture diagram">
+</figure>
 ```
 
 These classes are tied to the color-scheme class on `<html>`, not to `@media (prefers-color-scheme)`. This ensures images switch correctly when the user manually selects a color scheme via the theme toggle.

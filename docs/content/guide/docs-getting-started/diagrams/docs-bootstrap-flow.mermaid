@@ -1,0 +1,15 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+    install["npm add @pagesmith/docs<br/>pulls @pagesmith/core"]
+    init["pagesmith-docs init<br/>--yes --ai"]
+    cfg["pagesmith.config.json5<br/>+ schema pointer"]
+    tree["Markdown content tree<br/>+ meta.json5"]
+    scripts["package.json scripts<br/>dev build preview"]
+    ship["Static outDir<br/>+ Pagefind index"]
+
+    install --> init
+    init --> cfg
+    init --> tree
+    init --> scripts
+    scripts --> ship

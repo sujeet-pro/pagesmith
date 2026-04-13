@@ -25,6 +25,16 @@ pagesmith-docs preview [options]
 pagesmith-docs mcp --stdio [options]
 ```
 
+## How The Commands Fit Together
+
+Notice that `init` is a setup step you can rerun safely, `dev`/`build`/`preview` form the main docs workflow, and `mcp --stdio` is a separate path for assistant tooling rather than static-site output.
+
+<figure>
+  <img src="./diagrams/command-lifecycle-light.svg" class="only-light" alt="Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path">
+  <img src="./diagrams/command-lifecycle-dark.svg" class="only-dark" alt="Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path">
+  <figcaption>Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path</figcaption>
+</figure>
+
 ## `pagesmith-docs init`
 
 Use `init` when you want Pagesmith to scaffold or backfill a docs project.
@@ -88,7 +98,7 @@ Builds the full static docs site.
 npx pagesmith-docs build
 ```
 
-The build resolves config, loads content and `meta.json5`, renders markdown through the shared Pagesmith pipeline, renders docs layouts, copies static and markdown companion assets, and runs Pagefind when search is enabled.
+The build resolves config, loads content and `meta.json5`, renders markdown through the shared Pagesmith pipeline, renders docs layouts, copies static assets, publishes markdown companion assets under preserved content-relative `/assets/...` paths, and runs Pagefind when search is enabled.
 
 Examples:
 

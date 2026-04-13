@@ -11,6 +11,14 @@ description: Schema validation at load time, MDAST content validators, and lazy 
 
 Pagesmith separates validation from rendering so you can keep content workflows fast. Validation happens at load time (when `getCollection()` is called), while rendering is lazy and happens only when you call `entry.render()`.
 
+The diagram below highlights the key boundary on this page: `getCollection()` performs the full validation path up front, while `entry.render()` is a separate lazy step that builds and caches HTML only when you need it.
+
+<figure>
+  <img src="./diagrams/validation-rendering-flow-light.svg" class="only-light" alt="Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result">
+  <img src="./diagrams/validation-rendering-flow-dark.svg" class="only-dark" alt="Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result">
+  <figcaption>Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result</figcaption>
+</figure>
+
 ## Validation Pipeline
 
 Validation runs in three phases during content loading, all orchestrated by `ContentStore`:

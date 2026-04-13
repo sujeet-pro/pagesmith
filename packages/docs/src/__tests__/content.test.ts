@@ -454,7 +454,42 @@ describe('loadDocsPages', () => {
 
     expect(intro).toBeDefined()
     expect(intro!.html).toContain('href="/docs/"')
-    expect(intro!.html).toContain('src="/assets/diagram.png"')
+    expect(intro!.html).toContain('src="/docs/assets/guide/diagram.png"')
+  })
+
+  it('rewrites raw HTML figure asset references during markdown processing', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ basePath: "/docs", origin: "https://example.dev", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      [
+        '# Intro',
+        '',
+        '<figure>',
+        '  <img src="./diagram-light.svg" class="only-light" alt="Light diagram">',
+        '  <img src="./diagram-dark.svg" class="only-dark" alt="Dark diagram">',
+        '</figure>',
+      ].join('\n'),
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'guide', 'diagram-light.svg'), '<svg />', 'utf-8')
+    writeFileSync(join(rootDir, 'content', 'guide', 'diagram-dark.svg'), '<svg />', 'utf-8')
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    const pages = await loadDocsPages(config)
+    const intro = pages.find((page) => page.contentSlug === 'guide/intro')
+
+    expect(intro).toBeDefined()
+    expect(intro!.html).toContain('<figure>')
+    expect(intro!.html).toContain('src="/docs/assets/guide/diagram-light.svg"')
+    expect(intro!.html).toContain('src="/docs/assets/guide/diagram-dark.svg"')
   })
 
   it('does not inline SVG files outside the page directory subtree', async () => {
@@ -479,7 +514,7 @@ describe('loadDocsPages', () => {
     )
     writeFileSync(
       join(rootDir, 'content', 'guide', 'intro.md'),
-      ['# Intro', '', '![Inline](./local.inline.svg)', '![Escape](./../../secret.inline.svg)'].join(
+      ['# Intro', '', '![Inline](./local.inline.svg)', '![Shared](../secret.inline.svg)'].join(
         '\n',
       ),
       'utf-8',
@@ -494,6 +529,61 @@ describe('loadDocsPages', () => {
     expect(intro!.html).toContain('local')
     expect(intro!.html).toContain('src="/assets/secret.inline.svg"')
     expect(intro!.html).not.toContain('<text>secret</text>')
+  })
+
+  it('leaves escaped asset refs unchanged when they point outside the content root', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ basePath: "/docs", origin: "https://example.dev", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'secret.inline.svg'),
+      '<svg><text>secret</text></svg>',
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      ['# Intro', '', '![Escape](./../../secret.inline.svg)'].join('\n'),
+      'utf-8',
+    )
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    const pages = await loadDocsPages(config)
+    const intro = pages.find((page) => page.contentSlug === 'guide/intro')
+
+    expect(intro).toBeDefined()
+    expect(intro!.html).toContain('src="./../../secret.inline.svg"')
+    expect(intro!.html).not.toContain('/docs/assets/secret.inline.svg')
+    expect(intro!.html).not.toContain('<text>secret</text>')
+  })
+
+  it('includes the markdown source path when frontmatter parsing fails', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
+    mkdirSync(join(rootDir, 'docs', 'guide'), { recursive: true })
+
+    writeFileSync(join(rootDir, 'docs', 'README.md'), '# Home\n', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'docs', 'guide', 'broken.md'),
+      [
+        '---',
+        'title: Broken',
+        'description: Missing the closing fence keeps the body in YAML',
+        '',
+        'Need a prompt template? See the cookbook.',
+      ].join('\n'),
+      'utf-8',
+    )
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+
+    await expect(loadDocsPages(config)).rejects.toThrow(
+      /Failed to parse frontmatter in docs\/guide\/broken\.md/,
+    )
   })
 
   it('uses zero-config docs conventions and ignores underscore-prefixed markdown', async () => {

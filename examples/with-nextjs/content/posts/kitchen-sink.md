@@ -31,6 +31,12 @@ This page intentionally stacks multiple markdown features in one place so you ca
 > [!IMPORTANT]
 > This app still treats `@pagesmith/core` as the content boundary. Next.js only receives the rendered HTML and metadata.
 
+> [!WARNING]
+> Keep the Next.js layout and routing logic separate from the Pagesmith content layer so the example stays clear about ownership.
+
+> [!CAUTION]
+> If you remove the shared Pagesmith content CSS or runtime mount, the HTML still renders, but code tabs, copy buttons, and markdown presentation will drift from the documented baseline.
+
 ## Code blocks
 
 Highlighted line and collapsed boilerplate:
@@ -88,3 +94,9 @@ $$
 | Code title | fenced block with `title="..."` meta |
 | Collapse | fenced block with `collapse={...}` meta |
 | Tabs | consecutive titled fenced code blocks |
+
+## Footnotes
+
+Pagesmith keeps footnotes working across the framework-hosted example too[^next-kitchen-sink].
+
+[^next-kitchen-sink]: This is a lightweight regression check for the shared markdown pipeline inside a custom Next.js shell.

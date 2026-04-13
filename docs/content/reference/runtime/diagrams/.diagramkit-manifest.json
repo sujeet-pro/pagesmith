@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "site-css-bundle-layers.mermaid": {
+      "hash": "sha256:3c194dec3eb6f272",
+      "generatedAt": "2026-04-13T21:19:22.979Z",
+      "outputs": [
+        {
+          "file": "site-css-bundle-layers-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 251.796875,
+          "height": 432.4000244140625
+        },
+        {
+          "file": "site-css-bundle-layers-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 251.796875,
+          "height": 432.4000244140625
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776114737202.8057,
+      "size": 253
+    }
+  }
+}

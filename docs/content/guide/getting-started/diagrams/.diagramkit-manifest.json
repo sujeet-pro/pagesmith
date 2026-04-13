@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "core-integration-paths.mermaid": {
+      "hash": "sha256:8072bc2723335b9b",
+      "generatedAt": "2026-04-13T21:19:22.976Z",
+      "outputs": [
+        {
+          "file": "core-integration-paths-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 878.953125,
+          "height": 771.2000122070312
+        },
+        {
+          "file": "core-integration-paths-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 878.953125,
+          "height": 771.2000122070312
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113121669.165,
+      "size": 846
+    }
+  }
+}

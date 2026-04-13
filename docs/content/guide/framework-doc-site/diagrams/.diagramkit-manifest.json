@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "doc-site-assembly.mermaid": {
+      "hash": "sha256:1e729bbf16d01897",
+      "generatedAt": "2026-04-13T21:19:22.974Z",
+      "outputs": [
+        {
+          "file": "doc-site-assembly-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 805.03125,
+          "height": 298.1999816894531
+        },
+        {
+          "file": "doc-site-assembly-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 805.03125,
+          "height": 298.1999816894531
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113124886.1934,
+      "size": 403
+    }
+  }
+}

@@ -7,6 +7,14 @@ description: Pre-built CSS and JavaScript exports from @pagesmith/site — conte
 
 `@pagesmith/site` provides pre-built CSS and JS assets for styling rendered markdown content. This page is the comprehensive guide for CSS imports, runtime JavaScript, design tokens, and customization across Vite sites and framework-hosted apps such as Next.js.
 
+<figure>
+  <img src="./diagrams/site-css-bundle-layers-light.svg" class="only-light" alt="Layered CSS bundles from foundations through content tier to standalone layout with optional separate fonts import">
+  <img src="./diagrams/site-css-bundle-layers-dark.svg" class="only-dark" alt="Layered CSS bundles from foundations through content tier to standalone layout with optional separate fonts import">
+  <figcaption>How the shipped CSS tiers stack: foundations and content styles are prerequisites for standalone layout rules; fonts stay a separate import you add when you want bundled faces.</figcaption>
+</figure>
+
+Notice standalone is a superset of the content tier (same markdown and code chrome) plus TOC, grid, and sidebar layout.
+
 ## CSS Export Paths
 
 Pagesmith provides four CSS export paths that can be imported directly in Vite projects or any framework/bundler that supports package exports:

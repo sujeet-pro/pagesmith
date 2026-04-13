@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "frontmatter-schema-families.mermaid": {
+      "hash": "sha256:f588e364189118c6",
+      "generatedAt": "2026-04-13T21:19:22.978Z",
+      "outputs": [
+        {
+          "file": "frontmatter-schema-families-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 1065.15625,
+          "height": 234
+        },
+        {
+          "file": "frontmatter-schema-families-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 1065.15625,
+          "height": 234
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776114738151.697,
+      "size": 303
+    }
+  }
+}

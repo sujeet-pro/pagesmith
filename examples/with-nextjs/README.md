@@ -29,7 +29,7 @@ npm run dev:eg:nextjs
 - `app/layout.js` imports `@pagesmith/site/css/content` and mounts the content runtime once
 - `app/posts/[slug]/page.js` renders the HTML returned by `entry.render()`
 - `next.config.mjs` keeps static export and base-path handling in Next.js
-- `llms.txt` is the compact AI map for this example
+- `llms.txt` is the compact AI map for this example; `llms-full.txt` is the fuller file-pointer variant
 
 ## What This Example Demonstrates
 

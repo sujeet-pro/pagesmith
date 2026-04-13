@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "blog-site-assembly.mermaid": {
+      "hash": "sha256:39499c725bda51bb",
+      "generatedAt": "2026-04-13T21:19:22.973Z",
+      "outputs": [
+        {
+          "file": "blog-site-assembly-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 1078.28125,
+          "height": 399.6000061035156
+        },
+        {
+          "file": "blog-site-assembly-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 1078.28125,
+          "height": 399.6000061035156
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113113163.8545,
+      "size": 593
+    }
+  }
+}

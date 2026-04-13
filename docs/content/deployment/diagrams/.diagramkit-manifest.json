@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "basepath-resolution-priority.mermaid": {
+      "hash": "sha256:02ecc749bac16be0",
+      "generatedAt": "2026-04-13T21:19:22.971Z",
+      "outputs": [
+        {
+          "file": "basepath-resolution-priority-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 296.59375,
+          "height": 570.5999755859375
+        },
+        {
+          "file": "basepath-resolution-priority-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 296.59375,
+          "height": 570.5999755859375
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776114736665.053,
+      "size": 258
+    }
+  }
+}

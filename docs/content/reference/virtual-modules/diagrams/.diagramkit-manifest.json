@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "virtual-module-flow.mermaid": {
+      "hash": "sha256:9b4e3f7895c26bb3",
+      "generatedAt": "2026-04-13T21:19:22.980Z",
+      "outputs": [
+        {
+          "file": "virtual-module-flow-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 1245.4453125,
+          "height": 349.14996337890625
+        },
+        {
+          "file": "virtual-module-flow-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 1245.4453125,
+          "height": 349.14996337890625
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113126488.3267,
+      "size": 1151
+    }
+  }
+}

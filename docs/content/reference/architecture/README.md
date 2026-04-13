@@ -29,6 +29,16 @@ Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm 
   bundled search and layout override slots
 ```
 
+The package layering and the intended entry points for consumers look like this:
+
+<figure>
+  <img src="./diagrams/package-layering-light.svg" class="only-light" alt="Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers">
+  <img src="./diagrams/package-layering-dark.svg" class="only-dark" alt="Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers">
+  <figcaption>Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers</figcaption>
+</figure>
+
+Notice that `@pagesmith/core` stays reusable on its own, while `@pagesmith/site` and `@pagesmith/docs` add progressively higher-level site and docs behavior on top of that foundation.
+
 ## 1.0 Architecture Principles
 
 These principles are the long-term guardrails for implementation and docs decisions:
@@ -297,7 +307,7 @@ When a custom layout module is loaded, the engine looks for exports in this prio
 5. Render all pages to HTML via JSX layouts
 6. Copy public/ directory to output
 7. Copy font assets from @pagesmith/site
-8. Copy content companion assets (images) to output/assets/
+8. Copy content companion assets (images) to `output/assets/`, preserving their content-relative paths so same-name files from different pages do not collide
 9. Run Pagefind indexer on output HTML (if search enabled)
 10. Write sitemap and any generated artifacts
 ```

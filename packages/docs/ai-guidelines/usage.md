@@ -7,8 +7,10 @@ Use this file as the primary instruction source for `@pagesmith/docs`.
 1. Install: `npm add @pagesmith/docs`
 2. For repo bootstrap or retrofit work, read: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
 3. For upgrading an existing integration, read: `node_modules/@pagesmith/docs/ai-guidelines/migration.md`
-4. Read the full reference: `node_modules/@pagesmith/docs/REFERENCE.md`
-5. The package ships version-matched AI guidance in `ai-guidelines/` and JSON schemas in `schemas/`.
+4. For docs authoring, organization, and diagram workflow, read: `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`
+5. For supported markdown syntax and diagram embedding rules, read: `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`
+6. Read the full reference: `node_modules/@pagesmith/docs/REFERENCE.md`
+7. The package ships version-matched AI guidance in `ai-guidelines/` and JSON schemas in `schemas/`.
 
 ## Requirements
 
@@ -44,11 +46,13 @@ Use this file as the primary instruction source for `@pagesmith/docs`.
 ## AI-first docs workflow
 
 1. Start with project AI setup (`pagesmith-docs init --ai` or `installAiArtifacts({ profile: 'docs' })`).
-2. If the project has generated Pagesmith skills, use them to keep docs synchronized with implementation. Otherwise, paste the canonical prompt files into your agent directly:
+2. Before writing or restructuring docs, read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` and `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`.
+3. If the project has generated Pagesmith skills, use them to keep docs synchronized with implementation. Otherwise, paste the canonical prompt files into your agent directly:
    - `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` for setup/retrofit
    - `node_modules/@pagesmith/docs/ai-guidelines/migration.md` for upgrades
-3. Keep agent outputs in the configured content directory, using folder-based `README.md` pages plus `meta.json5` ordering. When a section uses `series`, any pages not referenced by a series should remain visible under the automatic `Miscellaneous` group rather than disappearing.
-4. Keep an onboarding series first in manual navigation (for example `guide/meta.json5` should start with pages like `choose-your-path`, `ai-assistants`, and `prompts-cookbook` before manual setup deep dives).
+4. Keep agent outputs in the configured content directory, using folder-based `README.md` pages plus `meta.json5` ordering. When a section uses `series`, any pages not referenced by a series should remain visible under the automatic `Miscellaneous` group rather than disappearing.
+5. Keep an onboarding series first in manual navigation (for example `guide/meta.json5` should start with pages like `choose-your-path`, `ai-assistants`, and `prompts-cookbook` before manual setup deep dives).
+6. When a page explains architecture, flow, lifecycle, or dependencies better visually, create a diagram asset using the guidance in `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` instead of relying on raw diagram fences to render inline.
 
 ---
 
@@ -73,16 +77,28 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 
 ### Prompt: Writing documentation pages
 
-> Create documentation pages for this project using `@pagesmith/docs`. Read `node_modules/@pagesmith/docs/REFERENCE.md` for frontmatter fields, markdown features, and code block syntax. Each page is a folder with a `README.md`. Use proper frontmatter (`title`, `description`), fenced code blocks with language identifiers and built-in code renderer meta (titles, line highlighting, collapse), GitHub Alerts for callouts (`> [!NOTE]`, `> [!TIP]`), and mermaid code blocks for diagrams (` ```mermaid `). Keep one `# h1` per page and use sequential heading depth.
+> Create documentation pages for this project using `@pagesmith/docs`. Read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` and `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` first, then use `node_modules/@pagesmith/docs/REFERENCE.md` for exact frontmatter and layout details. Each page should be a folder with a `README.md`. Use proper frontmatter (`title`, `description`), fenced code blocks with language identifiers and built-in code renderer meta (titles, line highlighting, collapse), and GitHub Alerts for important callouts. When a flow, architecture, lifecycle, or dependency graph would be clearer visually, create a diagram asset instead of relying on raw diagram fences. Choose Mermaid for text-first flows, Excalidraw for architecture sketches, draw.io for precise infrastructure or BPMN, and Graphviz for dependency graphs. Keep the editable source plus rendered light/dark SVGs with the page, embed the rendered assets with `.only-light` / `.only-dark` when needed, and keep one `# h1` per page with sequential heading depth.
 
 **Files to read:**
+- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Frontmatter, Markdown Guidelines, Code block features sections)
+
+### Prompt: Adding or updating documentation diagrams
+
+> Improve the documentation for this project by adding or refreshing diagrams where they make the page easier to understand. Read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` and `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` first. Decide whether the page needs a flowchart, architecture overview, topology diagram, or dependency graph. Choose Mermaid for text-first flows, Excalidraw for architecture sketches, draw.io for precise infrastructure or BPMN, and Graphviz for dependency graphs or existing `.dot` assets. Keep the editable source file plus rendered assets in a `diagrams/` folder beside the page, render light and dark variants when needed, embed the rendered assets in the page, and do not assume raw diagram fences render inline in stock `@pagesmith/docs`.
+
+**Files to read:**
+- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`
+- `node_modules/@pagesmith/docs/REFERENCE.md` (Content Structure, Theming sections)
 
 ### Prompt: Updating docs structure
 
-> Restructure the documentation for this project. Read `node_modules/@pagesmith/docs/REFERENCE.md` for content structure conventions and `node_modules/@pagesmith/docs/ai-guidelines/recipes.md` for section management recipes. Add new sections as top-level folders under the configured content directory, create `meta.json5` for ordering, and add pages as `<slug>/README.md`. Update cross-links between pages and verify the sidebar renders correctly with `npx pagesmith-docs dev`.
+> Restructure the documentation for this project. Read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` for authoring and organization rules, `node_modules/@pagesmith/docs/REFERENCE.md` for content structure conventions, and `node_modules/@pagesmith/docs/ai-guidelines/recipes.md` for section management recipes. Add new sections as top-level folders under the configured content directory, create `meta.json5` for ordering, add pages as `<slug>/README.md`, and keep any page-local `diagrams/` or asset folders with the page when moving content. Update cross-links between pages and verify the sidebar renders correctly with `npx pagesmith-docs dev`.
 
 **Files to read:**
+- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Content Structure, Section Meta sections)
 - `node_modules/@pagesmith/docs/ai-guidelines/recipes.md`
 
@@ -133,6 +149,8 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 | `node_modules/@pagesmith/docs/REFERENCE.md` | Complete config, CLI, content structure, frontmatter, markdown, layout, and deployment reference |
 | `node_modules/@pagesmith/docs/README.md` | User-facing quick start and API overview |
 | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` | Canonical bootstrap/retrofit prompt for setting up docs in an existing repo |
+| `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` | AI-first docs writing, organization, built-in docs features, and diagram workflow |
+| `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` | Supported markdown syntax, code block features, and diagram embedding rules |
 | `node_modules/@pagesmith/docs/ai-guidelines/usage.md` | This file — agent rules and prompts |
 | `node_modules/@pagesmith/docs/ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
 | `node_modules/@pagesmith/docs/ai-guidelines/errors.md` | Error catalog with patterns and fixes |
@@ -165,9 +183,11 @@ Primary MCP tools:
 - Keep `data-pagefind-body` scoped to the page body content, not header/sidebar/footer wrappers.
 - Keep docs navigation derived from content structure and metadata.
 - Keep markdown behavior aligned with Pagesmith markdown pipeline.
+- Do not assume raw `mermaid`, `dot`, `excalidraw`, or `drawio` fences render as diagrams in stock `@pagesmith/docs`; they are code examples unless the project explicitly adds a renderer.
 - Keep `pagesmith.config.json5` markdown settings JSON-safe (`allowDangerousHtml`, `math`, `shiki`). Use `@pagesmith/core` if you need function-based remark or rehype plugins.
 - Maintain relative internal links across docs pages.
 - Keep onboarding pages first in manual section ordering before manual setup and deep dives.
+- When a diagram materially improves comprehension, keep both the editable source file and the rendered assets versioned with the page.
 
 ## Related package docs
 

@@ -1,0 +1,41 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TB
+  classDef source fill:#eef7ee,stroke:#2f9e44,stroke-width:2px,color:#16331b
+  classDef cache fill:#e8f1ff,stroke:#4c6ef5,stroke-width:2px,color:#0b1f44
+  classDef build fill:#fff4e6,stroke:#f08c00,stroke-width:2px,color:#5f370e
+  classDef output fill:#f3f0ff,stroke:#7950f2,stroke-width:2px,color:#27104e
+
+  subgraph Reuse["Reuse expensive work"]
+    Config["Shared MarkdownConfig"]
+    Files["Content files"]
+    Processor["Processor cache<br/>WeakMap keyed by config object"]
+    Store["ContentStore<br/>cached loaded entries"]
+    Render["ContentEntry.render()<br/>lazy rendered HTML cache<br/>used by bounded page workers"]
+    Pages["Rendered pages"]
+
+    Config --> Processor
+    Files --> Store
+    Store --> Render
+    Processor --> Render
+    Render --> Pages
+  end
+
+  subgraph Rebuilds["Scope rebuilds narrowly"]
+    ContentChange["Content file change"]
+    ConfigChange["Config or theme change"]
+    ContentOnly["Content-only rebuild<br/>re-render pages only"]
+    Full["Full rebuild"]
+    Skip["Skip CSS bundling,<br/>JS bundling, and Pagefind"]
+    Rebundle["Rebundle CSS + JS,<br/>re-render pages, rerun Pagefind"]
+
+    ContentChange --> ContentOnly
+    ContentOnly --> Skip
+    ConfigChange --> Full
+    Full --> Rebundle
+  end
+
+  class Config,Files,ContentChange,ConfigChange source
+  class Processor,Store,Render cache
+  class ContentOnly,Full,Skip,Rebundle build
+  class Pages output

@@ -1,4 +1,4 @@
-import { copyPublicFiles } from '@pagesmith/core/assets'
+import { copyPublicFiles, hashAssets } from '@pagesmith/core/assets'
 import { buildCss } from '@pagesmith/site/css'
 import {
   copyFileSync,
@@ -119,8 +119,10 @@ function copyContentAssetsToOutput(
   const assetsDir = join(outDir, 'assets')
   mkdirSync(assetsDir, { recursive: true })
 
-  for (const [, sourcePath] of assets.byPath) {
-    copyFileSync(sourcePath, join(assetsDir, basename(sourcePath)))
+  for (const [relPath, sourcePath] of assets.byPath) {
+    const destPath = join(assetsDir, relPath)
+    mkdirSync(dirname(destPath), { recursive: true })
+    copyFileSync(sourcePath, destPath)
   }
 }
 
@@ -246,6 +248,8 @@ export async function build(options: DocsBuildOptions = {}): Promise<void> {
       }
     }
 
+    hashAssets(buildConfig.outDir, buildConfig.contentDir)
+
     syncDocsOutput(buildConfig.outDir, config.outDir)
 
     // Build summary
@@ -304,4 +308,6 @@ export async function rebuildContent(options: DocsBuildOptions = {}): Promise<vo
       : ''
     writeFileSync(robotsPath, `User-agent: *\nAllow: /${sitemapLine}\n`)
   }
+
+  hashAssets(config.outDir, config.contentDir)
 }

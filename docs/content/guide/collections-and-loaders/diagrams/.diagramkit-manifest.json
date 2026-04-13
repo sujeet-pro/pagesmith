@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "collection-pipeline.dot": {
+      "hash": "sha256:b670cf8c3830ce8b",
+      "generatedAt": "2026-04-13T21:19:22.969Z",
+      "outputs": [
+        {
+          "file": "collection-pipeline-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 388,
+          "height": 980
+        },
+        {
+          "file": "collection-pipeline-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 388,
+          "height": 980
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776098870410.0083,
+      "size": 1025
+    }
+  }
+}

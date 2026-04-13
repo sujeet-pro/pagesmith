@@ -38,6 +38,16 @@ The plugin creates virtual modules for each collection defined in your config. I
 | `virtual:content/posts` | Array of processed `posts` entries |
 | `virtual:content/authors` | Array of processed `authors` entries |
 
+At a glance, `pagesmithContent()` sits between your content sources and the imports your app consumes:
+
+<figure>
+  <img src="./diagrams/virtual-module-flow-light.svg" class="only-light" alt="Flowchart showing content.config.ts and content files feeding pagesmithContent(), which generates virtual:content modules and pagesmith-content.d.ts for application imports and editor type checking">
+  <img src="./diagrams/virtual-module-flow-dark.svg" class="only-dark" alt="Flowchart showing content.config.ts and content files feeding pagesmithContent(), which generates virtual:content modules and pagesmith-content.d.ts for application imports and editor type checking">
+  <figcaption>Flowchart showing content.config.ts and content files feeding pagesmithContent(), which generates virtual:content modules and pagesmith-content.d.ts for application imports and editor type checking</figcaption>
+</figure>
+
+Notice that the same plugin generates both the runtime virtual modules and the declaration file, so imported content stays aligned with your collection schemas.
+
 ## Importing Collections
 
 ```ts title="src/entry-server.tsx"

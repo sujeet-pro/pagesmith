@@ -9,6 +9,8 @@ These files are part of the package contract and must be kept current when `@pag
 - `ai-guidelines/llms.txt`
 - `ai-guidelines/llms-full.txt`
 - `ai-guidelines/setup-docs.md`
+- `ai-guidelines/docs-guidelines.md`
+- `ai-guidelines/markdown-guidelines.md`
 - `ai-guidelines/usage.md`
 - `ai-guidelines/recipes.md`
 - `ai-guidelines/changelog-notes.md`

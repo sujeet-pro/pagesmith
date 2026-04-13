@@ -13,6 +13,14 @@ Frontmatter is YAML metadata at the top of each markdown file, enclosed in `---`
 > [!NOTE]
 > For version-matched docs-site frontmatter rules, point the agent at `node_modules/@pagesmith/docs/schemas/docs-page-frontmatter.schema.json` for regular pages and `node_modules/@pagesmith/docs/schemas/docs-home-frontmatter.schema.json` for the home page.
 
+<figure>
+  <img src="./diagrams/frontmatter-schema-families-light.svg" class="only-light" alt="Frontmatter schema families DocsFrontmatterSchema for docs sites separate from Base Blog and Project schemas for collections">
+  <img src="./diagrams/frontmatter-schema-families-dark.svg" class="only-dark" alt="Frontmatter schema families DocsFrontmatterSchema for docs sites separate from Base Blog and Project schemas for collections">
+  <figcaption>Frontmatter families: docs pages follow <code>DocsFrontmatterSchema</code>; markdown collections pick <code>BaseFrontmatterSchema</code> or a blog or project extension.</figcaption>
+</figure>
+
+Notice docs schemas keep most fields optional with passthrough extras, while collection schemas enforce the required fields called out in the tables below.
+
 ## Frontmatter Format
 
 Frontmatter is written in YAML at the very beginning of a markdown file:

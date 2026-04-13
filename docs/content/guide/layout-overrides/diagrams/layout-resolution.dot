@@ -1,0 +1,70 @@
+digraph LayoutResolution {
+  graph [
+    rankdir=TB,
+    splines=ortho,
+    nodesep=0.45,
+    ranksep=0.55,
+    pad=0.2
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Arial",
+    fontsize=11,
+    color="#94A3B8",
+    fillcolor="#F8FAFC"
+  ];
+
+  edge [
+    fontname="Arial",
+    fontsize=10,
+    color="#64748B"
+  ];
+
+  route [label="Current route"];
+  kind [
+    label="Which page is being rendered?",
+    shape=diamond,
+    color="#FB923C",
+    fillcolor="#FFF7ED"
+  ];
+  home [label="layout name = home"];
+  section [label="layout name = section meta.layout\\nor page"];
+  item [label="layout name = section meta.itemLayout\\nor page"];
+  missing [label="layout name = notFound"];
+  resolve [
+    label="How is that layout name resolved?",
+    shape=diamond,
+    color="#60A5FA",
+    fillcolor="#EFF6FF"
+  ];
+  custom [label="Use custom TSX component"];
+  builtin [label="Use built-in layout\\nhome, page, listing, or notFound"];
+  error [
+    label="Build error\\nmissing layout registration",
+    color="#F87171",
+    fillcolor="#FEF2F2"
+  ];
+  render [label="Render with shared props\\ncontent, frontmatter, headings, slug, site"];
+  extra [label="Docs-page layouts also receive\\nsidebarSections, prev, and next"];
+
+  route -> kind;
+  kind -> home [label="root content/README.md"];
+  kind -> section [label="section README.md"];
+  kind -> item [label="section article"];
+  kind -> missing [label="no content match"];
+
+  home -> resolve;
+  section -> resolve;
+  item -> resolve;
+  missing -> resolve;
+
+  resolve -> custom [label="theme.layouts[name] exists"];
+  resolve -> builtin [label="no override, built-in name\\nincluding listing"];
+  resolve -> error [label="no override, unknown custom name"];
+
+  custom -> render;
+  builtin -> render;
+  render -> extra;
+}

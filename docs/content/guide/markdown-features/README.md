@@ -9,6 +9,8 @@ Pagesmith ships with a rich markdown pipeline by default. You can write standard
 
 No extra configuration is required to use the built-in features. The pages in this section are organized as feature-focused demos so you can see realistic rendered output instead of only API notes.
 
+When you use stock `@pagesmith/docs`, the `pagesmith.config.json5` `markdown` field stays JSON-safe: `allowDangerousHtml`, `math`, and `shiki`. Function-valued `remarkPlugins` and `rehypePlugins` belong to lower-level `@pagesmith/core` integrations, not the default docs-site config file.
+
 ## Feature Guides
 
 - [Alerts & Callouts](/guide/alerts-and-callouts) - GitHub-style callouts, multi-paragraph notes, lists, and code blocks inside alerts
@@ -81,9 +83,9 @@ This renders to HTML like:
 <h2 id="my-section"><a href="#my-section">My Section</a></h2>
 ```
 
-## Custom Plugins
+## Custom Plugins In `@pagesmith/core` Integrations
 
-You can extend the built-in pipeline with your own remark and rehype plugins through `MarkdownConfig`:
+If you wire markdown through `@pagesmith/core` APIs such as `defineConfig()`, you can extend the built-in pipeline with your own remark and rehype plugins:
 
 ```ts
 import remarkToc from 'remark-toc'
@@ -100,9 +102,36 @@ const config = defineConfig({
 
 Custom remark plugins run after the built-in remark plugins but before `remark-rehype`. Custom rehype plugins run after the built-in rehype plugins but before `rehype-stringify`.
 
+Stock `@pagesmith/docs` keeps `pagesmith.config.json5` JSON-safe and does not execute function-valued remark or rehype plugins. Use the docs package when the built-in pipeline is enough; drop to `@pagesmith/core` when you need custom plugin functions or a custom site shell.
+
+## Docs-Specific Link And Asset Transforms
+
+Stock `@pagesmith/docs` adds a docs-site pass after heading extraction:
+
+- Relative markdown links between pages are rewritten under `basePath`.
+- Relative images and diagrams publish under `/assets/<content-relative-path>` instead of flattening to basenames.
+- `*.inline.svg` images inline only when they stay inside the current page directory subtree.
+- Image names containing `.invert.` receive dark-theme inversion.
+
+Example:
+
+```markdown
+[Architecture](../reference/architecture/README.md)
+![Flow](./diagrams/request-flow.svg)
+![Inline logo](./diagrams/logo.inline.svg)
+```
+
 ## Pipeline Order
 
-The full pipeline, in order:
+The diagram below shows the shared core pipeline plus the docs-only post-processing that stock `@pagesmith/docs` adds after heading extraction. If you are using `@pagesmith/core` directly, the custom plugin slots are where your own remark and rehype plugins fit.
+
+<figure>
+  <img src="./diagrams/markdown-pipeline-overview-light.svg" class="only-light" alt="Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features, and the docs-only link and asset transform stage before final HTML output">
+  <img src="./diagrams/markdown-pipeline-overview-dark.svg" class="only-dark" alt="Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features, and the docs-only link and asset transform stage before final HTML output">
+  <figcaption>Shared markdown pipeline: custom plugin hooks live in `@pagesmith/core` integrations, while stock `@pagesmith/docs` adds docs-specific link and asset transforms near the end.</figcaption>
+</figure>
+
+For `@pagesmith/core` integrations:
 
 ```text
 remark-parse              Parse markdown to AST
@@ -124,6 +153,30 @@ rehype-external-links     target="_blank" on external URLs
 rehype-accessible-emojis  aria-label on emoji characters
 heading extraction        Collect headings for TOC
 [user rehype plugins]     From MarkdownConfig.rehypePlugins
+rehype-stringify          HTML AST -> HTML string
+```
+
+For stock `@pagesmith/docs`:
+
+```text
+remark-parse              Parse markdown to AST
+remark-gfm                Tables, strikethrough, task lists, autolinks, footnotes
+remark-frontmatter        Strip YAML frontmatter from AST
+remark-github-alerts      > [!NOTE], > [!TIP], etc.
+remark-smartypants        Smart quotes, en/em dashes, ellipses
+remark-math (optional)    Enabled when `markdown.math` is `true` or `'auto'` detects math markers
+lang-alias transform      Map fenced-code language tags via markdown.shiki.langAlias
+remark-rehype             Markdown AST -> HTML AST
+rehype-mathjax            Render math to SVG before code rendering when math is enabled
+applyPagesmithCodeRenderer Syntax highlighting, code frames, copy button
+rehype-code-tabs          Group consecutive titled blocks into tabs
+rehype-scrollable-tables  Wrap markdown tables for horizontal scrolling
+rehype-slug               Add id="" to headings
+rehype-autolink-headings  Wrap heading text in anchor links
+rehype-external-links     target="_blank" on external URLs
+rehype-accessible-emojis  aria-label on emoji characters
+heading extraction        Collect headings for TOC
+docs link/asset transforms Rewrite relative docs links and companion assets for the docs site
 rehype-stringify          HTML AST -> HTML string
 ```
 

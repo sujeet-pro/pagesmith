@@ -104,6 +104,12 @@ Big-O line in prose: sorting is often $O(n \log n)$ for $n$ keys.
 | Code title    | fenced block with `title="..."` meta |
 | Collapse      | fenced block with `collapse={...}` meta |
 
+## Footnotes
+
+Pagesmith keeps footnotes working across the example builds[^kitchen-sink].
+
+[^kitchen-sink]: This is a lightweight regression check for the shared markdown pipeline.
+
 ---
 
 *This is the only markdown showcase page in this example. The rest of the guide explains the implementation.*

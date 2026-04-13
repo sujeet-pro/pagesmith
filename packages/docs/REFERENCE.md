@@ -588,6 +588,10 @@ Function-based `remarkPlugins` and `rehypePlugins` remain available through the 
 | External links | `[text](https://...)` | Auto `target="_blank"` |
 | Heading anchors | Auto `id` + wrapped anchor | All headings |
 | Accessible emoji | Unicode emoji | Auto `role="img"` + `aria-label` |
+| Relative docs links | `[Guide](../guide/getting-started/README.md)` | Rewritten to site-relative routes under `basePath` |
+| Companion image assets | `![Flow](./diagrams/request-flow.svg)` | Published under `/assets/<content-relative-path>` with folder structure preserved |
+| Inline SVG image | `![Logo](./diagrams/logo.inline.svg)` | Inlines only when the asset stays inside the page directory subtree |
+| Theme-aware inversion | `![Logo](./logo.invert.svg)` | Adds `invert-on-dark` for dark-theme inversion |
 
 ### Code block features (Built-in renderer)
 
@@ -608,6 +612,8 @@ Function-based `remarkPlugins` and `rehypePlugins` remain available through the 
 - One `# h1` per page — validators enforce this
 - Sequential heading depth — no jumping from h2 to h4
 - Prefer relative links for internal content
+- Keep page-local diagrams and images beside the page; stock docs publishes them under preserved content-relative `/assets/` paths
+- `pagesmith.config.json5` markdown settings stay JSON-safe; use lower-level `@pagesmith/core` APIs when you need function-valued remark or rehype plugins
 - Do NOT add manual copy-button JS inside markdown content — the built-in renderer injects its own copy/collapse runtime
 - Do NOT omit the shared Pagesmith CSS bundles — code block chrome and tabs depend on them
 - Code block themes default to `github-light` / `github-dark` with auto light/dark switching

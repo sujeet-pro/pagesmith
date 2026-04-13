@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/docs",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Convention-based documentation package built on @pagesmith/core and @pagesmith/site",
   "keywords": [
     "cms",
@@ -17,11 +17,11 @@
   "author": "Sujeet <hello@sujeet.pro> (https://sujeet.pro)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sujeet-pro/pagesmith.git",
+    "url": "git+https://github.com/sujeet-pro/pagesmith.git",
     "directory": "packages/docs"
   },
   "bin": {
-    "pagesmith-docs": "./dist/cli/bin.mjs"
+    "pagesmith-docs": "dist/cli/bin.mjs"
   },
   "files": [
     "dist/",
@@ -75,8 +75,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@pagesmith/core": "*",
-    "@pagesmith/site": "*",
+    "@pagesmith/core": "0.7.0",
+    "@pagesmith/site": "0.7.0",
     "chokidar": "^5.0.0",
     "json5": "^2.2.3",
     "pagefind": "^1.5.0",

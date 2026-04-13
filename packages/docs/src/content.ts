@@ -191,6 +191,32 @@ function getGitLastUpdatedMap(rootDir: string, contentDir: string): Map<string, 
   return updated
 }
 
+function toDisplaySourcePath(filePath: string, rootDir: string): string {
+  const displayPath = relative(rootDir, filePath).replace(/\\/g, '/')
+  return displayPath || filePath.replace(/\\/g, '/')
+}
+
+function wrapMarkdownFileError(
+  filePath: string,
+  rootDir: string,
+  action: string,
+  error: unknown,
+): Error {
+  const displayPath = toDisplaySourcePath(filePath, rootDir)
+  if (error instanceof Error && error.message.includes(displayPath)) {
+    return error
+  }
+
+  const message =
+    error instanceof Error
+      ? `${action} in ${displayPath}`
+      : `${action} in ${displayPath}: ${String(error)}`
+
+  return new Error(message, {
+    cause: error instanceof Error ? error : undefined,
+  })
+}
+
 function prefixBasePathLinks(html: string, basePath: string): string {
   if (!basePath) return html
 
@@ -301,11 +327,27 @@ export async function loadDocsPages(
 
   // Process markdown files with bounded concurrency to manage memory at scale
   const results = await mapWithConcurrency(files, concurrency, async (filePath) => {
-    const raw = readFileSync(filePath, 'utf-8')
+    let raw: string
+    try {
+      raw = readFileSync(filePath, 'utf-8')
+    } catch (error) {
+      throw wrapMarkdownFileError(filePath, config.rootDir, 'Failed to read markdown file', error)
+    }
 
     // Extract frontmatter early to skip expensive markdown processing for drafts
-    const extracted = extractFrontmatter(raw)
-    const earlyFrontmatter = DocsFrontmatterSchema.parse(extracted.frontmatter ?? {})
+    let extracted: ReturnType<typeof extractFrontmatter>
+    try {
+      extracted = extractFrontmatter(raw)
+    } catch (error) {
+      throw wrapMarkdownFileError(filePath, config.rootDir, 'Failed to parse frontmatter', error)
+    }
+
+    let earlyFrontmatter: DocsFrontmatter
+    try {
+      earlyFrontmatter = DocsFrontmatterSchema.parse(extracted.frontmatter ?? {})
+    } catch (error) {
+      throw wrapMarkdownFileError(filePath, config.rootDir, 'Invalid frontmatter', error)
+    }
     const contentSlug = toContentSlug(filePath, config.contentDir)
     const isHome = contentSlug === '/'
 
@@ -313,18 +355,23 @@ export async function loadDocsPages(
       isHome && homeConfig ? { ...homeConfig, ...earlyFrontmatter } : earlyFrontmatter
     if (frontmatter.draft) return null
 
-    const result = await runWithDocsTransformContext(
-      {
-        basePath: config.basePath,
-        contentDir: config.contentDir,
-        filePath,
-      },
-      () =>
-        processMarkdown(raw, sharedMarkdownConfig, {
-          content: extracted.content,
-          frontmatter: extracted.frontmatter,
-        }),
-    )
+    let result: Awaited<ReturnType<typeof processMarkdown>>
+    try {
+      result = await runWithDocsTransformContext(
+        {
+          basePath: config.basePath,
+          contentDir: config.contentDir,
+          filePath,
+        },
+        () =>
+          processMarkdown(raw, sharedMarkdownConfig, {
+            content: extracted.content,
+            frontmatter: extracted.frontmatter,
+          }),
+      )
+    } catch (error) {
+      throw wrapMarkdownFileError(filePath, config.rootDir, 'Failed to render markdown', error)
+    }
     const html = prefixBasePathLinks(result.html, config.basePath)
 
     const routePath = isHome ? '/' : `/${contentSlug}`

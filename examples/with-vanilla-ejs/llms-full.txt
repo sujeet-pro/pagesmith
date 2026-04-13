@@ -1,0 +1,33 @@
+# Pagesmith + EJS (with-vanilla-ejs example)
+
+This example is the minimal **@pagesmith/core + @pagesmith/site + Vite + EJS** integration: no `@pagesmith/docs`, no virtual content modules.
+
+## Integration flow (do not skip)
+
+1. **Collections** — `content.config.mjs` exports `defineCollection` / `defineCollections` + Zod. This is the filesystem boundary; invalid frontmatter fails the build.
+2. **SSR contract** — `src/entry-server.tsx` MUST export `getRoutes(SsgRenderConfig)` and `render(url, SsgRenderConfig)` for `pagesmithSsg` (see `@pagesmith/core/vite`).
+3. **Content layer** — Import the default export from `content.config.mjs` and call `createContentLayer({ collections, root })`. Use `layer.getCollection(name)` then `entry.render()` for `{ html, headings, readTime }`.
+4. **Templates** — EJS renders **fragments** (`article.ejs`, `index.ejs`, `about.ejs`); `layout.ejs` wraps `body`. Keep `data-pagefind-body` on the inner article/home content region, not on the full document.
+5. **Vite** — `vite.config.ts`: `sharedAssetsPlugin()` + `...pagesmithSsg({ entry, contentDirs })`. `contentDirs` is for dev watching and companion assets.
+6. **Client split** — `client.js` is the Vite client entry (theme CSS + `@pagesmith/site/runtime/content`). The layout also ships small inline scripts for sidebar/TOC/theme. Respect that split when adding JS.
+7. **Pagefind** — Production only: `SsgRenderConfig.searchEnabled` is `false` in dev and `true` after SSG. Gate Pagefind `<link>` / `<script>` / modal markup on `searchEnabled` so dev HTML does not 404 on missing `pagefind/*` files.
+
+## Commands (monorepo)
+
+- Dev: `vp run dev:eg:vanilla-ejs` (from repo root) or `npm run dev` inside this package (`vite dev`).
+- Build: `npm run build` in this directory (writes to `../../gh-pages/examples/vanilla-ejs` per `vite.config.ts`).
+
+## Where to edit
+
+| Concern | File |
+|--------|------|
+| Routes, sorting, nav data | `src/entry-server.tsx` |
+| HTML shell, search UI, chrome | `templates/layout.ejs` |
+| Article / home / about bodies | `templates/article.ejs`, `index.ejs`, `about.ejs` |
+| Schemas / collection roots | `content.config.mjs` |
+| Vite / SSG wiring | `vite.config.ts` |
+| Client bundle | `client.js`, `src/theme.css` |
+
+## Markdown reference
+
+For full markdown/code/math/GFM documentation, use the main Pagesmith docs and package `markdown-guidelines` — this example keeps markdown regression coverage in `content/guide/kitchen-sink.md`.

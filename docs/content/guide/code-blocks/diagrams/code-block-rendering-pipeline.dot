@@ -1,0 +1,14 @@
+digraph CodeBlockRenderingPipeline {
+  graph [rankdir=LR, nodesep=0.5, ranksep=0.8, pad=0.2]
+  node [shape=box, style="rounded", margin="0.18,0.12"]
+  edge [fontsize=10]
+
+  source [label="Markdown source\nfenced code + meta string"]
+  core [label="@pagesmith/core\nShiki highlighting\nframe markup\ninline light/dark tokens"]
+  html [label="Rendered HTML\nPagesmith code-block structure"]
+  site [label="@pagesmith/site\nshared CSS\ncopy / collapse / tabs runtime"]
+  browser [label="Browser result\nstyled, interactive\ncode blocks"]
+
+  source -> core -> html -> browser
+  site -> browser
+}

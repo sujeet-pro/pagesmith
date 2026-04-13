@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "navigation-sources.mermaid": {
+      "hash": "sha256:2ca6b59be218dbc2",
+      "generatedAt": "2026-04-13T21:19:22.976Z",
+      "outputs": [
+        {
+          "file": "navigation-sources-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 1661.546875,
+          "height": 598.7999877929688
+        },
+        {
+          "file": "navigation-sources-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 1661.546875,
+          "height": 598.7999877929688
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113137366.289,
+      "size": 1218
+    }
+  }
+}

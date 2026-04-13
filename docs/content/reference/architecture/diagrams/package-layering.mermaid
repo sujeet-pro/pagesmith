@@ -1,0 +1,28 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TB
+  classDef package fill:#e8f1ff,stroke:#4c6ef5,stroke-width:2px,color:#0b1f44
+  classDef consumer fill:#eef7ee,stroke:#2f9e44,stroke-width:2px,color:#16331b
+  classDef optional stroke-dasharray: 6 4
+
+  Docs["@pagesmith/docs<br/>Docs preset, theme, search,<br/>build/dev/preview pipeline"]
+  Site["@pagesmith/site<br/>CLI, JSX runtime,<br/>CSS/runtime bundles, SSG helpers"]
+  Core["@pagesmith/core<br/>Content layer, markdown pipeline,<br/>validation, Vite content plugin"]
+
+  DocsSite["Docs sites"]
+  CustomSites["Custom sites and examples"]
+  FrameworkApps["Framework-hosted apps"]
+
+  Docs --> Site
+  Docs --> Core
+  Site --> Core
+
+  DocsSite --> Docs
+  CustomSites --> Site
+  CustomSites --> Core
+  FrameworkApps --> Core
+  FrameworkApps -. Optional shared content styling/runtime .-> Site
+
+  class Docs,Site,Core package
+  class DocsSite,CustomSites,FrameworkApps consumer
+  class FrameworkApps optional

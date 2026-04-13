@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/site",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Pagesmith site toolkit — JSX runtime, CSS/runtime exports, SSG Vite plugins, and a preset-driven pagesmith CLI",
   "keywords": [
     "jsx",
@@ -16,12 +16,12 @@
   "author": "Sujeet <hello@sujeet.pro> (https://sujeet.pro)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sujeet-pro/pagesmith.git",
+    "url": "git+https://github.com/sujeet-pro/pagesmith.git",
     "directory": "packages/site"
   },
   "bin": {
-    "pagesmith": "./dist/cli/bin.mjs",
-    "pagesmith-site": "./dist/cli/bin.mjs"
+    "pagesmith": "dist/cli/bin.mjs",
+    "pagesmith-site": "dist/cli/bin.mjs"
   },
   "files": [
     "dist/",
@@ -138,7 +138,7 @@
     "test": "vp test run"
   },
   "dependencies": {
-    "@pagesmith/core": "*",
+    "@pagesmith/core": "0.7.0",
     "json5": "^2.2.3",
     "lightningcss": "^1.32.0",
     "pagefind": "^1.5.0"

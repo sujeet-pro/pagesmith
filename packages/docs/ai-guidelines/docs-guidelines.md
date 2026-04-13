@@ -1,157 +1,124 @@
-# @pagesmith/docs Guidelines
+# @pagesmith/docs Authoring Guidelines
 
-Comprehensive guide for AI assistants setting up and using `@pagesmith/docs`.
+AI-first but human-readable documentation guidance for projects using `@pagesmith/docs`.
 
-For supported markdown features and authoring rules, also read `[markdown-guidelines.md](markdown-guidelines.md)`.
+Use this file when writing or reorganizing docs content. For bootstrap or retrofit work, start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`. For exact markdown syntax, code block rules, and diagram embedding constraints, read `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`.
 
----
+## Read Order
 
-## Setup
+1. `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` for first-time setup or retrofit work
+2. `node_modules/@pagesmith/docs/ai-guidelines/migration.md` when upgrading an existing integration
+3. `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` for authoring, organization, and diagram workflow
+4. `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` for supported content syntax
+5. `node_modules/@pagesmith/docs/REFERENCE.md` for exact config, frontmatter, layout, and deployment details
+6. `node_modules/@pagesmith/docs/schemas/*.schema.json` when editing `pagesmith.config.json5`, `meta.json5`, or docs frontmatter
 
-### 1. Install
+## What `@pagesmith/docs` Gives You
 
-```bash
-npm add @pagesmith/docs
-```
+- A convention-based docs site built on `@pagesmith/core` and `@pagesmith/site`
+- A repo-root `pagesmith.config.json5` or zero-config conventions around `docs/` or `content/`
+- A docs home page from `<contentDir>/README.md`
+- Top navigation from top-level content folders
+- Flat per-section sidebars with ordering and grouping from `meta.json5`
+- Built-in search, breadcrumbs, prev/next links, theme controls, edit links, and layout overrides
+- Asset publishing via `publicDir`, `assets`, automatic root `llms.txt` / `llms-full.txt` copying, and content-relative companion asset rewrites for page-local images/diagrams
+- The shared Pagesmith markdown pipeline, code renderer, math, alerts, tables, and validators described in `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`
 
-`@pagesmith/docs` includes `@pagesmith/core` -- no separate install is required.
+## AI-First, Human-Readable Docs
 
-### 2. Keep config at the project root
+- Lead with the task, decision, or takeaway before background.
+- Keep pages skimmable: short intro, clear headings, short paragraphs, and concrete lists.
+- Prefer copy-pasteable commands, file paths, config snippets, and examples over abstract prose.
+- Explain why a step or setting matters, not just what to type.
+- Keep names consistent across commands, files, config fields, and navigation labels.
+- Write so a human can learn from the page and an AI can reliably extend or refactor it later.
+- Make prerequisites, defaults, side effects, and outputs explicit instead of assuming hidden context.
+- Use GitHub Alerts for warnings, caveats, or strong tips, not for routine filler.
+- Add a diagram only when it removes ambiguity or reduces cognitive load. Skip it when a short list, table, or example is clearer.
+- When updating a page, also update its navigation metadata, cross-links, examples, and diagrams if they have drifted.
 
-Create `pagesmith.config.json5` at the repository root.
+## Organize Docs Deliberately
 
-For committed project setups, explicit config is still the preferred path. When the repo already follows the default conventions, `pagesmith-docs dev`, `build`, `preview`, and `mcp` can also run with zero config using `<repo-root>/docs` (or `<repo-root>/content` as a fallback) and `<repo-root>/gh-pages`.
+- Keep the docs home page at `<contentDir>/README.md`.
+- Use top-level folders as primary nav sections such as `guide/`, `reference/`, `tutorials/`, or `packages/`.
+- Prefer folder-based pages like `<section>/<slug>/README.md`, especially when a page owns images, downloadable assets, or diagrams.
+- Keep page-local assets beside the page, usually under `<section>/<slug>/diagrams/` or a small sibling asset folder.
+- Use `meta.json5` in each section to control `displayName`, `items`, `series`, `collapsed`, and `orderBy`.
+- Keep onboarding and getting-started content first in manual section order.
+- Remember that nested markdown pages stay in their top-level section and section sidebars remain flat.
+- Use docs frontmatter deliberately: `title`, `description`, `navLabel`, `sidebarLabel`, `order`, `draft`.
+- Use the `DocHome` fields only on the home page: `layout`, `tagline`, `install`, `actions`, `features`, `packages`, `codeExample`.
 
-When the config lives at the repository root, include:
+## Use Built-In Docs Features
 
-```json5
-{
-  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
-}
-```
+- Use `DocHome` when the home page needs a polished landing experience with hero content, feature cards, package cards, and a code sample.
+- Use `meta.json5` `series` when a section needs guided reading order. Pages not referenced by a series still stay visible under the automatic `Miscellaneous` group.
+- Use `assets` or `publicDir` when docs need stable URLs for schemas, prompts, OpenAPI files, downloads, or other machine-readable artifacts.
+- Use page-local markdown companion assets for page-owned images and diagrams; stock docs publishes them under preserved content-relative `/assets/` paths.
+- Use `.only-light` and `.only-dark` on images when a diagram or screenshot needs theme-specific rendered variants.
+- Use `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, and `theme.layouts.notFound` only when the default docs experience is insufficient.
+- Keep `data-pagefind-body` on the content-only wrapper in custom layouts so search indexes the page body instead of the whole shell.
+- Use the built-in search and navigation instead of bolting on separate search or sidebar systems.
 
-If you place the config somewhere else, keep the same installed schema target but rewrite the path relative to that config file.
+## When Writing Or Updating Docs
 
-Choose the docs content folder with `contentDir`:
+1. Read the related page plus `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` before changing structure or syntax.
+2. Choose the right location in the docs tree and update the relevant `meta.json5` ordering.
+3. Add frontmatter with at least `title` and `description`.
+4. Write for both scanning and execution: what it is, when to use it, steps, examples, verification, and troubleshooting when needed.
+5. Use supported markdown features only. Do not assume extra remark or rehype plugins exist unless the project intentionally drops to lower-level `@pagesmith/core` APIs or a custom integration.
+6. Decide whether a diagram would clarify a flow, architecture, lifecycle, dependency graph, or system boundary better than prose alone.
+7. If a diagram helps, keep the editable source and rendered assets with the page, then embed the rendered asset in the document.
+8. Verify internal links, heading order, and final navigation placement in preview or build output.
 
-- use `./docs` when the repository already has a docs folder
-- use `./content` when the docs site is the primary content tree
-- use another explicit path only when the repo structure demands it
+## Diagram Guidance
 
-Example root config:
+Stock `@pagesmith/docs` does not turn raw `mermaid`, `dot`, `excalidraw`, or `drawio` fences into live diagrams. Those language names are useful for syntax-highlighted source examples, but published diagrams should be generated as assets and embedded as images.
 
-```json5
-{
-  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
-  name: 'Acme Docs',
-  title: 'Acme Docs',
-  description: 'Project documentation',
-  origin: 'https://acme.github.io',
-  basePath: '/acme-docs',
-  contentDir: './docs',
-  outDir: './gh-pages',
-  search: { enabled: true },
-  assets: {
-    '/': ['./llms.txt', './llms-full.txt'],
-    '/schemas': ['./schemas/openapi'],
-  },
-}
-```
+### Pick The Right Diagram Tool
 
-### 3. Add docs content
+| Need | Best choice | Why |
+|---|---|---|
+| Flowcharts, sequence diagrams, state diagrams, ER diagrams, timelines, simple C4 views | Mermaid | Text-first, diff-friendly, and fast to edit |
+| Architecture overviews, conceptual maps, presentation-style sketches | Excalidraw | Hand-drawn feel and flexible layout |
+| Network topology, BPMN, cloud/vendor icon diagrams, precise layout, multi-page diagrams | draw.io | Rich libraries and manual control |
+| Dependency graphs, call graphs, existing `.dot` assets, rank-constrained layouts | Graphviz | Strong algorithmic layout |
 
-With the config at the root, content typically lives in `docs/` or `content/`:
+### Diagram Workflow
+
+- Prefer a page-local `diagrams/` folder:
 
 ```text
-<project-root>/
-  pagesmith.config.json5
-  docs/
-    README.md
-    guide/
-      meta.json5
-      getting-started/
-        README.md
-    reference/
-      api/README.md
-  public/
-  gh-pages/
+docs/
+  guide/
+    architecture/
+      README.md
+      diagrams/
+        system-overview.mermaid
+        system-overview-light.svg
+        system-overview-dark.svg
 ```
 
-Rules:
+- Keep the editable source file alongside rendered output.
+- Prefer rendered SVG. Add PNG variants only when another surface needs them.
+- For Mermaid source files that will be embedded as SVG images, add `%%{init: {'htmlLabels': false}}%%` at the top so the rendered asset avoids `foreignObject` and works reliably in `<img>` tags.
+- When light and dark versions differ, wrap the pair in a `<figure>` and embed both with `.only-light` and `.only-dark`.
+- Always write descriptive alt text and add a sentence nearby that explains the point of the diagram.
+- If the repo already has an established diagram format, keep using it instead of switching engines midstream.
 
-- `README.md` in the content root is the home page.
-- Top-level folders become the main docs navigation.
-- Markdown files inside a top-level folder become pages for that section, even when nested; section navigation stays flat.
-- `meta.json5` controls section ordering and series metadata. When series exist, unlisted pages fall into an automatic `Miscellaneous` group.
-- Entries starting with `.` or `_` are ignored during docs discovery.
-- Frontmatter shapes should follow the version-matched files in `node_modules/@pagesmith/docs/schemas/`.
+### Embed Theme-Aware Diagrams
 
-### 4. Add root package.json scripts
-
-```json
-{
-  "scripts": {
-    "docs:dev": "pagesmith-docs dev",
-    "docs:build": "pagesmith-docs build",
-    "docs:preview": "pagesmith-docs preview"
-  }
-}
+```html
+<figure>
+  <img src="./diagrams/system-overview-light.svg" class="only-light" alt="System overview showing requests moving from the CLI through the API layer into storage">
+  <img src="./diagrams/system-overview-dark.svg" class="only-dark" alt="System overview showing requests moving from the CLI through the API layer into storage">
+</figure>
 ```
 
-If the config lives somewhere else, pass `--config`, but the default convention is the root `pagesmith.config.json5`.
+## References
 
-### 5. AI setup
-
-Prefer:
-
-```bash
-npx pagesmith-docs init --ai
-```
-
-This installs config/content scaffolding plus assistant memory files, skills, markdown guidelines, and optional `llms*.txt` files. It is also safe to rerun later to backfill missing scaffold fields and refresh the config `$schema` pointer.
-
-For retrofit work in an existing repo, start with `setup-docs.md`.
-
----
-
-## Usage
-
-### Configuration rules
-
-- Keep `pagesmith.config.json5` at the project root when you need overrides; otherwise zero-config conventions use `docs/` (or `content/`) plus `gh-pages/`.
-- Resolve relative paths from the config directory.
-- Use `contentDir` to point at the chosen docs folder.
-- Use `basePath` without a trailing slash.
-- Use `outDir: './gh-pages'` for GitHub Pages-style output unless the repo already has a stronger deployment convention.
-
-### Asset publishing
-
-There are three supported ways to publish extra files:
-
-1. `publicDir` for conventional static assets.
-2. `assets` for explicit file/folder passthrough to arbitrary output paths.
-3. Root `llms.txt` / `llms-full.txt`, which are copied automatically when present.
-
-Use `assets` when you want prompt files, schemas, OpenAPI files, or other machine-readable artifacts available at stable URLs.
-
-### Preview and build behavior
-
-- `pagesmith-docs build` writes static HTML output.
-- `pagesmith-docs preview` serves the current output directory directly from the filesystem.
-- Keep the preview server running across rebuilds; it should not require a restart after a new build.
-- Canonical browser URLs should be slashless.
-- Keep GitHub Pages compatibility: `.nojekyll`, root `404.html`, and direct extensionless route serving.
-
-### Layout and theme
-
-- Use `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, and `theme.layouts.notFound` for layout overrides.
-- Use `theme.defaultColorScheme`, `theme.defaultTheme`, and `theme.defaultTextSize` for default presentation.
-- Keep `data-pagefind-body` on the content-only wrapper when customizing layouts.
-
-### References
-
-- `node_modules/@pagesmith/docs/REFERENCE.md`
-- `node_modules/@pagesmith/docs/schemas/*.schema.json`
 - `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
 - `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`
-- `node_modules/@pagesmith/core/REFERENCE.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
+- `node_modules/@pagesmith/docs/REFERENCE.md`
+- `node_modules/@pagesmith/docs/schemas/*.schema.json`

@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "nextjs-pagesmith-boundary.mermaid": {
+      "hash": "sha256:4055c23a3287f985",
+      "generatedAt": "2026-04-13T21:19:22.974Z",
+      "outputs": [
+        {
+          "file": "nextjs-pagesmith-boundary-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 679.875,
+          "height": 582.3999633789062
+        },
+        {
+          "file": "nextjs-pagesmith-boundary-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 679.875,
+          "height": 582.3999633789062
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776114730233.2905,
+      "size": 588
+    }
+  }
+}

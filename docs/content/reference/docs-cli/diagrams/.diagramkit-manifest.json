@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "command-lifecycle.mermaid": {
+      "hash": "sha256:b58b9d1e8526b91c",
+      "generatedAt": "2026-04-13T21:19:22.978Z",
+      "outputs": [
+        {
+          "file": "command-lifecycle-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 653.48828125,
+          "height": 609.800048828125
+        },
+        {
+          "file": "command-lifecycle-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 653.48828125,
+          "height": 609.800048828125
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113135570.7722,
+      "size": 608
+    }
+  }
+}

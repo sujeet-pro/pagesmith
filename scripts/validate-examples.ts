@@ -35,7 +35,7 @@ const examples: Example[] = [
 async function validateExample(example: Example): Promise<Result> {
   const dir: string = join(root, 'examples', example.name)
   const outDir: string = join(root, example.outDir)
-  const requiredSourceFiles = ['README.md', 'llms.txt']
+  const requiredSourceFiles = ['README.md', 'llms.txt', 'llms-full.txt']
 
   try {
     for (const relativePath of requiredSourceFiles) {
@@ -69,8 +69,10 @@ async function validateExample(example: Example): Promise<Result> {
       return { name: example.name, passed: false, error: 'no index.html found in output' }
     }
 
-    if (!existsSync(join(outDir, 'llms.txt'))) {
-      return { name: example.name, passed: false, error: 'llms.txt not found in build output' }
+    for (const llmsFile of ['llms.txt', 'llms-full.txt']) {
+      if (!existsSync(join(outDir, llmsFile))) {
+        return { name: example.name, passed: false, error: `${llmsFile} not found in build output` }
+      }
     }
 
     return { name: example.name, passed: true }

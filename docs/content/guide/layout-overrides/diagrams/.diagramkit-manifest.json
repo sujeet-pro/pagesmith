@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "layout-resolution.dot": {
+      "hash": "sha256:8790a41a60785213",
+      "generatedAt": "2026-04-13T21:19:22.969Z",
+      "outputs": [
+        {
+          "file": "layout-resolution-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 860,
+          "height": 549
+        },
+        {
+          "file": "layout-resolution-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 860,
+          "height": 549
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776098964493.4194,
+      "size": 1795
+    }
+  }
+}

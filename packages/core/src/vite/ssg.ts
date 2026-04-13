@@ -1,5 +1,6 @@
 /**
- * Pre-rendering utility for Vite-based SSG sites.
+ * Legacy internal copy of the Vite prerender helper kept during the core/site split.
+ * Public site-building APIs ship from `@pagesmith/site`.
  *
  * Call after running both the client and SSR Vite builds.
  * Loads the SSR module, renders each route, injects into the
@@ -31,7 +32,7 @@ export type PrerenderOptions = {
  * @example
  * ```ts
  * import { build } from 'vite'
- * import { prerenderRoutes } from '@pagesmith/core/vite'
+ * import { prerenderRoutes } from '@pagesmith/site/vite'
  *
  * // 1. Client build
  * await build({ build: { outDir: 'dist' } })

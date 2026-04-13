@@ -3,10 +3,15 @@ name: Publish
 on:
   workflow_dispatch:
     inputs:
+      version:
+        description: Exact version to release (for example 0.8.0)
+        required: false
+        type: string
       bump:
-        description: Version bump type
+        description: Version bump type when version is not set
         required: true
         type: choice
+        default: minor
         options:
           - patch
           - minor
@@ -37,65 +42,95 @@ jobs:
 
       - run: npm ci
 
-      # Compute the new version from packages/core (all public packages share the same version)
-      - name: Bump version
+      # Resolve the release version from the current package line or an explicit override.
+      - name: Resolve version
         id: version
         run: |
           OLD_VERSION=$(node -p "require('./packages/core/package.json').version")
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD_VERSION"
-          case "${{ inputs.bump }}" in
-            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
-            patch) PATCH=$((PATCH + 1)) ;;
-          esac
-          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          NEW_VERSION=$(node --strip-types --no-warnings ./scripts/resolve-release-version.ts \
+            --current "$OLD_VERSION" \
+            --bump "${{ inputs.bump }}" \
+            --version "${{ inputs.version }}")
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Bumping $OLD_VERSION → $NEW_VERSION (${{ inputs.bump }})"
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "Releasing explicit version $NEW_VERSION (current line: $OLD_VERSION)"
+          else
+            echo "Bumping $OLD_VERSION → $NEW_VERSION (${{ inputs.bump }})"
+          fi
 
-      # Update version in all public packages
-      - name: Update package versions
+      - name: Check published versions
+        id: published
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          npm version "$VERSION" --no-git-tag-version --workspace=packages/core
-          npm version "$VERSION" --no-git-tag-version --workspace=packages/site
-          npm version "$VERSION" --no-git-tag-version --workspace=packages/docs
+          PUBLISHED_COUNT=0
 
-      # Build after version bump so dist files have the correct version
-      - name: Build packages
-        run: npm run build:library
+          check_exists() {
+            local package_name=$1
+            local output_name=$2
+            if npm view "${package_name}@${VERSION}" version >/dev/null 2>&1; then
+              echo "${output_name}=true" >> "$GITHUB_OUTPUT"
+              PUBLISHED_COUNT=$((PUBLISHED_COUNT + 1))
+            else
+              echo "${output_name}=false" >> "$GITHUB_OUTPUT"
+            fi
+          }
 
-      # Run checks before publishing
-      - name: Check
-        run: npm run check
+          check_exists "@pagesmith/core" core_exists
+          check_exists "@pagesmith/site" site_exists
+          check_exists "@pagesmith/docs" docs_exists
 
-      - name: Test
-        run: npm test
+          if [ "$PUBLISHED_COUNT" -eq 3 ]; then
+            echo "Version ${VERSION} is already fully published." >&2
+            exit 1
+          fi
 
-      # Publish all packages with provenance (Trusted Publisher / OIDC)
+          if [ "$PUBLISHED_COUNT" -ne 0 ]; then
+            echo "Partial publish detected for ${VERSION}. Aborting to avoid a mixed-source release." >&2
+            echo "Finish that version from the exact same source commit or release a newer version instead." >&2
+            exit 1
+          fi
+
+      # Keep public package versions and internal dependency ranges in lockstep
+      - name: Sync package versions
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          npm run sync:versions -- "$VERSION"
+          npm install --package-lock-only --ignore-scripts
+
+      - name: Validate release candidate
+        run: npm run validate
+
+      - name: Validate diagrams
+        run: npm run validate:diagrams
+
+      # Publish the coordinated package set with provenance (Trusted Publisher / OIDC)
       - name: Publish @pagesmith/core
-        run: npm publish --provenance --access public --workspace=packages/core
+        working-directory: packages/core
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @pagesmith/site
-        run: npm publish --provenance --access public --workspace=packages/site
+        working-directory: packages/site
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @pagesmith/docs
-        run: npm publish --provenance --access public --workspace=packages/docs
+        working-directory: packages/docs
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # Only commit and tag after both publishes succeed
+      # Only commit and tag after all publishes succeed
       - name: Commit and tag
         run: |
           VERSION=${{ steps.version.outputs.version }}
           TAG=${{ steps.version.outputs.tag }}
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add packages/core/package.json packages/site/package.json packages/docs/package.json
+          git add package-lock.json packages/core/package.json packages/site/package.json packages/docs/package.json
           git commit -m "release: ${TAG}"
           git tag -a "$TAG" -m "Release ${TAG}"
           git push origin HEAD:main --follow-tags

@@ -1,0 +1,25 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  subgraph foundation["Pagesmith packages"]
+    core["@pagesmith/core<br/>Collections, schemas,<br/>content loading, markdown"]
+    site["@pagesmith/site<br/>Shared JSX runtime,<br/>CSS/runtime, Vite SSG"]
+    docs["@pagesmith/docs<br/>Docs preset with nav,<br/>search, and theme"]
+  end
+
+  subgraph patterns["Integration patterns"]
+    vite["Virtual content modules<br/>React, Solid, Svelte"]
+    programmatic["Programmatic content layer<br/>EJS, Handlebars, Blog Site"]
+    hosted["Framework-hosted rendering<br/>Next.js App Router"]
+    convention["Convention-based docs<br/>Doc Site"]
+  end
+
+  core --> vite
+  core --> programmatic
+  core --> hosted
+  core --> docs
+  site -. "shared site layer" .-> vite
+  site -. "shared site layer" .-> programmatic
+  site -. "optional content CSS/runtime" .-> hosted
+  site --> docs
+  docs --> convention

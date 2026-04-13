@@ -1,0 +1,25 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  content["content entries"]
+  siteConfig["content/site.json5"]
+  entry["entry-server scans files and builds routes"]
+  layouts["Custom layouts and styles"]
+  markdown["processMarkdown"]
+  jsx["@pagesmith/site/jsx-runtime"]
+  ssg["pagesmithSsg"]
+  pages["Generated site pages"]
+  derived["Series and tag pages"]
+  search["Pagefind search"]
+
+  content --> entry
+  siteConfig --> entry
+  entry --> markdown
+  entry --> jsx
+  layouts --> jsx
+  entry --> ssg
+  markdown --> pages
+  jsx --> pages
+  entry --> derived
+  ssg --> pages
+  ssg --> search

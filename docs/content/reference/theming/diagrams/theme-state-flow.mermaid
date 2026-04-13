@@ -1,0 +1,50 @@
+---
+title: Theme state flow
+---
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  subgraph Inputs["Inputs"]
+    Server["Server defaults<br/>from pagesmith.config.json5"]
+    Stored["Stored preference<br/>localStorage('pagesmith-theme')"]
+    Controls["Theme controls<br/>header dropdown + footer selector"]
+    OS["OS color preference<br/>(used when scheme = auto)"]
+  end
+
+  subgraph Html["State on <html>"]
+    Scheme["color-scheme-*"]
+    Theme["theme-*"]
+    Size["data-text-size"]
+  end
+
+  subgraph Effects["What changes"]
+    Tokens["light-dark() token values<br/>and theme variant overrides"]
+    Images[".only-light / .only-dark<br/>image switching"]
+    Code["Light and dark<br/>Shiki code themes"]
+    Type["Root font-size scaling"]
+    Site["Rendered site chrome<br/>and content"]
+  end
+
+  Server --> Scheme
+  Server --> Theme
+  Server --> Size
+
+  Stored --> Scheme
+  Stored --> Theme
+  Stored --> Size
+
+  Controls --> Scheme
+  Controls --> Theme
+  Controls --> Size
+  Controls --> Stored
+
+  OS --> Scheme
+
+  Scheme --> Tokens
+  Theme --> Tokens
+  Size --> Type
+  Scheme --> Images
+  Scheme --> Code
+
+  Tokens --> Site
+  Type --> Site

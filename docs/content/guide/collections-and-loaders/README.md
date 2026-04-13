@@ -15,6 +15,14 @@ Collections are the core FS-CMS primitive in Pagesmith. Each collection maps a f
 - a schema (how to validate the data)
 - optional transforms, computed fields, filters, and validators
 
+The diagram below gives the page's mental model in one pass: files flow through a loader into a raw entry, then Pagesmith applies normalization, validation, derived fields, and optional filtering before you consume typed entries.
+
+<figure>
+  <img src="./diagrams/collection-pipeline-light.svg" class="only-light" alt="Collection pipeline showing files flowing through a loader, transform, schema, derived fields, filters, and into typed entries that are consumed through the content layer or Vite plugin">
+  <img src="./diagrams/collection-pipeline-dark.svg" class="only-dark" alt="Collection pipeline showing files flowing through a loader, transform, schema, derived fields, filters, and into typed entries that are consumed through the content layer or Vite plugin">
+  <figcaption>Collection pipeline showing files flowing through a loader, transform, schema, derived fields, filters, and into typed entries that are consumed through the content layer or Vite plugin</figcaption>
+</figure>
+
 ## Defining a Collection
 
 Use `defineCollection()` to create a type-safe collection definition:

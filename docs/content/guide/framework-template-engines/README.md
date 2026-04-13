@@ -11,6 +11,14 @@ description: Build content-driven static sites using EJS or Handlebars templates
 
 The template engine integrations use `@pagesmith/core` with plain templates instead of a component framework. Unlike the React, Solid, and Svelte examples that use virtual content modules (`virtual:content/*`), these examples use the programmatic `createContentLayer` API directly. The result is a fully static site with no framework runtime shipped to the browser.
 
+Notice that `pagesmithSsg` drives the build while the content layer and templates meet at `entry.render()` output feeding the final HTML.
+
+<figure>
+  <img src="./diagrams/template-ssg-pipeline-light.svg" class="only-light" alt="Template SSG pipeline from content config and Vite pagesmithSsg through createContentLayer and entry.render into EJS or Handlebars and static output">
+  <img src="./diagrams/template-ssg-pipeline-dark.svg" class="only-dark" alt="Template SSG pipeline from content config and Vite pagesmithSsg through createContentLayer and entry.render into EJS or Handlebars and static output">
+  <figcaption>Template-engine static sites: Vite SSG invokes your entry, the content layer renders markdown, and templates wrap the HTML.</figcaption>
+</figure>
+
 ## Shared Architecture
 
 Both EJS and Handlebars follow the same pattern:

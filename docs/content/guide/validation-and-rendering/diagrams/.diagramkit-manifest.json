@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "validation-rendering-flow.dot": {
+      "hash": "sha256:57c640c1c13ad12b",
+      "generatedAt": "2026-04-13T21:19:22.970Z",
+      "outputs": [
+        {
+          "file": "validation-rendering-flow-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 377,
+          "height": 1176
+        },
+        {
+          "file": "validation-rendering-flow-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 377,
+          "height": 1176
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776098838859.8594,
+      "size": 1079
+    }
+  }
+}

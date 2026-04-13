@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "code-block-rendering-pipeline.dot": {
+      "hash": "sha256:b874c3ce8679878b",
+      "generatedAt": "2026-04-13T21:19:22.967Z",
+      "outputs": [
+        {
+          "file": "code-block-rendering-pipeline-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 857,
+          "height": 200
+        },
+        {
+          "file": "code-block-rendering-pipeline-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 857,
+          "height": 200
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776098905018.7869,
+      "size": 592
+    }
+  }
+}

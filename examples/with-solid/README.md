@@ -27,7 +27,7 @@ vp run dev:eg:solid
 - `src/entry-server.tsx` renders the site with Solid SSR
 - `client.js` and `src/runtime.ts` add the shared content runtime plus small site enhancements
 - `content/guide/` includes the prose walkthrough and `guide/kitchen-sink.md`
-- `llms.txt` is the compact AI map for this example
+- `llms.txt` is the compact AI map for this example; `llms-full.txt` is the fuller file-pointer variant
 
 ## What This Example Demonstrates
 

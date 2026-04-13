@@ -1,8 +1,8 @@
-# Markdown Guidelines
+# @pagesmith/docs Markdown Guidelines
 
-Standalone markdown reference for both `@pagesmith/core` and `@pagesmith/docs`. This file covers all supported markdown features, the processing pipeline, code block syntax, and frontmatter schemas for both packages. Pass this single file to any AI agent regardless of which package your project uses.
+Supported markdown and HTML authoring rules for `@pagesmith/docs`. This file covers the stock markdown features, docs-specific link and asset transforms, code block syntax, image embedding patterns, and docs frontmatter that work without custom runtime code.
 
-Both packages share the same unified pipeline. The `@pagesmith/docs` package adds docs-specific frontmatter fields on top of the core schemas.
+`@pagesmith/docs` inherits the shared markdown pipeline from `@pagesmith/core`, then adds docs-specific link and asset transforms plus docs frontmatter conventions. The `pagesmith.config.json5` markdown field is intentionally JSON-safe; if a syntax or renderer is not documented here, treat it as unsupported unless the project intentionally drops to lower-level `@pagesmith/core` APIs or a custom integration.
 
 ## Pipeline Order
 
@@ -10,14 +10,13 @@ Both packages share the same unified pipeline. The `@pagesmith/docs` package add
 remark-parse → remark-gfm → remark-frontmatter
   → remark-github-alerts → remark-smartypants
   → remark-math (when `markdown.math` is `true` or `'auto'` detects math markers)
-  → [user remark plugins]
   → lang-alias transform → remark-rehype
   → rehype-mathjax (when math is enabled, before the built-in code renderer)
   → applyPagesmithCodeRenderer (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
   → rehype-code-tabs → rehype-scrollable-tables
   → rehype-slug → rehype-autolink-headings
   → rehype-external-links → rehype-accessible-emojis
-  → heading extraction → [user rehype plugins] → rehype-stringify
+  → heading extraction → docs link/asset transforms → rehype-stringify
 ```
 
 ## GitHub Flavored Markdown (remark-gfm)
@@ -34,6 +33,8 @@ GFM adds tables, strikethrough, task lists, autolinks, and footnotes.
 ```
 
 Column alignment is controlled by colons in the separator row: `:---` for left, `:---:` for center, `---:` for right.
+
+Markdown tables are automatically wrapped for horizontal scrolling by `rehype-scrollable-tables`, so wide tables stay usable on small screens.
 
 ### Strikethrough
 
@@ -178,6 +179,24 @@ Rendered HTML:
 <h2 id="getting-started"><a href="#getting-started">Getting Started</a></h2>
 ```
 
+## Docs Link And Asset Transforms
+
+Stock `@pagesmith/docs` adds a docs-specific rewrite pass after heading extraction:
+
+- Relative markdown links between pages are rewritten to site-relative routes under `basePath`.
+- Relative image refs in markdown or raw HTML publish under `/assets/<content-relative-path>`, so sibling assets keep their folder structure instead of flattening to basenames.
+- Relative HTML asset refs for `<img>`, `<source srcset>`, and `<a href="./image.svg">` follow the same published asset path rules.
+- Markdown images ending in `.inline.svg` inline the SVG into the HTML only when the file stays inside the current page directory subtree. Otherwise they fall back to a normal published asset URL.
+- Image file names containing `.invert.` receive an `invert-on-dark` class for dark-theme inversion.
+
+Examples:
+
+```md
+[Architecture](../reference/architecture/README.md)
+![Flow](./diagrams/request-flow.svg)
+![Inline logo](./diagrams/logo.inline.svg)
+```
+
 ## Built-in Code Renderer Features
 
 Syntax highlighting is handled by the built-in Pagesmith renderer on top of Shiki with dual themes. Shared code block chrome ships in the CSS bundles, while syntax token colors and copy/collapse behavior are injected inline per rendered document.
@@ -236,7 +255,36 @@ app.post('/api', handler)
 - **Language badge** -- automatic language indicator
 - **Syntax highlighting** -- dual theme support
 
+### Code Tabs
+
+Consecutive titled code blocks are grouped into tabs automatically.
+
+````md
+```ts title="TypeScript"
+const greeting: string = 'hello'
+```
+
+```js title="JavaScript"
+const greeting = 'hello'
+```
+````
+
+Tabs are created by `rehype-code-tabs` after the built-in code renderer, so each block keeps its own highlighting and chrome while rendering as a single tabbed group.
+
 ### Language Aliases
+
+Pagesmith includes these default aliases before any user overrides:
+
+| Alias | Highlighted As |
+| ----- | -------------- |
+| `dot` | `text` |
+| `mermaid` | `text` |
+| `plantuml` | `text` |
+| `excalidraw` | `json` |
+| `drawio` | `xml` |
+| `proto` | `protobuf` |
+| `ejs` | `html` |
+| `hbs` | `handlebars` |
 
 Configure custom language aliases:
 
@@ -260,18 +308,62 @@ markdown: {
 }
 ```
 
-## Custom Plugins
+## Diagram Assets In Docs Projects
 
-Extend the pipeline:
+Stock `@pagesmith/docs` does not ship an inline Mermaid, Graphviz, Excalidraw, or draw.io renderer.
 
-```ts
-markdown: {
-  remarkPlugins: [myRemarkPlugin, [pluginWithOptions, { option: true }]],
-  rehypePlugins: [myRehypePlugin],
+- Fences using languages like `mermaid`, `dot`, `excalidraw`, and `drawio` render as code blocks unless the project explicitly adds a custom renderer plugin.
+- Use those language identifiers when you want to show diagram source in the docs.
+- Use generated image assets when you want a visible diagram in the page.
+- Prefer page-local `diagrams/` folders and keep the editable source file beside the rendered output.
+
+Choose the source format by job:
+
+| Need | Best choice | Why |
+| ---- | ----------- | --- |
+| Flowcharts, sequence diagrams, state diagrams, ER diagrams, timelines | Mermaid | Text-first and diff-friendly |
+| Architecture overviews and conceptual sketches | Excalidraw | Flexible layout and presentation-friendly look |
+| Network topology, cloud/vendor icons, BPMN, precise layouts | draw.io | Rich libraries and manual control |
+| Dependency graphs, call graphs, existing `.dot` assets | Graphviz | Strong algorithmic layout |
+
+For a single rendered asset, standard markdown image syntax is enough:
+
+```md
+![Request flow from CLI to API to storage](./diagrams/request-flow.svg)
+```
+
+Rendered assets keep their content-relative paths under `/assets/`, so `guide/setup/diagrams/request-flow.svg` and `reference/setup/diagrams/request-flow.svg` do not collide in the final build.
+
+When light and dark renders differ, wrap the pair in a `<figure>` and embed both variants with the built-in theme classes:
+
+```html
+<figure>
+  <img src="./diagrams/request-flow-light.svg" class="only-light" alt="Request flow from CLI to API to storage">
+  <img src="./diagrams/request-flow-dark.svg" class="only-dark" alt="Request flow from CLI to API to storage">
+</figure>
+```
+
+Only tell an agent to rely on inline Mermaid-style rendering when the project explicitly configured that renderer through custom markdown plugins or custom runtime behavior.
+
+## JSON-Safe Markdown Config
+
+`pagesmith.config.json5` only exposes the JSON-safe markdown settings that `@pagesmith/docs` can serialize directly:
+
+```json5
+{
+  markdown: {
+    allowDangerousHtml: true,
+    math: 'auto',
+    shiki: {
+      themes: { light: 'github-light', dark: 'github-dark' },
+      langAlias: { shell: 'bash' },
+      defaultShowLineNumbers: true,
+    },
+  },
 }
 ```
 
-User remark plugins run after the built-in remark plugins (GFM, math, frontmatter, alerts, smartypants) but before `remark-rehype`. User rehype plugins run after heading extraction but before `rehype-stringify`.
+Function-valued `remarkPlugins` and `rehypePlugins` are not supported through `pagesmith.config.json5`. If you need custom plugin functions or additional pipeline stages, drop to lower-level `@pagesmith/core` APIs or a custom site integration instead of expecting the docs config file to execute code.
 
 Raw HTML is preserved by default (`allowDangerousHtml: true`). Disable it when rendering untrusted markdown. Math processing defaults to `math: 'auto'`, which enables `remark-math` and `rehype-mathjax` only for pages that contain math markers.
 
@@ -334,6 +426,9 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 - One `# h1` per page (validator enforces)
 - Sequential heading depth (no skipping from h2 to h4)
 - Prefer relative links for internal content; absolute URLs get external link treatment
+- Keep page-local images and diagrams beside the page; stock docs publishes them under preserved content-relative `/assets/` paths
+- Do not expect `pagesmith.config.json5` to accept function-valued remark or rehype plugins
+- Raw `mermaid`, `dot`, `excalidraw`, and `drawio` fences are source examples, not rendered diagrams, unless the project adds a custom renderer
 
 ## Quick Reference Card
 
@@ -345,6 +440,8 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 | Inline code      | `code`                                                                        | built-in                               |
 | Link             | `[text](url)`                                                                 | built-in                               |
 | Image            | `![alt](src)`                                                                 | built-in                               |
+| Inline SVG image | `![Logo](./diagrams/logo.inline.svg)`                                         | docs link/asset transforms             |
+| Theme-aware image pair | `<figure><img class="only-light"> + <img class="only-dark"></figure>`     | built-in HTML + theme CSS              |
 | Blockquote       | `> quote`                                                                     | built-in                               |
 | Ordered list     | `1. item`                                                                     | built-in                               |
 | Unordered list   | `- item`                                                                      | built-in                               |
@@ -369,6 +466,7 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 | Collapse lines   | ````js collapse={1-5}`                                                        | applyPagesmithCodeRenderer             |
 | Word wrap        | ````js wrap`                                                                  | applyPagesmithCodeRenderer             |
 | Frame style      | ````js frame="terminal"`                                                      | applyPagesmithCodeRenderer             |
+| Code tabs        | consecutive titled fenced code blocks                                         | rehype-code-tabs                       |
 | External link    | `[text](https://...)` auto new-tab                                            | rehype-external-links                  |
 | Heading anchor   | auto `id` + wrap link                                                         | rehype-slug + rehype-autolink-headings |
 | Accessible emoji | Unicode emoji auto-wrapped                                                    | rehype-accessible-emojis               |

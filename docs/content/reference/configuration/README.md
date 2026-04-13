@@ -7,6 +7,14 @@ description: ContentLayerConfig and CollectionDef for @pagesmith/core, plus how 
 
 This page covers all configuration formats used across Pagesmith: the `ContentLayerConfig` for `@pagesmith/core` and the `pagesmith.config.json5` for `@pagesmith/docs`.
 
+<figure>
+  <img src="./diagrams/config-surfaces-core-vs-docs-light.svg" class="only-light" alt="Two configuration surfaces ContentLayerConfig for core collections versus pagesmith.config.json5 for docs site concerns">
+  <img src="./diagrams/config-surfaces-core-vs-docs-dark.svg" class="only-dark" alt="Two configuration surfaces ContentLayerConfig for core collections versus pagesmith.config.json5 for docs site concerns">
+  <figcaption>Two configuration surfaces: typed collections and markdown pipeline live in <code>content.config.ts</code>, while the docs preset owns site-level navigation, theme, search, and hosting fields in <code>pagesmith.config.json5</code>.</figcaption>
+</figure>
+
+Notice you rarely mix concerns—core config feeds loaders and validation; docs config shapes the generated site and deploy output.
+
 ## ContentLayerConfig
 
 The configuration object passed to `defineConfig()` and `createContentLayer()`:

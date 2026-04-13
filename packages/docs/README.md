@@ -470,6 +470,9 @@ All markdown features from `@pagesmith/core` are available, including:
 - Accessible emojis
 - Auto-linked headings
 - External link handling (`target="_blank"`)
+- Docs-specific link rewrites for relative page links under `basePath`
+- Docs-specific asset publishing for page-local images and diagrams with preserved content-relative `/assets/...` paths
+- Inline SVG support for `*.inline.svg` images and dark-mode inversion for image names containing `.invert.`
 
 See the [`@pagesmith/core` README](../core/README.md) for the full markdown feature reference.
 

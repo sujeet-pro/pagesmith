@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "diagrams": {
+    "theme-state-flow.mermaid": {
+      "hash": "sha256:d9f8e773188b65ce",
+      "generatedAt": "2026-04-13T21:19:22.980Z",
+      "outputs": [
+        {
+          "file": "theme-state-flow-light.svg",
+          "format": "svg",
+          "theme": "light"
+        },
+        {
+          "file": "theme-state-flow-dark.svg",
+          "format": "svg",
+          "theme": "dark"
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776113143408.8352,
+      "size": 1146
+    }
+  }
+}

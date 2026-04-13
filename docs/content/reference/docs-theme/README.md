@@ -7,6 +7,16 @@ description: Default @pagesmith/docs theme — layouts, components, styles, runt
 
 The `@pagesmith/docs` package includes a complete default theme that provides layouts, styles, and runtime behavior for documentation sites. The theme uses a class-based multi-theme system with two orthogonal axes — **color scheme** (auto/light/dark) and **theme variant** (paper/high-contrast) — that adapts to both OS preferences and user choice. See the [Theming](/reference/theming/) reference for the full token system and custom theme creation guide.
 
+## Theme Architecture At A Glance
+
+Use this overview to orient yourself before diving into the file-by-file reference. Notice that `Html.tsx` owns the document shell, layouts decide the page shape, shared components provide the reusable chrome, and runtime plus styles progressively enhance the rendered markdown.
+
+<figure>
+  <img src="./diagrams/theme-architecture-light.svg" class="only-light" alt="Docs theme architecture showing resolved config flowing into Html.tsx, the default layouts, shared header sidebar TOC and footer components, plus runtime and styles that enhance rendered markdown">
+  <img src="./diagrams/theme-architecture-dark.svg" class="only-dark" alt="Docs theme architecture showing resolved config flowing into Html.tsx, the default layouts, shared header sidebar TOC and footer components, plus runtime and styles that enhance rendered markdown">
+  <figcaption>Docs theme architecture showing resolved config flowing into Html.tsx, the default layouts, shared header sidebar TOC and footer components, plus runtime and styles that enhance rendered markdown</figcaption>
+</figure>
+
 ## Theme File Structure
 
 The theme is located in the `theme/` directory of the `@pagesmith/docs` package:

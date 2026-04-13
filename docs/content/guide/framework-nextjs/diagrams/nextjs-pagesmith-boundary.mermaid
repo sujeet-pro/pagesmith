@@ -1,0 +1,22 @@
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TB
+    subgraph next["Next.js App Router"]
+        routes["Routes layouts metadata<br/>static export shell"]
+    end
+
+    subgraph core["@pagesmith/core"]
+        layer["createContentLayer()<br/>collections + schemas"]
+        render["entry.render()<br/>HTML headings readTime"]
+    end
+
+    subgraph site["@pagesmith/site optional"]
+        css["@pagesmith/site/css/content"]
+        runtime["@pagesmith/site/runtime/content"]
+    end
+
+    routes --> layer
+    layer --> render
+    render --> routes
+    css --> routes
+    runtime --> routes

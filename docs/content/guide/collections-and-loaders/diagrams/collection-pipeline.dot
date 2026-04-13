@@ -1,0 +1,20 @@
+digraph CollectionPipeline {
+  graph [rankdir=TB, nodesep=0.45, ranksep=0.65, pad=0.2]
+  node [shape=box, style="rounded", margin="0.18,0.12"]
+  edge [fontsize=10]
+
+  files [label="Files in directory\ncontent/posts/*.md\ncontent/authors/*.yaml"]
+  loader [label="Loader\nmarkdown, json, yaml,\nor a custom Loader"]
+  raw [label="RawEntry\ndata + optional content\n+ filePath + slug"]
+  transform [label="transform()\noptional pre-validation\nnormalization"]
+  schema [label="schema\nZod validates and coerces data"]
+  derived [label="computed / validate /\nvalidators\noptional derived fields\nand checks"]
+  filter [label="filter()\nexclude entries you do not want"]
+  entries [label="Collection entries\ntyped entry.data + slug"]
+  consume [label="Consume via\ncreateContentLayer()\nor pagesmithContent()"]
+  slugify [label="slugify()\noptional custom URL rule"]
+
+  files -> loader -> raw -> transform -> schema -> derived -> filter -> entries -> consume
+  files -> slugify [style=dashed]
+  slugify -> raw [style=dashed]
+}

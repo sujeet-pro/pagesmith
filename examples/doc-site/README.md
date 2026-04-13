@@ -26,7 +26,7 @@ vp run dev:eg:doc-site
 - `pagesmith.config.json5` is the source of truth for site metadata, search, output paths, footer links, and layout overrides
 - `content/` contains the markdown site, including `guide/kitchen-sink.md` as the docs markdown regression page
 - `theme/layouts/` shows how to override `DocHome` and `DocPage` without breaking the default docs contract
-- `llms.txt` summarizes the docs-package layout and command surface for AI tools
+- `llms.txt` summarizes the docs-package layout and command surface for AI tools; `llms-full.txt` is the fuller file-pointer variant
 
 ## What This Example Demonstrates
 

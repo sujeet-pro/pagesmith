@@ -1,0 +1,52 @@
+---
+title: Docs theme architecture overview
+---
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TB
+  Config["Resolved docs config<br/>site metadata, theme, search, links"]
+  Html["Html.tsx<br/>document shell, meta tags, CSS, runtime"]
+  Runtime["runtime/main.ts<br/>theme, search, sidebar,<br/>TOC highlight, copyright"]
+  Styles["styles/<br/>foundations, layout, content,<br/>code, components"]
+  Markdown["Rendered markdown<br/>frontmatter, headings, prose"]
+
+  subgraph Layouts["Default layouts"]
+    Home["DocHome<br/>hero + features"]
+    Page["DocPage<br/>three-column article grid"]
+    NotFound["DocNotFound<br/>404 page"]
+  end
+
+  Header["DocHeader"]
+  Footer["DocFooter"]
+  Sidebar["DocSidebar"]
+  TOC["DocTOC"]
+
+  Config --> Html
+  Html --> Home
+  Html --> Page
+  Html --> NotFound
+
+  Home --> Header
+  Home --> Markdown
+  Home --> Footer
+
+  Page --> Header
+  Page --> Sidebar
+  Page --> Markdown
+  Page --> TOC
+  Page --> Footer
+
+  NotFound --> Header
+
+  Html -. loads .-> Runtime
+  Html -. loads .-> Styles
+
+  Runtime -. enhances .-> Header
+  Runtime -. enhances .-> Sidebar
+  Runtime -. enhances .-> TOC
+  Runtime -. enhances .-> Footer
+
+  Styles -. styles .-> Home
+  Styles -. styles .-> Page
+  Styles -. styles .-> NotFound
+  Styles -. styles .-> Markdown

@@ -5,7 +5,17 @@ description: Replace home, page, and 404 layouts with custom TSX components via 
 
 # Layout Overrides
 
-`@pagesmith/docs` ships with three built-in layouts: `home`, `page`, and `notFound`. You can replace any of them with your own TSX components, or register entirely new layouts and assign them to specific sections through `meta.json5`.
+`@pagesmith/docs` ships with four built-in layouts: `home`, `page`, `listing`, and `notFound`. You can replace any of them with your own TSX components, or register entirely new layouts and assign them to specific sections through `meta.json5`.
+
+## Layout Resolution at a Glance
+
+This diagram shows the two-step resolution process: the current route determines a layout name, then `theme.layouts` either maps that name to a custom TSX component or falls back to a built-in layout. Notice that section `meta.json5` selects the layout name for section landing and item pages, while built-in names such as `listing` still follow the same resolution and fallback rules.
+
+<figure>
+  <img src="./diagrams/layout-resolution-light.svg" class="only-light" alt="Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout">
+  <img src="./diagrams/layout-resolution-dark.svg" class="only-dark" alt="Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout">
+  <figcaption>Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout</figcaption>
+</figure>
 
 ## Built-in Layouts
 
@@ -13,9 +23,10 @@ description: Replace home, page, and 404 layouts with custom TSX components via 
 |---|---|---|
 | `home` | `DocHome.tsx` | The root `content/README.md` landing page. Renders hero, features grid, and body content |
 | `page` | `DocPage.tsx` | Every documentation page. Three-column grid with sidebar, content, and table of contents |
+| `listing` | `DocListing.tsx` | Listing-style pages that render intro content plus grouped cards for child pages |
 | `notFound` | `DocNotFound.tsx` | The 404 page shown when a route does not match any content |
 
-When no overrides are configured, these layouts are used automatically. The `page` layout is the default for all section landing pages and individual pages.
+When no overrides are configured, these layouts are used automatically. The `page` layout is still the default for ordinary section landing pages and individual pages.
 
 ## Overriding via theme.layouts
 

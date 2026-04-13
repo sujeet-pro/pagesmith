@@ -31,10 +31,24 @@ Short procedural recipes for common docs workflows. For the full reference, see 
 3. Use one `# h1` heading per page and sequential heading depth.
 4. Use fenced code blocks with language identifiers and built-in code renderer meta for titles, line numbers, and highlighting.
 5. Use GitHub Alerts for callouts: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`.
-6. For diagrams, use mermaid code blocks (` ```mermaid `).
-7. Add the slug to the section's `meta.json5` `items` array.
+6. If a diagram clarifies the page, create a sibling `diagrams/` folder and choose the right engine: Mermaid for text-first flows, Excalidraw for architecture sketches, draw.io for infrastructure or BPMN, Graphviz for dependency graphs.
+7. Keep the editable source plus rendered light/dark SVGs with the page, embed the rendered assets in the doc, and add descriptive alt text.
+8. Add the slug to the section's `meta.json5` `items` array.
 
-**Read:** `node_modules/@pagesmith/docs/REFERENCE.md` (Frontmatter, Markdown Guidelines, Code block features)
+**Read:** `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`, `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`, `node_modules/@pagesmith/docs/REFERENCE.md` (Frontmatter, Markdown Guidelines, Code block features)
+
+## Add or update a diagram
+
+1. Keep the page folder-based (`<contentDir>/<section>/<slug>/README.md`) so diagram assets can live beside it.
+2. Create or update `<contentDir>/<section>/<slug>/diagrams/`.
+3. Choose Mermaid for text-first flows, Excalidraw for architecture sketches, draw.io for precise infrastructure/BPMN, and Graphviz for dependency graphs or existing `.dot` files.
+4. Keep the editable source file next to the rendered output.
+5. Prefer rendered SVG. Add PNG only when another surface needs it.
+6. Use normal markdown image syntax for a single rendered asset, or `.only-light` / `.only-dark` image pairs when light and dark variants differ.
+7. Add descriptive alt text and a nearby sentence that explains what the reader should notice.
+8. Preview the page and verify both themes when theme-specific assets exist.
+
+**Read:** `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`, `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`, `node_modules/@pagesmith/docs/REFERENCE.md` (Content Structure, Theming)
 
 ## Organize docs with meta.json5
 
@@ -61,6 +75,8 @@ Add pointer lines to root `CLAUDE.md` or `AGENTS.md`:
 
 ```
 For @pagesmith/docs bootstrap and retrofit tasks, read node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md
+For @pagesmith/docs authoring, organization, and diagram workflow, read node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md
+For supported markdown and diagram embedding rules, read node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md
 For @pagesmith/docs upgrades, read node_modules/@pagesmith/docs/ai-guidelines/migration.md
 For @pagesmith/docs usage rules, read node_modules/@pagesmith/docs/ai-guidelines/usage.md
 For the full @pagesmith/docs reference, see node_modules/@pagesmith/docs/REFERENCE.md

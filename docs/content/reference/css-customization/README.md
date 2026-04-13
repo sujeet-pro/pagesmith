@@ -187,6 +187,16 @@ Pagesmith uses a class-based multi-theme system with two orthogonal axes on `<ht
 - **Color scheme** (`color-scheme-auto` | `color-scheme-light` | `color-scheme-dark`) — controls which side of `light-dark()` the browser picks
 - **Theme variant** (`theme-paper` | `theme-high-contrast`) — overrides design tokens for distinct visual styles
 
+### How The Customization Layers Fit Together
+
+Notice that most visual changes flow through CSS custom properties: color-scheme classes choose the `light-dark()` branch, theme variants and your own overrides adjust token values, and `theme.lightColor` / `theme.darkColor` stay separate as browser-chrome metadata.
+
+<figure>
+  <img src="./diagrams/theme-customization-layers-light.svg" class="only-light" alt="CSS customization layers showing base tokens and root overrides feeding resolved custom properties, which drive the shipped Pagesmith CSS bundles and final UI, while theme-color config only affects browser chrome">
+  <img src="./diagrams/theme-customization-layers-dark.svg" class="only-dark" alt="CSS customization layers showing base tokens and root overrides feeding resolved custom properties, which drive the shipped Pagesmith CSS bundles and final UI, while theme-color config only affects browser chrome">
+  <figcaption>CSS customization layers showing base tokens and root overrides feeding resolved custom properties, which drive the shipped Pagesmith CSS bundles and final UI, while theme-color config only affects browser chrome</figcaption>
+</figure>
+
 The `@pagesmith/docs` theme includes built-in UI for switching both axes (header dropdown + footer selector), with preferences persisted to `localStorage`. See the [Theming](/reference/theming/) reference for the full system, built-in themes, and how to create custom theme variants.
 
 ### How light-dark() Works
