@@ -7,12 +7,18 @@ on:
         description: Exact version to release (for example 0.8.0)
         required: false
         type: string
+      packages:
+        description: Packages to publish ("all" or a comma-separated subset like "site,docs")
+        required: false
+        type: string
+        default: all
       bump:
         description: Version bump type when version is not set
-        required: true
+        required: false
         type: choice
-        default: minor
+        default: auto
         options:
+          - auto
           - patch
           - minor
           - major
@@ -47,10 +53,24 @@ jobs:
         id: version
         run: |
           OLD_VERSION=$(node -p "require('./packages/core/package.json').version")
-          NEW_VERSION=$(node --strip-types --no-warnings ./scripts/resolve-release-version.ts \
-            --current "$OLD_VERSION" \
-            --bump "${{ inputs.bump }}" \
-            --version "${{ inputs.version }}")
+
+          if [ -n "${{ inputs.version }}" ]; then
+            NEW_VERSION=$(node --strip-types --no-warnings ./scripts/resolve-release-version.ts \
+              --version "${{ inputs.version }}")
+            echo "exact_version_mode=true" >> "$GITHUB_OUTPUT"
+          else
+            BUMP_TYPE="${{ inputs.bump }}"
+            if [ -z "$BUMP_TYPE" ] || [ "$BUMP_TYPE" = "auto" ]; then
+              echo "Pick patch/minor/major when version is not set." >&2
+              exit 1
+            fi
+
+            NEW_VERSION=$(node --strip-types --no-warnings ./scripts/resolve-release-version.ts \
+              --current "$OLD_VERSION" \
+              --bump "$BUMP_TYPE")
+            echo "exact_version_mode=false" >> "$GITHUB_OUTPUT"
+          fi
+
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$NEW_VERSION" >> "$GITHUB_OUTPUT"
           if [ -n "${{ inputs.version }}" ]; then
@@ -59,37 +79,165 @@ jobs:
             echo "Bumping $OLD_VERSION → $NEW_VERSION (${{ inputs.bump }})"
           fi
 
+      - name: Resolve package selection
+        id: selection
+        run: |
+          REQUESTED="${{ inputs.packages }}"
+          if [ -z "$REQUESTED" ]; then
+            REQUESTED="all"
+          fi
+
+          SELECT_CORE=false
+          SELECT_SITE=false
+          SELECT_DOCS=false
+
+          normalize_entry() {
+            printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | xargs
+          }
+
+          if [ "$(normalize_entry "$REQUESTED")" = "all" ]; then
+            SELECT_CORE=true
+            SELECT_SITE=true
+            SELECT_DOCS=true
+            NORMALIZED="all"
+          else
+            IFS=',' read -r -a RAW_ENTRIES <<< "$REQUESTED"
+            for raw_entry in "${RAW_ENTRIES[@]}"; do
+              entry=$(normalize_entry "$raw_entry")
+              case "$entry" in
+                core) SELECT_CORE=true ;;
+                site) SELECT_SITE=true ;;
+                docs) SELECT_DOCS=true ;;
+                '') ;;
+                *)
+                  echo "Invalid packages input: $REQUESTED" >&2
+                  echo 'Use "all" or a comma-separated subset from core,site,docs.' >&2
+                  exit 1
+                  ;;
+              esac
+            done
+
+            if [ "$SELECT_CORE" != "true" ] && [ "$SELECT_SITE" != "true" ] && [ "$SELECT_DOCS" != "true" ]; then
+              echo "No packages selected." >&2
+              exit 1
+            fi
+
+            NORMALIZED=""
+            if [ "$SELECT_CORE" = "true" ]; then NORMALIZED="core"; fi
+            if [ "$SELECT_SITE" = "true" ]; then NORMALIZED="${NORMALIZED:+$NORMALIZED,}site"; fi
+            if [ "$SELECT_DOCS" = "true" ]; then NORMALIZED="${NORMALIZED:+$NORMALIZED,}docs"; fi
+          fi
+
+          if [ "${{ steps.version.outputs.exact_version_mode }}" != "true" ] && [ "$NORMALIZED" != "all" ]; then
+            echo "Selective publish requires an explicit version so new release lines stay coordinated." >&2
+            exit 1
+          fi
+
+          echo "selected_packages=$NORMALIZED" >> "$GITHUB_OUTPUT"
+          echo "selected_core=$SELECT_CORE" >> "$GITHUB_OUTPUT"
+          echo "selected_site=$SELECT_SITE" >> "$GITHUB_OUTPUT"
+          echo "selected_docs=$SELECT_DOCS" >> "$GITHUB_OUTPUT"
+          echo "Selected packages: $NORMALIZED"
+
       - name: Check published versions
         id: published
         run: |
           VERSION=${{ steps.version.outputs.version }}
+          EXACT_VERSION_MODE="${{ steps.version.outputs.exact_version_mode }}"
+          SELECT_CORE="${{ steps.selection.outputs.selected_core }}"
+          SELECT_SITE="${{ steps.selection.outputs.selected_site }}"
+          SELECT_DOCS="${{ steps.selection.outputs.selected_docs }}"
           PUBLISHED_COUNT=0
 
-          check_exists() {
+          package_exists() {
             local package_name=$1
-            local output_name=$2
             if npm view "${package_name}@${VERSION}" version >/dev/null 2>&1; then
-              echo "${output_name}=true" >> "$GITHUB_OUTPUT"
-              PUBLISHED_COUNT=$((PUBLISHED_COUNT + 1))
+              echo true
             else
-              echo "${output_name}=false" >> "$GITHUB_OUTPUT"
+              echo false
             fi
           }
 
-          check_exists "@pagesmith/core" core_exists
-          check_exists "@pagesmith/site" site_exists
-          check_exists "@pagesmith/docs" docs_exists
+          CORE_EXISTS=$(package_exists "@pagesmith/core")
+          SITE_EXISTS=$(package_exists "@pagesmith/site")
+          DOCS_EXISTS=$(package_exists "@pagesmith/docs")
 
-          if [ "$PUBLISHED_COUNT" -eq 3 ]; then
-            echo "Version ${VERSION} is already fully published." >&2
-            exit 1
+          echo "core_exists=$CORE_EXISTS" >> "$GITHUB_OUTPUT"
+          echo "site_exists=$SITE_EXISTS" >> "$GITHUB_OUTPUT"
+          echo "docs_exists=$DOCS_EXISTS" >> "$GITHUB_OUTPUT"
+
+          if [ "$CORE_EXISTS" = "true" ]; then PUBLISHED_COUNT=$((PUBLISHED_COUNT + 1)); fi
+          if [ "$SITE_EXISTS" = "true" ]; then PUBLISHED_COUNT=$((PUBLISHED_COUNT + 1)); fi
+          if [ "$DOCS_EXISTS" = "true" ]; then PUBLISHED_COUNT=$((PUBLISHED_COUNT + 1)); fi
+
+          PUBLISH_CORE=false
+          PUBLISH_SITE=false
+          PUBLISH_DOCS=false
+
+          if [ "$EXACT_VERSION_MODE" != "true" ]; then
+            if [ "$PUBLISHED_COUNT" -eq 3 ]; then
+              echo "Version ${VERSION} is already fully published." >&2
+              exit 1
+            fi
+
+            if [ "$PUBLISHED_COUNT" -ne 0 ]; then
+              echo "Partial publish detected for ${VERSION}. Aborting to avoid a mixed-source release." >&2
+              echo "Finish that version from the exact same source commit or release a newer version instead." >&2
+              exit 1
+            fi
+
+            PUBLISH_CORE=$SELECT_CORE
+            PUBLISH_SITE=$SELECT_SITE
+            PUBLISH_DOCS=$SELECT_DOCS
+          else
+            WILL_HAVE_CORE=$CORE_EXISTS
+            WILL_HAVE_SITE=$SITE_EXISTS
+
+            if [ "$SELECT_CORE" = "true" ]; then
+              WILL_HAVE_CORE=true
+            fi
+            if [ "$SELECT_SITE" = "true" ]; then
+              WILL_HAVE_SITE=true
+            fi
+
+            if [ "$SELECT_SITE" = "true" ] && [ "$WILL_HAVE_CORE" != "true" ]; then
+              echo "Cannot publish @pagesmith/site@${VERSION} unless @pagesmith/core@${VERSION} is already published or selected in this run." >&2
+              exit 1
+            fi
+
+            if [ "$SELECT_DOCS" = "true" ] && { [ "$WILL_HAVE_CORE" != "true" ] || [ "$WILL_HAVE_SITE" != "true" ]; }; then
+              echo "Cannot publish @pagesmith/docs@${VERSION} unless @pagesmith/core@${VERSION} and @pagesmith/site@${VERSION} are already published or selected in this run." >&2
+              exit 1
+            fi
+
+            if [ "$SELECT_CORE" = "true" ]; then
+              if [ "$CORE_EXISTS" = "true" ]; then
+                echo "Skipping @pagesmith/core@${VERSION}; already published."
+              else
+                PUBLISH_CORE=true
+              fi
+            fi
+
+            if [ "$SELECT_SITE" = "true" ]; then
+              if [ "$SITE_EXISTS" = "true" ]; then
+                echo "Skipping @pagesmith/site@${VERSION}; already published."
+              else
+                PUBLISH_SITE=true
+              fi
+            fi
+
+            if [ "$SELECT_DOCS" = "true" ]; then
+              if [ "$DOCS_EXISTS" = "true" ]; then
+                echo "Skipping @pagesmith/docs@${VERSION}; already published."
+              else
+                PUBLISH_DOCS=true
+              fi
+            fi
           fi
 
-          if [ "$PUBLISHED_COUNT" -ne 0 ]; then
-            echo "Partial publish detected for ${VERSION}. Aborting to avoid a mixed-source release." >&2
-            echo "Finish that version from the exact same source commit or release a newer version instead." >&2
-            exit 1
-          fi
+          echo "publish_core=$PUBLISH_CORE" >> "$GITHUB_OUTPUT"
+          echo "publish_site=$PUBLISH_SITE" >> "$GITHUB_OUTPUT"
+          echo "publish_docs=$PUBLISH_DOCS" >> "$GITHUB_OUTPUT"
 
       # Keep public package versions and internal dependency ranges in lockstep
       - name: Sync package versions
@@ -106,31 +254,71 @@ jobs:
 
       # Publish the coordinated package set with provenance (Trusted Publisher / OIDC)
       - name: Publish @pagesmith/core
+        if: steps.published.outputs.publish_core == 'true'
         working-directory: packages/core
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @pagesmith/site
+        if: steps.published.outputs.publish_site == 'true'
         working-directory: packages/site
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @pagesmith/docs
+        if: steps.published.outputs.publish_docs == 'true'
         working-directory: packages/docs
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # Only commit and tag after all publishes succeed
+      - name: Check final published versions
+        id: final
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+
+          package_exists() {
+            if npm view "$1@${VERSION}" version >/dev/null 2>&1; then
+              echo true
+            else
+              echo false
+            fi
+          }
+
+          CORE_EXISTS=$(package_exists "@pagesmith/core")
+          SITE_EXISTS=$(package_exists "@pagesmith/site")
+          DOCS_EXISTS=$(package_exists "@pagesmith/docs")
+
+          if [ "$CORE_EXISTS" = "true" ] && [ "$SITE_EXISTS" = "true" ] && [ "$DOCS_EXISTS" = "true" ]; then
+            echo "all_published=true" >> "$GITHUB_OUTPUT"
+            echo "Version ${VERSION} is fully published."
+          else
+            echo "all_published=false" >> "$GITHUB_OUTPUT"
+            echo "Version ${VERSION} is not fully published yet; skipping release commit/tag."
+          fi
+
+      # Only commit and tag after the full coordinated version is published.
       - name: Commit and tag
+        if: steps.final.outputs.all_published == 'true'
         run: |
           VERSION=${{ steps.version.outputs.version }}
           TAG=${{ steps.version.outputs.tag }}
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package-lock.json packages/core/package.json packages/site/package.json packages/docs/package.json
-          git commit -m "release: ${TAG}"
-          git tag -a "$TAG" -m "Release ${TAG}"
+
+          if git diff --cached --quiet; then
+            echo "No version file changes to commit for ${TAG}."
+          else
+            git commit -m "release: ${TAG}"
+          fi
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists locally."
+          else
+            git tag -a "$TAG" -m "Release ${TAG}"
+          fi
+
           git push origin HEAD:main --follow-tags

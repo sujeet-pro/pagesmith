@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/core",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Headless content layer — schema-validated collections, lazy markdown rendering, and Vite content access",
   "keywords": [
     "cms",

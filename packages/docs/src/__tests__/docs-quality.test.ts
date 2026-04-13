@@ -148,9 +148,15 @@ describe('docs quality guards', () => {
     expect(publishWorkflow).toContain('npm install --package-lock-only --ignore-scripts')
     expect(publishWorkflow).toContain('scripts/resolve-release-version.ts')
     expect(publishWorkflow).toContain('Partial publish detected')
+    expect(publishWorkflow).toContain('packages:')
+    expect(publishWorkflow).toContain('default: auto')
+    expect(publishWorkflow).toContain('Selective publish requires an explicit version')
+    expect(publishWorkflow).toContain('Skipping @pagesmith/site@${VERSION}; already published.')
+    expect(publishWorkflow).toContain('Check final published versions')
     expect(publishWorkflow).toContain('run: npm run validate')
     expect(publishWorkflow).toContain('run: npm run validate:diagrams')
-    expect(publishWorkflow).not.toContain("if: steps.published.outputs.core_exists != 'true'")
+    expect(publishWorkflow).toContain("if: steps.published.outputs.publish_core == 'true'")
+    expect(publishWorkflow).toContain("if: steps.final.outputs.all_published == 'true'")
   })
 
   it('keeps the hosted markdown guide aligned with the docs-package markdown surface', () => {

@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/docs",
-  "version": "0.7.0",
+  "version": "0.6.0",
   "description": "Convention-based documentation package built on @pagesmith/core and @pagesmith/site",
   "keywords": [
     "cms",
@@ -75,7 +75,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@pagesmith/core": "0.7.0",
+    "@pagesmith/core": "0.8.0",
     "@pagesmith/site": "0.7.0",
     "chokidar": "^5.0.0",
     "json5": "^2.2.3",
