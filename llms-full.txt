@@ -4,17 +4,18 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 
 ## Agent Onboarding (Read In This Order)
 
-1. Run `npx pagesmith init --ai` in the target project to scaffold assistant context and markdown guidelines.
+1. Run `npx pagesmith-docs init --ai` for docs projects, or `npx pagesmith-core ai --profile default` for core/site projects, to scaffold assistant context and markdown guidelines.
 2. For docs workflows, read `node_modules/@pagesmith/docs/ai-guidelines/usage.md`.
 3. For core/custom-site workflows, read `node_modules/@pagesmith/core/ai-guidelines/usage.md`.
 4. Use `node_modules/@pagesmith/docs/ai-guidelines/llms.txt` or `node_modules/@pagesmith/core/ai-guidelines/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
-5. If MCP is enabled, use `pagesmith mcp --stdio` (docs) and `@pagesmith/core/mcp` tools for collection-aware inspection and validation.
+5. If MCP is enabled, use `pagesmith-docs mcp --stdio` for docs projects and `@pagesmith/core/mcp` for collection-aware inspection and validation in custom core/site integrations.
 6. For upgrades across pre-1.0 versions, review `MIGRATING.md` before proposing refactors.
 
 ## Packages
 
-- `@pagesmith/core`: shared content/runtime layer with collections, loaders, markdown pipeline (built-in Pagesmith renderer on top of Shiki), validation, JSX runtime, CSS builder, `z` re-export, runtime CSS exports, and Vite plugins (`pagesmithContent`, `pagesmithSsg`)
-- `@pagesmith/docs`: convention-based documentation built on `@pagesmith/core` with the docs CLI, nav/sidebar generation from `content/`, bundled Pagefind search, a default theme, and fixed layout override slots
+- `@pagesmith/core`: headless content layer with collections, loaders, markdown pipeline, validation, assets helpers, `z` re-export, and the `pagesmithContent` Vite plugin
+- `@pagesmith/site`: site-building package with the `pagesmith-site` CLI, preset loading, JSX runtime, CSS/runtime bundles, SSG helpers, and shared assets helpers
+- `@pagesmith/docs`: convention-based documentation built on `@pagesmith/core` + `@pagesmith/site`, with nav/sidebar generation from `content/`, bundled Pagefind search, a default theme, listing pages, and layout/shell override slots
 
 ## Core APIs
 
@@ -37,15 +38,15 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 - `entry.clearRenderCache()` — force re-render
 
 ### Vite Plugins
-- `pagesmithContent(collections, options?)` — virtual module plugin for framework integration
+- `pagesmithContent(collections, options?)` from `@pagesmith/core/vite` — virtual module plugin for framework integration
   - Options: `collections`, `moduleId` (default: `virtual:content`), `configPath`, `dts`, `root`, `contentRoot`
   - Auto-generates TypeScript declarations
   - Hot reload on content/config changes
-- `pagesmithSsg(options?)` — SSG plugin with dev server, Pagefind, and asset handling
+- `pagesmithSsg(options?)` from `@pagesmith/site/vite` — SSG plugin with dev server, Pagefind, and asset handling
   - Options: `entry`, `pagefind` (default: true), `contentDirs`
   - SSR entry exports: `getRoutes(config) → string[]`, `render(url, config) → string`
   - Config provided: `SsgRenderConfig` with `base`, `root`, `cssPath`, `jsPath`, `searchEnabled`, `isDev`
-- `sharedAssetsPlugin()` — serves bundled fonts (Open Sans, JetBrains Mono)
+- `sharedAssetsPlugin()` from `@pagesmith/site/vite` — serves bundled fonts (Open Sans, JetBrains Mono)
 
 ### Markdown Pipeline
 - `processMarkdown(raw, config?, preExtracted?)` → `{ html, headings, frontmatter }`
@@ -111,25 +112,23 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - `validators` — custom content validators
 - `disableBuiltinValidators` — disable link, heading, code-block validators
 
-### JSX Runtime
-- `h(tag, props, ...children)` / `Fragment` / `HtmlString`
-- Configure: `"jsxImportSource": "@pagesmith/core"` in tsconfig.json
+### Site JSX And CSS
+- JSX runtime lives in `@pagesmith/site/jsx-runtime`
+- Configure: `"jsxImportSource": "@pagesmith/site"` in tsconfig.json when using the built-in JSX runtime
+- `buildCss(entryPath, { minify? })` lives in `@pagesmith/site/css`
 - Server-side only — no browser runtime
 
-### CSS Builder
-- `buildCss(entryPath, { minify? })` — LightningCSS bundler
-
-### Runtime Exports
-- `getRuntimeCSS()` / `getRuntimeJS()` — standalone tier (full site)
-- `getContentCSS()` / `getContentJS()` — content tier (markdown only)
-- `getViewportCSS()` / `getViewportCSSPath()` — responsive base
-- Path variants: `getRuntimeCSSPath()`, `getContentCSSPath()`
+### Site Package Pairing
+- Pair `@pagesmith/core` with `@pagesmith/site` for JSX, CSS/runtime bundles, the `pagesmith-site` CLI, and Vite SSG helpers
+- `@pagesmith/site/runtime` — `getRuntimeCSS()` / `getRuntimeJS()` for the standalone tier
+- `@pagesmith/site/runtime` — `getContentCSS()` / `getContentJS()` for the content tier
+- `@pagesmith/site/runtime` — `getViewportCSS()` / `getViewportCSSPath()` and other path helpers
 
 ### CSS Export Paths
-- `@pagesmith/core/css/content` — prose + inline code styles
-- `@pagesmith/core/css/standalone` — full layout + prose + TOC
-- `@pagesmith/core/css/viewport` — responsive viewport base
-- `@pagesmith/core/css/fonts` — bundled Open Sans + JetBrains Mono fonts
+- `@pagesmith/site/css/content` — prose + inline code styles
+- `@pagesmith/site/css/standalone` — full layout + prose + TOC
+- `@pagesmith/site/css/viewport` — responsive viewport base
+- `@pagesmith/site/css/fonts` — bundled Open Sans + JetBrains Mono fonts
 
 ### AI Assistant Artifacts
 - `installAiArtifacts(options)` — generate assistant files
@@ -149,9 +148,9 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - `resolveDocsConfig(configPath?, overrides?)` — resolve effective docs config with defaults and CLI/env overrides
 
 ### CLI
-- `pagesmith dev [--port] [--open] [--config] [--out-dir] [--base-path]`
-- `pagesmith build [--out-dir] [--base-path] [--config]`
-- `pagesmith preview [--port] [--config]`
+- `pagesmith-docs dev [--port] [--open] [--config] [--out-dir] [--base-path]`
+- `pagesmith-docs build [--out-dir] [--base-path] [--config]`
+- `pagesmith-docs preview [--port] [--config]`
 
 ### Docs Config (pagesmith.config.json5)
 - Site: `name`, `title`, `description`, `origin`, `language`
@@ -199,11 +198,12 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - `firstItem` — default first item
 
 ### Layout Overrides
-- Configure via `theme.layouts` in config: `{ home, page, notFound }`
-- TSX files using `@pagesmith/core/jsx-runtime`
+- Configure via `theme.layouts` in config: `{ home, page, listing, notFound }`
+- TSX files using `@pagesmith/site/jsx-runtime`
 - Props: `content`, `frontmatter`, `headings`, `slug`, `site`
 - Page layout gets: `sidebarSections`, `prev`, `next`
-- Export: `default` or named export matching layout name (DocPage, DocHome, DocNotFound)
+- Listing layout gets: `listingCards`
+- Export: `default` or named export matching layout name (DocPage, DocHome, DocListing, DocNotFound)
 
 ### Navigation
 - Top nav: auto-generated from top-level folders, override via `headerLinks` in root meta.json5
@@ -235,22 +235,25 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 
 | Import path | Purpose |
 |---|---|
-| `@pagesmith/core` | Main API barrel |
-| `@pagesmith/core/jsx-runtime` | h, Fragment, HtmlString |
-| `@pagesmith/core/jsx-dev-runtime` | JSX dev runtime |
+| `@pagesmith/core` | Main content-layer API barrel |
 | `@pagesmith/core/markdown` | processMarkdown |
-| `@pagesmith/core/css` | buildCss (LightningCSS) |
-| `@pagesmith/core/css/content` | Content CSS file |
-| `@pagesmith/core/css/standalone` | Standalone CSS file |
-| `@pagesmith/core/css/viewport` | Viewport CSS file |
-| `@pagesmith/core/css/fonts` | Bundled font faces |
 | `@pagesmith/core/schemas` | Zod schemas and types |
 | `@pagesmith/core/loaders` | Loader classes and registry |
 | `@pagesmith/core/assets` | Asset copying and hashing |
-| `@pagesmith/core/runtime` | Pre-built CSS/JS accessors |
 | `@pagesmith/core/ai` | AI assistant file installer |
-| `@pagesmith/core/vite` | Vite plugins (pagesmithContent, pagesmithSsg, sharedAssetsPlugin) |
+| `@pagesmith/core/vite` | Vite content plugin (`pagesmithContent`) |
 | `@pagesmith/core/create` | Project scaffolding |
+| `@pagesmith/site` | Site config helpers and preset types |
+| `@pagesmith/site/jsx-runtime` | h, Fragment, HtmlString |
+| `@pagesmith/site/jsx-dev-runtime` | JSX dev runtime |
+| `@pagesmith/site/css` | buildCss (LightningCSS) |
+| `@pagesmith/site/css/content` | Content CSS file |
+| `@pagesmith/site/css/standalone` | Standalone CSS file |
+| `@pagesmith/site/css/viewport` | Viewport CSS file |
+| `@pagesmith/site/css/fonts` | Bundled font faces |
+| `@pagesmith/site/runtime` | Pre-built CSS/JS accessors |
+| `@pagesmith/site/vite` | Vite SSG + asset plugins |
+| `@pagesmith/site/ssg-utils` | Shared SSG helpers |
 | `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig) |
 | `@pagesmith/docs/schemas` | Config, layout props, page data schemas |
 | `@pagesmith/docs/preset` | Docs preset |

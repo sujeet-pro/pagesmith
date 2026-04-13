@@ -33,6 +33,7 @@ export {
 } from './docs-config'
 export {
   DocsActionSchema,
+  DocsChromeSchema,
   DocsCodeExampleSchema,
   DocsFeatureSchema,
   DocsFrontmatterSchema,
@@ -44,6 +45,7 @@ export {
   DocsSectionMetaSchema,
   DocsSeriesSchema,
   type DocsAction,
+  type DocsChrome,
   type DocsCodeExample,
   type DocsFeature,
   type DocsFrontmatter,

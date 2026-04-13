@@ -8,65 +8,105 @@ order: 1
 
 Need ready-to-run prompt templates for setup and maintenance? See the [Prompts Cookbook](/guide/prompts-cookbook/).
 
-## Quick Start with AI (Recommended)
+## AI-First Starting Point
 
-Paste one of these prompts into your AI assistant (Claude, Codex, Gemini) and you'll have a working site in under 2 minutes:
+Pick the package that matches your goal, then give your agent the package-owned setup prompt instead of a vague install request.
 
-**Documentation site:**
+### `@pagesmith/docs`
 
-> Install `@pagesmith/docs` and run `npx pagesmith init --ai`. Accept defaults. Start the dev server with `npx pagesmith dev --open`.
+Use this when you want a docs site with config, conventions, navigation, search, and the default docs theme.
 
-**Custom site with a framework (React, Solid, Svelte, etc.):**
+Copy-paste prompt:
 
-> Install `@pagesmith/core` and set up a content layer with Vite plugins. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for the full setup guide, then scaffold a blog with a markdown collection.
+> Install `@pagesmith/docs`, then read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` and follow it exactly. Use `npx pagesmith-docs init --yes --ai` for bootstrap work, keep `pagesmith.config.json5` at the repo root, and explain any GitHub Pages `origin` or `basePath` decisions before finishing.
 
-That's it. The AI assistant will create the config, content structure, collections, and AI context files. Read on if you want to understand the details or decide manually.
+### `@pagesmith/site`
 
----
+Use this when you want a custom site on top of `@pagesmith/core` and also want the shared Pagesmith site layer: JSX runtime, CSS/runtime bundles, Vite SSG helpers, or a preset-driven `pagesmith-site` workflow.
 
-## Understanding the Two Packages
+Copy-paste prompt:
 
-Pagesmith offers two packages for different needs.
+> Install `@pagesmith/core` and `@pagesmith/site`, then read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and follow it exactly. Keep content collections on `@pagesmith/core`, use `@pagesmith/site` for the site layer only, and choose between a Vite SSG setup or a framework-hosted setup based on the repo.
 
-### @pagesmith/docs — Convention-based docs
+### `@pagesmith/core`
 
-Use this for documentation sites where configuration replaces custom code.
+Use this when the host app already owns routing, layout, or build tooling and only needs Pagesmith as a typed content layer plus markdown pipeline.
 
-**You get:** Navigation from folder structure, Pagefind search, dark mode, responsive layout, and a polished default theme -- all from a single `pagesmith.config.json5` file.
+Copy-paste prompt:
 
-**Best for:** API docs, project documentation, knowledge bases, guides.
+> Install `@pagesmith/core`, then read `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` and follow it exactly. Keep the work focused on collections, schemas, `createContentLayer()`, and either `entry.render()` or `pagesmithContent` for Vite.
 
-**AI setup:** `npx pagesmith init --ai` generates everything including Claude/Codex/Gemini context files and docs maintenance skills.
+## Package Roles
 
--> [Manual setup guide](/guide/docs-getting-started/)
+### `@pagesmith/core` — Content Layer
 
-### @pagesmith/core — Full control with any framework
+Owns:
 
-Use this for custom sites with schema-validated collections, a rich markdown pipeline, and Vite plugins.
+- collection definitions and schemas
+- filesystem loading
+- markdown rendering and validators
+- `pagesmithContent` for Vite
 
-**You get:** Full control over layout, styling, and rendering. Use React, Solid, Svelte, EJS, Handlebars, or the built-in JSX runtime.
+Best for:
 
-**Best for:** Blogs, portfolios, marketing sites, custom documentation.
+- Next.js or framework-hosted markdown
+- custom SSR apps
+- projects that want typed content data without a Pagesmith-owned site shell
 
-**AI setup:** Ask your agent to read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for step-by-step scaffolding.
+Manual guide: [Getting Started](/guide/getting-started/)
 
--> [Manual setup guide](/guide/getting-started/)
+### `@pagesmith/site` — Site Toolkit
+
+Owns:
+
+- `pagesmith-site`
+- `@pagesmith/site/jsx-runtime`
+- `@pagesmith/site/css/*`
+- `@pagesmith/site/runtime/*`
+- `@pagesmith/site/vite`
+
+Best for:
+
+- custom static sites on top of core
+- projects that want the shared Pagesmith presentation layer
+- preset-driven site workflows
+
+### `@pagesmith/docs` — Docs Preset
+
+Owns:
+
+- `pagesmith-docs`
+- `pagesmith.config.json5`
+- docs navigation from folders and `meta.json5`
+- built-in Pagefind search
+- docs layouts, schema files, and docs MCP
+
+Best for:
+
+- documentation sites
+- product guides
+- API references
+- knowledge bases
+
+Manual guide: [Docs Getting Started](/guide/docs-getting-started/)
 
 ## Decision Matrix
 
-| Question | @pagesmith/docs | @pagesmith/core |
-|----------|----------------|-----------------|
-| Do I need custom layouts? | Optional overrides | Full control |
-| Do I need a specific framework? | Not needed | React, Solid, Svelte, etc. |
-| How fast to get started? | 1 command | ~30 minutes manual, ~2 min with AI |
-| Search built in? | Yes (Pagefind) | Add it yourself |
-| Navigation from folders? | Automatic | Build your own |
-| MCP server included? | Yes | Yes |
+| Question | `@pagesmith/core` | `@pagesmith/site` | `@pagesmith/docs` |
+|---|---|---|---|
+| Do I already have my own router/build? | Yes | Maybe | Usually no |
+| Do I want Pagesmith to own the site shell? | No | Partly | Yes |
+| Do I need built-in docs navigation and search? | No | No | Yes |
+| Do I want shared Pagesmith CSS/runtime and JSX? | Optional via site | Yes | Included |
+| Canonical CLI | `pagesmith-core` | `pagesmith-site` | `pagesmith-docs` |
+| Fastest AI entrypoint | `setup-core.md` | `setup-site.md` | `setup-docs.md` |
 
-**Start with `@pagesmith/docs`** if you're unsure -- you can always drop down to `@pagesmith/core` later for more control.
+Start with `@pagesmith/docs` when the project is truly docs-first. Start with `@pagesmith/core` when the host app already owns the shell. Add `@pagesmith/site` only when that core-based app also wants the shared Pagesmith site layer.
 
-## What to Read Next
+## What To Read Next
 
-- [AI Assistants](/guide/ai-assistants/) -- install AI context files and skills
-- [Prompts Cookbook](/guide/prompts-cookbook/) -- ready-to-use prompts for common tasks
-- [MCP Setup](/guide/mcp-setup/) -- connect AI assistants to your docs via MCP
+- [AI Assistants](/guide/ai-assistants/) for package-owned AI setup flows
+- [Prompts Cookbook](/guide/prompts-cookbook/) for copy-paste prompts
+- [Getting Started](/guide/getting-started/) for core-first integrations
+- [Docs Getting Started](/guide/docs-getting-started/) for docs-first integrations
+- [Next.js (App Router)](/guide/framework-nextjs/) for a framework-hosted core example

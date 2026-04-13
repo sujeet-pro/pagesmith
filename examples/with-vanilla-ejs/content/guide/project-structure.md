@@ -73,7 +73,7 @@ The home page template renders a hero section with feature cards and guide listi
 
 ### `client.js`
 
-Vite client entry referenced from the built `index.html` / injected `jsPath`. Imports `src/theme.css` and `@pagesmith/core/runtime/content` for progressive markdown-related behavior, plus a small viewport tweak for Pagefind triggers. **Not** where routing or EJS runs — keep SSR logic in `entry-server.tsx`.
+Vite client entry referenced from the built `index.html` / injected `jsPath`. Imports `src/theme.css` and `@pagesmith/site/runtime/content` for progressive markdown-related behavior, plus a small viewport tweak for Pagefind triggers. **Not** where routing or EJS runs — keep SSR logic in `entry-server.tsx`.
 
 ### `src/entry-server.tsx`
 

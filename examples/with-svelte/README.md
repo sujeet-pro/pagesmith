@@ -1,38 +1,42 @@
 # Pagesmith + Svelte
 
-Best-practice **@pagesmith/core + Svelte** static site: collections and virtual modules drive content; `svelte/server` renders HTML at build time; `renderDocumentShell` wraps each page (FOUC script, assets, optional Pagefind Component UI); `client.js` + `src/runtime.ts` add small progressive enhancements without shipping a client Svelte runtime.
+Svelte-based static site using `@pagesmith/core` for collections and markdown, plus `@pagesmith/site` for Vite SSG, shared assets, and the shipped content runtime.
 
-## Quick start
+## AI-First Starting Point
+
+To recreate this shape in another repository, install `@pagesmith/core`, `@pagesmith/site`, and `svelte`, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`.
+
+Tell the agent to:
+
+- define collections in `content.config.ts`
+- expose them through `pagesmithContent` from `@pagesmith/core/vite`
+- wire `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite`
+- keep Svelte responsible for the page and layout components while Pagesmith owns content and SSG
+
+## Quick Start
 
 ```bash
 vp install
 vp run dev:eg:svelte
 ```
 
-## Integration flow (read the guides)
+## Key Files
 
-| Step | Where |
-|------|--------|
-| Zod-backed collections | `content.config.ts` |
-| Virtual modules (`virtual:content/*`) | `pagesmithContent` in `vite.config.ts`; imports in `src/site.ts` |
-| Routes + HTML per URL | `pagesmithSsg` → `src/entry-server.ts` (`getRoutes`, `render`) |
-| Svelte layouts | `src/App.svelte`, `src/components/*.svelte` |
-| Document shell (Pagefind modal lives here, not duplicated in Svelte) | `renderDocumentShell` in `entry-server.ts` |
-| Browser split | `client.js` (CSS + `@pagesmith/core/runtime/content` + `runtime.ts`) |
+- `content.config.ts` defines the `guide` and `pages` collections
+- `vite.config.ts` wires `pagesmithContent`, `pagesmithSsg`, and shared assets
+- `src/entry-server.ts` implements `getRoutes()` and `render()` for the SSG build
+- `src/site.ts` and the Svelte components render the page body
+- `client.js` and `src/runtime.ts` add the shared content runtime plus small site enhancements
+- `content/guide/` includes the prose walkthrough and `guide/kitchen-sink.md`
+- `llms.txt` is the compact AI map for this example
 
-Agent-oriented overview: `llms.txt` in this directory.
+## What This Example Demonstrates
 
-## Content layout
+- Vite virtual content modules with `virtual:content/*`
+- Svelte SSR without handing content ownership to Svelte
+- static output plus Pagefind search
+- the shared Pagesmith theme/runtime surfaces inside a Svelte site shell
 
-| Directory | Collection | Role |
-|-----------|------------|------|
-| `content/guide/` | `guide` | How this example is wired, including `guide/kitchen-sink.md` for markdown regression |
-| `content/pages/` | `pages` | Standalone pages |
+## Live Demo
 
-## Theme
-
-Header dropdown and footer controls persist preferences under `localStorage` (`pagesmith-theme`); the shell’s inline script reapplies them before paint (see `@pagesmith/core` `renderDocumentShell`).
-
-## Live demo
-
-https://projects.sujeet.pro/pagesmith/examples/svelte
+[View live example](https://projects.sujeet.pro/pagesmith/examples/svelte)

@@ -1,51 +1,40 @@
 # Pagesmith Doc Site Example
 
-A documentation site built entirely with `@pagesmith/docs` and configured through `pagesmith.config.json5`. Demonstrates zero-config docs with convention-based navigation, built-in Pagefind search, and optional layout overrides.
+A config-driven documentation site built with `@pagesmith/docs`. This is the reference example for the package-owned `pagesmith-docs` CLI, root `pagesmith.config.json5`, markdown content under `content/`, and optional layout overrides under `theme/layouts/`.
+
+## AI-First Starting Point
+
+To recreate this shape in another repository, install `@pagesmith/docs` and start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`.
+
+That prompt already covers:
+
+- `pagesmith.config.json5` at the repo root
+- GitHub Pages-style `origin` and `basePath` defaults
+- starter `guide/` and `reference/` structure
+- schema paths under `node_modules/@pagesmith/docs/schemas/`
+- `pagesmith-docs init --yes --ai` for bootstrap work
 
 ## Quick Start
 
 ```bash
-# From the monorepo root
 vp install
 vp run dev:eg:doc-site
 ```
 
-## Architecture
+## Key Files
 
-Content lives in `content/` with a single top-level `guide/` section. The markdown regression surface also lives there as `guide/kitchen-sink.md`, so there is one obvious page to check rendered markdown output. No `vite.config.ts` or `content.config.ts` needed. The `pagesmith.config.json5` controls everything: site metadata, grouped footer links, copyright, search, sidebar behavior, edit links, and layout overrides.
+- `pagesmith.config.json5` is the source of truth for site metadata, search, output paths, footer links, and layout overrides
+- `content/` contains the markdown site, including `guide/kitchen-sink.md` as the docs markdown regression page
+- `theme/layouts/` shows how to override `DocHome` and `DocPage` without breaking the default docs contract
+- `llms.txt` summarizes the docs-package layout and command surface for AI tools
 
-Custom layout overrides in `theme/layouts/` use the same docs HTML shell and component structure as the package defaults, so the example stays aligned with current `@pagesmith/docs` behavior while still showing how to own the layout files locally.
+## What This Example Demonstrates
 
-## Content
+- convention-based docs navigation from folders plus `meta.json5`
+- built-in Pagefind search
+- theme controls, footer controls, and persisted reader preferences
+- local layout ownership while staying aligned with the package defaults
 
-| Directory | Section | Description |
-|-----------|---------|-------------|
-| `content/README.md` | Home | Landing page frontmatter for hero, install, package cards, and code example |
-| `content/guide/` | Guide | How @pagesmith/docs works |
-| `content/guide/kitchen-sink.md` | Guide | Single markdown regression page for this example |
-
-## Theme System
-
-This example uses the Pagesmith theme system provided by `@pagesmith/docs`, with layout overrides keeping the package theme behavior intact:
-
-- **Header theme dropdown** — Sun icon button with Appearance (Auto/Light/Dark), Theme (Paper/High Contrast), and Text Size (Small/Default/Large) controls
-- **Footer theme controls** — Segmented button groups for Appearance, Theme, and Text Size
-- **FOUC prevention** — The shared docs HTML shell restores `colorScheme`, `theme`, and `textSize` from `localStorage` before CSS paints
-- **Theme persistence** — All preferences stored in `localStorage` under `pagesmith-theme`
-
-### CSS Theme Features
-
-CSS theme support comes from `@pagesmith/docs` through the docs build pipeline:
-
-- Color scheme classes: `.color-scheme-auto`, `.color-scheme-light`, `.color-scheme-dark`
-- Theme variants: `.theme-paper` (warm, low-contrast), `.theme-high-contrast` (WCAG AAA)
-- Text size scaling: `html[data-text-size="small|base|large"]`
-- All design tokens use `light-dark()` for automatic light/dark mode support
-
-## Agent-oriented notes
-
-`llms.txt` in this folder summarizes the docs-package layout, commands, and boundaries for assistants (for example: JSON5 config on disk rather than a TypeScript `defineDocsConfig` indirection).
-
-## Deployed
+## Live Demo
 
 [View live example](https://projects.sujeet.pro/pagesmith/examples/doc-site)

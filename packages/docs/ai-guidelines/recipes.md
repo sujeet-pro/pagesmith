@@ -8,7 +8,7 @@ Short procedural recipes for common docs workflows. For the full reference, see 
 2. Install `@pagesmith/docs`.
 3. Detect the repo owner/name and default to GitHub Pages style hosting (`origin` from `https://<owner>.github.io`, `basePath` as `/<repo-name>`), following redirects when possible.
 4. Inspect the repo for an existing docs-like directory and confirm the chosen docs folder with the user before reusing it.
-5. Prefer `npx pagesmith init --yes --content-dir <dir> --base-path <path> --origin <origin> --ai` once the target folder is known. If init is not a fit, perform the same setup manually.
+5. Prefer `npx pagesmith-docs init --yes --content-dir <dir> --base-path <path> --origin <origin> --ai` once the target folder is known. If init is not a fit, perform the same setup manually.
 6. Keep `pagesmith.config.json5` at the repo root and point `contentDir` at the chosen docs folder.
 7. Add starter `guide/` and `reference/` sections with `meta.json5` plus `README.md` pages.
 8. Add `docs:dev`, `docs:build`, and `docs:preview` scripts in the root `package.json`.
@@ -50,7 +50,7 @@ Short procedural recipes for common docs workflows. For the full reference, see 
 ## Apply layout overrides
 
 1. Add layout files in your theme directory.
-2. Map them through `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.notFound`.
+2. Map them through `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, `theme.layouts.notFound`.
 3. Keep props contract compatible with docs package expectations.
 
 **Read:** `node_modules/@pagesmith/docs/REFERENCE.md` (Layout Overrides, Layout Props)
@@ -71,7 +71,7 @@ Or copy `node_modules/@pagesmith/docs/ai-guidelines/AGENTS.md.template` as a sta
 
 ## Connect MCP for docs-aware AI workflows
 
-1. Register command: `pagesmith mcp --stdio`.
+1. Register command: `pagesmith-docs mcp --stdio`.
 2. Keep config at the default `pagesmith.config.json5` or pass `--config`.
 3. Use `docs_list_pages` and `docs_get_page` to drive docs updates from current content structure.
 
@@ -82,8 +82,8 @@ Or copy `node_modules/@pagesmith/docs/ai-guidelines/AGENTS.md.template` as a sta
 1. Read `node_modules/@pagesmith/docs/ai-guidelines/migration.md` and `node_modules/@pagesmith/docs/ai-guidelines/changelog-notes.md`.
 2. Upgrade `@pagesmith/docs` with the repository's existing package manager.
 3. Keep the current `pagesmith.config.json5` location and `contentDir` unless a schema or config issue requires a change.
-4. Refresh AI pointers and artifacts if they are missing or stale. Prefer `npx pagesmith init --ai --no-llms` with explicit existing values when that is less invasive than manual edits.
-5. Run `npx pagesmith build` and optionally `npx pagesmith dev`.
+4. Refresh AI pointers and artifacts if they are missing or stale. Prefer `npx pagesmith-docs init --ai --no-llms` with explicit existing values when that is less invasive than manual edits.
+5. Run `npx pagesmith-docs build` and optionally `npx pagesmith-docs dev`.
 6. Adopt any relevant new features or config fields only after the existing docs build is green again.
 
 **Read:** `node_modules/@pagesmith/docs/ai-guidelines/migration.md`, `node_modules/@pagesmith/docs/ai-guidelines/changelog-notes.md`, `node_modules/@pagesmith/docs/REFERENCE.md`

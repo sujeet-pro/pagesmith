@@ -69,6 +69,6 @@ Everything else is normal Vite (client entry, CSS, TypeScript).
 ## Build-time React vs browser bundle
 
 - **Build** — React + **`renderToStaticMarkup`** turn JSX into HTML strings. **`renderDocumentShell`** wraps them in a full document (meta, styles, optional Pagefind shell, **`client.js`** script).
-- **Browser** — **`client.js`** loads **`theme.css`**, **`@pagesmith/core/runtime/content`** (markdown/code presentation aligned with the server HTML), then **`src/runtime.ts`** for TOC, sidebar, and theme UI. There is no React hydration step.
+- **Browser** — **`client.js`** loads **`theme.css`**, **`@pagesmith/site/runtime/content`** (markdown/code presentation aligned with the server HTML), then **`src/runtime.ts`** for TOC, sidebar, and theme UI. There is no React hydration step.
 
 See **Layouts & rendering** and **Search integration** for **`data-pagefind-body`** placement and Pagefind behavior.

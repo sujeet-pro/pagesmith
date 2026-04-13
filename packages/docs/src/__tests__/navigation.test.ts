@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vite-plus/test'
-import { getPrevNext, buildSiteModel, getSitePayload } from '../navigation.js'
+import {
+  getDocsListingCards,
+  getDocsListingData,
+  getPrevNext,
+  buildSiteModel,
+  getSitePayload,
+} from '../navigation.js'
 import type { DocsPage, SidebarSection } from '../content.js'
 import type { ResolvedDocsConfig } from '../config.js'
 
@@ -866,5 +872,109 @@ describe('getSitePayload', () => {
     const payload = getSitePayload(mockConfig, model)
 
     expect(payload.footerText).toBeUndefined()
+  })
+})
+
+describe('getDocsListingCards', () => {
+  it('excludes the section landing page and returns sorted child cards', () => {
+    const pages: DocsPage[] = [
+      mockPage({
+        title: 'Guide',
+        routePath: '/guide',
+        contentSlug: 'guide',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Zebra',
+        routePath: '/guide/zebra',
+        contentSlug: 'guide/zebra',
+        section: 'guide',
+        frontmatter: { description: 'Z', order: 2 },
+      }),
+      mockPage({
+        title: 'Alpha',
+        routePath: '/guide/alpha',
+        contentSlug: 'guide/alpha',
+        section: 'guide',
+        frontmatter: { description: 'A', order: 1 },
+      }),
+    ]
+
+    const cards = getDocsListingCards('guide', pages, '')
+    expect(cards).toHaveLength(2)
+    expect(cards[0]!.title).toBe('Alpha')
+    expect(cards[0]!.path).toBe('/guide/alpha')
+    expect(cards[0]!.description).toBe('A')
+    expect(cards[1]!.title).toBe('Zebra')
+  })
+
+  it('groups listing cards from section series and prefixes basePath paths', () => {
+    const pages: DocsPage[] = [
+      mockPage({
+        title: 'Guide',
+        routePath: '/guide',
+        contentSlug: 'guide',
+        section: 'guide',
+      }),
+      mockPage({
+        title: 'Intro',
+        routePath: '/guide/intro',
+        contentSlug: 'guide/intro',
+        section: 'guide',
+        frontmatter: {
+          description: 'Start here',
+          publishedDate: '2024-01-10',
+        },
+      }),
+      mockPage({
+        title: 'Advanced',
+        routePath: '/guide/advanced',
+        contentSlug: 'guide/advanced',
+        section: 'guide',
+        frontmatter: {
+          description: 'Go deeper',
+          publishedDate: '2024-01-20',
+        },
+      }),
+      mockPage({
+        title: 'Appendix',
+        routePath: '/guide/appendix',
+        contentSlug: 'guide/appendix',
+        section: 'guide',
+      }),
+    ]
+
+    const listing = getDocsListingData('guide', pages, '/docs', {
+      series: [
+        {
+          slug: 'basics',
+          displayName: 'Basics',
+          description: 'Core concepts',
+          articles: ['intro', 'advanced'],
+        },
+      ],
+    })
+
+    expect(listing.totalItems).toBe(3)
+    expect(listing.headings).toEqual([
+      { depth: 2, text: 'Basics', slug: 'basics' },
+      { depth: 2, text: 'Other', slug: 'other' },
+    ])
+    expect(listing.groups).toHaveLength(2)
+    expect(listing.groups[0]).toMatchObject({
+      slug: 'basics',
+      title: 'Basics',
+      description: 'Core concepts',
+    })
+    expect(listing.groups[0]!.cards.map((card) => card.title)).toEqual(['Intro', 'Advanced'])
+    expect(listing.groups[0]!.cards[0]!.path).toBe('/docs/guide/intro')
+    expect(listing.groups[0]!.cards[0]!.publishedDate).toBe('2024-01-10T00:00:00.000Z')
+    expect(listing.groups[1]!.title).toBe('Other')
+    expect(listing.groups[1]!.cards.map((card) => card.title)).toEqual(['Appendix'])
+
+    const cards = getDocsListingCards('guide', pages, '/docs', {
+      series: [{ slug: 'basics', displayName: 'Basics', articles: ['intro', 'advanced'] }],
+    })
+    expect(cards.map((card) => card.title)).toEqual(['Intro', 'Advanced', 'Appendix'])
   })
 })

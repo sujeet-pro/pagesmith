@@ -5,22 +5,24 @@ Link this file from your project's CLAUDE.md or AGENTS.md to give AI assistants 
 ```markdown
 <!-- In your CLAUDE.md or AGENTS.md -->
 For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
-For @pagesmith/core usage and prompts, read: node_modules/@pagesmith/core/ai-guidelines/usage.md
+For @pagesmith/core setup and follow-up prompts, read: node_modules/@pagesmith/core/ai-guidelines/setup-core.md and node_modules/@pagesmith/core/ai-guidelines/usage.md
 ```
 
 ---
 
 ## Overview
 
-`@pagesmith/core` is a file-based content toolkit for Vite. It provides schema-validated content collections, lazy markdown rendering with a built-in Shiki-backed code renderer, a server-side JSX runtime, CSS bundles, and Vite plugins for framework integrations.
+`@pagesmith/core` is the Pagesmith headless content layer. It provides schema-validated content collections, lazy markdown rendering with a built-in Shiki-backed code renderer, validation, loaders, schemas, assets helpers, and the Vite content plugin.
 
 ESM only (`"type": "module"`). Node 24+.
 
 ## Adoption Paths
 
-- AI-first bootstrap or retrofit: `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- AI-first bootstrap or retrofit: `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
+- Follow-up usage patterns and prompts: `node_modules/@pagesmith/core/ai-guidelines/usage.md`
 - Upgrade an existing integration: `node_modules/@pagesmith/core/ai-guidelines/migration.md`
-- Use `@pagesmith/docs` instead when you need the `pagesmith` CLI, `pagesmith.config.json5`, built-in docs navigation, or Pagefind-powered search
+- Pair `@pagesmith/core` with `@pagesmith/site` when you need the Pagesmith JSX runtime, CSS/runtime bundles, Vite SSG helpers, or the `pagesmith-site` CLI
+- Use `@pagesmith/docs` instead when you want the opinionated docs preset on top of both packages
 
 ## Content Layer API
 
@@ -159,14 +161,12 @@ const collections = defineCollections({
 Virtual module plugin that exposes collections as importable modules:
 
 ```ts
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent } from '@pagesmith/core/vite'
 import collections from './content.config'
 
 export default defineConfig({
   plugins: [
-    sharedAssetsPlugin(),
     pagesmithContent({ collections }),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
   ],
 })
 ```
@@ -192,20 +192,14 @@ import posts from 'virtual:content/posts'
 // Data loaders: { id, contentSlug, data }[]
 ```
 
-### pagesmithSsg
+For site-building concerns, move to `@pagesmith/site`:
 
-Static site generation plugin. Your SSR entry must export:
-
-```ts
-export function getRoutes(config: SsgRenderConfig): string[]
-export function render(url: string, config: SsgRenderConfig): string | Promise<string>
-```
-
-`SsgRenderConfig` provides: `base`, `root`, `cssPath`, `jsPath`, `searchEnabled`, `isDev`.
-
-### sharedAssetsPlugin
-
-Serves shared font assets (Open Sans, JetBrains Mono) bundled with `@pagesmith/core`.
+- `pagesmithSsg`, `sharedAssetsPlugin`, `prerenderRoutes`
+- `SsgRenderConfig`
+- `@pagesmith/site/jsx-runtime`
+- `@pagesmith/site/css/*`
+- `@pagesmith/site/runtime/*`
+- `@pagesmith/site/ssg-utils`
 
 ## Markdown Pipeline
 
@@ -262,70 +256,29 @@ type MarkdownConfig = {
 - **headingValidator** — enforces single h1, sequential heading depth
 - **codeBlockValidator** — warns on missing language, unknown meta properties
 
-## JSX Runtime
+## Build A Site On Top Of Core
 
-Configure tsconfig: `{ "jsx": "react-jsx", "jsxImportSource": "@pagesmith/core" }`
+`@pagesmith/core` intentionally stops at the content boundary.
 
-```tsx
-import { h, Fragment, HtmlString } from '@pagesmith/core/jsx-runtime'
+If your app already owns routing and build tooling, use `createContentLayer()` plus `entry.render()` directly. This is the recommended shape for framework hosts such as Next.js or custom SSR apps.
 
-function Page({ title, content }: { title: string; content: string }) {
-  return (
-    <html lang="en">
-      <head><title>{title}</title></head>
-      <body>
-        <main innerHTML={new HtmlString(content)} />
-      </body>
-    </html>
-  )
-}
-```
+Use `@pagesmith/site` for:
 
-- `h()` returns `HtmlString` — use `String(result)` or `.value` for raw HTML
-- Use `innerHTML` prop to inject pre-rendered HTML without escaping
-- `Fragment` renders children or raw `innerHTML` without a wrapper element
+- the Pagesmith JSX runtime
+- CSS bundles and CSS builder
+- browser runtime helpers such as TOC highlighting and theme/font-size persistence
+- Vite SSG helpers
+- shared SSG utilities
+- the `pagesmith-site` CLI and preset loading
 
-## CSS Exports
+For framework-hosted apps that already own the shell, `@pagesmith/site` can stay limited to `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content`.
 
-
-| Import Path                      | Contents                           |
-| -------------------------------- | ---------------------------------- |
-| `@pagesmith/core/css/content`    | Prose typography + code block styling |
-| `@pagesmith/core/css/standalone` | Full layout + prose + TOC + code block styling |
-| `@pagesmith/core/css/viewport`   | Responsive viewport base           |
-| `@pagesmith/core/css/fonts`      | Bundled Open Sans + JetBrains Mono |
-
-
-Code block styling is bundled in the core CSS exports. Highlight token colors and per-block theme vars are applied inline, while frame chrome, tabs, and layout ship in the shared CSS files.
-
-## Theme System
-
-Two orthogonal CSS class axes on `<html>`:
-
-- **Color scheme**: `color-scheme-auto` (OS preference) | `color-scheme-light` | `color-scheme-dark`
-- **Theme**: `theme-paper` (warm, low-contrast) | `theme-high-contrast` (WCAG AAA-friendly)
-
-Server default: `<html class="color-scheme-auto theme-paper">`. An inline FOUC-prevention script reads `localStorage('pagesmith-theme')` and swaps classes before first paint.
-
-Color scheme classes set the CSS `color-scheme` property, which controls `light-dark()` token resolution. Theme classes override CSS custom properties with variant-specific `light-dark()` pairs.
-
-Image switching uses class-based rules instead of `@media (prefers-color-scheme)`:
-- `.only-light` / `.only-dark` — show/hide images per scheme
-- `.show-on-light` / `.show-on-dark` — generic visibility helpers
-- `.invert-on-dark` — applies `filter: invert(1)` in dark mode
-
-## Runtime Exports
+Typical split:
 
 ```ts
-import { getRuntimeCSS, getRuntimeJS, getContentCSS, getContentJS } from '@pagesmith/core/runtime'
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 ```
-
-Two tiers:
-
-- **Standalone** (`getRuntimeCSS/JS`) — full site with TOC highlight
-- **Content** (`getContentCSS/JS`) — markdown rendering only
-
-Load `@pagesmith/core/runtime/content` when you want Pagesmith's built-in code tabs, copy button behavior, and collapsed-line toggles in the browser without wiring the pieces manually.
 
 ## Frontmatter Schemas
 
@@ -342,27 +295,15 @@ Load `@pagesmith/core/runtime/content` when you want Pagesmith's built-in code t
 
 | Import Path                      | Purpose                                                  |
 | -------------------------------- | -------------------------------------------------------- |
-| `@pagesmith/core`                | Main API (defineCollection, createContentLayer, z, etc.) |
-| `@pagesmith/core/jsx-runtime`    | h, Fragment, HtmlString                                  |
-| `@pagesmith/core/markdown`       | processMarkdown                                          |
-| `@pagesmith/core/css`            | buildCss (LightningCSS)                                  |
-| `@pagesmith/core/css/content`    | Content CSS file                                         |
-| `@pagesmith/core/css/code-block` | Block code CSS file                                      |
-| `@pagesmith/core/css/code-inline` | Inline code CSS file                                     |
-| `@pagesmith/core/css/standalone` | Standalone CSS file                                      |
-| `@pagesmith/core/css/viewport`   | Viewport CSS file                                        |
-| `@pagesmith/core/css/fonts`      | Bundled font faces                                       |
-| `@pagesmith/core/schemas`        | Zod schemas and types                                    |
-| `@pagesmith/core/loaders`        | Loader classes and registry                              |
-| `@pagesmith/core/assets`         | Asset copying and hashing                                |
-| `@pagesmith/core/runtime`        | Pre-built CSS/JS accessors                               |
-| `@pagesmith/core/runtime/content` | Browser runtime for code tabs, copy, and collapsed lines |
-| `@pagesmith/core/runtime/standalone` | Browser runtime for content interactivity + TOC highlight |
-| `@pagesmith/core/vite`           | Vite plugins                                             |
-| `@pagesmith/core/ssg-utils`      | Shared SSG utility helpers                               |
-| `@pagesmith/core/ai`             | AI assistant artifact generator                          |
-| `@pagesmith/core/create`         | Project scaffolding                                      |
-| `@pagesmith/core/mcp`            | Core MCP server and helper utilities                     |
+| `@pagesmith/core`         | Main API (defineCollection, createContentLayer, z, etc.) |
+| `@pagesmith/core/markdown` | `processMarkdown` |
+| `@pagesmith/core/schemas` | Zod schemas and types |
+| `@pagesmith/core/loaders` | Loader classes and registry |
+| `@pagesmith/core/assets`  | Asset copying and hashing |
+| `@pagesmith/core/vite`    | Vite content plugin (`pagesmithContent`) |
+| `@pagesmith/core/ai`      | AI assistant artifact generator |
+| `@pagesmith/core/create`  | Project scaffolding |
+| `@pagesmith/core/mcp`     | Core MCP server and helper utilities |
 
 
 ## Key Rules
@@ -371,16 +312,18 @@ Load `@pagesmith/core/runtime/content` when you want Pagesmith's built-in code t
 - Prefer folder-based entries (`guide/getting-started/README.md`) when content references sibling assets
 - The `render()` result is cached — call `clearRenderCache()` to force re-render
 - `getCollection()` results are cached — use `invalidate*()` methods for cache busting
-- Runtime JS handles TOC highlighting and Pagesmith code-block interactivity. Load `@pagesmith/core/runtime/content` or the runtime JS accessors instead of injecting ad-hoc inline scripts.
 - All exports are named (no default exports from core)
-- Code block styling comes from the shipped core CSS bundles — include `@pagesmith/core/css/content` or `@pagesmith/core/css/standalone` for rendered markdown
+- Site-building concerns such as JSX, CSS, runtime JS, and SSG belong in `@pagesmith/site`
 
 ## Related Docs
 
+- **Setup prompt:** `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
 - **Agent prompts and rules:** `node_modules/@pagesmith/core/ai-guidelines/usage.md`
 - **Step-by-step recipes:** `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
 - **Error catalog:** `node_modules/@pagesmith/core/ai-guidelines/errors.md`
 - **User README:** `node_modules/@pagesmith/core/README.md`
+- **Site toolkit reference:** `node_modules/@pagesmith/site/REFERENCE.md`
+- **Site toolkit README:** `node_modules/@pagesmith/site/README.md`
 - **Docs package reference:** `node_modules/@pagesmith/docs/REFERENCE.md`
 - **Docs package README:** `node_modules/@pagesmith/docs/README.md`
 

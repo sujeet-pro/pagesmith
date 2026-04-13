@@ -47,7 +47,11 @@ export const templates: Template[] = [
     source: 'local',
     path: 'templates/docs',
     dependency: '@pagesmith/docs',
-    scripts: { dev: 'pagesmith dev', build: 'pagesmith build', preview: 'pagesmith preview' },
+    scripts: {
+      dev: 'pagesmith-docs dev',
+      build: 'pagesmith-docs build',
+      preview: 'pagesmith-docs preview',
+    },
   },
   {
     name: 'blog',

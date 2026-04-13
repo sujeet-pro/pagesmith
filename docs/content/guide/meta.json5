@@ -45,6 +45,7 @@
       description: 'Self-contained example sites built on the same Pagesmith content model.',
       articles: [
         'frameworks',
+        'framework-nextjs',
         'framework-vite-apps',
         'framework-template-engines',
         'framework-doc-site',

@@ -33,7 +33,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 
 ## Document shell (`renderDocumentShell`)
 
-The final HTML string is **not** only Svelte output. `renderDocumentShell` from `@pagesmith/core/ssg-utils` wraps `bodyHtml` with:
+The final HTML string is **not** only Svelte output. `renderDocumentShell` from `@pagesmith/site/ssg-utils` wraps `bodyHtml` with:
 
 - `<html>` classes, charset/viewport, FOUC-prevention inline script for saved theme prefs
 - Linked CSS (site bundle, fonts, optional Pagefind Component UI stylesheet)
@@ -58,7 +58,7 @@ So: **Svelte owns the primary layout markup** that becomes `bodyHtml`, while **c
 | Surface | Responsibility |
 |---------|------------------|
 | `entry-server.ts` + `.svelte` | All HTML strings for each URL. |
-| `client.js` | Vite browser entry: CSS import order, `@pagesmith/core/runtime/content`, then `runtime.ts`. |
+| `client.js` | Vite browser entry: CSS import order, `@pagesmith/site/runtime/content`, then `runtime.ts`. |
 | `src/runtime.ts` | Vanilla progressive enhancement: TOC active state, sidebar `<dialog>`, theme controls, compact search trigger. |
 
 ## Build output path

@@ -71,6 +71,7 @@ export const DocsThemeConfigSchema = z.object({
   socialImage: z.string().optional(),
   defaultColorScheme: z.enum(['auto', 'light', 'dark']).optional(),
   defaultTheme: z.enum(['paper', 'high-contrast']).optional(),
+  defaultTextSize: z.enum(['small', 'base', 'large']).optional(),
 })
 
 export type DocsThemeConfig = z.infer<typeof DocsThemeConfigSchema>
@@ -155,6 +156,8 @@ export const DocsMarkdownConfigSchema = z
 export type DocsMarkdownConfig = z.infer<typeof DocsMarkdownConfigSchema>
 
 export const DocsConfigSchema = z.object({
+  preset: z.string().optional(),
+  presets: z.array(z.string()).optional(),
   name: z.string().optional(),
   title: z.string().optional(),
   description: z.string().optional(),

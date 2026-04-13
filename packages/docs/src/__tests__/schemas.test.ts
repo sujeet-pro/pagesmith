@@ -77,6 +77,23 @@ describe('docs schemas', () => {
     expect(result.order).toBe(2)
   })
 
+  it('parses layout and chrome frontmatter', () => {
+    const result = DocsPageFrontmatterSchema.parse({
+      title: 'Bare',
+      layout: 'listing',
+      chrome: { header: false, sidebar: true, toc: false, footer: true, customFlag: true },
+    })
+
+    expect(result.layout).toBe('listing')
+    expect(result.chrome).toMatchObject({
+      header: false,
+      sidebar: true,
+      toc: false,
+      footer: true,
+      customFlag: true,
+    })
+  })
+
   it('parses home page convenience frontmatter', () => {
     const result = DocsHomeFrontmatterSchema.parse({
       title: 'Acme',

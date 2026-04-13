@@ -7,7 +7,7 @@ description: Build a documentation site from configuration alone using @pagesmit
 
 ## Overview
 
-The Doc Site pattern uses `@pagesmith/docs` to build a full documentation site from configuration alone. Unlike the other examples that use `@pagesmith/core` directly, this relies entirely on the higher-level `@pagesmith/docs` package, which provides a CLI, a default theme, convention-based navigation generated from the `content/` directory, Pagefind search, and layout override support. You write markdown in a content tree, configure the site in `pagesmith.config.json5`, and optionally override the default layouts with custom JSX files using `@pagesmith/core/jsx-runtime`.
+The Doc Site pattern uses `@pagesmith/docs` to build a full documentation site from configuration alone. Unlike the other examples that wire `@pagesmith/core` and `@pagesmith/site` directly, this relies on the higher-level `@pagesmith/docs` preset, which provides the docs theme, convention-based navigation generated from the `content/` directory, Pagefind search, listing pages, and layout override support. You write markdown in a content tree, configure the site in `pagesmith.config.json5`, and optionally override the default layouts with custom JSX files using `@pagesmith/site/jsx-runtime`.
 
 Source: [`examples/doc-site/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/doc-site) | Output: <a href="/pagesmith/examples/doc-site" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
@@ -19,7 +19,7 @@ Source: [`examples/doc-site/`](https://github.com/sujeet-pro/pagesmith/tree/main
 
 ### package.json
 
-The only dependency is `@pagesmith/docs`, which includes `@pagesmith/core` as a transitive dependency. There is no need to install Vite, TypeScript, or build tooling separately:
+The main dependency is `@pagesmith/docs`, which pulls in the matching `@pagesmith/core` and `@pagesmith/site` runtime pieces for the default preset. There is no need to wire Vite plugins or low-level build tooling yourself:
 
 ```json
 {
@@ -27,8 +27,8 @@ The only dependency is `@pagesmith/docs`, which includes `@pagesmith/core` as a 
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pagesmith dev --config ./pagesmith.config.json5",
-    "build": "pagesmith build --config ./pagesmith.config.json5"
+    "dev": "pagesmith-docs dev --config ./pagesmith.config.json5",
+    "build": "pagesmith-docs build --config ./pagesmith.config.json5"
   },
   "dependencies": {
     "@pagesmith/docs": "*"
@@ -189,12 +189,12 @@ features:
 
 The default `@pagesmith/docs` theme provides `DocHome` and `DocPage` layouts. You can override them by placing custom JSX files under `theme/layouts/`.
 
-### Using @pagesmith/core/jsx-runtime
+### Using @pagesmith/site/jsx-runtime
 
-Layout overrides use `@pagesmith/core/jsx-runtime` for server-side JSX rendering. This is a lightweight runtime that produces HTML strings without any framework runtime:
+Layout overrides use `@pagesmith/site/jsx-runtime` for server-side JSX rendering. This is a lightweight runtime that produces HTML strings without any framework runtime:
 
 ```tsx
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 ```
 
 The `h` function creates `HtmlString` objects. Use `class` (not `className`), and inject raw HTML with the `innerHTML` prop:
@@ -208,7 +208,7 @@ The `h` function creates `HtmlString` objects. Use `class` (not `className`), an
 The custom `DocHome.tsx` renders the home page with a hero section, feature cards, and optional prose content:
 
 ```tsx
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 
 type Props = {
   content: string
@@ -400,13 +400,13 @@ No manual configuration is needed beyond setting `search.enabled: true`.
 
 ```bash
 # Start the dev server with live reload
-pagesmith dev --config ./pagesmith.config.json5
+pagesmith-docs dev --config ./pagesmith.config.json5
 
 # Build the static site (SSG + Pagefind indexing)
-pagesmith build --config ./pagesmith.config.json5
+pagesmith-docs build --config ./pagesmith.config.json5
 
 # Preview the built site
-pagesmith preview --config ./pagesmith.config.json5
+pagesmith-docs preview --config ./pagesmith.config.json5
 ```
 
 ## Key Concepts
@@ -415,7 +415,7 @@ pagesmith preview --config ./pagesmith.config.json5
 - **`pagesmith.config.json5`** drives the entire site: name, navigation, sidebar, search, output paths.
 - **Convention-based navigation** -- top-level content folders become sections; `meta.json5` controls ordering.
 - **Layout overrides** -- place `DocHome.tsx` and `DocPage.tsx` in `theme/layouts/` to customize rendering.
-- **`@pagesmith/core/jsx-runtime`** -- lightweight server-side JSX runtime for layout overrides; use `h()` and `innerHTML` for raw HTML.
+- **`@pagesmith/site/jsx-runtime`** -- lightweight server-side JSX runtime for layout overrides; use `h()` and `innerHTML` for raw HTML.
 - **Pagefind search** is built in -- just set `search.enabled: true` in the config.
 - **No Vite configuration** -- `@pagesmith/docs` handles the build pipeline internally.
 - **Sidebar sections** are auto-generated from the content tree and passed to layout overrides as props.

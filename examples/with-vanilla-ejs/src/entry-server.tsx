@@ -17,7 +17,7 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 // @ts-expect-error -- the example intentionally keeps the content config as .mjs
 import contentConfig from '../content.config.mjs'
-import type { SsgRenderConfig } from '@pagesmith/core/vite'
+import type { SsgRenderConfig } from '@pagesmith/site/vite'
 
 const { guide, pages } = contentConfig as Record<string, any>
 

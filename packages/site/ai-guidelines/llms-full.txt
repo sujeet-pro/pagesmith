@@ -1,0 +1,65 @@
+# `@pagesmith/site` Full LLM Reference
+
+`@pagesmith/site` is the Pagesmith site toolkit.
+
+It owns:
+
+- the `pagesmith-site` CLI (`pagesmith` remains a compatibility alias)
+- preset loading
+- server-side JSX (`@pagesmith/site/jsx-runtime`)
+- CSS bundles (`@pagesmith/site/css/*`)
+- browser runtime helpers (`@pagesmith/site/runtime/*`)
+- Vite SSG helpers (`@pagesmith/site/vite`)
+- shared SSG utilities (`@pagesmith/site/ssg-utils`)
+
+It does not replace `@pagesmith/core`.
+
+Keep these in `@pagesmith/core`:
+
+- collections
+- schemas and loaders
+- markdown rendering
+- validation
+- `pagesmithContent`
+
+Typical Vite wiring:
+
+```ts
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+```
+
+Typical framework-hosted app wiring:
+
+```ts
+import '@pagesmith/site/css/content'
+import '@pagesmith/site/runtime/content'
+```
+
+In that shape, collections and markdown rendering stay on `@pagesmith/core`, and `@pagesmith/site` only provides the shared prose/code-block presentation layer.
+
+Typical JSX wiring:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@pagesmith/site"
+  }
+}
+```
+
+Preset rules:
+
+- default preset: `@pagesmith/site/preset`
+- override via `--preset`, `PAGESMITH_PRESET`, or config `preset` / `presets`
+- use `pagesmith-docs` when the project wants the built-in docs workflow
+
+Read:
+
+- `node_modules/@pagesmith/site/README.md`
+- `node_modules/@pagesmith/site/REFERENCE.md`
+- `node_modules/@pagesmith/site/ai-guidelines/site-guidelines.md`
+- `node_modules/@pagesmith/site/ai-guidelines/usage.md`
+- `node_modules/@pagesmith/core/REFERENCE.md`
+- `node_modules/@pagesmith/docs/REFERENCE.md`

@@ -64,11 +64,11 @@ export default defineCollections({ guide, blog, pages })
 
 ### Vite Config
 
-Template engine examples use only `pagesmithSsg` (no `pagesmithContent` since content is loaded via the API):
+Template engine examples use only `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite` (no `pagesmithContent` since content is loaded via the API):
 
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   plugins: [
@@ -78,7 +78,7 @@ export default defineConfig({
   oxc: {
     jsx: {
       runtime: 'automatic',
-      importSource: '@pagesmith/core',
+      importSource: '@pagesmith/site',
     },
   },
 })
@@ -317,18 +317,18 @@ Handlebars uses triple-braces `{{{content}}}` for raw HTML and double-braces `{{
 
 ### CSS and Styling
 
-Both examples import CSS from `@pagesmith/core`:
+Both examples import CSS from `@pagesmith/site`:
 
 ```css title="src/theme.css"
-@import '@pagesmith/core/css/standalone';
+@import '@pagesmith/site/css/standalone';
 ```
 
 | Import path | Contents |
 |---|---|
-| `@pagesmith/core/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
-| `@pagesmith/core/css/content` | Content-only bundle (reset, prose, code, viewport) |
-| `@pagesmith/core/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
-| `@pagesmith/core/css/viewport` | Viewport / responsive base only |
+| `@pagesmith/site/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
+| `@pagesmith/site/css/content` | Content-only bundle (reset, prose, code, viewport) |
+| `@pagesmith/site/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
+| `@pagesmith/site/css/viewport` | Viewport / responsive base only |
 
 ### Development and Building
 

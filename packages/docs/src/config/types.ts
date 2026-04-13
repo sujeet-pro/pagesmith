@@ -32,6 +32,8 @@ export type ResolvedCopyright = {
 export type DocsLogLevel = 'silent' | 'error' | 'warn' | 'info' | 'verbose'
 
 export type DocsUserConfig = {
+  preset?: string
+  presets?: string[]
   name?: string
   title?: string
   description?: string
@@ -75,6 +77,8 @@ export type DocsUserConfig = {
     defaultColorScheme?: 'auto' | 'light' | 'dark'
     /** Default theme variant. Default: 'paper'. */
     defaultTheme?: 'paper' | 'high-contrast'
+    /** Default text size variant. Default: 'base'. */
+    defaultTextSize?: 'small' | 'base' | 'large'
   }
   analytics?: {
     googleAnalytics?: string
@@ -155,6 +159,7 @@ export type ResolvedDocsConfig = {
     layouts?: Record<string, string>
     defaultColorScheme?: string
     defaultTheme?: string
+    defaultTextSize?: string
   }
   analytics?: {
     googleAnalytics?: string

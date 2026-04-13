@@ -102,6 +102,7 @@ Source: [`examples/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 {
   "dependencies": {
     "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "pagefind": "^1.3.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
@@ -119,7 +120,8 @@ Source: [`examples/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
 import collections from './content.config'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   plugins: [
@@ -188,6 +190,7 @@ Source: [`examples/with-solid/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 {
   "dependencies": {
     "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "pagefind": "^1.3.0",
     "solid-js": "^1.9.12"
   },
@@ -204,7 +207,8 @@ Source: [`examples/with-solid/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 import { defineConfig } from 'vite'
 import collections from './content.config'
 import solid from 'vite-plugin-solid'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   plugins: [
@@ -261,6 +265,7 @@ Source: [`examples/with-svelte/`](https://github.com/sujeet-pro/pagesmith/tree/m
 {
   "dependencies": {
     "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "pagefind": "^1.3.0",
     "svelte": "^5.55.1"
   },
@@ -277,7 +282,8 @@ Source: [`examples/with-svelte/`](https://github.com/sujeet-pro/pagesmith/tree/m
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import collections from './content.config'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   plugins: [
@@ -348,14 +354,14 @@ Svelte 5 components use `$props()` runes for prop declarations:
 
 ### CSS and Styling
 
-All examples can import pre-built CSS from `@pagesmith/core`:
+All examples can import pre-built CSS from `@pagesmith/site`:
 
 | Import path | Contents |
 |---|---|
-| `@pagesmith/core/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
-| `@pagesmith/core/css/content` | Content-only bundle (reset, prose, code, viewport) |
-| `@pagesmith/core/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
-| `@pagesmith/core/css/viewport` | Viewport / responsive base only |
+| `@pagesmith/site/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
+| `@pagesmith/site/css/content` | Content-only bundle (reset, prose, code, viewport) |
+| `@pagesmith/site/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
+| `@pagesmith/site/css/viewport` | Viewport / responsive base only |
 
 The `sharedAssetsPlugin()` copies font files and `fonts.css` into the build output.
 

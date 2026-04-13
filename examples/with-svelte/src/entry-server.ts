@@ -4,8 +4,8 @@
  * which wraps Svelte output in the shared document (FOUC script, assets, optional Pagefind).
  */
 import { render as renderSvelte } from 'svelte/server'
-import type { SsgRenderConfig } from '@pagesmith/core/vite'
-import { renderDocumentShell } from '@pagesmith/core/ssg-utils'
+import type { SsgRenderConfig } from '@pagesmith/site/vite'
+import { renderDocumentShell } from '@pagesmith/site/ssg-utils'
 import App from './App.svelte'
 import {
   buildNavEntries,

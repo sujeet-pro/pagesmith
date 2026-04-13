@@ -251,7 +251,7 @@ Hide boilerplate that readers can expand on click:
 ```ts collapse={1-5}
 import { defineConfig } from 'vite'
 import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg } from '@pagesmith/core/vite'
+import { pagesmithSsg } from '@pagesmith/site/vite'
 import collections from './content.config'
 import path from 'node:path'
 export default defineConfig({

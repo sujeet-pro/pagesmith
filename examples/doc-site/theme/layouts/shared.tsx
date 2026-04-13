@@ -1,4 +1,4 @@
-import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { Fragment, h } from '@pagesmith/site/jsx-runtime'
 import type { Heading } from '@pagesmith/core/schemas'
 
 /**

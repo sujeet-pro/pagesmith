@@ -1,8 +1,7 @@
 ---
-layout: DocHome
 title: Pagesmith
-tagline: File-Based CMS for the Filesystem-First Web
-description: Typed content collections, convention-based docs, and configurable assistant artifacts — powered by Vite.
+tagline: Filesystem-first content for docs, static sites, and framework apps
+description: Typed content collections, convention-based docs, and configurable assistant artifacts for Vite builds or framework-hosted markdown.
 install: npm install @pagesmith/docs
 actions:
   - text: Start with AI
@@ -26,7 +25,7 @@ features:
     details: Build a docs site from `pagesmith.config.json5` with default layouts, sidebar generation, and bundled Pagefind search.
   - icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm10 0a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1h-4a1 1 0 01-1-1v-6z"/></svg>
     title: Any Framework
-    details: Use `@pagesmith/core` with React, Solid, Svelte, EJS, Handlebars, or the built-in JSX runtime — all through Vite.
+    details: Use `@pagesmith/core` for content plus `@pagesmith/site` for JSX, CSS/runtime, and Vite SSG across React, Solid, Svelte, Next.js, EJS, Handlebars, or the built-in JSX runtime.
   - icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     title: Schema Validation
     details: Validate frontmatter with Zod schemas and run AST-level content checks for links, headings, and code blocks at build time.
@@ -38,11 +37,15 @@ features:
     details: Generate memory files, skills, and llms.txt for Claude, Codex, and Gemini from your content collections automatically.
 packages:
   - name: "@pagesmith/core"
-    description: Content layer, markdown pipeline, JSX runtime, CSS builder, schemas, loaders, and Vite plugin.
+    description: Headless content layer with collections, loaders, schemas, markdown, and the content Vite plugin.
     href: /reference/api
     tag: Core
+  - name: "@pagesmith/site"
+    description: Site-building toolkit with the Pagesmith CLI, JSX runtime, CSS/runtime bundles, and Vite SSG helpers.
+    href: /guide/frameworks
+    tag: Site
   - name: "@pagesmith/docs"
-    description: Convention-based docs with default theme, Pagefind search, sidebar generation, and layout overrides.
+    description: Convention-based docs preset built on core and site, with default theme, Pagefind search, sidebar generation, listing pages, and layout overrides.
     href: /guide/docs-getting-started
     tag: Docs
 ---
@@ -57,51 +60,54 @@ Pagesmith is built on a few core principles:
 
 **Lazy rendering.** Content entries load their data eagerly but render their markdown lazily. Call `entry.render()` only when you need the HTML. The result is cached — subsequent calls return instantly.
 
-**Framework agnostic.** The content layer does not care about your rendering stack. Define collections once, consume them in React, Solid, Svelte, EJS, Handlebars, or the built-in JSX runtime. The Vite plugin provides virtual module imports; the programmatic API works without Vite.
+**Framework agnostic.** The content layer does not care about your rendering stack. Define collections once, consume them in React, Solid, Svelte, Next.js, EJS, Handlebars, or the built-in JSX runtime. The Vite plugin provides virtual module imports, and the programmatic API works without Vite.
 
-**Vite native.** Everything runs through Vite — development server, HMR, SSG builds, and asset processing. No custom bundler, no webpack, no intermediate build steps.
+**Vite native where Pagesmith owns the site build.** The docs preset, CLI, development server, and SSG helpers run through Vite. The headless `@pagesmith/core` content layer can also run inside apps that keep their own router and build tooling.
 
 **Zero client-side runtime by default.** The default output is static HTML with inline styles for code blocks. Progressive enhancements (TOC highlighting, search, sidebar toggle) are opt-in and tiny.
 
-## Two Packages
+## Three Packages
 
 | Package | Purpose | Install |
 |---|---|---|
-| `@pagesmith/core` | Content layer, markdown pipeline, JSX runtime, CSS, Vite plugin | `npm add @pagesmith/core` |
+| `@pagesmith/core` | Headless content layer, markdown pipeline, validation, loaders, schemas | `npm add @pagesmith/core` |
+| `@pagesmith/site` | JSX runtime, CSS/runtime bundles, Vite SSG helpers, Pagesmith CLI | `npm add @pagesmith/core @pagesmith/site` |
 | `@pagesmith/docs` | Convention-based docs site with theme, search, navigation | `npm add @pagesmith/docs` |
 
-Use `@pagesmith/docs` when you want a complete docs site from configuration alone. Use `@pagesmith/core` when you need custom layouts, framework-specific rendering, or a non-documentation site.
+Use `@pagesmith/docs` when you want a complete docs site from configuration alone. Use `@pagesmith/core` when you need direct content loading and markdown rendering in your own app or site. Add `@pagesmith/site` when you also want the shared CSS/runtime bundles, the JSX runtime, or Vite SSG helpers.
 
 ## Quick Start
 
-### Docs Site (interactive setup)
+### Docs Site
 
 ```bash
 npm add @pagesmith/docs
-npx pagesmith init
+npx pagesmith-docs init --yes --ai
 ```
 
-The interactive init prompts for project name, title, base path, content directory, search, and AI integrations — with smart defaults detected from your git remote and `package.json`. Press Enter to accept defaults or type a new value.
+That is the fastest AI-first setup. It creates or backfills `pagesmith.config.json5`, adds starter content when needed, installs assistant artifacts, and uses GitHub Pages-friendly defaults detected from your git remote and `package.json`.
 
-To skip prompts and accept all defaults:
+If you want the interactive flow instead:
 
 ```bash
-npx pagesmith init -y
+npx pagesmith-docs init
 ```
 
 Then start the dev server:
 
 ```bash
-npx pagesmith dev
+npx pagesmith-docs dev
 ```
 
-### Custom Site (any framework)
+### Custom Site (content layer first)
 
 ```bash
 npm add @pagesmith/core
 ```
 
-Define collections in `content.config.ts`, configure Vite with `pagesmithContent` and `pagesmithSsg`, and write your own layouts. See the [Framework Guides](/guide/frameworks) for complete setup instructions for React, Solid, Svelte, EJS, and Handlebars.
+Use `createContentLayer()` and `entry.render()` when your app already owns routing and build tooling (Next.js, template engines, custom SSR, or another framework host). Add `@pagesmith/site` only when you also want the shipped markdown CSS/runtime or Vite SSG helpers.
+
+For Vite-based static sites, configure `pagesmithContent` and `pagesmithSsg` and write your own layouts. See the [Framework Guides](/guide/frameworks) for complete setup instructions for React, Solid, Svelte, Next.js, EJS, and Handlebars.
 
 ## Next Steps
 
@@ -111,6 +117,7 @@ Define collections in `content.config.ts`, configure Vite with `pagesmithContent
 - [MCP Setup](/guide/mcp-setup) — connect your assistant to docs-aware tooling
 - [Getting Started](/guide/getting-started) — define your first collection and content layer
 - [Code Blocks](/guide/code-blocks) — syntax highlighting, line numbers, tabs, and more
+- [Next.js (App Router)](/guide/framework-nextjs) — use `@pagesmith/core` as a headless markdown engine inside Next.js
 - [Framework Guides](/guide/frameworks) — complete setup instructions for every supported framework
 - [Layout Overrides](/guide/layout-overrides) — customize the docs theme with your own layouts
 - [Deployment](/deployment) — deploy to GitHub Pages, Netlify, Vercel, or Cloudflare

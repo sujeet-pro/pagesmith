@@ -14,7 +14,8 @@ This example is a **static site**: Solid runs at build time via `renderToString`
 
 ## Dependencies
 
-- **`@pagesmith/core`** — collections, markdown pipeline, `pagesmithContent` / `pagesmithSsg` Vite plugins, and `@pagesmith/core/runtime/content` for code-block UI in the browser.
+- **`@pagesmith/core`** — collections, markdown pipeline, and the `pagesmithContent` Vite plugin.
+- **`@pagesmith/site`** — `pagesmithSsg`, shared assets/runtime behavior, and `@pagesmith/site/runtime/content` for code-block UI in the browser.
 - **`solid-js`** — SSR JSX only in `src/entry-server.tsx`.
 - **`pagefind`** — CLI dependency used by `pagesmithSsg` when indexing the **production** build output (search UI is omitted in dev; see [search integration](./search-integration)).
 

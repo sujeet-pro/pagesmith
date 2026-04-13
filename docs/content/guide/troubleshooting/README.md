@@ -143,14 +143,14 @@ Error: Cannot find module 'virtual:content/posts'
 
 **Causes and solutions:**
 
-1. **Search index not built.** Pagefind generates its index during `pagesmith build`, not during development. Run a full build first:
+1. **Search index not built.** Pagefind generates its index during `pagesmith-docs build`, not during development. Run a full build first:
 
    ```bash title="Terminal"
-   pagesmith build
-   pagesmith preview
+   pagesmith-docs build
+   pagesmith-docs preview
    ```
 
-   During `pagesmith dev`, search is not available because the Pagefind index has not been generated.
+   During `pagesmith-docs dev`, search is not available because the Pagefind index has not been generated.
 
 2. **Search disabled in config.** Check that search is enabled:
 
@@ -325,13 +325,13 @@ No pagesmith.config.json5 file found at /path/to/pagesmith.config.json5
 1. **Wrong working directory.** The CLI looks for the config file relative to the current working directory. Run the command from your project root, or specify the path:
 
    ```bash title="Terminal"
-   pagesmith dev --config ./pagesmith.config.json5
+   pagesmith-docs dev --config ./pagesmith.config.json5
    ```
 
-2. **File not created yet.** Run `pagesmith init` to create the initial config file:
+2. **File not created yet.** Run `pagesmith-docs init` to create the initial config file:
 
    ```bash title="Terminal"
-   pagesmith init
+   pagesmith-docs init
    ```
 
 ### Base path not applied correctly
@@ -350,11 +350,11 @@ The base path follows a priority chain:
 Ensure you set it in exactly one place. For GitHub Pages:
 
 ```bash title="Terminal"
-pagesmith build --base-path /my-repo
+pagesmith-docs build --base-path /my-repo
 ```
 
 Or in CI:
 
 ```bash title="Terminal"
-BASE_URL=/my-repo pagesmith build
+BASE_URL=/my-repo pagesmith-docs build
 ```

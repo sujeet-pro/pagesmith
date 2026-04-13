@@ -244,7 +244,7 @@ Search is powered by [Pagefind](https://pagefind.app/), which indexes your built
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `search.enabled` | `boolean` | `true` | Enable or disable the built-in Pagefind search. When enabled, the search index is built during `pagesmith build` and the search UI (modal with `Ctrl+K` / `Cmd+K` shortcut) is included. |
+| `search.enabled` | `boolean` | `true` | Enable or disable the built-in Pagefind search. When enabled, the search index is built during `pagesmith-docs build` and the search UI (modal with `Ctrl+K` / `Cmd+K` shortcut) is included. |
 | `search.showImages` | `boolean` | `false` | Whether to display page thumbnail images in search results. |
 | `search.showSubResults` | `boolean` | `true` | Whether to show sub-results (individual sections within a page) in search results. When enabled, Pagefind breaks pages into sections by heading and shows matching sections as separate results. |
 | `search.pagefindFlags` | `string[]` | `[]` | Extra CLI flags passed directly to the Pagefind binary during the build step. Useful for advanced configuration like custom selectors or exclusion rules. |

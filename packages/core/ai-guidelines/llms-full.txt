@@ -10,7 +10,7 @@ npm add @pagesmith/core
 
 ## Priority order
 
-1. `node_modules/@pagesmith/core/REFERENCE.md` for the complete API reference (content layer, collections, loaders, markdown, JSX, CSS, Vite plugins).
+1. `node_modules/@pagesmith/core/REFERENCE.md` for the complete API reference (content layer, collections, loaders, markdown, validation, assets, and `pagesmithContent`).
 2. `node_modules/@pagesmith/core/ai-guidelines/usage.md` for package rules, integration contract, and copy-paste agent prompts.
 3. `node_modules/@pagesmith/core/ai-guidelines/migration.md` for upgrading an existing integration and adopting the latest package guidance.
 4. `node_modules/@pagesmith/core/ai-guidelines/recipes.md` for step-by-step implementation patterns.
@@ -49,7 +49,7 @@ Fields: `collections`, optional `root`, `markdown`, `assets`, `plugins`, optiona
 
 ## CLI
 
-The **`pagesmith`** CLI lives in **`@pagesmith/docs`**. `@pagesmith/core` does not ship that binary.
+The **`pagesmith`** CLI lives in **`@pagesmith/site`**. `@pagesmith/core` does not ship that binary; `@pagesmith/docs` uses the site CLI through its preset.
 
 ## Package files
 
@@ -57,8 +57,8 @@ All paths below are under `node_modules/@pagesmith/core/`:
 
 | File | Purpose |
 |---|---|
-| `node_modules/@pagesmith/core/REFERENCE.md` | Complete API: content layer, collections, loaders, markdown pipeline, JSX, CSS, Vite plugins |
-| `node_modules/@pagesmith/core/README.md` | User-facing quick start, Vite integration, and API overview |
+| `node_modules/@pagesmith/core/REFERENCE.md` | Complete API: content layer, collections, loaders, markdown pipeline, validation, assets, and `pagesmithContent` |
+| `node_modules/@pagesmith/core/README.md` | User-facing quick start, direct rendering, Vite integration, and API overview |
 | `node_modules/@pagesmith/core/ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts for common workflows |
 | `node_modules/@pagesmith/core/ai-guidelines/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
 | `node_modules/@pagesmith/core/ai-guidelines/recipes.md` | Step-by-step recipes (collections, Vite, markdown, AI pointers) |
@@ -72,7 +72,7 @@ All paths below are under `node_modules/@pagesmith/core/`:
 
 The `node_modules/@pagesmith/core/ai-guidelines/usage.md` file contains copy-paste prompts for these workflows:
 
-1. **Bootstrap or retrofit in an existing Vite repo** → reads `node_modules/@pagesmith/core/REFERENCE.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
+1. **Bootstrap or retrofit in an existing app or Vite repo** → reads `node_modules/@pagesmith/core/REFERENCE.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
 2. **Define content collections** → reads `node_modules/@pagesmith/core/REFERENCE.md`
 3. **Write markdown content** (frontmatter, code blocks, mermaid) → reads `node_modules/@pagesmith/core/REFERENCE.md`
 4. **Troubleshooting validation errors** → reads `node_modules/@pagesmith/core/ai-guidelines/errors.md`
@@ -87,8 +87,11 @@ For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/ai-guid
 For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REFERENCE.md
 ```
 
-## Related docs package
+## Related packages
 
+- Site reference: `node_modules/@pagesmith/site/REFERENCE.md`
+- Site usage: `node_modules/@pagesmith/site/ai-guidelines/usage.md`
+- Site README: `node_modules/@pagesmith/site/README.md`
 - Docs reference: `node_modules/@pagesmith/docs/REFERENCE.md`
 - Docs usage: `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
 - Docs README: `node_modules/@pagesmith/docs/README.md`
@@ -112,13 +115,14 @@ Shared utilities exported from `@pagesmith/core/mcp`:
 - `resolvePackageDocPath(moduleDir, relativePath)` — resolve doc file path
 - `asTextResource(uri, path)` — load file as MCP text resource
 
-## Theme system
+## Site package pairing
 
-Class-based multi-theme system with two orthogonal axes on `<html>`:
-- **Color scheme**: `color-scheme-auto` | `color-scheme-light` | `color-scheme-dark` — controls `light-dark()` via CSS `color-scheme` property.
-- **Theme**: `theme-paper` (warm, low-contrast) | `theme-high-contrast` (WCAG AAA) — overrides CSS custom properties with variant-specific `light-dark()` pairs.
-- New CSS files: `src/styles/foundations/color-scheme.css`, `src/styles/foundations/themes.css`.
-- Image switching: `.only-light`/`.only-dark`, `.show-on-light`/`.show-on-dark`, `.invert-on-dark` — class-based instead of `@media (prefers-color-scheme)`.
-- FOUC prevention via inline `<script>` reading `localStorage('pagesmith-theme')`.
-- The built-in renderer maps Shiki light/dark themes to Pagesmith's color-scheme classes for code block theming.
-- `renderDocumentShell()` (SSG utils) now outputs `class="no-js color-scheme-auto theme-paper"` on `<html>` with FOUC prevention script.
+Use `@pagesmith/core` as the headless content layer. Pair it with `@pagesmith/site` for site-building concerns:
+
+- JSX runtime: `@pagesmith/site/jsx-runtime`
+- CSS builder + CSS bundles: `@pagesmith/site/css` and `@pagesmith/site/css/*`
+- Runtime JS helpers: `@pagesmith/site/runtime` and `@pagesmith/site/runtime/*`
+- SSG helpers: `@pagesmith/site/vite` and `@pagesmith/site/ssg-utils`
+- CLI and preset loading: `pagesmith` from `@pagesmith/site`
+
+For framework-hosted apps, that pairing can stay limited to `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content`.

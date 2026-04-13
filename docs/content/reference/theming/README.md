@@ -156,10 +156,10 @@ Create a CSS file with your theme class. Override all the color tokens you want 
 
 ### Step 2: Import in Your CSS Entry
 
-For `@pagesmith/core` sites, add the import after your foundations:
+For custom sites built on `@pagesmith/site`, add the import after your foundations:
 
 ```css title="src/theme.css"
-@import '@pagesmith/core/css/content';
+@import '@pagesmith/site/css/content';
 @import './themes/ocean.css';
 ```
 
@@ -173,7 +173,7 @@ In your HTML shell, set the theme class on `<html>`:
 <html class="color-scheme-auto theme-ocean">
 ```
 
-For sites using `@pagesmith/core`'s `renderDocumentShell`, the initial classes are set in the shell function. For `@pagesmith/docs`, use the `defaultTheme` config option (see below).
+For sites using `@pagesmith/site`'s `renderDocumentShell`, the initial classes are set in the shell function. For `@pagesmith/docs`, use the `defaultTheme` config option (see below).
 
 ## Complete Token Reference
 
@@ -249,6 +249,7 @@ When using `@pagesmith/docs`, configure the default color scheme and theme varia
   theme: {
     defaultColorScheme: 'auto',      // 'auto' | 'light' | 'dark'
     defaultTheme: 'paper',           // 'paper' | 'high-contrast'
+    defaultTextSize: 'base',         // 'small' | 'base' | 'large'
     lightColor: '#f5f4f0',           // Browser chrome color (light)
     darkColor: '#111110',            // Browser chrome color (dark)
   },
@@ -259,6 +260,7 @@ When using `@pagesmith/docs`, configure the default color scheme and theme varia
 |---|---|---|---|
 | `defaultColorScheme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Initial color scheme. `'auto'` follows the OS preference. |
 | `defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Initial theme variant applied to `<html>`. |
+| `defaultTextSize` | `'small' \| 'base' \| 'large'` | `'base'` | Initial text size applied via `data-text-size` on `<html>`. |
 | `lightColor` | `string` | `'#f8fafc'` | `<meta name="theme-color">` for light mode (browser chrome). |
 | `darkColor` | `string` | `'#020617'` | `<meta name="theme-color">` for dark mode (browser chrome). |
 
@@ -313,7 +315,7 @@ To avoid a flash of unstyled content when the user has previously selected a the
 })()
 ```
 
-The script is inlined in the `<head>` before any stylesheet links. It is present in both `@pagesmith/core`'s `renderDocumentShell` and `@pagesmith/docs`'s `Html.tsx`. The `textSize` restoration uses `dataset.textSize` (a data attribute) rather than a CSS class, and only sets it when the value differs from the default `"base"`.
+The script is inlined in the `<head>` before any stylesheet links. It is present in both `@pagesmith/site`'s `renderDocumentShell` and `@pagesmith/docs`'s `Html.tsx`. The `textSize` restoration uses `dataset.textSize` (a data attribute) rather than a CSS class, and only sets it when the value differs from the default `"base"`.
 
 ## Persistence
 
@@ -355,22 +357,22 @@ Syntax-highlighted code blocks use separate Shiki themes for light and dark mode
 
 The built-in Pagesmith renderer maps its light and dark Shiki themes to the color-scheme classes, so code blocks respond to the same toggle as the rest of the site.
 
-## Custom Sites with @pagesmith/core
+## Custom Sites with @pagesmith/site
 
-For sites built directly on `@pagesmith/core` (not `@pagesmith/docs`), use the provided CSS and utilities:
+For sites built directly on `@pagesmith/core` + `@pagesmith/site` (not `@pagesmith/docs`), use the provided CSS and utilities:
 
 1. **Import the CSS foundations** that include `color-scheme.css`, `tokens.css`, and `themes.css`:
 
 ```css title="src/theme.css"
-@import '@pagesmith/core/css/standalone';
+@import '@pagesmith/site/css/standalone';
 ```
 
-Or import `@pagesmith/core/css/content` for content-only styling (no layout grid).
+Or import `@pagesmith/site/css/content` for content-only styling (no layout grid).
 
-2. **Use `renderDocumentShell`** from `@pagesmith/core/ssg-utils` which sets up the correct HTML classes and FOUC script:
+2. **Use `renderDocumentShell`** from `@pagesmith/site/ssg-utils` which sets up the correct HTML classes and FOUC script:
 
 ```ts
-import { renderDocumentShell } from '@pagesmith/core/ssg-utils'
+import { renderDocumentShell } from '@pagesmith/site/ssg-utils'
 
 const html = renderDocumentShell({
   title: 'My Page',

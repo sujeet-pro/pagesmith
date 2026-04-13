@@ -1,0 +1,78 @@
+/* Section listing layout: intro + linked cards */
+.doc-listing-intro {
+  margin-bottom: var(--ps-space-6, 1.5rem);
+}
+
+.doc-listing-stats {
+  margin: 0 0 var(--ps-space-5, 1.25rem);
+  color: var(--ps-color-muted, color-mix(in srgb, currentColor 55%, transparent));
+  font-size: var(--ps-text-sm, 0.9rem);
+}
+
+.doc-listing-groups {
+  display: grid;
+  gap: var(--ps-space-7, 2rem);
+}
+
+.doc-listing-group {
+  display: grid;
+  gap: var(--ps-space-4, 1rem);
+}
+
+.doc-listing-group-title {
+  margin: 0;
+  font-size: var(--ps-text-2xl, 1.5rem);
+}
+
+.doc-listing-group-desc {
+  margin: 0;
+  color: var(--ps-color-muted, color-mix(in srgb, currentColor 55%, transparent));
+}
+
+.doc-listing-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--ps-space-4, 1rem);
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+
+.doc-listing-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2, 0.35rem);
+  height: 100%;
+  padding: var(--ps-space-4, 1rem);
+  border-radius: var(--ps-radius-md, 8px);
+  border: 1px solid var(--ps-color-border, color-mix(in srgb, currentColor 12%, transparent));
+  background: var(--ps-color-surface-raised, color-mix(in srgb, currentColor 4%, transparent));
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.doc-listing-card:hover {
+  border-color: var(--ps-color-accent, color-mix(in srgb, var(--ps-link) 45%, transparent));
+}
+
+.doc-listing-card-title {
+  font-weight: 600;
+  font-size: var(--ps-text-lg, 1.05rem);
+}
+
+.doc-listing-card-meta {
+  font-size: var(--ps-text-xs, 0.8rem);
+  color: var(--ps-color-muted, color-mix(in srgb, currentColor 55%, transparent));
+}
+
+.doc-listing-card-desc {
+  font-size: var(--ps-text-sm, 0.9rem);
+  color: var(--ps-color-muted, color-mix(in srgb, currentColor 55%, transparent));
+  line-height: 1.45;
+}
+
+.doc-listing-empty {
+  color: var(--ps-color-muted, color-mix(in srgb, currentColor 55%, transparent));
+  font-size: var(--ps-text-sm, 0.9rem);
+}

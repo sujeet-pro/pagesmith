@@ -1,6 +1,6 @@
 ---
 title: CSS Approach
-description: Building styles from core CSS imports
+description: Building styles from site CSS imports
 date: 2026-03-16
 tags:
   - css
@@ -11,11 +11,11 @@ seriesOrder: 2
 
 # CSS Approach
 
-The blog-site example builds its stylesheet from `@pagesmith/core/css/content` plus custom layout CSS. This gives you prose typography and inline code styling from the core package, while the layout (header, sidebar, grid, TOC) is defined in the example itself.
+The blog-site example builds its stylesheet from `@pagesmith/site/css/content` plus custom layout CSS. This gives you prose typography and inline code styling from the shared site package, while the layout (header, sidebar, grid, TOC) is defined in the example itself.
 
-## What core provides
+## What the shared site package provides
 
-The `@pagesmith/core/css/content` import bundles:
+The `@pagesmith/site/css/content` import bundles:
 
 - **Reset** -- A minimal CSS reset (box-sizing, margin removal)
 - **Viewport** -- Responsive viewport base styles
@@ -37,10 +37,10 @@ The `theme.css` file in `src/` adds layout and component styles that match the f
 
 ## CSS imports
 
-The `@pagesmith/core/css/content` import is a real CSS file that Vite resolves and bundles. The theme CSS imports it at the top:
+The `@pagesmith/site/css/content` import is a real CSS file that Vite resolves and bundles. The theme CSS imports it at the top:
 
 ```css title="src/theme.css"
-@import '@pagesmith/core/css/content';
+@import '@pagesmith/site/css/content';
 
 /* Custom layout styles follow... */
 ```

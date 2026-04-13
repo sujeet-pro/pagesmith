@@ -70,7 +70,7 @@ Imports **`virtual:content/*`**, defines layout components, exports **`getRoutes
 
 ### `src/theme.css`
 
-Local stylesheet (reset, layout, prose). Not a substitute for **`@pagesmith/core/runtime/content`** on the client — that import keeps default markdown/code presentation aligned with what the pipeline emits.
+Local stylesheet (reset, layout, prose). Not a substitute for **`@pagesmith/site/runtime/content`** on the client — that import keeps default markdown/code presentation aligned with what the pipeline emits.
 
 ### `src/runtime.ts`
 
@@ -82,11 +82,11 @@ Vite’s browser bundle entry:
 
 ```js title="client.js"
 import './src/theme.css'
-import '@pagesmith/core/runtime/content'
+import '@pagesmith/site/runtime/content'
 import './src/runtime.ts'
 ```
 
-`theme.css` is site chrome; **`@pagesmith/core/runtime/content`** ships the shared prose/code styles for rendered markdown; **`runtime.ts`** is your site-specific JS.
+`theme.css` is site chrome; **`@pagesmith/site/runtime/content`** ships the shared prose/code styles for rendered markdown; **`runtime.ts`** is your site-specific JS.
 
 ### `content/`
 

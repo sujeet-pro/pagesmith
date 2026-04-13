@@ -37,7 +37,7 @@ export default defineConfig({
   oxc: {
     jsx: {
       runtime: 'automatic',
-      importSource: '@pagesmith/core',
+      importSource: '@pagesmith/site',
     },
   },
 })
@@ -47,7 +47,7 @@ export default defineConfig({
 
 ### `sharedAssetsPlugin()`
 
-Copies shared assets (fonts, icons) from `@pagesmith/core` into the build output. This ensures that font files referenced by CSS are available in production without manual copying.
+Copies shared assets (fonts, icons) from `@pagesmith/site` into the build output. This ensures that font files referenced by CSS are available in production without manual copying.
 
 ### `pagesmithSsg({ entry, contentDirs })`
 
@@ -90,12 +90,12 @@ The `base` option configures the public URL prefix for all assets. This is passe
 oxc: {
   jsx: {
     runtime: 'automatic',
-    importSource: '@pagesmith/core',
+    importSource: '@pagesmith/site',
   },
 }
 ```
 
-This configures the OXC transpiler to use `@pagesmith/core` as the JSX import source. Even though this example uses EJS for page templates, the SSR entry file uses `.tsx` extension for TypeScript support, and the JSX runtime is available if needed.
+This configures the OXC transpiler to use `@pagesmith/site` as the JSX import source. Even though this example uses EJS for page templates, the SSR entry file uses `.tsx` extension for TypeScript support, and the JSX runtime is available if needed.
 
 ## Build output
 

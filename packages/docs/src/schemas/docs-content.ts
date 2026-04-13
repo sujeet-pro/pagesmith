@@ -85,6 +85,18 @@ export const DocsCodeExampleSchema = z.object({
 
 export type DocsCodeExample = z.infer<typeof DocsCodeExampleSchema>
 
+/** Optional shell chrome toggles for built-in docs layouts (all default to true when omitted). */
+export const DocsChromeSchema = z
+  .object({
+    header: z.boolean().optional(),
+    sidebar: z.boolean().optional(),
+    toc: z.boolean().optional(),
+    footer: z.boolean().optional(),
+  })
+  .passthrough()
+
+export type DocsChrome = z.infer<typeof DocsChromeSchema>
+
 const DocsDateInputSchema = z.preprocess(
   (value) => (value instanceof Date ? value.toISOString() : value),
   z.string(),
@@ -99,6 +111,8 @@ const DocsBaseFrontmatterSchema = BaseFrontmatterSchema.partial().extend({
 
 const DocsPageFrontmatterShape = {
   ...DocsBaseFrontmatterSchema.shape,
+  layout: z.string().optional(),
+  chrome: DocsChromeSchema.optional(),
   navLabel: z.string().optional(),
   sidebarLabel: z.string().optional(),
   order: z.number().optional(),
@@ -106,7 +120,6 @@ const DocsPageFrontmatterShape = {
 }
 
 const DocsHomeFrontmatterShape = {
-  layout: z.string().optional(),
   tagline: z.string().optional(),
   badge: z.string().optional(),
   actions: z.array(DocsActionSchema).optional(),

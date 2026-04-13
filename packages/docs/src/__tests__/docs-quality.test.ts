@@ -87,25 +87,62 @@ describe('docs quality guards', () => {
     )
   })
 
-  it('ships published AI guidance and schemas from package manifests', () => {
-    const corePackagePath = join(import.meta.dirname, '..', '..', '..', 'core', 'package.json')
-    const docsPackagePath = join(import.meta.dirname, '..', '..', 'package.json')
+  it('ships package-owned bins, AI guidance, and schemas from package manifests', () => {
+    const corePackageDir = join(import.meta.dirname, '..', '..', '..', 'core')
+    const sitePackageDir = join(import.meta.dirname, '..', '..', '..', 'site')
+    const docsPackageDir = join(import.meta.dirname, '..', '..')
+    const corePackagePath = join(corePackageDir, 'package.json')
+    const sitePackagePath = join(sitePackageDir, 'package.json')
+    const docsPackagePath = join(docsPackageDir, 'package.json')
 
     const corePackage = JSON.parse(readFileSync(corePackagePath, 'utf-8')) as {
+      bin?: Record<string, string>
+      files?: string[]
+      exports?: Record<string, string | Record<string, string>>
+      ai?: { context?: string; fullContext?: string; agentsDir?: string }
+    }
+    const sitePackage = JSON.parse(readFileSync(sitePackagePath, 'utf-8')) as {
+      bin?: Record<string, string>
       files?: string[]
       exports?: Record<string, string | Record<string, string>>
       ai?: { context?: string; fullContext?: string; agentsDir?: string }
     }
     const docsPackage = JSON.parse(readFileSync(docsPackagePath, 'utf-8')) as {
+      bin?: Record<string, string>
       files?: string[]
       exports?: Record<string, string | Record<string, string>>
-      ai?: { context?: string; fullContext?: string; agentsDir?: string }
+      ai?: {
+        context?: string
+        fullContext?: string
+        agentsDir?: string
+        mcp?: { command?: string }
+      }
     }
+
+    expect(corePackage.bin?.['pagesmith-core']).toBe('./dist/cli/bin.mjs')
+    expect(sitePackage.bin?.pagesmith).toBe('./dist/cli/bin.mjs')
+    expect(sitePackage.bin?.['pagesmith-site']).toBe('./dist/cli/bin.mjs')
+    expect(docsPackage.bin?.['pagesmith-docs']).toBe('./dist/cli/bin.mjs')
 
     expect(corePackage.files).toContain('ai-guidelines/')
     expect(corePackage.exports?.['./ai-guidelines/*']).toBe('./ai-guidelines/*')
     expect(corePackage.exports?.['./llms']).toBe('./ai-guidelines/llms.txt')
+    expect(corePackage.exports?.['./llms-full']).toBe('./ai-guidelines/llms-full.txt')
+    expect(corePackage.exports?.['./agents/setup-core']).toBe('./ai-guidelines/setup-core.md')
     expect(corePackage.ai).toEqual(
+      expect.objectContaining({
+        context: './ai-guidelines/llms.txt',
+        fullContext: './ai-guidelines/llms-full.txt',
+        agentsDir: './ai-guidelines',
+      }),
+    )
+
+    expect(sitePackage.files).toContain('ai-guidelines/')
+    expect(sitePackage.exports?.['./ai-guidelines/*']).toBe('./ai-guidelines/*')
+    expect(sitePackage.exports?.['./llms']).toBe('./ai-guidelines/llms.txt')
+    expect(sitePackage.exports?.['./llms-full']).toBe('./ai-guidelines/llms-full.txt')
+    expect(sitePackage.exports?.['./agents/setup-site']).toBe('./ai-guidelines/setup-site.md')
+    expect(sitePackage.ai).toEqual(
       expect.objectContaining({
         context: './ai-guidelines/llms.txt',
         fullContext: './ai-guidelines/llms-full.txt',
@@ -116,6 +153,7 @@ describe('docs quality guards', () => {
     expect(docsPackage.files).toEqual(expect.arrayContaining(['ai-guidelines/', 'schemas/']))
     expect(docsPackage.exports?.['./ai-guidelines/*']).toBe('./ai-guidelines/*')
     expect(docsPackage.exports?.['./llms']).toBe('./ai-guidelines/llms.txt')
+    expect(docsPackage.exports?.['./llms-full']).toBe('./ai-guidelines/llms-full.txt')
     expect(docsPackage.exports?.['./agents/setup-docs']).toBe('./ai-guidelines/setup-docs.md')
     expect(docsPackage.ai).toEqual(
       expect.objectContaining({
@@ -124,5 +162,14 @@ describe('docs quality guards', () => {
         agentsDir: './ai-guidelines',
       }),
     )
+    expect(docsPackage.ai?.mcp?.command).toBe('pagesmith-docs mcp --stdio')
+
+    expect(existsSync(join(corePackageDir, 'ai-guidelines', 'setup-core.md'))).toBe(true)
+    expect(existsSync(join(sitePackageDir, 'ai-guidelines', 'setup-site.md'))).toBe(true)
+    expect(existsSync(join(docsPackageDir, 'ai-guidelines', 'setup-docs.md'))).toBe(true)
+    expect(existsSync(join(corePackageDir, 'ai-guidelines', 'llms.txt'))).toBe(true)
+    expect(existsSync(join(sitePackageDir, 'ai-guidelines', 'llms.txt'))).toBe(true)
+    expect(existsSync(join(docsPackageDir, 'ai-guidelines', 'llms.txt'))).toBe(true)
+    expect(existsSync(join(docsPackageDir, 'schemas', 'pagesmith-config.schema.json'))).toBe(true)
   })
 })

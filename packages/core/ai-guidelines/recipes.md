@@ -1,71 +1,53 @@
-# @pagesmith/core Agent Recipes
+# @pagesmith/core Recipes
 
-Short procedural recipes for common content layer workflows. For the full reference, see `node_modules/@pagesmith/core/REFERENCE.md`.
+Common recipes for the headless content layer.
 
-## Create a collection
+## Recipe: Add content collections
 
-1. Add a directory under `content/`.
-2. Define schema with `z` from `@pagesmith/core`.
-3. Register with `defineCollection`.
-4. Expose via `defineCollections` or `defineConfig`.
+1. Define collections with `defineCollection` / `defineCollections`.
+2. Use Zod schemas from `@pagesmith/core`.
+3. Point each collection at a content directory.
+4. Use `createContentLayer` or `pagesmithContent` depending on the project shape.
 
-**Read:** `node_modules/@pagesmith/core/REFERENCE.md` (Content Layer API, Collections)
+## Recipe: Add Vite virtual content modules
 
-## Add Vite integration
-
-1. Import `pagesmithContent` and `pagesmithSsg` from `@pagesmith/core/vite`.
-2. Register the content plugin before SSG output steps and spread `...pagesmithSsg(...)` into the Vite `plugins` array.
-3. Ensure SSR entry exports `getRoutes` and `render`.
-
-**Read:** `node_modules/@pagesmith/core/REFERENCE.md` (Vite Plugins)
-
-## Retrofit @pagesmith/core into an existing app
-
-1. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` and `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`.
-2. Reuse the repo's existing framework, routing, and SSR structure instead of scaffolding a separate docs site.
-3. Add or adapt `content.config.ts`, then wire Vite with `pagesmithContent` and `...pagesmithSsg(...)`.
-4. Update project memory pointers in `CLAUDE.md` / `AGENTS.md`.
-5. Verify that virtual module consumers expect serialized payloads (`html`, `headings`, `frontmatter` for markdown collections).
-
-**Read:** `node_modules/@pagesmith/core/ai-guidelines/usage.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, `node_modules/@pagesmith/core/REFERENCE.md`
-
-## Write markdown content
-
-1. Create markdown files with frontmatter (`title`, `description`, etc.).
-2. Use fenced code blocks with language identifiers.
-3. Use built-in code renderer meta for titles, line numbers, and line highlighting.
-4. Use mermaid code blocks for diagrams (` ```mermaid `).
-5. Use GitHub Alerts for callouts (`> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`).
-6. Validate with built-in content validators.
-
-**Read:** `node_modules/@pagesmith/core/REFERENCE.md` (Markdown Pipeline, Code Block Meta Syntax, Validators)
-
-## Update markdown behavior
-
-1. Update config through markdown options (`remarkPlugins`, `rehypePlugins`, `shiki`).
-2. Keep plugin order consistent with pipeline expectations.
-3. Validate with rendered output and built-in validators.
-
-**Read:** `node_modules/@pagesmith/core/REFERENCE.md` (Markdown Pipeline, Custom Plugins)
-
-## Update AI pointers in consuming project
-
-Add pointer lines to root `CLAUDE.md` or `AGENTS.md`:
-
-```
-For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/ai-guidelines/usage.md
-For @pagesmith/core upgrades, read node_modules/@pagesmith/core/ai-guidelines/migration.md
-For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REFERENCE.md
+```ts
+import { pagesmithContent } from '@pagesmith/core/vite'
 ```
 
-Or copy `node_modules/@pagesmith/core/ai-guidelines/AGENTS.md.template` as a starting point.
+Keep `pagesmithContent` on the core package. If the project also needs SSG, import that from `@pagesmith/site/vite`.
 
-## Upgrade an existing @pagesmith/core integration
+## Recipe: Use the content layer without Vite
 
-1. Read `node_modules/@pagesmith/core/ai-guidelines/migration.md` and `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md`.
-2. Upgrade `@pagesmith/core` with the repository's existing package manager.
-3. Recheck Vite wiring: `pagesmithContent(...)` plus `...pagesmithSsg(...)`.
-4. Verify that virtual module consumers still match the serialized payload shape.
-5. Run the repo's normal validation/build flow and fix any schema or markdown-validator drift.
+```ts
+import { createContentLayer, defineConfig } from '@pagesmith/core'
+import collections from './content.config'
 
-**Read:** `node_modules/@pagesmith/core/ai-guidelines/migration.md`, `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md`, `node_modules/@pagesmith/core/REFERENCE.md`
+const layer = createContentLayer(defineConfig({ collections }))
+```
+
+This is the right starting point for apps that already own routing and build tooling, such as Next.js or custom SSR servers.
+
+If the app also wants Pagesmith's shipped markdown presentation layer, pair it with:
+
+- `@pagesmith/site/css/content`
+- `@pagesmith/site/runtime/content`
+
+## Recipe: Render markdown in an existing app
+
+1. Define collections with `defineCollection` / `defineCollections`.
+2. Create a layer with `createContentLayer(defineConfig({ collections }))`.
+3. Call `entry.render()` where the host app needs HTML, headings, or read time.
+4. Inject `rendered.html` using the framework's raw-HTML escape hatch.
+5. Add `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content` only when you want the shared prose/code-block UI.
+
+## Recipe: Add site-building on top of core
+
+Split imports by responsibility:
+
+```ts
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+```
+
+Do not move collection logic into `@pagesmith/site`.

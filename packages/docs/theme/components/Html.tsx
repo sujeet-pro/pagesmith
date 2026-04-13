@@ -1,4 +1,4 @@
-import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { Fragment, h } from '@pagesmith/site/jsx-runtime'
 
 type Props = {
   title: string
@@ -16,6 +16,7 @@ type Props = {
       darkColor?: string
       defaultColorScheme?: string
       defaultTheme?: string
+      defaultTextSize?: string
     }
     analytics?: { googleAnalytics?: string }
     footerLinks?: Array<{ label: string; path: string }>
@@ -66,12 +67,17 @@ export function Html({ title, description, url, socialImage, site, children }: P
 
   const defaultColorScheme = site.theme?.defaultColorScheme || 'auto'
   const defaultTheme = site.theme?.defaultTheme || 'paper'
+  const defaultTextSize = site.theme?.defaultTextSize || 'base'
   const htmlClass = `no-js color-scheme-${defaultColorScheme} theme-${defaultTheme}`
 
   const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-\\w[\\w-]*/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})();`
 
   return (
-    <html lang={site.language || 'en'} class={htmlClass}>
+    <html
+      lang={site.language || 'en'}
+      class={htmlClass}
+      data-text-size={defaultTextSize !== 'base' ? defaultTextSize : undefined}
+    >
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

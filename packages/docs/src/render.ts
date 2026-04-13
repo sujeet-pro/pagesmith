@@ -1,11 +1,13 @@
 import { createHash } from 'crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'fs'
 import { basename, dirname, join, relative, resolve } from 'path'
+import type { Heading } from '@pagesmith/core/schemas'
 import type { ResolvedDocsConfig } from './config.js'
 import type { DocsPage, DocsSectionMeta, SiteModel } from './content.js'
 import { buildBreadcrumbs, loadDocsPages, loadRootMeta, loadSectionMetas } from './content.js'
-import { buildSiteModel, getPrevNext, getSitePayload } from './navigation.js'
+import { buildSiteModel, getDocsListingData, getPrevNext, getSitePayload } from './navigation.js'
 import DocHome from '../theme/layouts/DocHome'
+import DocListing from '../theme/layouts/DocListing'
 import DocNotFound from '../theme/layouts/DocNotFound'
 import DocPage from '../theme/layouts/DocPage'
 
@@ -13,6 +15,20 @@ import DocPage from '../theme/layouts/DocPage'
 type DocsRenderable = (props: any) => unknown
 
 type DocsLayoutRegistry = Record<string, DocsRenderable>
+
+function mergeHeadings(primary: Heading[], secondary: Heading[]): Heading[] {
+  if (secondary.length === 0) return primary
+  const merged: Heading[] = []
+  const seen = new Set<string>()
+
+  for (const heading of [...primary, ...secondary]) {
+    if (!heading.slug || seen.has(heading.slug)) continue
+    seen.add(heading.slug)
+    merged.push(heading)
+  }
+
+  return merged
+}
 
 async function loadUserThemeModule(
   entryPath: string,
@@ -90,6 +106,7 @@ async function resolveDocsLayout(
     home: ['default', 'DocHome', 'Home'],
     page: ['default', 'DocPage', 'Page'],
     notFound: ['default', 'DocNotFound', 'NotFound'],
+    listing: ['default', 'DocListing', 'Listing'],
   }
   const exportNames = knownExports[name] ?? ['default', name]
 
@@ -108,23 +125,31 @@ async function resolveDocsLayout(
 async function resolveDocsLayouts(
   config: ResolvedDocsConfig,
   sectionMetas?: Map<string, DocsSectionMeta>,
+  pages?: DocsPage[],
 ): Promise<DocsLayoutRegistry> {
   const registry: DocsLayoutRegistry = {
     home: await resolveDocsLayout('home', config, DocHome),
     page: await resolveDocsLayout('page', config, DocPage),
     notFound: await resolveDocsLayout('notFound', config, DocNotFound),
+    listing: await resolveDocsLayout('listing', config, DocListing),
   }
 
-  // Collect unique layout names from section metas
+  // Collect unique layout names from section metas and per-page frontmatter
+  const extraNames = new Set<string>()
   if (sectionMetas) {
-    const extraNames = new Set<string>()
     for (const meta of sectionMetas.values()) {
       if (meta.layout && !registry[meta.layout]) extraNames.add(meta.layout)
       if (meta.itemLayout && !registry[meta.itemLayout]) extraNames.add(meta.itemLayout)
     }
-    for (const name of extraNames) {
-      registry[name] = await resolveDocsLayout(name, config)
+  }
+  if (pages) {
+    for (const page of pages) {
+      const name = page.layoutName
+      if (name && !registry[name]) extraNames.add(name)
     }
+  }
+  for (const name of extraNames) {
+    registry[name] = await resolveDocsLayout(name, config)
   }
 
   return registry
@@ -145,7 +170,7 @@ export async function renderDocs(
   const pages = await loadDocsPages(config, sectionMetas)
   const model = buildSiteModel(config, pages, rootMeta, sectionMetas)
   const site = getSitePayload(config, model)
-  const layouts = await resolveDocsLayouts(config, sectionMetas)
+  const layouts = await resolveDocsLayouts(config, sectionMetas, pages)
 
   const base = config.basePath
 
@@ -160,6 +185,13 @@ export async function renderDocs(
 
   function renderPage(page: DocsPage): void {
     const urlPath = `${base}${page.routePath}`
+    const listingData =
+      page.layoutName === 'listing' && page.section
+        ? getDocsListingData(page.section, pages, base, sectionMetas?.get(page.section))
+        : undefined
+    const headings = listingData
+      ? mergeHeadings(page.headings, listingData.headings)
+      : page.headings
 
     if (page.isHome) {
       const frontmatter = { ...page.frontmatter }
@@ -184,9 +216,12 @@ export async function renderDocs(
       const output = layout({
         content: page.html,
         frontmatter,
-        headings: page.headings,
+        headings,
         slug: urlPath,
         site,
+        listingCards: listingData?.cards,
+        listingGroups: listingData?.groups,
+        listingTotal: listingData?.totalItems,
       })
       writeHtml(config.outDir, page.routePath, String(output))
       return
@@ -200,7 +235,7 @@ export async function renderDocs(
     const output = layout({
       content: page.html,
       frontmatter: page.frontmatter,
-      headings: page.headings,
+      headings,
       slug: urlPath,
       site,
       sidebarSections,
@@ -210,6 +245,9 @@ export async function renderDocs(
       editUrl,
       editLabel: config.editLink?.label,
       lastUpdated: page.lastUpdated,
+      listingCards: listingData?.cards,
+      listingGroups: listingData?.groups,
+      listingTotal: listingData?.totalItems,
     })
     writeHtml(config.outDir, page.routePath, String(output))
   }

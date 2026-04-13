@@ -7,7 +7,7 @@ export default defineConfig({
     },
   },
   test: {
-    projects: ['packages/core', 'packages/docs', 'tests/e2e'],
+    projects: ['packages/core', 'packages/site', 'packages/docs', 'tests/e2e'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
@@ -26,6 +26,9 @@ export default defineConfig({
         'packages/core/src/utils/*.ts',
         'packages/core/src/validation/*.ts',
         'packages/core/src/ai/content-*.ts',
+        'packages/site/src/config.ts',
+        'packages/site/src/cli/*.ts',
+        'packages/site/src/css/builder.ts',
         'packages/docs/src/content.ts',
         'packages/docs/src/navigation.ts',
         'packages/docs/src/config/shared.ts',

@@ -1,8 +1,8 @@
 /**
- * pagesmith — File-based CMS library.
+ * pagesmith — Headless content layer.
  *
  * Schema-validated collections, lazy markdown rendering,
- * asset hashing, and runtime CSS/JS exports.
+ * content validation, and Vite content access.
  */
 
 // ── Config ──
@@ -22,16 +22,9 @@ export {
 // ── Entry ──
 export { ContentEntry, type RenderedContent } from './entry'
 
-// ── JSX Runtime ──
-export { Fragment, h, HtmlString } from './jsx-runtime'
-
 // ── Markdown Processing ──
 export { processMarkdown } from './markdown'
 export type { MarkdownResult } from './markdown'
-
-// ── CSS Builder ──
-export { buildCss } from './css'
-export type { CssBuildOptions } from './css/builder'
 
 // ── Frontmatter ──
 export { extractFrontmatter, validateFrontmatter } from './frontmatter'

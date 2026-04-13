@@ -5,7 +5,7 @@ description: Syntax highlighting, line numbers, titles, tabs, and more with the 
 
 # Code Blocks
 
-Pagesmith uses a built-in Shiki-backed code renderer for code blocks. All features are configured by default in `@pagesmith/core` and require no additional setup. Include `@pagesmith/core/css/content` or `@pagesmith/core/css/standalone` so the shared frame, layout, and tab styles are present; theme colors and frame markup are generated during markdown processing, and the shared content runtime enables copy, collapse, and tab interactions in the browser.
+Pagesmith uses a built-in Shiki-backed code renderer for code blocks. The renderer ships with `@pagesmith/core`, while the shared CSS and browser runtime live in `@pagesmith/site`. Include `@pagesmith/site/css/content` or `@pagesmith/site/css/standalone` so the shared frame, layout, and tab styles are present; theme colors and frame markup are generated during markdown processing, and the shared content runtime enables copy, collapse, and tab interactions in the browser.
 
 ## Basic Syntax Highlighting
 
@@ -194,7 +194,7 @@ Collapse long sections of code that are not the focus:
 // These lines are collapsed by default
 import { defineConfig } from 'vite'
 import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg } from '@pagesmith/core/vite'
+import { pagesmithSsg } from '@pagesmith/site/vite'
 import collections from './content.config'
 // This line is visible
 export default defineConfig({
@@ -209,7 +209,7 @@ Rendered sample:
 // These lines are collapsed by default
 import { defineConfig } from 'vite'
 import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg } from '@pagesmith/core/vite'
+import { pagesmithSsg } from '@pagesmith/site/vite'
 import collections from './content.config'
 // This line is visible
 export default defineConfig({
@@ -349,7 +349,7 @@ Pagesmith's built-in code renderer runs inside the unified markdown pipeline. Du
 4. Adds inline theme variables for light/dark token colors
 5. Relies on the shared Pagesmith content runtime for tabs, copy, and collapse interactions
 
-Shared code-block styling ships in the core CSS bundles, and interactive behavior ships in the shared Pagesmith content runtime. Custom layouts and framework integrations should load those shared assets instead of recreating per-block JavaScript.
+Shared code-block styling ships in the Pagesmith CSS bundles published from `@pagesmith/site`, and interactive behavior ships in the shared Pagesmith content runtime. Custom layouts and framework integrations should load those shared assets instead of recreating per-block JavaScript.
 
 ## Meta String Reference
 

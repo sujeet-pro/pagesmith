@@ -4,9 +4,10 @@
  * 404 page for documentation sites.
  */
 
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 import { DocHeader } from '../components/DocHeader'
 import { Html } from '../components/Html'
+import { resolveChrome } from '../utils/chrome'
 
 type Props = {
   content: string
@@ -18,8 +19,9 @@ type Props = {
 }
 
 export default function DocNotFound(props: Props) {
-  const { site, slug } = props
+  const { site, slug, frontmatter } = props
   const homePath = site.homeLink || site.basePath || '/'
+  const chrome = resolveChrome(frontmatter)
 
   return (
     <Html
@@ -28,15 +30,17 @@ export default function DocNotFound(props: Props) {
       url={slug}
       site={site}
     >
-      <DocHeader
-        siteName={site.name}
-        siteIcon={site.icon}
-        basePath={site.basePath}
-        homeLink={site.homeLink}
-        navItems={site.navItems}
-        slug={slug}
-        searchEnabled={site.search?.enabled}
-      />
+      {chrome.header ? (
+        <DocHeader
+          siteName={site.name}
+          siteIcon={site.icon}
+          basePath={site.basePath}
+          homeLink={site.homeLink}
+          navItems={site.navItems}
+          slug={slug}
+          searchEnabled={site.search?.enabled}
+        />
+      ) : null}
       <main id="doc-main-content" class="doc-not-found" tabindex="-1">
         <article class="doc-not-found-container" data-pagefind-body="">
           <p class="doc-not-found-code">404</p>

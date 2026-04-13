@@ -11,7 +11,13 @@ const packages: string[] = readdirSync(packagesDir, { withFileTypes: true })
   .map((entry) => entry.name)
   .filter((name) => existsSync(join(packagesDir, name, 'package.json')))
 
-for (const pkg of packages) {
+const preferredOrder = ['core', 'site', 'docs']
+const orderedPackages = [
+  ...preferredOrder.filter((name) => packages.includes(name)),
+  ...packages.filter((name) => !preferredOrder.includes(name)).sort(),
+]
+
+for (const pkg of orderedPackages) {
   console.log(`\n> vp pack (${pkg})`)
   execSync('vp pack', {
     cwd: join(root, 'packages', pkg),

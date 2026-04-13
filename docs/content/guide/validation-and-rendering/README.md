@@ -269,7 +269,7 @@ Pagesmith uses a built-in Shiki-backed code renderer for all code block processi
 - Collapsible sections
 - Code block grouping/tabs
 
-Shared code-block chrome ships in the normal Pagesmith CSS bundles, while Shiki token colors and a small copy/collapse runtime are injected during markdown processing.
+Shared code-block chrome ships in the normal Pagesmith CSS bundles, while Shiki token colors are injected during markdown processing and the shared Pagesmith content runtime handles copy/collapse behavior in the browser.
 
 The renderer respects Pagesmith design tokens for font families, sizes, and border radius via CSS custom properties (`--ps-font-sans`, `--ps-font-mono`, `--ps-font-size-sm`, `--ps-radius-lg`, `--ps-color-border-subtle`).
 

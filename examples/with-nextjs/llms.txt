@@ -1,0 +1,35 @@
+Pagesmith + Next.js (examples/with-nextjs)
+
+Agent-focused notes for this framework-hosted example. Scope: `@pagesmith/core` for collections and markdown rendering inside Next.js App Router, with `@pagesmith/site` used only for shared content CSS/runtime.
+
+## Integration flow
+
+1. **Collections** — `content.config.js` defines the `posts` collection with Zod-backed frontmatter validation.
+2. **Content layer** — `lib/content.js` creates a fresh `createContentLayer(defineConfig({ root: process.cwd(), collections }))` per request/build step so content edits show up during `next dev` without manual invalidation.
+3. **Shared markdown UI** — `app/layout.js` imports `@pagesmith/site/css/content`, and `components/pagesmith-content-runtime.js` mounts `@pagesmith/site/runtime/content` once for copy buttons, code tabs, and collapse toggles.
+4. **Routes** — `app/posts/[slug]/page.js` uses `generateStaticParams()`, `generateMetadata()`, and `dangerouslySetInnerHTML` to turn `entry.render()` output into normal Next.js pages.
+5. **Build/output** — `next.config.mjs` keeps static export and base-path handling on the Next side. `npm run build` exports to `out/` and then copies the result to `gh-pages/examples/nextjs`.
+
+## Files to read first
+
+- `content.config.js`
+- `lib/content.js`
+- `app/layout.js`
+- `components/pagesmith-content-runtime.js`
+- `app/posts/[slug]/page.js`
+- `next.config.mjs`
+
+## Conventions
+
+- Keep routing, metadata, and layout ownership in Next.js.
+- Keep content collections, markdown rendering, headings, and read-time logic in `@pagesmith/core`.
+- Use `@pagesmith/site` only for the shared content presentation layer unless you intentionally adopt more Pagesmith site-building features.
+- The example scripts use `--webpack` with Next 16 in this monorepo because Turbopack currently trips over Pagesmith's package-relative Node resolution during the server build.
+
+## Live output
+
+- `https://projects.sujeet.pro/pagesmith/examples/nextjs`
+
+## Upstream docs
+
+For package APIs, markdown features, and framework guidance, follow the published Pagesmith docs and package `ai-guidelines/` files. This directory only demonstrates the Next.js wiring.

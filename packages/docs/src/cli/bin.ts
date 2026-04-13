@@ -29,7 +29,7 @@ function getVersion(): string {
 function printHelp(): void {
   console.log(
     `
-pagesmith
+pagesmith-docs
 
 Commands:
   init [options]                       Initialize a docs project (interactive)
@@ -83,7 +83,7 @@ async function ensureDocsConfig(
     }
     throw new Error(
       `No config file found at ${resolved}\n` +
-        `  Run 'pagesmith init' to create one, or use --config to specify a path.`,
+        `  Run 'pagesmith-docs init' to create one, or use --config to specify a path.`,
     )
   }
 
@@ -188,7 +188,7 @@ async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
 // ---------------------------------------------------------------------------
 
 function scriptCommand(command: 'dev' | 'build' | 'preview', configPath?: string): string {
-  const base = `pagesmith ${command}`
+  const base = `pagesmith-docs ${command}`
   if (!configPath || configPath === 'pagesmith.config.json5') {
     return base
   }
@@ -514,7 +514,7 @@ async function runInit(argv: string[]): Promise<void> {
     '    If you want to host docs at the root of a GitHub Pages site, edit basePath/origin in pagesmith.config.json5 manually.',
   )
   if (!answers.ai) {
-    console.log('    npx pagesmith init --ai  # Optional: install AI integrations')
+    console.log('    npx pagesmith-docs init --ai  # Optional: install AI integrations')
   }
   console.log()
 }
@@ -614,7 +614,9 @@ async function main(): Promise<void> {
     return
   }
 
-  throw new Error(`Unknown command: ${command}. Run 'pagesmith --help' for available commands.`)
+  throw new Error(
+    `Unknown command: ${command}. Run 'pagesmith-docs --help' for available commands.`,
+  )
 }
 
 main().catch((error) => {

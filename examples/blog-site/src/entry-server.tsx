@@ -3,10 +3,10 @@
  * Why one file: shows the full core-only integration without splitting into a framework app.
  */
 import { resolve } from 'path'
-import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { Fragment, h } from '@pagesmith/site/jsx-runtime'
 import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
 import type { ContentEntry } from '@pagesmith/core'
-import type { SsgRenderConfig } from '@pagesmith/core/vite'
+import type { SsgRenderConfig } from '@pagesmith/site/vite'
 
 // ── Types ──
 

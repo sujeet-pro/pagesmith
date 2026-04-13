@@ -16,7 +16,19 @@ export {
 export { withBase } from './config'
 export { docsPreset, type DocsPreset } from './preset'
 export { createDocsMcpServer, startDocsMcpServer, type DocsMcpServerOptions } from './mcp/server'
-export { Html } from './theme'
+export {
+  DocFooter,
+  DocHeader,
+  DocHome,
+  DocListing,
+  DocNotFound,
+  DocPage,
+  DocSidebar,
+  DocTOC,
+  Html,
+  resolveChrome,
+  type ResolvedChrome,
+} from './theme'
 export type {
   NavItem,
   SidebarSection,
@@ -27,4 +39,4 @@ export type {
   DocsSectionMeta,
   DocsRootMeta,
 } from './content'
-export { buildSiteModel, getPrevNext, getSitePayload } from './navigation'
+export { buildSiteModel, getDocsListingCards, getPrevNext, getSitePayload } from './navigation'

@@ -8,11 +8,12 @@
  * is not rendered. Supports both single-package and monorepo projects.
  */
 
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 import { DocFooter } from '../components/DocFooter'
 import { DocHeader } from '../components/DocHeader'
 import { DocSidebar } from '../components/DocSidebar'
 import { Html } from '../components/Html'
+import { resolveChrome } from '../utils/chrome'
 
 type Props = {
   content: string
@@ -25,6 +26,7 @@ type Props = {
 
 export default function DocHome(props: Props) {
   const { content, frontmatter, slug, site } = props
+  const chrome = resolveChrome(frontmatter)
 
   const hero =
     frontmatter.hero ??
@@ -72,18 +74,19 @@ export default function DocHome(props: Props) {
       }
       site={site}
     >
-      <DocHeader
-        siteName={site.name}
-        siteIcon={site.icon}
-        basePath={site.basePath}
-        homeLink={site.homeLink}
-        navItems={site.navItems}
-        slug={slug}
-        searchEnabled={site.search?.enabled}
-      />
+      {chrome.header ? (
+        <DocHeader
+          siteName={site.name}
+          siteIcon={site.icon}
+          basePath={site.basePath}
+          homeLink={site.homeLink}
+          navItems={site.navItems}
+          slug={slug}
+          searchEnabled={site.search?.enabled}
+        />
+      ) : null}
       <main id="doc-main-content" class="doc-home" tabindex="-1">
-        {/* Mobile sidebar (visible on small screens via hamburger toggle) */}
-        <DocSidebar sections={sidebarSections} currentSlug={slug} />
+        {chrome.sidebar ? <DocSidebar sections={sidebarSections} currentSlug={slug} /> : null}
 
         <article class="doc-home-body" data-pagefind-body="">
           {/* Hero section */}
@@ -214,15 +217,16 @@ export default function DocHome(props: Props) {
           ) : null}
         </article>
 
-        {/* Footer */}
-        <div class="doc-home-footer">
-          <DocFooter
-            links={site.footerLinks}
-            footerText={site.footerText}
-            maintainer={site.maintainer}
-            copyright={site.copyright}
-          />
-        </div>
+        {chrome.footer ? (
+          <div class="doc-home-footer">
+            <DocFooter
+              links={site.footerLinks}
+              footerText={site.footerText}
+              maintainer={site.maintainer}
+              copyright={site.copyright}
+            />
+          </div>
+        ) : null}
       </main>
     </Html>
   )

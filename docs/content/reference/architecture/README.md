@@ -1,22 +1,27 @@
 ---
 title: Architecture
-description: Workspace layout, 1.0 principles, package dependency graph, and how @pagesmith/core and @pagesmith/docs fit together.
+description: Workspace layout, 1.0 principles, package dependency graph, and how @pagesmith/core, @pagesmith/site, and @pagesmith/docs fit together.
 ---
 
 # Architecture
 
-Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm scope. The two main packages:
+Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm scope. The three public packages:
 
 ```text title="Package Overview"
 @pagesmith/core
   content layer (collections, loaders, store, validation)
   markdown pipeline (unified + built-in Pagesmith renderer)
-  JSX runtime
-  CSS builder
-  Vite content plugin + SSG plugin
+  Vite content plugin
   assistant artifact APIs
 
-@pagesmith/docs (built on @pagesmith/core)
+@pagesmith/site (built on @pagesmith/core)
+  pagesmith-site CLI
+  JSX runtime
+  CSS builder + shared CSS/runtime bundles
+  Vite SSG helpers
+  shared site utilities
+
+@pagesmith/docs (built on @pagesmith/core + @pagesmith/site)
   convention-based documentation
   docs build/dev/preview pipeline
   content collector and generators
@@ -29,25 +34,24 @@ Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm 
 These principles are the long-term guardrails for implementation and docs decisions:
 
 1. **Filesystem-first source of truth**: content and companion assets live in the repository.
-2. **Strict package boundaries**: shared primitives belong in `@pagesmith/core`; docs conventions belong in `@pagesmith/docs`.
+2. **Strict package boundaries**: shared content primitives belong in `@pagesmith/core`; shared site primitives belong in `@pagesmith/site`; docs conventions belong in `@pagesmith/docs`.
 3. **Boundary validation**: schema + content validation happens before rendering.
-4. **Vite-native tooling**: build/dev/preview flows remain Vite-centric.
+4. **Vite-native tooling for Pagesmith-managed site builds**: docs, CLI, and SSG flows remain Vite-centric, while the headless content layer stays usable from non-Vite apps.
 5. **Static-first delivery**: default output is static HTML with small progressive enhancements.
 6. **Configuration-first experience**: sensible defaults first, explicit overrides second.
 7. **Docs and AI guidance parity**: user docs and assistant guidance must track behavior changes in the same release.
 
 ## Package Dependency Graph
 
-`@pagesmith/core` is standalone with no internal workspace dependencies. `@pagesmith/docs` depends on `@pagesmith/core` as a runtime dependency and imports from multiple entry points:
+`@pagesmith/core` is standalone with no internal workspace dependencies. `@pagesmith/site` depends on `@pagesmith/core`, and `@pagesmith/docs` depends on both packages:
 
-| `@pagesmith/docs` import | Source in `@pagesmith/core` |
-|---|---|
-| `@pagesmith/core/assets` | Static file copying (`copyPublicFiles()`) |
-| `@pagesmith/core/css` | CSS bundling (`buildCss()`) via LightningCSS |
-| `@pagesmith/core/markdown` | Markdown processing (`processMarkdown()`) |
-| `@pagesmith/core/schemas` | Shared types (`Heading`) |
+| Package | Depends on | Notes |
+|---|---|---|
+| `@pagesmith/core` | — | Headless content layer |
+| `@pagesmith/site` | `@pagesmith/core` | CLI, JSX, CSS/runtime bundles, Vite SSG |
+| `@pagesmith/docs` | `@pagesmith/core`, `@pagesmith/site` | Docs preset, theme, schemas, MCP |
 
-Custom sites (the `examples/` projects) depend only on `@pagesmith/core` and build directly with Vite using the content plugin and SSG plugin.
+Custom sites (the `examples/` projects) depend on `@pagesmith/core` for content plus `@pagesmith/site` for JSX, CSS/runtime, and SSG. Framework-hosted apps can also use `@pagesmith/core` directly and add `@pagesmith/site/css/content` plus `@pagesmith/site/runtime/content` only when they want the shared markdown presentation layer.
 
 ## Core Package Internals
 
@@ -57,16 +61,9 @@ The package exposes multiple entry points via the `exports` field in `package.js
 
 | Import path | Source | Purpose |
 |---|---|---|
-| `@pagesmith/core` | `src/index.ts` | Main barrel -- config helpers, content layer, entry, JSX runtime, markdown, CSS, schemas, loaders, validation |
-| `@pagesmith/core/vite` | `src/vite/index.ts` | Vite plugins -- `pagesmithContent()`, `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
-| `@pagesmith/core/runtime` | `src/runtime/index.ts` | Pre-built CSS/JS accessors for standalone and content tiers |
-| `@pagesmith/core/jsx-runtime` | `src/jsx-runtime/index.ts` | Server-side JSX: `h()`, `Fragment()`, `HtmlString` |
+| `@pagesmith/core` | `src/index.ts` | Main barrel -- config helpers, content layer, markdown, schemas, loaders, validation |
+| `@pagesmith/core/vite` | `src/vite/index.ts` | Vite content plugin -- `pagesmithContent()` |
 | `@pagesmith/core/markdown` | `src/markdown/index.ts` | `processMarkdown()` function |
-| `@pagesmith/core/css` | `src/css/index.ts` | `buildCss()` via LightningCSS |
-| `@pagesmith/core/css/standalone` | `src/styles/standalone.css` | Full CSS bundle (direct file) |
-| `@pagesmith/core/css/content` | `src/styles/content.css` | Content-only CSS bundle (direct file) |
-| `@pagesmith/core/css/viewport` | `src/styles/viewport.css` | Viewport CSS (direct file) |
-| `@pagesmith/core/css/fonts` | `assets/fonts.css` | Font face declarations (direct file) |
 | `@pagesmith/core/schemas` | `src/schemas/index.ts` | Zod schemas and inferred TypeScript types |
 | `@pagesmith/core/loaders` | `src/loaders/index.ts` | Loader classes and the `resolveLoader()` registry |
 | `@pagesmith/core/assets` | `src/assets/index.ts` | Static file copying and content-hash filenames |
@@ -116,31 +113,6 @@ validation/
 
 vite/
   index.ts                pagesmithContent() plugin + type exports
-  ssg-plugin.ts           pagesmithSsg() -- dev middleware + build-time SSG
-  ssg.ts                  prerenderRoutes() -- lower-level pre-rendering utility
-  shared-assets.ts        sharedAssetsPlugin() -- serves fonts in dev
-
-runtime/
-  index.ts                CSS/JS asset accessors (getRuntimeCSS, getContentCSS, etc.)
-  standalone.ts           Full runtime (TOC highlight)
-  content.ts              Content-only runtime (placeholder)
-  toc-highlight.ts        IntersectionObserver-based TOC heading tracker
-
-styles/
-  standalone.css          Full bundle (reset + tokens + prose + inline code + TOC + layout)
-  content.css             Content-only bundle (reset + tokens + prose + inline code + viewport)
-  viewport.css            Viewport / responsive base
-  foundations/
-    reset.css             CSS reset
-    tokens.css            Design tokens as custom properties
-  content/
-    prose.css             Prose typography
-    toc.css               Table of contents
-  code/
-    inline.css            Inline code styling
-  layout/
-    grid.css              Page grid
-    sidebar.css           Sidebar layout
 ```
 
 ## Content Loading Flow
@@ -232,13 +204,13 @@ remark-parse                    Parse markdown to MDAST
   -> rehype-stringify           Serialize HAST to HTML string
 ```
 
-The built-in renderer defaults to `github-light` / `github-dark` dual themes and responds to Pagesmith's color-scheme classes for automatic light/dark switching. It handles code block frames, titles, line numbers, copy buttons, line highlighting (`mark` / `ins` / `del`), collapsible sections, and word wrapping. Shared code block chrome ships in Pagesmith's CSS bundles while Shiki token colors and the copy/collapse runtime are injected during markdown processing.
+The built-in renderer defaults to `github-light` / `github-dark` dual themes and responds to Pagesmith's color-scheme classes for automatic light/dark switching. It handles code block frames, titles, line numbers, copy buttons, line highlighting (`mark` / `ins` / `del`), collapsible sections, and word wrapping. Shared code block chrome ships in Pagesmith's CSS bundles, while Shiki token colors are injected during markdown processing and the shared browser runtime wires copy/collapse behavior.
 
 The built-in renderer and shared code block styles use Pagesmith design tokens via CSS custom properties such as `--ps-font-sans`, `--ps-font-mono`, `--ps-font-size-sm`, `--ps-radius-lg`, and `--ps-color-border-subtle`.
 
 ## Vite Plugin Architecture
 
-`@pagesmith/core/vite` exports Vite plugins that serve different roles:
+Pagesmith splits Vite responsibilities across `@pagesmith/core/vite` and `@pagesmith/site/vite`:
 
 ### `pagesmithContent(collections, options?)` -- Content Virtual Modules
 
@@ -254,7 +226,7 @@ This plugin:
 
 The plugin uses `enforce: 'pre'` so virtual module resolution runs before other plugins.
 
-### `pagesmithSsg(options)` -- Static Site Generation
+### `@pagesmith/site/vite` and `pagesmithSsg(options)` -- Static Site Generation
 
 Returns two plugins:
 
@@ -268,7 +240,7 @@ The SSR entry module must export:
 
 ### `sharedAssetsPlugin()` -- Font Assets in Dev
 
-A simple middleware plugin that serves `@pagesmith/core`'s bundled font files (woff2) and `fonts.css` during development. In production, fonts are copied to the output directory by the SSG build plugin.
+A simple middleware plugin that serves `@pagesmith/site`'s bundled font files (woff2) and `fonts.css` during development. In production, fonts are copied to the output directory by the SSG build plugin.
 
 ### `prerenderRoutes(options)` -- Lower-Level Pre-rendering
 
@@ -276,7 +248,7 @@ A utility function (not a Vite plugin) for simpler SSG scenarios where you run s
 
 ## Docs Package Internals
 
-The `@pagesmith/docs` package builds on `@pagesmith/core` to provide a convention-based documentation site.
+The `@pagesmith/docs` package builds on `@pagesmith/core` and `@pagesmith/site` to provide a convention-based documentation site.
 
 ### Site Engine
 
@@ -288,13 +260,13 @@ The central module that implements `build()`, `startDev()`, and `preview()`. It:
 4. **Processes markdown** through `@pagesmith/core/markdown`, then applies docs-specific link and asset transforms so relative `.md` links resolve to site routes and local content assets publish under `/assets/`
 5. **Builds a site model** containing navigation items, sidebar sections (per content section), and a page map
 6. **Renders pages** using JSX theme layouts (DocHome, DocPage, DocNotFound) or custom layouts registered via `theme.layouts` in the config
-7. **Bundles CSS** using `@pagesmith/core/css` (LightningCSS)
+7. **Bundles CSS** using `@pagesmith/site/css` (LightningCSS)
 8. **Bundles runtime JS** for sidebar toggle, TOC highlight, and search
 9. **Runs Pagefind** indexing on the built output (when search is enabled)
 
 ### Layout Override System
 
-The docs package has three built-in layout keys: `home`, `page`, and `notFound`. Each maps to a default JSX component (`DocHome`, `DocPage`, `DocNotFound`). Custom layouts can be registered in `pagesmith.config.json5` under `theme.layouts`, and section-level `meta.json5` files can assign layouts to sections or individual items via `layout` and `itemLayout` fields.
+The docs package has four built-in layout keys: `home`, `page`, `listing`, and `notFound`. Each maps to a default JSX component (`DocHome`, `DocPage`, `DocListing`, `DocNotFound`). Custom layouts can be registered in `pagesmith.config.json5` under `theme.layouts`, and section-level `meta.json5` files can assign layouts to sections or individual items via `layout` and `itemLayout` fields.
 
 When a custom layout module is loaded, the engine looks for exports in this priority order:
 - `default` export
@@ -302,7 +274,7 @@ When a custom layout module is loaded, the engine looks for exports in this prio
 
 ## Build Pipeline Phases
 
-### Development (`pagesmith dev`)
+### Development (`pagesmith-docs dev`)
 
 ```text title="Dev Server Flow"
 1. Load and resolve pagesmith.config.json5
@@ -315,7 +287,7 @@ When a custom layout module is loaded, the engine looks for exports in this prio
 8. On change: rebuild site model -> notify connected browsers via WebSocket
 ```
 
-### Production Build (`pagesmith build`)
+### Production Build (`pagesmith-docs build`)
 
 ```text title="Build Flow"
 1. Load and resolve pagesmith.config.json5
@@ -324,13 +296,13 @@ When a custom layout module is loaded, the engine looks for exports in this prio
 4. Bundle runtime JS (minified)
 5. Render all pages to HTML via JSX layouts
 6. Copy public/ directory to output
-7. Copy font assets from @pagesmith/core
+7. Copy font assets from @pagesmith/site
 8. Copy content companion assets (images) to output/assets/
 9. Run Pagefind indexer on output HTML (if search enabled)
 10. Write sitemap and any generated artifacts
 ```
 
-### Preview (`pagesmith preview`)
+### Preview (`pagesmith-docs preview`)
 
 ```text title="Preview Flow"
 1. Load config to determine output directory
@@ -355,5 +327,5 @@ Pagesmith uses multiple layers of caching for performance:
 - **Markdown validation shares one MDAST parse** across all validators via `ValidatorContext.mdast`, avoiding redundant parsing.
 - **Schema validation parses once** via Zod `safeParse` and reuses the coerced result for the entry data.
 - **Loader parse failures** are wrapped with structured file-aware errors so the content layer can report which file failed and why.
-- **The docs CLI lives in `@pagesmith/docs`** while custom-site examples build directly on `@pagesmith/core` with Vite, reinforcing the separation between convention-based docs and flexible custom sites.
+- **The docs experience uses the package-owned `pagesmith-docs` CLI** while custom-site examples build directly on `@pagesmith/core` + `@pagesmith/site`, reinforcing the separation between convention-based docs and flexible custom sites.
 - **Processor caching via WeakMap** means the unified plugin chain is built once per unique `MarkdownConfig` and reused for all entries sharing that config.

@@ -1,4 +1,4 @@
-@import '@pagesmith/core/css/content';
+@import '@pagesmith/site/css/content';
 
 /* Text size */
 html[data-text-size="small"] { font-size: 87.5%; }

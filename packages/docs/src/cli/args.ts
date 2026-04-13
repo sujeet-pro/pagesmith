@@ -108,7 +108,7 @@ export function parseServerArgs(argv: string[]): ServerCliArgs {
     }
 
     if (arg.startsWith('-')) {
-      throw new Error(`Unknown option: ${arg}. Run 'pagesmith --help' for usage.`)
+      throw new Error(`Unknown option: ${arg}. Run 'pagesmith-docs --help' for usage.`)
     }
   }
 
@@ -147,7 +147,7 @@ export function parseBuildArgs(argv: string[]): BuildCliArgs & { _help?: boolean
     }
 
     if (arg.startsWith('-')) {
-      throw new Error(`Unknown option: ${arg}. Run 'pagesmith --help' for usage.`)
+      throw new Error(`Unknown option: ${arg}. Run 'pagesmith-docs --help' for usage.`)
     }
   }
 
@@ -242,7 +242,7 @@ export function parseInitArgs(argv: string[]): InitCliArgs {
     }
 
     if (arg.startsWith('-')) {
-      throw new Error(`Unknown option: ${arg}. Run 'pagesmith --help' for usage.`)
+      throw new Error(`Unknown option: ${arg}. Run 'pagesmith-docs --help' for usage.`)
     }
   }
 
@@ -279,7 +279,7 @@ export function parseMcpArgs(argv: string[]): McpCliArgs {
     }
 
     if (arg.startsWith('-')) {
-      throw new Error(`Unknown option: ${arg}. Run 'pagesmith --help' for usage.`)
+      throw new Error(`Unknown option: ${arg}. Run 'pagesmith-docs --help' for usage.`)
     }
   }
 

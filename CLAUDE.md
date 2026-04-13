@@ -5,13 +5,14 @@ Repo-level maintainer context for the Pagesmith monorepo.
 ## Guidance Surfaces
 
 - **Use this file, `AGENTS.md`, root `ai-guidelines/`, and `.claude/skills/`** when maintaining this repository.
-- **Use `packages/core/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`** when updating the published package contract for library users.
+- **Use `packages/core/ai-guidelines/`, `packages/site/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`** when updating the published package contract for library users.
 - **Use `docs/content/` plus the repo-root `pagesmith.config.json5`** for the latest docs site that documents current main-branch behavior.
 
 ## What matters most
 
-- **`@pagesmith/core`** (`packages/core/`) — content layer, markdown pipeline, JSX runtime, CSS/runtime exports, Vite plugins, and core MCP server.
-- **`@pagesmith/docs`** (`packages/docs/`) — config-driven docs site, CLI (`init|dev|build|preview|mcp`), default theme, Pagefind integration, schema generation, and docs-specific MCP server.
+- **`@pagesmith/core`** (`packages/core/`) — headless content layer, markdown pipeline, validation, assets helpers, `pagesmithContent`, and the core MCP server.
+- **`@pagesmith/site`** (`packages/site/`) — `pagesmith-site` CLI, preset loading, JSX runtime, CSS/runtime exports, Vite SSG helpers, and shared assets/runtime behavior.
+- **`@pagesmith/docs`** (`packages/docs/`) — config-driven docs preset/theme built on top of core + site, Pagefind integration, schema generation, listing pages, and docs-specific MCP server.
 - **Root docs site** — config lives at `pagesmith.config.json5`; content lives in `docs/content/`.
 - **Examples** — `examples/blog-site/`, `examples/doc-site/`, and `examples/with-*` are part of the contract and must stay behaviorally aligned with the packages and docs.
 - **AI installer** — `packages/core/src/ai/` generates project memory files and skills; those generated references must track the published package paths under `node_modules/@pagesmith/*/ai-guidelines/` and `node_modules/@pagesmith/docs/schemas/`.
@@ -34,6 +35,10 @@ These files are part of the published package surface and must stay version-matc
 - `packages/core/ai-guidelines/llms*.txt`
 - `packages/core/README.md`
 - `packages/core/REFERENCE.md`
+- `packages/site/ai-guidelines/*.md`
+- `packages/site/ai-guidelines/llms*.txt`
+- `packages/site/README.md`
+- `packages/site/REFERENCE.md`
 - `packages/docs/ai-guidelines/*.md`
 - `packages/docs/ai-guidelines/llms*.txt`
 - `packages/docs/schemas/*.schema.json`
@@ -45,6 +50,9 @@ For consuming projects, the installed package paths should look like:
 - `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`
 - `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`
 - `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- `node_modules/@pagesmith/site/ai-guidelines/site-guidelines.md`
+- `node_modules/@pagesmith/site/ai-guidelines/usage.md`
+- `node_modules/@pagesmith/site/ai-guidelines/recipes.md`
 - `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
 - `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`
 - `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`
@@ -55,7 +63,7 @@ For consuming projects, the installed package paths should look like:
 
 When behavior changes:
 
-- Update implementation first in `packages/core/src/**` or `packages/docs/src/**`.
+- Update implementation first in `packages/core/src/**`, `packages/site/src/**`, or `packages/docs/src/**`.
 - Update published package guidance in `packages/*/ai-guidelines/**`, package READMEs/REFERENCE docs, and `packages/docs/schemas/**` when relevant.
 - Update generated AI artifact references under `packages/core/src/ai/**`.
 - Update the root docs site under `docs/content/**`.
@@ -65,6 +73,7 @@ When behavior changes:
 ## High-risk drift areas
 
 - Markdown/code renderer facts versus docs/examples/package `markdown-guidelines.md`
+- Site-building ownership drift between `packages/core/**`, `packages/site/**`, and the published guidance
 - Docs frontmatter/meta/schema rules versus `packages/docs/schemas/*.schema.json`
 - Docs hosting behavior versus `packages/docs/src/build.ts`, `packages/docs/src/server.ts`, and deployment docs
 - Example content versus the root docs site and package AI guidance

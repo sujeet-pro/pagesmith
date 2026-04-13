@@ -1,6 +1,6 @@
 # Pagesmith + EJS (with-vanilla-ejs example)
 
-This example is the minimal **@pagesmith/core + Vite + EJS** integration: no `@pagesmith/docs`, no virtual content modules.
+This example is the minimal **@pagesmith/core + @pagesmith/site + Vite + EJS** integration: no `@pagesmith/docs`, no virtual content modules.
 
 ## Integration flow (do not skip)
 
@@ -9,7 +9,7 @@ This example is the minimal **@pagesmith/core + Vite + EJS** integration: no `@p
 3. **Content layer** — Import the default export from `content.config.mjs` and call `createContentLayer({ collections, root })`. Use `layer.getCollection(name)` then `entry.render()` for `{ html, headings, readTime }`.
 4. **Templates** — EJS renders **fragments** (`article.ejs`, `index.ejs`, `about.ejs`); `layout.ejs` wraps `body`. Keep `data-pagefind-body` on the inner article/home content region, not on the full document.
 5. **Vite** — `vite.config.ts`: `sharedAssetsPlugin()` + `...pagesmithSsg({ entry, contentDirs })`. `contentDirs` is for dev watching and companion assets.
-6. **Client split** — `client.js` is the Vite client entry (theme CSS + `@pagesmith/core/runtime/content`). The layout also ships small inline scripts for sidebar/TOC/theme. Respect that split when adding JS.
+6. **Client split** — `client.js` is the Vite client entry (theme CSS + `@pagesmith/site/runtime/content`). The layout also ships small inline scripts for sidebar/TOC/theme. Respect that split when adding JS.
 7. **Pagefind** — Production only: `SsgRenderConfig.searchEnabled` is `false` in dev and `true` after SSG. Gate Pagefind `<link>` / `<script>` / modal markup on `searchEnabled` so dev HTML does not 404 on missing `pagefind/*` files.
 
 ## Commands (monorepo)

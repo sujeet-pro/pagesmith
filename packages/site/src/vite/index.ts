@@ -1,0 +1,6 @@
+export { prerenderRoutes } from './ssg'
+export type { PrerenderOptions } from './ssg'
+export { sharedAssetsPlugin } from './shared-assets.js'
+export { pagesmithSsg } from './ssg-plugin.js'
+export type { SsgPluginOptions, SsgRenderConfig } from './ssg-plugin.js'
+export type { ContentAssetMap } from '@pagesmith/core/assets'

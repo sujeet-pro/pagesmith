@@ -1,6 +1,14 @@
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { execSync } from 'child_process'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { resolveDocsConfig } from '../config.js'
@@ -213,5 +221,194 @@ describe('renderDocs', () => {
     expect(introHtml).toContain('Render Test')
     expect(introHtml).toContain('Docs')
     expect(introHtml).toContain('style="--doc-footer-columns:4;--doc-footer-columns-compact:2"')
+  })
+
+  it('renders listing layout with grouped cards, dates, and synthetic toc headings', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-render-listing-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ name: "Listing Test", origin: "https://example.dev", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n\nWelcome!', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'meta.json5'),
+      `{
+        series: [
+          {
+            slug: 'basics',
+            displayName: 'Basics',
+            description: 'Start with the essentials.',
+            articles: ['intro', 'advanced']
+          }
+        ]
+      }`,
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'README.md'),
+      `---
+title: Guide Section
+description: Section overview
+layout: listing
+---
+
+# Overview
+
+Pick a topic below.`,
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      '---\ntitle: Intro\ndescription: First steps\npublishedDate: 2024-01-10\n---\n\n# Intro\n\nHello.',
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'advanced.md'),
+      '---\ntitle: Advanced\ndescription: Go deeper\npublishedDate: 2024-01-20\n---\n\n# Advanced\n\nMore.',
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'appendix.md'),
+      '---\ntitle: Appendix\ndescription: Extra details\n---\n\n# Appendix\n\nExtras.',
+      'utf-8',
+    )
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    mkdirSync(config.outDir, { recursive: true })
+
+    await renderDocs(config)
+
+    const listingHtml = readFileSync(join(config.outDir, 'guide', 'index.html'), 'utf-8')
+    expect(listingHtml).toContain('doc-listing-grid')
+    expect(listingHtml).toContain('doc-listing-intro')
+    expect(listingHtml).toContain('doc-listing-stats')
+    expect(listingHtml).toContain('doc-listing-group-title')
+    expect(listingHtml).toContain('Start with the essentials.')
+    expect(listingHtml).toContain('doc-listing-card-title')
+    expect(listingHtml).toContain('doc-listing-card-meta')
+    expect(listingHtml).toContain('Intro')
+    expect(listingHtml).toContain('Advanced')
+    expect(listingHtml).toContain('Appendix')
+    expect(listingHtml).toContain('href="#basics"')
+    expect(listingHtml).toContain('href="#other"')
+    expect(listingHtml).toContain('January 10, 2024')
+    expect(listingHtml).toContain('href="/guide/intro/"')
+    expect(listingHtml).toContain('href="/guide/advanced/"')
+    expect(listingHtml).toContain('href="/guide/appendix/"')
+  })
+
+  it('compiles a custom listing override through the theme layout loader', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-render-custom-listing-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+    mkdirSync(join(rootDir, 'theme'), { recursive: true })
+    mkdirSync(join(rootDir, 'node_modules', '@pagesmith'), { recursive: true })
+    symlinkSync(
+      join(process.cwd(), 'packages', 'site'),
+      join(rootDir, 'node_modules', '@pagesmith', 'site'),
+      'dir',
+    )
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      `{
+        name: "Custom Listing Test",
+        origin: "https://example.dev",
+        search: { enabled: false },
+        theme: {
+          layouts: {
+            listing: "./theme/CustomListing.tsx"
+          }
+        }
+      }`,
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n\nWelcome!', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'README.md'),
+      '---\ntitle: Guide\nlayout: listing\n---\n\n# Guide\n',
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      '---\ntitle: Intro\n---\n\n# Intro\n',
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'theme', 'CustomListing.tsx'),
+      [
+        '/** @jsxImportSource @pagesmith/site */',
+        '',
+        "import { h } from '@pagesmith/site/jsx-runtime'",
+        '',
+        'export default function CustomListing(props: any) {',
+        '  return (',
+        '    <html>',
+        '      <body>',
+        '        <main data-custom-listing="">',
+        '          <h1>{props.frontmatter.title}</h1>',
+        '          <p>{props.listingCards?.length ?? 0} cards</p>',
+        '        </main>',
+        '      </body>',
+        '    </html>',
+        '  )',
+        '}',
+        '',
+      ].join('\n'),
+      'utf-8',
+    )
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    mkdirSync(config.outDir, { recursive: true })
+
+    await renderDocs(config)
+
+    const listingHtml = readFileSync(join(config.outDir, 'guide', 'index.html'), 'utf-8')
+    expect(listingHtml).toContain('data-custom-listing=""')
+    expect(listingHtml).toContain('1 cards')
+  })
+
+  it('honors frontmatter chrome toggles in rendered page shells', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-render-chrome-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ name: "Chrome Test", origin: "https://example.dev", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n\nWelcome!', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      `---
+title: Intro
+chrome:
+  header: false
+  sidebar: false
+  toc: false
+  footer: false
+---
+
+# Intro
+
+## Section
+
+Body.`,
+      'utf-8',
+    )
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    mkdirSync(config.outDir, { recursive: true })
+
+    await renderDocs(config)
+
+    const pageHtml = readFileSync(join(config.outDir, 'guide', 'intro', 'index.html'), 'utf-8')
+    expect(pageHtml).not.toContain('class="doc-header"')
+    expect(pageHtml).not.toContain('class="doc-sidebar"')
+    expect(pageHtml).not.toContain('class="doc-aside"')
+    expect(pageHtml).not.toContain('class="doc-footer"')
+    expect(pageHtml).toContain('id="doc-main-content"')
   })
 })

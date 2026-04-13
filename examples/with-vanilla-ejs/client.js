@@ -4,7 +4,7 @@
 // for small viewports.
 
 import './src/theme.css'
-import '@pagesmith/core/runtime/content'
+import '@pagesmith/site/runtime/content'
 
 if (typeof window.matchMedia === 'function') {
   const mediaQuery = window.matchMedia('(max-width: 640px)')

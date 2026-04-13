@@ -68,8 +68,8 @@ These schema files are useful when an agent is editing `pagesmith.config.json5`,
 The setup prompt tells the agent to:
 
 - install `@pagesmith/docs` at the repo root
-- prefer `npx pagesmith init` with explicit values after installation when the repo is a good fit for the built-in scaffolder
-- treat rerunning `npx pagesmith init` as safe for backfilling missing config fields and refreshing the config `$schema`
+- prefer `npx pagesmith-docs init` with explicit values after installation when the repo is a good fit for the built-in scaffolder
+- treat rerunning `npx pagesmith-docs init` as safe for backfilling missing config fields and refreshing the config `$schema`
 - inspect the repo for an existing docs-like directory before creating a new one
 - detect a GitHub Pages-style `origin` and `basePath` from the repo owner and repo name
 - confirm the chosen docs folder with the user when an existing candidate is found

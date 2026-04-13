@@ -6,7 +6,7 @@ Error solutions specific to the docs package. See also: `node_modules/@pagesmith
 
 ### Missing config file
 **Pattern:** `No pagesmith.config.json5 file found at <path>`
-**Fix:** Run `npx pagesmith init` or create the file manually. Minimum config:
+**Fix:** Run `npx pagesmith-docs init` or create the file manually. Minimum config:
 ```json5
 {
   name: "my-project",
@@ -40,14 +40,14 @@ Error solutions specific to the docs package. See also: `node_modules/@pagesmith
 
 ### Search index empty
 **Pattern:** Pagefind returns no results
-**Fix:** Ensure `search.enabled: true` in config, the layout includes `data-pagefind-body` on the content-only wrapper (not the full shell), and pages have sufficient text content. Rebuild with `npx pagesmith build`.
+**Fix:** Ensure `search.enabled: true` in config, the layout includes `data-pagefind-body` on the content-only wrapper (not the full shell), and pages have sufficient text content. Rebuild with `npx pagesmith-docs build`.
 
 ## CLI Errors
 
 ### Unknown command
 
-**Pattern:** `Unknown command: <command>. Run 'pagesmith --help' for available commands.`
-**Fix:** Use a valid CLI command: `init`, `dev`, `build`, `preview`, or `mcp`. Run `pagesmith --help` for the full list.
+**Pattern:** `Unknown command: <command>. Run 'pagesmith-docs --help' for available commands.`
+**Fix:** Use a valid CLI command: `init`, `dev`, `build`, `preview`, or `mcp`. Run `pagesmith-docs --help` for the full list.
 
 ### Failed to parse config file
 
@@ -73,7 +73,7 @@ Fix all `error`-severity issues reported by `validateConfig`, then rebuild.
 
 ## Quick Fix Workflow
 
-1. Run `npx pagesmith build` to see all errors
+1. Run `npx pagesmith-docs build` to see all errors
 2. Use `docs_validate_config` MCP tool for config-specific issues
 3. Use `docs_list_pages` to verify page discovery
 4. Check `meta.json5` files for navigation ordering

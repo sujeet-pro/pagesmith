@@ -18,6 +18,10 @@ export function renderMemoryFile(assistant: AiAssistant, profile: AiInstallProfi
     '\nFor package usage rules and full API/config details, read the package-shipped docs from node_modules:\n' +
     (profile === 'docs'
       ? '- `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` — bootstrap/retrofit prompt for docs integration\n' +
+        '- `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` — bootstrap/retrofit prompt for the shared site toolkit under docs\n' +
+        '- `node_modules/@pagesmith/site/ai-guidelines/usage.md` — site package usage contract\n' +
+        '- `node_modules/@pagesmith/site/REFERENCE.md` — site CLI, preset, JSX, CSS/runtime, and SSG reference\n' +
+        '- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` — bootstrap/retrofit prompt for content-layer integrations\n' +
         '- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` — docs package usage guidance\n' +
         '- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` — supported markdown features for docs projects\n' +
         '- `node_modules/@pagesmith/docs/ai-guidelines/usage.md` — docs package usage contract\n' +
@@ -26,11 +30,12 @@ export function renderMemoryFile(assistant: AiAssistant, profile: AiInstallProfi
         '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md` — core package workflow guidance\n' +
         '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md` — supported markdown features for content projects\n' +
         '- `node_modules/@pagesmith/core/ai-guidelines/usage.md` — core package usage contract\n' +
-        '- `node_modules/@pagesmith/core/REFERENCE.md` — core API, collections, loaders, markdown, CSS, JSX runtime'
-      : '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md` — core package workflow guidance\n' +
+        '- `node_modules/@pagesmith/core/REFERENCE.md` — core API, collections, loaders, markdown pipeline, and content-layer integration'
+      : '- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` — bootstrap/retrofit prompt for content-layer integrations\n' +
+        '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md` — core package workflow guidance\n' +
         '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md` — supported markdown features for content projects\n' +
         '- `node_modules/@pagesmith/core/ai-guidelines/usage.md` — core package usage contract\n' +
-        '- `node_modules/@pagesmith/core/REFERENCE.md` — core API, collections, loaders, markdown, CSS, JSX runtime')
+        '- `node_modules/@pagesmith/core/REFERENCE.md` — core API, collections, loaders, markdown pipeline, and content-layer integration')
 
   return [
     `# ${PAGESMITH_TITLE}`,

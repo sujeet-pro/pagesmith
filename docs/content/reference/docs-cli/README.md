@@ -1,406 +1,178 @@
 ---
 title: Docs CLI Reference
-description: pagesmith CLI for init, dev, build, preview, and mcp — install, flags, and command behavior for @pagesmith/docs.
+description: pagesmith-docs CLI for init, dev, build, preview, and mcp — install, flags, and command behavior for docs projects using @pagesmith/docs.
 ---
 
 # Docs CLI Reference
 
-The `@pagesmith/docs` package provides a `pagesmith` CLI binary for developing, building, and previewing documentation sites. The CLI is the primary interface for working with `@pagesmith/docs` projects.
+Docs projects use the package-owned `pagesmith-docs` CLI from `@pagesmith/docs`. It is the canonical command surface for scaffolding, developing, building, previewing, and exposing docs-aware MCP tools.
 
 ## Installation
 
-Install `@pagesmith/docs` as a dev dependency in your project:
+```bash title="Terminal"
+npm add @pagesmith/docs
+```
+
+Then run commands with `npx pagesmith-docs ...` or through package scripts.
+
+## Command Summary
 
 ```bash title="Terminal"
-npm install -D @pagesmith/docs
+pagesmith-docs init [options]
+pagesmith-docs dev [options]
+pagesmith-docs build [options]
+pagesmith-docs preview [options]
+pagesmith-docs mcp --stdio [options]
 ```
 
-The `pagesmith` binary is then available via `npx`, npm scripts, or direct invocation from `node_modules/.bin/`.
+## `pagesmith-docs init`
 
-## Commands
+Use `init` when you want Pagesmith to scaffold or backfill a docs project.
 
-### pagesmith init
+What it does:
 
-Initialize a new docs project interactively. Prompts for project name, title, base path, content directory, search, AI integrations, and starter content — with smart defaults detected from your git remote and `package.json`.
+1. Creates or updates `pagesmith.config.json5`.
+2. Adds the `$schema` reference to `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`.
+3. Scaffolds starter content when the expected docs pages are missing.
+4. Detects GitHub Pages-friendly defaults from the repo name and git remote.
+5. Optionally installs AI artifacts with `--ai`.
+
+Common flags:
+
+| Flag | Purpose |
+|---|---|
+| `-y`, `--yes` | Accept detected defaults without prompting |
+| `--ai` | Install AI memory files, skills, Markdown guidance, and `llms*.txt` |
+| `--no-llms` | Skip `llms.txt` and `llms-full.txt` generation |
+| `--config <path>` | Write the config to a non-default path |
+| `--content-dir <path>` | Choose a specific docs directory |
+| `--base-path <path>` | Override the detected GitHub Pages-style base path |
+| `--origin <url>` | Override the detected site origin |
+
+Examples:
 
 ```bash title="Terminal"
-pagesmith init [options]
+npx pagesmith-docs init
+npx pagesmith-docs init --yes --ai
+npx pagesmith-docs init --yes --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
 ```
 
-**Interactive mode** (default):
+`init` is safe to rerun. It backfills missing config fields instead of blindly replacing the whole file.
 
-```text title="Example session"
-  Pagesmith v0.2.0
+## `pagesmith-docs dev`
 
-  Project name (my-project):
-  Site title (My Project):
-  Base path (/my-project):
-  Content directory (docs):
-  Enable search? (Y/n):
-  Install AI integrations? (y/N):
-  Create starter content? (Y/n):
-```
-
-Press Enter to accept the default shown in parentheses, or type a new value.
-
-The init command creates:
-
-1. **`pagesmith.config.json5`** — site configuration with the values you provided, including a `$schema` pointer to the installed `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` file
-2. **`docs/README.md`** — home page with frontmatter (if starter content enabled)
-3. **`docs/guide/getting-started/README.md`** — starter getting-started page (if starter content enabled)
-
-With AI integrations enabled, it additionally installs:
-
-- `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` — assistant memory files
-- `.claude/skills/pagesmith/SKILL.md` — Claude `/pagesmith` skill
-- `.claude/skills/update-docs/SKILL.md` — Claude `/update-docs` skill
-- `.pagesmith/markdown-guidelines.md` — markdown authoring rules
-- `llms.txt` and `llms-full.txt`
-
-**Options:**
-
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `-y`, `--yes` | boolean | `false` | Skip prompts, accept all detected defaults |
-| `--ai` | boolean | `false` | Pre-select AI integrations (works with both interactive and `-y` mode) |
-| `--no-llms` | boolean | `false` | Skip `llms.txt` / `llms-full.txt` generation during AI install |
-| `--config <path>` | string | `pagesmith.config.json5` | Path for the configuration file |
-
-**Example:**
+Starts the docs development server with live reload.
 
 ```bash title="Terminal"
-# Interactive init — prompts for all options
-pagesmith init
-
-# Skip prompts, accept defaults
-pagesmith init -y
-
-# Skip prompts with AI integrations enabled
-pagesmith init --ai -y
-pagesmith init --ai --no-llms -y
-
-# Init with a custom config path
-pagesmith init --config ./pagesmith.config.json5
+npx pagesmith-docs dev
 ```
 
-The command is idempotent — rerunning it safely updates `pagesmith.config.json5` to backfill missing scaffold fields and refresh the `$schema` pointer, while leaving existing starter content files in place unless they are missing.
+Common flags:
 
-### pagesmith dev
+| Flag | Purpose |
+|---|---|
+| `--port <number>` | Change the dev port |
+| `--open` | Open the browser automatically |
+| `--config <path>` | Use a non-default config file |
+| `--out-dir <path>` | Override the output directory |
+| `--base-path <path>` | Override the configured base path |
+| `--log-level <level>` | Set `silent`, `error`, `warn`, `info`, or `verbose` |
 
-Start a development server with file watching and live reload.
+Use `dev` for content editing, layout work, navigation checks, and local theme iteration.
+
+## `pagesmith-docs build`
+
+Builds the full static docs site.
 
 ```bash title="Terminal"
-pagesmith dev [options]
+npx pagesmith-docs build
 ```
 
-The dev server watches your `content/` directory and any referenced assets for changes. When a markdown file or configuration file changes, the site is rebuilt incrementally and the browser reloads automatically via a WebSocket connection.
+The build resolves config, loads content and `meta.json5`, renders markdown through the shared Pagesmith pipeline, renders docs layouts, copies static and markdown companion assets, and runs Pagefind when search is enabled.
 
-**Options:**
-
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `-p, --port <number>` | number | `3000` | Port number for the development server |
-| `--config <path>` | string | `pagesmith.config.json5` | Path to the configuration file (resolved relative to cwd) |
-| `--open` | boolean | `false` | Open the default browser when the server starts |
-| `--out-dir <path>` | string | Config `outDir` | Override the output directory |
-| `--base-path <path>` | string | Config `basePath` | Override the base URL path prefix |
-| `--log-level <level>` | string | `warn` | Log verbosity: `silent`, `error`, `warn`, `info`, `verbose` |
-
-**Example:**
+Examples:
 
 ```bash title="Terminal"
-# Start dev server on the default port
-pagesmith dev
-
-# Start on a custom port and open the browser
-pagesmith dev --port 8080 --open
-
-# Use a specific config file
-pagesmith dev --config ./pagesmith.config.json5
+npx pagesmith-docs build
+npx pagesmith-docs build --base-path /my-repo
+BASE_URL=/my-repo npx pagesmith-docs build
 ```
 
-The development server includes:
+Base-path precedence:
 
-- A WebSocket-based live reload client injected into every page
-- Automatic reconnection when the server restarts (retries after 1 second)
-- Serving of static files from the `publicDir` directory
-- Proper MIME type handling for common web file formats
-- Serving of content companion assets (images referenced from markdown)
+1. `--base-path`
+2. `BASE_URL`
+3. `basePath` in config
+4. Git remote detection
+5. `/`
 
-**How Live Reload Works:**
+## `pagesmith-docs preview`
 
-The dev server injects a small inline script into every page that opens a WebSocket connection to `ws://<host>/__ws`. When a file change is detected by the `chokidar` watcher, the server rebuilds the site model and sends a `{ type: 'reload' }` message over the WebSocket. The client script calls `location.reload()` on receiving this message. If the WebSocket connection closes (e.g., server restart), the client retries after 1 second.
-
-### pagesmith build
-
-Produce a full static build of the documentation site.
+Serves the built output directly from disk.
 
 ```bash title="Terminal"
-pagesmith build [options]
+npx pagesmith-docs preview
 ```
 
-The build process performs the following steps:
+Use preview to verify production behavior such as built search assets, slashless routing, and `basePath` handling.
 
-1. **Config resolution** -- Loads `pagesmith.config.json5`, resolves all paths to absolute, applies CLI overrides and environment variables
-2. **Content discovery** -- Walks the content directory, reads `meta.json5` files for navigation order and section configuration
-3. **Markdown processing** -- Parses each markdown file through the unified pipeline (remark + built-in Pagesmith code renderer + rehype chain), extracts frontmatter, headings, and rendered HTML
-4. **Site model construction** -- Builds navigation items, sidebar sections (grouped by content directory), page map, and prev/next links
-5. **Page rendering** -- Renders each page through JSX theme layouts (DocHome, DocPage, DocNotFound, or custom layouts from `theme.layouts`)
-6. **CSS bundling** -- Bundles theme CSS using LightningCSS with minification (targets Chrome 100+, Firefox 100+, Safari 16+)
-7. **JS bundling** -- Bundles runtime JavaScript (sidebar toggle, TOC highlight, search)
-8. **Static file copying** -- Copies `publicDir` contents and font assets from `@pagesmith/core` to the output
-9. **Content asset copying** -- Copies companion assets (images) referenced from markdown to `output/assets/`
-10. **Pagefind indexing** -- Runs the Pagefind binary on the output HTML to generate the search index (if `search.enabled` is true)
+## `pagesmith-docs mcp --stdio`
 
-**Options:**
-
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `--config <path>` | string | `pagesmith.config.json5` | Path to the configuration file |
-| `--out-dir <path>` | string | Config `outDir` | Override the output directory |
-| `--base-path <path>` | string | Config `basePath` | Override the base URL path prefix |
-
-**Example:**
+Starts the docs-aware MCP server from `@pagesmith/docs`.
 
 ```bash title="Terminal"
-# Standard build
-pagesmith build
-
-# Build to a custom directory
-pagesmith build --out-dir ./public
-
-# Build for GitHub Pages deployment
-pagesmith build --base-path /my-repo
-
-# Build with BASE_URL environment variable
-BASE_URL=/my-repo pagesmith build
+npx pagesmith-docs mcp --stdio
 ```
 
-### pagesmith preview
+Common flags:
 
-Serve a pre-built documentation site for local verification before deployment.
+| Flag | Purpose |
+|---|---|
+| `--config <path>` | Config used by the docs MCP tools |
+| `--root <path>` | Project root for resolving config and content |
 
-```bash title="Terminal"
-pagesmith preview [options]
-```
+The server exposes tools such as:
 
-The preview server serves the previously built output directory as static files. This is useful for verifying the production build locally, especially when the site uses a `basePath` that changes link and asset resolution behavior.
+- `docs_validate_config`
+- `docs_resolve_config`
+- `docs_list_pages`
+- `docs_get_page`
+- `docs_search_pages`
 
-**Options:**
+## Zero-Config Behavior
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `-p, --port <number>` | number | `4000` | Port number for the preview server |
-| `--config <path>` | string | `pagesmith.config.json5` | Path to the configuration file (used to determine the output directory) |
-| `--open` | boolean | `false` | Open the default browser when the server starts |
-| `--out-dir <path>` | string | Config `outDir` | Override the output directory |
-| `--base-path <path>` | string | Config `basePath` | Override the base URL path prefix |
-| `--log-level <level>` | string | `warn` | Log verbosity: `silent`, `error`, `warn`, `info`, `verbose` |
+`pagesmith-docs dev`, `build`, `preview`, and `mcp --stdio` can run without `pagesmith.config.json5` when the project already follows the default conventions:
 
-**Example:**
+- `<repo-root>/docs` if it exists, otherwise `<repo-root>/content`
+- standard docs pages like `README.md`
+- optional `meta.json5` files for navigation
+- default output under `gh-pages`
 
-```bash title="Terminal"
-# Preview the built site
-pagesmith preview
+`init` is still the preferred way to make the contract explicit, add schema validation, and install AI artifacts.
 
-# Preview on a custom port
-pagesmith preview --port 5000
-```
-
-### pagesmith mcp
-
-Start a stdio MCP server backed by `@pagesmith/docs`.
-
-```bash title="Terminal"
-pagesmith mcp [options]
-```
-
-Use this to expose docs-aware tools to MCP-compatible assistants and editors.
-
-**Options:**
-
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `--stdio` | boolean | `true` | Use stdio transport |
-| `--config <path>` | string | `pagesmith.config.json5` | Config path used by MCP docs tools |
-| `--root <path>` | string | current working directory | Project root for resolving config and content |
-
-**Example:**
-
-```bash title="Terminal"
-# Start MCP server with default config
-pagesmith mcp --stdio
-
-# Start MCP server for another docs workspace
-pagesmith mcp --stdio --root . --config ./pagesmith.config.json5
-```
-
-Tools exposed by the server include `docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, and `docs_get_page`.
-
-### pagesmith --help
-
-Display the help text with all available commands and options.
-
-```bash title="Terminal"
-pagesmith --help
-pagesmith -h
-```
-
-The help output shows:
-
-```text title="Help Output"
-pagesmith
-
-Commands:
-  init [options]                       Initialize a docs project (interactive)
-  dev [options]                        Start a docs dev server
-  build [options]                      Build a docs site
-  preview [options]                    Preview the built docs site
-  mcp [options]                        Start stdio MCP server for docs tooling
-
-Init options:
-  -y, --yes                           Skip prompts, use defaults
-  --ai                                Install AI integrations (skills, guidelines)
-  --no-llms                           Skip llms.txt / llms-full.txt generation during AI install
-  --config <path>                     Config file path
-
-Server options:
-  -p, --port <number>                 Server port (dev: 3000, preview: 4000)
-  --open                              Open browser on server start
-  --out-dir <path>                    Output directory (overrides config)
-  --base-path <path>                  Base URL path prefix (overrides config)
-  --log-level <level>                 Log level: silent|error|warn|info|verbose (default: warn)
-  --config <path>                     Config file path
-
-MCP options:
-  --stdio                             Use stdio transport (default)
-  --config <path>                     Config file path used by docs_* tools
-  --root <path>                       Project root to resolve config/content paths
-```
-
-## Option Parsing
-
-The CLI uses a custom argument parser (no external dependency). All options use `--long-name` format with short aliases for `-h` (`--help`), `-v` (`--version`), `-y` (`--yes`), and `-p` (`--port`).
-
-Options that take a value require the value as the next argument (space-separated):
-
-```bash title="Terminal"
-# Correct
-pagesmith dev --port 8080
-
-# Incorrect (will error)
-pagesmith dev --port=8080
-```
-
-Boolean options like `--open` do not take a value -- their presence sets the flag to `true`.
-
-Unknown options (any flag starting with `-` that is not recognized) cause an immediate error:
-
-```text
-Unknown option: --unknown-flag
-```
-
-## Environment Variables
-
-### BASE_URL
-
-The `BASE_URL` environment variable sets the base URL path prefix for the built site. This is particularly useful in CI/CD environments where the deployment path is determined at build time.
-
-```bash title="Terminal"
-# GitHub Pages with repository-name prefix
-BASE_URL=/pagesmith pagesmith build
-
-# Subdirectory deployment
-BASE_URL=/docs/v2 pagesmith build
-```
-
-The priority order for base path resolution is:
-
-1. `--base-path` CLI flag (highest priority)
-2. `BASE_URL` environment variable
-3. `basePath` in `pagesmith.config.json5`
-4. Auto-detected from git remote URL (repo name as base path)
-5. Default `"/"`
-
-## Running via npm Scripts
-
-The recommended way to use the CLI is through npm scripts in your `package.json`:
+## Recommended Scripts
 
 ```json title="package.json"
 {
   "scripts": {
-    "dev": "pagesmith dev",
-    "build": "pagesmith build",
-    "preview": "pagesmith preview"
+    "docs:dev": "pagesmith-docs dev",
+    "docs:build": "pagesmith-docs build",
+    "docs:preview": "pagesmith-docs preview"
   }
 }
 ```
 
-Then run with:
-
-```bash title="Terminal"
-npm run dev
-npm run build
-npm run preview
-```
-
-## Running via npx
-
-For quick usage without installing as a dependency:
-
-```bash title="Terminal"
-npx @pagesmith/docs dev
-npx @pagesmith/docs build
-npx @pagesmith/docs preview
-```
-
-## Configuration File Resolution
-
-All commands look for `pagesmith.config.json5` in the current working directory by default. If the file is not found at the resolved path, the CLI exits with an error:
-
-```text
-No config file found at /path/to/pagesmith.config.json5
-  Run 'pagesmith init' to create one, or use --config to specify a path.
-```
-
-The resolution logic uses `path.resolve()` against the current working directory, so relative paths in `--config` are resolved from where you run the command.
-
-Use the `--config` flag to point to a config file in a different location:
-
-```bash title="Terminal"
-pagesmith dev --config ./pagesmith.config.json5
-```
-
-## Exit Codes
-
-| Code | Meaning |
-|---|---|
-| `0` | Success |
-| `1` | Error: unknown command, missing config file, invalid option value, or build failure |
-
-The CLI wraps the top-level `main()` function in a `.catch()` handler that logs the error message and calls `process.exit(1)`. This means:
-
-- Missing config files produce a clear error message before exiting
-- Unknown commands produce `Unknown command: <name>`
-- Unknown options produce `Unknown option: <flag>`
-- Build failures (markdown errors, missing files, Pagefind errors) propagate their error messages
-
 ## Typical Workflow
 
 ```bash title="Terminal"
-# 0. Initialize interactively (first time only)
-pagesmith init
-
-# 1. Start development
-pagesmith dev --open
-
-# 2. Edit content/ files -- browser auto-reloads
-
-# 3. Build for production
-pagesmith build
-
-# 4. Verify the production build locally
-pagesmith preview
-
-# 5. Deploy the output directory (default: gh-pages/) to your hosting provider
+npx pagesmith-docs init --yes --ai
+npx pagesmith-docs dev --open
+npx pagesmith-docs build
+npx pagesmith-docs preview
 ```
+
+## Related References
+
+- [Docs Getting Started](/guide/docs-getting-started/)
+- [AI Assistants](/guide/ai-assistants/)
+- [Prompts Cookbook](/guide/prompts-cookbook/)

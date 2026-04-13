@@ -53,12 +53,12 @@ All site configuration lives in a single JSON5 file:
 
 ## Smart Defaults
 
-When you run `pagesmith init`, the CLI detects your git remote and pre-populates `basePath` and `origin` for GitHub Pages deployment. For a repo at `github.com/user/my-project`, it sets:
+When you run `pagesmith-docs init`, the CLI detects your git remote and pre-populates `basePath` and `origin` for GitHub Pages deployment. For a repo at `github.com/user/my-project`, it sets:
 
 - `basePath: '/my-project'`
 - `origin: 'https://user.github.io'`
 
-It is also safe to rerun `pagesmith init` later. The CLI updates `pagesmith.config.json5` to add missing scaffold fields and refresh the `$schema` path instead of skipping the config file once it exists.
+It is also safe to rerun `pagesmith-docs init` later. The CLI updates `pagesmith.config.json5` to add missing scaffold fields and refresh the `$schema` path instead of skipping the config file once it exists.
 
 ## Key Options
 
@@ -75,4 +75,4 @@ It is also safe to rerun `pagesmith init` later. The CLI updates `pagesmith.conf
 | `editLink` | Auto-detected | "Edit this page" link configuration (`false` disables it) |
 | `theme.layouts` | package defaults | Optional `{ home, page, notFound }` JSX overrides (this example sets `home` + `page`) |
 
-CLI commands such as `pagesmith build`, `pagesmith preview`, and `pagesmith mcp --stdio` read the same config file you point at with `--config` (see [Installation](./installation)).
+CLI commands such as `pagesmith-docs build`, `pagesmith-docs preview`, and `pagesmith-docs mcp --stdio` read the same config file you point at with `--config` (see [Installation](./installation)).

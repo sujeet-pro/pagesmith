@@ -14,9 +14,9 @@ For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/RE
 
 ## Overview
 
-`@pagesmith/docs` is a convention-based documentation package built on `@pagesmith/core`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with built-in Pagefind search, sidebar generation, and an optional layout override system.
+`@pagesmith/docs` is a convention-based documentation package built on `@pagesmith/core` and `@pagesmith/site`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with the docs preset, built-in Pagefind search, sidebar generation, listing pages, and an optional layout override system.
 
-`@pagesmith/docs` includes `@pagesmith/core` — no need to install core separately.
+`@pagesmith/docs` includes both `@pagesmith/core` and `@pagesmith/site` — no separate install is required for the default docs flow.
 
 ## Requirements
 
@@ -51,7 +51,7 @@ For GitHub repositories, prefer a GitHub Pages-style default when bootstrapping 
 
 ## Recommended Project Structure
 
-This is the default layout that `pagesmith init` creates. Keep `pagesmith.config.json5` at the repository root and point `contentDir` at the docs directory:
+This is the default layout that `pagesmith-docs init` creates. Keep `pagesmith.config.json5` at the repository root and point `contentDir` at the docs directory:
 
 ```
 <project-root>/
@@ -73,26 +73,28 @@ This is the default layout that `pagesmith init` creates. Keep `pagesmith.config
   .github/workflows/gh-pages.yml
 ```
 
-If your repository already follows those conventions, `pagesmith dev`, `pagesmith build`, `pagesmith preview`, and `pagesmith mcp --stdio` also work with no `pagesmith.config.json5` at all. Zero-config resolution uses `<repo-root>/docs` when it exists, falls back to `<repo-root>/content`, and writes output to `<repo-root>/gh-pages`.
+If your repository already follows those conventions, `pagesmith-docs dev`, `pagesmith-docs build`, `pagesmith-docs preview`, and `pagesmith-docs mcp --stdio` also work with no `pagesmith.config.json5` at all. Zero-config resolution uses `<repo-root>/docs` when it exists, falls back to `<repo-root>/content`, and writes output to `<repo-root>/gh-pages`.
 
 Alternate layouts are still supported through `--config` and `contentDir`, but the root-config layout above should be the default story for both agents and manual setup.
 
 ## CLI Commands
 
+`@pagesmith/docs` publishes the `pagesmith-docs` binary. The package also exposes `@pagesmith/docs/preset` for integration through `pagesmith-site`, but `pagesmith-docs` is the canonical docs command.
+
 ```bash
-pagesmith init [--ai] [--no-llms] [--config path]   # Initialize config + content + AI integrations
-pagesmith dev [--port N] [--open]        # Development server with live reload
-pagesmith build [--out-dir path]         # Production build with Pagefind indexing
-pagesmith preview [--port N]             # Preview built site locally
-pagesmith mcp --stdio [--config path]    # Start stdio MCP server for docs tooling
+pagesmith-docs init [--ai] [--no-llms] [--config path]   # Initialize config + content + AI integrations
+pagesmith-docs dev [--port N] [--open]                   # Development server with live reload
+pagesmith-docs build [--out-dir path]                    # Production build with Pagefind indexing
+pagesmith-docs preview [--port N]                        # Preview built site locally
+pagesmith-docs mcp --stdio [--config path]               # Start stdio MCP server for docs tooling
 ```
 
-### pagesmith init
+### pagesmith-docs init
 
-Creates a minimal `pagesmith.config.json5` and a starter `docs/` directory structure. The generated config includes a `$schema` pointer to the installed package schema, and rerunning `pagesmith init` safely backfills missing scaffold fields instead of skipping the config file. Init defaults are derived from the repository name, git remote, and existing config values when present. With `--ai`, also installs AI assistant integrations (CLAUDE.md, skills, markdown guidelines). Add `--no-llms` to skip writing `llms.txt` and `llms-full.txt` when the project already maintains its own LLM files.
+Creates a minimal `pagesmith.config.json5` and a starter `docs/` directory structure. The generated config includes a `$schema` pointer to the installed package schema, and rerunning `pagesmith-docs init` safely backfills missing scaffold fields instead of skipping the config file. Init defaults are derived from the repository name, git remote, and existing config values when present. With `--ai`, also installs AI assistant integrations (CLAUDE.md, skills, markdown guidelines). Add `--no-llms` to skip writing `llms.txt` and `llms-full.txt` when the project already maintains its own LLM files.
 The generated config includes a `copyright` block by default, using the first git commit year when it can be detected and leaving `endYear: null` so the browser can advance the rendered year when needed.
 
-When a GitHub remote is present, `pagesmith init` defaults to GitHub Pages-style values:
+When a GitHub remote is present, `pagesmith-docs init` defaults to GitHub Pages-style values:
 
 - repo name -> `basePath: "/<repo-name>"`
 - `https://<owner>.github.io` -> `origin`, following redirects when possible
@@ -136,6 +138,8 @@ When the config file is committed, keep `$schema` pointing at the installed vers
 
 | Field | Type | Default | Description |
 |---|---|---|---|
+| `preset` | `string` | `@pagesmith/docs` | Explicit preset for the `pagesmith-site` CLI |
+| `presets` | `string[]` | — | Preset list; the first item is used when `preset` is absent |
 | `name` | `string` | pkg name | Site name (shown in header) |
 | `title` | `string` | pkg name | Browser tab title |
 | `description` | `string` | pkg desc | Default meta description |
@@ -159,6 +163,7 @@ When the config file is committed, keep `$schema` pointing at the installed vers
 | `theme.darkColor` | `string` | — | Dark theme meta color |
 | `theme.defaultColorScheme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Default color scheme (auto follows OS) |
 | `theme.defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Default theme variant |
+| `theme.defaultTextSize` | `'small' \| 'base' \| 'large'` | `'base'` | Default text size before user overrides are applied |
 | `theme.layouts` | `Record<string, string>` | — | Layout override file paths |
 | `theme.socialImage` | `string` | auto-detect | Default OG image for social sharing |
 | `analytics.googleAnalytics` | `string` | — | Google Analytics tracking ID |
@@ -342,17 +347,19 @@ content/
 |---|---|---|
 | `title` | `string` | Page title (sidebar + browser tab) |
 | `description` | `string` | Meta description for SEO |
+| `layout` | `string` | Per-page layout override |
 | `navLabel` | `string` | Override label in top navigation |
 | `sidebarLabel` | `string` | Override label in sidebar |
 | `order` | `number` | Manual sort order within section |
 | `draft` | `boolean` | Exclude page from build when `true` |
+| `chrome` | `object` | Per-page shell toggles (`header`, `sidebar`, `toc`, `footer`) |
 | `socialImage` | `string` | Open Graph image for social sharing (per-page override) |
 
 ### Home Page Frontmatter
 
 | Field | Type | Description |
 |---|---|---|
-| `layout` | `string` | Set to `DocHome` for home layout |
+| `layout` | `string` | Built-in layouts include `home`, `page`, `listing`, and `notFound` |
 | `tagline` | `string` | Short description below title |
 | `install` | `string` | Install command snippet |
 | `actions` | `array` | CTA buttons (`{ text, link, theme: 'brand' \| 'alt' }`) |
@@ -403,6 +410,7 @@ Override default layouts via `theme.layouts`:
     layouts: {
       home: './theme/layouts/DocHome.tsx',
       page: './theme/layouts/DocPage.tsx',
+      listing: './theme/layouts/DocListing.tsx',
       notFound: './theme/layouts/DocNotFound.tsx',
     },
   },
@@ -415,12 +423,14 @@ Override default layouts via `theme.layouts`:
 
 **Page layout** additionally: `sidebarSections`, `prev`, `next`.
 
+**Listing layout** additionally: `listingCards`, `listingGroups`, `listingTotal`.
+
 **Home layout** additionally: `frontmatter.hero`, `frontmatter.features`, `frontmatter.packages`, `frontmatter.install`.
 
-Layouts use `@pagesmith/core/jsx-runtime`:
+Layouts use `@pagesmith/site/jsx-runtime`:
 
 ```tsx
-import { Fragment } from '@pagesmith/core/jsx-runtime'
+import { Fragment } from '@pagesmith/site/jsx-runtime'
 
 export default function DocPage(props) {
   const { content, frontmatter, headings, slug, site, sidebarSections, prev, next } = props
@@ -515,7 +525,7 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
-      - run: npx pagesmith build
+      - run: npx pagesmith-docs build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: gh-pages
@@ -536,7 +546,7 @@ jobs:
 1. Create `<contentDir>/<section>/<slug>/README.md` with title and description frontmatter
 2. Add the slug to the section's `meta.json5` `items` array
 3. Write content following the markdown guidelines below
-4. Run `npx pagesmith dev` to verify rendering
+4. Run `npx pagesmith-docs dev` to verify rendering
 
 ## Markdown Guidelines
 

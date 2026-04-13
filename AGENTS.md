@@ -5,28 +5,30 @@ Use this file when working inside the Pagesmith monorepo.
 ## Scope Split
 
 - **Repo-maintainer guidance**: this file, `CLAUDE.md`, root `ai-guidelines/`, and `.claude/skills/`.
-- **Published user guidance**: `packages/core/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`.
+- **Published user guidance**: `packages/core/ai-guidelines/`, `packages/site/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`.
 - **Latest-project docs**: `docs/content/` plus the repo-root `pagesmith.config.json5` describe the current main-branch behavior.
 - **Installed-package contract**: anything under `node_modules/@pagesmith/*/ai-guidelines/` and `node_modules/@pagesmith/docs/schemas/` must stay version-matched with the package release.
 
 ## Architecture Snapshot
 
-Pagesmith ships two public packages under the `@pagesmith/` scope:
+Pagesmith ships three public packages under the `@pagesmith/` scope:
 
-- `@pagesmith/core` (`packages/core/`) for the content layer, markdown pipeline, JSX runtime, CSS/runtime exports, Vite plugins, and the core MCP server.
-- `@pagesmith/docs` (`packages/docs/`) for the config-driven docs site, build/dev/preview/MCP CLI, navigation generation, default theme, Pagefind integration, schema generation, and docs-specific runtime helpers.
+- `@pagesmith/core` (`packages/core/`) for the headless content layer, markdown pipeline, validation, assets helpers, `pagesmithContent`, and the core MCP server.
+- `@pagesmith/site` (`packages/site/`) for the `pagesmith-site` CLI, preset loading, JSX runtime, CSS/runtime exports, Vite SSG helpers, and shared site behavior.
+- `@pagesmith/docs` (`packages/docs/`) for the config-driven docs preset/theme, navigation generation, listing pages, Pagefind integration, schema generation, and docs-specific runtime helpers.
 
 Dependency graph:
 
 ```text
 @pagesmith/core -> standalone
-@pagesmith/docs -> @pagesmith/core
+@pagesmith/site -> @pagesmith/core
+@pagesmith/docs -> @pagesmith/core + @pagesmith/site
 ```
 
 ## Locked Principles
 
 1. Filesystem-first source of truth.
-2. Strict package boundaries: shared primitives in `@pagesmith/core`, docs conventions in `@pagesmith/docs`.
+2. Strict package boundaries: content in `@pagesmith/core`, site-building in `@pagesmith/site`, docs conventions in `@pagesmith/docs`.
 3. Validation at content boundaries before render/runtime use.
 4. Vite-native execution model.
 5. Progressive enhancement over JS-heavy runtime.
@@ -39,9 +41,16 @@ Dependency graph:
 
 - Implementation: `packages/core/src/**`
 - Markdown pipeline: `packages/core/src/markdown/pipeline.ts`, `packages/core/src/markdown/code/**`
-- Runtime/CSS/Vite exports: `packages/core/src/runtime/**`, `packages/core/src/styles/**`, `packages/core/src/vite/**`
+- Vite content plugin: `packages/core/src/vite/**`
 - Published user guidance: `packages/core/ai-guidelines/**`, `packages/core/README.md`, `packages/core/REFERENCE.md`
 - AI installer strings: `packages/core/src/ai/**`
+
+### `@pagesmith/site`
+
+- Implementation: `packages/site/src/**`
+- CLI/preset/config flow: `packages/site/src/cli/**`, `packages/site/src/config.ts`, `packages/site/src/preset.ts`
+- JSX/runtime/CSS/Vite SSG: `packages/site/src/jsx-runtime/**`, `packages/site/src/runtime/**`, `packages/site/src/css/**`, `packages/site/src/vite/**`, `packages/site/src/ssg-utils/**`
+- Published user guidance: `packages/site/ai-guidelines/**`, `packages/site/README.md`, `packages/site/REFERENCE.md`
 
 ### `@pagesmith/docs`
 
@@ -67,6 +76,11 @@ Dependency graph:
   - root docs site content under `docs/content/`
   - affected examples under `examples/`
   - AI installer references under `packages/core/src/ai/`
+- Site-building behavior changes must update:
+  - `packages/site/ai-guidelines/**`
+  - `packages/site/README.md` / `packages/site/REFERENCE.md`
+  - root docs pages for CLI, Vite, runtime, CSS, and layout/runtime behavior
+  - affected custom-site examples under `examples/**`
 - Markdown/code-renderer changes must update the implementation plus:
   - `packages/core/ai-guidelines/markdown-guidelines.md`
   - `packages/docs/ai-guidelines/markdown-guidelines.md`

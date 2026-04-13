@@ -106,27 +106,27 @@ Colors use the `light-dark()` function, so they automatically adapt to the user'
 
 ## CSS Import Paths
 
-`@pagesmith/core` exposes several CSS entry points through its package `exports` map. These are used directly by `@pagesmith/docs` but can also be imported in custom sites built on core.
+`@pagesmith/site` exposes several CSS entry points through its package `exports` map. These are used directly by `@pagesmith/docs` but can also be imported in custom sites built on `@pagesmith/core` + `@pagesmith/site`.
 
 | Import Path | Contents |
 |---|---|
-| `@pagesmith/core/css/content` | Prose typography, inline code, viewport base, reset |
-| `@pagesmith/core/css/standalone` | Full standalone bundle: reset + prose + code + layout + TOC |
-| `@pagesmith/core/css/viewport` | Responsive viewport base only |
-| `@pagesmith/core/css/fonts` | Bundled Open Sans and JetBrains Mono font-face declarations |
+| `@pagesmith/site/css/content` | Prose typography, inline code, viewport base, reset |
+| `@pagesmith/site/css/standalone` | Full standalone bundle: reset + prose + code + layout + TOC |
+| `@pagesmith/site/css/viewport` | Responsive viewport base only |
+| `@pagesmith/site/css/fonts` | Bundled Open Sans and JetBrains Mono font-face declarations |
 
 In a Vite-based project, import these directly in your CSS:
 
 ```css title="styles/main.css"
-@import '@pagesmith/core/css/content';
-@import '@pagesmith/core/css/fonts';
+@import '@pagesmith/site/css/content';
+@import '@pagesmith/site/css/fonts';
 ```
 
 Or in JavaScript/TypeScript:
 
 ```ts title="main.ts"
-import '@pagesmith/core/css/content'
-import '@pagesmith/core/css/fonts'
+import '@pagesmith/site/css/content'
+import '@pagesmith/site/css/fonts'
 ```
 
 ## Overriding Theme Styles
@@ -135,10 +135,10 @@ import '@pagesmith/core/css/fonts'
 
 For `@pagesmith/docs` sites, the recommended approach is to create a custom CSS file and import it in a layout override. Since the docs theme compiles its own stylesheet, direct injection requires a layout override that adds your stylesheet to the HTML head.
 
-For sites built on `@pagesmith/core`, add your overrides after the core imports:
+For sites built on `@pagesmith/core` + `@pagesmith/site`, add your overrides after the Pagesmith imports:
 
 ```css title="styles/custom.css"
-@import '@pagesmith/core/css/content';
+@import '@pagesmith/site/css/content';
 
 /* Override accent color */
 :root {
@@ -223,7 +223,7 @@ This causes all `light-dark()` functions to use their first argument. Alternativ
 
 ## Code Block Styling
 
-Syntax-highlighted code blocks are rendered by the built-in Pagesmith renderer during markdown processing. Shared code block chrome comes from the shipped Pagesmith CSS bundles, while Shiki token colors and the copy/collapse runtime are injected into the HTML output.
+Syntax-highlighted code blocks are rendered by the built-in Pagesmith renderer during markdown processing. Shared code block chrome comes from the shipped Pagesmith CSS bundles, while Shiki token colors are injected into the HTML output and the shared Pagesmith content runtime wires copy/collapse behavior in the browser.
 
 ### Default Themes
 
@@ -356,4 +356,4 @@ main.css
     not-found.css       → 404 page styles
 ```
 
-The full theme CSS is bundled and minified by LightningCSS during `pagesmith build`, producing a single `assets/style.css` file in the output directory. LightningCSS handles vendor prefixing, nesting compilation, and minification targeting Chrome 100+, Firefox 100+, and Safari 16+.
+The full theme CSS is bundled and minified by LightningCSS during `pagesmith-docs build`, producing a single `assets/style.css` file in the output directory. LightningCSS handles vendor prefixing, nesting compilation, and minification targeting Chrome 100+, Firefox 100+, and Safari 16+.

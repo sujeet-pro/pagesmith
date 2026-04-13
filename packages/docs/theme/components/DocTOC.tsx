@@ -1,4 +1,4 @@
-import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { Fragment, h } from '@pagesmith/site/jsx-runtime'
 import type { Heading } from '@pagesmith/core/schemas'
 
 type Props = {
@@ -11,7 +11,7 @@ export function DocTOC({ headings, title = 'On this page' }: Props) {
   if (filtered.length === 0) return <Fragment />
 
   return (
-    <nav class="doc-toc" aria-label="Table of contents">
+    <nav class="doc-toc" aria-label="Table of contents" data-ps-toc="">
       <p class="doc-toc-title">{title}</p>
       <ul class="doc-toc-list">
         {filtered.map((heading) => (

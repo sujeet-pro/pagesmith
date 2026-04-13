@@ -4,5 +4,5 @@
  * example's vanilla enhancements (TOC, sidebar, theme) — all optional progressive layers.
  */
 import './src/theme.css'
-import '@pagesmith/core/runtime/content'
+import '@pagesmith/site/runtime/content'
 import './src/runtime.ts'

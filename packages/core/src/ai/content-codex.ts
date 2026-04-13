@@ -8,12 +8,15 @@ export function renderCodexSkill(profile: AiInstallProfile): string {
     'Use this skill when the task involves setting up, extending, migrating, or documenting Pagesmith.',
     '',
     'Core rules:',
-    '- `@pagesmith/core` provides the content layer; `@pagesmith/docs` adds convention-based documentation',
+    '- `@pagesmith/core` provides the content layer, `@pagesmith/site` adds the shared site toolkit, and `@pagesmith/docs` adds convention-based documentation',
     '- prefer `defineCollection`, `defineConfig`, and `createContentLayer`',
+    '- start with `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` for content-layer bootstrap or retrofit work',
+    '- if the project also uses `@pagesmith/site`, start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` before changing site shell, preset, or SSG behavior',
     '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
     ...(profile === 'docs'
       ? [
           '- when bootstrapping or retrofitting docs, start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`',
+          '- for shared site shell, preset, or runtime work inside docs projects, also read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and `node_modules/@pagesmith/site/REFERENCE.md`',
           '- read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` and `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` before changing docs structure or authored markdown',
           '- when the repo uses `@pagesmith/docs`, treat `content/README.md` as the home page',
           '- top-level content folders define the main docs navigation',
@@ -28,6 +31,10 @@ export function renderCodexSkill(profile: AiInstallProfile): string {
     ...(profile === 'docs'
       ? [
           '- `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`',
+          '- `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`',
+          '- `node_modules/@pagesmith/site/ai-guidelines/usage.md`',
+          '- `node_modules/@pagesmith/site/REFERENCE.md`',
+          '- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`',
           '- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`',
           '- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`',
           '- `node_modules/@pagesmith/docs/ai-guidelines/usage.md`',
@@ -39,6 +46,7 @@ export function renderCodexSkill(profile: AiInstallProfile): string {
           '- `node_modules/@pagesmith/core/REFERENCE.md`',
         ]
       : [
+          '- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`',
           '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`',
           '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`',
           '- `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
@@ -49,6 +57,6 @@ export function renderCodexSkill(profile: AiInstallProfile): string {
     '- collection schemas and loader configuration',
     '- content-layer queries and rendering examples',
     '- documentation updates for Pagesmith usage',
-    '- assistant-context install via `npx pagesmith init --ai`',
+    '- assistant-context install via `npx pagesmith-core ai --profile default` for core/site projects or `npx pagesmith-docs init --ai` for docs projects',
   ].join('\n')
 }

@@ -59,7 +59,7 @@ Keyboard shortcuts and modal behavior come from those web components.
 
 ## Client bundle
 
-`client.js` imports `@pagesmith/core/runtime/content` and tweaks `<pagefind-modal-trigger>` for small screens. It is optional for static reading; search still works without those layout tweaks.
+`client.js` imports `@pagesmith/site/runtime/content` and tweaks `<pagefind-modal-trigger>` for small screens. It is optional for static reading; search still works without those layout tweaks.
 
 ## Development vs production
 

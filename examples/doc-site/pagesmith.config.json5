@@ -1,5 +1,6 @@
 {
   $schema: '../../node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
+  preset: '@pagesmith/docs',
   name: 'Pagesmith',
   title: 'Example Docs',
   description: 'Documentation site built with @pagesmith/docs',

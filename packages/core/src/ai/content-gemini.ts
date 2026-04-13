@@ -3,16 +3,19 @@ import { PAGESMITH_TITLE } from './content-shared'
 
 export function renderGeminiCommand(skillName: string, profile: AiInstallProfile): string {
   const prompt = [
-    `You are helping with ${PAGESMITH_TITLE}, a file-based CMS with @pagesmith/core and @pagesmith/docs.`,
+    `You are helping with ${PAGESMITH_TITLE}, a file-based CMS with @pagesmith/core, @pagesmith/site, and @pagesmith/docs.`,
     '',
     'Focus on concrete, implementation-ready help:',
     '- design collections with defineCollection',
     '- configure createContentLayer and defineConfig',
     '- prefer folder-based markdown entries when local assets sit beside content',
+    '- start with `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` for content-layer bootstrap or retrofit work',
+    '- if the project also uses `@pagesmith/site`, start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` before changing site shell, preset, or SSG behavior',
     '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
     ...(profile === 'docs'
       ? [
           '- for docs bootstrap or retrofit tasks, start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`',
+          '- for shared site shell, preset, or runtime work inside docs projects, also read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and `node_modules/@pagesmith/site/REFERENCE.md`',
           '- read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` and `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` before editing docs content or structure',
           '- for docs sites, follow the convention-based `content/` structure',
           '- drive top navigation from top-level folders and use frontmatter for labels/order',
@@ -25,6 +28,10 @@ export function renderGeminiCommand(skillName: string, profile: AiInstallProfile
     ...(profile === 'docs'
       ? [
           '- `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`',
+          '- `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`',
+          '- `node_modules/@pagesmith/site/ai-guidelines/usage.md`',
+          '- `node_modules/@pagesmith/site/REFERENCE.md`',
+          '- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`',
           '- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`',
           '- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`',
           '- `node_modules/@pagesmith/docs/ai-guidelines/usage.md`',
@@ -36,6 +43,7 @@ export function renderGeminiCommand(skillName: string, profile: AiInstallProfile
           '- `node_modules/@pagesmith/core/REFERENCE.md`',
         ]
       : [
+          '- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`',
           '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`',
           '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`',
           '- `node_modules/@pagesmith/core/ai-guidelines/usage.md`',

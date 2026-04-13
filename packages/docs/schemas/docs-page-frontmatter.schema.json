@@ -26,6 +26,27 @@
     "draft": {
       "type": "boolean"
     },
+    "layout": {
+      "type": "string"
+    },
+    "chrome": {
+      "type": "object",
+      "properties": {
+        "header": {
+          "type": "boolean"
+        },
+        "sidebar": {
+          "type": "boolean"
+        },
+        "toc": {
+          "type": "boolean"
+        },
+        "footer": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": {}
+    },
     "navLabel": {
       "type": "string"
     },

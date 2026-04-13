@@ -1,14 +1,16 @@
 import { copyPublicFiles } from '@pagesmith/core/assets'
-import { buildCss } from '@pagesmith/core/css'
+import { buildCss } from '@pagesmith/site/css'
 import {
   copyFileSync,
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readdirSync,
   rmSync,
   statSync,
   writeFileSync,
 } from 'fs'
+import { tmpdir } from 'os'
 import { basename, dirname, join, relative } from 'path'
 import { fileURLToPath } from 'url'
 import {
@@ -45,13 +47,13 @@ async function bundleThemeAssets(config: ResolvedDocsConfig): Promise<void> {
   })
 
   // Copy bundled font files to assets/fonts/
-  const corePkgDir = dirname(fileURLToPath(import.meta.resolve('@pagesmith/core/package.json')))
-  const coreFontsDir = join(corePkgDir, 'assets', 'fonts')
+  const sitePkgDir = dirname(fileURLToPath(import.meta.resolve('@pagesmith/site/package.json')))
+  const siteFontsDir = join(sitePkgDir, 'assets', 'fonts')
   const outFontsDir = join(assetsDir, 'fonts')
   mkdirSync(outFontsDir, { recursive: true })
-  for (const file of readdirSync(coreFontsDir)) {
+  for (const file of readdirSync(siteFontsDir)) {
     if (file.endsWith('.woff2')) {
-      copyFileSync(join(coreFontsDir, file), join(outFontsDir, file))
+      copyFileSync(join(siteFontsDir, file), join(outFontsDir, file))
     }
   }
 }
@@ -71,6 +73,22 @@ function copyDirRecursive(srcDir: string, destDir: string): void {
       copyFileSync(srcPath, destPath)
     }
   }
+}
+
+const PRESERVED_OUT_DIR_ENTRIES = new Set(['examples'])
+
+function clearDocsOutputDir(outDir: string): void {
+  mkdirSync(outDir, { recursive: true })
+
+  for (const entry of readdirSync(outDir, { withFileTypes: true })) {
+    if (PRESERVED_OUT_DIR_ENTRIES.has(entry.name)) continue
+    rmSync(join(outDir, entry.name), { recursive: true, force: true })
+  }
+}
+
+function syncDocsOutput(stagingDir: string, outDir: string): void {
+  clearDocsOutputDir(outDir)
+  copyDirRecursive(stagingDir, outDir)
 }
 
 function copyMappedAssets(config: ResolvedDocsConfig): void {
@@ -174,65 +192,69 @@ export async function build(options: DocsBuildOptions = {}): Promise<void> {
     }
   }
 
-  if (existsSync(config.outDir)) {
-    rmSync(config.outDir, { recursive: true, force: true })
-  }
-  mkdirSync(config.outDir, { recursive: true })
+  const stagingDir = mkdtempSync(join(tmpdir(), 'pagesmith-docs-build-'))
+  const buildConfig: ResolvedDocsConfig = { ...config, outDir: stagingDir }
 
-  const contentAssets = collectContentAssets(config.contentDir)
+  try {
+    const contentAssets = collectContentAssets(buildConfig.contentDir)
 
-  await bundleThemeAssets(config)
-  const renderStart = performance.now()
-  const { pages } = await renderDocs(config)
-  const renderElapsed = Math.round(performance.now() - renderStart)
-  console.log(`  Rendered ${pages.length} pages in ${renderElapsed}ms`)
-  copyPublicAssets(config)
-  copyMappedAssets(config)
-  copyContentAssetsToOutput(config.outDir, contentAssets)
+    await bundleThemeAssets(buildConfig)
+    const renderStart = performance.now()
+    const { pages } = await renderDocs(buildConfig)
+    const renderElapsed = Math.round(performance.now() - renderStart)
+    console.log(`  Rendered ${pages.length} pages in ${renderElapsed}ms`)
+    copyPublicAssets(buildConfig)
+    copyMappedAssets(buildConfig)
+    copyContentAssetsToOutput(buildConfig.outDir, contentAssets)
 
-  // Copy favicon to output if not already present (e.g. bundled default not in public/)
-  if (config.favicon) {
-    const faviconDest = join(config.outDir, basename(config.favicon))
-    if (!existsSync(faviconDest)) {
-      copyFileSync(config.favicon, faviconDest)
+    // Copy favicon to output if not already present (e.g. bundled default not in public/)
+    if (buildConfig.favicon) {
+      const faviconDest = join(buildConfig.outDir, basename(buildConfig.favicon))
+      if (!existsSync(faviconDest)) {
+        copyFileSync(buildConfig.favicon, faviconDest)
+      }
     }
-  }
 
-  // Auto-copy llms.txt convention files from project root
-  copyLlmsFiles(config)
+    // Auto-copy llms.txt convention files from project root
+    copyLlmsFiles(buildConfig)
 
-  // Auto-generate .nojekyll for GitHub Pages compatibility
-  writeFileSync(join(config.outDir, '.nojekyll'), '')
+    // Auto-generate .nojekyll for GitHub Pages compatibility
+    writeFileSync(join(buildConfig.outDir, '.nojekyll'), '')
 
-  // Auto-generate sitemap.xml when origin is configured
-  if (config.sitemap && config.origin !== 'https://example.com') {
-    writeFileSync(join(config.outDir, 'sitemap.xml'), generateSitemap(pages, config))
-  }
+    // Auto-generate sitemap.xml when origin is configured
+    if (buildConfig.sitemap && buildConfig.origin !== 'https://example.com') {
+      writeFileSync(join(buildConfig.outDir, 'sitemap.xml'), generateSitemap(pages, buildConfig))
+    }
 
-  // Auto-generate robots.txt if not already present (from publicDir or assets)
-  const robotsPath = join(config.outDir, 'robots.txt')
-  if (!existsSync(robotsPath)) {
-    const hasSitemap = config.sitemap && config.origin !== 'https://example.com'
-    const sitemapLine = hasSitemap
-      ? `\nSitemap: ${config.origin}${config.basePath}/sitemap.xml`
-      : ''
-    writeFileSync(robotsPath, `User-agent: *\nAllow: /${sitemapLine}\n`)
-  }
+    // Auto-generate robots.txt if not already present (from publicDir or assets)
+    const robotsPath = join(buildConfig.outDir, 'robots.txt')
+    if (!existsSync(robotsPath)) {
+      const hasSitemap = buildConfig.sitemap && buildConfig.origin !== 'https://example.com'
+      const sitemapLine = hasSitemap
+        ? `\nSitemap: ${buildConfig.origin}${buildConfig.basePath}/sitemap.xml`
+        : ''
+      writeFileSync(robotsPath, `User-agent: *\nAllow: /${sitemapLine}\n`)
+    }
 
-  // Build summary
-  const duration = ((performance.now() - startTime) / 1000).toFixed(1)
-  const sectionCount = new Set(pages.map((p) => p.section).filter(Boolean)).size
-  console.log()
-  console.log(`  Built ${pages.length} pages in ${sectionCount} sections (${duration}s)`)
+    if (buildConfig.search.enabled) {
+      console.log()
+      try {
+        await runPagefind(buildConfig.outDir, buildConfig.search.pagefindFlags)
+      } catch (error) {
+        console.warn(`\x1b[33m⚠ Pagefind indexing failed — search will not be available.\x1b[0m`)
+        console.warn(`  ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }
 
-  if (config.search.enabled) {
+    syncDocsOutput(buildConfig.outDir, config.outDir)
+
+    // Build summary
+    const duration = ((performance.now() - startTime) / 1000).toFixed(1)
+    const sectionCount = new Set(pages.map((p) => p.section).filter(Boolean)).size
     console.log()
-    try {
-      await runPagefind(config.outDir, config.search.pagefindFlags)
-    } catch (error) {
-      console.warn(`\x1b[33m⚠ Pagefind indexing failed — search will not be available.\x1b[0m`)
-      console.warn(`  ${error instanceof Error ? error.message : String(error)}`)
-    }
+    console.log(`  Built ${pages.length} pages in ${sectionCount} sections (${duration}s)`)
+  } finally {
+    rmSync(stagingDir, { recursive: true, force: true })
   }
 }
 

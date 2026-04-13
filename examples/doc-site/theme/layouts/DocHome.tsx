@@ -1,4 +1,4 @@
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 import { Html } from '@pagesmith/docs/theme'
 import {
   buildHomeSidebarSections,

@@ -14,7 +14,7 @@ This guide covers everything you need to go from an empty project to a running d
 
 Paste this into your AI assistant when you want it to retrofit docs into an existing repo or create a fresh docs section with the right Pagesmith structure:
 
-> Set up docs using Pagesmith for this repository. Read `https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md` first and follow it exactly.
+> Set up docs using Pagesmith for this repository. Read `https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md` first and follow it exactly. Use `npx pagesmith-docs init --yes --ai` for bootstrap work and keep `pagesmith.config.json5` at the repo root.
 
 If `@pagesmith/docs` is already installed and you want the version-matched local file instead of the hosted one:
 
@@ -49,29 +49,29 @@ npm add @pagesmith/docs
 
 This pulls in `@pagesmith/core` as a dependency automatically. You do not need to install core separately when using the docs package.
 
-After installation, the `pagesmith` CLI is available via `npx pagesmith` or through package scripts.
+After installation, the canonical docs CLI is available as `npx pagesmith-docs`. The package also exposes `@pagesmith/docs/preset` for `pagesmith-site`, but docs projects should prefer `pagesmith-docs`.
 
 ## Quick Init
 
 The fastest non-interactive setup flow is:
 
 ```bash
-npx pagesmith init --yes --ai
+npx pagesmith-docs init --yes --ai
 ```
 
 For an agent or scriptable workflow, pass explicit values:
 
 ```bash
-npx pagesmith init --yes --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
+npx pagesmith-docs init --yes --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
 ```
 
 If `https://my-user.github.io` redirects to a custom host, use the redirected origin. If you want the docs site hosted at the root instead of `/<repo-name>`, edit `pagesmith.config.json5` manually after init.
 
-It is safe to rerun `pagesmith init` later. The command updates `pagesmith.config.json5` to add missing scaffold fields and refresh the `$schema` path instead of skipping the file outright.
+It is safe to rerun `pagesmith-docs init` later. The command updates `pagesmith.config.json5` to add missing scaffold fields and refresh the `$schema` path instead of skipping the file outright.
 
 ## Create a Configuration File
 
-If your repository already follows the default conventions, `pagesmith dev`, `pagesmith build`, `pagesmith preview`, and `pagesmith mcp --stdio` work without a config file at all. In zero-config mode, Pagesmith uses `<repo-root>/docs` when it exists, falls back to `<repo-root>/content`, and writes the build to `<repo-root>/gh-pages`.
+If your repository already follows the default conventions, `pagesmith-docs dev`, `pagesmith-docs build`, `pagesmith-docs preview`, and `pagesmith-docs mcp --stdio` work without a config file at all. In zero-config mode, Pagesmith uses `<repo-root>/docs` when it exists, falls back to `<repo-root>/content`, and writes the build to `<repo-root>/gh-pages`.
 
 Add `pagesmith.config.json5` at the project root when you want to override those defaults:
 
@@ -294,19 +294,19 @@ Each feature has `title` (required), `details` (required), and an optional `icon
 Start the development server with live reload:
 
 ```bash
-npx pagesmith dev
+npx pagesmith-docs dev
 ```
 
 The dev server defaults to port 3000. Use `--port` to change it:
 
 ```bash
-npx pagesmith dev --port 8080
+npx pagesmith-docs dev --port 8080
 ```
 
 Use `--open` to automatically open the site in your default browser:
 
 ```bash
-npx pagesmith dev --open
+npx pagesmith-docs dev --open
 ```
 
 The dev server watches the content directory and rebuilds pages on change. A WebSocket connection triggers automatic browser reload when content is updated.
@@ -316,7 +316,7 @@ The dev server watches the content directory and rebuilds pages on change. A Web
 Build a static site:
 
 ```bash
-npx pagesmith build
+npx pagesmith-docs build
 ```
 
 The output goes to the configured `outDir` (default `gh-pages/`). The build:
@@ -330,7 +330,7 @@ The output goes to the configured `outDir` (default `gh-pages/`). The build:
 Override the output directory or base path from the CLI:
 
 ```bash
-npx pagesmith build --out-dir ./public --base-path /my-docs
+npx pagesmith-docs build --out-dir ./public --base-path /my-docs
 ```
 
 ## Previewing the Build
@@ -338,21 +338,21 @@ npx pagesmith build --out-dir ./public --base-path /my-docs
 Preview the built site locally:
 
 ```bash
-npx pagesmith preview
+npx pagesmith-docs preview
 ```
 
 This starts a static file server pointing at the output directory. Use `--port` to change the default port (4000):
 
 ```bash
-npx pagesmith preview --port 5000
+npx pagesmith-docs preview --port 5000
 ```
 
 ## CLI Reference
 
 ```text
-pagesmith dev [options]       Start a docs dev server
-pagesmith build [options]     Build a docs site
-pagesmith preview [options]   Preview the built docs site
+pagesmith-docs dev [options]       Start a docs dev server
+pagesmith-docs build [options]     Build a docs site
+pagesmith-docs preview [options]   Preview the built docs site
 
 Options:
   -p, --port <number>         Server port (dev: 3000, preview: 4000)
@@ -370,9 +370,9 @@ A typical `package.json` setup:
 ```json
 {
   "scripts": {
-    "dev": "pagesmith dev",
-    "build": "pagesmith build",
-    "preview": "pagesmith preview"
+    "docs:dev": "pagesmith-docs dev",
+    "docs:build": "pagesmith-docs build",
+    "docs:preview": "pagesmith-docs preview"
   },
   "dependencies": {
     "@pagesmith/docs": "^0.1.0"
@@ -382,7 +382,7 @@ A typical `package.json` setup:
 
 ## Search
 
-Pagefind full-text search is enabled by default. It indexes your content during `pagesmith build` and provides a search modal triggered by `Cmd+K` / `Ctrl+K`.
+Pagefind full-text search is enabled by default. It indexes your content during `pagesmith-docs build` and provides a search modal triggered by `Cmd+K` / `Ctrl+K`.
 
 To disable search:
 

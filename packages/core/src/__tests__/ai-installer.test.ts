@@ -50,6 +50,16 @@ describe('getAiArtifacts', () => {
     expect(docsContent).not.toContain('node_modules/@pagesmith/docs/docs/')
   })
 
+  it('references the package-owned setup prompts in default profile artifacts', () => {
+    const memory = getAiArtifactContent('claude', 'memory', { profile: 'default' })
+    const skill = getAiArtifactContent('claude', 'skill', { profile: 'default' })
+
+    expect(memory).toContain('node_modules/@pagesmith/core/ai-guidelines/setup-core.md')
+    expect(memory).toContain('node_modules/@pagesmith/site/ai-guidelines/setup-site.md')
+    expect(skill).toContain('node_modules/@pagesmith/core/ai-guidelines/setup-core.md')
+    expect(skill).toContain('node_modules/@pagesmith/site/ai-guidelines/setup-site.md')
+  })
+
   it('generates valid managed block markers', () => {
     const artifacts = getAiArtifacts({
       assistants: ['claude'],

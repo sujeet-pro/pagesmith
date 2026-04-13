@@ -1,49 +1,61 @@
 ---
 title: Runtime
-description: Pre-built CSS and JavaScript exports from @pagesmith/core — content and standalone tiers, fonts, tokens, and runtime helpers.
+description: Pre-built CSS and JavaScript exports from @pagesmith/site — content and standalone tiers, fonts, tokens, and runtime helpers.
 ---
 
 # Runtime
 
-`@pagesmith/core` provides pre-built CSS and JS assets for styling rendered markdown content. This page is the comprehensive guide for CSS imports, runtime JavaScript, design tokens, and customization.
+`@pagesmith/site` provides pre-built CSS and JS assets for styling rendered markdown content. This page is the comprehensive guide for CSS imports, runtime JavaScript, design tokens, and customization across Vite sites and framework-hosted apps such as Next.js.
 
 ## CSS Export Paths
 
-Pagesmith provides four CSS export paths that can be imported directly in Vite projects or any bundler that supports package exports:
+Pagesmith provides four CSS export paths that can be imported directly in Vite projects or any framework/bundler that supports package exports:
 
 | Import Path | Contents | Use Case |
 |---|---|---|
-| `@pagesmith/core/css/content` | Reset + tokens + prose typography + inline code + viewport | Embedding rendered markdown in an existing app |
-| `@pagesmith/core/css/standalone` | Reset + tokens + prose + inline code + TOC + page grid + sidebar | Full documentation site layout |
-| `@pagesmith/core/css/viewport` | Viewport overflow protection and responsive base | Minimal responsive shell |
-| `@pagesmith/core/css/fonts` | Font face declarations for Open Sans and JetBrains Mono (variable woff2) | Self-hosted fonts matching the design tokens |
+| `@pagesmith/site/css/content` | Reset + tokens + prose typography + inline code + viewport | Embedding rendered markdown in an existing app |
+| `@pagesmith/site/css/standalone` | Reset + tokens + prose + inline code + TOC + page grid + sidebar | Full documentation site layout |
+| `@pagesmith/site/css/viewport` | Viewport overflow protection and responsive base | Minimal responsive shell |
+| `@pagesmith/site/css/fonts` | Font face declarations for Open Sans and JetBrains Mono (variable woff2) | Self-hosted fonts matching the design tokens |
 
-### Importing CSS in Vite Projects
+### Importing CSS in App Code
 
-In a Vite-based project, import CSS directly in your entry file or theme stylesheet:
+Import CSS directly in your entry file, theme stylesheet, or framework app layout:
 
 ```ts title="src/theme.css"
-@import '@pagesmith/core/css/fonts';
-@import '@pagesmith/core/css/content';
+@import '@pagesmith/site/css/fonts';
+@import '@pagesmith/site/css/content';
 ```
 
 Or import from JavaScript/TypeScript:
 
 ```ts title="src/main.ts"
-import '@pagesmith/core/css/fonts'
-import '@pagesmith/core/css/content'
+import '@pagesmith/site/css/fonts'
+import '@pagesmith/site/css/content'
+```
+
+In a Next.js App Router project, the equivalent is a global import from `app/layout.js` plus a tiny client component for the runtime:
+
+```js title="components/pagesmith-content-runtime.js"
+'use client'
+
+import '@pagesmith/site/runtime/content'
+
+export function PagesmithContentRuntime() {
+  return null
+}
 ```
 
 For a full documentation layout:
 
 ```ts title="src/theme.css"
-@import '@pagesmith/core/css/fonts';
-@import '@pagesmith/core/css/standalone';
+@import '@pagesmith/site/css/fonts';
+@import '@pagesmith/site/css/standalone';
 ```
 
 ### CSS File Contents
 
-#### `@pagesmith/core/css/content` (Content Tier)
+#### `@pagesmith/site/css/content` (Content Tier)
 
 The content CSS bundle includes everything needed for styled markdown output without any layout:
 
@@ -59,7 +71,7 @@ viewport.css                Viewport overflow protection
 
 Code block styling **is** included in the shared CSS bundle. Shiki token colors still arrive inline per block, but the frame chrome, line layout, copy button styling, and tabs come from the shipped Pagesmith CSS.
 
-#### `@pagesmith/core/css/standalone` (Standalone Tier)
+#### `@pagesmith/site/css/standalone` (Standalone Tier)
 
 The standalone CSS bundle adds layout components on top of the content tier:
 
@@ -76,18 +88,18 @@ layout/grid.css             Page grid
 layout/sidebar.css          Sidebar layout
 ```
 
-#### `@pagesmith/core/css/viewport`
+#### `@pagesmith/site/css/viewport`
 
 Minimal viewport and responsive base styles. Useful when you only need overflow protection without the full content or standalone bundles.
 
-#### `@pagesmith/core/css/fonts`
+#### `@pagesmith/site/css/fonts`
 
 Font face declarations for the two bundled variable fonts:
 
 - **Open Sans** (variable, 300-800 weight) -- used for body text (`--font-sans`)
 - **JetBrains Mono** (variable, 400-700 weight) -- used for code (`--font-mono`)
 
-The font files are distributed as woff2 in the `@pagesmith/core/assets/fonts/` directory. The `fonts.css` file references them with relative URLs.
+The font files are distributed as woff2 in the `@pagesmith/site/assets/fonts/` directory. The `fonts.css` file references them with relative URLs.
 
 ## How Pagesmith Handles Code Block CSS
 
@@ -101,7 +113,7 @@ If you want to customize code block appearance, override the `--ps-*` custom pro
 
 ## Runtime JS Accessor Functions
 
-The `@pagesmith/core/runtime` module provides functions that read pre-built CSS and JS files for server-side rendering scenarios where you need to inline assets or reference file paths.
+The `@pagesmith/site/runtime` module provides functions that read pre-built CSS and JS files for server-side rendering scenarios where you need to inline assets or reference file paths.
 
 ### Standalone Tier (Full Site)
 
@@ -132,30 +144,36 @@ For projects that already have their own layout but want consistent styling for 
 | `getViewportCSS()` | Viewport/responsive base CSS as a string |
 | `getViewportCSSPath()` | Absolute file path to the viewport CSS file |
 
-All accessor functions read from the `@pagesmith/core` package directory, checking `src/` first (for development with linked packages) and falling back to `dist/` (for published builds).
+All accessor functions read from the `@pagesmith/site` package directory, checking `src/` first (for development with linked packages) and falling back to `dist/` (for published builds).
 
 ## Runtime JavaScript Behavior
 
 ### Standalone Runtime
 
-The standalone runtime initializes:
+The standalone runtime adds the full Pagesmith site enhancements on top of the content runtime:
 
 - **TOC Highlight** (`toc-highlight.ts`) -- Uses `IntersectionObserver` with a root margin of `-80px 0px -66% 0px` to track which heading is near the top of the viewport. When the active heading changes, the corresponding TOC item gets the `.active` class and is scrolled into view.
-
-Code block interactivity such as copy and collapse is handled by the built-in renderer through inline scripts injected during markdown processing.
+- **Theme and text-size controls** -- Persists appearance, theme, and text-size preferences in `localStorage('pagesmith-theme')`.
+- **Content runtime behaviors** -- Copy buttons, code tabs, and collapse toggles for rendered markdown.
 
 ### Content Runtime
 
-The content runtime is a minimal placeholder. Code block interactivity is handled by the built-in renderer's inline script, and projects using the content tier have their own navigation and TOC implementation.
+The content runtime wires the markdown-specific browser behaviors:
+
+- **Code copy buttons**
+- **Code tab switching**
+- **Collapse / expand toggles**
+
+It intentionally does **not** own your app shell, navigation, TOC implementation, or theme controls. That makes it a good fit for framework-hosted apps that already have their own layout and routing.
 
 ### Progressive Enhancement
 
-The runtime JavaScript is strictly a progressive enhancement layer. All content is readable and functional without JavaScript. Copy buttons and collapse controls are rendered in the HTML output during markdown processing, but require JavaScript to function.
+The runtime JavaScript is strictly a progressive enhancement layer. All content is readable without JavaScript. Copy buttons, code tabs, and collapse controls are rendered in the HTML output during markdown processing, but they need the matching runtime entry point to become interactive.
 
 ## Design Tokens (CSS Custom Properties)
 
 > [!NOTE]
-> These design tokens are for `@pagesmith/core`'s standalone CSS. The `@pagesmith/docs` default theme uses its own design tokens with different values (different color palette, different font stack). See the [Docs Theme reference](/reference/docs-theme/) for docs-specific tokens.
+> These design tokens are for `@pagesmith/site`'s standalone CSS. The `@pagesmith/docs` default theme uses its own design tokens with different values (different color palette, different font stack). See the [Docs Theme reference](/reference/docs-theme/) for docs-specific tokens.
 
 All visual properties in Pagesmith CSS are defined as CSS custom properties in `foundations/tokens.css` under `:root`. The tokens use the CSS `light-dark()` function for automatic dark mode support, with `color-scheme: light dark` on `:root`.
 
@@ -258,16 +276,16 @@ For code-block styling and renderer chrome, override the `--ps-*` prefixed varia
 
 | Scenario | CSS Import | JS |
 |---|---|---|
-| Full documentation site with sidebar, TOC, navigation | `@pagesmith/core/css/standalone` | Standalone runtime |
-| Blog or custom site with its own layout | `@pagesmith/core/css/content` | Content runtime |
-| Embedding rendered markdown in an existing app | `@pagesmith/core/css/content` | Content runtime |
-| Only need viewport protection | `@pagesmith/core/css/viewport` | None |
+| Full documentation site with sidebar, TOC, navigation | `@pagesmith/site/css/standalone` | Standalone runtime |
+| Blog or custom site with its own layout | `@pagesmith/site/css/content` | Content runtime |
+| Embedding rendered markdown in an existing app | `@pagesmith/site/css/content` | Content runtime |
+| Only need viewport protection | `@pagesmith/site/css/viewport` | None |
 | Already own the entire presentation layer | None | None -- use `@pagesmith/core` for loading, validating, and rendering only |
 
-When using the runtime programmatically (e.g., for SSR), use the accessor functions from `@pagesmith/core/runtime`:
+When using the runtime programmatically (e.g., for SSR), use the accessor functions from `@pagesmith/site/runtime`:
 
 ```ts title="ssr-example.ts"
-import { getContentCSS, getContentJS } from '@pagesmith/core/runtime'
+import { getContentCSS, getContentJS } from '@pagesmith/site/runtime'
 
 const css = getContentCSS()
 const js = getContentJS()
@@ -282,6 +300,6 @@ const html = `
 For Vite projects, prefer direct CSS imports over the accessor functions:
 
 ```ts title="src/theme.css"
-@import '@pagesmith/core/css/fonts';
-@import '@pagesmith/core/css/content';
+@import '@pagesmith/site/css/fonts';
+@import '@pagesmith/site/css/content';
 ```

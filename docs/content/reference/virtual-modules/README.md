@@ -10,13 +10,16 @@ description: How pagesmithContent creates typed virtual modules for importing co
 
 The `pagesmithContent` Vite plugin exposes your collections as virtual modules. This lets you `import` collection data directly in application code with full type safety.
 
+If your app is not using Pagesmith's Vite integration, skip virtual modules and use `createContentLayer()` plus `entry.render()` directly instead. See [Next.js (App Router)](/guide/framework-nextjs) for that pattern.
+
 ## How It Works
 
 When you configure `pagesmithContent` in your Vite config:
 
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
-import { pagesmithContent, pagesmithSsg } from '@pagesmith/core/vite'
+import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithSsg } from '@pagesmith/site/vite'
 import collections from './content.config'
 
 export default defineConfig({
@@ -156,7 +159,7 @@ The content root defaults to the deepest common parent directory of all collecti
 The `pagesmithSsg` plugin expects your entry module to export two functions:
 
 ```ts title="src/entry-server.tsx"
-import type { SsgRenderConfig } from '@pagesmith/core/vite'
+import type { SsgRenderConfig } from '@pagesmith/site/vite'
 
 export function getRoutes(config: SsgRenderConfig): string[] {
   // Return all URL paths to pre-render
@@ -173,7 +176,7 @@ export function render(url: string, config: SsgRenderConfig): string {
 
 ## SSG Utilities
 
-The `@pagesmith/core/ssg-utils` module provides shared utilities commonly needed in SSG entries:
+The `@pagesmith/site/ssg-utils` module provides shared utilities commonly needed in SSG entries:
 
 ```ts
 import {
@@ -187,7 +190,7 @@ import {
   menuIcon,          // SVG icon strings
   closeIcon,
   searchIcon,
-} from '@pagesmith/core/ssg-utils'
+} from '@pagesmith/site/ssg-utils'
 ```
 
-See the framework examples (`examples/with-react/`, `examples/with-svelte/`, etc.) for complete usage.
+See the framework examples (`examples/with-react/`, `examples/with-svelte/`, etc.) for complete Vite usage. For non-Vite host apps, see [Next.js (App Router)](/guide/framework-nextjs).

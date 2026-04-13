@@ -8,6 +8,7 @@
     "build": "node ../packages/docs/dist/cli/bin.mjs build --config ../pagesmith.config.json5"
   },
   "dependencies": {
-    "@pagesmith/docs": "*"
+    "@pagesmith/docs": "*",
+    "@pagesmith/site": "*"
   }
 }

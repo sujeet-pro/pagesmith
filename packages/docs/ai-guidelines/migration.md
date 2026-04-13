@@ -14,8 +14,8 @@
    - `node_modules/@pagesmith/docs/schemas/*.schema.json`
 3. Keep `pagesmith.config.json5` at the repo root unless the project intentionally uses a custom `--config` path.
 4. Reconfirm `contentDir`, `origin`, `basePath`, and the root `docs:dev`, `docs:build`, `docs:preview` scripts.
-5. Refresh `CLAUDE.md` / `AGENTS.md` pointers to the version-matched package guidance. If AI artifacts are stale or missing, prefer `npx pagesmith init --ai --no-llms` with explicit existing values instead of scaffolding a second docs tree. It is safe to rerun init to backfill missing config fields and refresh the root config `$schema`.
-6. Run `npx pagesmith build` and optionally `npx pagesmith dev`.
+5. Refresh `CLAUDE.md` / `AGENTS.md` pointers to the version-matched package guidance. If AI artifacts are stale or missing, prefer `npx pagesmith-docs init --ai --no-llms` with explicit existing values instead of scaffolding a second docs tree. It is safe to rerun init to backfill missing config fields and refresh the root config `$schema`.
+6. Run `npx pagesmith-docs build` and optionally `npx pagesmith-docs dev`.
 7. Adopt relevant new features only after the existing docs build is green again.
 
 ## Prompt: upgrade an existing @pagesmith/docs integration
@@ -35,10 +35,10 @@ Requirements:
 3. Keep the existing pagesmith.config.json5 location and contentDir unless a schema or config problem requires a change. Ask before moving docs content.
 4. Reuse the existing docs tree. Do not scaffold a second docs directory or replace useful content with starter files.
 5. Revalidate origin, basePath, docs:dev/docs:build/docs:preview scripts, and project memory pointers in CLAUDE.md / AGENTS.md.
-6. Refresh AI artifacts only when they are missing or stale. Prefer `npx pagesmith init --ai --no-llms` with explicit existing values when that is less invasive than hand-editing.
+6. Refresh AI artifacts only when they are missing or stale. Prefer `npx pagesmith-docs init --ai --no-llms` with explicit existing values when that is less invasive than hand-editing.
 7. Review changelog-notes.md and adopt any compatible new features, config fields, or guidance improvements that make this repo easier for both humans and agents to maintain.
 8. When editing config, meta.json5, or frontmatter, validate against the version-matched schema files under node_modules/@pagesmith/docs/schemas/.
-9. Run `npx pagesmith build` and, if helpful, `npx pagesmith dev` before finishing.
+9. Run `npx pagesmith-docs build` and, if helpful, `npx pagesmith-docs dev` before finishing.
 10. Summarize what changed, which new features or guidance were adopted, and what still needs a user decision.
 ```
 

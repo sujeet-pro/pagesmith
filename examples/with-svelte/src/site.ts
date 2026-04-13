@@ -12,7 +12,7 @@ import {
   escapeHtml,
   buildNavEntries,
   groupByField,
-} from '@pagesmith/core/ssg-utils'
+} from '@pagesmith/site/ssg-utils'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 

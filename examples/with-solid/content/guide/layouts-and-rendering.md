@@ -11,7 +11,7 @@ seriesOrder: 1
 
 # Layouts & Rendering
 
-This example uses **`renderToString`** from `solid-js/web` at **build time** only. There is no client-side Solid tree: the shipped JS is plain `client.js` → CSS, `@pagesmith/core/runtime/content`, and `src/runtime.ts`.
+This example uses **`renderToString`** from `solid-js/web` at **build time** only. There is no client-side Solid tree: the shipped JS is plain `client.js` → CSS, `@pagesmith/site/runtime/content`, and `src/runtime.ts`.
 
 ## SSG entry contract
 

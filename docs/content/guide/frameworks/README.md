@@ -6,12 +6,14 @@ description: Overview of the Pagesmith framework integration matrix and how each
 # Framework Integrations
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Integrate @pagesmith/core content collections into my Vite app. I'm using [React/Solid/Svelte] -- set up `pagesmithContent` and `pagesmithSsg` plugins with an SSR entry."
+> Ask your AI agent:
+> - "Integrate Pagesmith into my Vite app. I'm using [React/Solid/Svelte] -- set up `pagesmithContent` from `@pagesmith/core/vite` and `pagesmithSsg` from `@pagesmith/site/vite` with an SSR entry."
+> - "Integrate Pagesmith into my Next.js App Router project. Keep collections and markdown rendering on `@pagesmith/core` with `createContentLayer()` and `entry.render()`. If I want the shipped prose/code-block UI, import `@pagesmith/site/css/content` and mount `@pagesmith/site/runtime/content` once."
 > Then read on to understand what happened and customize further.
 
 Pagesmith's content layer is framework-agnostic. Define collections once in `content.config.ts`, then consume entries through virtual imports or the programmatic content-layer API in any rendering stack.
 
-## Two Approaches
+## Three Approaches
 
 ### Virtual Content Modules (pagesmithContent)
 
@@ -31,6 +33,18 @@ const entries = await layer.getCollection('guide')
 const rendered = await entries[0].render()
 ```
 
+### Framework-Hosted Rendering (createContentLayer + app-owned routing)
+
+Used by the **Next.js** integration. The host app keeps routing, layout, metadata, and build tooling, while Pagesmith provides the content layer and markdown pipeline:
+
+```ts
+const layer = createContentLayer(defineConfig({ collections }))
+const entry = await layer.getEntry('posts', 'hello-world')
+const rendered = await entry?.render()
+```
+
+Import `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content` only when you want the shared markdown prose, code-block chrome, tabs, copy buttons, and collapse behavior.
+
 ### Convention-Based (@pagesmith/docs)
 
 Used by the **Doc Site** integration. You write markdown in a `content/` tree and configure the site in `pagesmith.config.json5`. No Vite config or entry server needed.
@@ -41,63 +55,69 @@ The repo includes a full example matrix. Each example is self-contained with its
 
 | Example | Package | Renderer | Content Access | Demo |
 |---|---|---|---|---|
-| [React](/guide/framework-vite-apps#react) | `@pagesmith/core` | `react-dom/server` | `virtual:content/*` | <a href="/pagesmith/examples/react" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Solid](/guide/framework-vite-apps#solidjs) | `@pagesmith/core` | `solid-js/web` | `virtual:content/*` | <a href="/pagesmith/examples/solid" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Svelte](/guide/framework-vite-apps#svelte) | `@pagesmith/core` | `svelte/server` | `virtual:content/*` | <a href="/pagesmith/examples/svelte" target="_blank" rel="noopener noreferrer">Live</a> |
-| [EJS](/guide/framework-template-engines#ejs) | `@pagesmith/core` | EJS templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-ejs" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Handlebars](/guide/framework-template-engines#handlebars) | `@pagesmith/core` | Handlebars templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-hbs" target="_blank" rel="noopener noreferrer">Live</a> |
+| [React](/guide/framework-vite-apps#react) | `@pagesmith/core` + `@pagesmith/site` | `react-dom/server` | `virtual:content/*` | <a href="/pagesmith/examples/react" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Solid](/guide/framework-vite-apps#solidjs) | `@pagesmith/core` + `@pagesmith/site` | `solid-js/web` | `virtual:content/*` | <a href="/pagesmith/examples/solid" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Svelte](/guide/framework-vite-apps#svelte) | `@pagesmith/core` + `@pagesmith/site` | `svelte/server` | `virtual:content/*` | <a href="/pagesmith/examples/svelte" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Next.js](/guide/framework-nextjs) | `@pagesmith/core` + optional `@pagesmith/site` | Next.js App Router | `createContentLayer` | <a href="/pagesmith/examples/nextjs" target="_blank" rel="noopener noreferrer">Live</a> |
+| [EJS](/guide/framework-template-engines#ejs) | `@pagesmith/core` + `@pagesmith/site` | EJS templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-ejs" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Handlebars](/guide/framework-template-engines#handlebars) | `@pagesmith/core` + `@pagesmith/site` | Handlebars templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-hbs" target="_blank" rel="noopener noreferrer">Live</a> |
 | [Doc Site](/guide/framework-doc-site) | `@pagesmith/docs` | Docs theme | Convention-based | <a href="/pagesmith/examples/doc-site" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Blog Site](/guide/framework-blog-site) | `@pagesmith/core` | Custom JSX layouts | `processMarkdown` | <a href="/pagesmith/examples/blog-site" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Blog Site](/guide/framework-blog-site) | `@pagesmith/core` + `@pagesmith/site` | Custom JSX layouts | Filesystem + core markdown pipeline | <a href="/pagesmith/examples/blog-site" target="_blank" rel="noopener noreferrer">Live</a> |
 
-## Shared Vite Plugins
+## Vite Plugins and Shared Presentation Layer
 
-All examples use plugins from `@pagesmith/core/vite`:
+The Vite-based examples wire Pagesmith through plugins. Framework-hosted examples such as Next.js use the content layer directly and opt into the shared presentation layer only when they want shipped markdown styling and code-block behavior.
 
-| Plugin | Purpose | Used By |
+| Surface | Purpose | Used By |
 |---|---|---|
-| `sharedAssetsPlugin()` | Copies bundled fonts and `fonts.css` into the build output | All examples |
+| `sharedAssetsPlugin()` | Serves or copies bundled fonts and `fonts.css` for Vite builds | React, Solid, Svelte, EJS, Handlebars, Blog Site |
 | `pagesmithContent(collections)` | Loads content and exposes `virtual:content/*` modules | React, Solid, Svelte |
-| `pagesmithSsg({ entry, contentDirs })` | SSG: dev middleware, pre-rendering, asset copying, Pagefind indexing | All except Doc Site |
+| `pagesmithSsg({ entry, contentDirs })` | Dev SSR middleware, pre-rendering, asset copying, Pagefind indexing | React, Solid, Svelte, EJS, Handlebars, Blog Site |
+| `@pagesmith/site/css/content` | Prose styles plus code-block chrome inside an existing app shell | Next.js and other framework-hosted apps |
+| `@pagesmith/site/runtime/content` | Copy buttons, code tabs, and collapse toggles for rendered markdown | Next.js and other framework-hosted apps |
 
 ## Shared Behavior
 
-Across the examples, Pagesmith is responsible for the same core jobs:
+Across the examples, Pagesmith is responsible for the same core content jobs:
 
 - Loading content from markdown files
 - Validating frontmatter against Zod schemas
 - Processing markdown through the unified pipeline (GFM, math, syntax highlighting, heading slugs)
-- Copying content companion assets into the final build
-- Running Pagefind against the generated site for full-text search
+- Extracting headings and read time from rendered markdown
 
-### Theme System Consistency
+Depending on the integration shape, `@pagesmith/site` may also handle:
 
-All examples implement the complete Pagesmith theme system:
+- Copying companion assets into the final build
+- Pre-rendering and preview server behavior
+- Pagefind indexing for full-text search
 
-- **Header theme dropdown** — A sun icon button opens a dropdown with three sections: Appearance (Auto/Light/Dark), Theme (Paper/High Contrast), and Text Size (Small/Default/Large). Closes on outside click or Escape.
-- **Footer theme controls** — Segmented button groups for all three axes at the bottom of each page.
-- **FOUC prevention** — An inline `<script>` in `<head>` restores `colorScheme`, `theme`, and `textSize` from `localStorage` before CSS paints.
-- **CSS foundations** — Color-scheme classes (`.color-scheme-auto/light/dark`), theme variant overrides (`.theme-paper`, `.theme-high-contrast`), text size scaling (`html[data-text-size]`), and header toggle styles (`.doc-theme-toggle`).
-- **Synchronized state** — Header dropdown radios and footer buttons stay in sync. Changing either updates both controls and persists to `localStorage`.
+### Theme and Shell Choices
+
+The examples do not all share the same page chrome:
+
+- **Docs-like and standalone site examples** can implement the full Pagesmith theme system, including appearance/theme/text-size controls and persisted preferences.
+- **Framework-hosted examples** such as Next.js can keep the outer shell fully native to the host app and reuse only the shared content CSS/runtime.
+- **Template and custom-site examples** can pick either approach depending on how much of the site shell they want Pagesmith to own.
 
 For full details, see the [Theming reference](/reference/theming/).
 
 ## CSS Imports
 
-All examples can use pre-built CSS from `@pagesmith/core`:
+All examples can use pre-built CSS from `@pagesmith/site`:
 
 | Import path | Contents |
 |---|---|
-| `@pagesmith/core/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
-| `@pagesmith/core/css/content` | Content-only bundle (reset, prose, code, viewport) |
-| `@pagesmith/core/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
-| `@pagesmith/core/css/viewport` | Viewport / responsive base only |
+| `@pagesmith/site/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
+| `@pagesmith/site/css/content` | Content-only bundle (reset, prose, code, viewport) |
+| `@pagesmith/site/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
+| `@pagesmith/site/css/viewport` | Viewport / responsive base only |
 
 ## JSX Runtime
 
 Two JSX runtimes are used across the examples:
 
 - **Framework JSX** (React, Solid, Svelte) -- each framework's own JSX transform via their Vite plugin
-- **`@pagesmith/core/jsx-runtime`** -- Pagesmith's lightweight server-side JSX runtime, used by the Blog Site and Doc Site layout overrides. Produces HTML strings with `h()` and `Fragment()`. Uses `class` (not `className`) and `innerHTML` (not `dangerouslySetInnerHTML`).
+- **`@pagesmith/site/jsx-runtime`** -- Pagesmith's lightweight server-side JSX runtime, used by the Blog Site and Doc Site layout overrides. Produces HTML strings with `h()` and `Fragment()`. Uses `class` (not `className`) and `innerHTML` (not `dangerouslySetInnerHTML`).
 
 ## Choosing a Pattern
 
@@ -105,12 +125,14 @@ Two JSX runtimes are used across the examples:
 |---|---|
 | A documentation site that works from configuration alone | [Doc Site](/guide/framework-doc-site) |
 | Full layout control with a specific framework (React, Solid, Svelte) | [Vite Framework Apps](/guide/framework-vite-apps) |
+| An existing Next.js app that should keep its own router, layouts, and build | [Next.js (App Router)](/guide/framework-nextjs) |
 | No framework runtime, simple templates | [Template Engines](/guide/framework-template-engines) |
 | A fully custom site with its own design system | [Blog Site](/guide/framework-blog-site) |
 
 ## Read Next
 
 - [Vite Framework Apps](/guide/framework-vite-apps) -- React, SolidJS, Svelte
+- [Next.js (App Router)](/guide/framework-nextjs) -- `createContentLayer()` inside a Next.js app
 - [Template Engines](/guide/framework-template-engines) -- EJS, Handlebars
 - [Doc Site](/guide/framework-doc-site)
 - [Blog Site](/guide/framework-blog-site)

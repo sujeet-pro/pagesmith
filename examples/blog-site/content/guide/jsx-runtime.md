@@ -11,7 +11,7 @@ seriesOrder: 1
 
 # JSX Runtime
 
-The `@pagesmith/core/jsx-runtime` module provides a lightweight JSX-to-HTML runtime for server-side rendering. It is designed for static site generation -- no virtual DOM, no hydration, no client-side runtime.
+The `@pagesmith/site/jsx-runtime` module provides a lightweight JSX-to-HTML runtime for server-side rendering. It is designed for static site generation -- no virtual DOM, no hydration, no client-side runtime.
 
 In `src/entry-server.tsx`, layout components return `HtmlString` trees that are coerced with **`String(...)`** before being embedded in the larger HTML document string returned from `render()`.
 
@@ -25,13 +25,13 @@ The runtime exports three primitives:
 
 ## JSX configuration
 
-Configure the TypeScript compiler to use the core JSX runtime:
+Configure the TypeScript compiler to use the site JSX runtime:
 
 ```json title="tsconfig.json"
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@pagesmith/core"
+    "jsxImportSource": "@pagesmith/site"
   }
 }
 ```
@@ -42,26 +42,26 @@ And the Vite/OXC transpiler:
 oxc: {
   jsx: {
     runtime: 'automatic',
-    importSource: '@pagesmith/core',
+    importSource: '@pagesmith/site',
   },
 }
 ```
 
 ## Differences from React
 
-The core JSX runtime uses standard HTML attribute names:
+The site JSX runtime uses standard HTML attribute names:
 
 ```tsx
 // React
 <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
 
-// Core JSX
+// Site JSX
 <div class="prose" innerHTML={html} />
 ```
 
 Key differences:
 
-| React | Core JSX |
+| React | Site JSX |
 |-------|----------|
 | `className` | `class` |
 | `htmlFor` | `for` |
@@ -73,7 +73,7 @@ Key differences:
 Components render by calling `h()` which returns an `HtmlString`. Converting to a string is implicit:
 
 ```tsx
-import { h, Fragment } from '@pagesmith/core/jsx-runtime'
+import { h, Fragment } from '@pagesmith/site/jsx-runtime'
 
 function Greeting({ name }: { name: string }) {
   return <p>Hello, {name}!</p>

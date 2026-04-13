@@ -42,7 +42,7 @@ export async function getRoutes(): Promise<string[]> {
 
 ## Document shell (`renderDocumentShell`)
 
-Body fragments from React are **strings**. The complete document — `<html>`, `<head>` (CSS, optional Pagefind Component UI assets), skip links, sidebar dialog, and the script tag for **`client.js`** — comes from **`renderDocumentShell`** in `@pagesmith/core/ssg-utils`. This file assigns `const renderDocument = renderDocumentShell` and passes **`bodyHtml`**, optional **`sidebarHtml`**, **`config.base`**, **`cssPath`**, **`jsPath`**, and **`searchEnabled`** so the shell stays consistent with other framework examples.
+Body fragments from React are **strings**. The complete document — `<html>`, `<head>` (CSS, optional Pagefind Component UI assets), skip links, sidebar dialog, and the script tag for **`client.js`** — comes from **`renderDocumentShell`** in `@pagesmith/site/ssg-utils`. This file assigns `const renderDocument = renderDocumentShell` and passes **`bodyHtml`**, optional **`sidebarHtml`**, **`config.base`**, **`cssPath`**, **`jsPath`**, and **`searchEnabled`** so the shell stays consistent with other framework examples.
 
 ## Component roles
 

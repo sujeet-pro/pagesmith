@@ -7,7 +7,7 @@ description: Build a fully custom blog with Pagesmith's core content layer, cust
 
 ## Overview
 
-The Blog Site example demonstrates how to build a fully custom site on top of `@pagesmith/core` with its own JSX layouts, design system, and content pipeline. Unlike the Doc Site (which uses `@pagesmith/docs` for convention-based setup), this example uses the core content layer directly with `processMarkdown` from `@pagesmith/core/markdown`, custom layout components rendered via `@pagesmith/core/jsx-runtime`, and a `site.json5` configuration file. It supports multiple content types (articles, blogs, projects), series-based article grouping, tag indexes, and a rich navigation system -- all rendered as static HTML through the `pagesmithSsg` Vite plugin.
+The Blog Site example demonstrates how to build a fully custom site on top of `@pagesmith/core` and `@pagesmith/site` with its own JSX layouts, design system, and content pipeline. Unlike the Doc Site (which uses `@pagesmith/docs` for convention-based setup), this example uses the core content layer directly with `processMarkdown` from `@pagesmith/core/markdown`, custom layout components rendered via `@pagesmith/site/jsx-runtime`, and a `site.json5` configuration file. It supports multiple content types (articles, blogs, projects), series-based article grouping, tag indexes, and a rich navigation system -- all rendered as static HTML through the `pagesmithSsg` Vite plugin from `@pagesmith/site/vite`.
 
 Source: [`examples/blog-site/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site) | Output: <a href="/pagesmith/examples/blog-site" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
@@ -32,6 +32,7 @@ Source: [`examples/blog-site/`](https://github.com/sujeet-pro/pagesmith/tree/mai
   },
   "dependencies": {
     "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "json5": "^2.2.3",
     "pagefind": "^1.3.0"
   },
@@ -92,11 +93,11 @@ blog-site/
 
 ### vite.config.ts
 
-The blog site uses `pagesmithSsg` and `sharedAssetsPlugin`, with `@pagesmith/core` as the JSX import source:
+The blog site uses `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite`, with `@pagesmith/site` as the JSX import source:
 
 ```ts
 import { defineConfig } from 'vite-plus'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/my-blog',
@@ -111,13 +112,13 @@ export default defineConfig({
   oxc: {
     jsx: {
       runtime: 'automatic',
-      importSource: '@pagesmith/core',
+      importSource: '@pagesmith/site',
     },
   },
 })
 ```
 
-The `oxc.jsx.importSource` is set to `@pagesmith/core`, which provides the server-side JSX runtime at `@pagesmith/core/jsx-runtime`. This means all `.tsx` files in the project use Pagesmith's `h()` function for JSX compilation -- no React or other framework needed.
+The `oxc.jsx.importSource` is set to `@pagesmith/site`, which provides the server-side JSX runtime at `@pagesmith/site/jsx-runtime`. This means all `.tsx` files in the project use Pagesmith's `h()` function for JSX compilation -- no React or other framework needed.
 
 ### index.html
 
@@ -302,12 +303,12 @@ export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
 }
 ```
 
-## Layouts with @pagesmith/core/jsx-runtime
+## Layouts with @pagesmith/site/jsx-runtime
 
-All layouts use `@pagesmith/core/jsx-runtime` for server-side JSX rendering. Import `h` and `Fragment`:
+All layouts use `@pagesmith/site/jsx-runtime` for server-side JSX rendering. Import `h` and `Fragment`:
 
 ```tsx
-import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { Fragment, h } from '@pagesmith/site/jsx-runtime'
 ```
 
 ### Key JSX Runtime Differences
@@ -324,7 +325,7 @@ The Pagesmith JSX runtime differs from React:
 **Html** -- the document shell that renders `<html>`, `<head>`, and `<body>`. Handles SEO metadata, OpenGraph tags, theme colors, CSS/JS references, and search integration:
 
 ```tsx
-import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { Fragment, h } from '@pagesmith/site/jsx-runtime'
 
 export function Html({ title, description, site, children }: Props) {
   const cssPath = site.assets?.cssPath ?? withBase(site, '/assets/style.css')
@@ -465,21 +466,21 @@ The theme CSS entry (`src/theme.css`) imports the main stylesheet:
 @import "../styles/main.css";
 ```
 
-The `sharedAssetsPlugin()` copies bundled web fonts from `@pagesmith/core`. The client entry (`client.js`) imports both CSS and runtime JS:
+The `sharedAssetsPlugin()` copies bundled web fonts from `@pagesmith/site`. The client entry (`client.js`) imports both CSS and runtime JS:
 
 ```js
 import './styles/main.css'
 import './runtime/main.ts'
 ```
 
-You can also use `@pagesmith/core` CSS imports within your custom styles:
+You can also use `@pagesmith/site` CSS imports within your custom styles:
 
 | Import path | Contents |
 |---|---|
-| `@pagesmith/core/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
-| `@pagesmith/core/css/content` | Content-only bundle (reset, prose, code, viewport) |
-| `@pagesmith/core/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
-| `@pagesmith/core/css/viewport` | Viewport / responsive base only |
+| `@pagesmith/site/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
+| `@pagesmith/site/css/content` | Content-only bundle (reset, prose, code, viewport) |
+| `@pagesmith/site/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
+| `@pagesmith/site/css/viewport` | Viewport / responsive base only |
 
 ## Pagefind Search
 
@@ -512,11 +513,11 @@ vp check
 ## Key Concepts
 
 - **`processMarkdown`** from `@pagesmith/core/markdown` converts raw markdown to HTML, headings, and frontmatter.
-- **`@pagesmith/core/jsx-runtime`** provides `h()` and `Fragment()` for server-side JSX rendering with zero framework overhead.
+- **`@pagesmith/site/jsx-runtime`** provides `h()` and `Fragment()` for server-side JSX rendering with zero framework overhead.
 - **`innerHTML`** (not `dangerouslySetInnerHTML`) injects raw HTML in Pagesmith JSX; use `class` (not `className`).
 - **`site.json5`** drives content type configuration, navigation, and featured content.
 - **Layout selection** maps content directories to layout components via `pageTypes` configuration.
 - **Series navigation** provides prev/next links within article series.
 - **Tag indexes** are automatically generated from frontmatter tags.
-- **Custom design system** -- the blog site owns its entire CSS; `@pagesmith/core` styles are optional.
+- **Custom design system** -- the blog site owns its entire CSS; `@pagesmith/site` styles are optional.
 - **`pagesmithSsg`** handles SSG, dev middleware, and Pagefind indexing.

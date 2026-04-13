@@ -288,7 +288,7 @@ jobs:
         with:
           fetch-depth: 0
       - run: npm ci
-      - run: npx pagesmith build
+      - run: npx pagesmith-docs build
 ```
 
 ### Skipping search indexing

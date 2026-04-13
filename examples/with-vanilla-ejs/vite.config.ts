@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite-plus'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 // Vite is the single build runner: client assets + post-build SSG from
 // `src/entry-server.tsx`. `sharedAssetsPlugin` copies core font/CSS assets;
@@ -24,7 +24,7 @@ export default defineConfig({
   oxc: {
     jsx: {
       runtime: 'automatic',
-      importSource: '@pagesmith/core',
+      importSource: '@pagesmith/site',
     },
   },
 })

@@ -1,0 +1,179 @@
+/* ═══════════════════════════════════════════════════════════════
+   Responsive layout system
+
+   Breakpoints (ch-based):
+   < 110ch  — single column, sidebar hidden, mobile TOC shown
+   ≥ 110ch  — content + right sidebar (30ch)
+   ≥ 160ch  — centered: content (100ch max) + right sidebar (30ch)
+
+   layout-two-col: content + right sidebar (blog-style)
+   layout-doc:     left sidebar + content + right sidebar (doc-style)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Layout variables ─── */
+:root {
+  --content-min: 80ch;
+  --content-max: 100ch;
+  --sidebar-width: 30ch;
+  --header-height: 60px;
+}
+
+/* ─── Main content ─── */
+.main-content {
+  max-width: var(--content-max);
+  padding: 2.5rem 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+.main-home {
+  margin: 0 auto;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+.main-narrow {
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Two-column: [empty 1fr] [content] [sidebar 1fr]
+   ═══════════════════════════════════════════════════════════════ */
+.layout-two-col {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, var(--content-max)) minmax(var(--sidebar-width), 1fr);
+  min-height: calc(100vh - var(--header-height));
+}
+
+.layout-two-col > :first-child {
+  grid-column: 2;
+}
+.layout-two-col > :nth-child(2) {
+  grid-column: 3;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Doc-style 3-column: [left sidebar] [content] [right sidebar]
+
+   < 110ch:  single column, both sidebars hidden
+   ≥ 110ch:  content + right sidebar (30ch), left via overlay
+   ≥ 140ch:  left (30ch) + content + right (30ch)
+   ≥ 160ch:  centered: left (30ch) + content (100ch) + right (30ch)
+   ═══════════════════════════════════════════════════════════════ */
+.layout-doc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: calc(100vh - var(--header-height));
+}
+
+.layout-doc > .doc-sidebar {
+  display: none;
+}
+
+.layout-doc > .doc-aside {
+  display: none;
+}
+
+.layout-doc > .doc-main {
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+/* ─── Mobile accordion (hidden when sidebar visible) ─── */
+.toc-mobile {
+  display: none;
+}
+
+.layout-doc .toc-mobile {
+  display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ≥ 110ch — show right sidebar
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 110ch) {
+  /* Two-column: no change needed, already shows sidebar */
+
+  /* Doc layout: show right aside */
+  .layout-doc {
+    grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+  }
+
+  .layout-doc > .doc-aside {
+    display: block;
+    position: sticky;
+    top: var(--header-height);
+    height: fit-content;
+    max-height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+    padding: 2rem 1.5rem 2rem 0;
+    scrollbar-width: thin;
+  }
+
+  .layout-doc > .doc-main {
+    padding: 2rem 2.5rem;
+  }
+
+  .layout-doc .toc-mobile {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ≥ 140ch — show left sidebar in doc layout
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 140ch) {
+  .layout-doc {
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--sidebar-width);
+  }
+
+  .layout-doc > .doc-sidebar {
+    display: block;
+    position: sticky;
+    top: var(--header-height);
+    height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+    padding: 1.5rem 1rem 2rem 1.5rem;
+    border-right: 1px solid var(--color-border-subtle);
+    scrollbar-width: thin;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ≥ 160ch — centered layouts
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 160ch) {
+  .layout-doc {
+    grid-template-columns: var(--sidebar-width) minmax(0, var(--content-max)) var(--sidebar-width);
+    justify-content: center;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   < 110ch — single column for all layouts
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 110ch) {
+  .layout-two-col {
+    display: block;
+  }
+  .sidebar-right {
+    display: none;
+  }
+  .toc-mobile {
+    display: block;
+  }
+  .main-content {
+    padding: 1.5rem 1rem;
+  }
+  .main-home {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  h1 {
+    font-size: var(--font-size-2xl);
+  }
+}

@@ -12,7 +12,7 @@ Use this file when changing the core package implementation, examples that depen
 - Markdown pipeline: `packages/core/src/markdown/pipeline.ts`, `packages/core/src/markdown/code/**`
 - Validation pipeline: `packages/core/src/store.ts`, `packages/core/src/validation/**`
 - Vite plugins: `packages/core/src/vite/**`
-- Runtime/CSS exports: `packages/core/src/runtime/**`, `packages/core/src/styles/**`
+- Shared markdown presentation layer: `packages/site/src/css/**`, `packages/site/src/runtime/**`
 - Published user guidance: `packages/core/ai-guidelines/**`, `packages/core/README.md`, `packages/core/REFERENCE.md`
 - Installed AI artifact generation: `packages/core/src/ai/**`
 
@@ -25,6 +25,7 @@ Use this file when changing the core package implementation, examples that depen
 - Keep examples built directly on core aligned with the package behavior:
   - `examples/blog-site/`
   - `examples/with-react/`
+- `examples/with-nextjs/`
   - `examples/with-solid/`
   - `examples/with-svelte/`
   - `examples/with-vanilla-ejs/`
@@ -45,7 +46,7 @@ When public behavior changes, update all relevant items below:
 ## Core Behaviors To Preserve
 
 - Built-in Pagesmith code renderer on top of Shiki
-- Shared code block CSS in the shipped bundles
+- Shared code block CSS in the shipped bundles published from `@pagesmith/site`
 - Vite plugin exports under `@pagesmith/core/vite`
 - MCP server resource behavior under `@pagesmith/core/mcp`
 - Zod-first schemas and validation at content boundaries

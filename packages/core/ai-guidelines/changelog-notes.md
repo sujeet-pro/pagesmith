@@ -11,5 +11,5 @@
 - Optimized `getEntry()` miss-path behavior to avoid redundant collection reloads after first load
 - Added `ai-guidelines/migration.md` with pre-1.0 upgrade guidance
 - AI installer split into focused modules for maintainability
-- AI exports removed from main barrel — use `@pagesmith/core/ai` subpath or CLI `npx pagesmith init --ai`
+- AI exports removed from main barrel — use `@pagesmith/core/ai` subpath or `npx pagesmith-core ai`
 - Scripts converted from JavaScript to TypeScript (using `node --strip-types`)

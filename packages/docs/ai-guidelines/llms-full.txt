@@ -32,8 +32,8 @@ npm add @pagesmith/docs
 - Use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` when editing config, meta.json5, or frontmatter.
 - When `pagesmith.config.json5` is committed, keep its `$schema` pointing at the installed file in `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`.
 - For GitHub repos, bootstrap flows should default to GitHub Pages values: probe `https://<owner>.github.io` for `origin`, keep `basePath` as `/<repo-name>`, and treat root hosting as a manual config edit.
-- Prefer the package MCP server for config/page introspection: `pagesmith mcp --stdio`.
-- Prefer AI-first setup with `pagesmith init --ai` so docs structure + assistant context stay aligned from day one.
+- Prefer the package MCP server for config/page introspection: `pagesmith-docs mcp --stdio`.
+- Prefer AI-first setup with `pagesmith-docs init --ai` so docs structure + assistant context stay aligned from day one.
 - Prefer `node_modules/@pagesmith/docs/ai-guidelines/migration.md` when the repo already uses `@pagesmith/docs` and the task is to upgrade or adopt newer guidance.
 - Keep onboarding first in manual nav order (for example `getting-started` first in `guide/meta.json5`).
 
@@ -104,7 +104,7 @@ Also exported from the main package entry (see `src/index.ts` / `REFERENCE.md`):
 
 ## MCP tools
 
-The docs MCP server (`pagesmith mcp --stdio`) exposes:
+The docs MCP server (`pagesmith-docs mcp --stdio`) exposes:
 
 - `docs_validate_config` — validate pagesmith.config.json5
 - `docs_resolve_config` — resolve effective config with defaults

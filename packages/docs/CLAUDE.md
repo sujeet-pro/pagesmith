@@ -1,6 +1,6 @@
 # @pagesmith/docs
 
-`@pagesmith/docs` is the convention-based docs package built on top of `@pagesmith/core`.
+`@pagesmith/docs` is the convention-based docs package built on top of `@pagesmith/core` and `@pagesmith/site`.
 
 ## Package AI files
 

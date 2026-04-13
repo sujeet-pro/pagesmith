@@ -1,31 +1,31 @@
 ---
 title: API Reference
-description: Import paths and public API for @pagesmith/core — collections, content layer, Vite plugins, JSX, markdown, loaders, and schemas.
+description: Import paths and public API for Pagesmith packages — core content APIs, site-building APIs, and docs preset APIs.
 ---
 
 # API Reference
 
-Complete API reference for `@pagesmith/core` and its sub-path exports.
+Complete API reference for the public Pagesmith package surfaces.
 
 ## Export Paths
 
 | Import Path | Purpose |
 |---|---|
-| `@pagesmith/core` | Main barrel -- config helpers, content layer, entry, JSX runtime, markdown, schemas, loaders, validation, AI, `z` re-export |
-| `@pagesmith/core/vite` | Vite plugins -- `pagesmithContent()`, `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
-| `@pagesmith/core/runtime` | Pre-built CSS/JS asset accessors |
-| `@pagesmith/core/jsx-runtime` | Server-side JSX: `h()`, `Fragment()`, `HtmlString` |
+| `@pagesmith/core` | Main content-layer barrel -- config helpers, content layer, markdown, schemas, loaders, validation, AI, `z` re-export |
+| `@pagesmith/core/vite` | Vite content plugin -- `pagesmithContent()` |
 | `@pagesmith/core/markdown` | `processMarkdown()` function |
-| `@pagesmith/core/css` | `buildCss()` via LightningCSS |
-| `@pagesmith/core/css/standalone` | Standalone CSS file (reset + tokens + prose + inline code + TOC + layout) |
-| `@pagesmith/core/css/content` | Content-only CSS file (reset + tokens + prose + inline code + viewport) |
-| `@pagesmith/core/css/viewport` | Viewport/responsive base CSS file |
-| `@pagesmith/core/css/fonts` | Bundled font face declarations (Open Sans, JetBrains Mono) |
 | `@pagesmith/core/schemas` | Zod schemas and inferred TypeScript types |
 | `@pagesmith/core/loaders` | Loader classes and the `resolveLoader()` registry |
 | `@pagesmith/core/assets` | Static file copying and content-hash filenames |
 | `@pagesmith/core/ai` | AI assistant artifact installer |
 | `@pagesmith/core/create` | Project scaffolding utilities |
+| `@pagesmith/site` | Site config helpers and preset types |
+| `@pagesmith/site/vite` | Site-building Vite helpers -- `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
+| `@pagesmith/site/jsx-runtime` | Server-side JSX: `h()`, `Fragment()`, `HtmlString` |
+| `@pagesmith/site/runtime` | Pre-built CSS/JS asset accessors |
+| `@pagesmith/site/css` | `buildCss()` via LightningCSS |
+| `@pagesmith/site/css/*` | Shared CSS bundles (`content`, `standalone`, `viewport`, `fonts`, code styles) |
+| `@pagesmith/site/ssg-utils` | Shared SSG utility helpers |
 
 ---
 
@@ -318,7 +318,7 @@ type ValidatorContext = {
 
 ### JSX Runtime
 
-Exported from both `@pagesmith/core` and `@pagesmith/core/jsx-runtime`:
+Exported from `@pagesmith/site/jsx-runtime`:
 
 | Export | Description |
 |---|---|
@@ -332,7 +332,7 @@ Configure in `tsconfig.json` for automatic JSX transformation:
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@pagesmith/core"
+    "jsxImportSource": "@pagesmith/site"
   }
 }
 ```
@@ -358,7 +358,7 @@ type MarkdownResult = {
 Bundle a CSS file using LightningCSS. Targets Chrome 100+, Firefox 100+, Safari 16+.
 
 ```ts
-import { buildCss } from '@pagesmith/core/css'
+import { buildCss } from '@pagesmith/site/css'
 
 const css = buildCss('./styles/main.css', { minify: true })
 ```
@@ -418,6 +418,8 @@ For data collections, each entry has:
 { id: string, contentSlug: string, data: InferCollectionData<T> }
 ```
 
+## `@pagesmith/site/vite`
+
 ### `pagesmithSsg(options)`
 
 Vite plugin for static site generation. Returns two plugins:
@@ -426,7 +428,7 @@ Vite plugin for static site generation. Returns two plugins:
 - **`pagesmith:ssg-build`** (`apply: 'build'`) -- Post-build SSG: builds SSR bundle, renders routes, copies assets, runs Pagefind
 
 ```ts title="vite.config.ts"
-import { pagesmithSsg } from '@pagesmith/core/vite'
+import { pagesmithSsg } from '@pagesmith/site/vite'
 
 export default defineConfig({
   plugins: [
@@ -469,7 +471,7 @@ type SsgRenderConfig = {
 
 ### `sharedAssetsPlugin()`
 
-Middleware plugin that serves `@pagesmith/core`'s bundled font files (woff2) and `fonts.css` during development. In production, fonts are copied to the output directory by the SSG build plugin.
+Middleware plugin that serves `@pagesmith/site`'s bundled font files (woff2) and `fonts.css` during development. In production, fonts are copied to the output directory by the SSG build plugin.
 
 ### `prerenderRoutes(options)`
 
@@ -498,7 +500,7 @@ Returns `Promise<{ pages: number }>` with the count of rendered pages.
 
 ```ts
 import { build } from 'vite'
-import { prerenderRoutes } from '@pagesmith/core/vite'
+import { prerenderRoutes } from '@pagesmith/site/vite'
 
 // 1. Client build
 await build({ build: { outDir: 'dist' } })
@@ -516,7 +518,7 @@ await prerenderRoutes({
 
 ---
 
-## `@pagesmith/core/runtime`
+## `@pagesmith/site/runtime`
 
 CSS and JS asset accessors for pre-built runtime bundles. See the [Runtime Reference](/reference/runtime/) for full details.
 

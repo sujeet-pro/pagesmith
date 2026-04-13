@@ -5,7 +5,9 @@
     "outDir": "dist",
     "paths": {
       "@pagesmith/core": ["../core/src/index.ts"],
-      "@pagesmith/core/*": ["../core/src/*/index.ts"]
+      "@pagesmith/core/*": ["../core/src/*/index.ts"],
+      "@pagesmith/site": ["../site/src/index.ts"],
+      "@pagesmith/site/*": ["../site/src/*.ts", "../site/src/*/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "theme/**/*.ts", "theme/**/*.tsx"]

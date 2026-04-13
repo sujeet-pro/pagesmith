@@ -20,7 +20,7 @@ npm add @pagesmith/docs
 
 Create `pagesmith.config.json5` at the repository root.
 
-For committed project setups, explicit config is still the preferred path. When the repo already follows the default conventions, `pagesmith dev`, `build`, `preview`, and `mcp` can also run with zero config using `<repo-root>/docs` (or `<repo-root>/content` as a fallback) and `<repo-root>/gh-pages`.
+For committed project setups, explicit config is still the preferred path. When the repo already follows the default conventions, `pagesmith-docs dev`, `build`, `preview`, and `mcp` can also run with zero config using `<repo-root>/docs` (or `<repo-root>/content` as a fallback) and `<repo-root>/gh-pages`.
 
 When the config lives at the repository root, include:
 
@@ -91,9 +91,9 @@ Rules:
 ```json
 {
   "scripts": {
-    "docs:dev": "pagesmith dev",
-    "docs:build": "pagesmith build",
-    "docs:preview": "pagesmith preview"
+    "docs:dev": "pagesmith-docs dev",
+    "docs:build": "pagesmith-docs build",
+    "docs:preview": "pagesmith-docs preview"
   }
 }
 ```
@@ -105,7 +105,7 @@ If the config lives somewhere else, pass `--config`, but the default convention 
 Prefer:
 
 ```bash
-npx pagesmith init --ai
+npx pagesmith-docs init --ai
 ```
 
 This installs config/content scaffolding plus assistant memory files, skills, markdown guidelines, and optional `llms*.txt` files. It is also safe to rerun later to backfill missing scaffold fields and refresh the config `$schema` pointer.
@@ -136,16 +136,16 @@ Use `assets` when you want prompt files, schemas, OpenAPI files, or other machin
 
 ### Preview and build behavior
 
-- `pagesmith build` writes static HTML output.
-- `pagesmith preview` serves the current output directory directly from the filesystem.
+- `pagesmith-docs build` writes static HTML output.
+- `pagesmith-docs preview` serves the current output directory directly from the filesystem.
 - Keep the preview server running across rebuilds; it should not require a restart after a new build.
 - Canonical browser URLs should be slashless.
 - Keep GitHub Pages compatibility: `.nojekyll`, root `404.html`, and direct extensionless route serving.
 
 ### Layout and theme
 
-- Use `theme.layouts.home`, `theme.layouts.page`, and `theme.layouts.notFound` for layout overrides.
-- Use `theme.defaultColorScheme` and `theme.defaultTheme` for default presentation.
+- Use `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, and `theme.layouts.notFound` for layout overrides.
+- Use `theme.defaultColorScheme`, `theme.defaultTheme`, and `theme.defaultTextSize` for default presentation.
 - Keep `data-pagefind-body` on the content-only wrapper when customizing layouts.
 
 ### References

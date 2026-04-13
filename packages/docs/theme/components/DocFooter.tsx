@@ -1,4 +1,4 @@
-import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { Fragment, h } from '@pagesmith/site/jsx-runtime'
 
 type FooterLink = {
   label: string
@@ -189,7 +189,7 @@ export function DocFooter({
       <div class="doc-footer-theme no-js-hidden" data-footer-theme="">
         <div class="doc-footer-theme-group">
           <span class="doc-footer-theme-label">Appearance</span>
-          <div class="doc-footer-theme-options" data-footer-scheme="">
+          <div class="doc-footer-theme-options" data-footer-scheme="" data-ps-footer-scheme="">
             <button type="button" data-scheme="auto" class="active" aria-pressed="true">
               Auto
             </button>
@@ -203,7 +203,7 @@ export function DocFooter({
         </div>
         <div class="doc-footer-theme-group">
           <span class="doc-footer-theme-label">Theme</span>
-          <div class="doc-footer-theme-options" data-footer-theme-type="">
+          <div class="doc-footer-theme-options" data-footer-theme-type="" data-ps-footer-theme="">
             <button type="button" data-theme="paper" class="active" aria-pressed="true">
               Paper
             </button>
@@ -214,7 +214,11 @@ export function DocFooter({
         </div>
         <div class="doc-footer-theme-group">
           <span class="doc-footer-theme-label">Text Size</span>
-          <div class="doc-footer-theme-options" data-footer-text-size="">
+          <div
+            class="doc-footer-theme-options"
+            data-footer-text-size=""
+            data-ps-footer-text-size=""
+          >
             <button type="button" data-size="small" aria-pressed="false" aria-label="Small text">
               <span class="doc-text-size-label" data-size="small">
                 A

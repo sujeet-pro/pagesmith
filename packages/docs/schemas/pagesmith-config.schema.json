@@ -5,6 +5,15 @@
   "description": "Schema for pagesmith.config.json5 in @pagesmith/docs projects.",
   "type": "object",
   "properties": {
+    "preset": {
+      "type": "string"
+    },
+    "presets": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "name": {
       "type": "string"
     },
@@ -195,6 +204,10 @@
         "defaultTheme": {
           "type": "string",
           "enum": ["paper", "high-contrast"]
+        },
+        "defaultTextSize": {
+          "type": "string",
+          "enum": ["small", "base", "large"]
         }
       },
       "additionalProperties": false

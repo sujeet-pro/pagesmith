@@ -1,5 +1,4 @@
 ---
-layout: DocHome
 title: Example Docs
 badge: Layout Overrides + Search
 tagline: Documentation powered by Pagesmith
@@ -37,7 +36,7 @@ packages:
     href: /guide/configuration
     tag: Docs
   - name: "@pagesmith/core"
-    description: Shared content layer, markdown pipeline, JSX runtime, and Vite integrations that power the docs package.
+    description: Shared content layer, markdown pipeline, validators, and Vite content integrations that power the docs package.
     href: /guide/content-collections
     tag: Core
 codeExample:

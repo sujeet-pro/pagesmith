@@ -1,6 +1,6 @@
 // SSG entry for pagesmithSsg: virtual collections → React layout → static HTML via renderDocumentShell.
 import { renderToStaticMarkup } from 'react-dom/server'
-import type { SsgRenderConfig } from '@pagesmith/core/vite'
+import type { SsgRenderConfig } from '@pagesmith/site/vite'
 import {
   type MarkdownEntry,
   type NavEntry,
@@ -18,7 +18,7 @@ import {
   buildNavEntries,
   groupByField,
   renderDocumentShell,
-} from '@pagesmith/core/ssg-utils'
+} from '@pagesmith/site/ssg-utils'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 

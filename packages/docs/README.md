@@ -1,6 +1,6 @@
 # @pagesmith/docs
 
-Convention-based documentation package built on `@pagesmith/core`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with built-in Pagefind search, sidebar generation, and an optional layout override system.
+Convention-based documentation package built on `@pagesmith/core` and `@pagesmith/site`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with the docs preset, built-in Pagefind search, sidebar generation, listing pages, and an optional layout override system.
 
 Package guidance shipped inside npm (`node_modules/@pagesmith/docs/ai-guidelines/*` and `node_modules/@pagesmith/docs/schemas/*`) is version-matched to the installed package. The hosted docs site in this repository tracks the latest implementation.
 
@@ -14,6 +14,8 @@ Package guidance shipped inside npm (`node_modules/@pagesmith/docs/ai-guidelines
 npm add @pagesmith/docs
 ```
 
+`@pagesmith/docs` depends on both `@pagesmith/core` and `@pagesmith/site`, so the default docs preset, theme, CLI flow, and shared site runtime come along together.
+
 ## Quick Start
 
 ### AI-first (recommended)
@@ -21,37 +23,37 @@ npm add @pagesmith/docs
 If you use an agent workflow, initialize docs and assistant context together:
 
 ```bash
-npx pagesmith init --yes --ai
+npx pagesmith-docs init --yes --ai
 ```
 
-This scaffolds a root `pagesmith.config.json5`, a docs content directory, starter pages, and version-matched AI guidance. The generated config includes a `$schema` pointer to the installed package schema, and rerunning `pagesmith init` safely backfills missing scaffold fields instead of silently skipping the config file. If your assistant supports generated Pagesmith skills, they are installed too. If you use a different agent, paste the prompt files below directly into that agent instead of relying on tool-specific slash commands.
+This scaffolds a root `pagesmith.config.json5`, a docs content directory, starter pages, and version-matched AI guidance. The generated config includes a `$schema` pointer to the installed package schema, and rerunning `pagesmith-docs init` safely backfills missing scaffold fields instead of silently skipping the config file. If your assistant supports generated Pagesmith skills, they are installed too. If you use a different agent, paste the prompt files below directly into that agent instead of relying on tool-specific slash commands.
 
 Copy-paste playbooks:
 
 - Fresh setup or retrofit: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
 - Upgrade an existing integration: `node_modules/@pagesmith/docs/ai-guidelines/migration.md`
 
-If your project already has custom root `llms.txt` files, use `npx pagesmith init --ai --no-llms` to skip regenerating them.
+If your project already has custom root `llms.txt` files, use `npx pagesmith-docs init --ai --no-llms` to skip regenerating them.
 
 For agent-driven setup in an existing repository, use the dedicated prompt file instead of a vague install request:
 
 - Package path: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
 - Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md)
 
-That prompt tells the agent to inspect existing docs-like folders, confirm the chosen docs directory, detect a GitHub Pages-friendly `origin` and `basePath`, prefer running `npx pagesmith init` with explicit values, wire `docs:dev` / `docs:build` / `docs:preview` scripts, update `CLAUDE.md` / `AGENTS.md`, and use the version-matched schema files under `node_modules/@pagesmith/docs/schemas/`.
+That prompt tells the agent to inspect existing docs-like folders, confirm the chosen docs directory, detect a GitHub Pages-friendly `origin` and `basePath`, prefer running `npx pagesmith-docs init` with explicit values, wire `docs:dev` / `docs:build` / `docs:preview` scripts, update `CLAUDE.md` / `AGENTS.md`, and use the version-matched schema files under `node_modules/@pagesmith/docs/schemas/`.
 
 Typical non-interactive init flow for a GitHub repo:
 
 ```bash
-npx pagesmith init --yes --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
+npx pagesmith-docs init --yes --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
 ```
 
 If `https://my-user.github.io` redirects to a custom host, use the redirected origin. If you want docs hosted at the root instead of `/<repo-name>`, edit `pagesmith.config.json5` manually after init.
-`pagesmith init` also writes a `copyright` block by default, seeding `startYear` from the first git commit year when available and leaving `endYear: null` for build/browser-time year updates.
+`pagesmith-docs init` also writes a `copyright` block by default, seeding `startYear` from the first git commit year when available and leaving `endYear: null` for build/browser-time year updates.
 
 ### Manual setup
 
-Use the same layout that `pagesmith init` creates by default:
+Use the same layout that `pagesmith-docs init` creates by default:
 
 ```text
 <repo-root>/
@@ -70,7 +72,7 @@ Use the same layout that `pagesmith init` creates by default:
       api/README.md
 ```
 
-If your repository already follows those conventions, `npx pagesmith dev`, `npx pagesmith build`, `npx pagesmith preview`, and the docs MCP can also run with no `pagesmith.config.json5` at all. In zero-config mode, Pagesmith resolves `<repo-root>/docs` as the content directory when it exists, falls back to `<repo-root>/content`, and writes the build to `<repo-root>/gh-pages`.
+If your repository already follows those conventions, `npx pagesmith-docs dev`, `npx pagesmith-docs build`, `npx pagesmith-docs preview`, and the docs MCP can also run with no `pagesmith.config.json5` at all. In zero-config mode, Pagesmith resolves `<repo-root>/docs` as the content directory when it exists, falls back to `<repo-root>/content`, and writes the build to `<repo-root>/gh-pages`.
 
 1. Create `pagesmith.config.json5` at the repository root:
 
@@ -100,13 +102,13 @@ docs/
 3. Run the dev server:
 
 ```bash
-npx pagesmith dev
+npx pagesmith-docs dev
 ```
 
 4. Build for production:
 
 ```bash
-npx pagesmith build
+npx pagesmith-docs build
 ```
 
 For upgrade playbooks and pre-1.0 notes, see `ai-guidelines/migration.md`.
@@ -137,10 +139,12 @@ All pages support these frontmatter fields:
 |---|---|---|
 | `title` | `string` | Page title (also used in sidebar and browser tab) |
 | `description` | `string` | Meta description for SEO |
+| `layout` | `string` | Per-page layout override |
 | `navLabel` | `string` | Override the label shown in top navigation |
 | `sidebarLabel` | `string` | Override the label shown in sidebar |
 | `order` | `number` | Manual sort order within a section |
 | `draft` | `boolean` | Exclude page from build when `true` |
+| `chrome` | `object` | Per-page shell toggles (`header`, `sidebar`, `toc`, `footer`) |
 | `socialImage` | `string` | Open Graph image path for social sharing (per-page override) |
 
 All fields are optional. Additional custom fields are passed through to layouts.
@@ -236,6 +240,8 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
 
 | Field | Type | Default | Description |
 |---|---|---|---|
+| `preset` | `string` | `@pagesmith/docs` | Explicit preset for the `pagesmith-site` CLI |
+| `presets` | `string[]` | — | Preset list; the first item is used when `preset` is absent |
 | `name` | `string` | `pkg name` | Site name (header). Falls back to package.json name. |
 | `title` | `string` | `pkg name` | Browser tab title |
 | `description` | `string` | `pkg desc` | Default meta description |
@@ -257,6 +263,9 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
 | `search.pagefindFlags` | `string[]` | `[]` | Extra CLI flags for pagefind |
 | `theme.lightColor` | `string` | — | Light theme meta color |
 | `theme.darkColor` | `string` | — | Dark theme meta color |
+| `theme.defaultColorScheme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Default color scheme for the site shell |
+| `theme.defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Default theme variant |
+| `theme.defaultTextSize` | `'small' \| 'base' \| 'large'` | `'base'` | Default text size before user overrides are applied |
 | `theme.layouts` | `Record<string, string>` | — | Layout override file paths |
 | `analytics.googleAnalytics` | `string` | — | Google Analytics tracking ID |
 | `editLink` | `object \| false` | auto-detected | Edit link config (`{ repo, branch?, label? }`) or `false` to disable the default git-remote detection |
@@ -311,36 +320,38 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
 
 ## CLI
 
-### `pagesmith dev`
+`@pagesmith/docs` publishes the `pagesmith-docs` binary. The package also exposes `@pagesmith/docs/preset` for integration through `pagesmith-site`, but `pagesmith-docs` is the canonical docs command.
+
+### `pagesmith-docs dev`
 
 Start a development server with live reload. Uses incremental rebuilds -- content changes trigger a fast content-only rebuild, while config or theme changes trigger a full rebuild. Shows a startup summary with page/section counts and clickable section URLs.
 
 ```bash
-pagesmith dev [--port 3001] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
+pagesmith-docs dev [--port 3001] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
 ```
 
-### `pagesmith build`
+### `pagesmith-docs build`
 
 Build the static site for production. Pages are processed in parallel for faster builds. Outputs a build summary with page count, section count, and timing.
 
 ```bash
-pagesmith build [--out-dir path] [--base-path path] [--config path]
+pagesmith-docs build [--out-dir path] [--base-path path] [--config path]
 ```
 
-### `pagesmith preview`
+### `pagesmith-docs preview`
 
 Preview the built site locally. The dev and preview servers bind to `127.0.0.1` by default; set `server.host` if you intentionally want a different interface.
 
 ```bash
-pagesmith preview [--port 4000] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
+pagesmith-docs preview [--port 4000] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
 ```
 
-### `pagesmith mcp`
+### `pagesmith-docs mcp`
 
 Start the stdio MCP server for docs-aware AI tooling.
 
 ```bash
-pagesmith mcp --stdio [--config path] [--root path]
+pagesmith-docs mcp --stdio [--config path] [--root path]
 ```
 
 The MCP server exposes docs-focused tools (`docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, `docs_get_page`, `docs_search_pages`) and package resources for versioned guidance (`pagesmith://docs/agents/usage`, `pagesmith://docs/llms-full`, `pagesmith://docs/reference`).
@@ -364,17 +375,18 @@ Override the default layouts by specifying file paths in `theme.layouts`:
     layouts: {
       home: './theme/layouts/DocHome.tsx',
       page: './theme/layouts/DocPage.tsx',
+      listing: './theme/layouts/DocListing.tsx',
       notFound: './theme/layouts/DocNotFound.tsx',
     },
   },
 }
 ```
 
-Layout components are TSX files using `@pagesmith/core/jsx-runtime`:
+Layout components are TSX files using `@pagesmith/site/jsx-runtime`:
 
 ```tsx
 // theme/layouts/DocPage.tsx
-import { Fragment } from '@pagesmith/core/jsx-runtime'
+import { Fragment } from '@pagesmith/site/jsx-runtime'
 
 export default function DocPage(props) {
   const { content, frontmatter, headings, slug, site, sidebarSections, prev, next } = props
@@ -413,6 +425,14 @@ export default function DocPage(props) {
 | `prev` | `{ title, path } \| undefined` | Previous page link |
 | `next` | `{ title, path } \| undefined` | Next page link |
 
+**Listing layout** additionally receives:
+
+| Prop | Type | Description |
+|---|---|---|
+| `listingCards` | `array` | Generated section cards for the current folder |
+| `listingGroups` | `array` | Optional grouped listing sections synthesized from `meta.json5` series definitions |
+| `listingTotal` | `number` | Total number of generated child pages in the current section |
+
 **Home layout** additionally receives:
 
 | Prop | Type | Description |
@@ -424,7 +444,7 @@ export default function DocPage(props) {
 
 ### Export Resolution
 
-Layouts are resolved in order: `default` export, then named export matching the layout name (`DocPage`, `DocHome`, `DocNotFound`).
+Layouts are resolved in order: `default` export, then named export matching the layout name (`DocPage`, `DocHome`, `DocListing`, `DocNotFound`).
 
 ## Navigation
 
@@ -482,7 +502,7 @@ await preview({ port: 4000 })
 ## Further Reading
 
 - **[REFERENCE.md](REFERENCE.md)** — complete AI reference covering config, CLI, content structure, frontmatter, markdown pipeline, layout overrides, and GitHub Pages deployment
-- **[`@pagesmith/core` README](../core/README.md)** — content layer, collections, markdown pipeline, Vite plugins, JSX runtime, and CSS exports
+- **[`@pagesmith/core` README](../core/README.md)** — content layer, collections, markdown pipeline, and Vite content integrations
 - **[`@pagesmith/core` REFERENCE.md](../core/REFERENCE.md)** — full core API reference for AI assistants
 
 ### AI agent guidance (shipped inside the package)

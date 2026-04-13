@@ -37,7 +37,7 @@ jobs:
 
       - run: npm ci
 
-      # Compute the new version from packages/core (both packages share the same version)
+      # Compute the new version from packages/core (all public packages share the same version)
       - name: Bump version
         id: version
         run: |
@@ -53,11 +53,12 @@ jobs:
           echo "tag=v$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "Bumping $OLD_VERSION → $NEW_VERSION (${{ inputs.bump }})"
 
-      # Update version in both packages
+      # Update version in all public packages
       - name: Update package versions
         run: |
           VERSION=${{ steps.version.outputs.version }}
           npm version "$VERSION" --no-git-tag-version --workspace=packages/core
+          npm version "$VERSION" --no-git-tag-version --workspace=packages/site
           npm version "$VERSION" --no-git-tag-version --workspace=packages/docs
 
       # Build after version bump so dist files have the correct version
@@ -71,9 +72,14 @@ jobs:
       - name: Test
         run: npm test
 
-      # Publish both packages with provenance (Trusted Publisher / OIDC)
+      # Publish all packages with provenance (Trusted Publisher / OIDC)
       - name: Publish @pagesmith/core
         run: npm publish --provenance --access public --workspace=packages/core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @pagesmith/site
+        run: npm publish --provenance --access public --workspace=packages/site
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -89,7 +95,7 @@ jobs:
           TAG=${{ steps.version.outputs.tag }}
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add packages/core/package.json packages/docs/package.json
+          git add packages/core/package.json packages/site/package.json packages/docs/package.json
           git commit -m "release: ${TAG}"
           git tag -a "$TAG" -m "Release ${TAG}"
           git push origin HEAD:main --follow-tags

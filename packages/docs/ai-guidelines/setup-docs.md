@@ -43,7 +43,7 @@ Requirements:
 4. If a user wants docs hosted at the root instead of `/<repo-name>`, do not guess. Leave the GitHub Pages-style default in place and tell them to edit `pagesmith.config.json5` manually.
 5. Inspect the repository for an existing docs-like directory before creating anything. Check candidates such as docs/, documentation/, guide/, content/, wiki/, or package-specific docs folders.
 6. Summarize the strongest docs-folder candidate and confirm with me before reusing, moving, or overwriting an existing directory. If no strong candidate exists, create docs/.
-7. Prefer the package init flow after installation: run `npx pagesmith init` with explicit values such as `--yes`, `--content-dir`, `--base-path`, `--origin`, and `--ai`. The init command is safe to rerun: it updates `pagesmith.config.json5`, backfills missing scaffold fields, and refreshes the config `$schema` pointer to the installed package schema. If the init command is not a fit for the repo, perform the same setup manually.
+7. Prefer the package init flow after installation: run `npx pagesmith-docs init` with explicit values such as `--yes`, `--content-dir`, `--base-path`, `--origin`, and `--ai`. The init command is safe to rerun: it updates `pagesmith.config.json5`, backfills missing scaffold fields, and refreshes the config `$schema` pointer to the installed package schema. If the init command is not a fit for the repo, perform the same setup manually.
 8. Keep pagesmith.config.json5 at the repository root. Set `contentDir` to the chosen docs folder, set `outDir` to `gh-pages` unless the repo already has a better deployment target, and include `$schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json'`.
 9. Add root package.json scripts: docs:dev, docs:build, and docs:preview.
 10. Create the minimum documentation structure needed for a useful docs site:
@@ -65,7 +65,7 @@ Requirements:
     - For the full @pagesmith/docs reference, read node_modules/@pagesmith/docs/REFERENCE.md
     - For docs markdown authoring rules, read .pagesmith/markdown-guidelines.md and node_modules/@pagesmith/docs/REFERENCE.md
     - For version-matched docs schemas, read the files under node_modules/@pagesmith/docs/schemas/
-15. If AI artifacts are missing, install or refresh them so .pagesmith/markdown-guidelines.md exists. It is fine to use `npx pagesmith init --ai --no-llms` after the docs-folder choice is confirmed.
+15. If AI artifacts are missing, install or refresh them so .pagesmith/markdown-guidelines.md exists. It is fine to use `npx pagesmith-docs init --ai --no-llms` after the docs-folder choice is confirmed.
 16. Keep the docs practical and minimal on the first pass. Make sure the home page, guide section, and reference section all work end to end.
 17. Before finishing, run the docs build or preview flow, report assumptions, and highlight any places where you need a user decision.
 ```
@@ -78,7 +78,7 @@ Improve the existing @pagesmith/docs integration in this repository. Read node_m
 Requirements:
 1. Reuse the existing pagesmith.config.json5 and contentDir unless there is a clear structural problem. Ask before moving docs content.
 2. If origin or basePath are missing, default to GitHub Pages style values: detect `/<repo-name>` as the base path and probe `https://<owner>.github.io` to resolve the origin. If the user wants root hosting, tell them to edit the config manually instead of guessing.
-3. Prefer running `npx pagesmith init` with explicit values to fill missing defaults, add the root config `$schema`, and backfill starter structure when that is less invasive than hand-editing. Manual edits are also acceptable when the repo is already close to the desired shape.
+3. Prefer running `npx pagesmith-docs init` with explicit values to fill missing defaults, add the root config `$schema`, and backfill starter structure when that is less invasive than hand-editing. Manual edits are also acceptable when the repo is already close to the desired shape.
 4. Add any missing root package.json scripts: docs:dev, docs:build, docs:preview.
 5. Add or refresh root CLAUDE.md and AGENTS.md pointers so future agents read:
    - node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md

@@ -1,7 +1,7 @@
 {
   "name": "@pagesmith/core",
   "version": "0.6.0",
-  "description": "File-based CMS — schema-validated collections, lazy markdown rendering, and runtime CSS/JS exports",
+  "description": "Headless content layer — schema-validated collections, lazy markdown rendering, and Vite content access",
   "keywords": [
     "cms",
     "collections",
@@ -21,10 +21,11 @@
     "url": "https://github.com/sujeet-pro/pagesmith.git",
     "directory": "packages/core"
   },
+  "bin": {
+    "pagesmith-core": "./dist/cli/bin.mjs"
+  },
   "files": [
     "dist/",
-    "src/styles/",
-    "assets/",
     "templates/",
     "ai-guidelines/",
     "REFERENCE.md"
@@ -35,49 +36,9 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
-    "./jsx-runtime": {
-      "types": "./dist/jsx-runtime/index.d.mts",
-      "import": "./dist/jsx-runtime/index.mjs"
-    },
-    "./jsx-dev-runtime": {
-      "types": "./dist/jsx-runtime/index.d.mts",
-      "import": "./dist/jsx-runtime/index.mjs"
-    },
     "./markdown": {
       "types": "./dist/markdown/index.d.mts",
       "import": "./dist/markdown/index.mjs"
-    },
-    "./css": {
-      "types": "./dist/css/index.d.mts",
-      "import": "./dist/css/index.mjs"
-    },
-    "./css/standalone": {
-      "types": "./css.d.ts",
-      "default": "./src/styles/standalone.css"
-    },
-    "./css/content": {
-      "types": "./css.d.ts",
-      "default": "./src/styles/content.css"
-    },
-    "./css/code-block": {
-      "types": "./css.d.ts",
-      "default": "./src/styles/code/block.css"
-    },
-    "./css/code-inline": {
-      "types": "./css.d.ts",
-      "default": "./src/styles/code/inline.css"
-    },
-    "./css/tabs": {
-      "types": "./css.d.ts",
-      "default": "./src/styles/code/tabs.css"
-    },
-    "./css/viewport": {
-      "types": "./css.d.ts",
-      "default": "./src/styles/viewport.css"
-    },
-    "./css/fonts": {
-      "types": "./css.d.ts",
-      "default": "./assets/fonts.css"
     },
     "./schemas": {
       "types": "./dist/schemas/index.d.mts",
@@ -91,22 +52,6 @@
       "types": "./dist/assets/index.d.mts",
       "import": "./dist/assets/index.mjs"
     },
-    "./runtime": {
-      "types": "./dist/runtime/index.d.mts",
-      "import": "./dist/runtime/index.mjs"
-    },
-    "./runtime/content": {
-      "types": "./dist/runtime/content.d.mts",
-      "import": "./dist/runtime/content.mjs"
-    },
-    "./runtime/standalone": {
-      "types": "./dist/runtime/standalone.d.mts",
-      "import": "./dist/runtime/standalone.mjs"
-    },
-    "./runtime/code-tabs": {
-      "types": "./dist/runtime/code-tabs.d.mts",
-      "import": "./dist/runtime/code-tabs.mjs"
-    },
     "./ai": {
       "types": "./dist/ai/index.d.mts",
       "import": "./dist/ai/index.mjs"
@@ -114,10 +59,6 @@
     "./vite": {
       "types": "./dist/vite/index.d.mts",
       "import": "./dist/vite/index.mjs"
-    },
-    "./ssg-utils": {
-      "types": "./dist/ssg-utils/index.d.mts",
-      "import": "./dist/ssg-utils/index.mjs"
     },
     "./create": {
       "types": "./dist/create/index.d.mts",
@@ -130,6 +71,7 @@
     "./ai-guidelines/*": "./ai-guidelines/*",
     "./llms": "./ai-guidelines/llms.txt",
     "./llms-full": "./ai-guidelines/llms-full.txt",
+    "./agents/setup-core": "./ai-guidelines/setup-core.md",
     "./agents/usage": "./ai-guidelines/usage.md",
     "./agents/recipes": "./ai-guidelines/recipes.md",
     "./agents/changelog-notes": "./ai-guidelines/changelog-notes.md",

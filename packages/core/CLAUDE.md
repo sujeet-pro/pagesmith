@@ -1,8 +1,10 @@
 # @pagesmith/core
 
-Core file-based CMS package. Provides the content layer, markdown pipeline, JSX runtime, CSS builder, schemas, loaders, validation, and AI installer.
+Headless content-layer package. Provides collections, loaders, markdown processing, validation, assets helpers, the `pagesmithContent` Vite plugin, MCP support, and the AI installer.
 
 Published as `@pagesmith/core` on npm. Part of the `@pagesmith/` workspace.
+
+Site-building APIs now live in `@pagesmith/site`. If you see legacy JSX/CSS/runtime source trees here during the split, treat them as internal migration leftovers rather than the public package contract.
 
 ## Directory map
 
@@ -270,37 +272,14 @@ Custom validators: implement `ContentValidator { name, validate(ctx) }` and add 
 
 `ContentPlugin.validate` runs after loader/schema/content validation. Returns `string[]` of error messages.
 
-## JSX runtime
+## Site-building split
 
-Server-side HTML generation. Import path: `@pagesmith/core/jsx-runtime`.
+`@pagesmith/core` is the headless content layer. For site-building concerns, pair it with `@pagesmith/site`:
 
-- `h(tag, props, ...children)` — creates `HtmlString`. Supports intrinsic elements and function components.
-- `Fragment({ children, innerHTML })` — renders children or raw innerHTML.
-- `HtmlString` — wrapper class; prevents double-escaping of already-rendered HTML.
-
-Configure in tsconfig.json:
-```json
-{
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "@pagesmith/core"
-  }
-}
-```
-
-## CSS builder
-
-`buildCss(entryPath, { minify? })` — bundles a CSS file using LightningCSS. Targets Chrome 123+, Firefox 120+, Safari 18+. Returns minified CSS string.
-
-## Runtime exports
-
-Import path: `@pagesmith/core/runtime`.
-
-Two tiers:
-- **Standalone** — full site: reset, prose, inline code, layout, TOC highlight.
-- **Content** — markdown rendering only: reset, prose, inline code, viewport.
-
-Accessors: `getRuntimeCSS()`, `getRuntimeJS()`, `getContentCSS()`, `getContentJS()`, plus `get*Path()` variants for file paths. Also individual: `getViewportCSS()`.
+- JSX runtime: `@pagesmith/site/jsx-runtime`
+- CSS builder + CSS bundles: `@pagesmith/site/css`
+- Runtime CSS/JS accessors: `@pagesmith/site/runtime`
+- SSG helpers: `@pagesmith/site/vite` and `@pagesmith/site/ssg-utils`
 
 ## Export map
 
@@ -309,20 +288,11 @@ The package exposes multiple entry points via `exports` in package.json:
 | Import path              | Source                     | Purpose                              |
 |--------------------------|----------------------------|--------------------------------------|
 | `@pagesmith/core`              | `src/index.ts`             | Main API barrel                      |
-| `@pagesmith/core/jsx-runtime`  | `src/jsx-runtime/index.ts` | h, Fragment, HtmlString              |
-| `@pagesmith/core/jsx-dev-runtime` | `src/jsx-runtime/index.ts` | JSX dev runtime (same as jsx-runtime) |
 | `@pagesmith/core/markdown`     | `src/markdown/index.ts`    | processMarkdown                      |
-| `@pagesmith/core/css`          | `src/css/index.ts`         | buildCss (LightningCSS)             |
-| `@pagesmith/core/css/content`  | `src/styles/content.css`   | Content CSS file                     |
-| `@pagesmith/core/css/standalone` | `src/styles/standalone.css` | Standalone layout + prose CSS       |
-| `@pagesmith/core/css/viewport` | `src/styles/viewport.css`  | Viewport CSS file                    |
-| `@pagesmith/core/css/fonts`    | `assets/fonts.css`         | Bundled font faces                   |
 | `@pagesmith/core/schemas`      | `src/schemas/index.ts`     | Zod schemas and types                |
 | `@pagesmith/core/loaders`      | `src/loaders/index.ts`     | Loader classes and registry          |
 | `@pagesmith/core/assets`       | `src/assets/index.ts`      | Asset copying and hashing            |
-| `@pagesmith/core/runtime`      | `src/runtime/index.ts`     | Pre-built CSS/JS accessors           |
-| `@pagesmith/core/vite`         | `src/vite/index.ts`        | Vite plugins (pagesmithContent, pagesmithSsg) |
-| `@pagesmith/core/ssg-utils`    | `src/ssg/utils.ts`         | Shared SSG utility helpers           |
+| `@pagesmith/core/vite`         | `src/vite/index.ts`        | Vite content plugin (`pagesmithContent`) |
 | `@pagesmith/core/create`       | `src/create/index.ts`      | Project scaffolding utilities        |
 | `@pagesmith/core/mcp`          | `src/mcp/index.ts`         | Core MCP server and helpers          |
 | `@pagesmith/core/ai`           | `src/ai/index.ts`          | AI assistant file installer          |

@@ -9,7 +9,7 @@ description: Deploy your Pagesmith site to various hosting platforms
 
 ## Build Output
 
-Running `pagesmith build` produces a self-contained directory (default: `gh-pages/`) with the following structure:
+Running `pagesmith-docs build` produces a self-contained directory (default: `gh-pages/`) with the following structure:
 
 ```text title="Build output"
 gh-pages/
@@ -59,7 +59,7 @@ This resolution chain allows CI/CD pipelines to override the base path without m
 - **Custom domain**: leave as default `"/"` unless your docs live under a subdirectory
 - **Netlify / Vercel / Cloudflare**: leave as default `"/"` for most setups
 
-The `pagesmith init` command auto-detects the correct `basePath` from your git remote URL when running in a GitHub Pages context.
+The `pagesmith-docs init` command auto-detects the correct `basePath` from your git remote URL when running in a GitHub Pages context.
 
 ## GitHub Pages
 
@@ -109,7 +109,7 @@ jobs:
           node-version: 24
 
       - run: npm ci
-      - run: npx pagesmith build
+      - run: npx pagesmith-docs build
 
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -133,7 +133,7 @@ The `fetch-depth: 0` is important -- without full git history, the `lastUpdated`
 If you prefer to deploy from a branch instead of Actions:
 
 ```bash
-npx pagesmith build
+npx pagesmith-docs build
 cd gh-pages
 git init
 git add -A
@@ -153,7 +153,7 @@ In your Netlify dashboard or `netlify.toml`:
 
 ```toml title="netlify.toml"
 [build]
-  command = "npx pagesmith build --out-dir dist"
+  command = "npx pagesmith-docs build --out-dir dist"
   publish = "dist"
 
 [build.environment]
@@ -181,7 +181,7 @@ Create `vercel.json` in your project root:
 
 ```json title="vercel.json"
 {
-  "buildCommand": "npx pagesmith build --out-dir dist",
+  "buildCommand": "npx pagesmith-docs build --out-dir dist",
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": true
@@ -194,7 +194,7 @@ The `cleanUrls` and `trailingSlash` settings match the Pagesmith URL convention 
 
 In the Vercel dashboard, set the framework preset to **Other** and configure:
 
-- **Build Command**: `npx pagesmith build --out-dir dist`
+- **Build Command**: `npx pagesmith-docs build --out-dir dist`
 - **Output Directory**: `dist`
 - **Install Command**: `npm ci`
 
@@ -206,7 +206,7 @@ Since Pagesmith sites are fully static, no serverless functions or edge middlewa
 
 In the Cloudflare Pages dashboard:
 
-- **Build command**: `npx pagesmith build --out-dir dist`
+- **Build command**: `npx pagesmith-docs build --out-dir dist`
 - **Build output directory**: `dist`
 - **Node.js version**: Set `NODE_VERSION` environment variable to `24`
 
@@ -274,7 +274,7 @@ These environment variables affect the build:
 Example in a CI pipeline:
 
 ```bash
-BASE_URL=/my-project npx pagesmith build
+BASE_URL=/my-project npx pagesmith-docs build
 ```
 
 ## Post-Deployment Checklist

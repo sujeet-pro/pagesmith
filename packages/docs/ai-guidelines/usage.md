@@ -43,7 +43,7 @@ Use this file as the primary instruction source for `@pagesmith/docs`.
 
 ## AI-first docs workflow
 
-1. Start with project AI setup (`pagesmith init --ai` or `installAiArtifacts({ profile: 'docs' })`).
+1. Start with project AI setup (`pagesmith-docs init --ai` or `installAiArtifacts({ profile: 'docs' })`).
 2. If the project has generated Pagesmith skills, use them to keep docs synchronized with implementation. Otherwise, paste the canonical prompt files into your agent directly:
    - `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` for setup/retrofit
    - `node_modules/@pagesmith/docs/ai-guidelines/migration.md` for upgrades
@@ -80,7 +80,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 
 ### Prompt: Updating docs structure
 
-> Restructure the documentation for this project. Read `node_modules/@pagesmith/docs/REFERENCE.md` for content structure conventions and `node_modules/@pagesmith/docs/ai-guidelines/recipes.md` for section management recipes. Add new sections as top-level folders under the configured content directory, create `meta.json5` for ordering, and add pages as `<slug>/README.md`. Update cross-links between pages and verify the sidebar renders correctly with `npx pagesmith dev`.
+> Restructure the documentation for this project. Read `node_modules/@pagesmith/docs/REFERENCE.md` for content structure conventions and `node_modules/@pagesmith/docs/ai-guidelines/recipes.md` for section management recipes. Add new sections as top-level folders under the configured content directory, create `meta.json5` for ordering, and add pages as `<slug>/README.md`. Update cross-links between pages and verify the sidebar renders correctly with `npx pagesmith-docs dev`.
 
 **Files to read:**
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Content Structure, Section Meta sections)
@@ -106,7 +106,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 
 ### Prompt: Troubleshooting build or config errors
 
-> Fix docs build errors in this project. Read `node_modules/@pagesmith/docs/ai-guidelines/errors.md` for the error catalog with patterns and fixes. Run `npx pagesmith build` to see all errors. Common issues: missing config file, invalid `basePath`, missing content directory, missing asset sources, missing layout files.
+> Fix docs build errors in this project. Read `node_modules/@pagesmith/docs/ai-guidelines/errors.md` for the error catalog with patterns and fixes. Run `npx pagesmith-docs build` to see all errors. Common issues: missing config file, invalid `basePath`, missing content directory, missing asset sources, missing layout files.
 
 **Files to read:**
 - `node_modules/@pagesmith/docs/ai-guidelines/errors.md`
@@ -114,11 +114,11 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 
 ### Prompt: Layout overrides and theming
 
-> Customize the docs layout for this project. Read `node_modules/@pagesmith/docs/REFERENCE.md` for the layout override system — set `theme.layouts.home`, `theme.layouts.page`, or `theme.layouts.notFound` in `pagesmith.config.json5` to point to custom TSX files. Layouts use `@pagesmith/core/jsx-runtime` and receive props like `content`, `frontmatter`, `headings`, `sidebarSections`, `prev`, `next`. When search is enabled, keep `data-pagefind-body` on the content-only wrapper (usually the page `<article>` or a dedicated home-page body wrapper), not on the full shell.
+> Customize the docs layout for this project. Read `node_modules/@pagesmith/docs/REFERENCE.md` for the layout override system — set `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, or `theme.layouts.notFound` in `pagesmith.config.json5` to point to custom TSX files. Layouts use `@pagesmith/site/jsx-runtime` and receive props like `content`, `frontmatter`, `headings`, `sidebarSections`, `prev`, `next`, plus `listingCards`, `listingGroups`, and `listingTotal` for listing layouts. When search is enabled, keep `data-pagefind-body` on the content-only wrapper (usually the page `<article>` or a dedicated home-page body wrapper), not on the full shell.
 
 ### Prompt: Theme and color scheme configuration
 
-> Configure the docs color scheme and theme. Set `theme.defaultColorScheme` to `"auto"` (OS preference), `"light"`, or `"dark"` in `pagesmith.config.json5`. Set `theme.defaultTheme` to `"paper"` (warm, low-contrast) or `"high-contrast"` (WCAG AAA). The theme toggle in the header and footer selector use the same segmented control design and let users override these defaults. User preferences persist in `localStorage('pagesmith-theme')`. CSS classes on `<html>`: `color-scheme-auto|light|dark` + `theme-paper|high-contrast`. Use `.only-light`/`.only-dark` on images for scheme-aware switching. Use `.show-on-light`/`.show-on-dark` for generic visibility helpers. The footer link area supports either a flat wrapped link row or grouped columns via `footerLinks`, and falls back to the top-level nav links when `footerLinks` is omitted. Use `copyright` for the footer legal line (`projectName`, `startYear`, `endYear?: number | null`) and `footerText` to override only the Pagesmith sign-off segment; otherwise the default sign-off renders "Made with love using Pagesmith" with a heart icon, a Pagesmith link, and an optional maintainer credit from `maintainer` or `package.json` author.
+> Configure the docs color scheme and theme. Set `theme.defaultColorScheme` to `"auto"` (OS preference), `"light"`, or `"dark"` in `pagesmith.config.json5`. Set `theme.defaultTheme` to `"paper"` (warm, low-contrast) or `"high-contrast"` (WCAG AAA). Set `theme.defaultTextSize` to `"small"`, `"base"`, or `"large"` when the site should start with a non-default reading scale. The theme toggle in the header and footer selector use the same segmented control design and let users override these defaults. User preferences persist in `localStorage('pagesmith-theme')`. CSS classes on `<html>`: `color-scheme-auto|light|dark` + `theme-paper|high-contrast`, plus `data-text-size` when a non-base size is active. Use `.only-light`/`.only-dark` on images for scheme-aware switching. Use `.show-on-light`/`.show-on-dark` for generic visibility helpers. The footer link area supports either a flat wrapped link row or grouped columns via `footerLinks`, and falls back to the top-level nav links when `footerLinks` is omitted. Use `copyright` for the footer legal line (`projectName`, `startYear`, `endYear?: number | null`) and `footerText` to override only the Pagesmith sign-off segment; otherwise the default sign-off renders "Made with love using Pagesmith" with a heart icon, a Pagesmith link, and an optional maintainer credit from `maintainer` or `package.json` author.
 
 **Files to read:**
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Layout Overrides, Layout Props sections)
@@ -147,7 +147,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 
 `@pagesmith/docs` exposes a stdio MCP server for AI tooling:
 
-- Command: `pagesmith mcp --stdio`
+- Command: `pagesmith-docs mcp --stdio`
 - Optional flags: `--config <path>`, `--root <path>`
 - Programmatic entry: `@pagesmith/docs/mcp`
 

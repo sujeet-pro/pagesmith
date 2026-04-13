@@ -10,9 +10,9 @@
 @import "./content/alerts.css";
 @import "./content/page-meta.css";
 /* Code */
-@import "../../../core/src/styles/code/block.css";
-@import "../../../core/src/styles/code/inline.css";
-@import "../../../core/src/styles/code/tabs.css";
+@import "@pagesmith/site/css/code-block";
+@import "@pagesmith/site/css/code-inline";
+@import "@pagesmith/site/css/tabs";
 /* Viewport */
 @import "./viewport.css";
 /* Layout */
@@ -21,6 +21,7 @@
 @import "./layout/sidebar.css";
 @import "./layout/footer.css";
 @import "./layout/home.css";
+@import "./layout/listing.css";
 /* Components */
 @import "./components/search.css";
 @import "./components/theme-toggle.css";

@@ -1,6 +1,6 @@
 import { For, Show } from 'solid-js'
 import { renderToString } from 'solid-js/web'
-import type { SsgRenderConfig } from '@pagesmith/core/vite'
+import type { SsgRenderConfig } from '@pagesmith/site/vite'
 // Virtual modules are emitted by `pagesmithContent`: one array per collection key, each item
 // carrying validated frontmatter plus pre-rendered `html` from the core markdown pipeline.
 import guideCollection from 'virtual:content/guide'

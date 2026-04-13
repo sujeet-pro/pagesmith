@@ -111,16 +111,16 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
       const method = req.method || 'GET'
       const pathname = url.pathname
 
-      // Serve font files from core assets during dev (before static resolution)
+      // Serve font files from site assets during dev (before static resolution)
       if (
         base ? pathname.startsWith(`${base}/assets/fonts/`) : pathname.startsWith('/assets/fonts/')
       ) {
         const fontFile = pathname.replace(/.*\/assets\/fonts\//, '')
         if (fontFile && !fontFile.includes('..') && !fontFile.includes('/')) {
-          const corePkgDir = dirname(
-            fileURLToPath(import.meta.resolve('@pagesmith/core/package.json')),
+          const sitePkgDir = dirname(
+            fileURLToPath(import.meta.resolve('@pagesmith/site/package.json')),
           )
-          const fontPath = join(corePkgDir, 'assets', 'fonts', fontFile)
+          const fontPath = join(sitePkgDir, 'assets', 'fonts', fontFile)
           if (existsSync(fontPath)) {
             logRequest(200, method, url.pathname)
             res.writeHead(200, {

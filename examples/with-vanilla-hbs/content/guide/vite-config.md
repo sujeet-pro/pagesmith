@@ -37,7 +37,7 @@ export default defineConfig({
   oxc: {
     jsx: {
       runtime: 'automatic',
-      importSource: '@pagesmith/core',
+      importSource: '@pagesmith/site',
     },
   },
 })
@@ -63,4 +63,4 @@ Spread into `plugins` because it returns an array. Wires dev middleware to your 
 
 ## JSX / `.tsx` entry
 
-The SSR file uses `.tsx` and sets `importSource: '@pagesmith/core'` so JSX pragma is available if you add JSX-based helpers later. Handlebars remains the page template system.
+The SSR file uses `.tsx` and sets `importSource: '@pagesmith/site'` so JSX pragma is available if you add JSX-based helpers later. Handlebars remains the page template system.

@@ -1,6 +1,6 @@
 # Pagesmith + Handlebars (examples/with-vanilla-hbs)
 
-Agent-oriented notes for this monorepo example: `@pagesmith/core` content layer, Vite SSG, and Handlebars (no `@pagesmith/docs` app shell).
+Agent-oriented notes for this monorepo example: `@pagesmith/core` content layer, `@pagesmith/site` Vite/runtime layer, and Handlebars (no `@pagesmith/docs` app shell).
 
 ## Integration shape
 
@@ -14,7 +14,7 @@ Agent-oriented notes for this monorepo example: `@pagesmith/core` content layer,
 
 5. **Vite** — `vite.config.ts` uses `vite-plus`, `sharedAssetsPlugin()`, and `...pagesmithSsg({ entry, contentDirs })`. No `pagesmithContent` virtual modules: all content access goes through the layer in the entry file.
 
-6. **Client / runtime split** — `client.js` is the browser entry (bundled by Vite). It pulls in `src/theme.css` and `@pagesmith/core/runtime/content` for progressive enhancements on top of static HTML (e.g. prose/code behavior shipped by core). It is not responsible for primary page HTML.
+6. **Client / runtime split** — `client.js` is the browser entry (bundled by Vite). It pulls in `src/theme.css` and `@pagesmith/site/runtime/content` for progressive enhancements on top of static HTML (e.g. prose/code behavior shipped by the site runtime). It is not responsible for primary page HTML.
 
 7. **Pagefind** — `pagesmithSsg` runs Pagefind after HTML is written. Scope indexed body with `data-pagefind-body`: home uses the wrapper in `templates/layout.hbs` (`.doc-home-content`); guide/feature articles use `<article data-pagefind-body>` in `templates/article.hbs`; align standalone pages the same way.
 

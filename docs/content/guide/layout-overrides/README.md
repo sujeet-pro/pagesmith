@@ -112,10 +112,10 @@ type SidebarItem = {
 
 ## Creating a Custom Layout
 
-Custom layouts are TSX files that use `@pagesmith/core/jsx-runtime` for server-side JSX rendering. Here is a minimal custom page layout:
+Custom layouts are TSX files that use `@pagesmith/site/jsx-runtime` for server-side JSX rendering. Here is a minimal custom page layout:
 
 ```tsx
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 
 type Props = {
   content: string
@@ -167,7 +167,7 @@ export default function MyPage(props: Props) {
 
 Key points:
 
-- Import `h` from `@pagesmith/core/jsx-runtime` for JSX support.
+- Import `h` from `@pagesmith/site/jsx-runtime` for JSX support.
 - Use `innerHTML={content}` to render the processed markdown HTML. This is a special prop that sets the element's inner HTML without escaping.
 - Include `data-pagefind-body=""` on the content-only wrapper so Pagefind indexes the page body without header, sidebar, breadcrumb, or footer chrome. For article layouts, prefer the `<article>` element instead of a larger shell wrapper.
 - Reference theme assets at `${site.basePath}/assets/style.css` for the bundled theme CSS and `${site.basePath}/assets/main.js` for the theme runtime.
@@ -200,7 +200,7 @@ Both `layout` and `itemLayout` default to `"page"` when not specified.
 
 ## Registering Additional Layouts
 
-When you reference a layout name in `meta.json5` that is not one of the three built-in names, you must register it in `theme.layouts`:
+When you reference a layout name in `meta.json5` that is not one of the built-in names, you must register it in `theme.layouts`:
 
 ```json5
 // pagesmith.config.json5
@@ -235,7 +235,7 @@ When you reference a layout name in `meta.json5` that is not one of the three bu
 
 The docs system collects all unique layout names from section metas and resolves them at build time. If a layout name is referenced in a `meta.json5` but not registered in `theme.layouts`, the build will fail with an error.
 
-You do not need to register the built-in layout names (`home`, `page`, `notFound`) unless you want to override them. They always have default implementations.
+You do not need to register the built-in layout names (`home`, `page`, `listing`, `notFound`) unless you want to override them. They always have default implementations.
 
 ## Layout Resolution Order
 
@@ -248,7 +248,7 @@ When rendering a page, the layout is chosen as follows:
 For each layout name, the system looks for:
 
 1. A registered override in `theme.layouts`
-2. The built-in default (only for `home`, `page`, and `notFound`)
+2. The built-in default (only for `home`, `page`, `listing`, and `notFound`)
 
 ## Example: Custom Home Page
 
@@ -267,7 +267,7 @@ Replace the default landing page with a minimal custom design:
 
 ```tsx
 // theme/MyHome.tsx
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 
 export default function MyHome({ content, frontmatter, site }: any) {
   return (
@@ -319,7 +319,7 @@ Create a specialized layout for blog-style content in a specific section:
 
 ```tsx
 // theme/Article.tsx
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 
 export default function Article({ content, frontmatter, site, prev, next }: any) {
   const title = frontmatter.title

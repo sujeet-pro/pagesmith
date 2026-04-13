@@ -40,11 +40,11 @@ npm add @pagesmith/docs
 
 - For repo bootstrap or retrofit work, start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`.
 - For version upgrades or feature adoption on an existing docs site, start with `node_modules/@pagesmith/docs/ai-guidelines/migration.md`.
-- Prefer `pagesmith init --ai` for initial setup so docs structure and AI context are generated together.
+- Prefer `pagesmith-docs init --ai` for initial setup so docs structure and AI context are generated together.
 - Use `node_modules/@pagesmith/docs/schemas/*.schema.json` for version-matched config, meta, and frontmatter shapes.
 - When `pagesmith.config.json5` is committed, keep its `$schema` pointing at the installed file in `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`.
 - If generated Pagesmith skills exist, you can use them for bulk refreshes. Otherwise, paste the setup or upgrade prompt directly into your agent.
-- MCP server: `pagesmith mcp --stdio`
+- MCP server: `pagesmith-docs mcp --stdio`
 
 ## Config and paths (`pagesmith.config.json5`)
 

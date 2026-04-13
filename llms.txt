@@ -4,14 +4,14 @@
 
 ## Summary
 
-- Two main packages: `@pagesmith/core` for the shared content/runtime layer and `@pagesmith/docs` for convention-based documentation with built-in Pagefind search
+- Three main packages: `@pagesmith/core` for the headless content layer, `@pagesmith/site` for site-building and the `pagesmith-site` CLI, and `@pagesmith/docs` for the opinionated docs preset on top of core + site
 - Typed filesystem collections for markdown and structured data (JSON, JSONC, JSON5, YAML, TOML)
-- Lazy markdown rendering with the built-in Shiki-backed code renderer (dual themes, line numbers, file titles, mark/ins/del, collapse, copy button), headings, and read-time metadata
+- Lazy markdown rendering with the built-in Shiki-backed code renderer, headings, and read-time metadata
 - GitHub Flavored Markdown, GitHub Alerts, math (LaTeX/MathJax), smart typography, accessible emojis, and auto-linked headings
-- Vite-native: content plugin (`pagesmithContent`) and SSG plugin (`pagesmithSsg`) for Vite
-- Schema validation with Zod at the boundary, plus AST-level content validators (links, headings, code blocks)
-- JSX runtime for server-side HTML generation (framework-agnostic)
-- Docs-site defaults from `pagesmith.config.json5`, with optional layout overrides through `theme.layouts.*`
+- Vite-native split: `pagesmithContent` from `@pagesmith/core/vite`; `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite`
+- Schema validation with Zod at the boundary, plus AST-level content validators
+- Built-in JSX runtime, shared CSS/runtime bundles, theme + text-size controls, and TOC highlighting from `@pagesmith/site`
+- Docs defaults from `pagesmith.config.json5`, including listing pages, shell overrides, and layout overrides through `theme.layouts.*`
 - Bundled Pagefind search with Cmd+K keyboard shortcut
 - Assistant artifact helpers exposed from `@pagesmith/core/ai`
 
@@ -21,22 +21,13 @@ For a docs site with defaults:
 
 ```bash
 npm add @pagesmith/docs
-```
-
-```json5
-{
-  name: 'Acme Docs',
-  title: 'Acme Docs',
-  description: 'Team documentation',
-  contentDir: './content',
-  search: { enabled: true },
-}
+npx pagesmith-docs init --yes --ai
 ```
 
 For a custom site or framework integration:
 
 ```bash
-npm add @pagesmith/core
+npm add @pagesmith/core @pagesmith/site
 ```
 
 ```ts
@@ -54,14 +45,14 @@ const rendered = await entries[0]?.render()
 // rendered.html, rendered.headings, rendered.readTime
 ```
 
-Use `@pagesmith/docs` when you want the built-in docs experience. Use `@pagesmith/core` plus `@pagesmith/core/vite` when you need custom layouts or framework-specific rendering (React, Solid, Svelte, EJS, Handlebars).
+Use `@pagesmith/docs` when you want the built-in docs experience. Use `@pagesmith/core` + `@pagesmith/site` when you need custom layouts or framework-specific rendering.
 
 ## Framework Support
 
-Vite-based integration with any framework through two patterns:
-- **Virtual modules** (`pagesmithContent` plugin): `virtual:content/posts` — for React, Solid, Svelte
-- **Programmatic API** (`createContentLayer`): for EJS, Handlebars, and custom setups
-- **SSG** (`pagesmithSsg` plugin): static site generation with dev server + Pagefind search
+Vite-based integration with any framework through three layers:
+- **Virtual modules**: `pagesmithContent` from `@pagesmith/core/vite`
+- **Programmatic API**: `createContentLayer` from `@pagesmith/core`
+- **SSG + assets**: `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite`
 
 ## Docs Content Structure
 
@@ -69,5 +60,5 @@ Content follows a folder convention for `@pagesmith/docs`:
 - `content/README.md` — home page
 - Top-level folders → navigation sections and sidebar groups
 - Subfolders with `README.md` → individual pages
-- `meta.json5` files → section ordering, series grouping, display names
-- Frontmatter: title, description, navLabel, sidebarLabel, order, draft (all optional)
+- `meta.json5` files → section ordering, series grouping, display names, and layout hints
+- Frontmatter: title, description, navLabel, sidebarLabel, order, layout, chrome, draft (all optional)

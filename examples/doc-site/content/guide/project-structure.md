@@ -9,7 +9,7 @@ seriesOrder: 2
 
 ## How `@pagesmith/docs` uses `@pagesmith/core`
 
-`@pagesmith/docs` is the opinionated docs app: CLI, default theme, navigation, Pagefind, and validation rules for this style of site. `@pagesmith/core` supplies the markdown pipeline, JSX runtime, shared validators, and Vite-oriented primitives. You see that split in layout overrides — components import `h` from `@pagesmith/core/jsx-runtime` and `Html` from `@pagesmith/docs/theme`.
+`@pagesmith/docs` is the opinionated docs app: package-owned `pagesmith-docs` CLI, default theme, navigation, Pagefind, and validation rules for this style of site. `@pagesmith/core` supplies the markdown pipeline, shared validators, and content-layer primitives, while `@pagesmith/site` supplies the JSX runtime and shared runtime/CSS behavior underneath the docs package. You see that split in layout overrides — components import `h` from `@pagesmith/site/jsx-runtime` and `Html` from `@pagesmith/docs/theme`.
 
 ## Convention-Based Layout
 
@@ -43,11 +43,11 @@ The `theme.layouts` config key maps layout names to JSX files. This example over
 
 ## Commands in one place
 
-Typical published-CLI entry points (often via `npx pagesmith …` after installing `@pagesmith/docs`):
+Typical published-CLI entry points (often via `npx pagesmith-docs …` after installing `@pagesmith/docs`):
 
-- `pagesmith dev` — local development with fast content rebuilds.
-- `pagesmith build` — emit static HTML to `outDir` and index with Pagefind when search is enabled.
-- `pagesmith preview` — serve the last build output locally.
-- `pagesmith mcp --stdio` — run the docs MCP server for agent/editor integrations.
+- `pagesmith-docs dev` — local development with fast content rebuilds.
+- `pagesmith-docs build` — emit static HTML to `outDir` and index with Pagefind when search is enabled.
+- `pagesmith-docs preview` — serve the last build output locally.
+- `pagesmith-docs mcp --stdio` — run the docs MCP server for agent/editor integrations.
 
 This monorepo wires the same flags through `package.json` scripts pointing at the workspace CLI with `--config ./pagesmith.config.json5`.

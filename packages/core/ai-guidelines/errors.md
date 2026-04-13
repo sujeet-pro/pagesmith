@@ -104,7 +104,7 @@ description: A summary  # ← required by BaseFrontmatterSchema
 **Pattern:** `No pagesmith.config.json5 file found at <path>`
 **Fix:** This pattern applies to the `@pagesmith/docs` CLI-backed MCP workflow, not a bare `@pagesmith/core` content-layer integration.
 
-- If you are using `@pagesmith/docs`, run `npx pagesmith init` to create `pagesmith.config.json5`, or pass `--config <path>`.
+- If you are using `@pagesmith/docs`, run `npx pagesmith-docs init` to create `pagesmith.config.json5`, or pass `--config <path>`.
 - If you are using `@pagesmith/core` directly, create a `ContentLayer` in code and pass it to `createCoreMcpServer(...)` instead of looking for `pagesmith.config.json5`.
 
 ### Entry not found

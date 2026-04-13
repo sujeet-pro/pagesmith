@@ -5,12 +5,13 @@
  * left sidebar (navigation) | content | right TOC
  */
 
-import { Fragment, h } from '@pagesmith/core/jsx-runtime'
+import { Fragment, h } from '@pagesmith/site/jsx-runtime'
 import { DocFooter } from '../components/DocFooter'
 import { DocHeader } from '../components/DocHeader'
 import { DocSidebar } from '../components/DocSidebar'
 import { DocTOC } from '../components/DocTOC'
 import { Html } from '../components/Html'
+import { resolveChrome } from '../utils/chrome'
 
 type Breadcrumb = {
   label: string
@@ -50,6 +51,7 @@ export default function DocPage(props: Props) {
     lastUpdated,
   } = props
 
+  const chrome = resolveChrome(frontmatter)
   const pageTitle = frontmatter.title ? `${frontmatter.title} \u2014 ${site.title}` : site.title
   const ogImage = frontmatter.socialImage
     ? frontmatter.socialImage.startsWith('http')
@@ -65,21 +67,25 @@ export default function DocPage(props: Props) {
       socialImage={ogImage}
       site={site}
     >
-      <DocHeader
-        siteName={site.name}
-        siteIcon={site.icon}
-        basePath={site.basePath}
-        homeLink={site.homeLink}
-        navItems={site.navItems}
-        slug={slug}
-        searchEnabled={site.search?.enabled}
-      />
-      <div class="doc-layout">
-        <DocSidebar
-          sections={sidebarSections}
-          currentSlug={slug}
-          collapsible={site.sidebar?.collapsible}
+      {chrome.header ? (
+        <DocHeader
+          siteName={site.name}
+          siteIcon={site.icon}
+          basePath={site.basePath}
+          homeLink={site.homeLink}
+          navItems={site.navItems}
+          slug={slug}
+          searchEnabled={site.search?.enabled}
         />
+      ) : null}
+      <div class="doc-layout">
+        {chrome.sidebar ? (
+          <DocSidebar
+            sections={sidebarSections}
+            currentSlug={slug}
+            collapsible={site.sidebar?.collapsible}
+          />
+        ) : null}
         <div class="doc-content">
           {breadcrumbs && breadcrumbs.length > 1 ? (
             <nav class="doc-breadcrumbs" aria-label="Breadcrumbs">
@@ -107,7 +113,7 @@ export default function DocPage(props: Props) {
             </nav>
           ) : null}
 
-          {headings.length > 0 ? (
+          {chrome.toc && headings.length > 0 ? (
             <details class="doc-toc-mobile">
               <summary>On this page</summary>
               <DocTOC headings={headings} />
@@ -120,21 +126,25 @@ export default function DocPage(props: Props) {
             </article>
           </main>
 
-          <DocFooter
-            links={site.footerLinks}
-            footerText={site.footerText}
-            maintainer={site.maintainer}
-            copyright={site.copyright}
-            editUrl={editUrl}
-            editLabel={editLabel}
-            lastUpdated={lastUpdated}
-            prev={prev}
-            next={next}
-          />
+          {chrome.footer ? (
+            <DocFooter
+              links={site.footerLinks}
+              footerText={site.footerText}
+              maintainer={site.maintainer}
+              copyright={site.copyright}
+              editUrl={editUrl}
+              editLabel={editLabel}
+              lastUpdated={lastUpdated}
+              prev={prev}
+              next={next}
+            />
+          ) : null}
         </div>
-        <aside class="doc-aside">
-          <DocTOC headings={headings} />
-        </aside>
+        {chrome.toc ? (
+          <aside class="doc-aside">
+            <DocTOC headings={headings} />
+          </aside>
+        ) : null}
       </div>
     </Html>
   )

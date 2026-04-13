@@ -24,6 +24,7 @@ const root: string = process.cwd()
 const examples: Example[] = [
   { name: 'blog-site', buildCmd: 'npm run build', outDir: 'gh-pages/examples/blog-site' },
   { name: 'doc-site', buildCmd: 'npm run build', outDir: 'gh-pages/examples/doc-site' },
+  { name: 'with-nextjs', buildCmd: 'npm run build', outDir: 'gh-pages/examples/nextjs' },
   { name: 'with-vanilla-ejs', buildCmd: 'npm run build', outDir: 'gh-pages/examples/vanilla-ejs' },
   { name: 'with-vanilla-hbs', buildCmd: 'npm run build', outDir: 'gh-pages/examples/vanilla-hbs' },
   { name: 'with-react', buildCmd: 'npm run build', outDir: 'gh-pages/examples/react' },
@@ -34,8 +35,19 @@ const examples: Example[] = [
 async function validateExample(example: Example): Promise<Result> {
   const dir: string = join(root, 'examples', example.name)
   const outDir: string = join(root, example.outDir)
+  const requiredSourceFiles = ['README.md', 'llms.txt']
 
   try {
+    for (const relativePath of requiredSourceFiles) {
+      if (!existsSync(join(dir, relativePath))) {
+        return {
+          name: example.name,
+          passed: false,
+          error: `required source file not found: ${join('examples', example.name, relativePath)}`,
+        }
+      }
+    }
+
     await execAsync(example.buildCmd, {
       cwd: dir,
       env: {
@@ -55,6 +67,10 @@ async function validateExample(example: Example): Promise<Result> {
 
     if (!hasIndex) {
       return { name: example.name, passed: false, error: 'no index.html found in output' }
+    }
+
+    if (!existsSync(join(outDir, 'llms.txt'))) {
+      return { name: example.name, passed: false, error: 'llms.txt not found in build output' }
     }
 
     return { name: example.name, passed: true }

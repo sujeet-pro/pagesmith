@@ -333,12 +333,16 @@ export async function loadDocsPages(
       frontmatter.title ??
       (isHome ? config.title : toTitleCase(contentSlug.split('/').at(-1) ?? section ?? 'Home'))
 
-    // Resolve layout name from section meta
+    // Resolve layout name: page frontmatter wins, then section meta defaults.
     const sectionMeta = section ? sectionMetas?.get(section) : undefined
     const isLanding = section != null && contentSlug === section
+    const fmLayout =
+      typeof frontmatter.layout === 'string' && frontmatter.layout ? frontmatter.layout : undefined
     let layoutName: string
     if (isHome) {
-      layoutName = 'home'
+      layoutName = fmLayout ?? 'home'
+    } else if (fmLayout) {
+      layoutName = fmLayout
     } else if (isLanding && sectionMeta?.layout) {
       layoutName = sectionMeta.layout
     } else if (!isLanding && sectionMeta?.itemLayout) {

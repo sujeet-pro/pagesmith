@@ -11,6 +11,7 @@ Check these example surfaces when behavior changes:
 - `examples/blog-site/`
 - `examples/doc-site/`
 - `examples/with-react/`
+- `examples/with-nextjs/`
 - `examples/with-solid/`
 - `examples/with-svelte/`
 - `examples/with-vanilla-ejs/`

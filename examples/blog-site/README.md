@@ -1,45 +1,39 @@
-# Pagesmith + Core (No Framework)
+# Pagesmith Blog Site
 
-A content-driven static site built with **@pagesmith/core** only: `createContentLayer`, **`ContentEntry.render()`** for Markdown, and the package JSX runtime (`h`, `Fragment`, `innerHTML`). No React, Solid, Svelte, or template engine.
+A custom static site that keeps the content layer on `@pagesmith/core` and the site shell on `@pagesmith/site`. It does not use React, Solid, Svelte, or a template engine. Instead, the SSR entry renders with `@pagesmith/site/jsx-runtime`, calls `createContentLayer()` directly, and lets `pagesmithSsg` handle dev/build/preview behavior.
+
+## AI-First Starting Point
+
+To recreate this shape in another repository, install `@pagesmith/core` and `@pagesmith/site`, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`.
+
+Tell the agent to:
+
+- keep collections, schemas, and markdown rendering on `@pagesmith/core`
+- use `createContentLayer()` directly in the SSR entry instead of `virtual:content/*`
+- wire `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite`
+- use `@pagesmith/site/jsx-runtime` for the HTML shell
 
 ## Quick Start
 
 ```bash
-# From the monorepo root
 vp install
 vp run dev:eg:blog-site
 ```
 
-## How it fits together
+## Key Files
 
-| Layer | Role |
-|-------|------|
-| **Vite** | Bundles `client.js` (CSS + vanilla runtime). `oxc.jsx.importSource` is `@pagesmith/core` so `.tsx` in `src/` compiles to the core JSX runtime. |
-| **`pagesmithSsg`** | Discovers routes via `getRoutes()`, renders each URL with `render()`, copies `public/`, runs Pagefind, writes HTML under `gh-pages/examples/blog-site/`. |
-| **`createContentLayer`** | Filesystem-backed collections (`guide`, `pages`) with Zod-validated frontmatter. |
-| **`entry.render()`** | Markdown → HTML for each entry (headings + read time for layout/TOC). |
-| **JSX shell** | `src/entry-server.tsx` composes chrome (header, sidebar, home, article wrapper) and returns full document strings. |
-| **Runtime** | `src/runtime.ts` — progressive enhancement (TOC scroll spy, sidebar dialog, theme controls, Pagefind trigger tweaks). |
+- `vite.config.ts` wires `pagesmithSsg` and `sharedAssetsPlugin`
+- `src/entry-server.tsx` defines the collections inline and implements `getRoutes()` plus `render()`
+- `client.js` and `src/runtime.ts` add the shared content runtime plus small site-specific enhancements
+- `content/guide/` explains the setup and includes `guide/kitchen-sink.md` for markdown regression coverage
+- `llms.txt` is the compact AI map for this example
 
-**Compared to `examples/with-*`:** those examples add **`pagesmithContent`** so collections load through virtual modules and framework components render pages. Here, the SSR entry owns collection config and calls **`layer.getCollection` + `entry.render()`** instead — same Markdown output, different bundler integration.
+## When To Use This Shape
 
-Agent-oriented notes for this layout: `llms.txt` in this directory.
+- You want a custom Pagesmith site without adopting a framework runtime
+- You want direct control over `createContentLayer()` and `entry.render()`
+- You still want Pagesmith's shared CSS/runtime and Vite SSG helpers
 
-## Content
-
-| Directory | Collection | Description |
-|-----------|-----------|-------------|
-| `content/guide/` | `guide` | How this example works, including `guide/kitchen-sink.md` for markdown regression |
-| `content/pages/` | `pages` | Standalone pages (about) |
-
-## Theme system
-
-Implemented in HTML/CSS/JS in this repo (not a separate framework):
-
-- Header theme menu and footer segmented controls (appearance, theme variant, text size)
-- FOUC guard inline script reads `localStorage` key `pagesmith-theme` before paint
-- Tokens and layout live in `src/theme.css` on top of `@pagesmith/core/css/content`
-
-## Deployed
+## Live Demo
 
 [View live example](https://projects.sujeet.pro/pagesmith/examples/blog-site)

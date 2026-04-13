@@ -1,4 +1,4 @@
-import { h } from '@pagesmith/core/jsx-runtime'
+import { h } from '@pagesmith/site/jsx-runtime'
 
 type Props = {
   siteName: string
@@ -74,7 +74,7 @@ export function DocHeader({
         ) : null}
         <div class="doc-header-right">
           {searchEnabled ? <pagefind-modal-trigger class="doc-search-trigger" /> : null}
-          <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="">
+          <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="" data-ps-theme-controls="">
             <button
               type="button"
               class="doc-theme-toggle-btn"
@@ -83,9 +83,16 @@ export function DocHeader({
               aria-haspopup="true"
               aria-controls="doc-theme-dropdown"
               data-theme-toggle-btn=""
+              data-ps-theme-toggle-button=""
               innerHTML={themeIcon}
             />
-            <div id="doc-theme-dropdown" class="doc-theme-dropdown" data-theme-dropdown="" hidden>
+            <div
+              id="doc-theme-dropdown"
+              class="doc-theme-dropdown"
+              data-theme-dropdown=""
+              data-ps-theme-dropdown=""
+              hidden
+            >
               <fieldset class="doc-theme-group">
                 <legend>Appearance</legend>
                 <label class="doc-theme-option" data-scheme="auto">

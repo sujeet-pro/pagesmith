@@ -7,10 +7,15 @@ order: 4
 # MCP Server Setup
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Configure the Pagesmith MCP servers in my Claude Code settings. Add both `pagesmith mcp --stdio` for docs tools and the core MCP for collection tools."
+> Ask your AI agent: "Configure the Pagesmith docs MCP server in my Claude Code settings with `pagesmith-docs mcp --stdio`. If this repo also owns a custom `@pagesmith/core` content layer, add a small wrapper around `@pagesmith/core/mcp` too."
 > Then read on to understand what each tool does and how to use them in workflows.
 
-Pagesmith ships two MCP servers that give AI assistants direct access to your content, configuration, and validation. This enables AI-driven workflows like "validate my config, list all pages, then update the one about getting started."
+Pagesmith exposes two MCP surfaces that give AI assistants direct access to your content, configuration, and validation:
+
+- `pagesmith-docs mcp --stdio` for docs projects using `@pagesmith/docs`
+- `@pagesmith/core/mcp` for projects that create a `ContentLayer` directly in app code
+
+This enables workflows like "validate my config, list all pages, then update the one about getting started."
 
 ## Quick Setup
 
@@ -21,22 +26,22 @@ Add to `.claude/settings.json` (project-level) or `~/.claude/settings.json` (use
 ```json title=".claude/settings.json"
 {
   "mcpServers": {
-    "pagesmith": {
+    "pagesmith-docs": {
       "command": "npx",
-      "args": ["pagesmith", "mcp", "--stdio"]
+      "args": ["pagesmith-docs", "mcp", "--stdio"]
     }
   }
 }
 ```
 
-After saving, restart Claude Code. You should see the Pagesmith tools available in the MCP tools list.
+After saving, restart Claude Code. If you only need docs-site tools, this is enough.
 
 ### Cursor / Other MCP Clients
 
 Any MCP-compatible client can connect using the stdio transport:
 
 ```bash
-npx pagesmith mcp --stdio
+npx pagesmith-docs mcp --stdio
 ```
 
 Pass `--config <path>` to specify a custom config file, or `--root <dir>` to set the project root.
@@ -115,7 +120,41 @@ Full-text search across page titles, descriptions, and content.
 
 ## Core MCP Server (@pagesmith/core)
 
-The core MCP server provides tools for inspecting collections and content entries. It's useful for custom sites built on `@pagesmith/core` directly.
+The core MCP server provides tools for inspecting collections and content entries. It is useful for custom sites built on `@pagesmith/core` directly.
+
+Unlike the docs server, the core server is programmatic because it needs a live `ContentLayer` instance. There is no standalone `pagesmith-core mcp` CLI.
+
+One straightforward setup is a tiny wrapper script:
+
+```js title="scripts/pagesmith-core-mcp.mjs"
+import collections from '../content.config.js'
+import { createContentLayer, defineConfig } from '@pagesmith/core'
+import { startCoreMcpServer } from '@pagesmith/core/mcp'
+
+const layer = createContentLayer(
+  defineConfig({
+    collections,
+  }),
+)
+
+await startCoreMcpServer({
+  layer,
+  rootDir: process.cwd(),
+})
+```
+
+Then register that wrapper with your MCP client:
+
+```json title=".claude/settings.json"
+{
+  "mcpServers": {
+    "pagesmith-core": {
+      "command": "node",
+      "args": ["./scripts/pagesmith-core-mcp.mjs"]
+    }
+  }
+}
+```
 
 ### core_list_collections
 
@@ -189,9 +228,9 @@ These resources are tied to the installed package version, so AI agents always g
 | Validate config | `docs_validate_config` | | |
 | List/inspect pages | `docs_list_pages` | | |
 | Search content | `docs_search_pages` | | |
-| Build the site | | `pagesmith build` | |
-| Start dev server | | `pagesmith dev` | |
-| Initialize a project | | `pagesmith init` | |
+| Build the site | | `pagesmith-docs build` | |
+| Start dev server | | `pagesmith-docs dev` | |
+| Initialize a project | | `pagesmith-docs init` | |
 | Update docs after code change | | | `/update-docs` |
 | Full docs refresh | | | `/ps-update-all-docs` |
 

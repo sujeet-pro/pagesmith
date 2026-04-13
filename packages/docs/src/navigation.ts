@@ -1,3 +1,4 @@
+import type { Heading } from '@pagesmith/core/schemas'
 import { basename } from 'path'
 import {
   toTitleCase,
@@ -151,6 +152,24 @@ function sortSectionPages(pages: DocsPage[], meta?: DocsSectionMeta): DocsPage[]
   return sortPages(pages)
 }
 
+function warnSeriesReference(
+  sectionSlug: string,
+  seriesName: string,
+  slug: string,
+  reason: 'ambiguous' | 'missing',
+): void {
+  if (reason === 'ambiguous') {
+    console.warn(
+      `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${seriesName}" references article slug "${slug}" which matches multiple loaded pages. Use the full section-relative slug to disambiguate.`,
+    )
+    return
+  }
+
+  console.warn(
+    `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${seriesName}" references article slug "${slug}" which does not match any loaded page.`,
+  )
+}
+
 function buildSidebarWithSeries(
   sectionSlug: string,
   sectionPages: DocsPage[],
@@ -167,16 +186,12 @@ function buildSidebarWithSeries(
     for (const slug of series.articles) {
       const { page, ambiguous } = findSectionPageBySlug(lookup, slug)
       if (ambiguous) {
-        console.warn(
-          `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${series.displayName}" references article slug "${slug}" which matches multiple loaded pages. Use the full section-relative slug to disambiguate.`,
-        )
+        warnSeriesReference(sectionSlug, series.displayName, slug, 'ambiguous')
         continue
       }
 
       if (!page) {
-        console.warn(
-          `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${series.displayName}" references article slug "${slug}" which does not match any loaded page.`,
-        )
+        warnSeriesReference(sectionSlug, series.displayName, slug, 'missing')
         continue
       }
 
@@ -449,6 +464,146 @@ function withResolvedFooterLinks(
     ...link,
     path: prefixFooterLinkPath(link.path, basePath),
   }))
+}
+
+export type DocsListingCard = {
+  title: string
+  path: string
+  description?: string
+  publishedDate?: string
+}
+
+export type DocsListingGroup = {
+  slug: string
+  title: string
+  description?: string
+  cards: DocsListingCard[]
+}
+
+export type DocsListingData = {
+  cards: DocsListingCard[]
+  groups: DocsListingGroup[]
+  headings: Heading[]
+  totalItems: number
+}
+
+function toListingDate(value: unknown): string | undefined {
+  if (!value) return undefined
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? undefined : value.toISOString()
+  }
+  if (typeof value === 'string' || typeof value === 'number') {
+    const parsed = new Date(value)
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString()
+  }
+  return undefined
+}
+
+function toListingCard(page: DocsPage, basePath: string): DocsListingCard {
+  return {
+    title: page.title,
+    path: `${basePath}${page.routePath}`,
+    description:
+      typeof page.frontmatter.description === 'string' ? page.frontmatter.description : undefined,
+    publishedDate: toListingDate(page.frontmatter.publishedDate),
+  }
+}
+
+export function getDocsListingData(
+  section: string,
+  pages: DocsPage[],
+  basePath: string,
+  sectionMeta?: DocsSectionMeta,
+): DocsListingData {
+  const sectionPages = pages.filter(
+    (page) => page.section === section && page.contentSlug !== section && !page.isHome,
+  )
+  const sortedPages = sortSectionPages(sectionPages, sectionMeta)
+  const flatCards = sortedPages.map((page) => toListingCard(page, basePath))
+
+  if (!sectionMeta?.series || sectionMeta.series.length === 0) {
+    return {
+      cards: flatCards,
+      groups: [],
+      headings: [],
+      totalItems: flatCards.length,
+    }
+  }
+
+  const lookup = buildSectionPageLookup(section, sortedPages)
+  const includedPages = new Set<DocsPage>()
+  const groups: DocsListingGroup[] = []
+
+  for (const series of sectionMeta.series) {
+    const cards: DocsListingCard[] = []
+
+    for (const slug of series.articles) {
+      const { page, ambiguous } = findSectionPageBySlug(lookup, slug)
+      if (ambiguous) {
+        warnSeriesReference(section, series.displayName, slug, 'ambiguous')
+        continue
+      }
+      if (!page) {
+        warnSeriesReference(section, series.displayName, slug, 'missing')
+        continue
+      }
+      if (includedPages.has(page)) continue
+
+      includedPages.add(page)
+      cards.push(toListingCard(page, basePath))
+    }
+
+    if (cards.length > 0) {
+      groups.push({
+        slug: series.slug,
+        title: series.displayName,
+        description: series.description,
+        cards,
+      })
+    }
+  }
+
+  if (groups.length === 0) {
+    return {
+      cards: flatCards,
+      groups: [],
+      headings: [],
+      totalItems: flatCards.length,
+    }
+  }
+
+  const otherPages = sortedPages.filter((page) => !includedPages.has(page))
+  if (otherPages.length > 0) {
+    groups.push({
+      slug: 'other',
+      title: 'Other',
+      cards: otherPages.map((page) => toListingCard(page, basePath)),
+    })
+  }
+
+  return {
+    cards: groups.flatMap((group) => group.cards),
+    groups,
+    headings: groups.map((group) => ({
+      depth: 2,
+      text: group.title,
+      slug: group.slug,
+    })),
+    totalItems: flatCards.length,
+  }
+}
+
+/**
+ * Child pages under a section folder for listing layouts (excludes the section
+ * index / landing page). Order matches sidebar ordering rules.
+ */
+export function getDocsListingCards(
+  section: string,
+  pages: DocsPage[],
+  basePath: string,
+  sectionMeta?: DocsSectionMeta,
+): DocsListingCard[] {
+  return getDocsListingData(section, pages, basePath, sectionMeta).cards
 }
 
 export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {

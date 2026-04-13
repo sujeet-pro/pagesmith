@@ -1,37 +1,42 @@
 # Pagesmith + EJS
 
-Best-practice **`@pagesmith/core` + Vite + EJS** static site: filesystem collections, SSR entry contract, EJS boundaries, SSG, and Pagefind — without `@pagesmith/docs` or virtual content modules.
+EJS-based static site using `@pagesmith/core` for collections and markdown, plus `@pagesmith/site` for Vite SSG, shared assets, and the shipped content runtime. It keeps templating on EJS instead of moving to a framework component model.
 
-## Quick start
+## AI-First Starting Point
+
+To recreate this shape in another repository, install `@pagesmith/core`, `@pagesmith/site`, `ejs`, and your Vite tooling, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`.
+
+Tell the agent to:
+
+- keep collections and markdown rendering on `@pagesmith/core`
+- use `createContentLayer()` directly in the SSR entry instead of `virtual:content/*`
+- wire `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite`
+- keep HTML layout ownership in `templates/*.ejs`
+
+## Quick Start
 
 ```bash
-# From the monorepo root
 vp install
 vp run dev:eg:vanilla-ejs
 ```
 
-Agent-oriented notes for this stack: [`llms.txt`](./llms.txt).
+## Key Files
 
-## Integration flow (read this before copying files)
+- `content.config.mjs` defines the `guide` and `pages` collections
+- `src/entry-server.tsx` loads content, computes routes, and renders the EJS templates
+- `templates/` owns the HTML shell and page fragments
+- `vite.config.ts` wires `pagesmithSsg`, shared assets, and content-directory watching
+- `client.js` adds the shared content runtime plus small Pagefind and chrome enhancements
+- `content/guide/` includes the prose walkthrough and `guide/kitchen-sink.md`
+- `llms.txt` is the compact AI map for this example
 
-1. **`content.config.mjs`** — Declares collections (`defineCollection` / `defineCollections`) and Zod schemas. This is the typed boundary between markdown files and code.
-2. **`src/entry-server.tsx`** — Imports that config, calls **`createContentLayer`**, implements **`getRoutes`** + **`render`** expected by `pagesmithSsg` (`@pagesmith/core/vite`). All routing, sorting, and `ejs.render()` calls live here.
-3. **`templates/`** — **Fragment** templates (`article`, `index`, `about`) produce HTML strings; **`layout.ejs`** wraps them with site chrome. **`data-pagefind-body`** sits on the indexed region (see `article.ejs` / `about.ejs` / home branch in `layout.ejs`), not on the entire document.
-4. **`vite.config.ts`** — `sharedAssetsPlugin()` plus **`...pagesmithSsg({ entry, contentDirs })`**. `contentDirs` feeds dev watching and companion asset copying.
-5. **Client vs SSR** — **`client.js`** is the Vite client bundle (theme CSS + `@pagesmith/core/runtime/content` + small Pagefind trigger tweaks). **`layout.ejs`** still ships inline scripts for sidebar, TOC, and theme — that split is intentional.
-6. **Pagefind** — After production SSG, the plugin indexes HTML. **`SsgRenderConfig.searchEnabled`** is `false` in dev and `true` when the index exists; **`layout.ejs`** gates Pagefind CSS/JS/modal/trigger on that flag.
+## What This Example Demonstrates
 
-## Content layout
+- direct `createContentLayer()` usage without virtual content modules
+- EJS layouts on top of Pagesmith's content and SSG flow
+- static output plus Pagefind search
+- a template-engine integration that still reuses Pagesmith CSS/runtime surfaces
 
-| Directory | Collection | Role |
-|-----------|------------|------|
-| `content/guide/` | `guide` | How this example works, including `guide/kitchen-sink.md` for markdown regression |
-| `content/pages/` | `pages` | Standalone pages (about) |
-
-## Theme
-
-This example implements the Pagesmith standalone theme controls (appearance, paper/high-contrast, text size) with FOUC prevention via an inline snippet in `layout.ejs` and persistence in `localStorage`.
-
-## Deployed
+## Live Demo
 
 [View live example](https://projects.sujeet.pro/pagesmith/examples/vanilla-ejs)

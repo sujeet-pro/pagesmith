@@ -2,151 +2,75 @@
 
 Use this file as the primary instruction source for `@pagesmith/core`.
 
-## Getting started
+## Getting Started
 
 1. Install: `npm add @pagesmith/core`
-2. Read the full reference: `node_modules/@pagesmith/core/REFERENCE.md`
-3. For fresh setup or retrofit work, start with the prompt library below.
-4. For upgrades, read `node_modules/@pagesmith/core/ai-guidelines/migration.md`
-5. The `ai-guidelines/` folder inside the package contains version-matched AI guidance files.
+2. For repo bootstrap or retrofit work, read: `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
+3. Read the full reference: `node_modules/@pagesmith/core/REFERENCE.md`
+4. For site-building on top of core, also read `node_modules/@pagesmith/site/REFERENCE.md`
+5. For upgrades, read `node_modules/@pagesmith/core/ai-guidelines/migration.md`
 
-## Requirements
+## When To Pick `@pagesmith/core`
 
-- Node.js 24+
+- Custom content models
+- Headless content loading and validation
+- Direct markdown processing
+- Framework-specific rendering where you want full control over the site shell
 
-## When to pick @pagesmith/core
+## Choose `@pagesmith/core` vs `@pagesmith/site` vs `@pagesmith/docs`
 
-- Custom site or app architecture.
-- Framework-specific rendering (React, Solid, Svelte, EJS, Handlebars).
-- Need full control over layout, routing, rendering, and content loading.
+- Use `@pagesmith/core` for collections, schemas, loaders, validation, markdown, assets helpers, and `pagesmithContent`.
+- Use `@pagesmith/site` for JSX, CSS/runtime bundles, Vite SSG, shared site helpers, and the `pagesmith-site` CLI.
+- Use `@pagesmith/docs` for the docs preset on top of both packages.
 
-## Choose @pagesmith/core vs @pagesmith/docs
-
-- Use `@pagesmith/core` when you want collections, markdown rendering, CSS/runtime exports, and Vite helpers inside an existing app or custom site architecture.
-- Use `@pagesmith/docs` when you want a convention-based docs site with `pagesmith.config.json5`, built-in docs navigation, search, and the `pagesmith` CLI.
-
-## Required integration shape
+## Supported Integration Shapes
 
 1. Define collections with `defineCollection` or `defineCollections`.
-2. Use `defineConfig` + `createContentLayer` for content loading.
-3. For Vite flows, use `@pagesmith/core/vite` plugins (`pagesmithContent`, `pagesmithSsg`).
-4. Use `entry.render()` when HTML is needed (lazy render path).
-
-## Adoption paths
-
-- AI-first bootstrap or retrofit: use the prompt library below and `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
-- Manual setup: follow `node_modules/@pagesmith/core/README.md` and `node_modules/@pagesmith/core/REFERENCE.md`
-- Upgrade an existing integration: start with `node_modules/@pagesmith/core/ai-guidelines/migration.md`
-
----
+2. Use `defineConfig` + `createContentLayer` for direct content loading.
+3. For Vite flows, use `pagesmithContent` from `@pagesmith/core/vite`.
+4. If the project needs shared markdown CSS/runtime, the Pagesmith JSX runtime, or SSG helpers, add `@pagesmith/site`.
 
 ## Agent Prompts
 
-Canonical copy-paste playbooks:
+### Prompt: Add the core content layer
 
-- Bootstrap or retrofit `@pagesmith/core` into an existing app
-- Upgrade an existing `@pagesmith/core` integration without guessing at breaking changes
+> Add `@pagesmith/core` content collections to this project. Read `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`, `node_modules/@pagesmith/core/REFERENCE.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, and `node_modules/@pagesmith/core/ai-guidelines/recipes.md` first. Keep the work focused on the content layer: collection definitions, validation, markdown rendering, and either direct `createContentLayer()` usage or `pagesmithContent` for Vite. If the project also needs Pagesmith's JSX runtime, CSS/runtime bundles, or SSG helpers, use `@pagesmith/site` for those pieces.
 
-Each prompt tells the agent which package files to read.
+### Prompt: Add core to an existing framework app
 
-### Prompt: Bootstrap or retrofit @pagesmith/core in an existing Vite repo
+> Integrate `@pagesmith/core` into this existing framework app without handing site-building over to Pagesmith. Read `node_modules/@pagesmith/core/REFERENCE.md` first. Define collections, load content with `createContentLayer()`, render markdown with `entry.render()`, and wire the returned HTML into the app's existing route/layout system. If the app wants Pagesmith's shipped prose or code-block UI, add `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content`.
 
-> Add `@pagesmith/core` content collections to this project. Read `node_modules/@pagesmith/core/REFERENCE.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, and `node_modules/@pagesmith/core/ai-guidelines/recipes.md` first. Install the package, create or adapt `content.config.ts`, configure Vite with `pagesmithContent` and `...pagesmithSsg(...)`, and update `CLAUDE.md` / `AGENTS.md` with Pagesmith pointers. Reuse the repo's existing framework, routing, and rendering structure instead of scaffolding a separate docs site.
+### Prompt: Define collections
 
-**Files to read:**
-- `node_modules/@pagesmith/core/REFERENCE.md`
-- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`
-- `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
+> Create content collections for this project using `@pagesmith/core`. Read `node_modules/@pagesmith/core/REFERENCE.md` for `defineCollection`, `defineCollections`, schema options, loader types, computed fields, filters, and validators. Keep the collection layer framework-agnostic.
 
-### Prompt: Define content collections
+### Prompt: Upgrade existing core integration
 
-> Create content collections for this project using `@pagesmith/core`. Read `node_modules/@pagesmith/core/REFERENCE.md` for `defineCollection`, `defineCollections`, schema options, loader types, computed fields, filters, and custom validators. Define Zod schemas for each collection and register them with `defineConfig`.
+> Upgrade the existing `@pagesmith/core` integration in this repository. Read `node_modules/@pagesmith/core/ai-guidelines/migration.md` first. Keep content-model changes minimal. Verify that `pagesmithContent` still comes from `@pagesmith/core/vite`, and move any JSX, CSS/runtime, or SSG imports to `@pagesmith/site`.
 
-**Files to read:**
-- `node_modules/@pagesmith/core/REFERENCE.md` (Content Layer API, Collections, Loaders, Validation sections)
-
-### Prompt: Write markdown content
-
-> Create markdown content for the collections defined in this project. Read `node_modules/@pagesmith/core/REFERENCE.md` for the markdown pipeline, frontmatter schemas, built-in code block features, and content validators. Use proper frontmatter, fenced code blocks with language identifiers, mermaid code blocks for diagrams, and GitHub Alerts for callouts.
-
-**Files to read:**
-- `node_modules/@pagesmith/core/REFERENCE.md` (Markdown Pipeline, Code Block Meta Syntax, Frontmatter Schemas, Validators sections)
-
-### Prompt: Troubleshooting validation errors
-
-> Fix content validation errors in this project. Read `node_modules/@pagesmith/core/ai-guidelines/errors.md` for the error catalog with patterns and fixes grouped by source (schema, content, plugin, load, MCP).
-
-**Files to read:**
-- `node_modules/@pagesmith/core/ai-guidelines/errors.md`
-- `node_modules/@pagesmith/core/REFERENCE.md` (Validation section)
-
-### Prompt: Upgrade existing @pagesmith/core integration
-
-> Upgrade the existing `@pagesmith/core` integration in this repository. Read `node_modules/@pagesmith/core/ai-guidelines/migration.md` first and follow it exactly. Keep the current content model and folder structure unless an API or validation change requires an adjustment. Verify that Vite still uses `pagesmithContent` plus `...pagesmithSsg(...)`, that virtual module consumers expect serialized payloads (`html`, `headings`, `frontmatter` for markdown), and that project memory files still point to the version-matched package guidance.
-
-**Files to read:**
-- `node_modules/@pagesmith/core/ai-guidelines/migration.md`
-- `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md`
-- `node_modules/@pagesmith/core/REFERENCE.md`
-- `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
-
----
-
-## Package files reference
+## Package Files Reference
 
 | File | Purpose |
-|---|---|
-| `node_modules/@pagesmith/core/REFERENCE.md` | Complete API reference: content layer, collections, loaders, markdown pipeline, JSX, CSS, Vite plugins |
-| `node_modules/@pagesmith/core/README.md` | User-facing quick start, Vite integration, and API overview |
-| `node_modules/@pagesmith/core/ai-guidelines/usage.md` | This file — agent rules and prompts |
-| `node_modules/@pagesmith/core/ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
-| `node_modules/@pagesmith/core/ai-guidelines/errors.md` | Error catalog with patterns and fixes |
-| `node_modules/@pagesmith/core/ai-guidelines/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
-| `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md` | Version highlights |
-| `node_modules/@pagesmith/core/ai-guidelines/AGENTS.md.template` | Template for consuming project AGENTS.md |
-| `node_modules/@pagesmith/core/ai-guidelines/llms.txt` | Compact AI context index |
-| `node_modules/@pagesmith/core/ai-guidelines/llms-full.txt` | Full AI context with all file pointers |
+| --- | --- |
+| `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` | Canonical bootstrap/retrofit prompt for `@pagesmith/core` |
+| `node_modules/@pagesmith/core/REFERENCE.md` | Complete content-layer reference |
+| `node_modules/@pagesmith/core/README.md` | Quick start and package overview |
+| `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md` | Package responsibilities and rules |
+| `node_modules/@pagesmith/core/ai-guidelines/usage.md` | This file |
+| `node_modules/@pagesmith/core/ai-guidelines/recipes.md` | Common content-layer recipes |
+| `node_modules/@pagesmith/core/ai-guidelines/errors.md` | Error catalog |
+| `node_modules/@pagesmith/core/ai-guidelines/migration.md` | Upgrade notes |
 
-## Non-negotiable rules
+## Non-negotiable Rules
 
-- Keep schema validation in collection schemas (`z` from `@pagesmith/core`).
-- Prefer folder-based content entries if pages use sibling assets.
-- Keep markdown behavior aligned with core markdown pipeline and validators.
-- Do not add ad-hoc code-block JS inside markdown content. Load `@pagesmith/core/runtime/content` (or `getContentJS()` / `getContentJSPath()`) to enable tabs, copy, and collapsed-line interactions for Pagesmith-rendered code blocks.
+- Keep schema validation in `@pagesmith/core`
+- Prefer folder-based content entries if pages use sibling assets
+- Keep site-facing imports in `@pagesmith/site`
+- Do not document `pagesmithSsg`, JSX runtime, CSS bundles, or runtime JS as core-owned APIs
 
-## Related package docs
+## Related Package Docs
 
-- Core reference: `node_modules/@pagesmith/core/REFERENCE.md`
-- Core README: `node_modules/@pagesmith/core/README.md`
-- Docs reference: `node_modules/@pagesmith/docs/REFERENCE.md`
-- Docs README: `node_modules/@pagesmith/docs/README.md`
-- Docs usage: `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
-
-## MCP Introspection Workflows
-
-### Discover and validate all collections
-
-```
-1. Call core_list_collections → get all collection names and schema fields
-2. For each collection, call core_validate → get validation results
-3. Fix any issues found using the error catalog
-```
-
-### Find and update content
-
-```
-1. Call core_search_entries with query → find matching entries
-2. Call core_get_entry with collection and slug → get full content
-3. Edit the source file at the returned filePath
-4. Call core_validate to confirm the change is valid
-```
-
-### Audit content quality
-
-```
-1. Call core_list_collections → enumerate all collections
-2. For each, call core_list_entries → get all entries
-3. Call core_validate → collect all issues
-4. Group issues by source (schema/content/plugin) for prioritized fixing
-```
-
+- `node_modules/@pagesmith/site/REFERENCE.md`
+- `node_modules/@pagesmith/site/ai-guidelines/usage.md`
+- `node_modules/@pagesmith/docs/REFERENCE.md`
+- `node_modules/@pagesmith/docs/ai-guidelines/usage.md`

@@ -25,7 +25,7 @@ examples/blog-site/
   src/
     entry-server.tsx   SSR entry: layer, getRoutes/render, JSX layouts
     runtime.ts         Client JS (TOC, sidebar, theme, search affordances)
-    theme.css          Imports @pagesmith/core/css/content + layout rules
+    theme.css          Imports @pagesmith/site/css/content + layout rules
   client.js            Client entry: imports theme.css + runtime.ts
   vite.config.ts       Vite + pagesmithSsg (no pagesmithContent)
   package.json
@@ -53,4 +53,4 @@ TSX uses `@pagesmith/core` as JSX import source. Prefer DOM attribute names (`cl
 
 ### Single CSS entry
 
-`src/theme.css` imports `@pagesmith/core/css/content` for prose + code chrome, then adds layout matching the other examples’ doc shell.
+`src/theme.css` imports `@pagesmith/site/css/content` for prose + code chrome, then adds layout matching the other examples’ doc shell.

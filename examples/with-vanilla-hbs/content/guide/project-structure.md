@@ -57,7 +57,7 @@ Plain ESM so the SSR bundle can import collection definitions without compiling 
 
 ### `client.js`
 
-Imports `src/theme.css` and `@pagesmith/core/runtime/content`. It does not render templates; it layers behavior on generated HTML.
+Imports `src/theme.css` and `@pagesmith/site/runtime/content`. It does not render templates; it layers behavior on generated HTML.
 
 ### `vite.config.ts`
 
