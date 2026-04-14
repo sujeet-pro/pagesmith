@@ -1,6 +1,6 @@
 # @pagesmith/docs
 
-Convention-based documentation package built on `@pagesmith/core` and `@pagesmith/site`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with the docs preset, built-in Pagefind search, sidebar generation, listing pages, and an optional layout override system.
+Convention-based documentation package built on the Pagesmith content + site stack. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with the docs preset, built-in Pagefind search, sidebar generation, listing pages, and an optional layout override system.
 
 Package guidance shipped inside npm (`node_modules/@pagesmith/docs/ai-guidelines/*` and `node_modules/@pagesmith/docs/schemas/*`) is version-matched to the installed package. The hosted docs site in this repository tracks the latest implementation.
 
@@ -14,7 +14,7 @@ Package guidance shipped inside npm (`node_modules/@pagesmith/docs/ai-guidelines
 npm add @pagesmith/docs
 ```
 
-`@pagesmith/docs` depends on both `@pagesmith/core` and `@pagesmith/site`, so the default docs preset, theme, CLI flow, and shared site runtime come along together.
+`@pagesmith/docs` pulls in the underlying site/content pieces for you, so the default docs preset, theme, CLI flow, and shared runtime come along together.
 
 ## Quick Start
 
@@ -188,14 +188,18 @@ codeExample:
 Markdown content below frontmatter is rendered after the structured sections.
 ```
 
+The default `DocHome` layout accepts either a structured `hero` object or the flatter top-level fields shown above (`title`, `tagline`, `description`, `badge`, `actions`). The layout normalizes both shapes into the same hero UI.
+
 | Field | Type | Description |
 |---|---|---|
 | `hero` | `object` | Hero section with `name`, `text`, `tagline`, `badge`, `actions` |
+| `tagline` | `string` | Flat hero subtitle; normalized into the default hero when `hero` is omitted |
+| `badge` | `string` | Flat hero badge; normalized into the default hero when `hero` is omitted |
 | `install` | `string` | Installation command snippet shown below hero |
 | `features` | `array` | Feature cards with `icon` (SVG string), `title`, `details` |
 | `packages` | `array` | Package cards with `name`, `description`, `href`, `tag`, `version` |
 | `codeExample` | `object` | Code example section with `label`, `title`, `code` |
-| `actions` | `array` | Call-to-action buttons with `text`, `link`, `theme` (`brand` or `alt`) |
+| `actions` | `array` | Call-to-action buttons with `text`, `link`, `theme` (`brand` or `alt`) either at the top level or inside `hero` |
 
 ### Section Meta (`meta.json5`)
 
@@ -240,7 +244,7 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `preset` | `string` | `@pagesmith/docs` | Explicit preset for the `pagesmith-site` CLI |
+| `preset` | `string` | — | Explicit preset for the `pagesmith-site` CLI. Set this to `@pagesmith/docs` only when you are driving docs through `pagesmith-site`; `pagesmith-docs` already selects the docs preset. |
 | `presets` | `string[]` | — | Preset list; the first item is used when `preset` is absent |
 | `name` | `string` | `pkg name` | Site name (header). Falls back to package.json name. |
 | `title` | `string` | `pkg name` | Browser tab title |
@@ -271,7 +275,7 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
 | `editLink` | `object \| false` | auto-detected | Edit link config (`{ repo, branch?, label? }`) or `false` to disable the default git-remote detection |
 | `lastUpdated` | `boolean` | `true` | Show git-based last updated timestamp on pages |
 | `sitemap` | `boolean` | `true` | Generate sitemap.xml (when origin is set) |
-| `theme.socialImage` | `string` | — | Default OG image for social sharing |
+| `theme.socialImage` | `string` | auto-detect | Default OG image for social sharing |
 | `markdown` | `MarkdownConfig` | — | JSON-safe markdown config (`allowDangerousHtml`, `math`, and `shiki`) |
 | `server.host` | `string` | `'127.0.0.1'` | Interface for dev/preview binding. Use `0.0.0.0` only when you intentionally want LAN exposure. |
 | `packages` | `Record<string, { label }>` | — | Multi-package section labels |
@@ -327,7 +331,7 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
 Start a development server with live reload. Uses incremental rebuilds -- content changes trigger a fast content-only rebuild, while config or theme changes trigger a full rebuild. Shows a startup summary with page/section counts and clickable section URLs.
 
 ```bash
-pagesmith-docs dev [--port 3001] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
+pagesmith-docs dev [--port N] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
 ```
 
 ### `pagesmith-docs build`
@@ -343,7 +347,7 @@ pagesmith-docs build [--out-dir path] [--base-path path] [--config path]
 Preview the built site locally. The dev and preview servers bind to `127.0.0.1` by default; set `server.host` if you intentionally want a different interface.
 
 ```bash
-pagesmith-docs preview [--port 4000] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
+pagesmith-docs preview [--port N] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
 ```
 
 ### `pagesmith-docs mcp`
@@ -354,7 +358,7 @@ Start the stdio MCP server for docs-aware AI tooling.
 pagesmith-docs mcp --stdio [--config path] [--root path]
 ```
 
-The MCP server exposes docs-focused tools (`docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, `docs_get_page`, `docs_search_pages`) and package resources for versioned guidance (`pagesmith://docs/agents/usage`, `pagesmith://docs/llms-full`, `pagesmith://docs/reference`).
+The MCP server exposes docs-focused tools (`docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, `docs_get_page`, `docs_search_pages`) and package resources for versioned guidance (`pagesmith://docs/agents/usage`, `pagesmith://docs/llms-full`, `pagesmith://docs/reference`, `pagesmith://core/reference`).
 
 ## Auto-generated Files
 
@@ -382,25 +386,28 @@ Override the default layouts by specifying file paths in `theme.layouts`:
 }
 ```
 
-Layout components are TSX files using `@pagesmith/site/jsx-runtime`:
+The default docs chrome is implemented internally on top of the shared site layer, and `@pagesmith/docs` re-exports the supported layout-building pieces for docs consumers. Custom layout overrides can compose `@pagesmith/docs/components` and `@pagesmith/docs/layouts`, or replace the shell entirely.
+
+Layout components are TSX files using `@pagesmith/docs/jsx-runtime`:
 
 ```tsx
 // theme/layouts/DocPage.tsx
-import { Fragment } from '@pagesmith/site/jsx-runtime'
+import { SiteDocument } from '@pagesmith/docs/components'
+import { PageShell } from '@pagesmith/docs/layouts'
 
 export default function DocPage(props) {
-  const { content, frontmatter, headings, slug, site, sidebarSections, prev, next } = props
+  const { content, frontmatter, headings, slug, site, sidebarSections } = props
   return (
-    <html lang={site.language}>
-      <head>
-        <title>{frontmatter.title} — {site.title}</title>
-      </head>
-      <body>
-        <main>
-          <Fragment innerHTML={content} />
-        </main>
-      </body>
-    </html>
+    <SiteDocument title={`${frontmatter.title} — ${site.title}`} site={site}>
+      <PageShell
+        site={site}
+        currentPath={slug}
+        headings={headings}
+        sidebarSections={sidebarSections}
+      >
+        <div class="prose" innerHTML={content} />
+      </PageShell>
+    </SiteDocument>
   )
 }
 ```
@@ -479,9 +486,24 @@ See the [`@pagesmith/core` README](../core/README.md) for the full markdown feat
 ## Programmatic API
 
 ```ts
-import { build, startDev, preview, defineDocsConfig } from '@pagesmith/docs'
+import {
+  build,
+  startDev,
+  preview,
+  defineDocsConfig,
+  validateConfig,
+  resolveDocsConfig,
+  loadDocsConfig,
+  reportConfigIssues,
+  withBase,
+  docsPreset,
+  Html,
+  buildSiteModel,
+  getPrevNext,
+  getSitePayload,
+} from '@pagesmith/docs'
 
-const config = defineDocsConfig({
+defineDocsConfig({
   name: 'My Docs',
   title: 'My Docs',
   search: { enabled: true },
@@ -490,13 +512,24 @@ const config = defineDocsConfig({
 await build({ configPath: './pagesmith.config.json5' })
 await startDev({ port: 3000 })
 await preview({ port: 4000 })
+
+const config = resolveDocsConfig('./pagesmith.config.json5')
+const issues = validateConfig(config)
+reportConfigIssues(issues)
+
+const userConfig = loadDocsConfig('./pagesmith.config.json5')
+const url = withBase('/guide/getting-started', config.basePath)
 ```
 
 ## Export Map
 
 | Import Path | Purpose |
 |---|---|
-| `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig) |
+| `@pagesmith/docs` | Main API (`build`, `startDev`, `preview`, `defineDocsConfig`, `validateConfig`, `resolveDocsConfig`, `loadDocsConfig`, `reportConfigIssues`, `withBase`, `docsPreset`, `Html`, `buildSiteModel`, `getPrevNext`, `getSitePayload`) |
+| `@pagesmith/docs/components` | Re-exported shared chrome components for docs overrides |
+| `@pagesmith/docs/layouts` | Re-exported shared layout wrappers for docs overrides |
+| `@pagesmith/docs/jsx-runtime` | JSX runtime for docs layout overrides |
+| `@pagesmith/docs/jsx-dev-runtime` | JSX dev runtime for docs layout overrides |
 | `@pagesmith/docs/schemas` | Zod schemas for config, layout props, page data |
 | `@pagesmith/docs/preset` | Docs preset for integration |
 | `@pagesmith/docs/theme` | Theme/runtime export surface |
@@ -516,6 +549,8 @@ These files are available at `node_modules/@pagesmith/docs/` after installation:
 |---|---|
 | `REFERENCE.md` | Full reference for config, CLI, content, markdown, layouts, deployment |
 | `ai-guidelines/setup-docs.md` | Bootstrap/retrofit prompt for setting up docs in an existing repo |
+| `ai-guidelines/docs-guidelines.md` | Docs-specific structure, navigation, and ownership rules |
+| `ai-guidelines/markdown-guidelines.md` | Markdown authoring and pipeline guidance for docs projects |
 | `ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
 | `ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
 | `ai-guidelines/errors.md` | Error catalog with patterns and fixes |

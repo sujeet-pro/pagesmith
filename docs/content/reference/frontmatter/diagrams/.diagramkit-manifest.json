@@ -3,20 +3,20 @@
   "diagrams": {
     "frontmatter-schema-families.mermaid": {
       "hash": "sha256:f588e364189118c6",
-      "generatedAt": "2026-04-13T21:19:22.978Z",
+      "generatedAt": "2026-04-14T20:54:41.399Z",
       "outputs": [
         {
           "file": "frontmatter-schema-families-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 1065.15625,
+          "width": 1015.453125,
           "height": 234
         },
         {
           "file": "frontmatter-schema-families-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 1065.15625,
+          "width": 1015.453125,
           "height": 234
         }
       ],

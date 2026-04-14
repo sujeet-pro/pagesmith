@@ -15,7 +15,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 
 - `@pagesmith/core`: headless content layer with collections, loaders, markdown pipeline, validation, assets helpers, `z` re-export, and the `pagesmithContent` Vite plugin
 - `@pagesmith/site`: site-building package with the `pagesmith-site` CLI, preset loading, JSX runtime, CSS/runtime bundles, SSG helpers, and shared assets helpers
-- `@pagesmith/docs`: convention-based documentation built on `@pagesmith/core` + `@pagesmith/site`, with nav/sidebar generation from `content/`, bundled Pagefind search, a default theme, listing pages, and layout/shell override slots
+- `@pagesmith/docs`: convention-based documentation built on `@pagesmith/core` + `@pagesmith/site`, with nav/sidebar generation from `docs/` when it exists (otherwise `content/`), bundled Pagefind search, a default theme, listing pages, and layout/shell override slots
 
 ## Core APIs
 
@@ -38,19 +38,19 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 - `entry.clearRenderCache()` — force re-render
 
 ### Vite Plugins
-- `pagesmithContent(collections, options?)` from `@pagesmith/core/vite` — virtual module plugin for framework integration
+- `pagesmithContent(collections, options?)` from `@pagesmith/site/vite` for site consumers (canonical implementation also available from `@pagesmith/core/vite`) — virtual module plugin for framework integration
   - Options: `collections`, `moduleId` (default: `virtual:content`), `configPath`, `dts`, `root`, `contentRoot`
   - Auto-generates TypeScript declarations
   - Hot reload on content/config changes
 - `pagesmithSsg(options?)` from `@pagesmith/site/vite` — SSG plugin with dev server, Pagefind, and asset handling
   - Options: `entry`, `pagefind` (default: true), `contentDirs`
-  - SSR entry exports: `getRoutes(config) → string[]`, `render(url, config) → string`
+  - SSR entry exports: `getRoutes(config) → string[] | Promise<string[]>`, `render(url, config) → string | Promise<string>`
   - Config provided: `SsgRenderConfig` with `base`, `root`, `cssPath`, `jsPath`, `searchEnabled`, `isDev`
 - `sharedAssetsPlugin()` from `@pagesmith/site/vite` — serves bundled fonts (Open Sans, JetBrains Mono)
 
 ### Markdown Pipeline
 - `processMarkdown(raw, config?, preExtracted?)` → `{ html, headings, frontmatter }`
-- Pipeline: remark-parse → remark-gfm → remark-math → remark-frontmatter → remark-github-alerts → remark-smartypants → (user remark plugins) → remark-rehype → rehype-mathjax → applyPagesmithCodeRenderer → rehype-slug → rehype-autolink-headings → rehype-external-links → rehype-accessible-emojis → heading extraction → (user rehype plugins) → rehype-stringify
+- Pipeline: remark-parse → remark-gfm → remark-frontmatter → remark-github-alerts → remark-smartypants → remark-math (when `markdown.math` is enabled or auto-detected) → (user remark plugins) → lang-alias transform → remark-rehype → rehype-mathjax (when math is enabled) → applyPagesmithCodeRenderer → rehype-code-tabs → rehype-scrollable-tables → rehype-slug → rehype-autolink-headings → rehype-external-links → rehype-accessible-emojis → rehype-local-images → heading extraction → (user rehype plugins) → rehype-stringify
 - Processor cached per MarkdownConfig reference via WeakMap
 
 ### Markdown Features
@@ -93,8 +93,8 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 
 ### Loaders
 - `MarkdownLoader` (.md) — gray-matter frontmatter + body
-- `JsonLoader` (.json) — JSON.parse or json5 parse
-- `JsoncLoader` (.json, .jsonc) — JSON with comments via json5
+- `JsonLoader` (.json, .json5) — JSON.parse for `.json`, JSON5.parse for `.json5`
+- `JsoncLoader` (.jsonc) — comment-stripped JSON parsed with `JSON.parse`
 - `YamlLoader` (.yml, .yaml) — yaml package
 - `TomlLoader` (.toml) — smol-toml
 - Custom: implement `Loader { name, kind, extensions, load(filePath) }`
@@ -118,8 +118,8 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - `buildCss(entryPath, { minify? })` lives in `@pagesmith/site/css`
 - Server-side only — no browser runtime
 
-### Site Package Pairing
-- Pair `@pagesmith/core` with `@pagesmith/site` for JSX, CSS/runtime bundles, the `pagesmith-site` CLI, and Vite SSG helpers
+### Related Site Package
+- Choose `@pagesmith/site` instead of layering both packages into the same app-facing contract when you need JSX, CSS/runtime bundles, the `pagesmith-site` CLI, or Vite SSG helpers
 - `@pagesmith/site/runtime` — `getRuntimeCSS()` / `getRuntimeJS()` for the standalone tier
 - `@pagesmith/site/runtime` — `getContentCSS()` / `getContentJS()` for the content tier
 - `@pagesmith/site/runtime` — `getViewportCSS()` / `getViewportCSSPath()` and other path helpers
@@ -164,7 +164,7 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - Multi-package: `packages` (maps slug to `{ label }`)
 
 ### Content Structure
-- `content/README.md` → home page (DocHome layout)
+- `<contentDir>/README.md` → home page (commonly `docs/README.md` in zero-config repos, otherwise `content/README.md`)
 - Top-level folders → nav sections + sidebar groups
 - Subfolders with `README.md` → pages
 - `meta.json5` → section ordering, series, display names
@@ -199,10 +199,10 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 
 ### Layout Overrides
 - Configure via `theme.layouts` in config: `{ home, page, listing, notFound }`
-- TSX files using `@pagesmith/site/jsx-runtime`
+- Docs layout overrides use `@pagesmith/docs/jsx-runtime`; custom site chrome uses `@pagesmith/site/jsx-runtime`
 - Props: `content`, `frontmatter`, `headings`, `slug`, `site`
 - Page layout gets: `sidebarSections`, `prev`, `next`
-- Listing layout gets: `listingCards`
+- Listing layout gets: `listingCards`, `listingGroups`, `listingTotal`
 - Export: `default` or named export matching layout name (DocPage, DocHome, DocListing, DocNotFound)
 
 ### Navigation
@@ -218,18 +218,8 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - Configure: `search.enabled`, `search.showImages`, `search.showSubResults`, `search.pagefindFlags`
 
 ### Docs Schemas (from @pagesmith/docs/schemas)
-- `SiteConfigSchema` — full site config
-- `NavItemSchema` — navigation entry
-- `SocialLinkSchema` — social link
-- `PageTypeMetaSchema` — section meta from meta.json5
-- `SeriesDefSchema` — series definition
-- `PageMetaSchema` — collected page metadata
-- `ArticleSummarySchema` — article summary
-- `SeriesDataSchema` — resolved series data
-- `PageTypeDataSchema` — resolved listing data
-- `TagPageDataSchema` — tag page data
-- `SeriesNavSchema` — series prev/next
-- Layout props: `BaseLayoutPropsSchema`, `ArticleLayoutPropsSchema`, `BlogLayoutPropsSchema`, `ProjectLayoutPropsSchema`, `HomeLayoutPropsSchema`, `PageLayoutPropsSchema`, `ListingLayoutPropsSchema`, `TagIndexLayoutPropsSchema`, `TagListingLayoutPropsSchema`
+- JSON schema files shipped under `node_modules/@pagesmith/docs/schemas/`: `pagesmith-config.schema.json`, `docs-root-meta.schema.json`, `docs-section-meta.schema.json`, `docs-page-frontmatter.schema.json`, `docs-home-frontmatter.schema.json`
+- Zod/TS schemas exported from `@pagesmith/docs/schemas` include `DocsConfigSchema`, `DocsRootMetaSchema`, `DocsSectionMetaSchema`, `DocsPageFrontmatterSchema`, `DocsHomeFrontmatterSchema`, `DocsSearchConfigSchema`, `DocsThemeConfigSchema`, and `HeadingSchema`
 
 ## Export Map
 
@@ -241,9 +231,14 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 | `@pagesmith/core/loaders` | Loader classes and registry |
 | `@pagesmith/core/assets` | Asset copying and hashing |
 | `@pagesmith/core/ai` | AI assistant file installer |
-| `@pagesmith/core/vite` | Vite content plugin (`pagesmithContent`) |
+| `@pagesmith/core/vite` | Core-owned Vite content plugin barrel (`pagesmithContent`) |
 | `@pagesmith/core/create` | Project scaffolding |
-| `@pagesmith/site` | Site config helpers and preset types |
+| `@pagesmith/core/mcp` | Programmatic MCP server entry |
+| `@pagesmith/core/llms` | Compact AI context index |
+| `@pagesmith/core/llms-full` | Full AI context |
+| `@pagesmith/core/ai-guidelines/*` | Version-matched core AI guidance files |
+| `@pagesmith/core/agents/*` | Stable agent-friendly aliases for core prompts/files |
+| `@pagesmith/site` | Site package plus re-exported content-layer APIs for site consumers |
 | `@pagesmith/site/jsx-runtime` | h, Fragment, HtmlString |
 | `@pagesmith/site/jsx-dev-runtime` | JSX dev runtime |
 | `@pagesmith/site/css` | buildCss (LightningCSS) |
@@ -252,8 +247,18 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 | `@pagesmith/site/css/viewport` | Viewport CSS file |
 | `@pagesmith/site/css/fonts` | Bundled font faces |
 | `@pagesmith/site/runtime` | Pre-built CSS/JS accessors |
-| `@pagesmith/site/vite` | Vite SSG + asset plugins |
+| `@pagesmith/site/vite` | App-facing Vite barrel (`pagesmithContent`, SSG, shared assets) |
 | `@pagesmith/site/ssg-utils` | Shared SSG helpers |
-| `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig) |
+| `@pagesmith/docs` | Main API (`build`, `startDev`, `preview`, `defineDocsConfig`, `validateConfig`, `resolveDocsConfig`, `loadDocsConfig`, `reportConfigIssues`, `withBase`, `docsPreset`, `Html`, `buildSiteModel`, `getPrevNext`, `getSitePayload`) |
+| `@pagesmith/docs/components` | Reusable docs UI components |
+| `@pagesmith/docs/layouts` | Stock docs layouts for composition/override work |
+| `@pagesmith/docs/jsx-runtime` | JSX runtime for docs layout overrides |
+| `@pagesmith/docs/jsx-dev-runtime` | JSX dev runtime for docs overrides |
 | `@pagesmith/docs/schemas` | Config, layout props, page data schemas |
 | `@pagesmith/docs/preset` | Docs preset |
+| `@pagesmith/docs/theme` | Theme shell exports such as `Html` |
+| `@pagesmith/docs/mcp` | Programmatic docs MCP entry |
+| `@pagesmith/docs/llms` | Compact docs AI context index |
+| `@pagesmith/docs/llms-full` | Full docs AI context |
+| `@pagesmith/docs/ai-guidelines/*` | Version-matched docs AI guidance files |
+| `@pagesmith/docs/agents/*` | Stable agent-friendly aliases for docs prompts/files |

@@ -3,20 +3,20 @@
   "diagrams": {
     "vite-framework-shared-flow.mermaid": {
       "hash": "sha256:40669e01b4cda272",
-      "generatedAt": "2026-04-13T21:19:22.975Z",
+      "generatedAt": "2026-04-14T20:54:41.397Z",
       "outputs": [
         {
           "file": "vite-framework-shared-flow-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 2087.3125,
+          "width": 2022.140625,
           "height": 82.5999984741211
         },
         {
           "file": "vite-framework-shared-flow-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 2087.3125,
+          "width": 2022.140625,
           "height": 82.5999984741211
         }
       ],

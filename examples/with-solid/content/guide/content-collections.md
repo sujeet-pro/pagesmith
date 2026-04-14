@@ -16,7 +16,7 @@ Collections connect filesystem markdown to **typed, build-time** data. This exam
 ## Definition
 
 ```ts title="content.config.ts"
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',
@@ -44,7 +44,7 @@ export const pages = defineCollection({
 export default defineCollections({ guide, pages })
 ```
 
-`z` is re-exported from `@pagesmith/core`; you do not add Zod as a separate dependency for schemas.
+`z` is re-exported from `@pagesmith/site`; you do not add Zod as a separate dependency for schemas.
 
 ## Virtual modules
 

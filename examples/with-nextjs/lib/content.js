@@ -1,13 +1,18 @@
-import { createContentLayer, defineConfig } from '@pagesmith/core'
+import { createContentLayer, defineConfig } from '@pagesmith/site'
 import collections from '../content.config.js'
 
-function createLayer() {
-  return createContentLayer(
-    defineConfig({
-      root: process.cwd(),
-      collections,
-    }),
-  )
+let layer
+
+function getLayer() {
+  if (!layer) {
+    layer = createContentLayer(
+      defineConfig({
+        root: process.cwd(),
+        collections,
+      }),
+    )
+  }
+  return layer
 }
 
 function serializeDate(value) {
@@ -35,15 +40,13 @@ async function renderPostEntry(entry) {
 }
 
 export async function getAllPosts() {
-  const layer = createLayer()
-  const entries = await layer.getCollection('posts')
+  const entries = await getLayer().getCollection('posts')
   const posts = await Promise.all(entries.map((entry) => renderPostEntry(entry)))
   return posts.sort(byNewestDate)
 }
 
 export async function getPostBySlug(slug) {
-  const layer = createLayer()
-  const entry = await layer.getEntry('posts', slug)
+  const entry = await getLayer().getEntry('posts', slug)
 
   if (!entry) return null
   return renderPostEntry(entry)

@@ -15,10 +15,10 @@ Content collections are the bridge between your markdown files and your renderin
 
 ## Defining collections
 
-Collections are defined in `content.config.ts` using `defineCollection` and `defineCollections` from `@pagesmith/core`:
+Collections are defined in `content.config.ts` using `defineCollection` and `defineCollections` from `@pagesmith/site`:
 
 ```ts title="content.config.ts"
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',
@@ -56,7 +56,7 @@ Key patterns used in this example:
 - **`z.array(z.string()).default([])`** -- Tags default to an empty array when omitted.
 - **`z.string().optional()`** -- Fields like `description` and `series` are not required.
 
-The `z` import is re-exported from `@pagesmith/core`, so you do not need to install Zod separately.
+The `z` import is re-exported from `@pagesmith/site`, so you do not need to install Zod separately.
 
 ## Virtual modules
 

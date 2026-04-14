@@ -1,45 +1,34 @@
 /* ═══════════════════════════════════════════════════════════════
-   Theme Definitions — each theme provides a full set of token
-   overrides using light-dark() so both light and dark modes work.
-
-   The active theme class goes on <html> alongside a color-scheme
-   class, e.g. <html class="color-scheme-auto theme-paper">.
-
-   Tokens not overridden here inherit from :root in tokens.css
-   (which doubles as the paper-theme defaults).
+   Theme Definitions — reusable site theme variants.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ─── Paper theme (warm, low-contrast) ────────────────────────
-   Explicit re-declaration of the :root defaults from tokens.css.
-   Useful when the user switches back to paper from another theme.
-   ───────────────────────────────────────────────────────────── */
 .theme-paper {
   --color-bg: light-dark(#f5f4f0, #111110);
-  --color-bg-alt: light-dark(#efefeb, #1a1a18);
+  --color-bg-alt: light-dark(#eeeee8, #1a1a18);
   --color-bg-elevated: light-dark(#f5f4f0, #1e1e1c);
-  --color-bg-code: light-dark(#efefeb, #1a1a18);
-  --color-bg-hover: light-dark(#efefeb, #222220);
+  --color-bg-code: light-dark(#eeeee8, #1a1a18);
+  --color-bg-hover: light-dark(#e8e7e2, #252524);
 
   --color-text: light-dark(#111110, #f5f4f0);
   --color-text-secondary: light-dark(#333330, #ccccca);
   --color-text-muted: light-dark(#7a7a72, #888882);
 
   --color-border: light-dark(#d0cfc9, #2a2a28);
-  --color-border-subtle: light-dark(#e5e4de, #222220);
+  --color-border-subtle: light-dark(#e0dfd9, #222220);
   --color-border-hover: light-dark(#c0bfb9, #3a3a38);
 
-  --color-accent: light-dark(#d4381e, #e04a2e);
-  --color-accent-hover: light-dark(#b82e16, #f05a3e);
-  --color-accent-subtle: light-dark(rgba(212, 56, 30, 0.06), rgba(224, 74, 46, 0.08));
+  --color-accent: light-dark(#1a1a18, #e8e7e2);
+  --color-accent-hover: light-dark(#333330, #ccccca);
+  --color-accent-subtle: light-dark(rgba(26, 26, 24, 0.06), rgba(232, 231, 226, 0.08));
 
-  --color-code-bg: light-dark(#efefeb, #1a1a18);
+  --color-code-bg: light-dark(#eeeee8, #1a1a18);
   --color-code-text: light-dark(#333330, #ccccca);
 
   --color-blockquote-border: light-dark(#d0cfc9, #333330);
-  --color-blockquote-bg: light-dark(#efefeb, #1a1a18);
+  --color-blockquote-bg: light-dark(#eeeee8, #1a1a18);
 
   --color-overlay-bg: light-dark(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5));
-  --color-header-bg: light-dark(rgba(245, 244, 240, 0.85), rgba(17, 17, 16, 0.85));
+  --color-header-bg: light-dark(#f5f4f0, #111110);
   --color-text-inverse: light-dark(#f5f4f0, #111110);
 
   --shadow-color: light-dark(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.2));
@@ -47,10 +36,6 @@
   --shadow-color-lg: light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.3));
 }
 
-/* ─── High Contrast theme ─────────────────────────────────────
-   Maximum contrast for accessibility. Pure white/black backgrounds,
-   stronger borders, bolder accent. WCAG AAA-friendly color pairs.
-   ───────────────────────────────────────────────────────────── */
 .theme-high-contrast {
   --color-bg: light-dark(#ffffff, #000000);
   --color-bg-alt: light-dark(#f0f0f0, #0a0a0a);

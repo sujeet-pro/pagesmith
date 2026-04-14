@@ -15,12 +15,12 @@ Use this file when writing or reorganizing docs content. For bootstrap or retrof
 
 ## What `@pagesmith/docs` Gives You
 
-- A convention-based docs site built on `@pagesmith/core` and `@pagesmith/site`
+- A convention-based docs site built on the Pagesmith content + site stack
 - A repo-root `pagesmith.config.json5` or zero-config conventions around `docs/` or `content/`
 - A docs home page from `<contentDir>/README.md`
 - Top navigation from top-level content folders
 - Flat per-section sidebars with ordering and grouping from `meta.json5`
-- Built-in search, breadcrumbs, prev/next links, theme controls, edit links, and layout overrides
+- Built-in search, breadcrumbs, prev/next links, theme controls, edit links, and layout overrides backed by the reusable `@pagesmith/site` chrome/layout layer
 - Asset publishing via `publicDir`, `assets`, automatic root `llms.txt` / `llms-full.txt` copying, and content-relative companion asset rewrites for page-local images/diagrams
 - The shared Pagesmith markdown pipeline, code renderer, math, alerts, tables, and validators described in `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`
 
@@ -56,7 +56,7 @@ Use this file when writing or reorganizing docs content. For bootstrap or retrof
 - Use `assets` or `publicDir` when docs need stable URLs for schemas, prompts, OpenAPI files, downloads, or other machine-readable artifacts.
 - Use page-local markdown companion assets for page-owned images and diagrams; stock docs publishes them under preserved content-relative `/assets/` paths.
 - Use `.only-light` and `.only-dark` on images when a diagram or screenshot needs theme-specific rendered variants.
-- Use `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, and `theme.layouts.notFound` only when the default docs experience is insufficient.
+- Use `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, and `theme.layouts.notFound` only when the default docs experience is insufficient. When overriding, prefer composing `@pagesmith/docs/components` and `@pagesmith/docs/layouts` before copying docs-theme internals.
 - Keep `data-pagefind-body` on the content-only wrapper in custom layouts so search indexes the page body instead of the whole shell.
 - Use the built-in search and navigation instead of bolting on separate search or sidebar systems.
 

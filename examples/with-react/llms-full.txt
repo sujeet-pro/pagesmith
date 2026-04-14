@@ -1,10 +1,10 @@
 # Pagesmith + React (examples/with-react)
 
-Agent-focused notes for this static-site example. Scope: `@pagesmith/core` + Vite + React at **build time only** (no client React runtime).
+Agent-focused notes for this static-site example. Scope: `@pagesmith/site` collection APIs + Vite/runtime helpers + React at **build time only** (no client React runtime).
 
 ## Integration flow (mental model)
 
-1. **Collections** — `content.config.ts` exports `defineCollections({ guide, pages })`. Zod schemas validate frontmatter at build time, and `guide/kitchen-sink.md` is the dedicated markdown regression page.
+1. **Collections** — `content.config.ts` exports `defineCollections({ guide, pages })` from `@pagesmith/site`. Zod schemas validate frontmatter at build time, and `guide/kitchen-sink.md` is the dedicated markdown regression page.
 2. **`pagesmithContent`** — Runs markdown through the core pipeline, emits `virtual:content/<key>` modules and regenerates `src/pagesmith-content.d.ts`.
 3. **`src/entry-server.tsx`** — Imports those virtual modules, sorts/groups entries, defines layout JSX, exports `getRoutes()` and `render(url, config)` consumed by **`pagesmithSsg`**.
 4. **`renderToStaticMarkup`** — Converts layout + body subtree to HTML strings. The full document (head, Pagefind shell, asset tags) comes from **`renderDocumentShell`** in `@pagesmith/site/ssg-utils` (this file aliases it as `renderDocument`).

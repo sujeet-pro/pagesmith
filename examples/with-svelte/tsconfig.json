@@ -12,9 +12,6 @@
     "verbatimModuleSyntax": true,
     "types": ["vite/client"],
     "paths": {
-      "@pagesmith/core/css/content": ["../../packages/core/src/styles/content.css"],
-      "@pagesmith/core": ["../../packages/core/src/index.ts"],
-      "@pagesmith/core/*": ["../../packages/core/src/*/index.ts"],
       "@pagesmith/site": ["../../packages/site/src/index.ts"],
       "@pagesmith/site/*": ["../../packages/site/src/*.ts", "../../packages/site/src/*/index.ts"]
     }

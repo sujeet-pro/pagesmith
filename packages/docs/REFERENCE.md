@@ -14,9 +14,9 @@ For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/RE
 
 ## Overview
 
-`@pagesmith/docs` is a convention-based documentation package built on `@pagesmith/core` and `@pagesmith/site`. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with the docs preset, built-in Pagefind search, sidebar generation, listing pages, and an optional layout override system.
+`@pagesmith/docs` is a convention-based documentation package built on the Pagesmith content + site stack. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with the docs preset, built-in Pagefind search, sidebar generation, listing pages, and an optional layout override system.
 
-`@pagesmith/docs` includes both `@pagesmith/core` and `@pagesmith/site` — no separate install is required for the default docs flow.
+`@pagesmith/docs` includes the underlying site/content dependencies for you — no separate install is required for the default docs flow.
 
 ## Requirements
 
@@ -89,6 +89,28 @@ pagesmith-docs preview [--port N]                        # Preview built site lo
 pagesmith-docs mcp --stdio [--config path]               # Start stdio MCP server for docs tooling
 ```
 
+### pagesmith-docs mcp
+
+The docs MCP server is the package-owned inspection surface for AI tooling.
+
+- Command: `pagesmith-docs mcp --stdio [--config path] [--root path]`
+- Programmatic entry: `@pagesmith/docs/mcp`
+
+Primary MCP tools:
+
+- `docs_validate_config`
+- `docs_resolve_config`
+- `docs_list_pages`
+- `docs_get_page`
+- `docs_search_pages`
+
+Version-matched MCP resources:
+
+- `pagesmith://docs/agents/usage`
+- `pagesmith://docs/llms-full`
+- `pagesmith://docs/reference`
+- `pagesmith://core/reference`
+
 ### pagesmith-docs init
 
 Creates a minimal `pagesmith.config.json5` and a starter `docs/` directory structure. The generated config includes a `$schema` pointer to the installed package schema, and rerunning `pagesmith-docs init` safely backfills missing scaffold fields instead of skipping the config file. Init defaults are derived from the repository name, git remote, and existing config values when present. With `--ai`, also installs AI assistant integrations (CLAUDE.md, skills, markdown guidelines). Add `--no-llms` to skip writing `llms.txt` and `llms-full.txt` when the project already maintains its own LLM files.
@@ -116,6 +138,7 @@ The dev server uses incremental rebuilds for fast iteration:
 | `--open` | boolean | `false` | Open browser on start |
 | `--out-dir <path>` | string | Config `outDir` | Override output directory |
 | `--base-path <path>` | string | Config `basePath` | Override URL base path |
+| `--log-level <level>` | string | `warn` | Server log level (`silent`, `error`, `warn`, `info`, `verbose`) |
 
 Useful `init` flags for non-interactive setup:
 
@@ -138,7 +161,7 @@ When the config file is committed, keep `$schema` pointing at the installed vers
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `preset` | `string` | `@pagesmith/docs` | Explicit preset for the `pagesmith-site` CLI |
+| `preset` | `string` | — | Explicit preset for the `pagesmith-site` CLI. Set this to `@pagesmith/docs` only when you are driving docs through `pagesmith-site`; `pagesmith-docs` already selects the docs preset. |
 | `presets` | `string[]` | — | Preset list; the first item is used when `preset` is absent |
 | `name` | `string` | pkg name | Site name (shown in header) |
 | `title` | `string` | pkg name | Browser tab title |
@@ -417,6 +440,32 @@ Override default layouts via `theme.layouts`:
 }
 ```
 
+The default docs chrome is implemented internally on top of the shared site layer, and `@pagesmith/docs` re-exports the supported building blocks for docs consumers.
+
+Example custom page layout:
+
+```tsx
+import { SiteDocument } from '@pagesmith/docs/components'
+import { PageShell } from '@pagesmith/docs/layouts'
+
+export default function DocPage(props) {
+  const { content, frontmatter, headings, slug, site, sidebarSections } = props
+
+  return (
+    <SiteDocument title={`${frontmatter.title} — ${site.title}`} site={site}>
+      <PageShell
+        site={site}
+        currentPath={slug}
+        headings={headings}
+        sidebarSections={sidebarSections}
+      >
+        <div class="prose" innerHTML={content} />
+      </PageShell>
+    </SiteDocument>
+  )
+}
+```
+
 ### Layout Props
 
 **All layouts** receive: `content`, `frontmatter`, `headings`, `slug`, `site`.
@@ -427,10 +476,10 @@ Override default layouts via `theme.layouts`:
 
 **Home layout** additionally: `frontmatter.hero`, `frontmatter.features`, `frontmatter.packages`, `frontmatter.install`.
 
-Layouts use `@pagesmith/site/jsx-runtime`:
+Layouts use `@pagesmith/docs/jsx-runtime`:
 
 ```tsx
-import { Fragment } from '@pagesmith/site/jsx-runtime'
+import { Fragment } from '@pagesmith/docs/jsx-runtime'
 
 export default function DocPage(props) {
   const { content, frontmatter, headings, slug, site, sidebarSections, prev, next } = props
@@ -491,10 +540,25 @@ const url = withBase('/guide/getting-started', config.basePath)
 | Import Path | Purpose |
 |---|---|
 | `@pagesmith/docs` | Main API (build, startDev, preview, defineDocsConfig, validateConfig, resolveDocsConfig, loadDocsConfig, reportConfigIssues, withBase, docsPreset, Html, buildSiteModel, getPrevNext, getSitePayload) |
+| `@pagesmith/docs/components` | Re-exported shared chrome components for docs overrides |
+| `@pagesmith/docs/layouts` | Re-exported shared layout wrappers for docs overrides |
+| `@pagesmith/docs/jsx-runtime` | JSX runtime for docs layout overrides |
+| `@pagesmith/docs/jsx-dev-runtime` | JSX dev runtime for docs layout overrides |
 | `@pagesmith/docs/schemas` | Zod schemas for config, layout props, page data |
+| `@pagesmith/docs/schemas/*` | Individual JSON schema and generated schema entry points |
 | `@pagesmith/docs/preset` | Docs preset for Vite integration (`docsPreset`) |
-| `@pagesmith/docs/theme` | Theme/runtime export surface (`Html`) |
+| `@pagesmith/docs/theme` | Theme/runtime export surface (`Html`) backed by the shared site chrome/layout exports |
 | `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
+| `@pagesmith/docs/llms` | Compact AI context index |
+| `@pagesmith/docs/llms-full` | Full AI context reference |
+| `@pagesmith/docs/ai-guidelines/*` | Package-shipped AI guidance files |
+| `@pagesmith/docs/agents/setup-docs` | Bootstrap prompt for project agents |
+| `@pagesmith/docs/agents/usage` | Agent operating rules and prompts |
+| `@pagesmith/docs/agents/recipes` | Task-specific recipes |
+| `@pagesmith/docs/agents/changelog-notes` | Version highlights for agents |
+| `@pagesmith/docs/agents/errors` | Error catalog for agent workflows |
+| `@pagesmith/docs/agents/migration` | Upgrade playbook for existing integrations |
+| `@pagesmith/docs/agents/template` | Project memory template |
 
 ## GitHub Pages Deployment
 
@@ -556,11 +620,12 @@ The markdown pipeline processes content through unified with these plugins in or
 remark-parse → remark-gfm → remark-frontmatter
   → remark-github-alerts → remark-smartypants
   → remark-math (when `markdown.math` is `true` or `'auto'` detects math markers)
-  → lang-alias transform → remark-rehype
+  → [custom remark plugins in lower-level integrations] → lang-alias transform → remark-rehype
   → rehype-mathjax (when math is enabled, before the built-in code renderer)
   → applyPagesmithCodeRenderer (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
+  → rehype-code-tabs → rehype-scrollable-tables
   → rehype-slug → rehype-autolink-headings
-  → rehype-external-links → rehype-accessible-emojis
+  → rehype-external-links → rehype-accessible-emojis → rehype-local-images
   → heading extraction → docs link/asset transforms → rehype-stringify
 ```
 
@@ -571,6 +636,8 @@ In `pagesmith.config.json5`, the `markdown` field is intentionally JSON-safe:
 - `shiki.themes`, `shiki.langAlias`, `shiki.defaultShowLineNumbers`
 
 Function-based `remarkPlugins` and `rehypePlugins` remain available through the lower-level `@pagesmith/core` APIs, not through the JSON5 docs config.
+
+When stock docs rendering knows the markdown source path, relative local images inherit intrinsic dimensions automatically and relative JPEGs can emit `<picture>` fallbacks before the docs asset pass rewrites the published URLs under `/assets/...`. Resolution stays inside the configured docs `contentDir`.
 
 ### Supported features
 
@@ -632,7 +699,7 @@ Pages are processed with bounded concurrency using `os.availableParallelism() * 
 - Code block styling ships in the shared Pagesmith CSS bundles — include the normal docs/theme CSS so rendered markdown code blocks look correct
 - Config is validated at build time — missing fields and non-existent asset references are reported
 - `name`, `title`, `description`, and `origin` auto-fallback to `package.json` fields — most projects need only `basePath` in config
-- Build auto-generates `.nojekyll`, `sitemap.xml`, `robots.txt`, and copies `llms.txt` if present
+- Build auto-generates `.nojekyll`, `sitemap.xml`, `robots.txt`, and copies `llms.txt` / `llms-full.txt` when present
 
 ## Related Docs
 

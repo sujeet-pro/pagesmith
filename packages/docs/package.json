@@ -1,7 +1,7 @@
 {
   "name": "@pagesmith/docs",
-  "version": "0.6.0",
-  "description": "Convention-based documentation package built on @pagesmith/core and @pagesmith/site",
+  "version": "0.8.0",
+  "description": "Convention-based documentation package built on the Pagesmith site/content stack",
   "keywords": [
     "cms",
     "docs",
@@ -35,6 +35,22 @@
     ".": {
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.mts",
+      "import": "./dist/components/index.mjs"
+    },
+    "./layouts": {
+      "types": "./dist/layouts/index.d.mts",
+      "import": "./dist/layouts/index.mjs"
+    },
+    "./jsx-runtime": {
+      "types": "./dist/jsx-runtime/index.d.mts",
+      "import": "./dist/jsx-runtime/index.mjs"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./dist/jsx-dev-runtime/index.d.mts",
+      "import": "./dist/jsx-dev-runtime/index.mjs"
     },
     "./schemas": {
       "types": "./dist/schemas/index.d.mts",
@@ -76,7 +92,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@pagesmith/core": "0.8.0",
-    "@pagesmith/site": "0.7.0",
+    "@pagesmith/site": "0.8.0",
     "chokidar": "^5.0.0",
     "json5": "^2.2.3",
     "pagefind": "^1.5.0",

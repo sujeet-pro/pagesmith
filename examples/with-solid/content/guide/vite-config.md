@@ -19,7 +19,7 @@ The build is a normal Vite project: `vite.config.ts` registers shared assets, So
 import { defineConfig } from 'vite-plus'
 import collections from './content.config'
 import solid from 'vite-plugin-solid'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/solid',

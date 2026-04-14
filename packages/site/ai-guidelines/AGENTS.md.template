@@ -5,5 +5,5 @@ This project uses `@pagesmith/site` on top of `@pagesmith/core`.
 - Read `node_modules/@pagesmith/site/ai-guidelines/site-guidelines.md` before changing site wiring.
 - Read `node_modules/@pagesmith/site/ai-guidelines/usage.md` for the package workflow.
 - Read `node_modules/@pagesmith/site/REFERENCE.md` for CLI, preset, JSX, CSS, runtime, and SSG details.
-- Keep content collections and schemas in `@pagesmith/core`.
+- Keep app-facing content collections, config helpers, and schemas on `@pagesmith/site` unless the repo intentionally uses the lower-level headless core package directly.
 - Keep site-facing JSX, CSS, runtime JS, and SSG imports in `@pagesmith/site`.

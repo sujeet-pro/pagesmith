@@ -86,7 +86,7 @@ Error: Cannot find module 'virtual:content/posts'
 3. **Plugin not registered.** Ensure the `pagesmithContent` Vite plugin is in your `vite.config.ts`:
 
    ```ts title="vite.config.ts"
-   import { pagesmithContent } from '@pagesmith/core/vite'
+   import { pagesmithContent } from '@pagesmith/site/vite'
    import { defineConfig } from 'vite'
 
    export default defineConfig({

@@ -2,7 +2,7 @@
   Root layout router only: picks home / article / 404 and owns the mobile nav dialog.
   Pagefind Component UI is not declared here — renderDocumentShell() appends <pagefind-modal>
   after this tree when search is enabled, so the trigger in SiteHeader stays paired with
-  a single modal instance from @pagesmith/core/ssg-utils.
+  a single modal instance from @pagesmith/site/ssg-utils.
 -->
 <script lang="ts">
   import HomeBody from './components/HomeBody.svelte'

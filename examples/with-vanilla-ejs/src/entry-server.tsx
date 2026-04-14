@@ -7,11 +7,11 @@
  * Why this file exists: `pagesmithSsg` does not render Markdown itself — it
  * loads this module in dev (middleware SSR) and after the client bundle build
  * (static HTML). You own routing, `createContentLayer` usage, and how HTML is
- * produced (here: EJS). That keeps `@pagesmith/core` as the content/markdown
- * engine while templates stay plain strings.
+ * produced (here: EJS). That keeps `@pagesmith/site` as the app-facing
+ * content/markdown package while templates stay plain strings.
  */
 
-import { createContentLayer } from '@pagesmith/core'
+import { createContentLayer } from '@pagesmith/site'
 import ejs from 'ejs'
 import { readFileSync } from 'fs'
 import { join } from 'path'

@@ -31,7 +31,7 @@ Set up `@pagesmith/core` in this repository. Read `node_modules/@pagesmith/core/
 | Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-site.md](https://projects.sujeet.pro/pagesmith/prompts/setup-site.md) |
 
 ```text
-Set up `@pagesmith/core` and `@pagesmith/site` in this repository. Read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` first and follow it exactly. Keep content collections on `@pagesmith/core`, use `@pagesmith/site` for the site layer only, and choose the right integration shape for this repo: Vite SSG or framework-hosted markdown.
+Set up `@pagesmith/site` in this repository. Read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` first and follow it exactly. Keep the app-facing integration on `@pagesmith/site` for content collections, markdown rendering, Vite wiring, and the JSX/runtime layer unless this repo explicitly wants the lower-level headless-only `@pagesmith/core` package instead.
 ```
 
 ### Docs site for a repo

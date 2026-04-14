@@ -64,11 +64,6 @@ description: A summary  # ← required by BaseFrontmatterSchema
 **Pattern:** `Unknown code block meta property: "<prop>"`
 **Fix:** Use only supported built-in code renderer meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wrap`, `frame`, `collapse`, `mark`, `ins`, `del`.
 
-### Unknown code language
-
-**Pattern:** `Unknown language "<lang>"`
-**Fix:** Use a supported Shiki language identifier. Common mappings: `ts` for TypeScript, `js` for JavaScript, `sh`/`bash` for Shell.
-
 ## Plugin Validation Errors
 
 ### Plugin threw

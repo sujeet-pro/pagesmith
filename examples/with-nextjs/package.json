@@ -10,7 +10,6 @@
     "check": "next build --webpack"
   },
   "dependencies": {
-    "@pagesmith/core": "*",
     "@pagesmith/site": "*",
     "next": "^16.2.3",
     "react": "^19.2.5",

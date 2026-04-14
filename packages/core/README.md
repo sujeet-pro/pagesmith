@@ -8,8 +8,8 @@ Headless content layer for Pagesmith. Schema-validated collections, lazy markdow
 
 ## Choose The Package
 
-- Use `@pagesmith/core` when you want a custom app or site architecture, framework-specific rendering, or direct control over collections, routing, and rendering.
-- Pair `@pagesmith/core` with `@pagesmith/site` when you need the Pagesmith JSX runtime, shared CSS/runtime behavior, Vite SSG helpers, or the `pagesmith-site` CLI.
+- Use `@pagesmith/core` when you want the headless content layer directly: collections, schemas, markdown, validation, and framework-hosted rendering where your app already owns routing and the site shell.
+- Use `@pagesmith/site` instead when you need the Pagesmith JSX runtime, shared CSS/runtime behavior, Vite SSG helpers, or the `pagesmith-site` CLI from one package.
 - Use `@pagesmith/docs` when you want a convention-based docs site with `pagesmith.config.json5`, built-in navigation, search, and docs-specific AI guidance.
 
 ## Install
@@ -68,7 +68,7 @@ const entry = await layer.getEntry('posts', 'hello-world')
 const rendered = await entry?.render()
 ```
 
-This is the recommended shape for integrations such as Next.js. Add `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content` only when you want Pagesmith's shipped prose and code-block UI in the browser.
+This is the headless shape when your app already owns routing and build tooling. For the repo-standard Next.js and custom-site integrations, prefer importing the same APIs from `@pagesmith/site` so collections, helpers, and shared CSS/runtime stay on one app-facing package. Add `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content` only when you want Pagesmith's shipped prose and code-block UI in the browser.
 
 ### Vite Integration
 
@@ -110,7 +110,7 @@ import posts from 'virtual:content/posts'
 | `createContentLayer(config)` | Create a content layer from a config object |
 | `layer.getCollection(name)` | Load all entries in a collection (cached) |
 | `layer.getEntry(collection, slug)` | Get a single entry by slug |
-| `layer.convert(markdown, options?)` | Convert raw markdown to HTML outside collections |
+| `layer.convert(markdown, options?)` | Convert raw markdown to HTML outside collections; pass `sourcePath` and optional `assetRoot` for local image enhancements |
 | `layer.validate(collection?)` | Run all validators and return results |
 | `layer.invalidate(collection, slug)` | Cache-bust a single entry |
 | `layer.invalidateCollection(name)` | Cache-bust an entire collection |
@@ -177,8 +177,8 @@ const posts = defineCollection({
 |---|---|---|
 | `markdown` | `.md` | gray-matter frontmatter + markdown body |
 | `json` | `.json` | JSON.parse |
-| `json5` | `.json` | JSON5 (relaxed JSON with comments, trailing commas) |
-| `jsonc` | `.json`, `.jsonc` | JSON with comments |
+| `json5` | `.json5` | JSON5.parse (relaxed JSON with comments, trailing commas) |
+| `jsonc` | `.jsonc` | Comment-stripped JSON parsed with `JSON.parse` |
 | `yaml` | `.yml`, `.yaml` | YAML |
 | `toml` | `.toml` | TOML |
 
@@ -197,9 +197,11 @@ remark-parse → remark-gfm → remark-frontmatter
   → applyPagesmithCodeRenderer (syntax highlighting, frames, copy, collapse)
   → rehype-code-tabs → rehype-scrollable-tables
   → rehype-slug → rehype-autolink-headings
-  → rehype-external-links → rehype-accessible-emojis
+  → rehype-external-links → rehype-accessible-emojis → rehype-local-images
   → heading extraction → [user rehype plugins] → rehype-stringify
 ```
+
+When Pagesmith knows the markdown source path, relative local images also inherit intrinsic width/height. Relative JPEGs can additionally emit `<picture>` fallbacks with AVIF and WebP sources. `entry.render()` wires this automatically and keeps resolution inside the collection directory. `convert()` / `layer.convert()` can do the same when you pass `sourcePath`; by default refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
 
 ### Markdown Features
 
@@ -358,7 +360,7 @@ For markdown collections, three validators run automatically on the parsed AST:
 
 - **linkValidator** — warns on bare URLs, empty link text, suspicious protocols
 - **headingValidator** — enforces single h1, sequential heading depth, non-empty text
-- **codeBlockValidator** — warns on missing language, unknown language aliases
+- **codeBlockValidator** — warns on missing language when meta is present and unknown code block meta properties
 
 Disable with `disableBuiltinValidators: true`. Add custom validators via `validators` in the collection definition.
 
@@ -463,6 +465,27 @@ Generates: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, skills, `llms.txt`, `llms-full
 | `@pagesmith/core/create` | Project scaffolding utilities |
 | `@pagesmith/core/mcp` | Core MCP server and helper utilities |
 
+## MCP Server
+
+`@pagesmith/core/mcp` is a programmatic MCP surface for content-layer inspection and validation. Unlike `@pagesmith/docs`, core does not ship a standalone `pagesmith-core mcp` CLI because it needs a live `ContentLayer` instance.
+
+- Programmatic entry: `@pagesmith/core/mcp`
+- Typical pattern: build your layer, then call `startCoreMcpServer({ layer })` from a small project-local wrapper
+
+Primary MCP tools:
+
+- `core_list_collections`
+- `core_list_entries`
+- `core_get_entry`
+- `core_validate`
+- `core_search_entries`
+
+Version-matched MCP resources:
+
+- `pagesmith://core/agents/usage`
+- `pagesmith://core/llms-full`
+- `pagesmith://core/reference`
+
 ## Further Reading
 
 - **[REFERENCE.md](REFERENCE.md)** — complete reference covering the content layer API, collections, loaders, markdown pipeline, validators, frontmatter schemas, and Vite content plugin
@@ -482,10 +505,14 @@ These files are available at `node_modules/@pagesmith/core/` after installation:
 |---|---|
 | `REFERENCE.md` | Full API reference for content layer, collections, markdown, validation, and Vite content access |
 | `ai-guidelines/setup-core.md` | Bootstrap/retrofit prompt for installing `@pagesmith/core` in an existing repo |
+| `ai-guidelines/core-guidelines.md` | Package responsibilities, boundaries, and non-negotiable rules |
+| `ai-guidelines/markdown-guidelines.md` | Markdown pipeline, code-block features, and authoring rules |
 | `ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
 | `ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
 | `ai-guidelines/errors.md` | Error catalog with patterns and fixes |
 | `ai-guidelines/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
+| `ai-guidelines/changelog-notes.md` | Version highlights and upgrade notes |
+| `ai-guidelines/AGENTS.md.template` | Template for project-level `AGENTS.md` memory files |
 | `ai-guidelines/llms.txt` | Compact AI context index |
 | `ai-guidelines/llms-full.txt` | Full AI context with all file pointers |
 

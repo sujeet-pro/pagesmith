@@ -14,14 +14,14 @@ This guide is **example-local**: it describes how to run and build `examples/wit
 
 ## Dependencies
 
-**Content + build** — `@pagesmith/core` supplies the content layer, markdown pipeline, and Vite plugins. **EJS** renders templates at SSG time only. **Pagefind** is a dependency so the SSG plugin can index the generated HTML after `vite build`.
+**Content + build** — `@pagesmith/site` supplies the app-facing content layer, markdown pipeline, Vite plugins, and shared runtime/CSS used by this example. **EJS** renders templates at SSG time only. **Pagefind** is a dependency so the SSG plugin can index the generated HTML after `vite build`.
 
 ```json title="package.json (excerpt)"
 {
   "dependencies": {
-    "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "ejs": "^5.0.1",
-    "pagefind": "^1.3.0"
+    "pagefind": "^1.5.0"
   }
 }
 ```
@@ -60,7 +60,7 @@ Output goes to `../../gh-pages/examples/vanilla-ejs/` as configured in `vite.con
 
 ## What the Vite plugins do
 
-1. **`sharedAssetsPlugin`** — Copies shared assets (for example fonts) from `@pagesmith/core` into the build output.
+1. **`sharedAssetsPlugin`** — Copies shared assets (for example fonts) from `@pagesmith/site` into the build output.
 2. **`pagesmithSsg`** — Dev: SSR middleware calling `render()` from `src/entry-server.tsx`. Production: runs `getRoutes` / `render`, writes HTML, then runs Pagefind.
 
-This example does **not** use `pagesmithContent` virtual modules. The SSR entry imports `content.config.mjs` and calls `createContentLayer()` directly so templates stay decoupled from any framework loader.
+This example does **not** use `pagesmithContent` virtual modules. The SSR entry imports `content.config.mjs` and calls `createContentLayer()` from `@pagesmith/site` directly so templates stay decoupled from any framework loader.

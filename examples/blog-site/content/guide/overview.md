@@ -10,7 +10,7 @@ seriesOrder: 1
 
 # Overview
 
-This example is a static site built from **@pagesmith/core + @pagesmith/site**: no React, Solid, or Svelte, and no `pagesmithContent` Vite plugin. You define collections with `defineCollection` / `defineConfig`, construct a layer with `createContentLayer`, load entries with `layer.getCollection(...)`, and turn Markdown into HTML with **`await entry.render()`** (the same markdown pipeline other examples use — this path does not call `processMarkdown` directly in app code).
+This example is a static site built from **`@pagesmith/site`**: no React, Solid, or Svelte, and no `pagesmithContent` Vite plugin. You define collections with `defineCollection` / `defineConfig`, construct a layer with `createContentLayer`, load entries with `layer.getCollection(...)`, and turn Markdown into HTML with **`await entry.render()`** (the same markdown pipeline other examples use — this path does not call `processMarkdown` directly in app code).
 
 ## End-to-end flow
 
@@ -43,9 +43,9 @@ plugins: [
 ]
 ```
 
-| Framework-style (`pagesmithContent`) | Core-only (this example) |
+| Framework-style (`pagesmithContent`) | Direct API (this example) |
 |--------------------------------------|---------------------------|
-| Collections often live in `content.config.ts` and load through virtual modules | Collections are defined next to `createContentLayer` in `src/entry-server.tsx` |
+| Collections often live in `content.config.ts` and load through virtual modules | Collections are defined in `src/content.ts` alongside `createContentLayer` |
 | Bundler imports typed collection modules | Node-side `getCollection` + `entry.render()` at SSG time |
 | Same markdown pipeline once content is loaded | Same pipeline via `entry.render()` |
 

@@ -229,9 +229,13 @@ function getLanguageLabel(
     .join(' ')
 }
 
-function createToolbarChip(label: string, lang: string | undefined): HastNode {
+function createToolbarChip(
+  label: string,
+  lang: string | undefined,
+  languageLabel: string,
+): HastNode {
   return h('span', { className: ['ps-code-toolbar-chip'] }, [
-    createLanguageBadge(lang),
+    createLanguageBadge(lang, languageLabel),
     h('span', { className: ['ps-code-toolbar-label'] }, [text(label)]),
   ])
 }
@@ -240,6 +244,7 @@ function createToolbarMain(
   label: string,
   lang: string | undefined,
   frame: 'code' | 'terminal' | 'plain',
+  languageLabel: string,
 ): HastNode | null {
   if (frame === 'plain') return null
 
@@ -250,13 +255,52 @@ function createToolbarMain(
         h('span', { className: ['ps-code-traffic-light'] }),
         h('span', { className: ['ps-code-traffic-light'] }),
       ]),
-      createToolbarChip(label, lang),
+      createToolbarChip(label, lang, languageLabel),
     ])
   }
 
   return h('div', { className: ['ps-code-toolbar-main', 'ps-code-toolbar-main--code'] }, [
-    createToolbarChip(label, lang),
+    createToolbarChip(label, lang, languageLabel),
   ])
+}
+
+function createCopyIcon(): HastNode {
+  return h(
+    'svg',
+    {
+      className: ['ps-code-copy-icon'],
+      viewBox: '0 0 16 16',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '1.5',
+      'stroke-linecap': 'round',
+      'stroke-linejoin': 'round',
+      'aria-hidden': 'true',
+    },
+    [
+      h('rect', { x: '5.5', y: '5.5', width: '8', height: '8', rx: '1.5' }),
+      h('path', {
+        d: 'M10.5 5.5V4a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5',
+      }),
+    ],
+  )
+}
+
+function createCopiedIcon(): HastNode {
+  return h(
+    'svg',
+    {
+      className: ['ps-code-copy-icon', 'ps-code-copy-icon--copied'],
+      viewBox: '0 0 16 16',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '1.5',
+      'stroke-linecap': 'round',
+      'stroke-linejoin': 'round',
+      'aria-hidden': 'true',
+    },
+    [h('path', { d: 'M3.5 9 6.5 12 12.5 4.5' })],
+  )
 }
 
 function createCopyButton(): HastNode {
@@ -270,8 +314,9 @@ function createCopyButton(): HastNode {
       'data-copied-label': 'Copied',
       'data-error-label': 'Retry',
       'aria-label': 'Copy code block',
+      title: 'Copy',
     },
-    [h('span', { 'data-ps-code-copy-label': 'true' }, [text('Copy')])],
+    [createCopyIcon(), createCopiedIcon()],
   )
 }
 
@@ -457,6 +502,7 @@ async function renderCodeBlock(
     meta.title || languageLabel,
     requestedLang || renderedLang,
     meta.frame,
+    languageLabel,
   )
   if (toolbarMain) toolbarChildren.push(toolbarMain)
   toolbarChildren.push(createCopyButton())

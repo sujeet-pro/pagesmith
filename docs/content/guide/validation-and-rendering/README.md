@@ -355,7 +355,7 @@ const veryLongVariable = 'this is a very long string that would normally overflo
 
 #### Frame Type
 
-Control the frame style (`code`, `terminal`, `none`, or `auto`):
+Control the frame style (`code`, `terminal`, or `none`). When omitted, the frame is auto-detected from the language:
 
 ````text
 ```bash frame="terminal"

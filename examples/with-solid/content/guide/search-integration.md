@@ -30,7 +30,7 @@ Opening the modal, **Cmd+K** / **Ctrl+K**, and result rendering are handled by P
 
 ## Development vs production
 
-Behavior comes from `@pagesmith/core`’s SSG integration:
+Behavior comes from `@pagesmith/site`’s SSG integration:
 
 - **`vite build`** — `render()` receives `searchEnabled: true`. The HTML includes Pagefind tags, and the plugin runs the indexer on the output directory, so `pagefind/` exists for `vite preview` or static hosting.
 - **`vite dev`** — the dev middleware calls `render()` with **`searchEnabled: false`**, so Pagefind link/script tags and the modal markup are **not** emitted. There is nothing to index in dev, and the UI would point at assets that are only guaranteed after a build.

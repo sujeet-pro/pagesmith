@@ -1,4 +1,4 @@
-import { Fragment, h } from '@pagesmith/site/jsx-runtime'
+import { Fragment, h } from '@pagesmith/docs/jsx-runtime'
 import { Html } from '@pagesmith/docs/theme'
 import {
   DocFooter,

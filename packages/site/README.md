@@ -2,9 +2,9 @@
 
 Site toolkit for Pagesmith.
 
-`@pagesmith/site` sits on top of `@pagesmith/core` and provides the pieces you need once you move from "content layer" to "site": the preset-driven `pagesmith-site` CLI, the Vite SSG plugin, the JSX-to-HTML runtime, shared CSS bundles, browser runtime helpers, and small SSG utilities used by the first-party examples.
+`@pagesmith/site` builds on `@pagesmith/core` internally and provides the app-facing package surface once you move from "content layer" to "site": the preset-driven `pagesmith-site` CLI, the Vite SSG plugin, the JSX-to-HTML runtime, reusable chrome/layout components, shared CSS bundles, browser runtime helpers, small SSG utilities used by the first-party examples, and re-exported content-layer APIs for site consumers.
 
-Use `@pagesmith/core` for collections, loaders, markdown rendering, validation, and `virtual:content/*`. Use `@pagesmith/site` for the site shell, build pipeline, and presentation/runtime layer.
+Use `@pagesmith/core` when you only want the headless content layer. Use `@pagesmith/site` when the project wants the content layer plus Pagesmith's site shell, build pipeline, JSX runtime, or shared presentation/runtime layer from one package.
 
 ## Requirements
 
@@ -14,15 +14,15 @@ Use `@pagesmith/core` for collections, loaders, markdown rendering, validation, 
 ## Install
 
 ```bash
-npm add @pagesmith/core @pagesmith/site
+npm add @pagesmith/site
 ```
 
-If you are building a docs site with the default Pagesmith docs preset, install `@pagesmith/docs` instead; it depends on both `@pagesmith/core` and `@pagesmith/site`.
+If you are building a docs site with the default Pagesmith docs preset, install `@pagesmith/docs` instead; it brings the docs preset plus the underlying site/content dependencies with it.
 
 ## Choose The Package
 
 - Use `@pagesmith/core` when you only need a headless content layer.
-- Use `@pagesmith/core` + `@pagesmith/site` when you are building a custom site, blog, portfolio, framework-based static site, or an existing app that wants Pagesmith's shared CSS/runtime layer.
+- Use `@pagesmith/site` when you are building a custom site, blog, portfolio, framework-based static site, or an existing app that wants Pagesmith's shared JSX chrome, layouts, CSS, runtime layer, and re-exported content APIs from one package.
 - Use `@pagesmith/docs` when you want the opinionated docs preset and default docs theme.
 
 ## Adoption Paths
@@ -43,12 +43,11 @@ For agent-driven setup in an existing repository, start with the dedicated promp
 
 ### Vite site
 
-Define collections with `@pagesmith/core`, then add the site-building plugins from `@pagesmith/site`:
+Define collections with `@pagesmith/site`, then add the site-building plugins from the same package:
 
 ```ts
 import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 import collections from './content.config'
 
 export default defineConfig({
@@ -62,6 +61,8 @@ export default defineConfig({
   ],
 })
 ```
+
+`@pagesmith/site` re-exports the content-layer APIs from `@pagesmith/core`, so a site-based app can keep collection, schema, loader, and Vite-plugin imports on `@pagesmith/site` unless it intentionally wants the lower-level core package.
 
 Your SSR entry should export:
 
@@ -107,25 +108,64 @@ export function Page({ title, content }: { title: string; content: string }) {
 }
 ```
 
+### Reusable site components
+
+`@pagesmith/site` now owns the reusable chrome that the default docs theme consumes: document shell, header, sidebar, TOC variants, footer controls, listing cards, and the 3-column page shell.
+
+```tsx
+import { SiteDocument, ListingCards } from '@pagesmith/site/components'
+import { PageShell } from '@pagesmith/site/layouts'
+
+export function DocsPage({ site, slug, headings, sidebarSections, content }) {
+  return (
+    <SiteDocument title={site.title} site={site}>
+      <PageShell
+        site={site}
+        currentPath={slug}
+        headings={headings}
+        sidebarSections={sidebarSections}
+      >
+        <div class="prose" innerHTML={content} />
+        <ListingCards
+          cards={[
+            {
+              title: 'Release Notes',
+              path: '/guide/releases',
+              description: 'Recent changes and migration notes.',
+              meta: [{ label: 'Updated', value: 'Apr 2026' }],
+            },
+          ]}
+        />
+      </PageShell>
+    </SiteDocument>
+  )
+}
+```
+
 ### CSS and runtime
 
 Import static CSS bundles from the `css/*` subpaths:
 
 ```css
+@import '@pagesmith/site/css/chrome';
 @import '@pagesmith/site/css/content';
 @import '@pagesmith/site/css/fonts';
 ```
 
-Use the browser runtime entry points when you want built-in code-block behavior, TOC highlighting, or theme/font-size persistence:
+Bundle CSS/runtime by scope:
+
+- Use `@pagesmith/site/css/chrome` with `@pagesmith/site/runtime/chrome` when you want the shared header/sidebar/TOC/footer/listing UI without pulling in the markdown prose layer.
+- Use `@pagesmith/site/css/standalone` with `@pagesmith/site/runtime/standalone` when the page uses the full Pagesmith site shell plus prose and code-block UI.
+- Use `@pagesmith/site/css/content` with `@pagesmith/site/runtime/content` when another framework owns layout and you only want the shared markdown presentation layer.
+
+Use the browser runtime entry points when you want built-in code-block behavior, TOC highlighting, sidebar toggles, or theme/font-size persistence:
 
 ```ts
+import '@pagesmith/site/runtime/chrome'
 import '@pagesmith/site/runtime/content'
-import { initTheme } from '@pagesmith/site/runtime/theme'
-
-initTheme()
 ```
 
-For framework-hosted apps such as Next.js, this CSS/runtime pairing is often all you need from `@pagesmith/site`: the host app keeps routing and layout, while Pagesmith provides the shared markdown presentation layer.
+For Vite-based TSX apps, this is the recommended pairing: render with `@pagesmith/site/components` / `@pagesmith/site/layouts`, then import the matching `css/*` and `runtime/*` entries from the same package so the shared chrome keeps its behavior with minimal app-local glue.
 
 ## CLI
 
@@ -137,7 +177,7 @@ Commands:
 - `pagesmith-site build`
 - `pagesmith-site preview`
 - `pagesmith-site init`
-- `pagesmith-site mcp`
+- `pagesmith-site mcp` (only when the active preset implements MCP; use `pagesmith-docs mcp` for the built-in docs server)
 
 Important behavior:
 
@@ -151,17 +191,28 @@ Important behavior:
 Available from `@pagesmith/site`:
 
 - `defineSiteConfig(config)`
-- `loadSiteConfig(configPath?)`
+- `loadSiteConfig(configPath?)` (raw JSON5 parse)
+- `parseSiteConfig(config)` (schema-backed validation)
+- `normalizeBasePath(basePath)`
 - `normalizePresetSpecifier(value)`
 - `resolveSitePresetSpecifier(configPath?, fallback?)`
+- `stripBasePath(url, basePath)`
+- `withBasePath(basePath, path)`
+- `withTrailingSlash(path)`
 
 Scoped Pagesmith package names are normalized to `/preset`, for example `preset: '@pagesmith/docs'` becomes `@pagesmith/docs/preset`.
+
+For typed custom-site config, `@pagesmith/site/schemas` exports `SiteUserConfigSchema` plus the related footer, search, theme, analytics, server, and sidebar schema helpers.
 
 ## Public Exports
 
 ### Main entry
 
 - `@pagesmith/site`
+- `@pagesmith/site/markdown`
+- `@pagesmith/site/schemas`
+- `@pagesmith/site/loaders`
+- `@pagesmith/site/assets`
 - `@pagesmith/site/config`
 - `@pagesmith/site/preset`
 
@@ -173,6 +224,7 @@ Scoped Pagesmith package names are normalized to `/preset`, for example `preset:
 ### CSS
 
 - `@pagesmith/site/css`
+- `@pagesmith/site/css/chrome`
 - `@pagesmith/site/css/content`
 - `@pagesmith/site/css/standalone`
 - `@pagesmith/site/css/code-block`
@@ -184,12 +236,23 @@ Scoped Pagesmith package names are normalized to `/preset`, for example `preset:
 ### Runtime
 
 - `@pagesmith/site/runtime`
+- `@pagesmith/site/runtime/chrome`
 - `@pagesmith/site/runtime/content`
 - `@pagesmith/site/runtime/standalone`
 - `@pagesmith/site/runtime/code-blocks`
 - `@pagesmith/site/runtime/code-tabs`
+- `@pagesmith/site/runtime/footer-year`
+- `@pagesmith/site/runtime/search-trigger`
+- `@pagesmith/site/runtime/sidebar`
+- `@pagesmith/site/runtime/skip-link`
 - `@pagesmith/site/runtime/toc-highlight`
 - `@pagesmith/site/runtime/theme`
+
+### Components / Layouts / Theme
+
+- `@pagesmith/site/components`
+- `@pagesmith/site/layouts`
+- `@pagesmith/site/theme`
 
 ### Vite / SSG
 

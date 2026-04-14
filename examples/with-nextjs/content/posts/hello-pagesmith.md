@@ -11,14 +11,14 @@ This page lives in `content/posts/hello-pagesmith.md`, is loaded through `create
 
 ## Why this example exists
 
-- Keep content loading and validation on `@pagesmith/core`
+- Keep content loading and validation on `@pagesmith/site`
 - Let Next.js own routing, layout, metadata, and deployment
 - Reuse Pagesmith's shared markdown presentation and code-block behavior without adopting the Pagesmith Vite toolchain
 
 ## Minimal content loader
 
 ```js title="lib/content.js"
-import { createContentLayer, defineConfig } from '@pagesmith/core'
+import { createContentLayer, defineConfig } from '@pagesmith/site'
 import collections from '../content.config.js'
 
 const layer = createContentLayer(

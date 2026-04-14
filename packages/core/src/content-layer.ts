@@ -86,6 +86,20 @@ export interface ContentLayer {
 
 export type LayerConvertOptions = {
   markdown?: MarkdownConfig
+  /**
+   * Absolute or project-relative source path for the markdown being converted.
+   * Provide this when the markdown references local images so `convert()` can
+   * resolve refs from the markdown file and fill intrinsic dimensions.
+   */
+  sourcePath?: string
+  /**
+   * Allowed root directory for relative local image refs. Defaults to the
+   * markdown file's own directory when `sourcePath` is provided. Set this when
+   * you want `layer.convert()` to allow refs that move outside the file
+   * directory but still stay inside a broader content root, matching
+   * `entry.render()`.
+   */
+  assetRoot?: string
 }
 
 class ContentLayerImpl implements ContentLayer {
@@ -125,6 +139,8 @@ class ContentLayerImpl implements ContentLayer {
   async convert(markdown: string, options?: LayerConvertOptions): Promise<ConvertResult> {
     return coreConvert(markdown, {
       markdown: options?.markdown ?? this.config.markdown,
+      sourcePath: options?.sourcePath,
+      assetRoot: options?.assetRoot,
     })
   }
 

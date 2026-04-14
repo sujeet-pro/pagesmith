@@ -5,10 +5,10 @@
 Three main user-facing packages:
 
 - `@pagesmith/core` for the headless content layer: collections, loaders, markdown with a built-in Shiki-backed code renderer, validation, schemas, assets helpers, and the `pagesmithContent` Vite plugin
-- `@pagesmith/site` for site-building: the `pagesmith-site` CLI (`pagesmith` remains a compatibility alias), preset loading, JSX runtime, shared CSS/runtime behavior, Vite SSG helpers, and shared SSG utilities
-- `@pagesmith/docs` for convention-based documentation on top of core + site: docs preset, default docs theme, navigation from `content/`, bundled Pagefind search, schemas, and docs MCP support
+- `@pagesmith/site` for site-building: the `pagesmith-site` CLI (`pagesmith` remains a compatibility alias), re-exported content-layer APIs, preset loading, JSX runtime, shared CSS/runtime behavior, Vite SSG helpers, and shared SSG utilities
+- `@pagesmith/docs` for convention-based documentation on top of the site/content stack: docs preset, default docs theme, navigation from `content/`, bundled Pagefind search, schemas, and docs MCP support
 
-Use `@pagesmith/docs` when you want a batteries-included docs site from `pagesmith.config.json5`. Use `@pagesmith/core` + `@pagesmith/site` when you want a custom site, a framework integration (React, Solid, Svelte, Next.js, EJS, Handlebars), or full control over layouts and rendering.
+Use `@pagesmith/docs` when you want a batteries-included docs site from `pagesmith.config.json5`. Use `@pagesmith/site` when you want a custom site, a framework integration (React, Solid, Svelte, Next.js, EJS, Handlebars), or full control over layouts and rendering from one Pagesmith package. Use `@pagesmith/core` directly when you only need the headless content layer.
 
 ## 1.0 Architecture Principles
 
@@ -28,12 +28,12 @@ Docs-first install:
 npm add @pagesmith/docs
 ```
 
-That is enough for the default docs flow. `@pagesmith/docs` depends on both `@pagesmith/core` and `@pagesmith/site`, so the docs preset, theme, CLI flow, and search integration come along together.
+That is enough for the default docs flow. `@pagesmith/docs` is the only Pagesmith package docs users need for the preset, theme, CLI flow, and search integration.
 
 Custom site install:
 
 ```bash
-npm add @pagesmith/core @pagesmith/site
+npm add @pagesmith/site
 ```
 
 ## Pre-1.0 Migration
@@ -67,12 +67,11 @@ Then start the dev server:
 npx pagesmith-docs dev
 ```
 
-### Vite site (core + site)
+### Vite site (site-first)
 
 ```ts
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg } from '@pagesmith/site/vite'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
 import { defineConfig } from 'vite'
 
 const content = defineCollections({
@@ -123,14 +122,14 @@ If your app already owns routing and build tooling (for example Next.js), render
 
 | Example                                        | Description                                                                          | README                                        |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------- |
-| [blog-site](examples/blog-site/)               | Custom site built on `@pagesmith/core` + `@pagesmith/site` with Pagesmith JSX and Vite SSG | [README](examples/blog-site/README.md) |
+| [blog-site](examples/blog-site/)               | Custom site built on `@pagesmith/site` with Pagesmith JSX and Vite SSG | [README](examples/blog-site/README.md) |
 | [doc-site](examples/doc-site/)                 | `@pagesmith/docs` with layout overrides via `theme.layouts.*` and docs preset wiring | [README](examples/doc-site/README.md) |
-| [with-react](examples/with-react/)             | `@pagesmith/core` + `@pagesmith/site` + React (react-dom/server) | [README](examples/with-react/README.md) |
-| [with-solid](examples/with-solid/)             | `@pagesmith/core` + `@pagesmith/site` + SolidJS | [README](examples/with-solid/README.md) |
-| [with-svelte](examples/with-svelte/)           | `@pagesmith/core` + `@pagesmith/site` + Svelte 5 | [README](examples/with-svelte/README.md) |
-| [with-nextjs](examples/with-nextjs/)           | `@pagesmith/core` content loading/rendering inside Next.js, with optional shared content CSS/runtime from `@pagesmith/site` | [README](examples/with-nextjs/README.md) |
-| [with-vanilla-ejs](examples/with-vanilla-ejs/) | `@pagesmith/core` + `@pagesmith/site` + EJS templates | [README](examples/with-vanilla-ejs/README.md) |
-| [with-vanilla-hbs](examples/with-vanilla-hbs/) | `@pagesmith/core` + `@pagesmith/site` + Handlebars templates | [README](examples/with-vanilla-hbs/README.md) |
+| [with-react](examples/with-react/)             | `@pagesmith/site` + React (react-dom/server) | [README](examples/with-react/README.md) |
+| [with-solid](examples/with-solid/)             | `@pagesmith/site` + SolidJS | [README](examples/with-solid/README.md) |
+| [with-svelte](examples/with-svelte/)           | `@pagesmith/site` + Svelte 5 | [README](examples/with-svelte/README.md) |
+| [with-nextjs](examples/with-nextjs/)           | `@pagesmith/site` content APIs inside Next.js, with optional shared content CSS/runtime | [README](examples/with-nextjs/README.md) |
+| [with-vanilla-ejs](examples/with-vanilla-ejs/) | `@pagesmith/site` + EJS templates | [README](examples/with-vanilla-ejs/README.md) |
+| [with-vanilla-hbs](examples/with-vanilla-hbs/) | `@pagesmith/site` + Handlebars templates | [README](examples/with-vanilla-hbs/README.md) |
 
 
 ## Framework Support
@@ -138,14 +137,14 @@ If your app already owns routing and build tooling (for example Next.js), render
 
 | Framework  | Pattern                                                    | Example                      |
 | ---------- | ---------------------------------------------------------- | ---------------------------- |
-| React      | `pagesmithContent` from core + `pagesmithSsg` from site    | `examples/with-react/`       |
-| SolidJS    | `pagesmithContent` from core + `pagesmithSsg` from site    | `examples/with-solid/`       |
-| Svelte     | `pagesmithContent` from core + `pagesmithSsg` from site    | `examples/with-svelte/`      |
-| Next.js    | `createContentLayer` from core + optional `@pagesmith/site/css/content` / `@pagesmith/site/runtime/content` | `examples/with-nextjs/` |
-| EJS        | `createContentLayer` from core + `pagesmithSsg` from site  | `examples/with-vanilla-ejs/` |
-| Handlebars | `createContentLayer` from core + `pagesmithSsg` from site  | `examples/with-vanilla-hbs/` |
-| Docs       | `@pagesmith/docs` preset on the `pagesmith` site CLI       | `examples/doc-site/`         |
-| Custom     | `@pagesmith/site` JSX runtime + SSG on top of core content | `examples/blog-site/`        |
+| React      | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-react/` |
+| SolidJS    | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-solid/` |
+| Svelte     | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-svelte/` |
+| Next.js    | `createContentLayer` from `@pagesmith/site` + optional `@pagesmith/site/css/content` / `@pagesmith/site/runtime/content` | `examples/with-nextjs/` |
+| EJS        | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-vanilla-ejs/` |
+| Handlebars | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-vanilla-hbs/` |
+| Docs       | `@pagesmith/docs` preset on the `pagesmith-docs` CLI       | `examples/doc-site/`         |
+| Custom     | `@pagesmith/site` JSX runtime + Vite SSG on top of its re-exported content APIs | `examples/blog-site/` |
 
 
 ## CSS Exports
@@ -164,10 +163,12 @@ Code block styling ships in the shared Pagesmith CSS bundles, while syntax token
 ## Import Map
 
 
-| I want to...                   | Import from                      |
+| I want to... | Import from |
 | ------------------------------ | -------------------------------- |
-| Define collections and schemas | `@pagesmith/core` |
-| Use the content Vite plugin | `@pagesmith/core/vite` |
+| Define collections and schemas in a custom site | `@pagesmith/site` |
+| Define collections and schemas in a headless-only integration | `@pagesmith/core` |
+| Use the content Vite plugin in a custom site | `@pagesmith/site/vite` |
+| Use the content Vite plugin in a core-only integration | `@pagesmith/core/vite` |
 | Use SSG / shared asset Vite helpers | `@pagesmith/site/vite` |
 | Write JSX layouts | `@pagesmith/site/jsx-runtime` |
 | Add content CSS | `@pagesmith/site/css/content` |
@@ -250,8 +251,8 @@ The repo uses both packages in different ways:
 
 - `[docs/](docs/)` uses `@pagesmith/docs` with the default docs configuration
 - `[examples/doc-site/](examples/doc-site/)` shows layout overrides through `theme.layouts.*` in `pagesmith.config.json5`
-- `[examples/blog-site/](examples/blog-site/)` is a custom site built on `@pagesmith/core` with its own layouts and a Vite-powered asset build
-- The framework examples in `[examples/](examples/)` use `@pagesmith/core` with React, Solid, Svelte, Next.js, EJS, and Handlebars rendering flows
+- `[examples/blog-site/](examples/blog-site/)` is a custom site built on `@pagesmith/site` with its own layouts and a Vite-powered asset build
+- The framework examples in `[examples/](examples/)` use `@pagesmith/site` as the app-facing package across React, Solid, Svelte, Next.js, EJS, and Handlebars rendering flows
 
 ## Repo Development
 

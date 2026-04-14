@@ -10,21 +10,21 @@ seriesOrder: 1
 
 # Installation
 
-This guide walks through setting up a static site that uses **React** for rendering and **Pagesmith** for the content layer. The example produces a fully static site -- no client-side React runtime ships to the browser.
+This guide walks through setting up a static site that uses **React** for rendering and **`@pagesmith/site`** as the app-facing Pagesmith package. The example produces a fully static site -- no client-side React runtime ships to the browser.
 
 ## Dependencies
 
 The project requires three groups of packages:
 
-**Content layer** -- `@pagesmith/core` provides the markdown pipeline, collection schemas, virtual modules, and Vite plugins:
+**Pagesmith package** -- `@pagesmith/site` provides the app-facing collection APIs, Vite plugins, and shared runtime/CSS layer used by this example:
 
 ```json title="package.json (excerpt)"
 {
   "dependencies": {
-    "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "pagefind": "^1.3.0"
+    "pagefind": "^1.5.0"
   }
 }
 ```
@@ -62,7 +62,7 @@ The production build writes to `gh-pages/examples/react/` (configured via `build
 
 1. **`pagesmithContent`** — Markdown pipeline, Zod validation, and **`virtual:content/<collection>`** modules consumed by **`src/entry-server.tsx`**.
 2. **`pagesmithSsg`** — Imports the entry, calls **`getRoutes()`** / **`render()`**, writes HTML, runs **Pagefind** on the output, and sets **`searchEnabled`** in **`SsgRenderConfig`** when appropriate.
-3. **`sharedAssetsPlugin`** — Copies shared core assets (fonts, etc.) into the build.
+3. **`sharedAssetsPlugin`** — Copies shared site assets (fonts, etc.) into the build.
 
 Everything else is normal Vite (client entry, CSS, TypeScript).
 

@@ -5,7 +5,7 @@ description: A Pagesmith + SolidJS integration example
 
 # Pagesmith + SolidJS
 
-This example demonstrates how to build a static site using **@pagesmith/core** with **SolidJS** as the rendering framework.
+This example demonstrates how to build a static site using **`@pagesmith/site`** as the app-facing package for typed content collections, the Vite/SSG/runtime layer, and a **SolidJS** rendering shell.
 
 It showcases:
 

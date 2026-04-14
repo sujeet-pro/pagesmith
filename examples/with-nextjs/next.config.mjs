@@ -10,7 +10,7 @@ const nextConfig = {
   basePath,
   outputFileTracingRoot: repoRoot,
   reactStrictMode: true,
-  serverExternalPackages: ['@pagesmith/core', '@pagesmith/site'],
+  serverExternalPackages: ['@pagesmith/site'],
   trailingSlash: true,
   turbopack: {
     root: repoRoot,

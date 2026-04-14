@@ -59,6 +59,12 @@ function createRealLayer() {
   return createContentLayer(config)
 }
 
+function parseTextResult(result: any) {
+  expect(result.content).toHaveLength(1)
+  expect(result.content[0].type).toBe('text')
+  return JSON.parse(result.content[0].text)
+}
+
 describe('createCoreMcpServer', () => {
   it('creates a server without errors', () => {
     const layer = createMockLayer()
@@ -76,6 +82,86 @@ describe('createCoreMcpServer', () => {
     const layer = createMockLayer()
     const server = createCoreMcpServer({ layer: layer as any, rootDir: '/custom/root' })
     expect(server).toBeDefined()
+  })
+
+  it('registers the documented tools and resources', () => {
+    const server = createCoreMcpServer({
+      layer: createMockLayer() as any,
+      rootDir: FIXTURES_DIR,
+    }) as any
+
+    expect(Object.keys(server._registeredTools)).toEqual(
+      expect.arrayContaining([
+        'core_list_collections',
+        'core_list_entries',
+        'core_get_entry',
+        'core_validate',
+        'core_search_entries',
+      ]),
+    )
+    expect(Object.keys(server._registeredResources)).toEqual(
+      expect.arrayContaining([
+        'pagesmith://core/agents/usage',
+        'pagesmith://core/llms-full',
+        'pagesmith://core/reference',
+      ]),
+    )
+  })
+
+  it('lists entries with pagination metadata', async () => {
+    const server = createCoreMcpServer({ layer: createRealLayer(), rootDir: FIXTURES_DIR }) as any
+
+    const payload = parseTextResult(
+      await server._registeredTools.core_list_entries.handler({
+        collection: 'posts',
+        limit: 2,
+        offset: 1,
+      }),
+    )
+
+    expect(payload.collection).toBe('posts')
+    expect(payload.total).toBe(3)
+    expect(payload.offset).toBe(1)
+    expect(payload.limit).toBe(2)
+    expect(payload.count).toBe(2)
+    expect(payload.entries).toHaveLength(2)
+    expect(payload.entries.every((entry: any) => typeof entry.slug === 'string')).toBe(true)
+    expect(payload.entries.every((entry: any) => entry.filePath.startsWith(FIXTURES_DIR))).toBe(
+      true,
+    )
+  })
+
+  it('searches entries across titles, descriptions, tags, and slugs', async () => {
+    const server = createCoreMcpServer({ layer: createRealLayer(), rootDir: FIXTURES_DIR }) as any
+
+    const payload = parseTextResult(
+      await server._registeredTools.core_search_entries.handler({
+        query: 'example',
+      }),
+    )
+
+    expect(payload.query).toBe('example')
+    expect(payload.count).toBe(1)
+    expect(payload.matches).toHaveLength(1)
+    expect(payload.matches[0]).toMatchObject({
+      collection: 'posts',
+      slug: 'second',
+      title: 'Second Post',
+    })
+  })
+
+  it('serves version-matched MCP resources', async () => {
+    const server = createCoreMcpServer({
+      layer: createMockLayer() as any,
+      rootDir: FIXTURES_DIR,
+    }) as any
+
+    const resource = await server._registeredResources['pagesmith://core/llms-full'].readCallback()
+
+    expect(resource.contents).toHaveLength(1)
+    expect(resource.contents[0].uri).toBe('pagesmith://core/llms-full')
+    expect(resource.contents[0].text).toContain('## MCP tools')
+    expect(resource.contents[0].text).toContain('core_search_entries')
   })
 })
 

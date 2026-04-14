@@ -1,15 +1,15 @@
 # Pagesmith + React
 
-React-based static site using `@pagesmith/core` for collections and markdown, plus `@pagesmith/site` for Vite SSG, shared assets, and the shipped content runtime.
+React-based static site using `@pagesmith/site` as the app-facing package for collections, Vite SSG, shared assets, and the shipped content/runtime layer.
 
 ## AI-First Starting Point
 
-To recreate this shape in another repository, install `@pagesmith/core`, `@pagesmith/site`, `react`, and `react-dom`, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`.
+To recreate this shape in another repository, install `@pagesmith/site`, `react`, and `react-dom`, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` for the content model, Vite wiring, and SSG flow.
 
 Tell the agent to:
 
-- define collections in `content.config.ts`
-- expose them through `pagesmithContent` from `@pagesmith/core/vite`
+- define collections in `content.config.ts` with `@pagesmith/site`
+- expose them through `pagesmithContent` from `@pagesmith/site/vite`
 - wire `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite`
 - keep React responsible for the page and layout components only
 

@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite-plus'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import collections from './content.config'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/svelte',

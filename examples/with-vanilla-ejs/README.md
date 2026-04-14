@@ -1,14 +1,14 @@
 # Pagesmith + EJS
 
-EJS-based static site using `@pagesmith/core` for collections and markdown, plus `@pagesmith/site` for Vite SSG, shared assets, and the shipped content runtime. It keeps templating on EJS instead of moving to a framework component model.
+EJS-based static site using `@pagesmith/site` as the app-facing package for collections, direct `createContentLayer()` rendering, Vite SSG, shared assets, and the shipped content/runtime layer. It keeps templating on EJS instead of moving to a framework component model.
 
 ## AI-First Starting Point
 
-To recreate this shape in another repository, install `@pagesmith/core`, `@pagesmith/site`, `ejs`, and your Vite tooling, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`.
+To recreate this shape in another repository, install `@pagesmith/site`, `ejs`, and your Vite tooling, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` for the content model, direct rendering helpers, and Vite/SSG flow.
 
 Tell the agent to:
 
-- keep collections and markdown rendering on `@pagesmith/core`
+- keep collections and markdown rendering on `@pagesmith/site`
 - use `createContentLayer()` directly in the SSR entry instead of `virtual:content/*`
 - wire `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite`
 - keep HTML layout ownership in `templates/*.ejs`

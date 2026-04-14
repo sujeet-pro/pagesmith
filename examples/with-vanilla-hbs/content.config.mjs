@@ -2,7 +2,7 @@
  * Single source of truth for collection shapes: Zod validates frontmatter before render().
  * Kept as .mjs so the SSR entry can import it without a separate TS compile step for config.
  */
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',

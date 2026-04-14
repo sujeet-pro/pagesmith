@@ -10,7 +10,7 @@ seriesOrder: 1
 
 # Installation
 
-This guide walks through a static site that uses **Svelte** only on the server (`svelte/server`) and **@pagesmith/core** for collections, the markdown pipeline, and Vite plugins.
+This guide walks through a static site that uses **Svelte** only on the server (`svelte/server`) and **`@pagesmith/site`** as the app-facing package for collections, markdown processing, and the Vite/SSG/runtime layer.
 
 ## Dependencies
 
@@ -19,20 +19,20 @@ This guide walks through a static site that uses **Svelte** only on the server (
 ```json title="package.json (excerpt)"
 {
   "dependencies": {
-    "@pagesmith/core": "*",
-    "pagefind": "^1.3.0",
+    "@pagesmith/site": "*",
+    "pagefind": "^1.5.0",
     "svelte": "^5.55.1"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.3",
-    "vite-plus": "0.1.13"
+    "vite-plus": "0.1.16"
   }
 }
 ```
 
-- **`@pagesmith/core`** — collections, virtual modules, markdown, `pagesmithContent` / `pagesmithSsg`, `renderDocumentShell`.
+- **`@pagesmith/site`** — collection definitions, schemas, markdown processing, `pagesmithContent` / `pagesmithSsg`, `renderDocumentShell`, and the shared runtime/CSS layer.
 - **`svelte`** — `render` from `svelte/server` at SSG time only.
 - **`pagefind`** — indexer dependency for the SSG plugin’s post-build step.
 - **`vite` + `vite-plus` + `@sveltejs/vite-plugin-svelte`** — dev server and Svelte compilation.
@@ -66,4 +66,4 @@ Output goes to `../../gh-pages/examples/svelte/` per `vite.config.ts`.
 
 1. **`pagesmithContent`** — markdown → validated entries → `virtual:content/*`.
 2. **`pagesmithSsg`** — `getRoutes` / `render`, dev middleware, Pagefind after build.
-3. **`sharedAssetsPlugin`** — shared fonts/assets from core into the output.
+3. **`sharedAssetsPlugin`** — shared fonts/assets from `@pagesmith/site` into the output.

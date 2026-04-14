@@ -3,12 +3,9 @@
  * same section folder (see `getDocsListingCards` in navigation).
  */
 
-import { Fragment, h } from '@pagesmith/site/jsx-runtime'
-import { DocFooter } from '../components/DocFooter'
-import { DocHeader } from '../components/DocHeader'
-import { DocSidebar } from '../components/DocSidebar'
-import { DocTOC } from '../components/DocTOC'
-import { Html } from '../components/Html'
+import { Fragment, h } from '@pagesmith/docs/jsx-runtime'
+import { ListingCards, Html } from '@pagesmith/docs/components'
+import { PageShell } from '@pagesmith/docs/layouts'
 import { resolveChrome } from '../utils/chrome'
 
 type ListingCard = {
@@ -59,22 +56,6 @@ function formatDate(isoDate: string): string {
   })
 }
 
-function renderCard(card: ListingCard) {
-  return (
-    <li class="doc-listing-item">
-      <a class="doc-listing-card" href={`${card.path.replace(/\/?$/, '')}/`}>
-        <span class="doc-listing-card-title">{card.title}</span>
-        {card.publishedDate ? (
-          <time class="doc-listing-card-meta" datetime={card.publishedDate}>
-            {formatDate(card.publishedDate)}
-          </time>
-        ) : null}
-        {card.description ? <span class="doc-listing-card-desc">{card.description}</span> : null}
-      </a>
-    </li>
-  )
-}
-
 export default function DocListing(props: Props) {
   const {
     content,
@@ -105,6 +86,27 @@ export default function DocListing(props: Props) {
   const visibleGroupCount = listingGroups.length
   const totalLabel = listingTotal === 1 ? 'page' : 'pages'
   const groupLabel = visibleGroupCount === 1 ? 'group' : 'groups'
+  const groupedCards = listingGroups.map((group) => ({
+    slug: group.slug,
+    title: group.title,
+    description: group.description,
+    cards: group.cards.map((card) => ({
+      title: card.title,
+      path: card.path,
+      description: card.description,
+      meta: card.publishedDate
+        ? [{ value: formatDate(card.publishedDate), datetime: card.publishedDate }]
+        : undefined,
+    })),
+  }))
+  const flatCards = listingCards.map((card) => ({
+    title: card.title,
+    path: card.path,
+    description: card.description,
+    meta: card.publishedDate
+      ? [{ value: formatDate(card.publishedDate), datetime: card.publishedDate }]
+      : undefined,
+  }))
 
   return (
     <Html
@@ -114,111 +116,38 @@ export default function DocListing(props: Props) {
       socialImage={ogImage}
       site={site}
     >
-      {chrome.header ? (
-        <DocHeader
-          siteName={site.name}
-          siteIcon={site.icon}
-          basePath={site.basePath}
-          homeLink={site.homeLink}
-          navItems={site.navItems}
-          slug={slug}
-          searchEnabled={site.search?.enabled}
-        />
-      ) : null}
-      <div class="doc-layout">
-        {chrome.sidebar ? (
-          <DocSidebar
-            sections={sidebarSections}
-            currentSlug={slug}
-            collapsible={site.sidebar?.collapsible}
-          />
-        ) : null}
-        <div class="doc-content">
-          {breadcrumbs && breadcrumbs.length > 1 ? (
-            <nav class="doc-breadcrumbs" aria-label="Breadcrumbs">
-              {breadcrumbs.map((crumb, i) =>
-                crumb.path ? (
-                  <Fragment>
-                    {i > 0 ? (
-                      <span class="doc-breadcrumb-sep" aria-hidden="true">
-                        /
-                      </span>
-                    ) : null}
-                    <a href={`${crumb.path}/`}>{crumb.label}</a>
-                  </Fragment>
-                ) : (
-                  <Fragment>
-                    {i > 0 ? (
-                      <span class="doc-breadcrumb-sep" aria-hidden="true">
-                        /
-                      </span>
-                    ) : null}
-                    <span aria-current="page">{crumb.label}</span>
-                  </Fragment>
-                ),
-              )}
-            </nav>
-          ) : null}
-
-          {chrome.toc && headings.length > 0 ? (
-            <details class="doc-toc-mobile">
-              <summary>On this page</summary>
-              <DocTOC headings={headings} />
-            </details>
-          ) : null}
-
-          <main>
-            <article id="doc-main-content" tabindex="-1" data-pagefind-body="">
-              {content ? <div class="doc-listing-intro prose" innerHTML={content} /> : null}
-              {hasGroupedListing ? (
-                <Fragment>
-                  <p class="doc-listing-stats">
-                    {listingTotal} {totalLabel} organized into {visibleGroupCount} {groupLabel}.
-                  </p>
-                  <div class="doc-listing-groups">
-                    {listingGroups.map((group) => (
-                      <section class="doc-listing-group">
-                        <h2 class="doc-listing-group-title" id={group.slug}>
-                          {group.title}
-                        </h2>
-                        {group.description ? (
-                          <p class="doc-listing-group-desc">{group.description}</p>
-                        ) : null}
-                        <ul class="doc-listing-grid">
-                          {group.cards.map((card) => renderCard(card))}
-                        </ul>
-                      </section>
-                    ))}
-                  </div>
-                </Fragment>
-              ) : listingCards.length > 0 ? (
-                <ul class="doc-listing-grid">{listingCards.map((card) => renderCard(card))}</ul>
-              ) : (
-                <p class="doc-listing-empty">No pages in this section yet.</p>
-              )}
-            </article>
-          </main>
-
-          {chrome.footer ? (
-            <DocFooter
-              links={site.footerLinks}
-              footerText={site.footerText}
-              maintainer={site.maintainer}
-              copyright={site.copyright}
-              editUrl={editUrl}
-              editLabel={editLabel}
-              lastUpdated={lastUpdated}
-              prev={prev}
-              next={next}
-            />
-          ) : null}
-        </div>
-        {chrome.toc ? (
-          <aside class="doc-aside">
-            <DocTOC headings={headings} />
-          </aside>
-        ) : null}
-      </div>
+      <PageShell
+        site={site}
+        currentPath={slug}
+        headings={headings}
+        breadcrumbs={breadcrumbs && breadcrumbs.length > 1 ? breadcrumbs : undefined}
+        sidebarSections={sidebarSections}
+        showHeader={chrome.header}
+        showSidebar={chrome.sidebar}
+        showSidebarModal={chrome.header && chrome.sidebar}
+        showToc={chrome.toc}
+        showMobileToc={chrome.toc}
+        showFooter={chrome.footer}
+        editUrl={editUrl}
+        editLabel={editLabel}
+        lastUpdated={lastUpdated}
+        prev={prev}
+        next={next}
+      >
+        {content ? <div class="doc-listing-intro prose" innerHTML={content} /> : null}
+        {hasGroupedListing ? (
+          <Fragment>
+            <p class="doc-listing-stats">
+              {listingTotal} {totalLabel} organized into {visibleGroupCount} {groupLabel}.
+            </p>
+            <ListingCards groups={groupedCards} showStats={false} />
+          </Fragment>
+        ) : listingCards.length > 0 ? (
+          <ListingCards cards={flatCards} />
+        ) : (
+          <ListingCards emptyMessage="No pages in this section yet." />
+        )}
+      </PageShell>
     </Html>
   )
 }

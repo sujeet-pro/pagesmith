@@ -5,6 +5,7 @@
  * but HTML rendering is deferred until render() is called.
  */
 
+import { dirname } from 'path'
 import type { Heading } from './schemas/heading'
 import type { MarkdownConfig } from './schemas/markdown-config'
 import { processMarkdown } from './markdown'
@@ -35,6 +36,8 @@ export class ContentEntry<T = Record<string, any>> {
   private _rendered?: RenderedContent
   /** Markdown config for rendering */
   private _markdownConfig: MarkdownConfig
+  /** Allowed root for resolving relative local assets referenced by this entry. */
+  private _assetRoot?: string
 
   constructor(
     slug: string,
@@ -43,6 +46,7 @@ export class ContentEntry<T = Record<string, any>> {
     data: T,
     rawContent: string | undefined,
     markdownConfig: MarkdownConfig,
+    assetRoot?: string,
   ) {
     this.slug = slug
     this.collection = collection
@@ -50,6 +54,7 @@ export class ContentEntry<T = Record<string, any>> {
     this.data = data
     this.rawContent = rawContent
     this._markdownConfig = markdownConfig
+    this._assetRoot = assetRoot
   }
 
   /** Render the entry content to HTML. Cached after first call. */
@@ -67,6 +72,10 @@ export class ContentEntry<T = Record<string, any>> {
     const result = await processMarkdown(this.rawContent, this._markdownConfig, {
       content: this.rawContent,
       frontmatter: this.data as Record<string, unknown>,
+      fileData: {
+        pagesmithFilePath: this.filePath,
+        pagesmithAssetRoot: this._assetRoot ?? dirname(this.filePath),
+      },
     })
     const readTime = computeReadTime(this.rawContent)
 

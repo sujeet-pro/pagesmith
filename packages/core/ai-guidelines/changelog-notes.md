@@ -4,7 +4,7 @@
 
 - Added `TypedContentLayer` for type-safe `getCollection<K>()` and `getEntry<K>()` with full Zod schema inference
 - Added `layer.watch()` for file-watching with automatic cache invalidation
-- Added MCP server (`@pagesmith/core/mcp`) with `core_list_collections`, `core_get_entry`, `core_validate` tools
+- Added MCP server (`@pagesmith/core/mcp`) with `core_list_collections`, `core_list_entries`, `core_get_entry`, `core_validate`, and `core_search_entries` tools plus version-matched core resources
 - Added explicit MCP subpath packaging (`@pagesmith/core/mcp`) and Vite SSG helpers split into focused modules
 - Refactored `@pagesmith/core/vite` into thin barrel exports with dedicated plugin modules
 - Hardened MCP Zod schema introspection to use public Zod APIs (removes dependency on internal `_zod` structure)

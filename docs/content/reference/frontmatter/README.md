@@ -50,10 +50,20 @@ These fields are recognized by `@pagesmith/docs` for documentation sites. The sc
 | `navLabel` | `string` | Same as `title` | Override the label shown in the top navigation bar. Useful when the full title is too long for the nav. |
 | `sidebarLabel` | `string` | Same as `title` | Override the label shown in the sidebar. Useful for shorter sidebar entries while keeping a descriptive page title. |
 | `order` | `number` | `undefined` | Manual sort order within a section. Lower numbers appear first. When not set, pages follow the order defined in the section's `meta.json5` `items` array, or fall back to alphabetical order. |
+| `publishedDate` | `string` | `undefined` | Publication date for the page. Used by listing pages when `orderBy: "publishedDate"` is set in the section's `meta.json5`. Accepts any date string parsable by `Date`. |
+| `lastUpdatedOn` | `string` | `undefined` | Last modification date. Displayed on the page when the site config has `lastUpdated` enabled. |
 | `draft` | `boolean` | `false` | Mark a page as a draft. Draft pages are excluded from the build output entirely -- they do not appear in navigation, search, or sitemap. |
+| `layout` | `string` | `undefined` | Override the page layout. Accepted values depend on your registered layouts (e.g. `"home"`, `"page"`). When omitted, the docs theme picks a layout automatically based on page position. |
+| `chrome` | `object` | `undefined` | Toggle page chrome sections. Each property is a boolean: `header`, `sidebar`, `toc`, `footer`. Set any to `false` to hide that section on a per-page basis. |
 | `socialImage` | `string` | Config `theme.socialImage` | Path to a custom Open Graph image for this page. Overrides the site-level default set in `pagesmith.config.json5`. |
 | `hero` | `object` | `undefined` | Hero section data for the home page layout. Contains `name`, `text`, `tagline`, `badge`, and `actions`. Only used when the page uses the `home` layout. |
 | `features` | `array` | `undefined` | Feature cards for the home page layout. Each entry is an object with `title`, `details`, and optional `icon`. Only used when the page uses the `home` layout. |
+| `install` | `string` | `undefined` | Install command shown on the home page layout (e.g. `"npm add @pagesmith/docs"`). |
+| `packages` | `array` | `undefined` | Package cards for the home page layout. Each entry has `name`, `description`, and optional `href`, `tag`, `version`. |
+| `codeExample` | `object` | `undefined` | Code snippet displayed on the home page. Has `code` (required), plus optional `label` and `title`. |
+| `tagline` | `string` | `undefined` | Short tagline shown on the home page. Can also be set inside the `hero` object. |
+| `badge` | `string` | `undefined` | Badge text shown on the home page. Can also be set inside the `hero` object. |
+| `actions` | `array` | `undefined` | Action buttons for the home page. Each entry has `text`, `link` (required), plus optional `theme` (`"brand"` or `"alt"`) and `icon`. Can also be set inside the `hero` object. |
 
 #### Hero Object Fields
 
@@ -76,6 +86,37 @@ Each entry in the `features` array supports:
 | `title` | `string` | Feature card heading |
 | `details` | `string` | Feature card body text |
 | `icon` | `string` | Optional icon identifier |
+
+#### Chrome Object Fields
+
+Control which parts of the page chrome are visible:
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `chrome.header` | `boolean` | `true` | Show or hide the site header |
+| `chrome.sidebar` | `boolean` | `true` | Show or hide the sidebar navigation |
+| `chrome.toc` | `boolean` | `true` | Show or hide the table of contents |
+| `chrome.footer` | `boolean` | `true` | Show or hide the site footer |
+
+#### Packages Array Fields
+
+Each entry in the `packages` array supports:
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | `string` | Package name (required) |
+| `description` | `string` | Package description (required) |
+| `href` | `string` | Link to the package docs |
+| `tag` | `string` | Tag label (e.g. "core", "theme") |
+| `version` | `string` | Current version string |
+
+#### Code Example Object Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `code` | `string` | The code snippet to display (required) |
+| `label` | `string` | Tab or section label |
+| `title` | `string` | Code block title |
 
 ### Base Frontmatter (BaseFrontmatterSchema)
 

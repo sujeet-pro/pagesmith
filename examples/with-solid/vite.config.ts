@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite-plus'
 import collections from './content.config'
 import solid from 'vite-plugin-solid'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 // Vite drives everything: Solid compiles the SSR entry as server components, Pagesmith
 // wires markdown collections into virtual modules the entry imports, and `pagesmithSsg`

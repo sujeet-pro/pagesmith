@@ -1,95 +1,49 @@
 import { For, Show } from 'solid-js'
 import { renderToString } from 'solid-js/web'
 import type { SsgRenderConfig } from '@pagesmith/site/vite'
-// Virtual modules are emitted by `pagesmithContent`: one array per collection key, each item
-// carrying validated frontmatter plus pre-rendered `html` from the core markdown pipeline.
+import {
+  type MarkdownEntry,
+  type NavEntry,
+  type NavGroup,
+  normalizeRoute,
+  leafSlug,
+  routeFor,
+  getTime,
+  toIso,
+  formatDate,
+  estimateReadTime,
+  buildNavEntries,
+  groupByField,
+  menuIcon,
+  closeIcon,
+  searchIcon,
+} from '@pagesmith/site/ssg-utils'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 
-type MarkdownEntry = {
-  contentSlug: string
-  html: string
-  headings: Array<{ depth: number; slug: string; text: string }>
-  frontmatter: {
-    title: string
-    description?: string
-    date?: string | Date
-    tags?: string[]
-    series?: string
-    seriesOrder?: number
-  }
-}
-
-type NavEntry = {
-  slug: string
+type Frontmatter = {
   title: string
   description?: string
-  url: string
-  date?: string
+  date?: string | Date
   tags?: string[]
+  series?: string
+  seriesOrder?: number
 }
 
-type GuideGroup = {
-  series: string
-  items: NavEntry[]
-}
+type Entry = MarkdownEntry<Frontmatter>
 
-const guideEntries = [...(guideCollection as MarkdownEntry[])].sort((left, right) => {
+type GuideGroup = NavGroup
+
+const themeIcon =
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
+
+const guideEntries = [...(guideCollection as Entry[])].sort((left, right) => {
   const orderDelta = (left.frontmatter.seriesOrder ?? 99) - (right.frontmatter.seriesOrder ?? 99)
   if (orderDelta !== 0) return orderDelta
   return getTime(left.frontmatter.date) - getTime(right.frontmatter.date)
 })
 
-const pageEntries = [...(pagesCollection as MarkdownEntry[])]
-
-const menuIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>'
-const closeIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
-const searchIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>'
-const themeIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
-
-function normalizeRoute(url: string, base: string): string {
-  if (!base || !url.startsWith(base)) return url === '' ? '/' : url
-  const trimmed = url.slice(base.length)
-  if (trimmed === '') return '/'
-  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
-}
-
-function leafSlug(contentSlug: string, collection: string): string {
-  return contentSlug.replace(new RegExp(`^${collection}/`), '')
-}
-
-function routeFor(entry: MarkdownEntry, collection: 'guide' | 'pages'): string {
-  const slug = leafSlug(entry.contentSlug, collection)
-  return collection === 'pages' ? `/${slug}` : `/${collection}/${slug}`
-}
-
-function getTime(date: string | Date | undefined): number {
-  if (!date) return 0
-  return date instanceof Date ? date.getTime() : new Date(date).getTime()
-}
-
-function toIso(date: string | Date | undefined): string | undefined {
-  if (!date) return undefined
-  return (date instanceof Date ? date : new Date(date)).toISOString()
-}
-
-function formatDate(iso: string): string {
-  const date = new Date(iso)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-function estimateReadTime(html: string): number {
-  const text = html.replace(/<[^>]+>/g, ' ')
-  return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 200))
-}
+const pageEntries = [...(pagesCollection as Entry[])]
 
 function contentEditUrl(contentSlug: string): string {
   return `https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-solid/content/${contentSlug}.md`
@@ -104,36 +58,8 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
-function buildNavEntries(entries: MarkdownEntry[], base: string, section: 'guide'): NavEntry[] {
-  return entries.map((entry) => ({
-    slug: leafSlug(entry.contentSlug, section),
-    title: entry.frontmatter.title,
-    description: entry.frontmatter.description,
-    url: `${base}/${section}/${leafSlug(entry.contentSlug, section)}`,
-    date: toIso(entry.frontmatter.date),
-    tags: entry.frontmatter.tags ?? [],
-  }))
-}
-
 function groupBySeries(base: string): GuideGroup[] {
-  const groups: GuideGroup[] = []
-  const seen = new Map<string, NavEntry[]>()
-
-  for (const entry of guideEntries) {
-    const series = entry.frontmatter.series ?? 'Other'
-    if (!seen.has(series)) {
-      const items: NavEntry[] = []
-      seen.set(series, items)
-      groups.push({ series, items })
-    }
-    seen.get(series)!.push({
-      slug: leafSlug(entry.contentSlug, 'guide'),
-      title: entry.frontmatter.title,
-      url: `${base}/guide/${leafSlug(entry.contentSlug, 'guide')}`,
-    })
-  }
-
-  return groups
+  return groupByField(guideEntries, base, 'guide', 'series')
 }
 
 function SearchTrigger() {

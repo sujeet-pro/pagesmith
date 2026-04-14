@@ -35,4 +35,4 @@ examples/with-solid/
 1. **`content.config.ts`** defines collection names and Zod schemas.
 2. **`pagesmithContent`** turns each collection into **`virtual:content/<name>`** consumed in **`entry-server.tsx`**.
 3. **`pagesmithSsg`** invokes that module’s **`getRoutes`** and **`render`** during `vite build`, and SSR middleware during `vite dev`.
-4. **`client.js`** is the deferred script referenced from the generated HTML; it is **not** Solid — it loads global styles, shared code-block runtime from core, then **`runtime.ts`** for UX on top of static markup.
+4. **`client.js`** is the deferred script referenced from the generated HTML; it is **not** Solid — it loads global styles, shared code-block runtime from `@pagesmith/site`, then **`runtime.ts`** for UX on top of static markup.

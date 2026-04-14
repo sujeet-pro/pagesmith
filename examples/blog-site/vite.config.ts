@@ -1,4 +1,4 @@
-// Core-only example: no pagesmithContent — the SSR entry calls createContentLayer directly.
+// Site-only example: no pagesmithContent — the SSR entry calls createContentLayer directly.
 // pagesmithSsg still needs contentDirs so companion assets under content/ copy to /assets/.
 import { defineConfig } from 'vite-plus'
 import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'

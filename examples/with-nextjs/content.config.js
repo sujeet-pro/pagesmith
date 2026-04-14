@@ -1,4 +1,4 @@
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const posts = defineCollection({
   loader: 'markdown',

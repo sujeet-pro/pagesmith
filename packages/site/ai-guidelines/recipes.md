@@ -6,8 +6,8 @@ For first-time setup or retrofit work, start with `node_modules/@pagesmith/site/
 
 ## Recipe: Vite SSG on top of core collections
 
-1. Define collections with `@pagesmith/core`.
-2. Add `pagesmithContent` from `@pagesmith/core/vite`.
+1. Define collections with `@pagesmith/site`.
+2. Add `pagesmithContent` from `@pagesmith/site/vite`.
 3. Add `sharedAssetsPlugin()` and `...pagesmithSsg(...)` from `@pagesmith/site/vite`.
 4. Export `getRoutes()` and `render()` from the SSR entry.
 5. Import runtime CSS/JS from `@pagesmith/site`.
@@ -16,8 +16,7 @@ Minimal Vite config:
 
 ```ts
 import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 import collections from './content.config'
 
 export default defineConfig({

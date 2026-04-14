@@ -37,8 +37,7 @@ import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/c
 After:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 ```
 
 Before:
@@ -57,5 +56,4 @@ import { Fragment } from '@pagesmith/site/jsx-runtime'
 
 1. Re-run typechecking.
 2. Verify core imports only cover the content layer.
-3. Verify site imports cover JSX, CSS/runtime, and SSG.
-4. Verify `pagesmithContent` still comes from `@pagesmith/core/vite`.
+3. Verify site imports cover `pagesmithContent`, JSX, CSS/runtime, and SSG when the project uses `@pagesmith/site` as the app-facing package.

@@ -35,7 +35,7 @@ Use this file as the primary instruction source for `@pagesmith/docs`.
 2. Keep docs content in the content directory (default: `docs/` if it exists, otherwise `content/`).
 3. Keep `README.md` in the content root as docs home page.
 4. Use `meta.json5` plus frontmatter for ordering and labels. Top-level folders define sections, nested markdown pages stay in their top-level section, and section sidebars stay flat.
-5. Use `theme.layouts` for layout overrides (`home`, `page`, `notFound`).
+5. Use `theme.layouts` for layout overrides (`home`, `page`, `listing`, `notFound`), and prefer `@pagesmith/docs/components` plus `@pagesmith/docs/layouts` when you want the stock Pagesmith chrome without copying the docs package internals.
 
 ## Adoption paths
 
@@ -130,7 +130,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 
 ### Prompt: Layout overrides and theming
 
-> Customize the docs layout for this project. Read `node_modules/@pagesmith/docs/REFERENCE.md` for the layout override system — set `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, or `theme.layouts.notFound` in `pagesmith.config.json5` to point to custom TSX files. Layouts use `@pagesmith/site/jsx-runtime` and receive props like `content`, `frontmatter`, `headings`, `sidebarSections`, `prev`, `next`, plus `listingCards`, `listingGroups`, and `listingTotal` for listing layouts. When search is enabled, keep `data-pagefind-body` on the content-only wrapper (usually the page `<article>` or a dedicated home-page body wrapper), not on the full shell.
+> Customize the docs layout for this project. Read `node_modules/@pagesmith/docs/REFERENCE.md` for the layout override system — set `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, or `theme.layouts.notFound` in `pagesmith.config.json5` to point to custom TSX files. Layouts use `@pagesmith/docs/jsx-runtime` and can compose `@pagesmith/docs/components` plus `@pagesmith/docs/layouts` instead of reimplementing the docs chrome. They receive props like `content`, `frontmatter`, `headings`, `sidebarSections`, `prev`, `next`, plus `listingCards`, `listingGroups`, and `listingTotal` for listing layouts. When search is enabled, keep `data-pagefind-body` on the content-only wrapper (usually the page `<article>` or a dedicated home-page body wrapper), not on the full shell.
 
 ### Prompt: Theme and color scheme configuration
 
@@ -176,6 +176,13 @@ Primary MCP tools:
 - `docs_list_pages`
 - `docs_get_page`
 - `docs_search_pages`
+
+Version-matched MCP resources:
+
+- `pagesmith://docs/agents/usage`
+- `pagesmith://docs/llms-full`
+- `pagesmith://docs/reference`
+- `pagesmith://core/reference`
 
 ## Non-negotiable rules
 

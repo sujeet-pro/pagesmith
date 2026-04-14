@@ -1,6 +1,12 @@
 import { extractFrontmatter } from '@pagesmith/core'
 import { processMarkdown, type MarkdownConfig } from '@pagesmith/core/markdown'
 import type { Heading } from '@pagesmith/core/schemas'
+import type {
+  SiteNavItem as NavItem,
+  SitePageLink as PrevNextLink,
+  SiteSidebarItem as SidebarItem,
+  SiteSidebarSection as SidebarSection,
+} from '@pagesmith/site/components'
 import { execFileSync } from 'child_process'
 import { existsSync, readFileSync, readdirSync } from 'fs'
 import { availableParallelism } from 'os'
@@ -19,29 +25,7 @@ import {
 export { CONTENT_ASSET_EXTS }
 export { DocsFrontmatterSchema } from './schemas/docs-content.js'
 export type { DocsFrontmatter, DocsRootMeta, DocsSectionMeta } from './schemas/docs-content.js'
-
-export type NavItem = {
-  label: string
-  path: string
-}
-
-export type SidebarItem = {
-  title: string
-  path: string
-  children?: SidebarItem[]
-}
-
-export type SidebarSection = {
-  title: string
-  slug: string
-  collapsed?: boolean
-  items: SidebarItem[]
-}
-
-export type PrevNextLink = {
-  title: string
-  path: string
-}
+export type { NavItem, SidebarItem, SidebarSection, PrevNextLink }
 
 export type DocsPage = {
   title: string
@@ -367,6 +351,10 @@ export async function loadDocsPages(
           processMarkdown(raw, sharedMarkdownConfig, {
             content: extracted.content,
             frontmatter: extracted.frontmatter,
+            fileData: {
+              pagesmithFilePath: filePath,
+              pagesmithAssetRoot: config.contentDir,
+            },
           }),
       )
     } catch (error) {

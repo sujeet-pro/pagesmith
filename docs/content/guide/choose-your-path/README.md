@@ -8,7 +8,7 @@ order: 1
 
 Need ready-to-run prompt templates for setup and maintenance? See the [Prompts Cookbook](/guide/prompts-cookbook/).
 
-Use this diagram as the fast filter: docs-first projects go to `@pagesmith/docs`, host-owned apps start with `@pagesmith/core`, and `@pagesmith/site` is the extra site layer when that core-based app also wants shared JSX, CSS/runtime, and Vite SSG helpers.
+Use this diagram as the fast filter: docs-first projects go to `@pagesmith/docs`, host-owned apps start with `@pagesmith/core`, and `@pagesmith/site` is the app-facing package when a project wants the content layer plus shared JSX, CSS/runtime, and Vite SSG helpers from one place.
 
 <figure>
   <img src="./diagrams/package-decision-path-light.svg" class="only-light" alt="Package decision paths: docs-first to @pagesmith/docs, host-owned shell to @pagesmith/core, optional @pagesmith/site for shared JSX, CSS, runtime, and Vite SSG helpers">
@@ -30,11 +30,11 @@ Copy-paste prompt:
 
 ### `@pagesmith/site`
 
-Use this when you want a custom site on top of `@pagesmith/core` and also want the shared Pagesmith site layer: JSX runtime, CSS/runtime bundles, Vite SSG helpers, or a preset-driven `pagesmith-site` workflow.
+Use this when you want a custom site with Pagesmith's content layer plus the shared Pagesmith site layer: JSX runtime, CSS/runtime bundles, Vite SSG helpers, or a preset-driven `pagesmith-site` workflow.
 
 Copy-paste prompt:
 
-> Install `@pagesmith/core` and `@pagesmith/site`, then read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and follow it exactly. Keep content collections on `@pagesmith/core`, use `@pagesmith/site` for the site layer only, and choose between a Vite SSG setup or a framework-hosted setup based on the repo.
+> Install `@pagesmith/site`, then read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and follow it exactly. Keep the app-facing imports on `@pagesmith/site`, use `@pagesmith/core` directly only if the repo intentionally wants the lower-level headless package, and choose between a Vite SSG setup or a framework-hosted setup based on the repo.
 
 ### `@pagesmith/core`
 
@@ -68,6 +68,7 @@ Manual guide: [Getting Started](/guide/getting-started/)
 Owns:
 
 - `pagesmith-site`
+- re-exported content APIs from `@pagesmith/core`
 - `@pagesmith/site/jsx-runtime`
 - `@pagesmith/site/css/*`
 - `@pagesmith/site/runtime/*`
@@ -75,7 +76,7 @@ Owns:
 
 Best for:
 
-- custom static sites on top of core
+- custom static sites that want one Pagesmith package for content + site behavior
 - projects that want the shared Pagesmith presentation layer
 - preset-driven site workflows
 
@@ -111,7 +112,7 @@ Manual guide: [Docs Getting Started](/guide/docs-getting-started/)
 | Fastest AI entrypoint                           | `setup-core.md`   | `setup-site.md`   | `setup-docs.md`   |
 
 
-Start with `@pagesmith/docs` when the project is truly docs-first. Start with `@pagesmith/core` when the host app already owns the shell. Add `@pagesmith/site` only when that core-based app also wants the shared Pagesmith site layer.
+Start with `@pagesmith/docs` when the project is truly docs-first. Start with `@pagesmith/core` when the host app already owns the shell and only needs the headless content layer. Start with `@pagesmith/site` when the app should stay on one Pagesmith package for content plus site behavior.
 
 ## What To Read Next
 

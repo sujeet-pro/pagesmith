@@ -12,20 +12,29 @@ Complete API reference for the public Pagesmith package surfaces.
 | Import Path | Purpose |
 |---|---|
 | `@pagesmith/core` | Main content-layer barrel -- config helpers, content layer, markdown, schemas, loaders, validation, AI, `z` re-export |
-| `@pagesmith/core/vite` | Vite content plugin -- `pagesmithContent()` |
+| `@pagesmith/core/vite` | Lower-level content-plugin export -- `pagesmithContent()` for core-only integrations |
 | `@pagesmith/core/markdown` | `processMarkdown()` function |
 | `@pagesmith/core/schemas` | Zod schemas and inferred TypeScript types |
 | `@pagesmith/core/loaders` | Loader classes and the `resolveLoader()` registry |
 | `@pagesmith/core/assets` | Static file copying and content-hash filenames |
 | `@pagesmith/core/ai` | AI assistant artifact installer |
 | `@pagesmith/core/create` | Project scaffolding utilities |
-| `@pagesmith/site` | Site config helpers and preset types |
-| `@pagesmith/site/vite` | Site-building Vite helpers -- `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
+| `@pagesmith/site` | App-facing site/content barrel -- re-exported content APIs, site config helpers, and preset types |
+| `@pagesmith/site/vite` | App-facing Vite barrel -- `pagesmithContent()`, `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
 | `@pagesmith/site/jsx-runtime` | Server-side JSX: `h()`, `Fragment()`, `HtmlString` |
 | `@pagesmith/site/runtime` | Pre-built CSS/JS asset accessors |
 | `@pagesmith/site/css` | `buildCss()` via LightningCSS |
 | `@pagesmith/site/css/*` | Shared CSS bundles (`content`, `standalone`, `viewport`, `fonts`, code styles) |
 | `@pagesmith/site/ssg-utils` | Shared SSG utility helpers |
+| `@pagesmith/docs` | Main docs barrel -- config helpers, build/dev/preview APIs, navigation helpers, theme exports, and MCP entrypoints |
+| `@pagesmith/docs/preset` | `docsPreset()` -- docs-package preset entry |
+| `@pagesmith/docs/components` | Reusable docs chrome components for layout overrides |
+| `@pagesmith/docs/layouts` | Reusable docs layout helpers for custom themes |
+| `@pagesmith/docs/jsx-runtime` | JSX runtime for docs layout overrides |
+| `@pagesmith/docs/jsx-dev-runtime` | Dev JSX runtime for docs layout overrides |
+| `@pagesmith/docs/theme` | Stock docs theme exports |
+| `@pagesmith/docs/mcp` | Docs MCP server entry |
+| `@pagesmith/docs/schemas` | Docs config Zod schemas |
 
 ---
 
@@ -94,13 +103,19 @@ const layer = createContentLayer(config)
 |---|---|---|
 | `getCollection` | `(name: string) => Promise<ContentEntry<any>[]>` | Load and return all entries in a collection |
 | `getEntry` | `(collection: string, slug: string) => Promise<ContentEntry<any> \| undefined>` | Get a single entry by slug |
-| `convert` | `(markdown: string, options?: LayerConvertOptions) => Promise<ConvertResult>` | Convert raw markdown to HTML (no collection, no validation) |
-| `invalidate` | `(collection: string, slug: string) => void` | Invalidate a single entry's cache |
-| `invalidateCollection` | `(collection: string) => void` | Invalidate all entries in a collection |
+| `convert` | `(markdown: string, options?: LayerConvertOptions) => Promise<ConvertResult>` | Convert raw markdown to HTML (no collection, no validation); pass `sourcePath` and optional `assetRoot` for local image enhancements |
+| `invalidate` | `(collection: string, slug: string) => Promise<void>` | Invalidate a single entry's cache |
+| `invalidateCollection` | `(collection: string) => Promise<void>` | Invalidate an entire collection's cache |
 | `invalidateAll` | `() => void` | Invalidate all cached data |
+| `invalidateWhere` | `(collection: string, predicate: (entry: ContentEntry) => boolean) => Promise<number>` | Invalidate entries matching a predicate; returns count of invalidated entries |
 | `validate` | `(collection?: string) => Promise<ValidationResult[]>` | Validate all entries in one or all collections |
 | `getCollectionNames` | `() => string[]` | Get the names of all configured collections |
 | `getCollectionDef` | `(name: string) => CollectionDef \| undefined` | Get the definition of a collection |
+| `getCollections` | `() => Record<string, CollectionDef>` | Get all collection definitions |
+| `watch` | `(callback: WatchCallback) => WatchHandle` | Watch collection directories for changes; returns a handle to stop watching |
+| `getCacheStats` | `() => { collections: number; entries: Record<string, number>; totalEntries: number }` | Get cache statistics for debugging and monitoring |
+
+When `convert()` is rendering markdown that references local images, pass `sourcePath` in `LayerConvertOptions` so Pagesmith can resolve intrinsic dimensions and JPEG picture fallbacks. By default `convert()` keeps relative refs inside the markdown file's own directory; add `assetRoot` when the safe root should be broader, such as the collection directory that `entry.render()` uses automatically.
 
 ### ContentEntry\<T\>
 
@@ -211,9 +226,8 @@ type ContentLayerConfig = {
   root?: string
   markdown?: MarkdownConfig
   assets?: { hashFilenames?: boolean; outputDir?: string }
-  cache?: boolean
-  eager?: boolean
   plugins?: ContentPlugin[]
+  strict?: boolean
 }
 ```
 
@@ -337,6 +351,8 @@ Configure in `tsconfig.json` for automatic JSX transformation:
 }
 ```
 
+For docs layout overrides, keep the import surface on the docs package and set `jsxImportSource` to `@pagesmith/docs`. `@pagesmith/docs/jsx-runtime` re-exports the same runtime for docs-specific theming work.
+
 ### Markdown Processing
 
 #### `processMarkdown(raw, config?, preExtracted?)`
@@ -419,6 +435,19 @@ For data collections, each entry has:
 ```
 
 ## `@pagesmith/site/vite`
+
+### `pagesmithContent(collections, options?)`
+
+`@pagesmith/site/vite` re-exports the content plugin so site consumers can keep both content and SSG Vite imports on one package:
+
+```ts title="vite.config.ts"
+import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
+import collections from './content.config'
+
+export default defineConfig({
+  plugins: [pagesmithContent(collections), pagesmithSsg({ entry: './src/entry-server.tsx' })],
+})
+```
 
 ### `pagesmithSsg(options)`
 
@@ -555,7 +584,7 @@ type Template = {
   description: string
   source: 'local' | 'github'
   path: string
-  dependency: '@pagesmith/core' | '@pagesmith/docs'
+  dependency: '@pagesmith/core' | '@pagesmith/site' | '@pagesmith/docs'
   scripts: Record<string, string>
 }
 ```
@@ -565,12 +594,12 @@ type Template = {
 | Name | Description | Package |
 |---|---|---|
 | `docs` | Documentation site with @pagesmith/docs | `@pagesmith/docs` |
-| `blog` | Blog with custom layouts using @pagesmith/core | `@pagesmith/core` |
-| `react` | React SSG site with react-router | `@pagesmith/core` |
-| `solid` | SolidJS SSG site | `@pagesmith/core` |
-| `svelte` | Svelte SSG site | `@pagesmith/core` |
-| `ejs` | Vanilla Node.js + EJS templates | `@pagesmith/core` |
-| `hbs` | Vanilla Node.js + Handlebars templates | `@pagesmith/core` |
+| `blog` | Blog with custom layouts using @pagesmith/site | `@pagesmith/site` |
+| `react` | React SSG site with react-router | `@pagesmith/site` |
+| `solid` | SolidJS SSG site | `@pagesmith/site` |
+| `svelte` | Svelte SSG site | `@pagesmith/site` |
+| `ejs` | Vanilla Node.js + EJS templates | `@pagesmith/site` |
+| `hbs` | Vanilla Node.js + Handlebars templates | `@pagesmith/site` |
 
 **Usage:**
 
@@ -617,7 +646,13 @@ AI assistant artifact installer for generating memory, skill, and llms files.
 |---|---|
 | `@pagesmith/docs` | Main barrel -- `build()`, `startDev()`, `preview()`, `defineDocsConfig()`, `loadDocsConfig()`, `resolveDocsConfig()`, `validateConfig()`, `reportConfigIssues()`, `withBase()`, navigation helpers, MCP, types |
 | `@pagesmith/docs/preset` | `docsPreset()` -- programmatic access to build/dev/preview |
+| `@pagesmith/docs/components` | Reusable docs chrome components for layout overrides |
+| `@pagesmith/docs/layouts` | Reusable docs layout helpers for custom themes |
+| `@pagesmith/docs/jsx-runtime` | JSX runtime for docs layout overrides |
+| `@pagesmith/docs/jsx-dev-runtime` | Dev JSX runtime for docs layout overrides |
 | `@pagesmith/docs/schemas` | Docs config Zod schemas |
+| `@pagesmith/docs/theme` | Stock docs theme exports |
+| `@pagesmith/docs/mcp` | Docs MCP server entry |
 
 ### Config resolution and validation
 
@@ -639,19 +674,39 @@ import { docsPreset } from '@pagesmith/docs/preset'
 const docs = docsPreset()
 
 // Build the docs site
-await docs.build('./pagesmith.config.json5')
+await docs.build({ configPath: './pagesmith.config.json5' })
 
 // Start dev server
-await docs.dev('./pagesmith.config.json5', { port: 3000 })
+await docs.dev({ configPath: './pagesmith.config.json5', port: 3000 })
 
 // Preview built output
-await docs.preview({ port: 4000, configPath: './pagesmith.config.json5' })
+await docs.preview({ configPath: './pagesmith.config.json5', port: 4000 })
 ```
 
 **Methods:**
 
 | Method | Signature | Description |
 |---|---|---|
-| `build` | `(configPath?: string) => Promise<void>` | Run a full production build |
-| `dev` | `(configPath?: string, options?: { port?: number }) => Promise<void>` | Start the dev server with live reload |
-| `preview` | `(options?: { port?: number; configPath?: string }) => Promise<void>` | Serve the built output for local verification |
+| `build` | `(options?: DocsBuildOptions) => Promise<void>` | Run a full production build |
+| `dev` | `(options?: DocsDevOptions) => Promise<void>` | Start the dev server with live reload |
+| `preview` | `(options?: DocsDevOptions) => Promise<void>` | Serve the built output for local verification |
+
+**DocsBuildOptions:**
+
+```ts
+type DocsBuildOptions = {
+  configPath?: string
+  outDir?: string
+  basePath?: string
+}
+```
+
+**DocsDevOptions** extends `DocsBuildOptions` with:
+
+```ts
+type DocsDevOptions = DocsBuildOptions & {
+  port?: number
+  open?: boolean
+  logLevel?: DocsLogLevel
+}
+```

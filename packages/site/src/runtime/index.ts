@@ -4,9 +4,10 @@
  * Provides pre-built CSS and JS paths for consumers who want
  * ready-to-use styling and interactivity for rendered content.
  *
- * Two tiers:
- * - "Runtime" (standalone): full site — reset, prose, layout, TOC
- * - "Content": just markdown rendering — reset, prose, viewport
+ * Three tiers:
+ * - "Standalone": full site — chrome, prose, code blocks
+ * - "Chrome": shared site chrome — header/sidebar/footer/TOC/theme
+ * - "Content": markdown rendering only — prose, code blocks
  *
  * Code block styling is included in the shipped CSS bundles. Load
  * `@pagesmith/site/runtime/content` (or the JS returned here) to
@@ -19,6 +20,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
 const ASSET_PATHS: Record<string, string> = {
+  'chrome.css': 'styles/chrome.css',
   'standalone.css': 'styles/standalone.css',
   'content.css': 'styles/content.css',
   'styles/viewport.css': 'styles/viewport.css',
@@ -36,18 +38,19 @@ function getPackageDir(): string {
 function readAsset(relPath: string): string {
   const pkgDir = getPackageDir()
   const mapped = ASSET_PATHS[relPath]
-  if (mapped) {
-    try {
-      return readFileSync(join(pkgDir, 'src', mapped), 'utf-8')
-    } catch {}
+  const candidates = [
+    ...(mapped ? [join(pkgDir, 'src', mapped)] : []),
+    join(pkgDir, 'dist', relPath),
+    join(pkgDir, 'src', relPath),
+  ]
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return readFileSync(candidate, 'utf-8')
+    }
   }
-  for (const dir of ['dist', 'src']) {
-    try {
-      return readFileSync(join(pkgDir, dir, relPath), 'utf-8')
-    } catch {}
-  }
-  console.warn(`[pagesmith] Asset not found: ${relPath}`)
-  return ''
+
+  throw new Error(`[pagesmith] Asset not found: ${relPath}`)
 }
 
 function stripSourceMapComment(source: string): string {
@@ -63,8 +66,7 @@ function readModuleSource(relPath: string): string {
 
   const srcPath = join(pkgDir, 'src', `${relPath}.ts`)
   if (!existsSync(srcPath)) {
-    console.warn(`[pagesmith] Runtime module not found: ${relPath}`)
-    return ''
+    throw new Error(`[pagesmith] Runtime module not found: ${relPath}`)
   }
 
   try {
@@ -79,15 +81,16 @@ function readModuleSource(relPath: string): string {
         reportDiagnostics: false,
       }).outputText,
     )
-  } catch {
-    console.warn(`[pagesmith] Runtime module not built and typescript is unavailable: ${relPath}`)
-    return ''
+  } catch (error) {
+    throw new Error(
+      `[pagesmith] Runtime module not built and typescript is unavailable: ${relPath}`,
+      { cause: error },
+    )
   }
 }
 
 function concatModuleSources(relPaths: string[], initStatements: string[]): string {
-  const chunks = relPaths.map((relPath) => readModuleSource(relPath)).filter(Boolean)
-  if (chunks.length === 0) return ''
+  const chunks = relPaths.map((relPath) => readModuleSource(relPath))
   return `${chunks.join('\n\n')}\n\n${initStatements.join('\n')}\n`
 }
 
@@ -105,14 +108,63 @@ function resolveAssetPath(relPath: string): string {
   return join(pkgDir, 'dist', relPath)
 }
 
+// Chrome (shared reusable site components)
+export function getChromeCSS(): string {
+  return readAsset('chrome.css')
+}
+export function getChromeJS(): string {
+  return concatModuleSources(
+    [
+      'runtime/footer-year',
+      'runtime/search-trigger',
+      'runtime/sidebar',
+      'runtime/skip-link',
+      'runtime/theme',
+      'runtime/toc-highlight',
+    ],
+    [
+      'initFooterCopyrightYear()',
+      'initSearchTriggerDensity()',
+      'initSidebarModal()',
+      'initSkipLinkFocus()',
+      'initTheme()',
+      'initTocHighlight()',
+    ],
+  )
+}
+export function getChromeCSSPath(): string {
+  return resolveAssetPath('chrome.css')
+}
+export function getChromeJSPath(): string {
+  return resolveAssetPath('runtime/chrome.mjs')
+}
+
 // Standalone (full site)
 export function getRuntimeCSS(): string {
   return readAsset('standalone.css')
 }
 export function getRuntimeJS(): string {
   return concatModuleSources(
-    ['runtime/code-blocks', 'runtime/code-tabs', 'runtime/toc-highlight', 'runtime/theme'],
-    ['initCodeBlocks()', 'initCodeTabs()', 'initTocHighlight()', 'initTheme()'],
+    [
+      'runtime/footer-year',
+      'runtime/search-trigger',
+      'runtime/sidebar',
+      'runtime/skip-link',
+      'runtime/theme',
+      'runtime/toc-highlight',
+      'runtime/code-blocks',
+      'runtime/code-tabs',
+    ],
+    [
+      'initFooterCopyrightYear()',
+      'initSearchTriggerDensity()',
+      'initSidebarModal()',
+      'initSkipLinkFocus()',
+      'initTheme()',
+      'initTocHighlight()',
+      'initCodeBlocks()',
+      'initCodeTabs()',
+    ],
   )
 }
 export function getRuntimeCSSPath(): string {

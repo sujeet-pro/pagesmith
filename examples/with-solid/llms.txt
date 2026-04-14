@@ -1,10 +1,10 @@
 # Pagesmith + Solid (examples/with-solid)
 
-Agent-oriented notes for this monorepo example only. Authoritative package docs live under `node_modules/@pagesmith/core/ai-guidelines/` after install.
+Agent-oriented notes for this monorepo example only. Start with `node_modules/@pagesmith/site/ai-guidelines/` after install, and drop to `node_modules/@pagesmith/core/REFERENCE.md` only when you intentionally need the lower-level contract details.
 
 ## What this example proves
 
-- **Collections**: `content.config.ts` defines `guide` and `pages` with Zod frontmatter schemas. `pagesmithContent({ collections })` validates markdown and exposes build-time virtual modules, and `guide/kitchen-sink.md` is the dedicated markdown regression page.
+- **Collections**: `content.config.ts` defines `guide` and `pages` with `@pagesmith/site` Zod frontmatter schemas. `pagesmithContent({ collections })` validates markdown and exposes build-time virtual modules, and `guide/kitchen-sink.md` is the dedicated markdown regression page.
 - **Virtual modules**: `src/entry-server.tsx` imports `virtual:content/guide|pages`. Each export is an array of `{ contentSlug, html, headings, frontmatter }` — already rendered HTML from the core markdown pipeline (not raw markdown at runtime).
 - **SSG contract**: `pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] })` expects the entry module to export `getRoutes()` and `render(url, config)`. Solid is used only inside `renderToString` during generation, not for hydration.
 - **Document shell**: `renderDocument()` in `entry-server.tsx` emits the outer `<html>` string (head meta, FOUC script, hashed CSS/JS paths, optional Pagefind Component UI tags, sidebar dialog, deferred client script). Inner chrome (`SiteHeader`, `PageBody`, etc.) is Solid JSX rendered to strings and injected as `bodyHtml`.
@@ -29,4 +29,4 @@ Agent-oriented notes for this monorepo example only. Authoritative package docs 
 ## Do not assume
 
 - Do not treat this example’s `src/pagesmith-content.d.ts` as hand-authored; it is generated for editor types.
-- Do not assume Pagefind works in dev without aligning with `@pagesmith/core` dev behavior (`searchEnabled: false` in the SSG dev middleware).
+- Do not assume Pagefind works in dev without aligning with `@pagesmith/site` dev behavior (`searchEnabled: false` in the SSG dev middleware).

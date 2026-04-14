@@ -23,10 +23,14 @@ import { fileURLToPath, pathToFileURL } from 'url'
 import type { ResolvedConfig } from 'vite'
 import {
   type ContentAssetMap,
+  CONVERTIBLE_IMAGE_EXTS,
+  emitGeneratedImageVariants,
   collectContentAssets,
   CONTENT_ASSET_EXTS,
   copyPublicFiles,
-} from '@pagesmith/core/assets'
+  getGeneratedImageVariantPath,
+  resolveGeneratedImageSourceAssetPath,
+} from '../assets/index.js'
 import type { SsgRenderConfig } from './ssg-plugin'
 
 export const MIME: Record<string, string> = {
@@ -57,14 +61,196 @@ export function resolveContentDirs(projectRoot: string, contentDirs: string[] = 
   return contentDirs.map((dir) => resolve(projectRoot, dir))
 }
 
+function splitRef(ref: string): { pathname: string; suffix: string } {
+  const pathname = ref.split(/[?#]/u, 1)[0] ?? ref
+  return { pathname, suffix: ref.slice(pathname.length) }
+}
+
+function isRelativeRef(ref: string): boolean {
+  const { pathname } = splitRef(ref)
+  if (!pathname) return false
+  if (pathname.startsWith('/') || pathname.startsWith('//')) return false
+  return !/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(pathname)
+}
+
 function isAssetReference(ref: string): boolean {
-  if (!ref.startsWith('./')) return false
-  const path = ref.split(/[?#]/u, 1)[0] ?? ref
-  return CONTENT_ASSET_EXTS.has(extname(path).toLowerCase())
+  if (!isRelativeRef(ref)) return false
+  const { pathname } = splitRef(ref)
+  return CONTENT_ASSET_EXTS.has(extname(pathname).toLowerCase())
+}
+
+function normalizePath(value: string): string {
+  return value.replace(/\\/g, '/')
+}
+
+function findPublishedAssetPath(assetMap: ContentAssetMap, assetPath: string): string | undefined {
+  const normalizedPath = normalizePath(assetPath)
+
+  if (assetMap.byPath.has(normalizedPath)) return normalizedPath
+  if (assetMap.byPath.has(assetPath)) return normalizePath(assetPath)
+
+  for (const key of assetMap.byPath.keys()) {
+    if (normalizePath(key) === normalizedPath) return normalizedPath
+  }
+
+  return undefined
+}
+
+function normalizeAssetCandidates(candidates: string[]): string[] {
+  return Array.from(new Set(candidates.map((candidate) => normalizePath(candidate)))).sort((a, b) =>
+    a.localeCompare(b),
+  )
+}
+
+function normalizeRouteHint(routeHint?: string): string {
+  return normalizePath(routeHint ?? '')
+    .replace(/^\//, '')
+    .replace(/\/$/, '')
+}
+
+function getRouteDir(routeHint?: string): string {
+  const normalized = normalizeRouteHint(routeHint)
+  if (!normalized) return ''
+  const segments = normalized.split('/')
+  segments.pop()
+  return segments.join('/')
+}
+
+function resolveRelativeAssetPath(pathname: string, baseDir = ''): string {
+  const rawSegments = normalizePath(pathname.replace(/^\.\//, '')).split('/')
+  const resolvedSegments = normalizePath(baseDir).split('/').filter(Boolean)
+
+  for (const segment of rawSegments) {
+    if (!segment || segment === '.') continue
+    if (segment === '..') {
+      resolvedSegments.pop()
+      continue
+    }
+    resolvedSegments.push(segment)
+  }
+
+  return resolvedSegments.join('/')
+}
+
+function resolveAssetPathByBasename(
+  assetBasename: string,
+  assetMap: ContentAssetMap,
+  routeHint?: string,
+): string | undefined {
+  const candidates = assetMap.byBasename.get(assetBasename)
+  if (candidates?.length === 1) return normalizePath(candidates[0])
+  if (!candidates || candidates.length === 0) return undefined
+
+  const normalizedCandidates = normalizeAssetCandidates(candidates)
+
+  const exactRoute = normalizeRouteHint(routeHint)
+  if (exactRoute) {
+    const exactMatch = normalizedCandidates.find((candidate) =>
+      candidate.startsWith(`${exactRoute}/`),
+    )
+    if (exactMatch) return exactMatch
+  }
+
+  const routeDir = getRouteDir(routeHint)
+  if (routeDir) {
+    const dirMatch = normalizedCandidates.find((candidate) => candidate.startsWith(`${routeDir}/`))
+    if (dirMatch) return dirMatch
+  }
+
+  return normalizedCandidates[0]
+}
+
+function resolveGeneratedAssetPathByBasename(
+  requestedAssetPath: string,
+  assetMap: ContentAssetMap,
+  routeHint?: string,
+): string | undefined {
+  const requestedExt = extname(requestedAssetPath).toLowerCase()
+  if (requestedExt !== '.avif' && requestedExt !== '.webp') return undefined
+
+  const basenameWithoutExt = (requestedAssetPath.split('/').pop() ?? requestedAssetPath).slice(
+    0,
+    -requestedExt.length,
+  )
+
+  for (const sourceExt of CONVERTIBLE_IMAGE_EXTS) {
+    const sourceBasename = `${basenameWithoutExt}${sourceExt}`
+    const sourceAssetPath = resolveAssetPathByBasename(sourceBasename, assetMap, routeHint)
+    if (sourceAssetPath) {
+      return getGeneratedImageVariantPath(sourceAssetPath, requestedExt.slice(1) as 'avif' | 'webp')
+    }
+  }
+
+  return undefined
+}
+
+function resolvePublishedAssetPathname(
+  pathname: string,
+  assetMap?: ContentAssetMap,
+  routeHint?: string,
+): string {
+  const routeDir = getRouteDir(routeHint)
+  const exactRoute = normalizeRouteHint(routeHint)
+  const candidatePaths = Array.from(
+    new Set([
+      resolveRelativeAssetPath(pathname, routeDir),
+      resolveRelativeAssetPath(pathname, exactRoute),
+    ]),
+  )
+
+  if (!assetMap) return candidatePaths[0] ?? resolveRelativeAssetPath(pathname)
+
+  for (const requestedAssetPath of candidatePaths) {
+    const publishedPath = findPublishedAssetPath(assetMap, requestedAssetPath)
+    if (publishedPath) {
+      return publishedPath
+    }
+    if (resolveGeneratedImageSourceAssetPath(requestedAssetPath, assetMap)) {
+      return requestedAssetPath
+    }
+  }
+
+  const generatedFallback = resolveGeneratedAssetPathByBasename(
+    candidatePaths[0] ?? pathname,
+    assetMap,
+    routeHint,
+  )
+  if (generatedFallback) {
+    return generatedFallback
+  }
+
+  const basenameFallback = resolveAssetPathByBasename(
+    pathname.split('/').pop() ?? pathname,
+    assetMap,
+    routeHint,
+  )
+  return basenameFallback ?? candidatePaths[0] ?? pathname
+}
+
+function rewriteSrcsetAttribute(
+  srcset: string,
+  basePrefix: string,
+  assetMap?: ContentAssetMap,
+  routeHint?: string,
+): string {
+  return srcset
+    .split(',')
+    .map((entry) => {
+      const trimmed = entry.trim()
+      if (!trimmed) return trimmed
+
+      const [rawUrl, ...descriptor] = trimmed.split(/\s+/)
+      if (!isAssetReference(rawUrl)) return trimmed
+
+      const { pathname, suffix } = splitRef(rawUrl)
+      const resolvedPath = resolvePublishedAssetPathname(pathname, assetMap, routeHint)
+      return [`${basePrefix}/assets/${resolvedPath}${suffix}`, ...descriptor].join(' ')
+    })
+    .join(', ')
 }
 
 /**
- * Rewrite `./`-prefixed asset references in rendered HTML to absolute
+ * Rewrite relative content asset references in rendered HTML to absolute
  * `/assets/` paths. When an `assetMap` is provided, uses directory-preserving
  * paths to avoid basename collisions. The optional `routeHint` disambiguates
  * when multiple assets share the same basename by matching the route path
@@ -82,32 +268,39 @@ export function rewriteContentAssetRefs(
     /(src|href|srcset)=(?:"([^"]+)"|'([^']+)')/g,
     (match, attr: string, doubleRef: string | undefined, singleRef: string | undefined) => {
       const ref = doubleRef ?? singleRef ?? ''
-      if (!isAssetReference(ref)) return match
-      const pathname = ref.split(/[?#]/u, 1)[0] ?? ref
-      const suffix = ref.slice(pathname.length)
       const quote = doubleRef !== undefined ? '"' : "'"
-      const assetBasename = pathname.split('/').pop() ?? pathname
-
-      let resolvedPath = assetBasename
-      if (assetMap) {
-        const candidates = assetMap.byBasename.get(assetBasename)
-        if (candidates?.length === 1) {
-          resolvedPath = candidates[0]
-        } else if (candidates && candidates.length > 1) {
-          const routeDir = routeHint?.replace(/^\//, '').replace(/\/$/, '') ?? ''
-          const contextMatch = routeDir
-            ? candidates.find((c) => c.startsWith(routeDir + '/'))
-            : undefined
-          resolvedPath = contextMatch ?? candidates[0]
-        }
+      if (attr === 'srcset') {
+        const rewrittenSrcset = rewriteSrcsetAttribute(ref, basePrefix, assetMap, routeHint)
+        return rewrittenSrcset === ref ? match : `${attr}=${quote}${rewrittenSrcset}${quote}`
       }
+      if (!isAssetReference(ref)) return match
+
+      const { pathname, suffix } = splitRef(ref)
+      const resolvedPath = resolvePublishedAssetPathname(pathname, assetMap, routeHint)
 
       return `${attr}=${quote}${basePrefix}/assets/${resolvedPath}${suffix}${quote}`
     },
   )
 }
 
-function copyContentAssetsToOutDir(outDir: string, assets: ContentAssetMap): void {
+function collectTagAttributeValues(
+  html: string,
+  tagName: string,
+  attributeName: string,
+  extension: string,
+): string[] {
+  const escapedTagName = tagName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const escapedAttributeName = attributeName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const escapedExtension = extension.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const pattern = new RegExp(
+    `<${escapedTagName}\\b[^>]*\\b${escapedAttributeName}=(["'])([^"'<>]+${escapedExtension}(?:[?#][^"'<>]*)?)\\1[^>]*>`,
+    'gi',
+  )
+
+  return Array.from(html.matchAll(pattern), (match) => match[2])
+}
+
+async function copyContentAssetsToOutDir(outDir: string, assets: ContentAssetMap): Promise<void> {
   if (assets.byPath.size === 0) return
 
   for (const [relPath, sourcePath] of assets.byPath) {
@@ -115,6 +308,8 @@ function copyContentAssetsToOutDir(outDir: string, assets: ContentAssetMap): voi
     mkdirSync(dirname(destPath), { recursive: true })
     copyFileSync(sourcePath, destPath)
   }
+
+  await emitGeneratedImageVariants(join(outDir, 'assets'), assets)
 }
 
 function copyConventionTextFiles(projectRoot: string, outDir: string): void {
@@ -219,7 +414,7 @@ export async function renderStaticSite(context: SsgBuildContext): Promise<number
   const workers = Array.from({ length: concurrency }, () => renderWorker())
   await Promise.all(workers)
 
-  copyContentAssetsToOutDir(outDir, contentAssets)
+  await copyContentAssetsToOutDir(outDir, contentAssets)
 
   // Cleanup SSR build
   rmSync(serverDir, { recursive: true, force: true })
@@ -240,7 +435,7 @@ function copyFontAssets(outDir: string): void {
   copyFileSync(join(sitePkgDir, 'assets', 'fonts.css'), join(outDir, 'assets', 'fonts.css'))
 }
 
-function discoverBuiltAssets(
+export function discoverBuiltAssets(
   outDir: string,
   base: string,
 ): { cssPath: string; jsPath: string | undefined } {
@@ -249,10 +444,10 @@ function discoverBuiltAssets(
   let jsPath: string | undefined
   if (existsSync(builtIndex)) {
     const html = readFileSync(builtIndex, 'utf-8')
-    const cssMatch = html.match(/href="([^"]*\.css)"/)
-    const jsMatch = html.match(/src="([^"]*\.js)"/)
-    if (cssMatch) cssPath = cssMatch[1]
-    if (jsMatch) jsPath = jsMatch[1]
+    const cssMatches = collectTagAttributeValues(html, 'link', 'href', '.css')
+    const jsMatches = collectTagAttributeValues(html, 'script', 'src', '.js')
+    if (cssMatches[0]) cssPath = cssMatches[0]
+    if (jsMatches[0]) jsPath = jsMatches[0]
   }
   return { cssPath, jsPath }
 }

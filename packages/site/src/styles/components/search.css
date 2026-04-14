@@ -1,0 +1,68 @@
+/* ═══════════════════════════════════════════════════════════════
+   Search — Pagefind Component UI theming + trigger positioning
+   ═══════════════════════════════════════════════════════════════ */
+
+pagefind-modal-trigger,
+pagefind-modal {
+  color-scheme: inherit;
+  --pf-font: var(--font-sans);
+  --pf-text: #111110;
+  --pf-text-secondary: #333330;
+  --pf-text-muted: #7a7a72;
+  --pf-background: #f5f4f0;
+  --pf-border: #e0dfd9;
+  --pf-border-focus: #c0bfb9;
+  --pf-hover: #e8e7e2;
+  --pf-mark: #111110;
+  --pf-skeleton: #e8e7e2;
+  --pf-skeleton-shine: #f5f4f0;
+  --pf-scroll-shadow: rgba(0, 0, 0, 0.06);
+  --pf-border-radius: var(--radius-md);
+  --pf-outline-focus: #1a1a18;
+  --pf-modal-backdrop: rgba(0, 0, 0, 0.3);
+  --pf-modal-max-width: 640px;
+  --pf-shadow-lg: 0 20px 48px rgba(15, 23, 42, 0.18);
+  --pf-input-height: 40px;
+  --pf-input-font-size: 16px;
+  --pf-result-title-font-size: var(--font-size-base);
+  --pf-result-excerpt-font-size: var(--font-size-sm);
+  --pf-summary-font-size: var(--font-size-sm);
+}
+
+.color-scheme-dark pagefind-modal-trigger,
+.color-scheme-dark pagefind-modal {
+  --pf-text: #f5f4f0;
+  --pf-text-secondary: #ccccca;
+  --pf-text-muted: #888882;
+  --pf-background: #111110;
+  --pf-border: #222220;
+  --pf-border-focus: #3a3a38;
+  --pf-hover: #252524;
+  --pf-mark: #f5f4f0;
+  --pf-skeleton: #252524;
+  --pf-skeleton-shine: #1e1e1c;
+  --pf-outline-focus: #e8e7e2;
+  --pf-modal-backdrop: rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  .color-scheme-auto pagefind-modal-trigger,
+  .color-scheme-auto pagefind-modal {
+    --pf-text: #f5f4f0;
+    --pf-text-secondary: #ccccca;
+    --pf-text-muted: #888882;
+    --pf-background: #111110;
+    --pf-border: #222220;
+    --pf-border-focus: #3a3a38;
+    --pf-hover: #252524;
+    --pf-mark: #f5f4f0;
+    --pf-skeleton: #252524;
+    --pf-skeleton-shine: #1e1e1c;
+    --pf-outline-focus: #e8e7e2;
+    --pf-modal-backdrop: rgba(0, 0, 0, 0.5);
+  }
+}
+
+pagefind-modal-trigger.doc-search-trigger {
+  flex-shrink: 0;
+}

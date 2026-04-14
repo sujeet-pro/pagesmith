@@ -36,7 +36,7 @@ export type Template = {
   description: string
   source: 'local' | 'github'
   path: string
-  dependency: '@pagesmith/core' | '@pagesmith/docs'
+  dependency: '@pagesmith/core' | '@pagesmith/site' | '@pagesmith/docs'
   scripts: Record<string, string>
 }
 
@@ -55,10 +55,10 @@ export const templates: Template[] = [
   },
   {
     name: 'blog',
-    description: 'Blog with custom layouts using @pagesmith/core',
+    description: 'Blog with custom layouts using @pagesmith/site',
     source: 'github',
     path: 'examples/blog-site',
-    dependency: '@pagesmith/core',
+    dependency: '@pagesmith/site',
     scripts: { dev: 'vp dev', build: 'vp build', check: 'vp check' },
   },
   {
@@ -66,7 +66,7 @@ export const templates: Template[] = [
     description: 'React SSG site with react-router',
     source: 'github',
     path: 'examples/with-react',
-    dependency: '@pagesmith/core',
+    dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
       build: 'vp build',
@@ -79,7 +79,7 @@ export const templates: Template[] = [
     description: 'SolidJS SSG site',
     source: 'github',
     path: 'examples/with-solid',
-    dependency: '@pagesmith/core',
+    dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
       build: 'vp build',
@@ -92,7 +92,7 @@ export const templates: Template[] = [
     description: 'Svelte SSG site',
     source: 'github',
     path: 'examples/with-svelte',
-    dependency: '@pagesmith/core',
+    dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
       build: 'vp build',
@@ -105,7 +105,7 @@ export const templates: Template[] = [
     description: 'Vanilla Node.js + EJS templates',
     source: 'github',
     path: 'examples/with-vanilla-ejs',
-    dependency: '@pagesmith/core',
+    dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
       build: 'vp build',
@@ -117,7 +117,7 @@ export const templates: Template[] = [
     description: 'Vanilla Node.js + Handlebars templates',
     source: 'github',
     path: 'examples/with-vanilla-hbs',
-    dependency: '@pagesmith/core',
+    dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
       build: 'vp build',

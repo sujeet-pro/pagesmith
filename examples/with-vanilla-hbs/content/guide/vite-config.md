@@ -11,13 +11,13 @@ seriesOrder: 2
 
 # Vite Configuration
 
-Vite is the only build driver: `vite dev` for local preview and `vite build` for static output. Pagesmith supplies Vite plugins from `@pagesmith/core/vite`; there is no separate Node CLI step for HTML in this example.
+Vite is the only build driver: `vite dev` for local preview and `vite build` for static output. Pagesmith supplies Vite plugins from `@pagesmith/site/vite`; there is no separate Node CLI step for HTML in this example.
 
 ## Full config
 
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite-plus'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/vanilla-hbs',
@@ -47,7 +47,7 @@ export default defineConfig({
 
 ### `sharedAssetsPlugin()`
 
-Copies assets such as fonts shipped with `@pagesmith/core` so CSS `url()` references resolve in the built folder.
+Copies assets such as fonts shipped with `@pagesmith/site` so CSS `url()` references resolve in the built folder.
 
 ### `pagesmithSsg({ entry, contentDirs })`
 

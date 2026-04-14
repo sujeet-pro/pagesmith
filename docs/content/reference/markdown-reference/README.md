@@ -92,7 +92,7 @@ Five alert types are available using blockquote syntax. This is the same format 
 
 ## Math
 
-LaTeX math is processed by `remark-math` (parsing) and `rehype-mathjax` (SVG rendering). MathJax runs before the built-in code renderer so math blocks are not mistakenly treated as code.
+LaTeX math is processed by `remark-math` (parsing) and `rehype-mathjax` (SVG rendering). `remark-math` only runs when `markdown.math` is `true` or when the default `'auto'` mode detects math markers in the page. MathJax runs before the built-in code renderer so math blocks are not mistakenly treated as code.
 
 ### Inline Math
 
@@ -220,7 +220,7 @@ Mark, insert, or delete lines to draw attention:
 ````markdown
 ```ts mark={2-3}
 const name = 'Pagesmith'
-const version = '0.1.0'
+const version = '0.8.0'
 const highlighted = true
 ```
 
@@ -250,8 +250,7 @@ Hide boilerplate that readers can expand on click:
 ````markdown
 ```ts collapse={1-5}
 import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
 import collections from './content.config'
 import path from 'node:path'
 export default defineConfig({
@@ -266,7 +265,7 @@ Enable word wrapping for long lines:
 
 ````markdown
 ```json wrap
-{"name": "@pagesmith/core", "description": "A very long description that would overflow", "version": "0.1.0"}
+{"name": "@pagesmith/core", "description": "A very long description that would overflow", "version": "0.8.0"}
 ```
 ````
 
@@ -473,8 +472,8 @@ Tuple form `[plugin, options]` is supported for both remark and rehype.
 
 **Injection points:**
 
-- **Remark plugins** run after the built-in remark plugins (GFM, math, frontmatter, alerts, smartypants) but before `remark-rehype`.
-- **Rehype plugins** run after all built-in rehype plugins (built-in code renderer, code tabs, slug, autolink, external links, emojis, heading extraction) but before `rehype-stringify`.
+- **Remark plugins** run after the built-in remark plugins (GFM, frontmatter, alerts, smartypants, and conditional math) but before `remark-rehype`.
+- **Rehype plugins** run after the built-in rehype plugins (built-in code renderer, code tabs, scrollable tables, slug, autolink, external links, emojis, local images) and after the separate heading-extraction pass, but before `rehype-stringify`.
 
 Content plugins (`ContentPlugin.remarkPlugin` / `ContentPlugin.rehypePlugin`) are appended after the config-level plugins.
 
@@ -487,20 +486,22 @@ The full unified pipeline, in execution order:
 ```text
 remark-parse              Parse markdown to MDAST
 remark-gfm                Tables, strikethrough, task lists, autolinks, footnotes
-remark-math               Math syntax ($...$, $$...$$)
 remark-frontmatter        Strip YAML frontmatter from AST
 remark-github-alerts      > [!NOTE], > [!TIP], etc.
 remark-smartypants        Smart quotes, dashes, ellipses
+remark-math               Math syntax ($...$, $$...$$) when enabled or auto-detected
 [user remark plugins]     From MarkdownConfig.remarkPlugins
 lang-alias transform      Map fenced-code language tags via shiki.langAlias
 remark-rehype             Markdown AST → HTML AST
 rehype-mathjax            Render math to SVG (before the built-in code renderer)
 applyPagesmithCodeRenderer Syntax highlighting, code frames, copy button
 rehype-code-tabs          Group consecutive titled blocks into tabs
+rehype-scrollable-tables  Wrap markdown tables for horizontal scrolling
 rehype-slug               Add id="" to headings
 rehype-autolink-headings  Wrap heading text in anchor links
 rehype-external-links     target="_blank" on external URLs
 rehype-accessible-emojis  aria-label on emoji characters
+rehype-local-images       Fill intrinsic image dimensions and JPEG picture fallbacks
 heading extraction        Collect headings for TOC data
 [user rehype plugins]     From MarkdownConfig.rehypePlugins
 rehype-stringify          HTML AST → HTML string

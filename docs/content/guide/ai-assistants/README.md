@@ -44,6 +44,8 @@ npx pagesmith-core ai --profile default
 
 This installs assistant memory files, package-aware skills/commands, `.pagesmith/markdown-guidelines.md`, and `llms.txt` / `llms-full.txt` without scaffolding a docs site.
 
+If a repo stays on `@pagesmith/site` only and does not install `@pagesmith/core` directly, you can rely on the package-owned prompts and references under `node_modules/@pagesmith/site/ai-guidelines/` instead of adding core only for AI artifact generation.
+
 ### Docs projects
 
 ```bash

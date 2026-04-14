@@ -3,26 +3,26 @@
   "diagrams": {
     "ai-artifact-install-flow.mermaid": {
       "hash": "sha256:74855214ab8bd529",
-      "generatedAt": "2026-04-13T21:19:22.972Z",
+      "generatedAt": "2026-04-14T20:54:41.395Z",
       "outputs": [
         {
           "file": "ai-artifact-install-flow-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 565.4453125,
+          "width": 515.890625,
           "height": 477.8125
         },
         {
           "file": "ai-artifact-install-flow-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 565.4453125,
+          "width": 515.890625,
           "height": 477.8125
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776114742806.359,
+      "mtimeMs": 1776185059154.4065,
       "size": 432
     }
   }

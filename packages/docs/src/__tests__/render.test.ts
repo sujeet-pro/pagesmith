@@ -306,6 +306,11 @@ Pick a topic below.`,
     mkdirSync(join(rootDir, 'theme'), { recursive: true })
     mkdirSync(join(rootDir, 'node_modules', '@pagesmith'), { recursive: true })
     symlinkSync(
+      join(process.cwd(), 'packages', 'docs'),
+      join(rootDir, 'node_modules', '@pagesmith', 'docs'),
+      'dir',
+    )
+    symlinkSync(
       join(process.cwd(), 'packages', 'site'),
       join(rootDir, 'node_modules', '@pagesmith', 'site'),
       'dir',
@@ -339,9 +344,9 @@ Pick a topic below.`,
     writeFileSync(
       join(rootDir, 'theme', 'CustomListing.tsx'),
       [
-        '/** @jsxImportSource @pagesmith/site */',
+        '/** @jsxImportSource @pagesmith/docs */',
         '',
-        "import { h } from '@pagesmith/site/jsx-runtime'",
+        "import { h } from '@pagesmith/docs/jsx-runtime'",
         '',
         'export default function CustomListing(props: any) {',
         '  return (',

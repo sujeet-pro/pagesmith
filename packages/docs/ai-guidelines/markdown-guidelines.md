@@ -10,12 +10,12 @@ Supported markdown and HTML authoring rules for `@pagesmith/docs`. This file cov
 remark-parse → remark-gfm → remark-frontmatter
   → remark-github-alerts → remark-smartypants
   → remark-math (when `markdown.math` is `true` or `'auto'` detects math markers)
-  → lang-alias transform → remark-rehype
+  → [custom remark plugins in lower-level integrations] → lang-alias transform → remark-rehype
   → rehype-mathjax (when math is enabled, before the built-in code renderer)
   → applyPagesmithCodeRenderer (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
   → rehype-code-tabs → rehype-scrollable-tables
   → rehype-slug → rehype-autolink-headings
-  → rehype-external-links → rehype-accessible-emojis
+  → rehype-external-links → rehype-accessible-emojis → rehype-local-images
   → heading extraction → docs link/asset transforms → rehype-stringify
 ```
 
@@ -148,6 +148,14 @@ Great job! <span role="img" aria-label="party popper">🎉</span>
 
 The `role="img"` and `aria-label` attributes ensure screen readers announce the emoji's meaning.
 
+## Local Images (rehype-local-images)
+
+Stock `@pagesmith/docs` automatically provides the source path that `rehype-local-images` needs, so relative local images inherit intrinsic dimensions during render. Relative JPEG images can also render as a `<picture>` with AVIF and WebP fallbacks before the docs asset pass rewrites the published URLs under `/assets/...`. Resolution stays inside the configured docs `contentDir`.
+
+```md
+![Hero](./hero.jpg)
+```
+
 ## Heading Links (rehype-slug + rehype-autolink-headings)
 
 All headings automatically receive:
@@ -184,7 +192,7 @@ Rendered HTML:
 Stock `@pagesmith/docs` adds a docs-specific rewrite pass after heading extraction:
 
 - Relative markdown links between pages are rewritten to site-relative routes under `basePath`.
-- Relative image refs in markdown or raw HTML publish under `/assets/<content-relative-path>`, so sibling assets keep their folder structure instead of flattening to basenames.
+- Relative image refs in markdown or raw HTML keep the intrinsic dimensions from the shared local-image pass, then publish under `/assets/<content-relative-path>`, so sibling assets keep their folder structure instead of flattening to basenames.
 - Relative HTML asset refs for `<img>`, `<source srcset>`, and `<a href="./image.svg">` follow the same published asset path rules.
 - Markdown images ending in `.inline.svg` inline the SVG into the HTML only when the file stays inside the current page directory subtree. Otherwise they fall back to a normal published asset URL.
 - Image file names containing `.invert.` receive an `invert-on-dark` class for dark-theme inversion.

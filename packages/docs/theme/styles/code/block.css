@@ -109,15 +109,14 @@
 .ps-code-copy {
   flex: 0 0 auto;
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid color-mix(in srgb, var(--ps-code-fg) 16%, transparent);
-  border-radius: 999px;
+  border-radius: 0.375rem;
   background: color-mix(in srgb, var(--ps-code-bg) 76%, Canvas 24%);
   color: inherit;
-  padding: 0.35rem 0.75rem;
-  font-family: var(--ps-font-sans, var(--font-sans, system-ui, sans-serif));
-  font-size: var(--ps-font-size-xs, 0.75rem);
-  font-weight: 600;
-  line-height: 1;
+  padding: 0.3rem;
   cursor: pointer;
   transition:
     background-color var(--transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
@@ -126,6 +125,25 @@
 
 .ps-code-copy:hover {
   background: color-mix(in srgb, var(--ps-code-bg) 62%, Canvas 38%);
+}
+
+.ps-code-copy-icon {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+}
+
+.ps-code-copy-icon--copied {
+  display: none;
+}
+
+.ps-code-copy[data-copy-state='copied'] .ps-code-copy-icon:not(.ps-code-copy-icon--copied) {
+  display: none;
+}
+
+.ps-code-copy[data-copy-state='copied'] .ps-code-copy-icon--copied {
+  display: block;
+  color: #10b981;
 }
 
 .ps-code-copy[data-copy-state='copied'] {

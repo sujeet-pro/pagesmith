@@ -5,14 +5,15 @@ flowchart TB
         routes["Routes layouts metadata<br/>static export shell"]
     end
 
-    subgraph core["@pagesmith/core"]
-        layer["createContentLayer()<br/>collections + schemas"]
+    subgraph site["@pagesmith/site app-facing package"]
+        layer["createContentLayer()<br/>defineCollection() + defineConfig()"]
         render["entry.render()<br/>HTML headings readTime"]
-    end
-
-    subgraph site["@pagesmith/site optional"]
         css["@pagesmith/site/css/content"]
         runtime["@pagesmith/site/runtime/content"]
+    end
+
+    subgraph core["@pagesmith/core implementation"]
+        engine["Collections markdown validation"]
     end
 
     routes --> layer
@@ -20,3 +21,5 @@ flowchart TB
     render --> routes
     css --> routes
     runtime --> routes
+    engine -. powers .-> layer
+    engine -. powers .-> render

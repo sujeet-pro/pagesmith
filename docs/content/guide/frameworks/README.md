@@ -7,13 +7,13 @@ description: Overview of the Pagesmith framework integration matrix and how each
 
 > [!TIP] AI Quick Start
 > Ask your AI agent:
-> - "Integrate Pagesmith into my Vite app. I'm using [React/Solid/Svelte] -- set up `pagesmithContent` from `@pagesmith/core/vite` and `pagesmithSsg` from `@pagesmith/site/vite` with an SSR entry."
-> - "Integrate Pagesmith into my Next.js App Router project. Keep collections and markdown rendering on `@pagesmith/core` with `createContentLayer()` and `entry.render()`. If I want the shipped prose/code-block UI, import `@pagesmith/site/css/content` and mount `@pagesmith/site/runtime/content` once."
+> - "Integrate Pagesmith into my Vite app. I'm using [React/Solid/Svelte] -- set up `pagesmithContent` and `pagesmithSsg` from `@pagesmith/site/vite` with an SSR entry."
+> - "Integrate Pagesmith into my Next.js App Router project. Keep Next.js in charge of routing and export, but use `@pagesmith/site` as the app-facing Pagesmith package for `defineCollection()`, `createContentLayer()`, and `entry.render()`. If I want the shipped prose/code-block UI, import `@pagesmith/site/css/content` and mount `@pagesmith/site/runtime/content` once."
 > Then read on to understand what happened and customize further.
 
 Pagesmith's content layer is framework-agnostic. Define collections once in `content.config.ts`, then consume entries through virtual imports or the programmatic content-layer API in any rendering stack.
 
-Read this diagram left to right: every integration starts from `@pagesmith/core`, Vite and custom-site paths usually add `@pagesmith/site`, and `@pagesmith/docs` is the convention-based path when you want a docs site with built-in navigation, search, and theme.
+Read this diagram left to right: headless integrations can stay on `@pagesmith/core`, Vite and custom-site paths usually live on `@pagesmith/site`, and `@pagesmith/docs` is the convention-based path when you want a docs site with built-in navigation, search, and theme.
 
 <figure>
   <img src="./diagrams/framework-integration-patterns-light.svg" class="only-light" alt="Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites">
@@ -28,7 +28,7 @@ Read this diagram left to right: every integration starts from `@pagesmith/core`
 Used by the **React**, **Solid**, and **Svelte** integrations. You define collections in `content.config.ts` and the `pagesmithContent` Vite plugin exposes them as `virtual:content/*` modules with pre-rendered HTML:
 
 ```ts
-import blogCollection from 'virtual:content/blog'
+import guideCollection from 'virtual:content/guide'
 ```
 
 ### Programmatic Content Layer (createContentLayer)
@@ -63,14 +63,14 @@ The repo includes a full example matrix. Each example is self-contained with its
 
 | Example | Package | Renderer | Content Access | Demo |
 |---|---|---|---|---|
-| [React](/guide/framework-vite-apps#react) | `@pagesmith/core` + `@pagesmith/site` | `react-dom/server` | `virtual:content/*` | <a href="/pagesmith/examples/react" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Solid](/guide/framework-vite-apps#solidjs) | `@pagesmith/core` + `@pagesmith/site` | `solid-js/web` | `virtual:content/*` | <a href="/pagesmith/examples/solid" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Svelte](/guide/framework-vite-apps#svelte) | `@pagesmith/core` + `@pagesmith/site` | `svelte/server` | `virtual:content/*` | <a href="/pagesmith/examples/svelte" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Next.js](/guide/framework-nextjs) | `@pagesmith/core` + optional `@pagesmith/site` | Next.js App Router | `createContentLayer` | <a href="/pagesmith/examples/nextjs" target="_blank" rel="noopener noreferrer">Live</a> |
-| [EJS](/guide/framework-template-engines#ejs) | `@pagesmith/core` + `@pagesmith/site` | EJS templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-ejs" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Handlebars](/guide/framework-template-engines#handlebars) | `@pagesmith/core` + `@pagesmith/site` | Handlebars templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-hbs" target="_blank" rel="noopener noreferrer">Live</a> |
+| [React](/guide/framework-vite-apps#react) | `@pagesmith/site` | `react-dom/server` | `virtual:content/*` | <a href="/pagesmith/examples/react" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Solid](/guide/framework-vite-apps#solidjs) | `@pagesmith/site` | `solid-js/web` | `virtual:content/*` | <a href="/pagesmith/examples/solid" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Svelte](/guide/framework-vite-apps#svelte) | `@pagesmith/site` | `svelte/server` | `virtual:content/*` | <a href="/pagesmith/examples/svelte" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Next.js](/guide/framework-nextjs) | `@pagesmith/site` | Next.js App Router | `createContentLayer` | <a href="/pagesmith/examples/nextjs" target="_blank" rel="noopener noreferrer">Live</a> |
+| [EJS](/guide/framework-template-engines#ejs) | `@pagesmith/site` | EJS templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-ejs" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Handlebars](/guide/framework-template-engines#handlebars) | `@pagesmith/site` | Handlebars templates | `createContentLayer` | <a href="/pagesmith/examples/vanilla-hbs" target="_blank" rel="noopener noreferrer">Live</a> |
 | [Doc Site](/guide/framework-doc-site) | `@pagesmith/docs` | Docs theme | Convention-based | <a href="/pagesmith/examples/doc-site" target="_blank" rel="noopener noreferrer">Live</a> |
-| [Blog Site](/guide/framework-blog-site) | `@pagesmith/core` + `@pagesmith/site` | Custom JSX layouts | Filesystem + core markdown pipeline | <a href="/pagesmith/examples/blog-site" target="_blank" rel="noopener noreferrer">Live</a> |
+| [Blog Site](/guide/framework-blog-site) | `@pagesmith/site` | Custom JSX layouts | Filesystem + site re-exported content layer | <a href="/pagesmith/examples/blog-site" target="_blank" rel="noopener noreferrer">Live</a> |
 
 ## Vite Plugins and Shared Presentation Layer
 
@@ -125,7 +125,7 @@ All examples can use pre-built CSS from `@pagesmith/site`:
 Two JSX runtimes are used across the examples:
 
 - **Framework JSX** (React, Solid, Svelte) -- each framework's own JSX transform via their Vite plugin
-- **`@pagesmith/site/jsx-runtime`** -- Pagesmith's lightweight server-side JSX runtime, used by the Blog Site and Doc Site layout overrides. Produces HTML strings with `h()` and `Fragment()`. Uses `class` (not `className`) and `innerHTML` (not `dangerouslySetInnerHTML`).
+- **Pagesmith server-side JSX** -- `@pagesmith/site/jsx-runtime` powers custom site layouts such as the Blog Site, while `@pagesmith/docs/jsx-runtime` powers docs layout overrides. Both produce HTML strings with `h()` and `Fragment()`, use `class` (not `className`), and use `innerHTML` for raw HTML.
 
 ## Choosing a Pattern
 

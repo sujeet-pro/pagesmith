@@ -32,7 +32,7 @@ Pagefind only indexes subtrees marked with `data-pagefind-body`. In this example
 
 ## `searchEnabled` from `SsgRenderConfig`
 
-`@pagesmith/core` passes `searchEnabled: false` while the dev server SSRs HTML, and `true` for the production SSG pass (after the index exists). `layout.ejs` gates Pagefind CSS, JS, the modal, and the header trigger on that flag so development does not request missing `pagefind/*` URLs.
+`@pagesmith/site` passes `searchEnabled: false` while the dev server SSRs HTML, and `true` for the production SSG pass (after the index exists). `layout.ejs` gates Pagefind CSS, JS, the modal, and the header trigger on that flag so development does not request missing `pagefind/*` URLs.
 
 ## Component UI
 

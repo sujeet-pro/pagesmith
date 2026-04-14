@@ -51,7 +51,7 @@ describe('docs quality guards', () => {
     ])
   })
 
-  it('hosts the setup prompt and schema files on the root docs site config', () => {
+  it('hosts the package setup prompts and schema files on the root docs site config', () => {
     const docsConfigPath = join(
       import.meta.dirname,
       '..',
@@ -66,7 +66,11 @@ describe('docs quality guards', () => {
       assets?: Record<string, string[]>
     }
 
-    expect(config.assets?.['/prompts']).toEqual(['./packages/docs/ai-guidelines/setup-docs.md'])
+    expect(config.assets?.['/prompts']).toEqual([
+      './packages/core/ai-guidelines/setup-core.md',
+      './packages/site/ai-guidelines/setup-site.md',
+      './packages/docs/ai-guidelines/setup-docs.md',
+    ])
     expect(config.assets?.['/']).toEqual(
       expect.arrayContaining(['./llms.txt', './llms-full.txt', './packages/docs/schemas']),
     )
@@ -179,7 +183,230 @@ describe('docs quality guards', () => {
     expect(markdownGuide).toContain('JSON-safe')
     expect(markdownGuide).toContain('Docs-Specific Link And Asset Transforms')
     expect(markdownGuide).toContain('docs link/asset transforms')
+    expect(markdownGuide).toContain('Local Images')
+    expect(markdownGuide).toContain('rehype-local-images')
+    expect(markdownGuide).toContain('sourcePath')
     expect(markdownGuide).toContain('@pagesmith/core')
+  })
+
+  it('keeps framework and MCP guides aligned to site-first integrations', () => {
+    const frameworksGuidePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'docs',
+      'content',
+      'guide',
+      'frameworks',
+      'README.md',
+    )
+    const mcpGuidePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'docs',
+      'content',
+      'guide',
+      'mcp-setup',
+      'README.md',
+    )
+
+    const frameworksGuide = readFileSync(frameworksGuidePath, 'utf-8')
+    const mcpGuide = readFileSync(mcpGuidePath, 'utf-8')
+
+    expect(frameworksGuide).toContain('use `@pagesmith/site` as the app-facing Pagesmith package')
+    expect(frameworksGuide).toContain(
+      '| [Next.js](/guide/framework-nextjs) | `@pagesmith/site` | Next.js App Router | `createContentLayer` |',
+    )
+    expect(mcpGuide).toContain('pagesmith://core/llms-full')
+    expect(mcpGuide).toContain('core_search_entries')
+    expect(mcpGuide).not.toContain('maxResults')
+  })
+
+  it('keeps the blog-site and doc-site framework guides aligned with the shipped examples', () => {
+    const blogGuidePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'docs',
+      'content',
+      'guide',
+      'framework-blog-site',
+      'README.md',
+    )
+    const docGuidePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'docs',
+      'content',
+      'guide',
+      'framework-doc-site',
+      'README.md',
+    )
+
+    const blogGuide = readFileSync(blogGuidePath, 'utf-8')
+    const docGuide = readFileSync(docGuidePath, 'utf-8')
+
+    expect(blogGuide).toContain('Node.js 24+')
+    expect(blogGuide).toContain('src/content.ts')
+    expect(blogGuide).toContain('src/components.tsx')
+    expect(blogGuide).toContain('@pagesmith/site/css/standalone')
+    expect(blogGuide).toContain('content-layer.md')
+    expect(blogGuide).toContain('jsx-runtime.md')
+    expect(blogGuide).toContain('build-and-deploy.md')
+    expect(blogGuide).toContain('pluginTimings: false')
+    expect(blogGuide).toContain('serves the bundled fonts during development')
+    expect(blogGuide).not.toContain('/guide/framework-nextjs')
+    expect(blogGuide).not.toContain('site.json5')
+    expect(blogGuide).not.toContain('pageTypes')
+    expect(blogGuide).not.toContain('TagIndex')
+
+    expect(docGuide).toContain('Node.js 24+')
+    expect(docGuide).toContain('@pagesmith/docs/jsx-runtime')
+    expect(docGuide).toContain('series: [')
+    expect(docGuide).toContain("contentDir: './content'")
+    expect(docGuide).toContain('maintainer:')
+    expect(docGuide).toContain('footerLinks:')
+    expect(docGuide).toContain('editLink:')
+    expect(docGuide).toContain('lastUpdated: true')
+    expect(docGuide).toContain('node ../../packages/docs/dist/cli/bin.mjs dev')
+    expect(docGuide).not.toContain('content/blog/')
+  })
+
+  it('keeps the repo llms-full docs schema section aligned with shipped docs schemas', () => {
+    const llmsFullPath = join(import.meta.dirname, '..', '..', '..', '..', 'llms-full.txt')
+    const llmsFull = readFileSync(llmsFullPath, 'utf-8')
+
+    expect(llmsFull).toContain('pagesmith-config.schema.json')
+    expect(llmsFull).toContain('docs-root-meta.schema.json')
+    expect(llmsFull).toContain('DocsConfigSchema')
+    expect(llmsFull).toContain('DocsPageFrontmatterSchema')
+    expect(llmsFull).toContain('remark-math (when `markdown.math` is enabled or auto-detected)')
+    expect(llmsFull).not.toContain('SiteConfigSchema')
+    expect(llmsFull).not.toContain('TagIndexLayoutPropsSchema')
+  })
+
+  it('keeps loader docs aligned with the built-in JSON and JSONC loaders', () => {
+    const coreReadmePath = join(import.meta.dirname, '..', '..', '..', 'core', 'README.md')
+    const collectionsGuidePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'docs',
+      'content',
+      'guide',
+      'collections-and-loaders',
+      'README.md',
+    )
+    const llmsFullPath = join(import.meta.dirname, '..', '..', '..', '..', 'llms-full.txt')
+
+    const coreReadme = readFileSync(coreReadmePath, 'utf-8')
+    const collectionsGuide = readFileSync(collectionsGuidePath, 'utf-8')
+    const llmsFull = readFileSync(llmsFullPath, 'utf-8')
+
+    expect(coreReadme).toContain('| `json5` | `.json5` |')
+    expect(coreReadme).toContain('| `jsonc` | `.jsonc` |')
+    expect(collectionsGuide).toContain('| `JsonLoader` | `json` / `json5` | `.json`, `.json5` |')
+    expect(collectionsGuide).toContain('| `JsoncLoader` | `jsonc` | `.jsonc` |')
+    expect(llmsFull).toContain('`JsonLoader` (.json, .json5)')
+    expect(llmsFull).toContain('`JsoncLoader` (.jsonc)')
+    expect(llmsFull).not.toContain('JSON with comments via json5')
+  })
+
+  it('keeps theme and runtime references aligned to the shared site shell', () => {
+    const docsThemePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'docs',
+      'content',
+      'reference',
+      'docs-theme',
+      'README.md',
+    )
+    const runtimePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'docs',
+      'content',
+      'reference',
+      'runtime',
+      'README.md',
+    )
+    const architecturePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'docs',
+      'content',
+      'reference',
+      'architecture',
+      'README.md',
+    )
+
+    const docsThemeGuide = readFileSync(docsThemePath, 'utf-8')
+    const runtimeGuide = readFileSync(runtimePath, 'utf-8')
+    const architectureGuide = readFileSync(architecturePath, 'utf-8')
+
+    expect(docsThemeGuide.match(/^---$/gm) ?? []).toHaveLength(2)
+    expect(docsThemeGuide).toContain('PageShell')
+    expect(docsThemeGuide).toContain('data-sidebar-modal')
+    expect(docsThemeGuide).toContain('@pagesmith/site/runtime/standalone')
+    expect(runtimeGuide).toContain('getChromeJS()')
+    expect(runtimeGuide).toContain('Sidebar modal')
+    expect(architectureGuide).toContain('rehype-local-images')
+  })
+
+  it('keeps local image examples visible in the shipped example sites', () => {
+    const blogExamplePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'examples',
+      'blog-site',
+      'content',
+      'guide',
+      'content-layer.md',
+    )
+    const docsExamplePath = join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'examples',
+      'doc-site',
+      'content',
+      'guide',
+      'content-collections.md',
+    )
+
+    const blogExample = readFileSync(blogExamplePath, 'utf-8')
+    const docsExample = readFileSync(docsExamplePath, 'utf-8')
+
+    expect(blogExample).toContain('./content-layer-local.svg')
+    expect(docsExample).toContain('./content-collections-local.svg')
+    expect(docsExample).toContain('layout: page')
   })
 
   it('ships package-owned bins, AI guidance, and schemas from package manifests', () => {

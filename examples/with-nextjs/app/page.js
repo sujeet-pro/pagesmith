@@ -19,7 +19,7 @@ export default async function HomePage() {
         <p className="eyebrow">Next.js example</p>
         <h1>Use Pagesmith as a headless markdown engine inside a Next app.</h1>
         <p className="lead">
-          This example keeps content loading on <code>@pagesmith/core</code>, layers the shared
+          This example keeps content loading on <code>@pagesmith/site</code>, layers the shared
           markdown styles from <code>@pagesmith/site/css/content</code>, and mounts a single global
           runtime component for copy buttons, code tabs, and collapsed lines.
         </p>

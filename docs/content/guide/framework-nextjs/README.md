@@ -1,23 +1,23 @@
 ---
 title: Next.js (App Router)
-description: Use @pagesmith/core as a headless markdown engine inside a Next.js App Router project, with optional shared content CSS/runtime from @pagesmith/site.
+description: Use @pagesmith/site as the app-facing Pagesmith package inside a Next.js App Router project.
 ---
 
 # Next.js (App Router)
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Integrate Pagesmith into my Next.js App Router project. Keep collections and markdown rendering on `@pagesmith/core` with `createContentLayer()` and `entry.render()`. If I want the shipped markdown styling and code-block UI, import `@pagesmith/site/css/content` and mount `@pagesmith/site/runtime/content` once in a client component."
+> Ask your AI agent: "Integrate Pagesmith into my Next.js App Router project. Read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`, `node_modules/@pagesmith/site/ai-guidelines/usage.md`, and `node_modules/@pagesmith/site/REFERENCE.md` first. Keep Next.js in charge of routing and export, but use `@pagesmith/site` as the app-facing Pagesmith package for `defineCollection()`, `createContentLayer()`, and `entry.render()`. Add `@pagesmith/site/css/content` and mount `@pagesmith/site/runtime/content` once in a client component."
 
 Source: [`examples/with-nextjs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-nextjs) | Output: <a href="/pagesmith/examples/nextjs" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
-The Next.js example uses Pagesmith as a headless content layer. Next.js owns routing, layouts, metadata, and static export. Pagesmith handles collection definitions, markdown rendering, headings, and read time, with `@pagesmith/site` used only for the shared content CSS/runtime when you want the shipped prose and code-block UI.
+The Next.js example keeps Next.js in charge of routing, layouts, metadata, and static export while using `@pagesmith/site` as the app-facing Pagesmith package. `@pagesmith/site` owns the imports for collection definitions, markdown rendering, headings, and read time in this shape, while the underlying implementation still builds on `@pagesmith/core`.
 
-The diagram highlights the boundary: the App Router stays in charge of the shell while `@pagesmith/core` supplies rendered markdown data; `@pagesmith/site` is an optional presentation add-on.
+The diagram highlights the boundary: the App Router stays in charge of the shell while `@pagesmith/site` supplies rendered markdown data plus the shared prose/code-block layer.
 
 <figure>
-  <img src="./diagrams/nextjs-pagesmith-boundary-light.svg" class="only-light" alt="Next.js App Router owning routes and shell while @pagesmith/core provides collections and entry.render output and optional @pagesmith/site adds content CSS and runtime">
-  <img src="./diagrams/nextjs-pagesmith-boundary-dark.svg" class="only-dark" alt="Next.js App Router owning routes and shell while @pagesmith/core provides collections and entry.render output and optional @pagesmith/site adds content CSS and runtime">
-  <figcaption>Integration boundary: Next.js owns the shell; Pagesmith stays a headless content and markdown layer.</figcaption>
+  <img src="./diagrams/nextjs-pagesmith-boundary-light.svg" class="only-light" alt="Next.js App Router owning routes and shell while @pagesmith/site provides app-facing content loading, entry.render output, and shared content CSS/runtime on top of the core implementation">
+  <img src="./diagrams/nextjs-pagesmith-boundary-dark.svg" class="only-dark" alt="Next.js App Router owning routes and shell while @pagesmith/site provides app-facing content loading, entry.render output, and shared content CSS/runtime on top of the core implementation">
+  <figcaption>Integration boundary: Next.js owns the shell while `@pagesmith/site` stays the app-facing content and markdown package.</figcaption>
 </figure>
 
 ## When to Choose This Pattern
@@ -31,18 +31,17 @@ The diagram highlights the boundary: the App Router stays in charge of the shell
 
 | Package | Used for |
 |---|---|
-| `@pagesmith/core` | Collections, schemas, `createContentLayer()`, `entry.render()`, headings, read time |
-| `@pagesmith/site` | Optional shared markdown CSS and browser runtime: `@pagesmith/site/css/content`, `@pagesmith/site/runtime/content` |
+| `@pagesmith/site` | Collections, schemas, `createContentLayer()`, `entry.render()`, headings, read time, and shared markdown CSS/runtime |
+| `@pagesmith/core` | Lower-level implementation and headless fallback when you intentionally do not want the site package surface |
 | `next` | Routing, layouts, metadata, static export, and app shell |
 
-If you own all markdown styling and browser behavior yourself, you can stop at `@pagesmith/core`.
+If you own all markdown styling and browser behavior yourself, you can use `@pagesmith/core` on its own.
 
 ## Dependencies
 
 ```json title="package.json"
 {
   "dependencies": {
-    "@pagesmith/core": "*",
     "@pagesmith/site": "*",
     "next": "^16.2.3",
     "react": "^19.2.5",
@@ -53,10 +52,10 @@ If you own all markdown styling and browser behavior yourself, you can stop at `
 
 ## Content Config
 
-Define collections exactly as you would in any other core integration:
+Define collections exactly as you would in any other Pagesmith content integration:
 
 ```js title="content.config.js"
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const posts = defineCollection({
   loader: 'markdown',
@@ -74,24 +73,28 @@ export default defineCollections({ posts })
 
 ## Server-Side Content Helpers
 
-Keep the content layer in normal server-side app code. The Next.js example creates a fresh layer per request/build step so content edits show up cleanly during development:
+Keep the content layer in normal server-side app code. The Next.js example creates the layer once at module scope and reuses it across lookups:
 
 ```js title="lib/content.js"
-import { createContentLayer, defineConfig } from '@pagesmith/core'
+import { createContentLayer, defineConfig } from '@pagesmith/site'
 import collections from '../content.config.js'
 
-function createLayer() {
-  return createContentLayer(
-    defineConfig({
-      root: process.cwd(),
-      collections,
-    }),
-  )
+let layer
+
+function getLayer() {
+  if (!layer) {
+    layer = createContentLayer(
+      defineConfig({
+        root: process.cwd(),
+        collections,
+      }),
+    )
+  }
+  return layer
 }
 
 export async function getPostBySlug(slug) {
-  const layer = createLayer()
-  const entry = await layer.getEntry('posts', slug)
+  const entry = await getLayer().getEntry('posts', slug)
   if (!entry) return null
 
   const rendered = await entry.render()
@@ -105,7 +108,27 @@ export async function getPostBySlug(slug) {
 }
 ```
 
-This is the core of the integration: Next.js receives rendered HTML and metadata-friendly data, not raw markdown files.
+The same helper can power `getAllPosts()` from the cached layer:
+
+```js title="lib/content.js"
+export async function getAllPosts() {
+  const entries = await getLayer().getCollection('posts')
+  return Promise.all(
+    entries.map(async (entry) => {
+      const rendered = await entry.render()
+      return {
+        slug: entry.slug,
+        title: entry.data.title,
+        html: rendered.html,
+        headings: rendered.headings,
+        readTime: rendered.readTime,
+      }
+    }),
+  )
+}
+```
+
+This is the heart of the integration: Next.js receives rendered HTML and metadata-friendly data, not raw markdown files. `@pagesmith/site` stays the one package surface for both content loading and the shared presentation/runtime layer.
 
 ## Layout and Runtime
 
@@ -165,7 +188,7 @@ Use `generateMetadata()` for page titles and descriptions, and build your own sh
 
 This pattern does **not** require:
 
-- `pagesmithContent` from `@pagesmith/core/vite`
+- `pagesmithContent` from `@pagesmith/site/vite`
 - `pagesmithSsg` from `@pagesmith/site/vite`
 - `@pagesmith/site/jsx-runtime`
 - the `pagesmith-site` or `pagesmith-docs` CLIs

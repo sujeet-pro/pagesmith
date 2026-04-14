@@ -371,7 +371,7 @@ The built-in Pagesmith renderer maps its light and dark Shiki themes to the colo
 
 ## Custom Sites with @pagesmith/site
 
-For sites built directly on `@pagesmith/core` + `@pagesmith/site` (not `@pagesmith/docs`), use the provided CSS and utilities:
+For sites built directly on `@pagesmith/site` (not `@pagesmith/docs`), use the provided CSS and utilities:
 
 1. **Import the CSS foundations** that include `color-scheme.css`, `tokens.css`, and `themes.css`:
 

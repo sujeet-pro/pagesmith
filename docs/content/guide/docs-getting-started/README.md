@@ -6,7 +6,7 @@ order: 3
 
 # Getting Started with @pagesmith/docs
 
-`@pagesmith/docs` is a convention-based documentation site builder that sits on top of `@pagesmith/core` and `@pagesmith/site`. It turns a directory of markdown files -- with optional JSON5 config when you need overrides -- into a complete docs site with navigation, sidebar, table of contents, Pagefind search, and a default theme -- all without writing any JavaScript or layout code.
+`@pagesmith/docs` is a convention-based documentation site builder. It turns a directory of markdown files -- with optional JSON5 config when you need overrides -- into a complete docs site with navigation, sidebar, table of contents, Pagefind search, and a default theme -- all without writing any JavaScript or layout code.
 
 This guide covers everything you need to go from an empty project to a running docs site.
 
@@ -55,7 +55,7 @@ The rest of this guide explains each piece in detail for manual setup or customi
 npm add @pagesmith/docs
 ```
 
-This pulls in both `@pagesmith/core` and `@pagesmith/site` automatically. You do not need to install either package separately when using the docs package.
+This is the only Pagesmith package you need for the docs workflow. You do not need to install `@pagesmith/core` or `@pagesmith/site` separately when using `@pagesmith/docs`.
 
 After installation, the canonical docs CLI is available as `npx pagesmith-docs`. The package also exposes `@pagesmith/docs/preset` for `pagesmith-site`, but docs projects should prefer `pagesmith-docs`.
 
@@ -383,7 +383,7 @@ A typical `package.json` setup:
     "docs:preview": "pagesmith-docs preview"
   },
   "dependencies": {
-    "@pagesmith/docs": "^0.1.0"
+    "@pagesmith/docs": "^0.8.0"
   }
 }
 ```

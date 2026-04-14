@@ -8,7 +8,7 @@
  * is not rendered. Supports both single-package and monorepo projects.
  */
 
-import { h } from '@pagesmith/site/jsx-runtime'
+import { h } from '@pagesmith/docs/jsx-runtime'
 import { DocFooter } from '../components/DocFooter'
 import { DocHeader } from '../components/DocHeader'
 import { DocSidebar } from '../components/DocSidebar'

@@ -6,10 +6,10 @@ description: Build content-driven static sites using React, SolidJS, or Svelte w
 # Vite Framework Apps
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Set up a Pagesmith content-driven static site with [React/SolidJS/Svelte]. Create `content.config.ts`, `vite.config.ts` with `pagesmithContent` and `pagesmithSsg`, and an SSR entry that exports `getRoutes()` and `render()`. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for reference."
+> Ask your AI agent: "Set up a Pagesmith content-driven static site with [React/SolidJS/Svelte]. Create `content.config.ts` on `@pagesmith/site`, keep the app-facing imports on `@pagesmith/site`, add `vite.config.ts` with `pagesmithContent` and `pagesmithSsg` from `@pagesmith/site/vite`, and an SSR entry that exports `getRoutes()` and `render()`. Read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and `node_modules/@pagesmith/site/ai-guidelines/usage.md` for reference."
 > Then read on to understand what happened and customize further.
 
-All three Vite framework integrations follow the same pattern: define collections in `content.config.ts`, wire up the `pagesmithContent` and `pagesmithSsg` Vite plugins, and write an SSR entry that exports `getRoutes()` and `render()`. The framework-specific differences are limited to the JSX/template syntax, the rendering function, and how raw HTML is injected.
+All three Vite framework integrations follow the same pattern: define collections in `content.config.ts` with `@pagesmith/site`, wire up the `pagesmithContent` and `pagesmithSsg` Vite plugins from `@pagesmith/site/vite`, and write an SSR entry that exports `getRoutes()` and `render()`. The framework-specific differences are limited to the JSX/template syntax, the rendering function, and how raw HTML is injected.
 
 ## Shared Architecture
 
@@ -24,7 +24,7 @@ The diagram below shows the shared pipeline across all three examples. Notice th
 </figure>
 
 ```ts title="content.config.ts"
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',
@@ -40,17 +40,6 @@ export const guide = defineCollection({
   }),
 })
 
-export const blog = defineCollection({
-  loader: 'markdown',
-  directory: './content/blog',
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-  }),
-})
-
 export const pages = defineCollection({
   loader: 'markdown',
   directory: './content/pages',
@@ -60,13 +49,12 @@ export const pages = defineCollection({
   }),
 })
 
-export default defineCollections({ guide, blog, pages })
+export default defineCollections({ guide, pages })
 ```
 
 All frameworks import content through virtual modules:
 
 ```ts
-import blogCollection from 'virtual:content/blog'
 import guideCollection from 'virtual:content/guide'
 import pagesCollection from 'virtual:content/pages'
 ```
@@ -109,9 +97,8 @@ Source: [`examples/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 ```json
 {
   "dependencies": {
-    "@pagesmith/core": "*",
     "@pagesmith/site": "*",
-    "pagefind": "^1.3.0",
+    "pagefind": "^1.5.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
@@ -128,8 +115,7 @@ Source: [`examples/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
 import collections from './content.config'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   plugins: [
@@ -197,9 +183,8 @@ Source: [`examples/with-solid/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 ```json
 {
   "dependencies": {
-    "@pagesmith/core": "*",
     "@pagesmith/site": "*",
-    "pagefind": "^1.3.0",
+    "pagefind": "^1.5.0",
     "solid-js": "^1.9.12"
   },
   "devDependencies": {
@@ -215,8 +200,7 @@ Source: [`examples/with-solid/`](https://github.com/sujeet-pro/pagesmith/tree/ma
 import { defineConfig } from 'vite'
 import collections from './content.config'
 import solid from 'vite-plugin-solid'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   plugins: [
@@ -272,9 +256,8 @@ Source: [`examples/with-svelte/`](https://github.com/sujeet-pro/pagesmith/tree/m
 ```json
 {
   "dependencies": {
-    "@pagesmith/core": "*",
     "@pagesmith/site": "*",
-    "pagefind": "^1.3.0",
+    "pagefind": "^1.5.0",
     "svelte": "^5.55.1"
   },
   "devDependencies": {
@@ -290,8 +273,7 @@ Source: [`examples/with-svelte/`](https://github.com/sujeet-pro/pagesmith/tree/m
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import collections from './content.config'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   plugins: [

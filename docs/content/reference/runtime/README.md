@@ -69,8 +69,11 @@ The content CSS bundle includes everything needed for styled markdown output wit
 
 ```text title="Content CSS Imports"
 foundations/reset.css       CSS reset
+foundations/color-scheme.css Color-scheme classes
 foundations/tokens.css      Design tokens as custom properties
+foundations/themes.css      Theme variant overrides
 content/prose.css           Typography for rendered markdown
+content/alerts.css          GitHub Alerts / callout styling
 code/block.css              Code block frame, line, and copy styles
 code/inline.css             Inline code styling
 code/tabs.css               Tab chrome for grouped code blocks
@@ -84,16 +87,12 @@ Code block styling **is** included in the shared CSS bundle. Shiki token colors 
 The standalone CSS bundle adds layout components on top of the content tier:
 
 ```text title="Standalone CSS Imports"
-foundations/reset.css       CSS reset
-foundations/tokens.css      Design tokens as custom properties
+chrome.css                  Shared shell chrome (TOC, page meta, viewport, grid, header, sidebar, footer, listing, search, theme toggle)
 content/prose.css           Typography for rendered markdown
-content/toc.css             Table of contents sidebar
+content/alerts.css          GitHub Alerts / callout styling
 code/block.css              Code block frame, line, and copy styles
 code/inline.css             Inline code styling
 code/tabs.css               Tab chrome for grouped code blocks
-viewport.css                Viewport overflow protection
-layout/grid.css             Page grid
-layout/sidebar.css          Sidebar layout
 ```
 
 #### `@pagesmith/site/css/viewport`
@@ -123,6 +122,17 @@ If you want to customize code block appearance, override the `--ps-*` custom pro
 
 The `@pagesmith/site/runtime` module provides functions that read pre-built CSS and JS files for server-side rendering scenarios where you need to inline assets or reference file paths.
 
+### Chrome Tier (Shared Shell)
+
+For projects that want the reusable site chrome without the full standalone shell helpers:
+
+| Function | Returns |
+|---|---|
+| `getChromeCSS()` | Shared header/sidebar/footer/TOC CSS as a string |
+| `getChromeCSSPath()` | Absolute file path to the shared chrome CSS file |
+| `getChromeJS()` | Shared chrome runtime JS as a string |
+| `getChromeJSPath()` | Absolute file path to the shared chrome JS file |
+
 ### Standalone Tier (Full Site)
 
 For projects that want a complete page layout with navigation, table of contents, and interactive features:
@@ -131,7 +141,7 @@ For projects that want a complete page layout with navigation, table of contents
 |---|---|
 | `getRuntimeCSS()` | Full standalone CSS as a string |
 | `getRuntimeCSSPath()` | Absolute file path to the standalone CSS file |
-| `getRuntimeJS()` | Standalone runtime JS as a string (TOC highlight) |
+| `getRuntimeJS()` | Standalone runtime JS as a string (chrome runtime + content runtime) |
 | `getRuntimeJSPath()` | Absolute file path to the standalone JS file |
 
 ### Content Tier (Markdown Rendering Only)
@@ -160,9 +170,15 @@ All accessor functions read from the `@pagesmith/site` package directory, checki
 
 The standalone runtime adds the full Pagesmith site enhancements on top of the content runtime:
 
-- **TOC Highlight** (`toc-highlight.ts`) -- Uses `IntersectionObserver` with a root margin of `-80px 0px -66% 0px` to track which heading is near the top of the viewport. When the active heading changes, the corresponding TOC item gets the `.active` class and is scrolled into view.
-- **Theme and text-size controls** -- Persists appearance, theme, and text-size preferences in `localStorage('pagesmith-theme')`.
+- **Footer year sync** (`footer-year.ts`) -- updates copyright year when the rendered site spans calendar years.
+- **Search trigger density** (`search-trigger.ts`) -- collapses the Pagefind trigger on small screens.
+- **Sidebar modal** (`sidebar.ts`) -- drives the mobile `<dialog>` navigation, including focus management and close targets.
+- **Skip-link focus** (`skip-link.ts`) -- preserves accessible keyboard navigation back to main content.
+- **Theme and text-size controls** (`theme.ts`) -- persists appearance, theme, and text-size preferences in `localStorage('pagesmith-theme')`.
+- **TOC highlight** (`toc-highlight.ts`) -- Uses `IntersectionObserver` with a root margin of `-80px 0px -66% 0px` to track which heading is near the top of the viewport. When the active heading changes, the corresponding TOC item gets the `.active` class and is scrolled into view.
 - **Content runtime behaviors** -- Copy buttons, code tabs, and collapse toggles for rendered markdown.
+
+The standalone entry is therefore the combination of `getChromeJS()` plus the content runtime modules.
 
 ### Content Runtime
 
@@ -174,6 +190,23 @@ The content runtime wires the markdown-specific browser behaviors:
 
 It intentionally does **not** own your app shell, navigation, TOC implementation, or theme controls. That makes it a good fit for framework-hosted apps that already have their own layout and routing.
 
+### Granular Runtime Entries
+
+For advanced integrations, `@pagesmith/site` also exposes narrower browser entries that map to specific behaviors:
+
+| Import Path | Purpose |
+|---|---|
+| `@pagesmith/site/runtime/code-blocks` | Copy buttons and collapse toggles for code blocks |
+| `@pagesmith/site/runtime/code-tabs` | Tab switching for grouped code blocks |
+| `@pagesmith/site/runtime/footer-year` | Footer year synchronization |
+| `@pagesmith/site/runtime/search-trigger` | Responsive search-trigger density |
+| `@pagesmith/site/runtime/sidebar` | Mobile sidebar dialog behavior |
+| `@pagesmith/site/runtime/skip-link` | Skip-link focus handling |
+| `@pagesmith/site/runtime/toc-highlight` | Active-heading tracking for TOC links |
+| `@pagesmith/site/runtime/theme` | Theme and text-size persistence |
+
+Use these when you want to assemble your own browser runtime instead of taking the full `content`, `chrome`, or `standalone` bundle.
+
 ### Progressive Enhancement
 
 The runtime JavaScript is strictly a progressive enhancement layer. All content is readable without JavaScript. Copy buttons, code tabs, and collapse controls are rendered in the HTML output during markdown processing, but they need the matching runtime entry point to become interactive.
@@ -181,7 +214,7 @@ The runtime JavaScript is strictly a progressive enhancement layer. All content 
 ## Design Tokens (CSS Custom Properties)
 
 > [!NOTE]
-> These design tokens are for `@pagesmith/site`'s standalone CSS. The `@pagesmith/docs` default theme uses its own design tokens with different values (different color palette, different font stack). See the [Docs Theme reference](/reference/docs-theme/) for docs-specific tokens.
+> These design tokens are for `@pagesmith/site`'s shared CSS bundles. The default `@pagesmith/docs` theme composes these bundles and layers docs-specific layout/home/not-found styling on top. See the [Docs Theme reference](/reference/docs-theme/) for the preset's ownership split and override points.
 
 All visual properties in Pagesmith CSS are defined as CSS custom properties in `foundations/tokens.css` under `:root`. The tokens use the CSS `light-dark()` function for automatic dark mode support, with `color-scheme: light dark` on `:root`.
 

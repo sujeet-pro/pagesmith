@@ -3,20 +3,20 @@
   "diagrams": {
     "mcp-surfaces-overview.mermaid": {
       "hash": "sha256:73b517271c946ab6",
-      "generatedAt": "2026-04-13T21:19:22.976Z",
+      "generatedAt": "2026-04-14T20:54:41.398Z",
       "outputs": [
         {
           "file": "mcp-surfaces-overview-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 1105.3828125,
+          "width": 1061.5625,
           "height": 409.20001220703125
         },
         {
           "file": "mcp-surfaces-overview-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 1105.3828125,
+          "width": 1061.5625,
           "height": 409.20001220703125
         }
       ],

@@ -2,7 +2,7 @@
 // schema so frontmatter is validated before `entry-server` calls `render()`.
 // This file stays `.mjs` so Node/Vite can load it without a separate TS emit.
 
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',

@@ -10,6 +10,10 @@ export default defineConfig({
     entry: {
       index: 'src/index.ts',
       theme: 'src/theme.ts',
+      'components/index': 'src/components/index.ts',
+      'layouts/index': 'src/layouts/index.ts',
+      'jsx-runtime/index': 'src/jsx-runtime/index.ts',
+      'jsx-dev-runtime/index': 'src/jsx-dev-runtime/index.ts',
       'cli/bin': 'src/cli/bin.ts',
       'mcp/server': 'src/mcp/server.ts',
       preset: 'src/preset.ts',

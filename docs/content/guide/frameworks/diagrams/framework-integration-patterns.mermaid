@@ -2,8 +2,8 @@
 
 flowchart LR
   subgraph foundation["Pagesmith packages"]
-    core["@pagesmith/core<br/>Collections, schemas,<br/>content loading, markdown"]
-    site["@pagesmith/site<br/>Shared JSX runtime,<br/>CSS/runtime, Vite SSG"]
+    core["@pagesmith/core<br/>Headless content layer<br/>and markdown pipeline"]
+    site["@pagesmith/site<br/>App-facing package for sites:<br/>re-exported content APIs,<br/>JSX/CSS/runtime, Vite SSG"]
     docs["@pagesmith/docs<br/>Docs preset with nav,<br/>search, and theme"]
   end
 
@@ -14,12 +14,11 @@ flowchart LR
     convention["Convention-based docs<br/>Doc Site"]
   end
 
-  core --> vite
-  core --> programmatic
-  core --> hosted
+  core --> site
   core --> docs
-  site -. "shared site layer" .-> vite
-  site -. "shared site layer" .-> programmatic
-  site -. "optional content CSS/runtime" .-> hosted
+  site --> vite
+  site --> programmatic
+  site --> hosted
   site --> docs
+  core -. "advanced headless path" .-> hosted
   docs --> convention

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="220" viewBox="0 0 520 220" role="img" aria-labelledby="title desc">
+  <title id="title">Content layer local asset example</title>
+  <desc id="desc">A simple diagram showing markdown files flowing through the Pagesmith content layer into rendered HTML.</desc>
+  <rect width="520" height="220" rx="20" fill="#f5f4f0"/>
+  <rect x="28" y="40" width="132" height="72" rx="14" fill="#ffffff" stroke="#d0cfc9" stroke-width="2"/>
+  <text x="94" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#111110">Markdown</text>
+  <text x="94" y="92" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#7a7a72">README.md</text>
+  <rect x="194" y="40" width="132" height="72" rx="14" fill="#fff3e8" stroke="#d4381e" stroke-width="2"/>
+  <text x="260" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#111110">ContentLayer</text>
+  <text x="260" y="92" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#7a7a72">schema + render()</text>
+  <rect x="360" y="40" width="132" height="72" rx="14" fill="#ffffff" stroke="#d0cfc9" stroke-width="2"/>
+  <text x="426" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#111110">Rendered page</text>
+  <text x="426" y="92" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#7a7a72">html + headings</text>
+  <path d="M160 76h34" stroke="#d4381e" stroke-width="3" stroke-linecap="round"/>
+  <path d="M326 76h34" stroke="#d4381e" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="190,76 180,70 180,82" fill="#d4381e"/>
+  <polygon points="356,76 346,70 346,82" fill="#d4381e"/>
+  <rect x="96" y="146" width="328" height="40" rx="12" fill="#ffffff" stroke="#d0cfc9" stroke-width="2"/>
+  <text x="260" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" fill="#333330">Relative image refs like ./content-layer-local.svg resolve from the markdown file.</text>
+</svg>

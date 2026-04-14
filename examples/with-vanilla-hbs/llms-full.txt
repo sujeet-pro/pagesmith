@@ -1,10 +1,10 @@
 # Pagesmith + Handlebars (examples/with-vanilla-hbs)
 
-Agent-oriented notes for this monorepo example: `@pagesmith/core` content layer, `@pagesmith/site` Vite/runtime layer, and Handlebars (no `@pagesmith/docs` app shell).
+Agent-oriented notes for this monorepo example: `@pagesmith/site` content + Vite/runtime layer and Handlebars (no `@pagesmith/docs` app shell).
 
 ## Integration shape
 
-1. **Collections** — `content.config.mjs` exports `defineCollection` / `defineCollections` with Zod frontmatter schemas. Plain `.mjs` keeps the config loadable from the SSR bundle without a separate TS build for the config file.
+1. **Collections** — `content.config.mjs` exports `defineCollection` / `defineCollections` from `@pagesmith/site` with Zod frontmatter schemas. Plain `.mjs` keeps the config loadable from the SSR bundle without a separate TS build for the config file.
 
 2. **Content layer** — `src/entry-server.tsx` imports that config and calls `createContentLayer({ collections, root })`. The layer is cached per `root` so repeated `render()` calls in dev stay cheap. Collections are read with `getCollection()`, then each entry uses `entry.render()` for HTML + headings + read time (markdown pipeline lives in core).
 

@@ -31,6 +31,7 @@ When you use stock `@pagesmith/docs`, the `pagesmith.config.json5` `markdown` fi
 | External link handling | `rehype-external-links` | Overview below |
 | Heading anchors | `rehype-slug`, `rehype-autolink-headings` | Overview below |
 | Accessible emojis | `rehype-accessible-emojis` | Overview below |
+| Local images | `rehype-local-images` | Overview below |
 
 ## External Links
 
@@ -65,6 +66,16 @@ HTML output:
 ```html
 Ship it <span role="img" aria-label="rocket">🚀</span>
 ```
+
+## Local Images
+
+When Pagesmith knows the markdown source path, relative local images inherit intrinsic dimensions automatically. Relative JPEGs can also render as a `<picture>` with AVIF and WebP fallbacks while keeping the original JPEG as the `<img>` fallback.
+
+```markdown
+![Hero](./hero.jpg)
+```
+
+Collection entries keep those refs inside the collection directory, and stock docs keeps them inside `contentDir`. If a relative ref escapes that allowed root, Pagesmith leaves the image tag unchanged instead of inferring dimensions or picture fallbacks. If you call `convert()` or `layer.convert()` outside a collection entry, pass `sourcePath` when you want the same behavior for local assets; add `assetRoot` when the allowed root should be broader than the markdown file's own directory.
 
 ## Heading IDs and Anchors
 
@@ -109,7 +120,7 @@ Stock `@pagesmith/docs` keeps `pagesmith.config.json5` JSON-safe and does not ex
 Stock `@pagesmith/docs` adds a docs-site pass after heading extraction:
 
 - Relative markdown links between pages are rewritten under `basePath`.
-- Relative images and diagrams publish under `/assets/<content-relative-path>` instead of flattening to basenames.
+- Relative images and diagrams keep the intrinsic dimensions from the shared local-image pass, then publish under `/assets/<content-relative-path>` instead of flattening to basenames.
 - `*.inline.svg` images inline only when they stay inside the current page directory subtree.
 - Image names containing `.invert.` receive dark-theme inversion.
 
@@ -126,9 +137,9 @@ Example:
 The diagram below shows the shared core pipeline plus the docs-only post-processing that stock `@pagesmith/docs` adds after heading extraction. If you are using `@pagesmith/core` directly, the custom plugin slots are where your own remark and rehype plugins fit.
 
 <figure>
-  <img src="./diagrams/markdown-pipeline-overview-light.svg" class="only-light" alt="Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features, and the docs-only link and asset transform stage before final HTML output">
-  <img src="./diagrams/markdown-pipeline-overview-dark.svg" class="only-dark" alt="Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features, and the docs-only link and asset transform stage before final HTML output">
-  <figcaption>Shared markdown pipeline: custom plugin hooks live in `@pagesmith/core` integrations, while stock `@pagesmith/docs` adds docs-specific link and asset transforms near the end.</figcaption>
+  <img src="./diagrams/markdown-pipeline-overview-light.svg" class="only-light" alt="Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features including local image enhancement, and the docs-only link and asset transform stage before final HTML output">
+  <img src="./diagrams/markdown-pipeline-overview-dark.svg" class="only-dark" alt="Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features including local image enhancement, and the docs-only link and asset transform stage before final HTML output">
+  <figcaption>Shared markdown pipeline: custom plugin hooks live in `@pagesmith/core` integrations, local image enhancement happens in the shared rehype stage, and stock `@pagesmith/docs` adds docs-specific link and asset transforms near the end.</figcaption>
 </figure>
 
 For `@pagesmith/core` integrations:
@@ -151,6 +162,7 @@ rehype-slug               Add id="" to headings
 rehype-autolink-headings  Wrap heading text in anchor links
 rehype-external-links     target="_blank" on external URLs
 rehype-accessible-emojis  aria-label on emoji characters
+rehype-local-images       Fill intrinsic image dimensions and JPEG picture fallbacks
 heading extraction        Collect headings for TOC
 [user rehype plugins]     From MarkdownConfig.rehypePlugins
 rehype-stringify          HTML AST -> HTML string
@@ -165,6 +177,8 @@ remark-frontmatter        Strip YAML frontmatter from AST
 remark-github-alerts      > [!NOTE], > [!TIP], etc.
 remark-smartypants        Smart quotes, en/em dashes, ellipses
 remark-math (optional)    Enabled when `markdown.math` is `true` or `'auto'` detects math markers
+[custom remark plugins in lower-level integrations]
+                          Available when a docs integration intentionally drops below the JSON-safe config surface
 lang-alias transform      Map fenced-code language tags via markdown.shiki.langAlias
 remark-rehype             Markdown AST -> HTML AST
 rehype-mathjax            Render math to SVG before code rendering when math is enabled
@@ -175,6 +189,7 @@ rehype-slug               Add id="" to headings
 rehype-autolink-headings  Wrap heading text in anchor links
 rehype-external-links     target="_blank" on external URLs
 rehype-accessible-emojis  aria-label on emoji characters
+rehype-local-images       Fill intrinsic image dimensions and JPEG picture fallbacks
 heading extraction        Collect headings for TOC
 docs link/asset transforms Rewrite relative docs links and companion assets for the docs site
 rehype-stringify          HTML AST -> HTML string

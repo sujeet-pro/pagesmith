@@ -177,7 +177,18 @@ export function pagesmithSsg(options: SsgPluginOptions): Plugin[] {
       })
 
       if (enablePagefind) {
-        await runPagefindIndexing(outDir)
+        try {
+          runPagefindIndexing(outDir, {
+            logPrefix: 'SSG',
+            logStart: true,
+            logger: { info: console.log, warn: console.warn },
+          })
+        } catch (error) {
+          throw new Error(
+            `SSG: Pagefind indexing failed: ${error instanceof Error ? error.message : String(error)}`,
+            { cause: error },
+          )
+        }
       }
 
       console.log(`SSG: Done — ${pageCount} pages generated`)

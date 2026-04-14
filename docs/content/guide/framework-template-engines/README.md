@@ -1,15 +1,15 @@
 ---
 title: Template Engines (EJS & Handlebars)
-description: Build content-driven static sites using EJS or Handlebars templates with Pagesmith's content layer API.
+description: Build content-driven static sites using EJS or Handlebars templates with Pagesmith's site-first stack.
 ---
 
 # Template Engines (EJS & Handlebars)
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Set up a Pagesmith static site using [EJS/Handlebars] templates with `createContentLayer`. Create `content.config.mjs`, templates for layout and articles, and an SSR entry. Read `node_modules/@pagesmith/core/ai-guidelines/usage.md` for reference."
+> Ask your AI agent: "Set up a Pagesmith static site using [EJS/Handlebars] templates with `createContentLayer`. Create `content.config.mjs` on `@pagesmith/site`, keep the app-facing imports on `@pagesmith/site`, use `createContentLayer()` from `@pagesmith/site`, wire `pagesmithSsg` from `@pagesmith/site/vite`, and build the HTML shell in templates. Read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and `node_modules/@pagesmith/site/ai-guidelines/usage.md` for reference."
 > Then read on to understand what happened and customize further.
 
-The template engine integrations use `@pagesmith/core` with plain templates instead of a component framework. Unlike the React, Solid, and Svelte examples that use virtual content modules (`virtual:content/*`), these examples use the programmatic `createContentLayer` API directly. The result is a fully static site with no framework runtime shipped to the browser.
+The template engine integrations keep `@pagesmith/site` as the app-facing package for both content and site-building concerns. Unlike the React, Solid, and Svelte examples that use virtual content modules (`virtual:content/*`), these examples use the programmatic `createContentLayer` API directly. The result is a fully static site with no framework runtime shipped to the browser.
 
 Notice that `pagesmithSsg` drives the build while the content layer and templates meet at `entry.render()` output feeding the final HTML.
 
@@ -31,7 +31,7 @@ Both EJS and Handlebars follow the same pattern:
 ### Content Config
 
 ```js title="content.config.mjs"
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',
@@ -47,17 +47,6 @@ export const guide = defineCollection({
   }),
 })
 
-export const blog = defineCollection({
-  loader: 'markdown',
-  directory: './content/blog',
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    date: z.coerce.date(),
-    tags: z.array(z.string()).default([]),
-  }),
-})
-
 export const pages = defineCollection({
   loader: 'markdown',
   directory: './content/pages',
@@ -67,7 +56,7 @@ export const pages = defineCollection({
   }),
 })
 
-export default defineCollections({ guide, blog, pages })
+export default defineCollections({ guide, pages })
 ```
 
 ### Vite Config
@@ -97,17 +86,17 @@ export default defineConfig({
 The content layer is created once and reused across renders:
 
 ```ts
-import { createContentLayer } from '@pagesmith/core'
+import { createContentLayer } from '@pagesmith/site'
 import contentConfig from '../content.config.mjs'
 
-const { guide, blog, pages } = contentConfig
+const { guide, pages } = contentConfig
 
 let layer: ReturnType<typeof createContentLayer>
 let layerRoot: string
 function getLayer(root: string) {
   if (!layer || layerRoot !== root) {
     layerRoot = root
-    layer = createContentLayer({ collections: { guide, blog, pages }, root })
+    layer = createContentLayer({ collections: { guide, pages }, root })
   }
   return layer
 }
@@ -147,9 +136,9 @@ Source: [`examples/with-vanilla-ejs/`](https://github.com/sujeet-pro/pagesmith/t
 ```json
 {
   "dependencies": {
-    "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "ejs": "^3.1.10",
-    "pagefind": "^1.3.0"
+    "pagefind": "^1.5.0"
   }
 }
 ```
@@ -159,7 +148,6 @@ Source: [`examples/with-vanilla-ejs/`](https://github.com/sujeet-pro/pagesmith/t
 ```text
 with-vanilla-ejs/
   content/
-    blog/           # Blog posts
     guide/          # Guide articles
     pages/          # Standalone pages
   src/
@@ -227,9 +215,9 @@ Source: [`examples/with-vanilla-hbs/`](https://github.com/sujeet-pro/pagesmith/t
 ```json
 {
   "dependencies": {
-    "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "handlebars": "^4.7.8",
-    "pagefind": "^1.3.0"
+    "pagefind": "^1.5.0"
   }
 }
 ```
@@ -239,7 +227,6 @@ Source: [`examples/with-vanilla-hbs/`](https://github.com/sujeet-pro/pagesmith/t
 ```text
 with-vanilla-hbs/
   content/
-    blog/           # Blog posts
     guide/          # Guide articles
     pages/          # Standalone pages
   src/

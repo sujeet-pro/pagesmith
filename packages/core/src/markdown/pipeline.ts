@@ -18,6 +18,7 @@ import type { Heading } from '../schemas/heading'
 import type { MarkdownConfig } from '../schemas/markdown-config'
 import { applyPagesmithCodeRenderer } from './code/renderer'
 import rehypeCodeTabs from './plugins/rehype-code-tabs'
+import { rehypeLocalImages } from './plugins/rehype-local-images'
 import rehypeScrollableTables from './plugins/rehype-scrollable-tables'
 
 export type MarkdownResult = {
@@ -147,6 +148,9 @@ function createProcessor(config: MarkdownConfig, options: { enableMath: boolean 
     })
     // Accessible emojis: wrap emoji characters in <span role="img" aria-label="...">
     .use(rehypeAccessibleEmojis)
+    // Fill intrinsic image dimensions from the local filesystem and wrap JPEGs
+    // in <picture> so browsers can prefer AVIF/WebP while keeping JPEG fallback.
+    .use(rehypeLocalImages)
 
   processor.use(() => (tree: any, file: any) => {
     const headings: Heading[] = []

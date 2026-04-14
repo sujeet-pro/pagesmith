@@ -1,11 +1,11 @@
 # Pagesmith + EJS (with-vanilla-ejs example)
 
-This example is the minimal **@pagesmith/core + @pagesmith/site + Vite + EJS** integration: no `@pagesmith/docs`, no virtual content modules.
+This example is the minimal **`@pagesmith/site` + Vite + EJS** integration: no `@pagesmith/docs`, no virtual content modules.
 
 ## Integration flow (do not skip)
 
-1. **Collections** — `content.config.mjs` exports `defineCollection` / `defineCollections` + Zod. This is the filesystem boundary; invalid frontmatter fails the build.
-2. **SSR contract** — `src/entry-server.tsx` MUST export `getRoutes(SsgRenderConfig)` and `render(url, SsgRenderConfig)` for `pagesmithSsg` (see `@pagesmith/core/vite`).
+1. **Collections** — `content.config.mjs` exports `defineCollection` / `defineCollections` + Zod from `@pagesmith/site`. This is the filesystem boundary; invalid frontmatter fails the build.
+2. **SSR contract** — `src/entry-server.tsx` MUST export `getRoutes(SsgRenderConfig)` and `render(url, SsgRenderConfig)` for `pagesmithSsg` (see `@pagesmith/site/vite`).
 3. **Content layer** — Import the default export from `content.config.mjs` and call `createContentLayer({ collections, root })`. Use `layer.getCollection(name)` then `entry.render()` for `{ html, headings, readTime }`.
 4. **Templates** — EJS renders **fragments** (`article.ejs`, `index.ejs`, `about.ejs`); `layout.ejs` wraps `body`. Keep `data-pagefind-body` on the inner article/home content region, not on the full document.
 5. **Vite** — `vite.config.ts`: `sharedAssetsPlugin()` + `...pagesmithSsg({ entry, contentDirs })`. `contentDirs` is for dev watching and companion assets.

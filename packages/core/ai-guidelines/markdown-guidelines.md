@@ -16,7 +16,7 @@ remark-parse → remark-gfm → remark-frontmatter
   → applyPagesmithCodeRenderer (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
   → rehype-code-tabs → rehype-scrollable-tables
   → rehype-slug → rehype-autolink-headings
-  → rehype-external-links → rehype-accessible-emojis
+  → rehype-external-links → rehype-accessible-emojis → rehype-local-images
   → heading extraction → [user rehype plugins] → rehype-stringify
 ```
 
@@ -146,6 +146,16 @@ Great job! <span role="img" aria-label="party popper">🎉</span>
 ```
 
 The `role="img"` and `aria-label` attributes ensure screen readers announce the emoji's meaning.
+
+## Local Images (rehype-local-images)
+
+When Pagesmith knows the markdown source path, relative local images automatically inherit intrinsic dimensions from the filesystem. Relative JPEG images can also render as a `<picture>` with AVIF and WebP fallbacks while keeping the original JPEG as the `<img>` fallback.
+
+```md
+![Hero](./hero.jpg)
+```
+
+`entry.render()` sets the source path automatically and keeps resolution inside the collection directory. For `convert()` or `layer.convert()`, pass `sourcePath` when you want the same behavior outside collections; by default relative refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
 
 ## Heading Links (rehype-slug + rehype-autolink-headings)
 

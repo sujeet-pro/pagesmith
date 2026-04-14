@@ -21,8 +21,8 @@ ESM only (`"type": "module"`). Node 24+.
 - AI-first bootstrap or retrofit: `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
 - Follow-up usage patterns and prompts: `node_modules/@pagesmith/core/ai-guidelines/usage.md`
 - Upgrade an existing integration: `node_modules/@pagesmith/core/ai-guidelines/migration.md`
-- Pair `@pagesmith/core` with `@pagesmith/site` when you need the Pagesmith JSX runtime, CSS/runtime bundles, Vite SSG helpers, or the `pagesmith-site` CLI
-- Use `@pagesmith/docs` instead when you want the opinionated docs preset on top of both packages
+- Use `@pagesmith/site` instead when you need the Pagesmith JSX runtime, CSS/runtime bundles, Vite SSG helpers, or the `pagesmith-site` CLI from one package
+- Use `@pagesmith/docs` instead when you want the opinionated docs preset and docs consumers should stay on one package
 
 ## Content Layer API
 
@@ -55,7 +55,7 @@ const rendered = await entries[0]?.render()
 | `createContentLayer(config)`                    | Create a content layer from a config object          |
 | `layer.getCollection(name)`                     | Load all entries in a collection (cached)            |
 | `layer.getEntry(collection, slug)`              | Get a single entry by slug                           |
-| `layer.convert(markdown, options?)`             | Convert raw markdown to HTML outside collections     |
+| `layer.convert(markdown, options?)`             | Convert raw markdown to HTML outside collections; pass `sourcePath` and optional `assetRoot` for local image enhancements |
 | `layer.validate(collection?)`                   | Run all validators and return results                |
 | `layer.invalidate(collection, slug)`            | Cache-bust a single entry                            |
 | `layer.invalidateCollection(name)`              | Cache-bust an entire collection                      |
@@ -118,8 +118,8 @@ const rendered = await entries[0]?.render()
 | ---------- | ----------------- | ------------------------------------------- |
 | `markdown` | `.md`             | gray-matter frontmatter + markdown body     |
 | `json`     | `.json`           | JSON.parse                                  |
-| `json5`    | `.json`           | Relaxed JSON with comments, trailing commas |
-| `jsonc`    | `.json`, `.jsonc` | JSON with comments                          |
+| `json5`    | `.json5`          | JSON5.parse (comments, trailing commas)     |
+| `jsonc`    | `.jsonc`          | Comment-stripped JSON parsed with `JSON.parse` |
 | `yaml`     | `.yml`, `.yaml`   | YAML                                        |
 | `toml`     | `.toml`           | TOML                                        |
 
@@ -180,7 +180,7 @@ Options:
 | `moduleId`    | `string`           | `'virtual:content'`     | Virtual module prefix       |
 | `configPath`  | `string`           | `'./content.config.ts'` | Config file path            |
 | `dts`         | `boolean | string` | `true`                  | Generate .d.ts              |
-| `contentRoot` | `string`           | `'content'`             | Shared root for contentSlug |
+| `contentRoot` | `string`           | deepest common parent of collection directories | Shared root for `id` and `contentSlug` |
 | `markdown`    | `MarkdownConfig`   | —                       | Markdown pipeline config    |
 
 
@@ -212,7 +212,7 @@ remark-parse → remark-gfm → remark-frontmatter
   → applyPagesmithCodeRenderer (dual themes, line numbers, titles, copy, collapse, mark/ins/del)
   → rehype-code-tabs → rehype-scrollable-tables
   → rehype-slug → rehype-autolink-headings
-  → rehype-external-links → rehype-accessible-emojis
+  → rehype-external-links → rehype-accessible-emojis → rehype-local-images
   → heading extraction → [user rehype plugins] → rehype-stringify
 ```
 
@@ -234,6 +234,7 @@ type MarkdownConfig = {
 
 - `allowDangerousHtml` defaults to `true`. Disable it when rendering untrusted markdown content.
 - `math` defaults to `'auto'`, which only enables `remark-math` and `rehype-mathjax` for pages that contain math markers.
+- When Pagesmith knows the markdown source path, relative local images inherit intrinsic dimensions and relative JPEGs can emit `<picture>` fallbacks. `entry.render()` wires this automatically and keeps resolution inside the collection directory. `convert()` / `layer.convert()` can do the same when you pass `sourcePath`; by default refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
 
 ### Code Block Meta Syntax (Built-in Renderer)
 
@@ -253,8 +254,8 @@ type MarkdownConfig = {
 ### Built-in Validators
 
 - **linkValidator** — warns on bare URLs, empty link text, suspicious protocols
-- **headingValidator** — enforces single h1, sequential heading depth
-- **codeBlockValidator** — warns on missing language, unknown meta properties
+- **headingValidator** — enforces single h1, sequential heading depth, and non-empty heading text
+- **codeBlockValidator** — warns when meta is used without a language identifier and flags unknown meta properties
 
 ## Build A Site On Top Of Core
 
@@ -304,7 +305,37 @@ import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 | `@pagesmith/core/ai`      | AI assistant artifact generator |
 | `@pagesmith/core/create`  | Project scaffolding |
 | `@pagesmith/core/mcp`     | Core MCP server and helper utilities |
+| `@pagesmith/core/llms` | Compact AI context index |
+| `@pagesmith/core/llms-full` | Full AI context reference |
+| `@pagesmith/core/ai-guidelines/*` | Package-shipped AI guidance files |
+| `@pagesmith/core/agents/setup-core` | Bootstrap prompt for project agents |
+| `@pagesmith/core/agents/usage` | Agent operating rules and prompts |
+| `@pagesmith/core/agents/recipes` | Task-specific recipes |
+| `@pagesmith/core/agents/changelog-notes` | Version highlights for agents |
+| `@pagesmith/core/agents/errors` | Error catalog for agent workflows |
+| `@pagesmith/core/agents/migration` | Upgrade playbook for existing integrations |
+| `@pagesmith/core/agents/template` | Project memory template |
 
+## MCP Server
+
+`@pagesmith/core/mcp` is a programmatic MCP entry for content-layer introspection. Core does not ship a standalone `pagesmith-core mcp` CLI because it needs a live `ContentLayer` instance from your project.
+
+- Programmatic entry: `@pagesmith/core/mcp`
+- Typical pattern: build a small project-local wrapper that creates the layer, then calls `startCoreMcpServer({ layer })`
+
+Primary MCP tools:
+
+- `core_list_collections`
+- `core_list_entries`
+- `core_get_entry`
+- `core_validate`
+- `core_search_entries`
+
+Version-matched MCP resources:
+
+- `pagesmith://core/agents/usage`
+- `pagesmith://core/llms-full`
+- `pagesmith://core/reference`
 
 ## Key Rules
 

@@ -106,7 +106,7 @@ Colors use the `light-dark()` function, so they automatically adapt to the user'
 
 ## CSS Import Paths
 
-`@pagesmith/site` exposes several CSS entry points through its package `exports` map. These are used directly by `@pagesmith/docs` but can also be imported in custom sites built on `@pagesmith/core` + `@pagesmith/site`.
+`@pagesmith/site` exposes several CSS entry points through its package `exports` map. These are used directly by `@pagesmith/docs` but can also be imported in custom sites built on `@pagesmith/site`'s app-facing surface.
 
 | Import Path | Contents |
 |---|---|
@@ -135,7 +135,7 @@ import '@pagesmith/site/css/fonts'
 
 For `@pagesmith/docs` sites, the recommended approach is to create a custom CSS file and import it in a layout override. Since the docs theme compiles its own stylesheet, direct injection requires a layout override that adds your stylesheet to the HTML head.
 
-For sites built on `@pagesmith/core` + `@pagesmith/site`, add your overrides after the Pagesmith imports:
+For sites built on `@pagesmith/site`, add your overrides after the Pagesmith imports:
 
 ```css title="styles/custom.css"
 @import '@pagesmith/site/css/content';

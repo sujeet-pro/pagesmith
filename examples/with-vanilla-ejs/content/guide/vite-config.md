@@ -17,7 +17,7 @@ The entire build is driven by Vite with two Pagesmith plugins. No custom build s
 
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite-plus'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/vanilla-ejs',

@@ -10,7 +10,7 @@ seriesOrder: 2
 
 # Project Structure
 
-Layout matches other Pagesmith examples (`content/`, `public/`, `src/`) but rendering is **core JSX + `createContentLayer`** instead of a framework app shell.
+Layout matches other Pagesmith examples (`content/`, `public/`, `src/`) but rendering uses **`@pagesmith/site` JSX + `createContentLayer`** instead of a framework app shell.
 
 ## Directory overview
 
@@ -23,9 +23,11 @@ examples/blog-site/
   public/
     favicon.svg        Static assets copied to output root
   src/
-    entry-server.tsx   SSR entry: layer, getRoutes/render, JSX layouts
+    content.ts         Content layer setup, collection definitions, helpers
+    components.tsx     JSX components: sidebar, header, footer, page body, document shell
+    entry-server.tsx   SSR entry: routing, getRoutes/render contract
     runtime.ts         Client JS (TOC, sidebar, theme, search affordances)
-    theme.css          Imports @pagesmith/site/css/content + layout rules
+    theme.css          Imports @pagesmith/site/css/standalone + example-specific layout rules
   client.js            Client entry: imports theme.css + runtime.ts
   vite.config.ts       Vite + pagesmithSsg (no pagesmithContent)
   package.json
@@ -36,15 +38,15 @@ examples/blog-site/
 
 ### No `content.config.ts` at the example root
 
-Collections are declared beside `createContentLayer` in `src/entry-server.tsx` so a single module owns config + rendering.
+Collections are declared in `src/content.ts` alongside `createContentLayer`, keeping content concerns separate from routing.
 
 ### No `virtual:content/*` imports
 
 Use `await layer.getCollection('guide')` (and similar), then `await entry.render()` for HTML.
 
-### Core JSX runtime
+### Site JSX runtime
 
-TSX uses `@pagesmith/core` as JSX import source. Prefer DOM attribute names (`class`, `for`); inject rendered Markdown with **`innerHTML={html}`** on a wrapper inside the article shell.
+TSX uses `@pagesmith/site` as JSX import source. Prefer DOM attribute names (`class`, `for`); inject rendered Markdown with **`innerHTML={html}`** on a wrapper inside the article shell.
 
 ```tsx
 // React: <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
@@ -53,4 +55,4 @@ TSX uses `@pagesmith/core` as JSX import source. Prefer DOM attribute names (`cl
 
 ### Single CSS entry
 
-`src/theme.css` imports `@pagesmith/site/css/content` for prose + code chrome, then adds layout matching the other examples’ doc shell.
+`src/theme.css` imports `@pagesmith/site/css/standalone` for the shared shell, prose, and code chrome, then layers the example's own layout rules on top.

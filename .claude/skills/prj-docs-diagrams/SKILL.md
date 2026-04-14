@@ -41,5 +41,6 @@ npm run diagramkit:warmup
 - Prefer SVG for docs surfaces.
 - Do not hand-edit generated `-light.svg` or `-dark.svg` outputs.
 - Keep source diagrams and rendered outputs committed together.
+- Always add `%%{init: {'htmlLabels': false}}%%` at the top of Mermaid source files so SVGs render correctly when embedded via `<img>` in browsers and webviews.
 - Skip diagrams on pure reference pages if a visual does not add clarity.
 - When doing a full-repo pass, start from `ai-guidelines/docs-diagram-pass-prompt.md`.

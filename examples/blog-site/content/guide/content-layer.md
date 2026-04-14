@@ -11,15 +11,15 @@ seriesOrder: 3
 
 # Content Layer API
 
-The blog-site wires **`createContentLayer`** from `@pagesmith/core` at the SSR entry. That is the same content layer the `pagesmithContent` plugin uses internally; this example skips the plugin and calls the API directly.
+The blog-site intentionally wires **`createContentLayer`** from `@pagesmith/site` at the SSR entry so the example can stay on one package for content, JSX runtime, CSS, and SSG. That is the same content layer the `pagesmithContent` plugin uses internally; this example skips the plugin and calls the API directly.
 
 ## Defining collections
 
-Collections are defined when the layer is created (see `buildLayer` in `src/entry-server.tsx`):
+Collections are defined when the layer is created (see `buildLayer` in `src/content.ts`):
 
-```ts title="src/entry-server.tsx (excerpt)"
+```ts title="src/content.ts (excerpt)"
 import { resolve } from 'path'
-import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
+import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/site'
 
 function buildLayer(root?: string) {
   const contentRoot = root ? resolve(root) : resolve(import.meta.dirname, '..')
@@ -68,6 +68,16 @@ for (const entry of entries) {
 ```
 
 For ad-hoc strings (not collection files), the package also exposes `processMarkdown` / `convert` — this site does not need them because every page comes from the filesystem collections above.
+
+## Local assets beside markdown
+
+Pagesmith resolves sibling assets from the markdown file path, so regular relative images work without extra configuration:
+
+![Content layer flow diagram](./content-layer-local.svg)
+
+That same rule is why folder-based entries are recommended when a page has companion screenshots or diagrams.
+
+For the canonical JPEG `<picture>` fallback and intrinsic-dimension examples, see the root docs page at `/guide/markdown-features/`.
 
 ## Comparison with virtual modules
 

@@ -149,6 +149,13 @@ The server exposes tools such as:
 - `docs_get_page`
 - `docs_search_pages`
 
+Version-matched resources exposed by the docs MCP server:
+
+- `pagesmith://docs/agents/usage`
+- `pagesmith://docs/llms-full`
+- `pagesmith://docs/reference`
+- `pagesmith://core/reference`
+
 ## Zero-Config Behavior
 
 `pagesmith-docs dev`, `build`, `preview`, and `mcp --stdio` can run without `pagesmith.config.json5` when the project already follows the default conventions:

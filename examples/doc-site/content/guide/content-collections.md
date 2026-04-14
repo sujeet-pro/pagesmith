@@ -9,7 +9,7 @@ seriesOrder: 3
 
 ## Automatic Collection Discovery
 
-Unlike Vite-first framework examples that often pair `@pagesmith/core` with a root `content.config.ts`, `@pagesmith/docs` discovers “collections” implicitly from the docs directory tree. There is no separate collection registration file in this workflow — the filesystem layout is the source of truth, and the docs build maps folders to routes and sidebars. The default convention is `docs/` at the repo root, with `content/` as the fallback when you choose a different explicit setup like this example.
+Unlike the other examples in this repo, which keep an explicit `content.config.ts` or `.mjs` built on `@pagesmith/site` (or on `@pagesmith/core` for headless-only integrations) and then layer framework rendering on top, `@pagesmith/docs` discovers “collections” implicitly from the docs directory tree. There is no separate collection registration file in this workflow — the filesystem layout is the source of truth, and the docs build maps folders to routes and sidebars. The default convention is `docs/` at the repo root, with `content/` as the fallback when you choose a different explicit setup like this example.
 
 Each top-level folder becomes a section with its own header/sidebar navigation:
 
@@ -32,11 +32,21 @@ publishedDate: 2026-03-18T00:00:00.000Z
 lastUpdatedOn: 2026-03-18T00:00:00.000Z
 tags: [tag1, tag2]
 draft: false
-layout: DocPage
+layout: page
 ---
 ```
 
-The `layout` field is optional — pages use the section's default layout, which can be configured in `meta.json5` or the site config.
+The `layout` field is optional — pages use the section's default layout, which can be configured in `meta.json5` or the site config. When you do set it, use the registered layout key from `theme.layouts` (for this example, keys like `page` and `home`), not the component filename.
+
+## Local assets beside docs pages
+
+Docs pages can keep companion images next to the markdown file and reference them with normal relative URLs:
+
+![Docs content tree illustration](./content-collections-local.svg)
+
+The docs build publishes that asset with the page while keeping the markdown source filesystem-first.
+
+For the canonical JPEG `<picture>` fallback and intrinsic-dimension examples, see the root docs page at `/guide/markdown-features/`.
 
 ## Section Metadata
 

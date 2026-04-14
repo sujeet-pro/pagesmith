@@ -14,10 +14,10 @@ For markdown features and authoring rules, also read `markdown-guidelines.md`.
 npm add @pagesmith/core
 ```
 
-If the project also needs Pagesmith site-building, install `@pagesmith/site` too:
+If the project also needs Pagesmith site-building, install `@pagesmith/site` instead of adding both packages manually. `@pagesmith/site` depends on core internally and re-exports the content APIs that site consumers usually need:
 
 ```bash
-npm add @pagesmith/core @pagesmith/site
+npm add @pagesmith/site
 ```
 
 ### 2. Create content collections
@@ -68,7 +68,7 @@ export default defineConfig({
 })
 ```
 
-If the project also needs Pagesmith site-building, split the imports:
+If the project also needs Pagesmith site-building and still keeps lower-level core imports explicit, split the imports like this:
 
 ```ts
 import { pagesmithContent } from '@pagesmith/core/vite'

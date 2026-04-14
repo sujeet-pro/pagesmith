@@ -97,6 +97,11 @@ export type PagesmithContentPluginOptions<TCollections extends CollectionMap> = 
    * Defaults to `src/pagesmith-content.d.ts` when `src/` exists, otherwise `pagesmith-content.d.ts`.
    */
   dts?: boolean | string | { path?: string }
+  /**
+   * Internal override used by re-exporting packages to keep generated declaration
+   * imports aligned with the public Vite entry point they expose.
+   */
+  dtsImportSource?: string
 }
 
 const DEFAULT_MODULE_ID = 'virtual:content'
@@ -236,7 +241,13 @@ export function pagesmithContent<TCollections extends CollectionMap>(
   const ensureDeclarations = (): void => {
     if (options.dts === false) return
 
-    const source = createDtsSource(moduleId, collectionNames, dtsPath, configPath)
+    const source = createDtsSource(
+      moduleId,
+      collectionNames,
+      dtsPath,
+      configPath,
+      options.dtsImportSource,
+    )
     mkdirSync(dirname(dtsPath), { recursive: true })
     writeFileSync(dtsPath, source)
   }

@@ -10,15 +10,18 @@ npm add @pagesmith/core
 
 ## Use this package when
 
-- You need a custom content architecture, custom layouts, or framework-specific rendering.
+- You need the headless content layer directly: collections, schemas, markdown, validation, and custom content architecture.
 - You want typed content collections with explicit schemas and runtime control.
 - You want the headless content layer for direct markdown rendering inside an existing app.
 - You want the headless content layer and will pair it with `@pagesmith/site` for shared CSS/runtime or site-building concerns.
 
 ## Start here
 
+- **Bootstrap / retrofit prompt:** `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
 - **Full API reference:** `node_modules/@pagesmith/core/REFERENCE.md`
+- **Package rules:** `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`
 - **Agent rules + prompts:** `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- **Markdown authoring rules:** `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`
 - **Upgrade prompt:** `node_modules/@pagesmith/core/ai-guidelines/migration.md`
 - **Step-by-step recipes:** `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
 
@@ -34,7 +37,7 @@ npm add @pagesmith/core
 
 ## CLI
 
-The **`pagesmith`** CLI (init, dev, build, preview, mcp, etc.) ships with **`@pagesmith/site`**. `@pagesmith/docs` uses that CLI through its preset.
+The **`pagesmith`** CLI (also published as **`pagesmith-site`**) ships with **`@pagesmith/site`**. `@pagesmith/docs` ships its own **`pagesmith-docs`** CLI for init, dev, build, preview, and MCP flows.
 
 ## All guidance files
 
@@ -42,6 +45,9 @@ The **`pagesmith`** CLI (init, dev, build, preview, mcp, etc.) ships with **`@pa
 |---|---|
 | `node_modules/@pagesmith/core/REFERENCE.md` | Complete API: content layer, collections, loaders, markdown, validation, assets, and `pagesmithContent` |
 | `node_modules/@pagesmith/core/README.md` | User-facing quick start and API overview |
+| `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` | Canonical bootstrap/retrofit prompt for existing apps and Vite repos |
+| `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md` | Package-specific rules and expectations |
+| `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md` | Supported markdown, code-block, and authoring rules |
 | `node_modules/@pagesmith/core/ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
 | `node_modules/@pagesmith/core/ai-guidelines/recipes.md` | Task-specific step-by-step recipes |
 | `node_modules/@pagesmith/core/ai-guidelines/errors.md` | Error catalog with patterns and fixes |
@@ -65,15 +71,15 @@ For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REF
 - Docs reference: `node_modules/@pagesmith/docs/REFERENCE.md`
 - Docs usage: `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
 
-## Site package pairing
+## Related site package
 
-Pair `@pagesmith/core` with `@pagesmith/site` for:
+If a project needs site-building concerns, choose `@pagesmith/site` instead of layering both packages into the same app-facing contract:
 - JSX runtime: `node_modules/@pagesmith/site/REFERENCE.md` (`@pagesmith/site/jsx-runtime`)
 - CSS bundles and CSS builder: `@pagesmith/site/css/*`
 - Runtime JS helpers: `@pagesmith/site/runtime/*`
 - SSG helpers and the CLI: `@pagesmith/site/vite`, `@pagesmith/site/ssg-utils`, `pagesmith`
 
-For framework-hosted apps, that pairing can stay limited to `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content`.
+Framework-hosted apps that only need the shipped prose/code-block presentation layer can either stay on `@pagesmith/core` alone or move up to `@pagesmith/site` when they want those shared CSS/runtime modules too.
 
 ## Recent changes
 

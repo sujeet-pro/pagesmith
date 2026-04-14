@@ -6,7 +6,55 @@
  * When the active heading changes, the TOC scrolls to keep it visible.
  */
 
+function getVisibleSideTocItem(): HTMLElement | null {
+  const activeLi = document.querySelector<HTMLElement>(
+    '.doc-aside [data-ps-toc] .doc-toc-item.active, .doc-aside [data-ps-toc] .toc-item.active, .sidebar-right [data-ps-toc] .doc-toc-item.active, .sidebar-right [data-ps-toc] .toc-item.active',
+  )
+  if (!activeLi || activeLi.getClientRects().length === 0) return null
+  return activeLi
+}
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function initMobileTocNavigation(): void {
+  const mobileToc = document.querySelector<HTMLDetailsElement>('.doc-toc-mobile')
+  if (!mobileToc) return
+
+  const mobileLinks = mobileToc.querySelectorAll<HTMLAnchorElement>('.doc-toc a[href^="#"]')
+  if (mobileLinks.length === 0) return
+
+  mobileLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const href = link.getAttribute('href')
+      const targetId = href?.slice(1)
+      if (!href || !targetId) return
+
+      const target = document.getElementById(targetId)
+      if (!target) return
+
+      event.preventDefault()
+      mobileToc.open = false
+      link.blur()
+
+      if (window.location.hash !== href) {
+        window.history.pushState(null, '', href)
+      }
+
+      window.requestAnimationFrame(() => {
+        target.scrollIntoView({
+          block: 'start',
+          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+        })
+      })
+    })
+  })
+}
+
 export function initTocHighlight(): void {
+  initMobileTocNavigation()
+
   const tocLinks = document.querySelectorAll<HTMLAnchorElement>(
     '[data-ps-toc] .doc-toc-item a, [data-ps-toc] .toc-item a, .doc-aside .doc-toc-item a, .sidebar-right .toc-item a',
   )
@@ -57,9 +105,9 @@ export function initTocHighlight(): void {
     })
     // Scroll active TOC item into view when it changes
     if (currentId !== prevId) {
-      const activeLi = document.querySelector(
-        '[data-ps-toc] .doc-toc-item.active, [data-ps-toc] .toc-item.active, .doc-aside .doc-toc-item.active, .sidebar-right .toc-item.active',
-      ) as HTMLElement | null
+      // Keep the sticky side TOC aligned without dragging the document back to
+      // the top when a link is clicked from the mobile accordion.
+      const activeLi = getVisibleSideTocItem()
       if (activeLi) {
         activeLi.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
       }

@@ -86,8 +86,8 @@ The `kind` field distinguishes between markdown loaders (which produce a body fo
 | Loader | Type String | Extensions | Kind | Parser | Notes |
 |---|---|---|---|---|---|
 | `MarkdownLoader` | `markdown` | `.md` | `markdown` | `gray-matter` | YAML frontmatter extracted as `data`, markdown body as `content` |
-| `JsonLoader` | `json` / `json5` | `.json` | `data` | `JSON.parse` / `json5` | Full object returned as `data` |
-| `JsoncLoader` | `jsonc` | `.json`, `.jsonc` | `data` | `json5` | JSON with comments |
+| `JsonLoader` | `json` / `json5` | `.json`, `.json5` | `data` | `JSON.parse` / `JSON5.parse` | Parser is chosen from the file extension |
+| `JsoncLoader` | `jsonc` | `.jsonc` | `data` | comment stripping + `JSON.parse` | JSON with comments and trailing commas |
 | `YamlLoader` | `yaml` | `.yml`, `.yaml` | `data` | `yaml` package | Structured config and content data |
 | `TomlLoader` | `toml` | `.toml` | `data` | `smol-toml` | Useful for feature flags or settings |
 
@@ -161,7 +161,7 @@ transform: async (entry) => {
 
 ### Computed Fields
 
-Computed fields are derived from entry data and merged into `entry.data` after schema validation. They are defined as a map of field names to functions:
+Computed fields are derived from entry data and merged into `entry.data` before schema validation (so they can be validated by the schema). They are defined as a map of field names to functions:
 
 ```ts title="content.config.ts" mark={9-12}
 const posts = defineCollection({
@@ -184,7 +184,7 @@ Computed field types are inferred and included in `InferCollectionData<T>`, so `
 
 ### Filter
 
-The `filter` hook runs after validation and computed fields. Return `false` to exclude an entry from the collection results:
+The `filter` hook runs after computed fields but before schema validation. Return `false` to exclude an entry from the collection results:
 
 ```ts title="content.config.ts"
 const posts = defineCollection({
@@ -348,10 +348,10 @@ const results = await layer.validate()
 
 ## Using Collections with the Vite Plugin
 
-For Vite-based projects, use the `pagesmithContent()` plugin to expose collections as virtual modules:
+For Vite-based projects, use the `pagesmithContent()` plugin to expose collections as virtual modules. Most app integrations keep that import on `@pagesmith/site/vite`, while `@pagesmith/core/vite` remains available for lower-level content-only setups:
 
 ```ts title="vite.config.ts"
-import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithContent } from '@pagesmith/site/vite'
 import collections from './content.config'
 
 export default defineConfig({

@@ -492,6 +492,78 @@ describe('loadDocsPages', () => {
     expect(intro!.html).toContain('src="/docs/assets/guide/diagram-dark.svg"')
   })
 
+  it('rewrites bare relative markdown asset refs during markdown processing', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ basePath: "/docs", origin: "https://example.dev", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      ['# Intro', '', '![Diagram](diagram.svg)'].join('\n'),
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'diagram.svg'),
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6"><rect width="12" height="6" fill="#111"/></svg>',
+      'utf-8',
+    )
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    const pages = await loadDocsPages(config)
+    const intro = pages.find((page) => page.contentSlug === 'guide/intro')
+
+    expect(intro).toBeDefined()
+    expect(intro!.html).toContain('src="/docs/assets/guide/diagram.svg"')
+  })
+
+  it('rewrites raw HTML picture srcset refs that use parent-directory assets', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+    mkdirSync(join(rootDir, 'content', 'shared'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ basePath: "/docs", origin: "https://example.dev", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      [
+        '# Intro',
+        '',
+        '<picture>',
+        '  <source srcset="../shared/diagram-dark.svg" media="(prefers-color-scheme: dark)">',
+        '  <img src="../shared/diagram-light.svg" alt="Diagram">',
+        '</picture>',
+      ].join('\n'),
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'shared', 'diagram-light.svg'),
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6"><rect width="12" height="6" fill="#eee"/></svg>',
+      'utf-8',
+    )
+    writeFileSync(
+      join(rootDir, 'content', 'shared', 'diagram-dark.svg'),
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6"><rect width="12" height="6" fill="#111"/></svg>',
+      'utf-8',
+    )
+
+    const config = resolveDocsConfig(join(rootDir, 'pagesmith.config.json5'))
+    const pages = await loadDocsPages(config)
+    const intro = pages.find((page) => page.contentSlug === 'guide/intro')
+
+    expect(intro).toBeDefined()
+    expect(intro!.html).toContain('srcset="/docs/assets/shared/diagram-dark.svg"')
+    expect(intro!.html).toContain('src="/docs/assets/shared/diagram-light.svg"')
+  })
+
   it('does not inline SVG files outside the page directory subtree', async () => {
     rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-pages-'))
     mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })

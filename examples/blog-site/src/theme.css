@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
-   Pagesmith + Core JSX — Blog Site Theme
+   Pagesmith + Site JSX — Blog Site Theme
 
-   Imports prose/inline-code styling from @pagesmith/core,
+   Imports the shared standalone CSS from @pagesmith/site,
    then defines the same layout as the framework examples.
    ═══════════════════════════════════════════════════════════════ */
 
-@import '@pagesmith/site/css/content';
+@import '@pagesmith/site/css/standalone';
 
 /* Text size */
 html[data-text-size="small"] { font-size: 87.5%; }

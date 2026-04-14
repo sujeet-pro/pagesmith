@@ -3,7 +3,7 @@
   "diagrams": {
     "cache-and-rebuilds.mermaid": {
       "hash": "sha256:d5e784d6f3bba641",
-      "generatedAt": "2026-04-13T21:19:22.979Z",
+      "generatedAt": "2026-04-14T20:54:41.400Z",
       "outputs": [
         {
           "file": "cache-and-rebuilds-light.svg",

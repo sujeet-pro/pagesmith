@@ -1,0 +1,35 @@
+export {
+  BaseFrontmatterSchema,
+  BlogFrontmatterSchema,
+  HeadingSchema,
+  MarkdownConfigSchema,
+  ProjectFrontmatterSchema,
+} from '@pagesmith/core/schemas'
+export type {
+  BaseFrontmatter,
+  BlogFrontmatter,
+  CollectionComputed,
+  CollectionDef,
+  CollectionMap,
+  ContentLayerConfig,
+  ContentPlugin,
+  Heading,
+  InferCollectionData,
+  InferCollectionLoaderKind,
+  MarkdownConfig,
+  ProjectFrontmatter,
+  RawEntry,
+} from '@pagesmith/core/schemas'
+export {
+  SiteAnalyticsConfigSchema,
+  SiteCopyrightSchema,
+  SiteFooterLinkGroupSchema,
+  SiteFooterLinkSchema,
+  SiteMaintainerSchema,
+  SiteSearchConfigSchema,
+  SiteSeoConfigSchema,
+  SiteServerConfigSchema,
+  SiteSidebarConfigSchema,
+  SiteThemeConfigSchema,
+  SiteUserConfigSchema,
+} from '../config.js'

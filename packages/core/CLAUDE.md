@@ -28,17 +28,12 @@ src/
                                     rehype-code-tabs → rehype-scrollable-tables →
                                     rehype-slug → rehype-autolink-headings →
                                     rehype-external-links → rehype-accessible-emojis →
+                                    rehype-local-images →
                                     heading extraction → (user rehype plugins) → rehype-stringify
     plugins/
       rehype-code-tabs.ts         Group consecutive titled code blocks into tabs
+      rehype-local-images.ts      Fill intrinsic image dimensions and JPEG picture fallbacks
       rehype-scrollable-tables.ts Wrap markdown tables for horizontal scrolling
-
-  jsx-runtime/
-    index.ts                      h(), Fragment(), HtmlString — server-side JSX-to-HTML runtime
-
-  css/
-    index.ts                      Re-exports buildCss
-    builder.ts                    buildCss() — LightningCSS bundler with browser targets
 
   schemas/
     index.ts                      Barrel for all Zod schemas and inferred types
@@ -56,7 +51,7 @@ src/
     errors.ts                     LoaderError class
     markdown.ts                   MarkdownLoader — gray-matter frontmatter + body
     json.ts                       JsonLoader — JSON / JSON5
-    jsonc.ts                      JsoncLoader — JSON with comments (json5)
+    jsonc.ts                      JsoncLoader — comment-stripped JSON parsed with JSON.parse
     yaml.ts                       YamlLoader — YAML via yaml package
     toml.ts                       TomlLoader — TOML via smol-toml
 
@@ -67,7 +62,7 @@ src/
     runner.ts                     runValidators(), builtinMarkdownValidators array
     link-validator.ts             Warn on bare URLs, empty link text, suspicious protocols
     heading-validator.ts          Enforce single h1, sequential depth, non-empty text
-    code-block-validator.ts       Warn on missing language, unknown language aliases
+    code-block-validator.ts       Warn when meta is used without a language and on unknown meta properties
 
   ai/
     index.ts                      installAiArtifacts(), getAiArtifacts(), getAiArtifactContent()
@@ -82,27 +77,6 @@ src/
     index.ts                      collectRemarkPlugins(), collectRehypePlugins(), runPluginValidators()
     types.ts                      Re-exports ContentPlugin from schemas
 
-  runtime/
-    index.ts                      CSS/JS asset accessors (getRuntimeCSS, getContentCSS, etc.)
-    standalone.ts                 Standalone runtime JS (TOC highlight)
-    content.ts                    Content-only runtime JS (code tabs + code block enhancements)
-    toc-highlight.ts              Active TOC heading highlight on scroll
-
-  styles/
-    standalone.css                Full standalone bundle (imports all below)
-    content.css                   Content-only bundle (reset + prose + code + viewport)
-    viewport.css                  Viewport / responsive base
-    foundations/
-      reset.css                   CSS reset
-      tokens.css                  Design tokens as custom properties
-    content/
-      prose.css                   Prose typography
-      toc.css                     Table of contents sidebar
-    code/
-      inline.css                  Inline code
-    layout/
-      grid.css                    Page grid
-      sidebar.css                 Sidebar layout
   utils/
     index.ts                      Barrel for utility functions
     glob.ts                       discoverFiles() — fast-glob wrapper for collection file discovery
@@ -186,6 +160,7 @@ remark-parse                       Parse markdown to MDAST
   -> rehype-autolink-headings      Wrap heading text in anchor links
   -> rehype-external-links         Add target/rel to external links
   -> rehype-accessible-emojis      Wrap emojis in accessible spans
+  -> rehype-local-images           Fill intrinsic image dimensions and JPEG picture fallbacks
   -> heading extraction            Custom plugin: walk HAST, collect Heading[]
   -> [user rehype plugins]         From MarkdownConfig.rehypePlugins
   -> rehype-stringify              Serialize HAST to HTML string
@@ -241,8 +216,8 @@ Each loader implements `{ name, extensions, load(filePath) -> LoaderResult }`.
 |-------------|------------------|------------------|------------------------------------------|
 | `markdown`  | `MarkdownLoader` | `.md`            | gray-matter frontmatter + body content   |
 | `json`      | `JsonLoader`     | `.json`          | JSON.parse, full object as data          |
-| `json5`     | `JsonLoader`     | `.json`          | Same class, json5 parse                  |
-| `jsonc`     | `JsoncLoader`    | `.json`, `.jsonc`| JSON with comments via json5             |
+| `json5`     | `JsonLoader`     | `.json5`         | Same class, JSON5.parse based on extension |
+| `jsonc`     | `JsoncLoader`    | `.jsonc`         | Comment stripping + JSON.parse           |
 | `yaml`      | `YamlLoader`     | `.yml`, `.yaml`  | yaml package                             |
 | `toml`      | `TomlLoader`     | `.toml`          | smol-toml                                |
 
@@ -262,7 +237,7 @@ Built-in validators (`builtinMarkdownValidators`):
 
 - **linkValidator** — warns on bare URLs, empty link text, suspicious protocols
 - **headingValidator** — enforces single h1, sequential heading depth, non-empty text
-- **codeBlockValidator** — warns on missing language, unknown language aliases
+- **codeBlockValidator** — warns when meta is used without a language and on unknown meta properties
 
 Custom validators: implement `ContentValidator { name, validate(ctx) }` and add to `CollectionDef.validators`. Disable built-ins with `disableBuiltinValidators: true`.
 
@@ -302,20 +277,24 @@ The package exposes multiple entry points via `exports` in package.json:
 - **Trailing commas** everywhere (arrays, objects, parameters, imports).
 - **ESM only** — `"type": "module"` in package.json. No CommonJS.
 - **Zod schemas** for all validation. Re-exports `z` from `zod` for consumer convenience.
-- **Custom CSS properties** — design tokens in `styles/foundations/tokens.css` as `--ps-*` variables.
 - **No default exports** — all exports are named.
 - **Node platform** — build target is Node (`platform: 'node'` in vite.config.ts).
 - **Tests** in `src/__tests__/` colocated with source, run via `vp test`.
 - **Build** via `vp pack` (vite-plus), outputs to `dist/` as ESM with source maps and declarations.
-- **CSS** bundled with LightningCSS; targets Chrome 123+, Firefox 120+, Safari 18+.
 - **Processor caching** — the unified markdown processor is cached per `MarkdownConfig` reference via `WeakMap` to avoid rebuilding the plugin chain on every call.
 
 ## Package AI files
 
 These files are part of the package contract and must be kept current when `@pagesmith/core` behavior changes:
 
+- `ai-guidelines/setup-core.md`
+- `ai-guidelines/core-guidelines.md`
+- `ai-guidelines/markdown-guidelines.md`
 - `ai-guidelines/llms.txt`
 - `ai-guidelines/llms-full.txt`
 - `ai-guidelines/usage.md`
 - `ai-guidelines/recipes.md`
+- `ai-guidelines/errors.md`
+- `ai-guidelines/migration.md`
 - `ai-guidelines/changelog-notes.md`
+- `ai-guidelines/AGENTS.md.template`

@@ -9,7 +9,7 @@ seriesOrder: 2
 
 ## How `@pagesmith/docs` uses `@pagesmith/core`
 
-`@pagesmith/docs` is the opinionated docs app: package-owned `pagesmith-docs` CLI, default theme, navigation, Pagefind, and validation rules for this style of site. `@pagesmith/core` supplies the markdown pipeline, shared validators, and content-layer primitives, while `@pagesmith/site` supplies the JSX runtime and shared runtime/CSS behavior underneath the docs package. You see that split in layout overrides — components import `h` from `@pagesmith/site/jsx-runtime` and `Html` from `@pagesmith/docs/theme`.
+`@pagesmith/docs` is the opinionated docs app: package-owned `pagesmith-docs` CLI, default theme, navigation, Pagefind, and validation rules for this style of site. The package builds on the shared Pagesmith content/site stack internally, and it re-exports the supported layout-override surface so docs consumers can stay on `@pagesmith/docs`. You see that in this example's overrides — components import `h` from `@pagesmith/docs/jsx-runtime` and reuse the shared shell through `@pagesmith/docs/components`.
 
 ## Convention-Based Layout
 

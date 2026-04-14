@@ -260,7 +260,7 @@ function createKnownIcon(kind: BadgeIconKind, shortLabel: string): HastNode {
   }
 }
 
-export function createLanguageBadge(lang: string | undefined): HastNode {
+export function createLanguageBadge(lang: string | undefined, title?: string): HastNode {
   const key = normalizeLanguageKey(lang)
   const preset = LANGUAGE_PRESETS[key]
 
@@ -276,6 +276,7 @@ export function createLanguageBadge(lang: string | undefined): HastNode {
           '--ps-code-language-badge-fg': fallbackColors.foreground,
         }),
         'aria-hidden': 'true',
+        ...(title ? { title } : {}),
       },
       [text(getFallbackLabel(key))],
     )
@@ -291,6 +292,7 @@ export function createLanguageBadge(lang: string | undefined): HastNode {
         '--ps-code-language-badge-fg': preset.foreground,
       }),
       'aria-hidden': 'true',
+      ...(title ? { title } : {}),
     },
     [createKnownIcon(preset.icon, preset.shortLabel)],
   )

@@ -1,6 +1,6 @@
 # `@pagesmith/site` Full LLM Reference
 
-`@pagesmith/site` is the Pagesmith site toolkit.
+`@pagesmith/site` is the Pagesmith site toolkit and the app-facing package for custom sites.
 
 It owns:
 
@@ -12,9 +12,11 @@ It owns:
 - Vite SSG helpers (`@pagesmith/site/vite`)
 - shared SSG utilities (`@pagesmith/site/ssg-utils`)
 
-It does not replace `@pagesmith/core`.
+It builds on `@pagesmith/core` internally and re-exports the content-layer APIs that site consumers typically need.
 
-Keep these in `@pagesmith/core`:
+Drop to `@pagesmith/core` directly only when the project intentionally wants the lower-level headless package instead of the site package.
+
+Core still owns the underlying implementation for:
 
 - collections
 - schemas and loaders
@@ -22,11 +24,12 @@ Keep these in `@pagesmith/core`:
 - validation
 - `pagesmithContent`
 
+For site-first apps, keep those imports on `@pagesmith/site` so the project stays on one package surface.
+
 Typical Vite wiring:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 ```
 
 Typical framework-hosted app wiring:
@@ -36,7 +39,7 @@ import '@pagesmith/site/css/content'
 import '@pagesmith/site/runtime/content'
 ```
 
-In that shape, collections and markdown rendering stay on `@pagesmith/core`, and `@pagesmith/site` only provides the shared prose/code-block presentation layer.
+In that shape, keep collection setup and markdown rendering on `@pagesmith/site` too, so the app stays on one Pagesmith package while still reusing the shipped prose/code-block presentation layer.
 
 Typical JSX wiring:
 
@@ -55,8 +58,16 @@ Preset rules:
 - override via `--preset`, `PAGESMITH_PRESET`, or config `preset` / `presets`
 - use `pagesmith-docs` when the project wants the built-in docs workflow
 
+Config helpers:
+
+- `defineSiteConfig(config)` / `loadSiteConfig(configPath?)`
+- `parseSiteConfig(config)` for schema-backed validation
+- `normalizeBasePath`, `withBasePath`, `stripBasePath`, `withTrailingSlash`
+- `@pagesmith/site/schemas` exports `SiteUserConfigSchema` plus the related config helper schemas
+
 Read:
 
+- `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`
 - `node_modules/@pagesmith/site/README.md`
 - `node_modules/@pagesmith/site/REFERENCE.md`
 - `node_modules/@pagesmith/site/ai-guidelines/site-guidelines.md`

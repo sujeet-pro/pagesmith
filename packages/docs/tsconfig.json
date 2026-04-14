@@ -4,6 +4,8 @@
     "rootDir": ".",
     "outDir": "dist",
     "paths": {
+      "@pagesmith/docs": ["./src/index.ts"],
+      "@pagesmith/docs/*": ["./src/*.ts", "./src/*/index.ts"],
       "@pagesmith/core": ["../core/src/index.ts"],
       "@pagesmith/core/*": ["../core/src/*/index.ts"],
       "@pagesmith/site": ["../site/src/index.ts"],

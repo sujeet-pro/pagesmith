@@ -6,7 +6,8 @@
  * used across all framework examples.
  */
 
-import type { Heading } from '@pagesmith/core/schemas'
+import type { Heading } from '../schemas/index.js'
+export { runPagefindIndexing, type PagefindIndexOptions, type PagefindLogger } from './pagefind.js'
 
 // ── Types ──
 

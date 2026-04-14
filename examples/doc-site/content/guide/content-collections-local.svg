@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="220" viewBox="0 0 520 220" role="img" aria-labelledby="title desc">
+  <title id="title">Docs content collections local asset example</title>
+  <desc id="desc">A diagram showing the actual doc-site guide page file mapping to a guide route while a local SVG asset stays beside the markdown page.</desc>
+  <rect width="520" height="220" rx="20" fill="#f5f4f0"/>
+  <rect x="32" y="36" width="168" height="116" rx="14" fill="#ffffff" stroke="#d0cfc9" stroke-width="2"/>
+  <text x="116" y="62" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#111110">content/</text>
+  <text x="60" y="92" font-family="Arial, sans-serif" font-size="14" fill="#333330">guide/</text>
+  <text x="84" y="116" font-family="Arial, sans-serif" font-size="14" fill="#333330">content-collections.md</text>
+  <text x="84" y="138" font-family="Arial, sans-serif" font-size="14" fill="#7a7a72">content-collections-local.svg</text>
+  <rect x="248" y="54" width="240" height="80" rx="14" fill="#fff3e8" stroke="#d4381e" stroke-width="2"/>
+  <text x="368" y="82" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#111110">Docs route + asset output</text>
+  <text x="368" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#7a7a72">/guide/getting-started and published asset</text>
+  <path d="M200 94h48" stroke="#d4381e" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="244,94 234,88 234,100" fill="#d4381e"/>
+  <rect x="82" y="170" width="356" height="30" rx="10" fill="#ffffff" stroke="#d0cfc9" stroke-width="2"/>
+  <text x="260" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#333330">Normal relative image syntax works because docs rendering keeps the markdown file path.</text>
+</svg>

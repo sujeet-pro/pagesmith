@@ -10,10 +10,12 @@ npm add @pagesmith/core
 
 ## Priority order
 
-1. `node_modules/@pagesmith/core/REFERENCE.md` for the complete API reference (content layer, collections, loaders, markdown, validation, assets, and `pagesmithContent`).
-2. `node_modules/@pagesmith/core/ai-guidelines/usage.md` for package rules, integration contract, and copy-paste agent prompts.
-3. `node_modules/@pagesmith/core/ai-guidelines/migration.md` for upgrading an existing integration and adopting the latest package guidance.
-4. `node_modules/@pagesmith/core/ai-guidelines/recipes.md` for step-by-step implementation patterns.
+1. `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` for bootstrap or retrofit work in existing apps and Vite repos.
+2. `node_modules/@pagesmith/core/REFERENCE.md` for the complete API reference (content layer, collections, loaders, markdown, validation, assets, and `pagesmithContent`).
+3. `node_modules/@pagesmith/core/ai-guidelines/usage.md` for package rules, integration contract, and copy-paste agent prompts.
+4. `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md` for supported markdown, code-block, and authoring rules.
+5. `node_modules/@pagesmith/core/ai-guidelines/migration.md` for upgrading an existing integration and adopting the latest package guidance.
+6. `node_modules/@pagesmith/core/ai-guidelines/recipes.md` for step-by-step implementation patterns.
 
 ## Key rules
 
@@ -49,7 +51,7 @@ Fields: `collections`, optional `root`, `markdown`, `assets`, `plugins`, optiona
 
 ## CLI
 
-The **`pagesmith`** CLI lives in **`@pagesmith/site`**. `@pagesmith/core` does not ship that binary; `@pagesmith/docs` uses the site CLI through its preset.
+The **`pagesmith`** CLI lives in **`@pagesmith/site`** (and is also published as **`pagesmith-site`**). `@pagesmith/core` does not ship that binary; `@pagesmith/docs` ships its own **`pagesmith-docs`** CLI for init, dev, build, preview, and MCP flows.
 
 ## Package files
 
@@ -59,6 +61,9 @@ All paths below are under `node_modules/@pagesmith/core/`:
 |---|---|
 | `node_modules/@pagesmith/core/REFERENCE.md` | Complete API: content layer, collections, loaders, markdown pipeline, validation, assets, and `pagesmithContent` |
 | `node_modules/@pagesmith/core/README.md` | User-facing quick start, direct rendering, Vite integration, and API overview |
+| `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` | Canonical bootstrap/retrofit prompt for existing apps and Vite repos |
+| `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md` | Package-specific rules and responsibilities |
+| `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md` | Supported markdown, code-block, and authoring rules |
 | `node_modules/@pagesmith/core/ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts for common workflows |
 | `node_modules/@pagesmith/core/ai-guidelines/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
 | `node_modules/@pagesmith/core/ai-guidelines/recipes.md` | Step-by-step recipes (collections, Vite, markdown, AI pointers) |
@@ -74,7 +79,7 @@ The `node_modules/@pagesmith/core/ai-guidelines/usage.md` file contains copy-pas
 
 1. **Bootstrap or retrofit in an existing app or Vite repo** → reads `node_modules/@pagesmith/core/REFERENCE.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
 2. **Define content collections** → reads `node_modules/@pagesmith/core/REFERENCE.md`
-3. **Write markdown content** (frontmatter, code blocks, mermaid) → reads `node_modules/@pagesmith/core/REFERENCE.md`
+3. **Write markdown content** (frontmatter, code blocks, diagram source fences such as mermaid) → reads `node_modules/@pagesmith/core/REFERENCE.md`
 4. **Troubleshooting validation errors** → reads `node_modules/@pagesmith/core/ai-guidelines/errors.md`
 5. **Upgrade existing integration** → reads `node_modules/@pagesmith/core/ai-guidelines/migration.md`, `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md`, `node_modules/@pagesmith/core/REFERENCE.md`
 
@@ -115,9 +120,14 @@ Shared utilities exported from `@pagesmith/core/mcp`:
 - `resolvePackageDocPath(moduleDir, relativePath)` — resolve doc file path
 - `asTextResource(uri, path)` — load file as MCP text resource
 
-## Site package pairing
+Version-matched MCP resources:
+- `pagesmith://core/agents/usage`
+- `pagesmith://core/llms-full`
+- `pagesmith://core/reference`
 
-Use `@pagesmith/core` as the headless content layer. Pair it with `@pagesmith/site` for site-building concerns:
+## Related site package
+
+Use `@pagesmith/core` as the headless content layer. If a project needs site-building concerns, choose `@pagesmith/site` as the app-facing package instead:
 
 - JSX runtime: `@pagesmith/site/jsx-runtime`
 - CSS builder + CSS bundles: `@pagesmith/site/css` and `@pagesmith/site/css/*`
@@ -125,4 +135,4 @@ Use `@pagesmith/core` as the headless content layer. Pair it with `@pagesmith/si
 - SSG helpers: `@pagesmith/site/vite` and `@pagesmith/site/ssg-utils`
 - CLI and preset loading: `pagesmith` from `@pagesmith/site`
 
-For framework-hosted apps, that pairing can stay limited to `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content`.
+Framework-hosted apps that only need the shipped prose/code-block presentation layer can either stay on `@pagesmith/core` alone or move up to `@pagesmith/site` when they want those shared CSS/runtime modules too.

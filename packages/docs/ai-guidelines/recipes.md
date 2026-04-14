@@ -89,7 +89,8 @@ Or copy `node_modules/@pagesmith/docs/ai-guidelines/AGENTS.md.template` as a sta
 
 1. Register command: `pagesmith-docs mcp --stdio`.
 2. Keep config at the default `pagesmith.config.json5` or pass `--config`.
-3. Use `docs_list_pages` and `docs_get_page` to drive docs updates from current content structure.
+3. Start with `docs_validate_config`, then use `docs_list_pages`, `docs_search_pages`, and `docs_get_page` to drive docs updates from current content structure.
+4. Read `pagesmith://docs/reference` or `pagesmith://core/reference` when the agent needs version-matched package docs mid-task.
 
 **Read:** `node_modules/@pagesmith/docs/REFERENCE.md` (MCP server section in CLI), `node_modules/@pagesmith/docs/ai-guidelines/usage.md` (MCP Introspection Workflows)
 

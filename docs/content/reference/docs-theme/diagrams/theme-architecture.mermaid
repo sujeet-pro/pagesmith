@@ -4,49 +4,49 @@ title: Docs theme architecture overview
 %%{init: {'htmlLabels': false}}%%
 
 flowchart TB
-  Config["Resolved docs config<br/>site metadata, theme, search, links"]
-  Html["Html.tsx<br/>document shell, meta tags, CSS, runtime"]
-  Runtime["runtime/main.ts<br/>theme, search, sidebar,<br/>TOC highlight, copyright"]
-  Styles["styles/<br/>foundations, layout, content,<br/>code, components"]
-  Markdown["Rendered markdown<br/>frontmatter, headings, prose"]
+  Config["Resolved docs config<br/>theme, search, links, metadata"]
+  PageData["Resolved docs page data<br/>breadcrumbs, sidebarSections,<br/>headings, prev/next, listings"]
+  Html["theme/components/Html.tsx<br/>re-export -> SiteDocument"]
+  Shell["PageShell<br/>shared site shell"]
+  Runtime["theme/runtime/main.ts<br/>imports @pagesmith/site/runtime/standalone"]
+  Styles["theme/styles/main.css<br/>site fonts + standalone CSS<br/>plus docs home / 404 overrides"]
+  Markdown["Rendered markdown<br/>html body"]
 
-  subgraph Layouts["Default layouts"]
-    Home["DocHome<br/>hero + features"]
-    Page["DocPage<br/>three-column article grid"]
-    NotFound["DocNotFound<br/>404 page"]
+  subgraph Layouts["Docs-owned layouts"]
+    Home["DocHome"]
+    Page["DocPage"]
+    Listing["DocListing"]
+    NotFound["DocNotFound"]
   end
 
-  Header["DocHeader"]
-  Footer["DocFooter"]
-  Sidebar["DocSidebar"]
-  TOC["DocTOC"]
+  subgraph Shared["Shared site surface"]
+    Header["SiteHeader"]
+    Sidebar["SiteSidebar"]
+    SidebarModal["SiteSidebarModal"]
+    TOC["TableOfContents"]
+    Footer["SiteFooter"]
+  end
 
-  Config --> Html
-  Html --> Home
-  Html --> Page
-  Html --> NotFound
-
-  Home --> Header
-  Home --> Markdown
-  Home --> Footer
-
-  Page --> Header
-  Page --> Sidebar
+  Config --> Layouts
+  PageData --> Layouts
+  Layouts --> Html
+  Page --> Shell
+  Listing --> Shell
+  Shell --> Header
+  Shell --> Sidebar
+  Shell --> SidebarModal
+  Shell --> TOC
+  Shell --> Footer
   Page --> Markdown
-  Page --> TOC
-  Page --> Footer
-
+  Listing --> Markdown
+  Home --> Header
+  Home --> SidebarModal
+  Home --> Footer
+  Home --> Markdown
   NotFound --> Header
 
   Html -. loads .-> Runtime
   Html -. loads .-> Styles
-
-  Runtime -. enhances .-> Header
-  Runtime -. enhances .-> Sidebar
-  Runtime -. enhances .-> TOC
-  Runtime -. enhances .-> Footer
-
-  Styles -. styles .-> Home
-  Styles -. styles .-> Page
-  Styles -. styles .-> NotFound
+  Runtime -. enhances .-> Shell
+  Styles -. styles .-> Layouts
   Styles -. styles .-> Markdown

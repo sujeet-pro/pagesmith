@@ -47,10 +47,10 @@ Use this diagram as the mental map: both integration styles start from the same 
 npm add @pagesmith/core
 ```
 
-For a custom site that also wants the shared Pagesmith presentation layer, install `@pagesmith/site` too:
+If you want a custom site with the shared Pagesmith presentation layer, JSX runtime, or SSG helpers, use `@pagesmith/site` instead:
 
 ```bash title="Terminal"
-npm add @pagesmith/core @pagesmith/site
+npm add @pagesmith/site
 ```
 
 ## Create a Content Config
@@ -144,7 +144,7 @@ Rendering is lazy. When you call `getCollection()`, Pagesmith discovers files, l
 
 If your app already owns routing and build tooling, you can stop at `createContentLayer()` plus `entry.render()`. This is the recommended shape for framework hosts such as Next.js or custom SSR apps that do not want Pagesmith's Vite plugins.
 
-Pair `@pagesmith/core` with `@pagesmith/site` only when you also want the shipped markdown presentation layer:
+If you want the shipped markdown presentation layer or other site-building helpers, move up to `@pagesmith/site`:
 
 - `@pagesmith/site/css/content` for prose and code-block chrome
 - `@pagesmith/site/runtime/content` for copy buttons, code tabs, and collapse toggles
@@ -153,7 +153,7 @@ See [Next.js (App Router)](/guide/framework-nextjs) for a complete example of th
 
 ## Using the Vite Plugin
 
-For Vite-based projects, split Pagesmith by layer:
+For Vite-based projects, split Pagesmith by layer when you are intentionally staying on the lower-level core package:
 
 - **`pagesmithContent`** from `@pagesmith/core/vite` exposes collections as virtual modules with full type safety.
 - **`pagesmithSsg`** from `@pagesmith/site/vite` handles dev-time SSR middleware and build-time static site generation.
@@ -171,6 +171,8 @@ export default defineConfig({
   ],
 })
 ```
+
+If the project adopts `@pagesmith/site` as the app-facing package, you can instead keep the Vite imports on `@pagesmith/site/vite`.
 
 Then import collection data in your application code:
 
@@ -218,9 +220,10 @@ When you are working with an installed project, these are the first files to han
 | I want to... | Import from |
 |---|---|
 | Define collections and schemas | `@pagesmith/core` |
-| Use the content Vite plugin | `@pagesmith/core/vite` |
-| Use SSG / shared asset Vite helpers | `@pagesmith/site/vite` |
-| Write JSX layouts | `@pagesmith/site/jsx-runtime` |
+| Use the content Vite plugin in a core-only integration | `@pagesmith/core/vite` |
+| Use the app-facing Vite plugin and SSG helpers | `@pagesmith/site/vite` |
+| Write site JSX layouts | `@pagesmith/site/jsx-runtime` |
+| Write docs layout overrides | `@pagesmith/docs/jsx-runtime` |
 | Add content CSS | `@pagesmith/site/css/content` |
 | Add full layout CSS | `@pagesmith/site/css/standalone` |
 | Process markdown directly | `@pagesmith/core/markdown` |
@@ -233,6 +236,6 @@ When you are working with an installed project, these are the first files to han
 - [Collections and Loaders](/guide/collections-and-loaders) -- defining collections, built-in loaders, custom loaders, schemas
 - [Validation and Rendering](/guide/validation-and-rendering) -- schema validation, content validators, the markdown pipeline
 - [Next.js (App Router)](/guide/framework-nextjs) -- direct `createContentLayer()` + `entry.render()` inside a framework app
-- [API Reference](/reference/api) -- full API surface of `@pagesmith/core`
+- [API Reference](/reference/api) -- full API surface of `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs`
 - [Configuration Reference](/reference/configuration) -- all configuration options
 - [AI Assistants](/guide/ai-assistants) -- installing assistant memory and skill files

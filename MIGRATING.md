@@ -9,8 +9,8 @@ This guide covers the current split into `@pagesmith/core`, `@pagesmith/site`, a
 ### Three-package architecture
 
 - `@pagesmith/core` is now the headless content layer.
-- `@pagesmith/site` owns the `pagesmith-site` CLI (`pagesmith` remains a compatibility alias), JSX runtime, shared CSS/runtime bundles, SSG helpers, and preset loading.
-- `@pagesmith/docs` is the opinionated docs preset and theme built on top of core + site.
+- `@pagesmith/site` owns the `pagesmith-site` CLI (`pagesmith` remains a compatibility alias), re-exported content APIs, JSX runtime, shared CSS/runtime bundles, SSG helpers, and preset loading.
+- `@pagesmith/docs` is the opinionated docs preset and theme built on top of the site/content stack.
 
 ### Import moves
 
@@ -35,8 +35,7 @@ Move these imports to `@pagesmith/site`:
 Typical migration:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 ```
 
 ```tsx
@@ -67,7 +66,7 @@ import { Fragment } from '@pagesmith/site/jsx-runtime'
 
 ## Suggested upgrade checklist
 
-1. Update imports so content concerns stay on `@pagesmith/core` and site-building concerns move to `@pagesmith/site`.
+1. Update imports so headless-only content concerns stay on `@pagesmith/core`, while site-app imports move to `@pagesmith/site`.
 2. Update JSX `jsxImportSource` values from `@pagesmith/core` to `@pagesmith/site` where you use the built-in JSX runtime.
 3. Update CSS and runtime imports from `@pagesmith/core/css/*` and `@pagesmith/core/runtime/*` to `@pagesmith/site/css/*` and `@pagesmith/site/runtime/*`.
 4. For docs projects, prefer `pagesmith-docs` and a plain `pagesmith.config.json5`; only keep `preset: '@pagesmith/docs'` when you are intentionally routing docs through `pagesmith-site`.

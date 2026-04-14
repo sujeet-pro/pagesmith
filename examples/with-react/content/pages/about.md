@@ -5,7 +5,7 @@ description: A Pagesmith + React integration example
 
 # Pagesmith + React
 
-This example demonstrates how to build a static site using **@pagesmith/core** with **React** as the rendering framework.
+This example demonstrates how to build a static site using **`@pagesmith/site`** as the app-facing package for typed content collections, the Vite/SSG/runtime layer, and a **React** rendering shell.
 
 It showcases:
 

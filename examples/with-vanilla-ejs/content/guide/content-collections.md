@@ -15,10 +15,10 @@ Content collections are the bridge between your markdown files and your template
 
 ## Defining collections
 
-Collections are defined in `content.config.mjs` using `defineCollection` and `defineCollections` from `@pagesmith/core`:
+Collections are defined in `content.config.mjs` using `defineCollection` and `defineCollections` from `@pagesmith/site`:
 
 ```js title="content.config.mjs"
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',
@@ -67,14 +67,14 @@ Key patterns used in this example:
 - **`z.array(z.string()).default([])`** -- Tags default to an empty array when omitted.
 - **`z.string().optional()`** -- Fields like `description` and `series` are not required.
 
-The `z` import is re-exported from `@pagesmith/core`, so you do not need to install Zod separately.
+The `z` import is re-exported from `@pagesmith/site`, so you do not need to install Zod separately.
 
 ## Using `createContentLayer`
 
-Unlike the React or Solid examples that use virtual modules via `pagesmithContent`, the EJS example uses `createContentLayer` directly to load content at build time:
+Unlike the React, Solid, or Svelte examples that use virtual modules via `pagesmithContent`, the EJS example uses `createContentLayer` directly from `@pagesmith/site` to load content at build time:
 
 ```ts title="src/entry-server.tsx (excerpt)"
-import { createContentLayer } from '@pagesmith/core'
+import { createContentLayer } from '@pagesmith/site'
 
 const { guide, pages } = contentConfig as Record<string, any>
 

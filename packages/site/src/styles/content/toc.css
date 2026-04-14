@@ -1,8 +1,9 @@
 /* ─── TOC ─── */
-.toc {
+.doc-toc {
   font-size: var(--font-size-sm);
 }
-.toc-title {
+
+.doc-toc-title {
   font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -10,14 +11,16 @@
   color: var(--color-text-muted);
   margin-bottom: 0.75rem;
 }
-.toc-list {
+
+.doc-toc-list {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
   border-left: 2px solid var(--color-border-subtle);
   padding-left: 0;
 }
-.toc-item a {
+
+.doc-toc-item a {
   display: block;
   padding: 0.2rem 0 0.2rem 0.75rem;
   color: var(--color-text-muted);
@@ -26,27 +29,34 @@
   border-left: 2px solid transparent;
   margin-left: -2px;
 }
-.toc-item a:hover {
+
+.doc-toc-item a:hover {
   color: var(--color-text);
 }
-.toc-item.active a {
+
+.doc-toc-item.active a {
   color: var(--color-text);
   border-left-color: var(--color-accent);
 }
-.toc-item.depth-3 a {
+
+.doc-toc-item.depth-2 a {
+  padding-left: 0.75rem;
+}
+
+.doc-toc-item.depth-3 a {
   padding-left: 1.5rem;
   font-size: 0.8125rem;
 }
 
 /* ─── Mobile TOC accordion ─── */
-/* Visibility controlled by layout/grid.css breakpoints */
-.toc-mobile {
+.doc-toc-mobile {
   margin-bottom: 1.5rem;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
   background: var(--color-bg-alt);
 }
-.toc-mobile summary {
+
+.doc-toc-mobile summary {
   padding: 0.75rem 1rem;
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -57,10 +67,12 @@
   align-items: center;
   justify-content: space-between;
 }
-.toc-mobile summary::-webkit-details-marker {
+
+.doc-toc-mobile summary::-webkit-details-marker {
   display: none;
 }
-.toc-mobile summary::after {
+
+.doc-toc-mobile summary::after {
   content: "";
   width: 16px;
   height: 16px;
@@ -69,19 +81,24 @@
   transition: transform var(--transition-fast);
   flex-shrink: 0;
 }
-.toc-mobile[open] summary::after {
+
+.doc-toc-mobile[open] summary::after {
   transform: rotate(90deg);
 }
-.toc-mobile .toc {
+
+.doc-toc-mobile .doc-toc {
   padding: 0 1rem 0.75rem;
 }
-.toc-mobile .toc-title {
+
+.doc-toc-mobile .doc-toc-title {
   display: none;
 }
-.toc-mobile .toc-list {
+
+.doc-toc-mobile .doc-toc-list {
   border-left: none;
 }
-.toc-mobile .toc-item a {
+
+.doc-toc-mobile .doc-toc-item a {
   border-left: none;
   margin-left: 0;
 }

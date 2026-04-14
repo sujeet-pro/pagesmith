@@ -5,7 +5,7 @@ description: A Pagesmith + Svelte 5 integration example
 
 # Pagesmith + Svelte 5
 
-This example demonstrates how to build a static site using **@pagesmith/core** with **Svelte 5** as the rendering framework.
+This example demonstrates how to build a static site using **`@pagesmith/site`** as the app-facing package for typed content collections, the Vite/SSG/runtime layer, and a **Svelte 5** rendering shell.
 
 It showcases:
 

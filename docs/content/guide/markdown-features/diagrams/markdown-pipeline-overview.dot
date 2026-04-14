@@ -8,7 +8,7 @@ digraph MarkdownPipelineOverview {
   userRemark [label="Custom remark plugins\n(@pagesmith/core only)"]
   alias [label="Language alias transform"]
   bridge [label="remark-rehype\nMarkdown AST -> HTML AST"]
-  rehype [label="Built-in rehype stage\nMathJax, code renderer,\ncode tabs, tables, slug,\nautolinks, external links,\nemoji, heading extraction"]
+  rehype [label="Built-in rehype stage\nMathJax, code renderer,\ncode tabs, tables, slug,\nautolinks, external links,\nemoji, local images,\nheading extraction"]
   post [label="Post-processing\n@pagesmith/core: custom rehype plugins\n@pagesmith/docs: docs link/asset transforms"]
   output [label="HTML string"]
 

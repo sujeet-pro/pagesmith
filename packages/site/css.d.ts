@@ -3,6 +3,11 @@ declare module '@pagesmith/site/css/content' {
   export default css
 }
 
+declare module '@pagesmith/site/css/chrome' {
+  const css: string
+  export default css
+}
+
 declare module '@pagesmith/site/css/standalone' {
   const css: string
   export default css

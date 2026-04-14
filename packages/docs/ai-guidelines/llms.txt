@@ -28,6 +28,8 @@ npm add @pagesmith/docs
 | `node_modules/@pagesmith/docs/REFERENCE.md` | Complete config, CLI, content, markdown, layout, deployment |
 | `node_modules/@pagesmith/docs/README.md` | User-facing quick start and API overview |
 | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` | Canonical bootstrap/retrofit prompt for existing repos |
+| `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` | Docs-specific structure, navigation, and ownership rules |
+| `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` | Markdown authoring and pipeline rules for docs projects |
 | `node_modules/@pagesmith/docs/ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
 | `node_modules/@pagesmith/docs/ai-guidelines/recipes.md` | Task-specific step-by-step recipes |
 | `node_modules/@pagesmith/docs/ai-guidelines/errors.md` | Error catalog with patterns and fixes |

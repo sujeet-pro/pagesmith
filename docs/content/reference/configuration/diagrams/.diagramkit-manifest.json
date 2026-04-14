@@ -3,20 +3,20 @@
   "diagrams": {
     "config-surfaces-core-vs-docs.mermaid": {
       "hash": "sha256:4085277f82279ef4",
-      "generatedAt": "2026-04-13T21:19:22.977Z",
+      "generatedAt": "2026-04-14T20:54:41.398Z",
       "outputs": [
         {
           "file": "config-surfaces-core-vs-docs-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 632.8515625,
+          "width": 566.140625,
           "height": 216.79998779296875
         },
         {
           "file": "config-surfaces-core-vs-docs-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 632.8515625,
+          "width": 566.140625,
           "height": 216.79998779296875
         }
       ],

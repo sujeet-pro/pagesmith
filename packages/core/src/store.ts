@@ -116,7 +116,15 @@ export class ContentStore {
         console.warn(`[pagesmith] ${loadError.message}`)
         const slug = def.slugify ? def.slugify(filePath, directory) : toSlug(filePath, directory)
         return {
-          entry: new ContentEntry(slug, name, filePath, {}, undefined, this.markdownConfig),
+          entry: new ContentEntry(
+            slug,
+            name,
+            filePath,
+            {},
+            undefined,
+            this.markdownConfig,
+            directory,
+          ),
           issues: [
             { message: loadError.message, severity: 'error' as const, source: 'schema' as const },
           ],
@@ -226,6 +234,7 @@ export class ContentStore {
       validatedData,
       raw.content,
       this.markdownConfig,
+      directory,
     )
 
     return { entry, issues }

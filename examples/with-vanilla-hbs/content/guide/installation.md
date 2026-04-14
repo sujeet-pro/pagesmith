@@ -10,11 +10,11 @@ seriesOrder: 1
 
 # Installation
 
-This example is a **best-practice `@pagesmith/core` + Vite + Handlebars** static site: markdown collections validated at build time, SSR that returns HTML strings, and a thin browser entry for progressive enhancement. It does **not** use `@pagesmith/docs`; you own routing, templates, and layout.
+This example is a **best-practice `@pagesmith/site` + Vite + Handlebars** static site: markdown collections validated at build time, SSR that returns HTML strings, and a thin browser entry for progressive enhancement. It does **not** use `@pagesmith/docs`; you own routing, templates, and layout.
 
 ## How the pieces connect
 
-1. **`content.config.mjs`** — Declares collections (`guide`, `pages`) with Zod schemas. This file is imported by the SSR entry so the same definitions drive validation and loading. The markdown showcase now lives at `content/guide/kitchen-sink.md`.
+1. **`content.config.mjs`** — Declares collections (`guide`, `pages`) with `@pagesmith/site` Zod schemas. This file is imported by the SSR entry so the same definitions drive validation and loading. The markdown showcase now lives at `content/guide/kitchen-sink.md`.
 
 2. **`createContentLayer`** — In `src/entry-server.tsx`, the entry builds a content layer from that config and `root`, then loads collections with `getCollection()` and renders markdown with `entry.render()`. There are no virtual `virtual:content/*` modules.
 
@@ -31,9 +31,9 @@ This example is a **best-practice `@pagesmith/core` + Vite + Handlebars** static
 ```json title="package.json (excerpt)"
 {
   "dependencies": {
-    "@pagesmith/core": "*",
+    "@pagesmith/site": "*",
     "handlebars": "^4.7.9",
-    "pagefind": "^1.3.0"
+    "pagefind": "^1.5.0"
   }
 }
 ```
@@ -74,6 +74,6 @@ Output is written to `gh-pages/examples/vanilla-hbs/` (see `build.outDir` in `vi
 
 - **`pagesmithSsg`** — Invokes your SSR entry for route discovery and HTML generation, watches `contentDirs` in dev, and runs Pagefind after a production build.
 
-- **`sharedAssetsPlugin`** — Copies shared assets (for example fonts) from `@pagesmith/core` into the build output.
+- **`sharedAssetsPlugin`** — Copies shared assets (for example fonts) from `@pagesmith/site` into the build output.
 
 Guide order in the sidebar comes from each file’s frontmatter (`series`, `seriesOrder`, `date`), grouped in `src/entry-server.tsx` — not from a separate meta file.

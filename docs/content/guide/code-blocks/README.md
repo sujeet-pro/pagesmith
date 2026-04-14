@@ -130,7 +130,7 @@ Mark specific lines to draw attention:
 ````markdown
 ```ts mark={3}
 const name = 'Pagesmith'
-const version = '0.1.0'
+const version = '0.8.0'
 const highlighted = true  // this line is highlighted
 ```
 ````
@@ -139,7 +139,7 @@ Rendered sample:
 
 ```ts mark={3}
 const name = 'Pagesmith'
-const version = '0.1.0'
+const version = '0.8.0'
 const highlighted = true  // this line is highlighted
 ```
 
@@ -193,8 +193,7 @@ Collapse long sections of code that are not the focus:
 ```ts collapse={1-5}
 // These lines are collapsed by default
 import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
 import collections from './content.config'
 // This line is visible
 export default defineConfig({
@@ -208,8 +207,7 @@ Rendered sample:
 ```ts collapse={1-5}
 // These lines are collapsed by default
 import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
 import collections from './content.config'
 // This line is visible
 export default defineConfig({
@@ -225,14 +223,14 @@ Enable word wrapping for long lines:
 
 ````markdown
 ```json wrap
-{"name": "@pagesmith/core", "description": "File-based CMS — schema-validated collections, lazy markdown rendering, and runtime CSS/JS exports", "version": "0.1.0"}
+{"name": "@pagesmith/core", "description": "Headless content layer — schema-validated collections, lazy markdown rendering, and the Vite content plugin", "version": "0.8.0"}
 ```
 ````
 
 Rendered sample:
 
 ```json wrap
-{"name": "@pagesmith/core", "description": "File-based CMS — schema-validated collections, lazy markdown rendering, and runtime CSS/JS exports", "version": "0.1.0"}
+{"name": "@pagesmith/core", "description": "Headless content layer — schema-validated collections, lazy markdown rendering, loaders, and the Vite content plugin", "version": "0.8.0"}
 ```
 
 ## Frame Styles
@@ -253,7 +251,7 @@ Rendered sample:
 npm install @pagesmith/core
 ```
 
-Available frame values: `"code"` (editor), `"terminal"`, `"none"`, `"auto"` (default).
+Available frame values: `"code"` (editor), `"terminal"`, `"none"` (plain, no chrome). When omitted, the frame is auto-detected from the language (`bash`/`sh`/`shell`/`console`/`zsh` use `"terminal"`, everything else uses `"code"`).
 
 ## Copy Button
 

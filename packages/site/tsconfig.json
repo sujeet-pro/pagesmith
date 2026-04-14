@@ -2,7 +2,14 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["node"],
+    "paths": {
+      "@pagesmith/core": ["../core/src/index.ts"],
+      "@pagesmith/core/*": ["../core/src/*.ts", "../core/src/*/index.ts"],
+      "@pagesmith/site": ["./src/index.ts"],
+      "@pagesmith/site/*": ["./src/*.ts", "./src/*/index.ts"]
+    }
   },
-  "include": ["src/**/*.ts", "vite.config.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]
 }

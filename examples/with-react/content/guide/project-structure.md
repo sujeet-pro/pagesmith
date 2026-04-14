@@ -41,7 +41,7 @@ examples/with-react/
 Registers **`sharedAssetsPlugin`**, **`pagesmithContent({ collections })`**, and the spread return of **`pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] })`**. Sets `base` and `build.outDir` for the hosted demo path.
 
 ```ts title="vite.config.ts (excerpt)"
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/react',

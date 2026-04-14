@@ -1,8 +1,7 @@
 // Wires filesystem markdown → virtual modules (pagesmithContent) and SSG + Pagefind (pagesmithSsg).
 import { defineConfig } from 'vite-plus'
 import collections from './content.config'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/react',

@@ -6,7 +6,7 @@ Use this file when upgrading a project from the old two-package Pagesmith split 
 
 - `@pagesmith/core` is now the headless content layer.
 - `@pagesmith/site` owns the `pagesmith-site` CLI, JSX runtime, CSS bundles, runtime JS, and Vite SSG helpers.
-- `@pagesmith/docs` is the opinionated docs preset built on top of both packages.
+- `@pagesmith/docs` is the opinionated docs preset for docs consumers who should stay on one package.
 
 ## Import Moves
 
@@ -21,7 +21,7 @@ Move these imports to `@pagesmith/site`:
 - `@pagesmith/core/runtime/*`
 - `@pagesmith/core/ssg-utils`
 
-Keep these on `@pagesmith/core`:
+Core still owns the implementation of these APIs, but site-first apps can import them from `@pagesmith/site` to stay on one package surface. Keep direct `@pagesmith/core` imports only when the project intentionally wants the lower-level headless package:
 
 - `defineCollection`
 - `defineCollections`
@@ -42,8 +42,7 @@ import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/c
 After:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 ```
 
 Before:
@@ -80,7 +79,7 @@ After:
 After migrating:
 
 1. Re-run typechecking.
-2. Verify Vite imports are split correctly between `core` and `site`.
+2. Verify site-app imports moved to `@pagesmith/site` and `@pagesmith/site/vite`.
 3. Verify JSX configs point to `@pagesmith/site`.
 4. Verify CSS/runtime imports use `@pagesmith/site`.
 5. Verify `pagesmith-site dev`, `build`, and `preview` still work with the intended preset.

@@ -1,5 +1,5 @@
 /**
- * SSR entry for the Handlebars example — this is the integration seam for @pagesmith/core + SSG.
+ * SSR entry for the Handlebars example — this is the integration seam for @pagesmith/site + SSG.
  *
  * - pagesmithSsg imports this module and calls `getRoutes` / `render` (no virtual content modules).
  * - `createContentLayer` loads markdown from disk using `content.config.mjs` schemas.
@@ -7,7 +7,7 @@
  * - Returned strings are full HTML documents consumed as static output in production.
  */
 
-import { createContentLayer } from '@pagesmith/core'
+import { createContentLayer } from '@pagesmith/site'
 import Handlebars from 'handlebars'
 import { readFileSync } from 'fs'
 import { join } from 'path'

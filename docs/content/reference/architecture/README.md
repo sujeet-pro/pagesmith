@@ -15,6 +15,7 @@ Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm 
   assistant artifact APIs
 
 @pagesmith/site (built on @pagesmith/core)
+  app-facing content-layer re-exports
   pagesmith-site CLI
   JSX runtime
   CSS builder + shared CSS/runtime bundles
@@ -61,7 +62,7 @@ These principles are the long-term guardrails for implementation and docs decisi
 | `@pagesmith/site` | `@pagesmith/core` | CLI, JSX, CSS/runtime bundles, Vite SSG |
 | `@pagesmith/docs` | `@pagesmith/core`, `@pagesmith/site` | Docs preset, theme, schemas, MCP |
 
-Custom sites (the `examples/` projects) depend on `@pagesmith/core` for content plus `@pagesmith/site` for JSX, CSS/runtime, and SSG. Framework-hosted apps can also use `@pagesmith/core` directly and add `@pagesmith/site/css/content` plus `@pagesmith/site/runtime/content` only when they want the shared markdown presentation layer.
+Site-driven custom sites (most of the `examples/` projects) depend on `@pagesmith/site`, which in turn depends on `@pagesmith/core` internally. Framework-hosted apps can still use `@pagesmith/core` directly and add `@pagesmith/site/css/content` plus `@pagesmith/site/runtime/content` only when they want the shared markdown presentation layer.
 
 ## Core Package Internals
 
@@ -94,11 +95,6 @@ toc.ts                    extractToc() -- heading extraction from HTML
 markdown/
   pipeline.ts             Unified pipeline (remark + built-in Pagesmith renderer + rehype)
 
-jsx-runtime/              h(), Fragment(), HtmlString for server-side JSX
-
-css/
-  builder.ts              LightningCSS bundler targeting Chrome 100+, Firefox 100+, Safari 16+
-
 schemas/
   collection.ts           CollectionDef<S>, RawEntry, CollectionMap, InferCollectionData
   content-config.ts       ContentLayerConfig, ContentPlugin
@@ -123,6 +119,8 @@ validation/
 
 vite/
   index.ts                pagesmithContent() plugin + type exports
+  content-plugin.ts       Virtual module resolution, HMR, and DTS generation
+  dts.ts                  TypeScript declaration file generator for virtual modules
 ```
 
 ## Content Loading Flow
@@ -209,6 +207,7 @@ remark-parse                    Parse markdown to MDAST
   -> rehype-autolink-headings  Wrap heading text in anchor links (behavior: 'wrap')
   -> rehype-external-links     target="_blank" on external URLs
   -> rehype-accessible-emojis  aria-label on emoji characters
+  -> rehype-local-images       Fill intrinsic image dimensions and JPEG picture fallbacks
   -> heading extraction        Custom plugin: walk HAST, collect Heading[]
   -> [user rehype plugins]     From MarkdownConfig.rehypePlugins
   -> rehype-stringify           Serialize HAST to HTML string
@@ -220,7 +219,7 @@ The built-in renderer and shared code block styles use Pagesmith design tokens v
 
 ## Vite Plugin Architecture
 
-Pagesmith splits Vite responsibilities across `@pagesmith/core/vite` and `@pagesmith/site/vite`:
+Pagesmith still implements Vite responsibilities across `@pagesmith/core/vite` and `@pagesmith/site/vite`, but `@pagesmith/site/vite` re-exports `pagesmithContent` so site consumers can keep Vite imports on one package:
 
 ### `pagesmithContent(collections, options?)` -- Content Virtual Modules
 
@@ -246,7 +245,7 @@ Returns two plugins:
 
 The SSR entry module must export:
 - `getRoutes(config: SsgRenderConfig): string[]` -- returns route paths to pre-render
-- `render(url: string, config: SsgRenderConfig): string` -- renders a route to an HTML string
+- `render(url: string, config: SsgRenderConfig): string | Promise<string>` -- renders a route to an HTML string
 
 ### `sharedAssetsPlugin()` -- Font Assets in Dev
 
@@ -271,7 +270,7 @@ The central module that implements `build()`, `startDev()`, and `preview()`. It:
 5. **Builds a site model** containing navigation items, sidebar sections (per content section), and a page map
 6. **Renders pages** using JSX theme layouts (DocHome, DocPage, DocNotFound) or custom layouts registered via `theme.layouts` in the config
 7. **Bundles CSS** using `@pagesmith/site/css` (LightningCSS)
-8. **Bundles runtime JS** for sidebar toggle, TOC highlight, and search
+8. **Bundles runtime JS** for the shared site chrome and content runtime: footer year sync, responsive search trigger, sidebar modal behavior, skip-link focus, theme controls, TOC highlight, plus code copy/tab/collapse interactions
 9. **Runs Pagefind** indexing on the built output (when search is enabled)
 
 ### Layout Override System
@@ -337,5 +336,5 @@ Pagesmith uses multiple layers of caching for performance:
 - **Markdown validation shares one MDAST parse** across all validators via `ValidatorContext.mdast`, avoiding redundant parsing.
 - **Schema validation parses once** via Zod `safeParse` and reuses the coerced result for the entry data.
 - **Loader parse failures** are wrapped with structured file-aware errors so the content layer can report which file failed and why.
-- **The docs experience uses the package-owned `pagesmith-docs` CLI** while custom-site examples build directly on `@pagesmith/core` + `@pagesmith/site`, reinforcing the separation between convention-based docs and flexible custom sites.
+- **The docs experience uses the package-owned `pagesmith-docs` CLI** while custom-site examples build directly on `@pagesmith/site`, reinforcing the separation between convention-based docs and flexible custom sites.
 - **Processor caching via WeakMap** means the unified plugin chain is built once per unique `MarkdownConfig` and reused for all entries sharing that config.

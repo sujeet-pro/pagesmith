@@ -5,18 +5,36 @@
  */
 
 import { existsSync, readFileSync } from 'fs'
-import { resolve } from 'path'
+import { dirname, resolve } from 'path'
+
+function resolvePackageRoot(moduleDir: string): string {
+  let current = resolve(moduleDir)
+
+  while (true) {
+    const pkgPath = resolve(current, 'package.json')
+    if (existsSync(pkgPath)) return current
+
+    const parent = dirname(current)
+    if (parent === current) {
+      throw new Error(`Could not resolve package root from module directory: ${moduleDir}`)
+    }
+    current = parent
+  }
+}
 
 /** Read the package version from a package.json relative to the calling module. */
 export function getPackageVersion(moduleDir: string): string {
-  const pkgPath = resolve(moduleDir, '..', '..', 'package.json')
+  const pkgPath = resolve(resolvePackageRoot(moduleDir), 'package.json')
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { version?: string }
-  return pkg.version ?? '0.0.0'
+  if (!pkg.version) {
+    throw new Error(`Missing package version in ${pkgPath}`)
+  }
+  return pkg.version
 }
 
 /** Resolve a doc file path relative to the package root. */
 export function resolvePackageDocPath(moduleDir: string, relativePath: string): string {
-  return resolve(moduleDir, '..', '..', relativePath)
+  return resolve(resolvePackageRoot(moduleDir), relativePath)
 }
 
 /** Load a file as an MCP text resource response. Throws if the file doesn't exist. */

@@ -19,7 +19,7 @@ The build is standard Vite (`vite-plus`) plus Svelte and Pagesmith plugins.
 import { defineConfig } from 'vite-plus'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import collections from './content.config'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/svelte',
@@ -41,7 +41,7 @@ export default defineConfig({
 
 ### `sharedAssetsPlugin()`
 
-Copies shared assets (e.g. fonts) from `@pagesmith/core` into the build output so CSS `url()` references resolve in production.
+Copies shared assets (e.g. fonts) from `@pagesmith/site` into the build output so CSS `url()` references resolve in production.
 
 ### `svelte()`
 

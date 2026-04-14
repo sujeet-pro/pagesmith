@@ -28,7 +28,7 @@ npm add @pagesmith/docs
 - Configure **`home`**, **`server`** (dev/preview ports; **preview default port 4000**, not Vite’s 4173), **`icon`**, **`maintainer`**, **`footerLinks`**, **`footerText`**, **`copyright`**, **`editLink`**, and **`lastUpdated`** in `pagesmith.config.json5` as needed.
 - Use `meta.json5` and frontmatter for ordering and labels, not hardcoded nav lists.
 - Keep search configuration inside `pagesmith.config.json5`; Pagefind is built in, and layout overrides should scope `data-pagefind-body` to the content-only wrapper rather than the full shell.
-- Use `theme.layouts` keys (`home`, `page`, `notFound`) for layout overrides.
+- Use `theme.layouts` keys (`home`, `page`, `listing`, `notFound`) for layout overrides.
 - Use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` when editing config, meta.json5, or frontmatter.
 - When `pagesmith.config.json5` is committed, keep its `$schema` pointing at the installed file in `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`.
 - For GitHub repos, bootstrap flows should default to GitHub Pages values: probe `https://<owner>.github.io` for `origin`, keep `basePath` as `/<repo-name>`, and treat root hosting as a manual config edit.
@@ -46,6 +46,8 @@ All paths below are under `node_modules/@pagesmith/docs/`:
 | `node_modules/@pagesmith/docs/REFERENCE.md` | Complete config, CLI, content structure, frontmatter, markdown, layout, deployment |
 | `node_modules/@pagesmith/docs/README.md` | User-facing quick start and API overview |
 | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` | Canonical bootstrap/retrofit prompt for existing repos |
+| `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` | Docs-specific structure, navigation, and ownership rules |
+| `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` | Markdown authoring and pipeline rules for docs projects |
 | `node_modules/@pagesmith/docs/ai-guidelines/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
 | `node_modules/@pagesmith/docs/ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts for common workflows |
 | `node_modules/@pagesmith/docs/ai-guidelines/recipes.md` | Step-by-step recipes (bootstrap, sections, pages, meta, layouts, MCP) |
@@ -112,6 +114,12 @@ The docs MCP server (`pagesmith-docs mcp --stdio`) exposes:
 - `docs_get_page` — get a page by slug with markdown source
 - `docs_search_pages` — search pages by query (title, description, content)
 
+Version-matched MCP resources:
+- `pagesmith://docs/agents/usage`
+- `pagesmith://docs/llms-full`
+- `pagesmith://docs/reference`
+- `pagesmith://core/reference`
+
 ## Theme system
 
 Built-in multi-theme support with header toggle dropdown and footer theme selector:
@@ -121,8 +129,8 @@ Built-in multi-theme support with header toggle dropdown and footer theme select
 - User preferences persist in `localStorage('pagesmith-theme')`
 - Progressive enhancement: no-JS uses OS preference; JS enables toggle UI and persistence
 - FOUC prevention via inline `<script>` in `<head>` before CSS loads
-- Theme runtime: `theme/runtime/theme.ts` (`initTheme`, `setColorScheme`, `setTheme`)
-- Styles: `theme/styles/components/theme-toggle.css`, `theme/styles/foundations/color-scheme.css`, `theme/styles/foundations/themes.css`
+- Theme runtime: delegated to `@pagesmith/site/runtime/standalone` via `theme/runtime/main.ts`
+- Styles: inherited from `@pagesmith/site/css/standalone` via `theme/styles/main.css`; docs-only additions in `theme/styles/layout/home.css` and `theme/styles/components/not-found.css`
 - Footer links support two shapes: a flat link grid of `{ label, path }` links or grouped columns of `{ header?, links }`. On wide screens the footer uses up to 4 evenly spaced columns, and prev/next navigation now renders between page metadata and the footer link area. When `footerLinks` is omitted, the footer falls back to the major top-level nav links.
 - `DocHome` uses the same main content-column width and inline padding as `DocPage`, so the landing page and content pages stay visually aligned even when sidebars appear or disappear around the content.
 - Footer legal line: configurable with `copyright` for `{ projectName, startYear, endYear?: number | null }`; the default sign-off is "Made with love using Pagesmith" with a heart icon, a link to `https://projects.sujeet.pro/pagesmith/`, and an optional maintainer credit from `maintainer` or `package.json` author. `footerText` overrides only that sign-off segment.

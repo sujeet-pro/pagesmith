@@ -4,7 +4,7 @@
  * 404 page for documentation sites.
  */
 
-import { h } from '@pagesmith/site/jsx-runtime'
+import { h } from '@pagesmith/docs/jsx-runtime'
 import { DocHeader } from '../components/DocHeader'
 import { Html } from '../components/Html'
 import { resolveChrome } from '../utils/chrome'

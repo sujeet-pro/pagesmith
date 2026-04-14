@@ -1,5 +1,6 @@
-import { copyPublicFiles, hashAssets } from '@pagesmith/core/assets'
+import { copyPublicFiles, emitGeneratedImageVariants, hashAssets } from '@pagesmith/core/assets'
 import { buildCss } from '@pagesmith/site/css'
+import { runPagefindIndexing } from '@pagesmith/site/ssg-utils'
 import {
   copyFileSync,
   existsSync,
@@ -77,6 +78,22 @@ function copyDirRecursive(srcDir: string, destDir: string): void {
 
 const PRESERVED_OUT_DIR_ENTRIES = new Set(['examples'])
 
+function assertValidDocsConfig(
+  config: ResolvedDocsConfig,
+  options: { surroundWithBlankLines?: boolean } = {},
+) {
+  const issues = validateConfig(config)
+  if (issues.length === 0) return
+
+  if (options.surroundWithBlankLines) console.log()
+  const hasErrors = reportConfigIssues(issues)
+  if (options.surroundWithBlankLines) console.log()
+
+  if (hasErrors) {
+    throw new Error('Config validation failed — fix the errors above before building.')
+  }
+}
+
 function clearDocsOutputDir(outDir: string): void {
   mkdirSync(outDir, { recursive: true })
 
@@ -110,10 +127,10 @@ function copyMappedAssets(config: ResolvedDocsConfig): void {
   }
 }
 
-function copyContentAssetsToOutput(
+async function copyContentAssetsToOutput(
   outDir: string,
   assets: ReturnType<typeof collectContentAssets>,
-): void {
+): Promise<void> {
   if (assets.byPath.size === 0) return
 
   const assetsDir = join(outDir, 'assets')
@@ -124,18 +141,8 @@ function copyContentAssetsToOutput(
     mkdirSync(dirname(destPath), { recursive: true })
     copyFileSync(sourcePath, destPath)
   }
-}
 
-async function runPagefind(outDir: string, extraFlags: string[] = []): Promise<void> {
-  const mainUrl = import.meta.resolve('pagefind')
-  const mainPath = fileURLToPath(mainUrl)
-  const pagefindRoot = join(mainPath, '..', '..')
-  const binaryPath = join(pagefindRoot, 'lib', 'runner', 'bin.cjs')
-
-  const { execFileSync } = await import('child_process')
-  execFileSync(process.execPath, [binaryPath, '--site', outDir, ...extraFlags], {
-    stdio: 'inherit',
-  })
+  await emitGeneratedImageVariants(assetsDir, assets)
 }
 
 function escapeXml(value: string): string {
@@ -184,15 +191,7 @@ export async function build(options: DocsBuildOptions = {}): Promise<void> {
   })
 
   // Validate config and report issues
-  const issues = validateConfig(config)
-  if (issues.length > 0) {
-    console.log()
-    const hasErrors = reportConfigIssues(issues)
-    console.log()
-    if (hasErrors) {
-      throw new Error('Config validation failed — fix the errors above before building.')
-    }
-  }
+  assertValidDocsConfig(config, { surroundWithBlankLines: true })
 
   const stagingDir = mkdtempSync(join(tmpdir(), 'pagesmith-docs-build-'))
   const buildConfig: ResolvedDocsConfig = { ...config, outDir: stagingDir }
@@ -207,7 +206,7 @@ export async function build(options: DocsBuildOptions = {}): Promise<void> {
     console.log(`  Rendered ${pages.length} pages in ${renderElapsed}ms`)
     copyPublicAssets(buildConfig)
     copyMappedAssets(buildConfig)
-    copyContentAssetsToOutput(buildConfig.outDir, contentAssets)
+    await copyContentAssetsToOutput(buildConfig.outDir, contentAssets)
 
     // Copy favicon to output if not already present (e.g. bundled default not in public/)
     if (buildConfig.favicon) {
@@ -241,10 +240,14 @@ export async function build(options: DocsBuildOptions = {}): Promise<void> {
     if (buildConfig.search.enabled) {
       console.log()
       try {
-        await runPagefind(buildConfig.outDir, buildConfig.search.pagefindFlags)
+        runPagefindIndexing(buildConfig.outDir, {
+          extraFlags: buildConfig.search.pagefindFlags,
+        })
       } catch (error) {
-        console.warn(`\x1b[33m⚠ Pagefind indexing failed — search will not be available.\x1b[0m`)
-        console.warn(`  ${error instanceof Error ? error.message : String(error)}`)
+        throw new Error(
+          `Pagefind indexing failed: ${error instanceof Error ? error.message : String(error)}`,
+          { cause: error },
+        )
       }
     }
 
@@ -272,20 +275,14 @@ export async function rebuildContent(options: DocsBuildOptions = {}): Promise<vo
     basePath: options.basePath,
   })
 
-  const issues = validateConfig(config)
-  if (issues.length > 0) {
-    const hasErrors = issues.some((i) => i.severity === 'error')
-    if (hasErrors) {
-      reportConfigIssues(issues)
-    }
-  }
+  assertValidDocsConfig(config)
 
   const contentAssets = collectContentAssets(config.contentDir)
 
   const { pages } = await renderDocs(config)
   copyPublicAssets(config)
   copyMappedAssets(config)
-  copyContentAssetsToOutput(config.outDir, contentAssets)
+  await copyContentAssetsToOutput(config.outDir, contentAssets)
   copyLlmsFiles(config)
 
   if (config.favicon) {

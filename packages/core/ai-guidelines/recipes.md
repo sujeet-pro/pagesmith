@@ -51,3 +51,12 @@ import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 ```
 
 Do not move collection logic into `@pagesmith/site`.
+
+## Recipe: Inspect a content layer over MCP
+
+1. Start a small project-local wrapper that builds your `ContentLayer` and calls `startCoreMcpServer({ layer })`.
+2. Call `core_list_collections` to understand collection names, directories, and schema fields.
+3. Call `core_list_entries` for a collection before pulling full page content.
+4. Call `core_search_entries` to narrow to likely matches by slug, title, description, or tags.
+5. Call `core_get_entry` only for the specific entries that need rendered HTML or headings.
+6. Run `core_validate` when the task involves schema drift, broken content, or release checks.

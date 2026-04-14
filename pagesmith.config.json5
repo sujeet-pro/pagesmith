@@ -65,6 +65,10 @@
   },
   assets: {
     '/': ['./llms.txt', './llms-full.txt', './packages/docs/schemas'],
-    '/prompts': ['./packages/docs/ai-guidelines/setup-docs.md'],
+    '/prompts': [
+      './packages/core/ai-guidelines/setup-core.md',
+      './packages/site/ai-guidelines/setup-site.md',
+      './packages/docs/ai-guidelines/setup-docs.md',
+    ],
   },
 }

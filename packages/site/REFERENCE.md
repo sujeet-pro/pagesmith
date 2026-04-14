@@ -5,6 +5,7 @@ Reference for the Pagesmith site toolkit.
 `@pagesmith/site` builds on `@pagesmith/core` and owns the site-facing surface:
 
 - preset-driven `pagesmith-site` CLI
+- re-exported content-layer APIs for site consumers
 - Vite SSG plugins
 - server-side JSX runtime
 - CSS bundles and CSS builder
@@ -18,8 +19,8 @@ Reference for the Pagesmith site toolkit.
 
 ## Package Roles
 
-- `@pagesmith/core`: collections, loaders, markdown pipeline, validation, `pagesmithContent`
-- `@pagesmith/site`: JSX, CSS, runtime JS, SSG/dev/preview pipeline, preset-driven CLI
+- `@pagesmith/core`: headless collections, loaders, markdown pipeline, validation, and the lower-level content package
+- `@pagesmith/site`: app-facing content + site package, including core re-exports, JSX, CSS, runtime JS, SSG/dev/preview pipeline, and the preset-driven CLI
 - `@pagesmith/docs`: opinionated docs preset built on core + site
 
 ## Adoption Paths
@@ -44,17 +45,69 @@ Identity helper for top-level `pagesmith.config.json5`-style config objects when
 
 ### `loadSiteConfig(configPath?)`
 
-Reads a JSON5 config file from disk and returns:
+Reads a JSON5 config file from disk without schema validation. Defaults to `pagesmith.config.json5`.
+
+### `parseSiteConfig(config)`
+
+Validates a custom-site config object with the shared site schema:
 
 ```ts
 type SiteUserConfig = {
   preset?: string
   presets?: string[]
+  name?: string
+  title?: string
+  description?: string
+  origin?: string
+  language?: string
+  contentDir?: string
+  outDir?: string
+  publicDir?: string
+  basePath?: string
+  homeLink?: string
+  maintainer?: { name: string; link?: string }
+  footerLinks?: Array<{ label: string; path: string }> | Array<{ header?: string; links: Array<{ label: string; path: string }> }>
+  footerText?: string
+  copyright?: { projectName: string; startYear: number; endYear?: number | null }
+  sidebar?: { collapsible?: boolean }
+  search?: { enabled?: boolean; showImages?: boolean; showSubResults?: boolean }
+  theme?: {
+    lightColor?: string
+    darkColor?: string
+    defaultColorScheme?: 'auto' | 'light' | 'dark'
+    defaultTheme?: string
+    defaultTextSize?: string
+    layouts?: Record<string, string>
+    socialImage?: string
+  }
+  seo?: { locale?: string; twitterHandle?: string; defaultOgType?: string }
+  analytics?: { googleAnalytics?: string }
+  socialImage?: string
+  favicon?: string | false
+  faviconFallback?: string | false
+  appleTouchIcon?: string | false
+  server?: { host?: string; devPort?: number; previewPort?: number; strictPort?: boolean }
   [key: string]: unknown
 }
 ```
 
-Defaults to `pagesmith.config.json5`.
+The schema is also exported from `@pagesmith/site/schemas` as `SiteUserConfigSchema`.
+
+### `normalizeBasePath(basePath)`
+
+Normalizes `''`, `'/'`, and slash-wrapped values to the package-standard base-path form (`''` or `'/docs'`).
+
+### `withBasePath(basePath, path)`
+
+Prefixes site-local absolute paths with `basePath` while leaving already-prefixed, relative, and external URLs untouched.
+
+### `stripBasePath(url, basePath)`
+
+Removes `basePath` from a request URL and returns the site-local path.
+
+### `withTrailingSlash(path)`
+
+Normalizes route-style paths for link output (`/guide` -> `/guide/`, `/` stays `/`).
 
 ### `normalizePresetSpecifier(value)`
 
@@ -154,6 +207,7 @@ Important behavior:
 
 Available from `@pagesmith/site/vite`:
 
+- `pagesmithContent`
 - `pagesmithSsg`
 - `sharedAssetsPlugin`
 - `prerenderRoutes`
@@ -253,6 +307,7 @@ import { buildCss } from '@pagesmith/site/css'
 
 ### Static CSS subpaths
 
+- `@pagesmith/site/css/chrome`
 - `@pagesmith/site/css/content`
 - `@pagesmith/site/css/standalone`
 - `@pagesmith/site/css/code-block`
@@ -260,6 +315,47 @@ import { buildCss } from '@pagesmith/site/css'
 - `@pagesmith/site/css/tabs`
 - `@pagesmith/site/css/viewport`
 - `@pagesmith/site/css/fonts`
+
+Recommended pairing:
+
+- `css/chrome` for shared site chrome only
+- `css/standalone` for chrome + prose + code UI
+- `css/content` for prose + code UI without the site shell
+
+## Components / Layouts / Theme
+
+### `@pagesmith/site/components`
+
+Reusable server-rendered chrome used by `@pagesmith/docs` and the first-party examples.
+
+Primary exports include:
+
+- `SiteDocument` / `Html`
+- `SiteHeader` / `DocHeader`
+- `SiteSidebar` / `DocSidebar`
+- `SiteSidebarModal`
+- `TableOfContents` / `DocTOC`
+- `AccordionTableOfContents`
+- `SiteFooter` / `DocFooter`
+- `ListingCards`
+- `Breadcrumbs`
+- shared prop types such as `SiteNavItem`, `SiteSidebarSection`, `SiteFooterLinks`, `SiteListingCard`, and `SiteDocumentData`
+- component asset bundle metadata via `SITE_CHROME_ASSETS`, `SITE_CONTENT_ASSETS`, and `SITE_STANDALONE_ASSETS`
+
+### `@pagesmith/site/layouts`
+
+Reusable layout wrappers:
+
+- `PageShell` / `DocPageShell` — 3-column docs/page shell that composes the shared header, sidebar, TOC, and footer
+
+### `@pagesmith/site/theme`
+
+Theme-control defaults:
+
+- `DEFAULT_COLOR_SCHEME_OPTIONS`
+- `DEFAULT_THEME_OPTIONS`
+- `DEFAULT_TEXT_SIZE_OPTIONS`
+- `resolveThemeControls()`
 
 ## Runtime Helpers
 
@@ -271,6 +367,10 @@ Node-side helpers for reading packaged CSS and JS:
 - `getRuntimeJS`
 - `getRuntimeCSSPath`
 - `getRuntimeJSPath`
+- `getChromeCSS`
+- `getChromeJS`
+- `getChromeCSSPath`
+- `getChromeJSPath`
 - `getContentCSS`
 - `getContentJS`
 - `getContentCSSPath`
@@ -280,17 +380,23 @@ Node-side helpers for reading packaged CSS and JS:
 
 ### Browser runtime entry points
 
+- `@pagesmith/site/runtime/chrome`
 - `@pagesmith/site/runtime/content`
 - `@pagesmith/site/runtime/standalone`
 - `@pagesmith/site/runtime/code-blocks`
 - `@pagesmith/site/runtime/code-tabs`
+- `@pagesmith/site/runtime/footer-year`
+- `@pagesmith/site/runtime/search-trigger`
+- `@pagesmith/site/runtime/sidebar`
+- `@pagesmith/site/runtime/skip-link`
 - `@pagesmith/site/runtime/toc-highlight`
 - `@pagesmith/site/runtime/theme`
 
 Behavior:
 
 - `runtime/content` wires code-block UI
-- `runtime/standalone` adds TOC highlighting and theme/font-size controls
+- `runtime/chrome` wires the shared header/sidebar/footer/TOC/theme controls
+- `runtime/standalone` adds the chrome runtime plus the content/code-block behavior
 - theme preferences persist in `localStorage('pagesmith-theme')`
 - TOC highlighting supports generic `[data-ps-toc]` selectors in addition to docs-theme selectors
 
@@ -305,17 +411,25 @@ Includes:
 - route helpers: `normalizeRoute`, `leafSlug`, `routeFor`
 - date helpers: `getTime`, `toIso`, `formatDate`
 - content helpers: `estimateReadTime`, `escapeHtml`, `buildNavEntries`, `groupByField`
+- search helper: `runPagefindIndexing(outDir, options?)`
 - HTML helper: `renderDocumentShell`
 
 ## Export Map
 
 | Import Path | Purpose |
 | --- | --- |
-| `@pagesmith/site` | Config helpers and preset types |
-| `@pagesmith/site/config` | Config helpers only |
+| `@pagesmith/site` | Core content-layer re-exports plus site config helpers and preset types |
+| `@pagesmith/site/markdown` | Pass-through markdown helpers from core |
+| `@pagesmith/site/schemas` | Core schemas plus site config schemas such as `SiteUserConfigSchema` |
+| `@pagesmith/site/loaders` | Pass-through loader registry and loader classes from core |
+| `@pagesmith/site/assets` | Pass-through asset helpers from core |
+| `@pagesmith/site/config` | Config helpers, schema-backed parsing, and base-path utilities |
 | `@pagesmith/site/preset` | Preset contract plus the default `sitePreset()` fallback |
 | `@pagesmith/site/jsx-runtime` | Server-side JSX runtime |
 | `@pagesmith/site/jsx-dev-runtime` | JSX dev runtime |
+| `@pagesmith/site/components` | Reusable site/document chrome components |
+| `@pagesmith/site/layouts` | Reusable site layout wrappers |
+| `@pagesmith/site/theme` | Theme-control defaults and helpers |
 | `@pagesmith/site/css` | Programmatic CSS builder |
 | `@pagesmith/site/css/*` | Static CSS bundles |
 | `@pagesmith/site/runtime` | Runtime CSS/JS helpers and asset paths |

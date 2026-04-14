@@ -29,7 +29,7 @@ This page intentionally stacks multiple markdown features in one place so you ca
 > Use a root-mounted runtime component when you want copy buttons and tabs to work across every route.
 
 > [!IMPORTANT]
-> This app still treats `@pagesmith/core` as the content boundary. Next.js only receives the rendered HTML and metadata.
+> This app keeps content loading, markdown rendering, and shared presentation/runtime behavior on `@pagesmith/site` while Next.js continues to own routing and layout.
 
 > [!WARNING]
 > Keep the Next.js layout and routing logic separate from the Pagesmith content layer so the example stays clear about ownership.
@@ -42,7 +42,7 @@ This page intentionally stacks multiple markdown features in one place so you ca
 Highlighted line and collapsed boilerplate:
 
 ```ts title="server.ts" showLineNumbers mark={3} collapse={1-2}
-import { createContentLayer } from '@pagesmith/core'
+import { createContentLayer } from '@pagesmith/site'
 import collections from '../content.config.js'
 
 const layer = createContentLayer({ collections })
@@ -66,7 +66,7 @@ export default function Page({ html }) {
 Diff-style rendering:
 
 ```diff title="route.patch"
-- import { processMarkdown } from '@pagesmith/core'
+- import { processMarkdown } from '@pagesmith/site'
 + const rendered = await entry.render()
 ```
 

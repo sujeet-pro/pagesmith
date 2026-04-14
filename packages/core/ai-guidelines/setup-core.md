@@ -38,7 +38,7 @@ Requirements:
 5. If the repo is Vite-based and wants virtual collection modules, create or refresh `content.config.ts` (or `.js` / `.mjs`) and wire `pagesmithContent` from `@pagesmith/core/vite`.
 6. Use folder-based markdown entries when pages reference sibling assets.
 7. Define typed collections with Zod schemas and create the minimum useful starter content needed to prove the integration works.
-8. Do not move JSX runtime, shared CSS/runtime behavior, or SSG concerns into `@pagesmith/core`. If the project needs those, install `@pagesmith/site` and use that package for the site layer.
+8. Do not move JSX runtime, shared CSS/runtime behavior, or SSG concerns into `@pagesmith/core`. If the project needs those, use `@pagesmith/site` as the app-facing Pagesmith package instead of layering both packages into the same integration.
 9. Add or refresh project scripts only when the host app actually needs them. Do not force a Pagesmith-owned site CLI into a framework app that already has its own dev/build commands.
 10. Update project memory files so future agents read:
     - `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`

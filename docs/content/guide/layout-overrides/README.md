@@ -7,6 +7,8 @@ description: Replace home, page, and 404 layouts with custom TSX components via 
 
 `@pagesmith/docs` ships with four built-in layouts: `home`, `page`, `listing`, and `notFound`. You can replace any of them with your own TSX components, or register entirely new layouts and assign them to specific sections through `meta.json5`.
 
+The default docs chrome itself now lives behind `@pagesmith/docs/components` and `@pagesmith/docs/layouts`, so custom overrides can extend the built-in Pagesmith shell instead of copy-pasting the docs package internals.
+
 ## Layout Resolution at a Glance
 
 This diagram shows the two-step resolution process: the current route determines a layout name, then `theme.layouts` either maps that name to a custom TSX component or falls back to a built-in layout. Notice that section `meta.json5` selects the layout name for section landing and item pages, while built-in names such as `listing` still follow the same resolution and fallback rules.
@@ -123,10 +125,12 @@ type SidebarItem = {
 
 ## Creating a Custom Layout
 
-Custom layouts are TSX files that use `@pagesmith/site/jsx-runtime` for server-side JSX rendering. Here is a minimal custom page layout:
+Custom layouts are TSX files that use `@pagesmith/docs/jsx-runtime` for server-side JSX rendering. Here is a minimal custom page layout that reuses the shared Pagesmith docs shell:
 
 ```tsx
-import { h } from '@pagesmith/site/jsx-runtime'
+import { h } from '@pagesmith/docs/jsx-runtime'
+import { SiteDocument } from '@pagesmith/docs/components'
+import { PageShell } from '@pagesmith/docs/layouts'
 
 type Props = {
   content: string
@@ -140,48 +144,33 @@ type Props = {
 }
 
 export default function MyPage(props: Props) {
-  const { content, frontmatter, slug, site, prev, next } = props
+  const { content, frontmatter, headings, slug, site, sidebarSections } = props
   const title = frontmatter.title
     ? `${frontmatter.title} - ${site.title}`
     : site.title
 
   return (
-    <html lang={site.language || 'en'}>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{title}</title>
-        <link rel="stylesheet" href={`${site.basePath}/assets/style.css`} />
-      </head>
-      <body>
-        <header>
-          <a href={`${site.basePath}/`}>{site.name}</a>
-          <nav>
-            {site.navItems?.map((item: any) => (
-              <a href={item.path}>{item.label}</a>
-            ))}
-          </nav>
-        </header>
-        <main data-pagefind-body="">
-          {frontmatter.title ? <h1>{frontmatter.title}</h1> : null}
-          <div class="prose" innerHTML={content} />
-        </main>
-        <footer>
-          {prev ? <a href={prev.path}>Previous: {prev.title}</a> : null}
-          {next ? <a href={next.path}>Next: {next.title}</a> : null}
-        </footer>
-      </body>
-    </html>
+    <SiteDocument title={title} site={site}>
+      <PageShell
+        site={site}
+        currentPath={slug}
+        headings={headings}
+        sidebarSections={sidebarSections}
+      >
+        <div class="prose" innerHTML={content} />
+      </PageShell>
+    </SiteDocument>
   )
 }
 ```
 
 Key points:
 
-- Import `h` from `@pagesmith/site/jsx-runtime` for JSX support.
+- Import `h` from `@pagesmith/docs/jsx-runtime` for JSX support.
+- Prefer `@pagesmith/docs/components` and `@pagesmith/docs/layouts` when you want the stock Pagesmith shell without copying the docs package internals.
 - Use `innerHTML={content}` to render the processed markdown HTML. This is a special prop that sets the element's inner HTML without escaping.
 - Include `data-pagefind-body=""` on the content-only wrapper so Pagefind indexes the page body without header, sidebar, breadcrumb, or footer chrome. For article layouts, prefer the `<article>` element instead of a larger shell wrapper.
-- Reference theme assets at `${site.basePath}/assets/style.css` for the bundled theme CSS and `${site.basePath}/assets/main.js` for the theme runtime.
+- Reference theme assets at `${site.basePath}/assets/style.css` for the bundled theme CSS and `${site.basePath}/assets/main.js` for the theme runtime, or import `@pagesmith/site/css/chrome` / `@pagesmith/site/runtime/chrome` directly in custom Vite entries when you are building around the shared site components.
 - If search is enabled, include the Pagefind CSS and JS assets from `${site.basePath}/pagefind/`.
 
 ## Using meta.json5 for Per-Section Layouts
@@ -278,7 +267,7 @@ Replace the default landing page with a minimal custom design:
 
 ```tsx
 // theme/MyHome.tsx
-import { h } from '@pagesmith/site/jsx-runtime'
+import { h } from '@pagesmith/docs/jsx-runtime'
 
 export default function MyHome({ content, frontmatter, site }: any) {
   return (
@@ -330,7 +319,7 @@ Create a specialized layout for blog-style content in a specific section:
 
 ```tsx
 // theme/Article.tsx
-import { h } from '@pagesmith/site/jsx-runtime'
+import { h } from '@pagesmith/docs/jsx-runtime'
 
 export default function Article({ content, frontmatter, site, prev, next }: any) {
   const title = frontmatter.title

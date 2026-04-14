@@ -11,7 +11,12 @@ import { extname, join, resolve } from 'path'
 import { existsSync, readFileSync } from 'fs'
 import type { ViteDevServer } from 'vite'
 import type { SsgRenderConfig } from './ssg-plugin'
-import { type ContentAssetMap, collectContentAssets } from '@pagesmith/core/assets'
+import {
+  type ContentAssetMap,
+  collectContentAssets,
+  renderGeneratedImageVariant,
+  resolveGeneratedImageSourcePath,
+} from '../assets/index.js'
 import { MIME, rewriteContentAssetRefs } from './ssg-render'
 
 export type SsgDevContext = {
@@ -35,12 +40,34 @@ function discoverDevClientEntry(projectRoot: string, base: string): string | und
   const indexPath = join(projectRoot, 'index.html')
   if (!existsSync(indexPath)) return undefined
   const html = readFileSync(indexPath, 'utf-8')
-  const match = html.match(/<script[^>]*\bsrc="([^"]+)"/)
+  const match = html.match(/<script[^>]*\bsrc=(["'])([^"']+)\1/i)
   if (!match) return undefined
-  const src = match[1]
+  const src = match[2]
   if (src.startsWith('http')) return src
   const normalized = src.startsWith('/') ? src : `/${src.replace(/^\.\//, '')}`
   return `${base}${normalized}`
+}
+
+function decodeUrlPath(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
+export function extractAssetRelPath(pathname: string): string | undefined {
+  const assetsMarkerIndex = pathname.indexOf('/assets/')
+  if (assetsMarkerIndex === -1) return undefined
+  return decodeUrlPath(pathname.slice(assetsMarkerIndex + '/assets/'.length))
+}
+
+export function extractRoutePath(requestUrl: string, base: string): string {
+  const pathname = requestUrl.split(/[?#]/u, 1)[0] ?? requestUrl
+  if (base && pathname.startsWith(base)) {
+    return decodeUrlPath(pathname.slice(base.length).replace(/^\//, ''))
+  }
+  return decodeUrlPath(pathname.replace(/^\//, ''))
 }
 
 /**
@@ -53,17 +80,11 @@ function discoverDevClientEntry(projectRoot: string, base: string): string | und
  */
 export function configureSsgDevServer(server: ViteDevServer, context: SsgDevContext): void {
   const { projectRoot, base, contentDirs, entry, cssEntry } = context
-  let contentAssets: ContentAssetMap = { byPath: new Map(), byBasename: new Map() }
+  let contentAssets: ContentAssetMap = collectContentAssets(contentDirs)
 
   async function refreshContentArtifacts(): Promise<void> {
     contentAssets = collectContentAssets(contentDirs)
   }
-
-  void refreshContentArtifacts().catch((error) => {
-    console.warn(
-      `pagesmith:ssg failed to prepare companion assets: ${error instanceof Error ? error.message : String(error)}`,
-    )
-  })
 
   if (contentDirs.length > 0) {
     server.watcher.add(contentDirs)
@@ -91,7 +112,7 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
     const pathname = url.split(/[?#]/u, 1)[0] ?? url
 
     if (pathname.includes('/assets/')) {
-      const assetRelPath = pathname.split('/assets/').pop()
+      const assetRelPath = extractAssetRelPath(pathname)
       if (assetRelPath) {
         // Try by relative path first (directory-preserving), then by basename
         let assetPath = contentAssets.byPath.get(assetRelPath)
@@ -112,7 +133,31 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
           res.end(readFileSync(assetPath))
           return
         }
+
+        const generatedSourcePath = resolveGeneratedImageSourcePath(assetRelPath, contentAssets)
+        if (generatedSourcePath) {
+          try {
+            const ext = extname(assetRelPath).toLowerCase()
+            res.writeHead(200, {
+              'Content-Type': MIME[ext] ?? 'application/octet-stream',
+              'Cache-Control': 'no-cache',
+            })
+            res.end(
+              await renderGeneratedImageVariant(
+                generatedSourcePath,
+                ext === '.avif' ? 'avif' : 'webp',
+              ),
+            )
+            return
+          } catch (error) {
+            console.warn(
+              `pagesmith:ssg failed to render generated image variant ${assetRelPath}: ${error instanceof Error ? error.message : String(error)}`,
+            )
+          }
+        }
       }
+
+      return next()
     }
 
     // Only handle HTML navigation requests (not assets, not files with extensions)
@@ -122,14 +167,14 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
     if (!pathExt && !accept.includes('text/html')) return next()
 
     // Redirect root to base
-    if (base && (url === '/' || url === '')) {
+    if (base && (pathname === '/' || pathname === '')) {
       res.writeHead(302, { Location: `${base}/` })
       res.end()
       return
     }
 
     // Must start with base path
-    if (base && !url.startsWith(base)) return next()
+    if (base && !pathname.startsWith(base)) return next()
 
     try {
       // Load SSR module on-the-fly (Vite transforms TSX etc.)
@@ -141,7 +186,7 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
         return next()
       }
 
-      const routePath = base ? url.slice(base.length).replace(/^\//, '') : url.replace(/^\//, '')
+      const routePath = extractRoutePath(url, base)
 
       const renderConfig: SsgRenderConfig = {
         base,
@@ -155,13 +200,8 @@ export function configureSsgDevServer(server: ViteDevServer, context: SsgDevCont
       let html = await renderFn(url, renderConfig)
       html = rewriteContentAssetRefs(html, base, contentAssets, routePath)
 
-      // Inject Vite's client + HMR script for live reload
-      html = html.replace(
-        '</head>',
-        `<script type="module" src="/@vite/client"></script>\n` +
-          `<link rel="stylesheet" href="${cssDevPath}">\n` +
-          `</head>`,
-      )
+      // Inject the built CSS entry; Vite's HTML transform injects the dev client.
+      html = html.replace('</head>', `<link rel="stylesheet" href="${cssDevPath}">\n</head>`)
 
       // Let Vite transform the HTML (resolves module URLs, etc.)
       html = await server.transformIndexHtml(url, html)

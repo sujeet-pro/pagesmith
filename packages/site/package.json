@@ -1,7 +1,7 @@
 {
   "name": "@pagesmith/site",
-  "version": "0.7.0",
-  "description": "Pagesmith site toolkit — JSX runtime, CSS/runtime exports, SSG Vite plugins, and a preset-driven pagesmith CLI",
+  "version": "0.8.0",
+  "description": "Pagesmith site toolkit — re-exported content APIs, JSX runtime, CSS/runtime exports, SSG Vite plugins, and a preset-driven pagesmith CLI",
   "keywords": [
     "jsx",
     "pagesmith",
@@ -27,6 +27,7 @@
     "dist/",
     "src/styles/",
     "assets/",
+    "css.d.ts",
     "ai-guidelines/",
     "REFERENCE.md"
   ],
@@ -35,6 +36,22 @@
     ".": {
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
+    },
+    "./markdown": {
+      "types": "./dist/markdown/index.d.mts",
+      "import": "./dist/markdown/index.mjs"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.mts",
+      "import": "./dist/schemas/index.mjs"
+    },
+    "./loaders": {
+      "types": "./dist/loaders/index.d.mts",
+      "import": "./dist/loaders/index.mjs"
+    },
+    "./assets": {
+      "types": "./dist/assets/index.d.mts",
+      "import": "./dist/assets/index.mjs"
     },
     "./config": {
       "types": "./dist/config.d.mts",
@@ -55,6 +72,10 @@
     "./css": {
       "types": "./dist/css/index.d.mts",
       "import": "./dist/css/index.mjs"
+    },
+    "./css/chrome": {
+      "types": "./css.d.ts",
+      "default": "./src/styles/chrome.css"
     },
     "./css/standalone": {
       "types": "./css.d.ts",
@@ -88,6 +109,10 @@
       "types": "./dist/runtime/index.d.mts",
       "import": "./dist/runtime/index.mjs"
     },
+    "./runtime/chrome": {
+      "types": "./dist/runtime/chrome.d.mts",
+      "import": "./dist/runtime/chrome.mjs"
+    },
     "./runtime/content": {
       "types": "./dist/runtime/content.d.mts",
       "import": "./dist/runtime/content.mjs"
@@ -111,6 +136,34 @@
     "./runtime/theme": {
       "types": "./dist/runtime/theme.d.mts",
       "import": "./dist/runtime/theme.mjs"
+    },
+    "./runtime/footer-year": {
+      "types": "./dist/runtime/footer-year.d.mts",
+      "import": "./dist/runtime/footer-year.mjs"
+    },
+    "./runtime/search-trigger": {
+      "types": "./dist/runtime/search-trigger.d.mts",
+      "import": "./dist/runtime/search-trigger.mjs"
+    },
+    "./runtime/sidebar": {
+      "types": "./dist/runtime/sidebar.d.mts",
+      "import": "./dist/runtime/sidebar.mjs"
+    },
+    "./runtime/skip-link": {
+      "types": "./dist/runtime/skip-link.d.mts",
+      "import": "./dist/runtime/skip-link.mjs"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.mts",
+      "import": "./dist/components/index.mjs"
+    },
+    "./layouts": {
+      "types": "./dist/layouts/index.d.mts",
+      "import": "./dist/layouts/index.mjs"
+    },
+    "./theme": {
+      "types": "./dist/theme/index.d.mts",
+      "import": "./dist/theme/index.mjs"
     },
     "./vite": {
       "types": "./dist/vite/index.d.mts",

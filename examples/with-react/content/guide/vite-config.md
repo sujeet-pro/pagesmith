@@ -11,14 +11,14 @@ seriesOrder: 2
 
 # Vite Configuration
 
-The build is standard Vite (`vite-plus` here) plus three **`@pagesmith/core/vite`** plugins. Collections are the only Pagesmith-specific input besides the SSG entry path.
+The build is standard Vite (`vite-plus` here) plus three **`@pagesmith/site/vite`** plugins. Collections are the only Pagesmith-specific input besides the SSG entry path.
 
 ## Full config (as in this repo)
 
 ```ts title="vite.config.ts"
 import { defineConfig } from 'vite-plus'
 import collections from './content.config'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 
 export default defineConfig({
   base: '/pagesmith/examples/react',
@@ -49,7 +49,7 @@ export default defineConfig({
 
 ### `sharedAssetsPlugin()`
 
-Copies shared assets from **`@pagesmith/core`** (e.g. fonts) into the build output so CSS references resolve in production.
+Copies shared assets from **`@pagesmith/site`** (e.g. fonts) into the build output so CSS references resolve in production.
 
 ### `pagesmithContent({ collections })`
 

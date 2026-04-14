@@ -7,7 +7,10 @@ import { getDocsTransformContext } from './context'
 const ASSET_EXTS = /\.(svg|png|jpg|jpeg|gif|webp|avif|ico)$/i
 
 function isRelativeRef(ref: string): boolean {
-  return ref.startsWith('./') || ref.startsWith('../')
+  const { pathname } = splitRef(ref)
+  if (!pathname) return false
+  if (pathname.startsWith('/') || pathname.startsWith('//')) return false
+  return !/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(pathname)
 }
 
 function isInsideRoot(targetPath: string, rootDir: string): boolean {
@@ -18,7 +21,7 @@ function isInsideRoot(targetPath: string, rootDir: string): boolean {
 function resolveLocalAssetPath(currentFilePath: string, ref: string): string | undefined {
   if (!isRelativeRef(ref)) return undefined
   const assetRoot = dirname(currentFilePath)
-  const resolvedPath = resolve(assetRoot, ref)
+  const resolvedPath = resolve(assetRoot, splitRef(ref).pathname)
   return isInsideRoot(resolvedPath, assetRoot) ? resolvedPath : undefined
 }
 
@@ -38,7 +41,7 @@ function toPublishedAssetPath(
   ref: string,
 ): string | undefined {
   if (!isRelativeRef(ref)) return undefined
-  const resolvedPath = resolve(dirname(currentFilePath), ref)
+  const resolvedPath = resolve(dirname(currentFilePath), splitRef(ref).pathname)
   if (!isInsideRoot(resolvedPath, contentDir)) return undefined
   return relative(contentDir, resolvedPath).replace(/\\/g, '/')
 }
@@ -119,7 +122,7 @@ function rewriteRawAssetAttributes(
   return rewriteRefAttribute(html).replace(
     /\bsrcset=("|')([^"']*)\1/gi,
     (match, quote: string, srcset: string) =>
-      srcset.includes('./')
+      srcset.includes('./') || srcset.includes('../') || ASSET_EXTS.test(srcset)
         ? `srcset=${quote}${rewriteSrcset(srcset, basePath, currentFilePath, contentDir)}${quote}`
         : match,
   )
@@ -195,7 +198,10 @@ export function rehypeAssetTransform() {
       // Transform source srcset (for <picture> elements)
       if (element.tagName === 'source') {
         const srcset = element.properties?.srcset
-        if (typeof srcset === 'string' && (srcset.includes('./') || srcset.includes('../'))) {
+        if (
+          typeof srcset === 'string' &&
+          (srcset.includes('./') || srcset.includes('../') || ASSET_EXTS.test(srcset))
+        ) {
           element.properties = element.properties || {}
           element.properties.srcset = rewriteSrcset(
             srcset,

@@ -15,10 +15,10 @@ Content collections are the bridge between markdown on disk and your SSG entry. 
 
 ## Defining collections
 
-Collections live in `content.config.ts` using `defineCollection` and `defineCollections` from `@pagesmith/core`:
+Collections live in `content.config.ts` using `defineCollection` and `defineCollections` from `@pagesmith/site`:
 
 ```ts title="content.config.ts"
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',
@@ -56,7 +56,7 @@ Each collection `schema` validates YAML frontmatter. Mismatches fail the build w
 - **`z.array(z.string()).default([])`** — Omitted `tags` become `[]`.
 - **`z.string().optional()`** — Optional fields like `description`.
 
-`z` is re-exported from `@pagesmith/core`; you do not add Zod as a separate dependency for schemas.
+`z` is re-exported from `@pagesmith/site`; you do not add Zod as a separate dependency for schemas.
 
 ## Virtual modules
 

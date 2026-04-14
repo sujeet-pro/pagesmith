@@ -10,6 +10,7 @@ import {
 } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
+import sharp from 'sharp'
 import { build, rebuildContent } from '../build.js'
 
 function expectCaptured(value: string, pattern: RegExp): string {
@@ -77,6 +78,48 @@ describe('build', () => {
     expect(js).toContain('ps-code-tabs-ready')
     expect(js).toContain('data-ps-code-copy')
     expect(css).not.toContain('84ch')
+  })
+
+  it('fails content-only rebuilds when config validation reports errors', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-build-'))
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      [
+        '{',
+        '  name: "Build Test",',
+        '  origin: "https://example.dev",',
+        '  contentDir: "./missing-content"',
+        '}',
+      ].join('\n'),
+      'utf-8',
+    )
+
+    await expect(
+      rebuildContent({ configPath: join(rootDir, 'pagesmith.config.json5'), basePath: '/docs' }),
+    ).rejects.toThrow('Config validation failed')
+  })
+
+  it('fails builds when Pagefind indexing errors with search enabled', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-build-'))
+    mkdirSync(join(rootDir, 'content'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      [
+        '{',
+        '  name: "Build Test",',
+        '  origin: "https://example.dev",',
+        '  search: { enabled: true, pagefindFlags: ["--definitely-invalid-pagefind-flag"] },',
+        '}',
+      ].join('\n'),
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n\nBuild test.', 'utf-8')
+
+    await expect(
+      build({ configPath: join(rootDir, 'pagesmith.config.json5'), basePath: '/docs' }),
+    ).rejects.toThrow(/pagefind/i)
   })
 
   it('hashes raw HTML figure assets and keeps hashed references after content rebuilds', async () => {
@@ -147,6 +190,63 @@ describe('build', () => {
     expect(html).toContain(`/docs/assets/${darkAsset}`)
     expect(html).not.toContain('/docs/assets/style.css')
     expect(html).not.toContain('/docs/assets/main.js')
+  })
+
+  it('emits hashed avif and webp fallbacks for local JPEG markdown images', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-docs-build-'))
+    mkdirSync(join(rootDir, 'content', 'guide'), { recursive: true })
+
+    writeFileSync(
+      join(rootDir, 'pagesmith.config.json5'),
+      '{ name: "Build Test", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
+      'utf-8',
+    )
+    writeFileSync(join(rootDir, 'content', 'README.md'), '# Home\n\nBuild test.', 'utf-8')
+    writeFileSync(
+      join(rootDir, 'content', 'guide', 'intro.md'),
+      '# Intro\n\n![Hero image](./hero.jpg)\n',
+      'utf-8',
+    )
+
+    await sharp({
+      create: {
+        width: 64,
+        height: 32,
+        channels: 3,
+        background: '#0088ff',
+      },
+    })
+      .jpeg()
+      .toFile(join(rootDir, 'content', 'guide', 'hero.jpg'))
+
+    await build({ configPath: join(rootDir, 'pagesmith.config.json5'), basePath: '/docs' })
+
+    const outDir = join(rootDir, 'gh-pages')
+    const pagePath = join(outDir, 'guide', 'intro', 'index.html')
+    const html = readFileSync(pagePath, 'utf-8')
+
+    const avifAsset = expectCaptured(
+      html,
+      /srcset="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.avif)"/,
+    )
+    const webpAsset = expectCaptured(
+      html,
+      /srcset="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.webp)"/,
+    )
+    const jpgAsset = expectCaptured(
+      html,
+      /<img src="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.jpg)" alt="Hero image" width="64" height="32">/,
+    )
+
+    expect(html).toContain('<picture>')
+    expect(html).toContain('type="image/avif"')
+    expect(html).toContain('type="image/webp"')
+    expect(existsSync(join(outDir, 'assets', avifAsset))).toBe(true)
+    expect(existsSync(join(outDir, 'assets', webpAsset))).toBe(true)
+    expect(existsSync(join(outDir, 'assets', jpgAsset))).toBe(true)
+    expect(existsSync(join(outDir, 'assets', 'guide', 'hero.jpg'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'guide', 'hero.avif'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'guide', 'hero.webp'))).toBe(false)
   })
 
   it('builds in zero-config mode when a docs directory exists', async () => {

@@ -2,7 +2,7 @@
 
 Guide for AI assistants using `@pagesmith/site`.
 
-`@pagesmith/site` is the Pagesmith site toolkit. It is not the headless content layer. Use it together with `@pagesmith/core` when a project needs site rendering, SSG, shared CSS/runtime behavior, or the preset-driven `pagesmith-site` CLI.
+`@pagesmith/site` is the Pagesmith site toolkit and the app-facing package for site consumers. It is not the headless content layer, but it does re-export the core content APIs that site-based apps typically need.
 
 ## Read This First
 
@@ -16,7 +16,11 @@ Guide for AI assistants using `@pagesmith/site`.
 
 - `pagesmith-site` CLI
 - preset loading and config helpers
+- site config schemas (`SiteUserConfigSchema` and related helpers)
 - `@pagesmith/site/jsx-runtime`
+- `@pagesmith/site/components`
+- `@pagesmith/site/layouts`
+- `@pagesmith/site/theme`
 - `@pagesmith/site/css/*`
 - `@pagesmith/site/runtime/*`
 - `@pagesmith/site/vite`
@@ -24,9 +28,9 @@ Guide for AI assistants using `@pagesmith/site`.
 
 ## What Does Not Live Here
 
-Do not treat `@pagesmith/site` as the content store.
+Do not treat `@pagesmith/site` as a separate content store. It re-exports core content APIs, but the underlying content-layer implementation still lives in `@pagesmith/core`.
 
-Keep these in `@pagesmith/core`:
+These responsibilities originate in `@pagesmith/core` and are re-exported through `@pagesmith/site` for site consumers:
 
 - `defineCollection`
 - `defineCollections`
@@ -43,8 +47,7 @@ Keep these in `@pagesmith/core`:
 Split imports by responsibility:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 ```
 
 ### Framework host / existing app
@@ -56,7 +59,14 @@ import '@pagesmith/site/css/content'
 import '@pagesmith/site/runtime/content'
 ```
 
-In that shape, `createContentLayer()` and `entry.render()` stay on `@pagesmith/core`, and `@pagesmith/site` only provides the shipped markdown CSS/runtime.
+In that shape, `createContentLayer()` and `entry.render()` can come from `@pagesmith/site`, while `@pagesmith/site` also provides the shipped markdown CSS/runtime.
+
+When the project wants the shared Pagesmith chrome itself, use the exported components/layouts instead of copying the docs theme:
+
+```tsx
+import { SiteDocument, SiteHeader, SiteFooter } from '@pagesmith/site/components'
+import { PageShell } from '@pagesmith/site/layouts'
+```
 
 ### JSX
 
@@ -75,6 +85,8 @@ For Pagesmith's server-side JSX runtime:
 
 - Use `@pagesmith/site/css/*` for shipped styles.
 - Use `@pagesmith/site/runtime/*` for shipped browser behavior.
+- Pair `css/chrome` with `runtime/chrome` for reusable site chrome.
+- Pair `css/standalone` with `runtime/standalone` for full Pagesmith pages.
 - Do not tell users to import CSS or runtime JS from `@pagesmith/core`.
 
 ## CLI Rules
@@ -88,6 +100,7 @@ For Pagesmith's server-side JSX runtime:
 ## Behavior Notes
 
 - `pagesmithSsg` owns dev SSR, build-time SSG, preview serving from disk, and Pagefind indexing.
+- The default docs chrome is now implemented in `@pagesmith/site/components` and `@pagesmith/site/layouts`; `@pagesmith/docs` consumes those exports.
 - Theme and text-size preferences persist in `localStorage('pagesmith-theme')`.
 - TOC highlighting supports generic `[data-ps-toc]` selectors.
 - The preview server serves current files from disk after rebuilds; do not document it as an in-memory snapshot.
@@ -99,7 +112,7 @@ Use `@pagesmith/docs` when the project wants:
 - docs conventions
 - docs schemas
 - docs navigation
-- the default docs theme
+- the docs preset and docs-specific data shaping
 - docs MCP support
 
 `@pagesmith/docs` is a preset on top of `@pagesmith/site`, and `pagesmith-docs` is the canonical CLI for that package.

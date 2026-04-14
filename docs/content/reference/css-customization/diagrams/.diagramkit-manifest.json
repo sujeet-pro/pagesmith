@@ -3,20 +3,20 @@
   "diagrams": {
     "theme-customization-layers.mermaid": {
       "hash": "sha256:01dd6b90a79c30ea",
-      "generatedAt": "2026-04-13T21:19:22.977Z",
+      "generatedAt": "2026-04-14T20:54:41.399Z",
       "outputs": [
         {
           "file": "theme-customization-layers-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 1177.5078125,
+          "width": 1148.390625,
           "height": 707
         },
         {
           "file": "theme-customization-layers-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 1177.5078125,
+          "width": 1148.390625,
           "height": 707
         }
       ],

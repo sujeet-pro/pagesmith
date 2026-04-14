@@ -15,10 +15,10 @@ Collections connect markdown files on disk to typed frontmatter and `entry.rende
 
 ## Defining collections
 
-`content.config.mjs`:
+`content.config.mjs` uses the app-facing exports from `@pagesmith/site`:
 
 ```js title="content.config.mjs"
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from '@pagesmith/site'
 
 export const guide = defineCollection({
   loader: 'markdown',

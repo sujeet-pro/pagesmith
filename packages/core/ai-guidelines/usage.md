@@ -21,7 +21,7 @@ Use this file as the primary instruction source for `@pagesmith/core`.
 
 - Use `@pagesmith/core` for collections, schemas, loaders, validation, markdown, assets helpers, and `pagesmithContent`.
 - Use `@pagesmith/site` for JSX, CSS/runtime bundles, Vite SSG, shared site helpers, and the `pagesmith-site` CLI.
-- Use `@pagesmith/docs` for the docs preset on top of both packages.
+- Use `@pagesmith/docs` for the docs preset when docs consumers should stay on one package.
 
 ## Supported Integration Shapes
 
@@ -56,10 +56,15 @@ Use this file as the primary instruction source for `@pagesmith/core`.
 | `node_modules/@pagesmith/core/REFERENCE.md` | Complete content-layer reference |
 | `node_modules/@pagesmith/core/README.md` | Quick start and package overview |
 | `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md` | Package responsibilities and rules |
+| `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md` | Markdown pipeline, code-block features, and authoring rules |
 | `node_modules/@pagesmith/core/ai-guidelines/usage.md` | This file |
 | `node_modules/@pagesmith/core/ai-guidelines/recipes.md` | Common content-layer recipes |
 | `node_modules/@pagesmith/core/ai-guidelines/errors.md` | Error catalog |
 | `node_modules/@pagesmith/core/ai-guidelines/migration.md` | Upgrade notes |
+| `node_modules/@pagesmith/core/ai-guidelines/changelog-notes.md` | Version highlights |
+| `node_modules/@pagesmith/core/ai-guidelines/AGENTS.md.template` | Template for project-level AGENTS.md memory |
+| `node_modules/@pagesmith/core/ai-guidelines/llms.txt` | Compact AI context index |
+| `node_modules/@pagesmith/core/ai-guidelines/llms-full.txt` | Full AI context |
 
 ## Non-negotiable Rules
 
@@ -74,3 +79,24 @@ Use this file as the primary instruction source for `@pagesmith/core`.
 - `node_modules/@pagesmith/site/ai-guidelines/usage.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md`
 - `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
+
+## MCP Server
+
+The core MCP server (`@pagesmith/core/mcp`) is useful when an agent needs to inspect an installed content layer without re-implementing collection traversal:
+
+- Programmatic entry: `@pagesmith/core/mcp`
+- Run it through a small project-local wrapper that creates a `ContentLayer` and then calls `startCoreMcpServer({ layer })`
+
+Primary MCP tools:
+
+- `core_list_collections`
+- `core_list_entries`
+- `core_get_entry`
+- `core_validate`
+- `core_search_entries`
+
+Version-matched MCP resources:
+
+- `pagesmith://core/agents/usage`
+- `pagesmith://core/llms-full`
+- `pagesmith://core/reference`

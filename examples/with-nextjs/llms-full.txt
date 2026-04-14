@@ -1,6 +1,6 @@
 Pagesmith + Next.js (examples/with-nextjs)
 
-Agent-focused notes for this framework-hosted example. Scope: `@pagesmith/core` for collections and markdown rendering inside Next.js App Router, with `@pagesmith/site` used only for shared content CSS/runtime.
+Agent-focused notes for this framework-hosted example. Scope: `@pagesmith/site` for collections, markdown, and shared content CSS/runtime inside Next.js App Router.
 
 ## Integration flow
 
@@ -22,7 +22,7 @@ Agent-focused notes for this framework-hosted example. Scope: `@pagesmith/core` 
 ## Conventions
 
 - Keep routing, metadata, and layout ownership in Next.js.
-- Keep content collections, markdown rendering, headings, and read-time logic in `@pagesmith/core`.
+- Keep content collections, markdown rendering, headings, and read-time logic in `@pagesmith/site`.
 - Use `@pagesmith/site` only for the shared content presentation layer unless you intentionally adopt more Pagesmith site-building features.
 - The example scripts use `--webpack` with Next 16 in this monorepo because Turbopack currently trips over Pagesmith's package-relative Node resolution during the server build.
 

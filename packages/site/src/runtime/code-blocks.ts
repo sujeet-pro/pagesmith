@@ -51,13 +51,9 @@ function getCopyLabel(button: HTMLElement, state: 'idle' | 'copied' | 'error'): 
 }
 
 function setCopyLabel(button: HTMLElement, state: 'idle' | 'copied' | 'error'): void {
-  const labelNode = button.querySelector<HTMLElement>('[data-ps-code-copy-label]')
   const nextLabel = getCopyLabel(button, state)
-  if (labelNode) {
-    labelNode.textContent = nextLabel
-    return
-  }
-  button.textContent = nextLabel
+  button.title = nextLabel
+  button.setAttribute('aria-label', nextLabel)
 }
 
 function toggleCollapsedGroup(toggle: HTMLElement): void {

@@ -121,7 +121,7 @@ Full-text search across page titles, descriptions, and content.
 **When to use:** To find pages related to a topic without knowing the exact slug.
 
 ```json title="Input"
-{ "query": "validation", "maxResults": 10 }
+{ "query": "validation", "section": "reference" }
 ```
 
 **Returns:** Up to 20 matching pages ranked by relevance.
@@ -192,9 +192,17 @@ Run all validators (schema + content) on one or all collections and return issue
 { "collection": "posts" }
 ```
 
+### core_search_entries
+
+Search entries by slug, title, description, or tags before pulling full rendered content.
+
+```json title="Input"
+{ "query": "search", "collection": "posts" }
+```
+
 ## Available Resources
 
-Both MCP servers expose versioned documentation as resources:
+Together, the docs and core MCP servers expose versioned documentation as resources:
 
 | Resource URI | Content |
 |---|---|
@@ -202,6 +210,7 @@ Both MCP servers expose versioned documentation as resources:
 | `pagesmith://docs/llms-full` | Full docs reference |
 | `pagesmith://docs/reference` | REFERENCE.md |
 | `pagesmith://core/agents/usage` | @pagesmith/core usage rules |
+| `pagesmith://core/llms-full` | Full core reference |
 | `pagesmith://core/reference` | Core REFERENCE.md |
 
 These resources are tied to the installed package version, so AI agents always get version-matched guidance.
@@ -212,16 +221,19 @@ These resources are tied to the installed package version, so AI agents always g
 
 1. `docs_validate_config` -- ensure config is clean
 2. `docs_list_pages` -- see what exists
-3. `docs_get_page` -- read the page to update
-4. Edit the markdown file
-5. `docs_validate_config` -- verify nothing broke
+3. `docs_search_pages` -- narrow to matching docs pages when the site is large
+4. `docs_get_page` -- read the page to update
+5. Optionally read `pagesmith://docs/reference` or `pagesmith://core/reference` for version-matched package docs
+6. Edit the markdown file
+7. `docs_validate_config` -- verify nothing broke
 
 ### Content audit
 
 1. `docs_list_pages` -- get all pages
-2. For each page: `docs_get_page` -- read content
-3. Compare against source code
-4. Update outdated pages
+2. `docs_search_pages` -- find pages by changed API names or concepts
+3. For each page: `docs_get_page` -- read content
+4. Compare against source code
+5. Update outdated pages
 
 ### Debug a build issue
 

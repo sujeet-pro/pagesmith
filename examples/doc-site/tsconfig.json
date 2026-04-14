@@ -7,14 +7,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@pagesmith/site",
+    "jsxImportSource": "@pagesmith/docs",
     "paths": {
-      "@pagesmith/core": ["../../packages/core/src/index.ts"],
-      "@pagesmith/core/*": ["../../packages/core/src/*/index.ts"],
       "@pagesmith/docs": ["../../packages/docs/src/index.ts"],
-      "@pagesmith/docs/*": ["../../packages/docs/src/*.ts", "../../packages/docs/src/*/index.ts"],
-      "@pagesmith/site": ["../../packages/site/src/index.ts"],
-      "@pagesmith/site/*": ["../../packages/site/src/*.ts", "../../packages/site/src/*/index.ts"]
+      "@pagesmith/docs/*": ["../../packages/docs/src/*.ts", "../../packages/docs/src/*/index.ts"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"]

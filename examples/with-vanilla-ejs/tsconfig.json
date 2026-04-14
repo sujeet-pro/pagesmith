@@ -6,8 +6,6 @@
     "noEmit": true,
     "types": ["node"],
     "paths": {
-      "@pagesmith/core": ["../../packages/core/src/index.ts"],
-      "@pagesmith/core/*": ["../../packages/core/src/*/index.ts"],
       "@pagesmith/site": ["../../packages/site/src/index.ts"],
       "@pagesmith/site/*": ["../../packages/site/src/*.ts", "../../packages/site/src/*/index.ts"]
     }

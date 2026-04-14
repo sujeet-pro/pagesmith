@@ -1,10 +1,10 @@
 # Pagesmith + Svelte (examples/with-svelte)
 
-Use this path as the **@pagesmith/core + @pagesmith/site + Svelte SSG** reference: filesystem collections, Vite virtual modules, `svelte/server` HTML, shared document shell, vanilla client enhancements.
+Use this path as the **`@pagesmith/site` + Svelte SSG** reference: filesystem collections, Vite virtual modules, `svelte/server` HTML, shared document shell, vanilla client enhancements.
 
 ## Stack
 
-- **Content**: `content.config.ts` → `pagesmithContent({ collections })` → `virtual:content/<name>` (imports live in `src/site.ts`).
+- **Content**: `content.config.ts` uses `@pagesmith/site`, then `pagesmithContent({ collections })` from `@pagesmith/site/vite` exposes `virtual:content/<name>` (imports live in `src/site.ts`).
 - **Static HTML**: `pagesmithSsg({ entry: './src/entry-server.ts', contentDirs })` calls `getRoutes()` / `render()` at build time (and dev middleware).
 - **Svelte**: `import { render } from 'svelte/server'` in `src/entry-server.ts` — no client-side Svelte bundle; output is strings fed to `renderDocumentShell`.
 - **Shell**: `import { renderDocumentShell } from '@pagesmith/site/ssg-utils'` wraps `bodyHtml` with `<html>`, FOUC theme script, CSS/JS links, and when `searchEnabled` is true injects Pagefind Component UI **after** `bodyHtml` (modal + scripts). Do **not** duplicate `<pagefind-modal>` inside Svelte; keep `<pagefind-modal-trigger>` in the header only.

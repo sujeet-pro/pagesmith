@@ -25,7 +25,7 @@ features:
     details: Build a docs site from `pagesmith.config.json5` with default layouts, sidebar generation, and bundled Pagefind search.
   - icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm10 0a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1h-4a1 1 0 01-1-1v-6z"/></svg>
     title: Any Framework
-    details: Use `@pagesmith/core` for content plus `@pagesmith/site` for JSX, CSS/runtime, and Vite SSG across React, Solid, Svelte, Next.js, EJS, Handlebars, or the built-in JSX runtime.
+    details: Use `@pagesmith/site` as the app-facing package for collections, JSX, CSS/runtime, and Vite SSG across React, Solid, Svelte, Next.js, EJS, Handlebars, or the built-in JSX runtime. Drop to `@pagesmith/core` only when you want the headless content layer by itself.
   - icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     title: Schema Validation
     details: Validate frontmatter with Zod schemas and run AST-level content checks for links, headings, and code blocks at build time.
@@ -71,10 +71,10 @@ Pagesmith is built on a few core principles:
 | Package | Purpose | Install |
 |---|---|---|
 | `@pagesmith/core` | Headless content layer, markdown pipeline, validation, loaders, schemas | `npm add @pagesmith/core` |
-| `@pagesmith/site` | JSX runtime, CSS/runtime bundles, Vite SSG helpers, Pagesmith CLI | `npm add @pagesmith/core @pagesmith/site` |
+| `@pagesmith/site` | Re-exported content APIs, JSX runtime, CSS/runtime bundles, Vite SSG helpers, Pagesmith CLI | `npm add @pagesmith/site` |
 | `@pagesmith/docs` | Convention-based docs site with theme, search, navigation | `npm add @pagesmith/docs` |
 
-Use `@pagesmith/docs` when you want a complete docs site from configuration alone. Use `@pagesmith/core` when you need direct content loading and markdown rendering in your own app or site. Add `@pagesmith/site` when you also want the shared CSS/runtime bundles, the JSX runtime, or Vite SSG helpers.
+Use `@pagesmith/docs` when you want a complete docs site from configuration alone. Use `@pagesmith/site` when you want app-facing content APIs plus the shared CSS/runtime bundles, the JSX runtime, or Vite SSG helpers from one package. Use `@pagesmith/core` only when you want the headless content layer by itself.
 
 ## Quick Start
 
@@ -105,7 +105,7 @@ npx pagesmith-docs dev
 npm add @pagesmith/core
 ```
 
-Use `createContentLayer()` and `entry.render()` when your app already owns routing and build tooling (Next.js, template engines, custom SSR, or another framework host). Add `@pagesmith/site` only when you also want the shipped markdown CSS/runtime or Vite SSG helpers.
+Use `createContentLayer()` and `entry.render()` when your app already owns routing and build tooling (Next.js, template engines, custom SSR, or another framework host). If you also want the shipped markdown CSS/runtime or Vite SSG helpers, use `@pagesmith/site` as the app-facing package instead of layering both packages into the same integration.
 
 For Vite-based static sites, configure `pagesmithContent` and `pagesmithSsg` and write your own layouts. See the [Framework Guides](/guide/frameworks) for complete setup instructions for React, Solid, Svelte, Next.js, EJS, and Handlebars.
 
@@ -117,7 +117,7 @@ For Vite-based static sites, configure `pagesmithContent` and `pagesmithSsg` and
 - [MCP Setup](/guide/mcp-setup) — connect your assistant to docs-aware tooling
 - [Getting Started](/guide/getting-started) — define your first collection and content layer
 - [Code Blocks](/guide/code-blocks) — syntax highlighting, line numbers, tabs, and more
-- [Next.js (App Router)](/guide/framework-nextjs) — use `@pagesmith/core` as a headless markdown engine inside Next.js
+- [Next.js (App Router)](/guide/framework-nextjs) — use `@pagesmith/site` as the app-facing Pagesmith package inside Next.js
 - [Framework Guides](/guide/frameworks) — complete setup instructions for every supported framework
 - [Layout Overrides](/guide/layout-overrides) — customize the docs theme with your own layouts
 - [Deployment](/deployment) — deploy to GitHub Pages, Netlify, Vercel, or Cloudflare
