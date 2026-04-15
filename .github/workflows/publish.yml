@@ -287,17 +287,26 @@ jobs:
             fi
           }
 
-          CORE_EXISTS=$(package_exists "@pagesmith/core")
-          SITE_EXISTS=$(package_exists "@pagesmith/site")
-          DOCS_EXISTS=$(package_exists "@pagesmith/docs")
+          # Retry up to 5 times with 15s delay to handle npm registry propagation lag
+          for attempt in 1 2 3 4 5; do
+            CORE_EXISTS=$(package_exists "@pagesmith/core")
+            SITE_EXISTS=$(package_exists "@pagesmith/site")
+            DOCS_EXISTS=$(package_exists "@pagesmith/docs")
 
-          if [ "$CORE_EXISTS" = "true" ] && [ "$SITE_EXISTS" = "true" ] && [ "$DOCS_EXISTS" = "true" ]; then
-            echo "all_published=true" >> "$GITHUB_OUTPUT"
-            echo "Version ${VERSION} is fully published."
-          else
-            echo "all_published=false" >> "$GITHUB_OUTPUT"
-            echo "Version ${VERSION} is not fully published yet; skipping release commit/tag."
-          fi
+            if [ "$CORE_EXISTS" = "true" ] && [ "$SITE_EXISTS" = "true" ] && [ "$DOCS_EXISTS" = "true" ]; then
+              echo "all_published=true" >> "$GITHUB_OUTPUT"
+              echo "Version ${VERSION} is fully published (attempt ${attempt})."
+              exit 0
+            fi
+
+            if [ "$attempt" -lt 5 ]; then
+              echo "Not all packages visible yet (attempt ${attempt}/5). Retrying in 15s..."
+              sleep 15
+            fi
+          done
+
+          echo "all_published=false" >> "$GITHUB_OUTPUT"
+          echo "Version ${VERSION} is not fully published after 5 attempts; skipping release commit/tag."
 
       # Only commit and tag after the full coordinated version is published.
       - name: Commit and tag
