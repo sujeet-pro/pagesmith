@@ -377,43 +377,6 @@ h4 {
   accent-color: var(--color-text-muted);
 }
 
-/* ─── Light/dark image switching ─── */
-img.only-dark, .prose figure img.only-dark {
-  display: none;
-}
-
-/* Auto mode: follow OS preference */
-@media (prefers-color-scheme: dark) {
-  .color-scheme-auto img.only-light,
-  .color-scheme-auto .prose figure img.only-light { display: none; }
-  .color-scheme-auto img.only-dark,
-  .color-scheme-auto .prose figure img.only-dark { display: block; }
-}
-/* Explicit dark */
-.color-scheme-dark img.only-light,
-.color-scheme-dark .prose figure img.only-light { display: none; }
-.color-scheme-dark img.only-dark,
-.color-scheme-dark .prose figure img.only-dark { display: block; }
-
-/* ─── Inline SVGs (embedded, use currentColor) ─── */
-.prose .inline-svg {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin: 1.5rem auto;
-  color: var(--color-text-secondary);
-}
-
-/* ─── Invert images in dark mode ─── */
-@media (prefers-color-scheme: dark) {
-  .color-scheme-auto .prose img.invert-on-dark {
-    filter: invert(1) hue-rotate(180deg);
-  }
-}
-.color-scheme-dark .prose img.invert-on-dark {
-  filter: invert(1) hue-rotate(180deg);
-}
-
 /* ─── Scroll margin for anchors ─── */
 .prose h1, .prose h2, .prose h3, .prose h4, h2[id], h3[id] {
   scroll-margin-top: calc(var(--header-height) + 1.5rem);

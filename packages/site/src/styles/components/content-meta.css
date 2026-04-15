@@ -1,0 +1,17 @@
+/* Content metadata: published date, updated date, tags, draft badge */
+
+.site-content-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.site-content-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}

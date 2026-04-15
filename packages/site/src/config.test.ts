@@ -40,7 +40,7 @@ describe('@pagesmith/site config helpers', () => {
 
     expect(withBasePath('/docs', '/guide')).toBe('/docs/guide')
     expect(withBasePath('/docs', '/docs/guide')).toBe('/docs/guide')
-    expect(withBasePath('/docs', 'guide')).toBe('guide')
+    expect(withBasePath('/docs', 'guide')).toBe('/docs/guide')
     expect(withBasePath('/docs', 'https://example.com/guide')).toBe('https://example.com/guide')
 
     expect(stripBasePath('/docs/guide/getting-started', '/docs')).toBe('/guide/getting-started')

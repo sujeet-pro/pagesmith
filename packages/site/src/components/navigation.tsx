@@ -9,7 +9,7 @@ import type {
   SiteSidebarSection,
   SiteThemeControls,
 } from './types.js'
-import { normalizePath, withTrailingSlash } from './utils.js'
+import { formatPath, normalizePath } from './utils.js'
 
 const hamburgerIcon =
   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>'
@@ -19,9 +19,10 @@ const closeIcon =
 
 type BreadcrumbsProps = {
   breadcrumbs?: SiteBreadcrumb[]
+  trailingSlash?: boolean
 }
 
-function BreadcrumbsComponent({ breadcrumbs }: BreadcrumbsProps) {
+function BreadcrumbsComponent({ breadcrumbs, trailingSlash }: BreadcrumbsProps) {
   if (!breadcrumbs || breadcrumbs.length === 0) return <Fragment />
 
   return (
@@ -34,7 +35,7 @@ function BreadcrumbsComponent({ breadcrumbs }: BreadcrumbsProps) {
             </span>
           ) : null}
           {crumb.path ? (
-            <a href={withTrailingSlash(crumb.path)}>{crumb.label}</a>
+            <a href={formatPath(crumb.path, trailingSlash)}>{crumb.label}</a>
           ) : (
             <span aria-current="page">{crumb.label}</span>
           )}
@@ -116,7 +117,12 @@ function isSectionActive(items: SiteSidebarItem[], currentPath: string): boolean
   return false
 }
 
-function renderSidebarItems(items: SiteSidebarItem[], currentPath: string, depth = 0): unknown {
+function renderSidebarItems(
+  items: SiteSidebarItem[],
+  currentPath: string,
+  depth = 0,
+  trailingSlash?: boolean,
+): unknown {
   return (
     <ul class={`doc-sidebar-list ${depth > 0 ? 'doc-sidebar-nested' : ''}`}>
       {items.map((item) => {
@@ -134,10 +140,12 @@ function renderSidebarItems(items: SiteSidebarItem[], currentPath: string, depth
           <li
             class={`doc-sidebar-item ${isActive ? 'active' : ''} ${isExpanded ? 'expanded' : ''}`}
           >
-            <a href={withTrailingSlash(item.path)} class="doc-sidebar-link">
+            <a href={formatPath(item.path, trailingSlash)} class="doc-sidebar-link">
               {item.title}
             </a>
-            {hasChildren ? renderSidebarItems(item.children!, currentPath, depth + 1) : null}
+            {hasChildren
+              ? renderSidebarItems(item.children!, currentPath, depth + 1, trailingSlash)
+              : null}
           </li>
         )
       })}
@@ -150,6 +158,7 @@ function renderSidebarSections(
   currentPath: string,
   collapsible: boolean,
   navLabel: string,
+  trailingSlash?: boolean,
 ) {
   return (
     <nav class="doc-sidebar-nav" aria-label={navLabel}>
@@ -161,7 +170,7 @@ function renderSidebarSections(
           return (
             <details class="doc-sidebar-section doc-sidebar-collapsible" open={isOpen || undefined}>
               <summary class="doc-sidebar-heading">{section.title}</summary>
-              {renderSidebarItems(section.items, currentPath)}
+              {renderSidebarItems(section.items, currentPath, 0, trailingSlash)}
             </details>
           )
         }
@@ -169,7 +178,7 @@ function renderSidebarSections(
         return (
           <div class="doc-sidebar-section">
             <p class="doc-sidebar-heading">{section.title}</p>
-            {renderSidebarItems(section.items, currentPath)}
+            {renderSidebarItems(section.items, currentPath, 0, trailingSlash)}
           </div>
         )
       })}
@@ -183,6 +192,7 @@ type SiteSidebarProps = {
   currentPath?: string
   collapsible?: boolean
   navLabel?: string
+  trailingSlash?: boolean
 }
 
 function SiteSidebarComponent({
@@ -191,13 +201,14 @@ function SiteSidebarComponent({
   currentPath,
   collapsible = false,
   navLabel = 'Documentation navigation',
+  trailingSlash,
 }: SiteSidebarProps) {
   if (!sections || sections.length === 0) return <Fragment />
   const resolvedPath = normalizePath(currentPath ?? currentSlug ?? '/')
 
   return (
     <aside class="doc-sidebar">
-      {renderSidebarSections(sections, resolvedPath, collapsible, navLabel)}
+      {renderSidebarSections(sections, resolvedPath, collapsible, navLabel, trailingSlash)}
     </aside>
   )
 }
@@ -232,6 +243,7 @@ type SiteSidebarModalProps = {
   navLabel?: string
   navigationTitle?: string
   id?: string
+  trailingSlash?: boolean
 }
 
 function SiteSidebarModalComponent({
@@ -243,6 +255,7 @@ function SiteSidebarModalComponent({
   navLabel = 'Navigation',
   navigationTitle = 'Navigation',
   id = 'sidebar-modal',
+  trailingSlash,
 }: SiteSidebarModalProps) {
   const resolvedSections = buildSidebarModalSections(navItems, sections, navigationTitle)
   if (resolvedSections.length === 0) return <Fragment />
@@ -259,7 +272,13 @@ function SiteSidebarModalComponent({
           aria-label="Close navigation"
           innerHTML={closeIcon}
         />
-        {renderSidebarSections(resolvedSections, resolvedPath, collapsible, navLabel)}
+        {renderSidebarSections(
+          resolvedSections,
+          resolvedPath,
+          collapsible,
+          navLabel,
+          trailingSlash,
+        )}
       </div>
     </dialog>
   )
@@ -275,6 +294,7 @@ type SiteHeaderProps = {
   currentPath?: string
   searchEnabled?: boolean
   themeControls?: SiteThemeControls
+  trailingSlash?: boolean
   navAriaLabel?: string
   skipLinkTargetId?: string
   skipLinkText?: string
@@ -293,6 +313,7 @@ function SiteHeaderComponent({
   currentPath,
   searchEnabled,
   themeControls,
+  trailingSlash,
   navAriaLabel = 'Primary navigation',
   skipLinkTargetId = 'doc-main-content',
   skipLinkText = 'Skip to main content',
@@ -352,7 +373,10 @@ function SiteHeaderComponent({
         {hasNav ? (
           <nav class="doc-nav" aria-label={navAriaLabel}>
             {navItems!.map((item) => (
-              <a href={item.path} class={isNavActive(item.path) ? 'active' : undefined}>
+              <a
+                href={formatPath(item.path, trailingSlash)}
+                class={isNavActive(item.path) ? 'active' : undefined}
+              >
                 {item.label}
               </a>
             ))}

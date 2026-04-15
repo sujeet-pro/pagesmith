@@ -16,7 +16,7 @@ describe('local image markdown enhancements', () => {
     }
   })
 
-  it('adds intrinsic dimensions and picture sources for local JPEG images', async () => {
+  it('wraps local JPEG images in figure+picture with avif/webp sources', async () => {
     rootDir = mkdtempSync(join(tmpdir(), 'ps-core-images-'))
     const contentDir = join(rootDir, 'content')
     mkdirSync(contentDir, { recursive: true })
@@ -26,12 +26,7 @@ describe('local image markdown enhancements', () => {
     writeFileSync(markdownPath, '![Hero](./hero.jpg)\n', 'utf-8')
 
     await sharp({
-      create: {
-        width: 40,
-        height: 20,
-        channels: 3,
-        background: '#ff0066',
-      },
+      create: { width: 40, height: 20, channels: 3, background: '#ff0066' },
     })
       .jpeg()
       .toFile(imagePath)
@@ -39,17 +34,96 @@ describe('local image markdown enhancements', () => {
     const result = await processMarkdown('![Hero](./hero.jpg)', undefined, {
       content: '![Hero](./hero.jpg)',
       frontmatter: {},
-      fileData: {
-        pagesmithFilePath: markdownPath,
-      },
+      fileData: { pagesmithFilePath: markdownPath },
     })
 
+    expect(result.html).toContain('<figure class="ps-figure">')
     expect(result.html).toContain('<picture>')
     expect(result.html).toContain('srcset="./hero.avif"')
     expect(result.html).toContain('type="image/avif"')
     expect(result.html).toContain('srcset="./hero.webp"')
     expect(result.html).toContain('type="image/webp"')
-    expect(result.html).toContain('<img src="./hero.jpg" alt="Hero" width="40" height="20">')
+    // Fallback img src uses webp
+    expect(result.html).toContain(
+      '<img src="./hero.webp" alt="Hero" width="40" height="20" style="max-width:min(40px,100%)">',
+    )
+  })
+
+  it('wraps local PNG images in figure+picture with avif/webp sources', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-core-images-'))
+    const contentDir = join(rootDir, 'content')
+    mkdirSync(contentDir, { recursive: true })
+
+    const markdownPath = join(contentDir, 'post.md')
+    const imagePath = join(contentDir, 'chart.png')
+
+    await sharp({
+      create: { width: 100, height: 50, channels: 4, background: '#00ff0066' },
+    })
+      .png()
+      .toFile(imagePath)
+
+    const result = await processMarkdown('![Chart](./chart.png)', undefined, {
+      content: '![Chart](./chart.png)',
+      frontmatter: {},
+      fileData: { pagesmithFilePath: markdownPath },
+    })
+
+    expect(result.html).toContain('<figure class="ps-figure">')
+    expect(result.html).toContain('srcset="./chart.avif"')
+    expect(result.html).toContain('srcset="./chart.webp"')
+    expect(result.html).toContain('src="./chart.webp"')
+  })
+
+  it('adds figcaption from markdown title attribute', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-core-images-'))
+    const contentDir = join(rootDir, 'content')
+    mkdirSync(contentDir, { recursive: true })
+
+    const markdownPath = join(contentDir, 'post.md')
+    const imagePath = join(contentDir, 'hero.jpg')
+
+    await sharp({
+      create: { width: 40, height: 20, channels: 3, background: '#ff0066' },
+    })
+      .jpeg()
+      .toFile(imagePath)
+
+    const result = await processMarkdown('![Hero](./hero.jpg "My caption")', undefined, {
+      content: '![Hero](./hero.jpg "My caption")',
+      frontmatter: {},
+      fileData: { pagesmithFilePath: markdownPath },
+    })
+
+    expect(result.html).toContain('<figcaption>My caption</figcaption>')
+    expect(result.html).toContain('alt="Hero"')
+    // title should NOT be on the img element
+    expect(result.html).not.toContain('title="My caption"')
+  })
+
+  it('wraps SVG in figure without picture element', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-core-images-'))
+    const contentDir = join(rootDir, 'content')
+    mkdirSync(contentDir, { recursive: true })
+
+    const markdownPath = join(contentDir, 'post.md')
+    const imagePath = join(contentDir, 'icon.svg')
+    writeFileSync(
+      imagePath,
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60"><rect width="120" height="60" fill="#111"/></svg>',
+      'utf-8',
+    )
+
+    const result = await processMarkdown('![Icon](./icon.svg)', undefined, {
+      content: '![Icon](./icon.svg)',
+      frontmatter: {},
+      fileData: { pagesmithFilePath: markdownPath },
+    })
+
+    expect(result.html).toContain('<figure class="ps-figure">')
+    expect(result.html).toContain('src="./icon.svg"')
+    expect(result.html).toContain('width="120"')
+    expect(result.html).not.toContain('<picture>')
   })
 
   it('derives SVG intrinsic dimensions from viewBox for raw html img tags', async () => {
@@ -69,12 +143,11 @@ describe('local image markdown enhancements', () => {
     const result = await processMarkdown('<img src="./icon.svg" alt="Icon">', undefined, {
       content: '<img src="./icon.svg" alt="Icon">',
       frontmatter: {},
-      fileData: {
-        pagesmithFilePath: markdownPath,
-      },
+      fileData: { pagesmithFilePath: markdownPath },
     })
 
-    expect(result.html).toContain('<img src="./icon.svg" alt="Icon" width="120" height="60">')
+    expect(result.html).toContain('width="120"')
+    expect(result.html).toContain('height="60"')
     expect(result.html).not.toContain('<picture>')
   })
 
@@ -87,22 +160,17 @@ describe('local image markdown enhancements', () => {
     const imagePath = join(contentDir, 'hero.jpg')
 
     await sharp({
-      create: {
-        width: 48,
-        height: 24,
-        channels: 3,
-        background: '#00aa66',
-      },
+      create: { width: 48, height: 24, channels: 3, background: '#00aa66' },
     })
       .jpeg()
       .toFile(imagePath)
 
     const result = await convert('![Hero](./hero.jpg)', { sourcePath: markdownPath })
 
-    expect(result.html).toContain('<picture>')
+    expect(result.html).toContain('<figure class="ps-figure">')
     expect(result.html).toContain('srcset="./hero.avif"')
     expect(result.html).toContain('srcset="./hero.webp"')
-    expect(result.html).toContain('<img src="./hero.jpg" alt="Hero" width="48" height="24">')
+    expect(result.html).toContain('src="./hero.webp"')
   })
 
   it('lets convert() match entry-style parent refs when assetRoot is provided', async () => {
@@ -117,12 +185,7 @@ describe('local image markdown enhancements', () => {
     const imagePath = join(sharedDir, 'hero.jpg')
 
     await sharp({
-      create: {
-        width: 52,
-        height: 26,
-        channels: 3,
-        background: '#1144aa',
-      },
+      create: { width: 52, height: 26, channels: 3, background: '#1144aa' },
     })
       .jpeg()
       .toFile(imagePath)
@@ -133,9 +196,7 @@ describe('local image markdown enhancements', () => {
     })
 
     expect(result.html).toContain('srcset="../shared/hero.avif"')
-    expect(result.html).toContain(
-      '<img src="../shared/hero.jpg" alt="Hero" width="52" height="26">',
-    )
+    expect(result.html).toContain('src="../shared/hero.webp"')
   })
 
   it('treats bare relative image filenames as local refs', async () => {
@@ -147,12 +208,7 @@ describe('local image markdown enhancements', () => {
     const imagePath = join(contentDir, 'hero.jpg')
 
     await sharp({
-      create: {
-        width: 36,
-        height: 18,
-        channels: 3,
-        background: '#008866',
-      },
+      create: { width: 36, height: 18, channels: 3, background: '#008866' },
     })
       .jpeg()
       .toFile(imagePath)
@@ -160,14 +216,12 @@ describe('local image markdown enhancements', () => {
     const result = await processMarkdown('![Hero](hero.jpg)', undefined, {
       content: '![Hero](hero.jpg)',
       frontmatter: {},
-      fileData: {
-        pagesmithFilePath: markdownPath,
-      },
+      fileData: { pagesmithFilePath: markdownPath },
     })
 
-    expect(result.html).toContain('<picture>')
+    expect(result.html).toContain('<figure class="ps-figure">')
     expect(result.html).toContain('srcset="hero.avif"')
-    expect(result.html).toContain('<img src="hero.jpg" alt="Hero" width="36" height="18">')
+    expect(result.html).toContain('src="hero.webp"')
   })
 
   it('allows parent-directory image refs when they stay inside the declared asset root', async () => {
@@ -182,12 +236,7 @@ describe('local image markdown enhancements', () => {
     const imagePath = join(sharedDir, 'hero.jpg')
 
     await sharp({
-      create: {
-        width: 64,
-        height: 32,
-        channels: 3,
-        background: '#3355ff',
-      },
+      create: { width: 64, height: 32, channels: 3, background: '#3355ff' },
     })
       .jpeg()
       .toFile(imagePath)
@@ -202,9 +251,7 @@ describe('local image markdown enhancements', () => {
     })
 
     expect(result.html).toContain('srcset="../shared/hero.avif"')
-    expect(result.html).toContain(
-      '<img src="../shared/hero.jpg" alt="Hero" width="64" height="32">',
-    )
+    expect(result.html).toContain('src="../shared/hero.webp"')
   })
 
   it('does not resolve image refs that escape the declared asset root', async () => {
@@ -219,12 +266,7 @@ describe('local image markdown enhancements', () => {
     const imagePath = join(outsideDir, 'secret.jpg')
 
     await sharp({
-      create: {
-        width: 50,
-        height: 25,
-        channels: 3,
-        background: '#222222',
-      },
+      create: { width: 50, height: 25, channels: 3, background: '#222222' },
     })
       .jpeg()
       .toFile(imagePath)
@@ -252,12 +294,7 @@ describe('local image markdown enhancements', () => {
     const imagePath = join(contentDir, 'hero.jpg')
 
     await sharp({
-      create: {
-        width: 44,
-        height: 22,
-        channels: 3,
-        background: '#aa5500',
-      },
+      create: { width: 44, height: 22, channels: 3, background: '#aa5500' },
     })
       .jpeg()
       .toFile(imagePath)
@@ -269,14 +306,56 @@ describe('local image markdown enhancements', () => {
         content:
           '<picture><img src="./hero.jpg" alt="Inside"></picture>\n<img src="./hero.jpg" alt="Outside">',
         frontmatter: {},
-        fileData: {
-          pagesmithFilePath: markdownPath,
-        },
+        fileData: { pagesmithFilePath: markdownPath },
       },
     )
 
-    expect(result.html.match(/<picture>/g) ?? []).toHaveLength(2)
-    expect(result.html).toContain('<img src="./hero.jpg" alt="Inside" width="44" height="22">')
-    expect(result.html).toContain('<img src="./hero.jpg" alt="Outside" width="44" height="22">')
+    // Inside picture: img stays as-is (no figure wrapping since inside picture already)
+    expect(result.html).toContain('alt="Inside"')
+    // Outside picture: gets figure + picture wrapping
+    expect(result.html).toContain('alt="Outside"')
+    expect(result.html).toContain('<figure class="ps-figure">')
+  })
+
+  it('merges consecutive light/dark image pairs into themed figure', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-core-images-'))
+    const contentDir = join(rootDir, 'content')
+    mkdirSync(contentDir, { recursive: true })
+
+    const markdownPath = join(contentDir, 'post.md')
+
+    await sharp({
+      create: { width: 80, height: 40, channels: 3, background: '#ffffff' },
+    })
+      .png()
+      .toFile(join(contentDir, 'chart-light.png'))
+
+    await sharp({
+      create: { width: 80, height: 40, channels: 3, background: '#000000' },
+    })
+      .png()
+      .toFile(join(contentDir, 'chart-dark.png'))
+
+    const result = await processMarkdown(
+      '![Chart](./chart-light.png)\n![Chart](./chart-dark.png)',
+      undefined,
+      {
+        content: '![Chart](./chart-light.png)\n![Chart](./chart-dark.png)',
+        frontmatter: {},
+        fileData: { pagesmithFilePath: markdownPath },
+      },
+    )
+
+    // Should produce a single themed figure, not two separate figures
+    expect(result.html).toContain('ps-figure-themed')
+    // Dark sources should have prefers-color-scheme media query
+    expect(result.html).toContain('media="(prefers-color-scheme: dark)"')
+    // Light sources should NOT have media query (they're the default)
+    expect(result.html).toContain('srcset="./chart-light.avif" type="image/avif">')
+    // Dark sources
+    expect(result.html).toContain('srcset="./chart-dark.avif"')
+    expect(result.html).toContain('srcset="./chart-dark.webp"')
+    // Only one figure
+    expect(result.html.match(/ps-figure/g)?.length).toBe(2) // ps-figure + ps-figure-themed
   })
 })

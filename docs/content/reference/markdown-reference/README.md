@@ -134,6 +134,76 @@ Any link pointing to an absolute URL (`http://` or `https://`) automatically rec
 [Anchor](#math)                           <!-- same tab -->
 ```
 
+## Images
+
+All markdown images are automatically wrapped in `<figure class="ps-figure">`. Raster images (PNG, JPEG, WebP, GIF) also get a `<picture>` element with WebP and AVIF `<source>` variants. SVG images get figure wrapping but no `<picture>` element. Images inside links are not figure-wrapped.
+
+The title attribute from markdown syntax becomes a `<figcaption>`:
+
+```markdown
+![Dashboard metrics](./hero.png "Production monitoring dashboard")
+```
+
+Produces:
+
+```html
+<figure class="ps-figure">
+  <picture>
+    <source srcset="./hero.avif" type="image/avif">
+    <source srcset="./hero.webp" type="image/webp">
+    <img src="./hero.webp" alt="Dashboard metrics" width="..." height="...">
+  </picture>
+  <figcaption>Production monitoring dashboard</figcaption>
+</figure>
+```
+
+### Automatic Light/Dark Pair Merging
+
+Consecutive images whose filenames end with `-light` and `-dark` suffixes are automatically merged into a single themed figure. No manual HTML is needed:
+
+```markdown
+![Architecture overview](./diagrams/arch-light.svg)
+![Architecture overview](./diagrams/arch-dark.svg)
+```
+
+Produces a `<figure class="ps-figure ps-figure-themed">` with `<source media="(prefers-color-scheme: dark)">` so the correct variant displays without JavaScript.
+
+## Theme-Aware Images
+
+Images and other elements can respond to the active color scheme. The pipeline handles figure wrapping and light/dark pairing automatically for markdown images (see above). For manual HTML control, use the utility classes below.
+
+### Manual light/dark image pairs
+
+```html
+<figure>
+  <img src="./diagram-light.svg" class="only-light" alt="Architecture overview showing content flowing from markdown source through the build pipeline to static HTML output">
+  <img src="./diagram-dark.svg" class="only-dark" alt="Architecture overview showing content flowing from markdown source through the build pipeline to static HTML output">
+  <figcaption>Build pipeline architecture</figcaption>
+</figure>
+```
+
+In `color-scheme-auto` (the default), the switch follows the OS preference. In explicit light or dark mode, the matching variant is forced.
+
+### Generic show/hide helpers
+
+```html
+<span class="show-on-light">Light content</span>
+<span class="show-on-dark">Dark content</span>
+```
+
+Works on any element, not just images.
+
+### Invert on dark
+
+```html
+<figure>
+  <img src="./simple-diagram.svg" class="invert-on-dark" alt="Request path from client through API gateway to database and back">
+  <figcaption>Request lifecycle</figcaption>
+</figure>
+```
+
+Applies `invert(1) hue-rotate(180deg)` in dark mode. Images with `.invert.` in their filename receive this class automatically.
+
 ## Accessible Emojis
 
 Emoji characters are wrapped in `<span role="img" aria-label="...">` so screen readers announce the emoji name.
@@ -501,7 +571,7 @@ rehype-slug               Add id="" to headings
 rehype-autolink-headings  Wrap heading text in anchor links
 rehype-external-links     target="_blank" on external URLs
 rehype-accessible-emojis  aria-label on emoji characters
-rehype-local-images       Fill intrinsic image dimensions and JPEG picture fallbacks
+rehype-local-images       Figure wrapping, picture element for raster images, light/dark pair merging
 heading extraction        Collect headings for TOC data
 [user rehype plugins]     From MarkdownConfig.rehypePlugins
 rehype-stringify          HTML AST → HTML string

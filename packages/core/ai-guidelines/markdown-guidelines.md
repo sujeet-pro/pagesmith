@@ -149,13 +149,116 @@ The `role="img"` and `aria-label` attributes ensure screen readers announce the 
 
 ## Local Images (rehype-local-images)
 
-When Pagesmith knows the markdown source path, relative local images automatically inherit intrinsic dimensions from the filesystem. Relative JPEG images can also render as a `<picture>` with AVIF and WebP fallbacks while keeping the original JPEG as the `<img>` fallback.
+When Pagesmith knows the markdown source path, relative local images automatically inherit intrinsic dimensions from the filesystem. All raster images (PNG, JPEG, WebP, GIF) render as a `<picture>` element with WebP and AVIF `<source>` variants, using the WebP variant as the `<img src>` fallback (broadest modern format support). SVG images are not wrapped in `<picture>`.
+
+Every markdown image is wrapped in `<figure class="ps-figure">`. The title attribute from markdown syntax (`![alt](src "title")`) becomes a `<figcaption>`. Images that appear inside `<a>` links are not figure-wrapped (to preserve the link structure). `.avif` source images are passed through as-is without re-wrapping in `<picture>`.
 
 ```md
 ![Hero](./hero.jpg)
+![Logo with caption](./logo.png "Company Logo")
 ```
 
+The first example produces:
+
+```html
+<figure class="ps-figure">
+  <picture>
+    <source srcset="./hero.avif" type="image/avif">
+    <source srcset="./hero.webp" type="image/webp">
+    <img src="./hero.webp" alt="Hero" width="..." height="...">
+  </picture>
+</figure>
+```
+
+The second example produces a `<figcaption>Company Logo</figcaption>` inside the figure.
+
 `entry.render()` sets the source path automatically and keeps resolution inside the collection directory. For `convert()` or `layer.convert()`, pass `sourcePath` when you want the same behavior outside collections; by default relative refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
+
+### Automatic Light/Dark Pair Merging
+
+Consecutive images whose filenames end with `-light` and `-dark` suffixes (e.g. `diagram-light.svg` and `diagram-dark.svg`) are automatically merged into a single `<figure class="ps-figure ps-figure-themed">`. The dark variant uses `<source media="(prefers-color-scheme: dark)">` so the correct image displays without JavaScript.
+
+```md
+![Architecture overview](./diagrams/arch-light.svg)
+![Architecture overview](./diagrams/arch-dark.svg)
+```
+
+Produces:
+
+```html
+<figure class="ps-figure ps-figure-themed">
+  <picture>
+    <source srcset="./diagrams/arch-dark.svg" media="(prefers-color-scheme: dark)">
+    <img src="./diagrams/arch-light.svg" alt="Architecture overview">
+  </picture>
+</figure>
+```
+
+## Theme-Aware Images
+
+When `@pagesmith/site` CSS is loaded, content images and other elements can respond to the active color scheme. The `<html>` element always carries one of `color-scheme-auto`, `color-scheme-light`, or `color-scheme-dark` (default: `color-scheme-auto`).
+
+### Image best practices
+
+The pipeline automatically wraps markdown images in `<figure class="ps-figure">` and generates `<picture>` elements for raster images. Use the markdown title attribute for captions:
+
+```md
+![Dashboard showing real-time metrics](./hero.jpg "Production monitoring dashboard")
+```
+
+For manual HTML images, prefer wrapping in `<figure>` with a `<figcaption>`. The `alt` attribute should be a detailed description of what the image renders (for screen readers and when the image fails to load). The `<figcaption>` is a short visible label shown below the image.
+
+### Light/dark image pairs
+
+For markdown images, consecutive `-light`/`-dark` pairs are automatically merged into a themed figure (see the Local Images section above). For manual HTML, wrap two `<img>` variants in a `<figure>`. The CSS shows the correct one based on the active color scheme:
+
+```html
+<figure>
+  <img src="./diagram-light.svg" class="only-light" alt="Architecture overview showing content flowing from markdown source through the build pipeline to static HTML output">
+  <img src="./diagram-dark.svg" class="only-dark" alt="Architecture overview showing content flowing from markdown source through the build pipeline to static HTML output">
+  <figcaption>Build pipeline architecture</figcaption>
+</figure>
+```
+
+In `color-scheme-auto` mode, the switch follows the OS `prefers-color-scheme` media query. In explicit light or dark mode, the matching variant is forced regardless of OS preference.
+
+### CSS classes
+
+| Class | Purpose |
+|---|---|
+| `.ps-figure` | Wrapper class on all pipeline-generated `<figure>` elements |
+| `.ps-figure-themed` | Added when a light/dark pair is auto-merged |
+| `.only-light` | Show image only in light mode |
+| `.only-dark` | Show image only in dark mode |
+| `.show-on-light` | Show any element only in light mode |
+| `.show-on-dark` | Show any element only in dark mode |
+| `.invert-on-dark` | Invert image colors in dark mode |
+
+### Generic show/hide helpers
+
+For non-image elements that should toggle with the color scheme, use the generic helpers:
+
+```html
+<div class="show-on-light">Light-mode only content</div>
+<div class="show-on-dark">Dark-mode only content</div>
+```
+
+### Invert on dark
+
+For a single image that works in light mode and can be inverted for dark mode:
+
+```html
+<figure>
+  <img src="./simple-diagram.svg" class="invert-on-dark" alt="Request path from client through API gateway to database and back">
+  <figcaption>Request lifecycle</figcaption>
+</figure>
+```
+
+The filter applies `invert(1) hue-rotate(180deg)` in dark mode. Best suited for simple black-and-white diagrams or icons.
+
+### File naming convention
+
+Images containing `.invert.` in their filename (e.g. `flow.invert.svg`) automatically receive the `invert-on-dark` class from the rehype-local-images plugin.
 
 ## Heading Links (rehype-slug + rehype-autolink-headings)
 
@@ -354,7 +457,8 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 | Italic           | `*italic*`                                                                    | built-in                               |
 | Inline code      | `code`                                                                        | built-in                               |
 | Link             | `[text](url)`                                                                 | built-in                               |
-| Image            | `![alt](src)`                                                                 | built-in                               |
+| Image            | `![alt](src "title")` — auto figure+picture wrapping                          | rehype-local-images                    |
+| Light/dark pair  | consecutive `-light`/`-dark` images auto-merged                               | rehype-local-images                    |
 | Blockquote       | `> quote`                                                                     | built-in                               |
 | Ordered list     | `1. item`                                                                     | built-in                               |
 | Unordered list   | `- item`                                                                      | built-in                               |

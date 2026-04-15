@@ -298,6 +298,7 @@ describe('validateConfig', () => {
       outDir: join(tmpDir, 'gh-pages'),
       publicDir: join(tmpDir, 'public'),
       basePath: '',
+      trailingSlash: false,
       name: 'Test',
       title: 'Test Docs',
       description: 'A real description',

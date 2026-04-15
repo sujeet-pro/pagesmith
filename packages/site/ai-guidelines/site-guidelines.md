@@ -105,6 +105,122 @@ For Pagesmith's server-side JSX runtime:
 - TOC highlighting supports generic `[data-ps-toc]` selectors.
 - The preview server serves current files from disk after rebuilds; do not document it as an in-memory snapshot.
 
+## Theme-Aware Content
+
+The shipped CSS bundles (`css/content`, `css/standalone`) include built-in support for theme-aware images and content. The `<html>` element carries `color-scheme-auto` (default), `color-scheme-light`, or `color-scheme-dark`.
+
+Available utility classes:
+
+| Class | Purpose |
+|---|---|
+| `.ps-figure` | Wrapper on all pipeline-generated `<figure>` elements |
+| `.ps-figure-themed` | Added when a light/dark pair is auto-merged |
+| `.only-light` | Show image only in light mode |
+| `.only-dark` | Show image only in dark mode |
+| `.show-on-light` | Show any element only in light mode |
+| `.show-on-dark` | Show any element only in dark mode |
+| `.invert-on-dark` | Invert image colors in dark mode |
+
+Markdown images are automatically wrapped in `<figure class="ps-figure">` with `<picture>` for raster formats. Consecutive `-light`/`-dark` image pairs are auto-merged into `<figure class="ps-figure ps-figure-themed">` with `<source media="(prefers-color-scheme: dark)">`.
+
+For manual HTML light/dark pairs:
+
+```html
+<figure>
+  <img src="./diagram-light.svg" class="only-light" alt="Diagram">
+  <img src="./diagram-dark.svg" class="only-dark" alt="Diagram">
+</figure>
+```
+
+In `color-scheme-auto` mode, visibility follows the OS `prefers-color-scheme` media query. In explicit mode, the matching variant is forced.
+
+## URL Strategy
+
+The site config supports a `trailingSlash` option (default: `false`), which produces slash-free URLs by default.
+
+- `formatPath(path, trailingSlash?)` — formats a URL path according to the trailing slash preference. Replaces the legacy `withTrailingSlash()` utility.
+- `withBasePath()` — now normalizes non-slash-prefixed paths (e.g. `base=/x slug=a/b` produces `/x/a/b`).
+- `normalizeOrigin()` — strips trailing slashes from origin URLs. Origin is normalized at parse time via Zod transform.
+
+## Components
+
+### HeroSection
+
+Hero banner with badge, name, tagline, description, and action buttons.
+
+```tsx
+import { HeroSection } from '@pagesmith/site/components'
+```
+
+### ActionButtons
+
+Primary/secondary button row, typically used inside a hero or landing section.
+
+```tsx
+import { ActionButtons } from '@pagesmith/site/components'
+```
+
+### ContentMeta
+
+Displays published date, updated date, draft badge, and tags as pills.
+
+```tsx
+import { ContentMeta } from '@pagesmith/site/components'
+```
+
+Related CSS classes: `.site-hero-*`, `.site-action-*`, `.site-pill`, `.site-tag-list`, `.site-content-meta`.
+
+## Layouts
+
+### HomeLayout
+
+Complete home page layout with hero section and footer.
+
+```tsx
+import { HomeLayout } from '@pagesmith/site/layouts'
+```
+
+### ListingLayout
+
+Wraps `PageShell` with `SiteDocument` for listing/index pages.
+
+```tsx
+import { ListingLayout } from '@pagesmith/site/layouts'
+```
+
+### NotFoundLayout
+
+Complete 404 page layout.
+
+```tsx
+import { NotFoundLayout } from '@pagesmith/site/layouts'
+```
+
+## SEO Meta
+
+`SitePageMeta` type supports extended SEO fields:
+
+- `ogType` — Open Graph type (e.g. `'article'`)
+- `publishedTime` / `modifiedTime` — article timestamps
+- `author` — article author
+- `tags` — article tags
+
+Generated meta tags include:
+
+- Twitter Card: `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:site`
+- Article meta: `article:author`, `article:published_time`, `article:modified_time`, `article:tag`
+
+`SiteFooter` accepts an `extraContent` slot for additional footer content.
+
+## Themed Images Runtime
+
+The chrome runtime includes `initThemedImages()` for JavaScript-enhanced theme switching of `<figure class="ps-figure-themed">` elements:
+
+- MutationObserver on `<html>` class for theme switch detection
+- Uses `classList.contains()` for exact token matching
+- WeakMap-based source caching for performance
+- Proper observer cleanup on teardown
+
 ## When To Use `@pagesmith/docs` Instead
 
 Use `@pagesmith/docs` when the project wants:

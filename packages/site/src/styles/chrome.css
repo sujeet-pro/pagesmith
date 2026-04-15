@@ -15,3 +15,7 @@
 @import "./layout/listing.css";
 @import "./components/search.css";
 @import "./components/theme-toggle.css";
+@import "./components/hero.css";
+@import "./components/pills.css";
+@import "./components/content-meta.css";
+@import "./layout/not-found.css";

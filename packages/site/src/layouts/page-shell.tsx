@@ -71,6 +71,7 @@ function PageShellComponent({
   themeControls,
   children,
 }: PageShellProps) {
+  const trailingSlash = site.trailingSlash
   const hasSidebarContent = !!sidebarSections?.length
   const hasNavItems = !!site.navItems?.length
   const hasToc = showToc && headings.some((heading) => heading.depth >= 2 && heading.depth <= 3)
@@ -89,6 +90,7 @@ function PageShellComponent({
           currentPath={currentPath}
           searchEnabled={site.search?.enabled}
           themeControls={themeControls}
+          trailingSlash={trailingSlash}
           showSidebarToggle={shouldShowSidebarToggle}
         />
       ) : null}
@@ -99,10 +101,11 @@ function PageShellComponent({
             currentPath={currentPath}
             collapsible={site.sidebar?.collapsible}
             navLabel={sidebarNavLabel}
+            trailingSlash={trailingSlash}
           />
         ) : null}
         <div class="doc-content">
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
+          <Breadcrumbs breadcrumbs={breadcrumbs} trailingSlash={trailingSlash} />
           {hasToc && showMobileToc ? (
             <AccordionTableOfContents
               headings={headings}
@@ -127,6 +130,7 @@ function PageShellComponent({
               prev={prev}
               next={next}
               themeControls={themeControls}
+              trailingSlash={trailingSlash}
             />
           ) : null}
         </div>
@@ -143,6 +147,7 @@ function PageShellComponent({
           currentPath={currentPath}
           collapsible={site.sidebar?.collapsible}
           navLabel={mobileNavLabel}
+          trailingSlash={trailingSlash}
         />
       ) : null}
     </>

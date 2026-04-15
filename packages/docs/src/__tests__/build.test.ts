@@ -233,17 +233,20 @@ describe('build', () => {
       html,
       /srcset="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.webp)"/,
     )
-    const jpgAsset = expectCaptured(
+    // Fallback img src now uses webp variant
+    const imgWebpAsset = expectCaptured(
       html,
-      /<img src="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.jpg)" alt="Hero image" width="64" height="32">/,
+      /src="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.webp)" alt="Hero image"/,
     )
 
     expect(html).toContain('<picture>')
+    expect(html).toContain('<figure')
     expect(html).toContain('type="image/avif"')
     expect(html).toContain('type="image/webp"')
     expect(existsSync(join(outDir, 'assets', avifAsset))).toBe(true)
     expect(existsSync(join(outDir, 'assets', webpAsset))).toBe(true)
-    expect(existsSync(join(outDir, 'assets', jpgAsset))).toBe(true)
+    expect(existsSync(join(outDir, 'assets', imgWebpAsset))).toBe(true)
+    // Original JPEG should not be in output (unhashed or hashed)
     expect(existsSync(join(outDir, 'assets', 'guide', 'hero.jpg'))).toBe(false)
     expect(existsSync(join(outDir, 'assets', 'guide', 'hero.avif'))).toBe(false)
     expect(existsSync(join(outDir, 'assets', 'guide', 'hero.webp'))).toBe(false)

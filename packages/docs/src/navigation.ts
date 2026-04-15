@@ -632,6 +632,7 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
     origin: config.origin,
     basePath: config.basePath,
     homeLink: config.homeLink,
+    trailingSlash: config.trailingSlash,
     maintainer: config.maintainer,
     copyright: config.copyright,
     name: config.name,

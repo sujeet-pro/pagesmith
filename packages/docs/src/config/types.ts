@@ -46,6 +46,8 @@ export type DocsUserConfig = {
   basePath?: string
   /** Override the header logo link destination (defaults to basePath). */
   homeLink?: string
+  /** Use trailing slashes in generated links (default: false). */
+  trailingSlash?: boolean
   /** Maintainer credit shown in the default footer sign-off. Falls back to package.json author when omitted. */
   maintainer?: Maintainer
   /** Footer links can be a flat link row or grouped columns with optional headers. */
@@ -135,6 +137,7 @@ export type ResolvedDocsConfig = {
   publicDir: string
   basePath: string
   homeLink?: string
+  trailingSlash: boolean
   maintainer?: Maintainer
   name: string
   title: string

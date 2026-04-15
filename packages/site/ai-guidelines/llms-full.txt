@@ -62,8 +62,40 @@ Config helpers:
 
 - `defineSiteConfig(config)` / `loadSiteConfig(configPath?)`
 - `parseSiteConfig(config)` for schema-backed validation
-- `normalizeBasePath`, `withBasePath`, `stripBasePath`, `withTrailingSlash`
-- `@pagesmith/site/schemas` exports `SiteUserConfigSchema` plus the related config helper schemas
+- `normalizeBasePath`, `withBasePath`, `stripBasePath`, `formatPath`, `normalizeOrigin`
+- `trailingSlash` config option (default: `false`) — slash-free URLs as default
+- `formatPath(path, trailingSlash?)` replaces the legacy `withTrailingSlash()` utility
+- `normalizeOrigin()` strips trailing slashes from origin URLs; origin is normalized at parse time via Zod transform
+- `@pagesmith/site/schemas` exports `SiteUserConfigSchema`, `SitePageMeta` plus the related config helper schemas
+
+Components and layouts:
+
+- `HeroSection` — hero with badge, name, tagline, description, action buttons
+- `ActionButtons` — primary/secondary button row
+- `ContentMeta` — published date, updated date, draft badge, tags as pills
+- `HomeLayout` — complete home page with hero + footer
+- `ListingLayout` — wraps PageShell with SiteDocument
+- `NotFoundLayout` — complete 404 page
+- CSS classes: `.site-hero-*`, `.site-action-*`, `.site-pill`, `.site-tag-list`, `.site-content-meta`
+
+SEO:
+
+- `SitePageMeta` type with `ogType`, `publishedTime`, `modifiedTime`, `author`, `tags`
+- Twitter Card tags: `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:site`
+- Article meta: `article:author`, `article:published_time`, `article:modified_time`, `article:tag`
+- `SiteFooter` accepts an `extraContent` slot
+
+Theme-aware content:
+
+The shipped CSS bundles include utility classes for color-scheme-responsive content:
+- `.ps-figure` / `.ps-figure-themed` on pipeline-generated figure elements
+- Markdown images are auto-wrapped in `<figure class="ps-figure">` with `<picture>` for raster formats
+- Consecutive `-light`/`-dark` image pairs are auto-merged into `<figure class="ps-figure ps-figure-themed">`
+- `.only-light` / `.only-dark` on `<img>` for manual light/dark image pairs
+- `.show-on-light` / `.show-on-dark` for toggling any element by color scheme
+- `.invert-on-dark` for inverting a single image in dark mode
+- These respond to the `color-scheme-auto|light|dark` class on `<html>` (default: auto)
+- `initThemedImages()` in chrome runtime provides JS-enhanced theme switching with MutationObserver on `<html>` class, WeakMap-based source caching, and proper cleanup
 
 Read:
 

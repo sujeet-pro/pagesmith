@@ -88,13 +88,18 @@ export const SiteUserConfigSchema = z
     name: z.string().optional(),
     title: z.string().optional(),
     description: z.string().optional(),
-    origin: z.string().url().optional(),
+    origin: z
+      .string()
+      .url()
+      .transform((v) => v.replace(/\/+$/, ''))
+      .optional(),
     language: z.string().optional(),
     contentDir: z.string().optional(),
     outDir: z.string().optional(),
     publicDir: z.string().optional(),
     basePath: z.string().optional(),
     homeLink: z.string().optional(),
+    trailingSlash: z.boolean().default(false),
     maintainer: SiteMaintainerSchema.optional(),
     footerLinks: z
       .union([z.array(SiteFooterLinkSchema), z.array(SiteFooterLinkGroupSchema)])
@@ -140,6 +145,25 @@ export function normalizeBasePath(basePath: string | undefined): string {
   return `/${basePath.replace(/^\/+|\/+$/g, '')}`
 }
 
+/**
+ * Strips trailing slashes from an origin URL.
+ *
+ * `https://example.com/` → `https://example.com`
+ */
+export function normalizeOrigin(origin: string | undefined): string {
+  if (!origin) return ''
+  return origin.replace(/\/+$/, '')
+}
+
+/**
+ * Prepend the base path to a route path with correct slash handling.
+ *
+ * Handles all edge cases:
+ * - `base=/x/` + `path=/a/b` → `/x/a/b` (dedup slashes)
+ * - `base=/x` + `path=a/b` → `/x/a/b` (ensure joining slash)
+ * - `base=/x` + `path=/a/b` → `/x/a/b` (normal case)
+ * - External URLs, mailto:, tel: are returned as-is
+ */
 export function withBasePath(basePath: string | undefined, path: string): string {
   if (!path) {
     const normalizedBase = normalizeBasePath(basePath)
@@ -150,12 +174,15 @@ export function withBasePath(basePath: string | undefined, path: string): string
     return path
   }
 
-  if (!path.startsWith('/')) return path
-
   const normalizedBase = normalizeBasePath(basePath)
-  if (!normalizedBase) return path
-  if (path === normalizedBase || path.startsWith(`${normalizedBase}/`)) return path
-  return `${normalizedBase}${path}`
+
+  // Ensure path starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+
+  if (!normalizedBase) return normalizedPath
+  if (normalizedPath === '/') return normalizedBase || '/'
+  if (normalizedPath.startsWith(`${normalizedBase}/`)) return normalizedPath
+  return `${normalizedBase}${normalizedPath}`
 }
 
 export function stripBasePath(url: string, basePath: string | undefined): string {
@@ -174,6 +201,7 @@ export function stripBasePath(url: string, basePath: string | undefined): string
   return rawPath || '/'
 }
 
+/** @deprecated Use `formatPath` from `@pagesmith/site` instead. */
 export function withTrailingSlash(path: string): string {
   if (!path || path === '/') return '/'
   return path.endsWith('/') ? path : `${path}/`

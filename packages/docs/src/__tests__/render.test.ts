@@ -80,10 +80,8 @@ describe('renderDocs', () => {
     expect(introHtml).not.toContain('class="doc-content" data-pagefind-body=""')
     expect(introHtml).toContain('name="textSize" value="small"')
     expect(introHtml).toContain('Small text size')
-    expect(notFoundHtml.match(/data-pagefind-body=""/g)).toHaveLength(1)
-    expect(notFoundHtml).toMatch(
-      /<article[^>]*class="doc-not-found-container"[^>]*data-pagefind-body=""/,
-    )
+    expect(notFoundHtml).toContain('class="site-not-found"')
+    expect(notFoundHtml).toContain('Page Not Found')
   })
 
   it('spreads flat footer links evenly across up to four columns', async () => {
@@ -295,9 +293,9 @@ Pick a topic below.`,
     expect(listingHtml).toContain('href="#basics"')
     expect(listingHtml).toContain('href="#other"')
     expect(listingHtml).toContain('January 10, 2024')
-    expect(listingHtml).toContain('href="/guide/intro/"')
-    expect(listingHtml).toContain('href="/guide/advanced/"')
-    expect(listingHtml).toContain('href="/guide/appendix/"')
+    expect(listingHtml).toContain('href="/guide/intro"')
+    expect(listingHtml).toContain('href="/guide/advanced"')
+    expect(listingHtml).toContain('href="/guide/appendix"')
   })
 
   it('compiles a custom listing override through the theme layout loader', async () => {

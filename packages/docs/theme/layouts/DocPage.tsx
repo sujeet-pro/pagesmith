@@ -63,6 +63,15 @@ export default function DocPage(props: Props) {
       url={slug}
       socialImage={ogImage}
       site={site}
+      meta={{
+        ogType: 'article',
+        publishedTime:
+          typeof frontmatter.publishedDate === 'string' ? frontmatter.publishedDate : undefined,
+        modifiedTime: lastUpdated || undefined,
+        tags: Array.isArray(frontmatter.tags)
+          ? frontmatter.tags.filter((t: unknown): t is string => typeof t === 'string')
+          : undefined,
+      }}
     >
       <PageShell
         site={site}

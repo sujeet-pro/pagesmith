@@ -322,6 +322,7 @@ export function resolveDocsConfig(
     publicDir,
     basePath,
     homeLink: userConfig.homeLink,
+    trailingSlash: userConfig.trailingSlash ?? false,
     maintainer,
     name: siteName,
     title: userConfig.title ?? siteName,

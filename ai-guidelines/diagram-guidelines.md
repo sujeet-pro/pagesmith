@@ -89,16 +89,28 @@ Skip diagrams when a short paragraph, table, or code sample is already clearer t
 
 ## Embed In Pagesmith Docs
 
-For Pagesmith-rendered docs pages, wrap the light/dark pair in a `<figure>` and use the built-in theme classes:
+For Pagesmith-rendered docs pages, wrap the light/dark pair in a `<figure>` with a `<figcaption>` and use the built-in theme classes. Use `alt` for a detailed description of what the image renders (for accessibility). Use `<figcaption>` for a short visible label.
 
 ```html
 <figure>
-  <img src="./diagrams/system-overview-light.svg" class="only-light" alt="System overview showing how docs content flows through Pagesmith build and preview">
-  <img src="./diagrams/system-overview-dark.svg" class="only-dark" alt="System overview showing how docs content flows through Pagesmith build and preview">
+  <img src="./diagrams/system-overview-light.svg" class="only-light" alt="System overview showing how docs content flows through Pagesmith build and preview, with collection loading, markdown pipeline, and static output stages">
+  <img src="./diagrams/system-overview-dark.svg" class="only-dark" alt="System overview showing how docs content flows through Pagesmith build and preview, with collection loading, markdown pipeline, and static output stages">
+  <figcaption>Docs build pipeline</figcaption>
 </figure>
 ```
 
-Use this for:
+For simple black-and-white diagrams that don't need separate light/dark renders, use `.invert-on-dark` instead:
+
+```html
+<figure>
+  <img src="./diagrams/simple-flow.svg" class="invert-on-dark" alt="Simple flow showing request path through the build pipeline from source to output">
+  <figcaption>Build flow</figcaption>
+</figure>
+```
+
+For non-image content that should toggle with the color scheme, use `.show-on-light` / `.show-on-dark` on any element.
+
+Use the `<figure>` pattern for:
 
 - `docs/content/**`
 - `examples/**/docs/**`

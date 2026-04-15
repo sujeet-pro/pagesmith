@@ -339,16 +339,43 @@ The runtime reads this on page load, applies the stored classes and data attribu
 
 ## Image Switching
 
+Prefer wrapping images in `<figure>` with a `<figcaption>`. The `alt` attribute should be a detailed description of what the image renders (for screen readers and when the image fails to load). The `<figcaption>` is a short visible label shown below the image.
+
 For content images that need different versions in light and dark modes, wrap the pair in a `<figure>` and use the `.only-light` and `.only-dark` utility classes:
 
 ```html
 <figure>
-  <img src="diagram-light.png" class="only-light" alt="Architecture diagram">
-  <img src="diagram-dark.png" class="only-dark" alt="Architecture diagram">
+  <img src="diagram-light.png" class="only-light" alt="Architecture diagram showing content flowing from markdown source through the build pipeline to static HTML output">
+  <img src="diagram-dark.png" class="only-dark" alt="Architecture diagram showing content flowing from markdown source through the build pipeline to static HTML output">
+  <figcaption>Build pipeline architecture</figcaption>
 </figure>
 ```
 
-These classes are tied to the color-scheme class on `<html>`, not to `@media (prefers-color-scheme)`. This ensures images switch correctly when the user manually selects a color scheme via the theme toggle.
+These classes are tied to the `color-scheme-*` class on `<html>`, not directly to `@media (prefers-color-scheme)`. In `color-scheme-auto` (the default), the OS preference drives the switch via a media query. In `color-scheme-light` or `color-scheme-dark`, the matching variant is forced regardless of OS preference. This ensures images switch correctly both when the OS preference changes and when the user manually selects a color scheme via the theme toggle.
+
+### Generic show/hide helpers
+
+For non-image content that should toggle with the color scheme, use the generic helpers:
+
+```html
+<div class="show-on-light">Visible in light mode</div>
+<div class="show-on-dark">Visible in dark mode</div>
+```
+
+These work on any element and follow the same `color-scheme-*` class logic.
+
+### Invert on dark
+
+For a single image that works in light mode and can be inverted for dark, use `.invert-on-dark` instead of maintaining two separate files:
+
+```html
+<figure>
+  <img src="simple-flow.svg" class="invert-on-dark" alt="Linear flow from input through validation to output">
+  <figcaption>Processing pipeline</figcaption>
+</figure>
+```
+
+The filter applies `invert(1) hue-rotate(180deg)` in dark mode. Best for simple black-and-white SVGs or icons. Images with `.invert.` in their filename (e.g. `flow.invert.svg`) receive this class automatically from the markdown pipeline.
 
 ## Code Block Themes
 

@@ -3,7 +3,7 @@ import { dirname, extname, join } from 'path'
 import sharp from 'sharp'
 import type { ContentAssetMap } from './index'
 
-export const CONVERTIBLE_IMAGE_EXTS = new Set(['.jpg', '.jpeg'])
+export const CONVERTIBLE_IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif'])
 export const GENERATED_IMAGE_FORMATS = ['avif', 'webp'] as const
 
 export type GeneratedImageFormat = (typeof GENERATED_IMAGE_FORMATS)[number]

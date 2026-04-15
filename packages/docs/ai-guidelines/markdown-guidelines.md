@@ -150,10 +150,22 @@ The `role="img"` and `aria-label` attributes ensure screen readers announce the 
 
 ## Local Images (rehype-local-images)
 
-Stock `@pagesmith/docs` automatically provides the source path that `rehype-local-images` needs, so relative local images inherit intrinsic dimensions during render. Relative JPEG images can also render as a `<picture>` with AVIF and WebP fallbacks before the docs asset pass rewrites the published URLs under `/assets/...`. Resolution stays inside the configured docs `contentDir`.
+Stock `@pagesmith/docs` automatically provides the source path that `rehype-local-images` needs, so relative local images inherit intrinsic dimensions during render. All raster images (PNG, JPEG, WebP, GIF) render as a `<picture>` element with WebP and AVIF `<source>` variants, using the WebP variant as the `<img src>` fallback (broadest modern format support). SVG images are not wrapped in `<picture>`. The docs asset pass then rewrites the published URLs under `/assets/...`. Resolution stays inside the configured docs `contentDir`.
+
+Every markdown image is wrapped in `<figure class="ps-figure">`. The title attribute from markdown syntax (`![alt](src "title")`) becomes a `<figcaption>`. Images inside `<a>` links are not figure-wrapped (to preserve link structure). `.avif` source images are passed through as-is without re-wrapping in `<picture>`.
 
 ```md
 ![Hero](./hero.jpg)
+![Logo with caption](./logo.png "Company Logo")
+```
+
+### Automatic Light/Dark Pair Merging
+
+Consecutive images whose filenames end with `-light` and `-dark` suffixes (e.g. `diagram-light.svg` and `diagram-dark.svg`) are automatically merged into a single `<figure class="ps-figure ps-figure-themed">`. The dark variant uses `<source media="(prefers-color-scheme: dark)">` so the correct image displays without JavaScript.
+
+```md
+![Architecture overview](./diagrams/arch-light.svg)
+![Architecture overview](./diagrams/arch-dark.svg)
 ```
 
 ## Heading Links (rehype-slug + rehype-autolink-headings)
@@ -342,14 +354,39 @@ For a single rendered asset, standard markdown image syntax is enough:
 
 Rendered assets keep their content-relative paths under `/assets/`, so `guide/setup/diagrams/request-flow.svg` and `reference/setup/diagrams/request-flow.svg` do not collide in the final build.
 
-When light and dark renders differ, wrap the pair in a `<figure>` and embed both variants with the built-in theme classes:
+The pipeline automatically wraps markdown images in `<figure class="ps-figure">` with `<picture>` for raster images. Use the markdown title attribute for visible captions. Use `alt` for a detailed description of what the image renders (for accessibility and fallback).
+
+When light and dark renders differ, use consecutive `-light`/`-dark` image pairs in standard markdown and they will be automatically merged into a themed figure:
+
+```md
+![Request flow showing CLI command reaching the API layer](./diagrams/request-flow-light.svg)
+![Request flow showing CLI command reaching the API layer](./diagrams/request-flow-dark.svg)
+```
+
+This produces a `<figure class="ps-figure ps-figure-themed">` with `<source media="(prefers-color-scheme: dark)">` for no-JS support. For manual HTML control, the `.only-light`/`.only-dark` classes still work:
 
 ```html
 <figure>
-  <img src="./diagrams/request-flow-light.svg" class="only-light" alt="Request flow from CLI to API to storage">
-  <img src="./diagrams/request-flow-dark.svg" class="only-dark" alt="Request flow from CLI to API to storage">
+  <img src="./diagrams/request-flow-light.svg" class="only-light" alt="Request flow showing CLI command reaching the API layer, which queries storage and returns a rendered response">
+  <img src="./diagrams/request-flow-dark.svg" class="only-dark" alt="Request flow showing CLI command reaching the API layer, which queries storage and returns a rendered response">
+  <figcaption>Request lifecycle</figcaption>
 </figure>
 ```
+
+These classes respond to the `color-scheme-auto` / `color-scheme-light` / `color-scheme-dark` class on `<html>` (default: `color-scheme-auto`). In auto mode the switch follows the OS `prefers-color-scheme` preference; in explicit mode the matching variant is forced.
+
+For non-image themed content, use the generic `.show-on-light` / `.show-on-dark` helpers on any element.
+
+For a single image that works in light mode and can be inverted for dark, use `.invert-on-dark` instead of maintaining two variants:
+
+```html
+<figure>
+  <img src="./diagrams/simple-flow.svg" class="invert-on-dark" alt="Linear flow from input to validation to output">
+  <figcaption>Processing pipeline</figcaption>
+</figure>
+```
+
+Images with `.invert.` in their filename (e.g. `flow.invert.svg`) automatically receive the `invert-on-dark` class.
 
 Only tell an agent to rely on inline Mermaid-style rendering when the project explicitly configured that renderer through custom markdown plugins or custom runtime behavior.
 
@@ -447,7 +484,8 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 | Italic           | `*italic*`                                                                    | built-in                               |
 | Inline code      | `code`                                                                        | built-in                               |
 | Link             | `[text](url)`                                                                 | built-in                               |
-| Image            | `![alt](src)`                                                                 | built-in                               |
+| Image            | `![alt](src "title")` — auto figure+picture wrapping                          | rehype-local-images                    |
+| Light/dark pair  | consecutive `-light`/`-dark` images auto-merged                               | rehype-local-images                    |
 | Inline SVG image | `![Logo](./diagrams/logo.inline.svg)`                                         | docs link/asset transforms             |
 | Theme-aware image pair | `<figure><img class="only-light"> + <img class="only-dark"></figure>`     | built-in HTML + theme CSS              |
 | Blockquote       | `> quote`                                                                     | built-in                               |

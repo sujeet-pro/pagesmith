@@ -9,9 +9,15 @@
 - Runtime JS: `@pagesmith/site/runtime/*`
 - Vite SSG: `@pagesmith/site/vite`
 - Shared helpers: `@pagesmith/site/ssg-utils`
-- Config helpers: `defineSiteConfig`, `loadSiteConfig`, `parseSiteConfig`, `normalizeBasePath`, `withBasePath`, `stripBasePath`
-- Schemas: `@pagesmith/site/schemas` exports `SiteUserConfigSchema` plus the core schemas
+- Config helpers: `defineSiteConfig`, `loadSiteConfig`, `parseSiteConfig`, `normalizeBasePath`, `withBasePath`, `stripBasePath`, `formatPath`, `normalizeOrigin`
+- URL strategy: `trailingSlash` config option (default: `false`); `formatPath()` replaces `withTrailingSlash()`
+- Schemas: `@pagesmith/site/schemas` exports `SiteUserConfigSchema`, `SitePageMeta` plus the core schemas
+- Components: `HeroSection`, `ActionButtons`, `ContentMeta`, `SiteFooter` (with `extraContent` slot)
+- Layouts: `HomeLayout`, `ListingLayout`, `NotFoundLayout`
+- SEO: `SitePageMeta` with `ogType`, `publishedTime`, `modifiedTime`, `author`, `tags`; Twitter Card and article meta tags
 - Framework-hosted apps can use just `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content`
+- Theme-aware images: `.ps-figure`/`.ps-figure-themed` on pipeline-generated figures, `.only-light`/`.only-dark` on `<img>`, `.show-on-light`/`.show-on-dark` on any element, `.invert-on-dark` for single-variant inversion
+- Themed images runtime: `initThemedImages()` in chrome runtime for JS-enhanced theme switching
 
 Read first:
 

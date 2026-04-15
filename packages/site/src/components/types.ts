@@ -129,6 +129,7 @@ export type SiteDocumentData = {
   description?: string
   language?: string
   homeLink?: string
+  trailingSlash?: boolean
   icon?: string | false
   navItems?: SiteNavItem[]
   footerLinks?: SiteFooterLinks

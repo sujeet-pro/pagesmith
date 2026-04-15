@@ -6,7 +6,12 @@ export {
   type SiteAssetAwareComponent,
   type SiteComponentAssetBundle,
 } from './assets.js'
-export { SiteDocument, SiteDocument as Html, type SiteDocumentProps } from './document.js'
+export {
+  SiteDocument,
+  SiteDocument as Html,
+  type SiteDocumentProps,
+  type SitePageMeta,
+} from './document.js'
 export {
   Breadcrumbs,
   TableOfContents,
@@ -23,6 +28,15 @@ export {
 export { SiteFooter, SiteFooter as DocFooter, type SiteFooterProps } from './footer.js'
 export { ListingCards, ListingCards as DocListingCards, type ListingCardsProps } from './listing.js'
 export { ThemeDropdownControls, FooterThemeControls } from './theme.js'
+export {
+  HeroSection,
+  ActionButtons,
+  type HeroSectionProps,
+  type ActionButtonsProps,
+  type SiteAction,
+} from './hero.js'
+export { ContentMeta, type ContentMetaProps } from './content-meta.js'
+export { formatPath, withoutTrailingSlash, formatDate } from './utils.js'
 export type {
   Heading,
   SiteNavItem,

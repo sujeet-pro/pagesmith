@@ -1,19 +1,20 @@
 import { Fragment, h } from '../jsx-runtime/index.js'
 import { SITE_CHROME_ASSETS, withComponentAssets } from './assets.js'
 import type { SiteListingCard, SiteListingGroup } from './types.js'
-import { withTrailingSlash } from './utils.js'
+import { formatPath } from './utils.js'
 
 export type ListingCardsProps = {
   cards?: SiteListingCard[]
   groups?: SiteListingGroup[]
   emptyMessage?: string
   showStats?: boolean
+  trailingSlash?: boolean
 }
 
-function renderCard(card: SiteListingCard) {
+function renderCard(card: SiteListingCard, trailingSlash?: boolean) {
   return (
     <li class="doc-listing-item">
-      <a class="doc-listing-card" href={withTrailingSlash(card.path)}>
+      <a class="doc-listing-card" href={formatPath(card.path, trailingSlash)}>
         {card.eyebrow ? <span class="doc-listing-card-eyebrow">{card.eyebrow}</span> : null}
         <span class="doc-listing-card-title">{card.title}</span>
         {card.meta && card.meta.length > 0 ? (
@@ -43,6 +44,7 @@ function ListingCardsComponent({
   groups = [],
   emptyMessage = 'No items yet.',
   showStats = true,
+  trailingSlash,
 }: ListingCardsProps) {
   const hasGroupedListing = groups.length > 0
   const listingTotal = hasGroupedListing
@@ -73,13 +75,15 @@ function ListingCardsComponent({
               <h2 class="doc-listing-group-title">{group.title}</h2>
             )}
             {group.description ? <p class="doc-listing-group-desc">{group.description}</p> : null}
-            <ul class="doc-listing-grid">{group.cards.map((card) => renderCard(card))}</ul>
+            <ul class="doc-listing-grid">
+              {group.cards.map((card) => renderCard(card, trailingSlash))}
+            </ul>
           </section>
         ))}
       </div>
     </Fragment>
   ) : (
-    <ul class="doc-listing-grid">{cards.map((card) => renderCard(card))}</ul>
+    <ul class="doc-listing-grid">{cards.map((card) => renderCard(card, trailingSlash))}</ul>
   )
 }
 

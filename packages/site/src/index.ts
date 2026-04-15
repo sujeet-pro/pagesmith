@@ -83,10 +83,12 @@ export {
   SiteSidebarConfigSchema,
   SiteThemeConfigSchema,
   SiteUserConfigSchema,
+  normalizeOrigin,
   stripBasePath,
   withBasePath,
   withTrailingSlash,
 } from './config.js'
+export { formatPath, withoutTrailingSlash } from './components/utils.js'
 export type {
   RawSiteConfig,
   SiteAnalyticsConfig,
@@ -101,6 +103,7 @@ export type {
   SiteThemeConfig,
   SiteUserConfig,
 } from './config.js'
+export type { SitePageMeta } from './components/document.js'
 export type { SiteBuildOptions, SiteDevOptions, SiteLogLevel, SitePreset } from './preset.js'
 
 export const SITE_PACKAGE_NAME = '@pagesmith/site'

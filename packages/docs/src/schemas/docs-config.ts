@@ -168,6 +168,10 @@ export const DocsConfigSchema = z.object({
   publicDir: z.string().optional(),
   basePath: z.string().optional(),
   homeLink: z.string().optional(),
+  trailingSlash: z
+    .boolean()
+    .optional()
+    .describe('Use trailing slashes in generated links (default: false).'),
   maintainer: DocsMaintainerSchema.optional(),
   footerLinks: DocsFooterLinksSchema.optional(),
   footerText: z.string().optional(),

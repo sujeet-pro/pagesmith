@@ -83,6 +83,7 @@ export default function DocHome(props: Props) {
           navItems={site.navItems}
           slug={slug}
           searchEnabled={site.search?.enabled}
+          trailingSlash={site.trailingSlash}
         />
       ) : null}
       <main id="doc-main-content" class="doc-home" tabindex="-1">

@@ -1,5 +1,19 @@
 import { Fragment, h } from '../jsx-runtime/index.js'
+import { normalizeOrigin } from '../config.js'
 import type { SiteDocumentData, SiteDocumentScript } from './types.js'
+
+export type SitePageMeta = {
+  /** Override og:type — use 'article' for content pages. Defaults to site.seo.defaultOgType or 'website'. */
+  ogType?: string
+  /** ISO 8601 date string for article:published_time */
+  publishedTime?: string
+  /** ISO 8601 date string for article:modified_time */
+  modifiedTime?: string
+  /** Author name for article:author (falls back to site.maintainer.name) */
+  author?: string
+  /** Tags for article:tag */
+  tags?: string[]
+}
 
 export type SiteDocumentProps = {
   title: string
@@ -7,6 +21,7 @@ export type SiteDocumentProps = {
   url?: string
   socialImage?: string
   site: SiteDocumentData
+  meta?: SitePageMeta
   headChildren?: unknown
   bodyEnd?: unknown
   children?: unknown
@@ -51,11 +66,12 @@ export function SiteDocument({
   url,
   socialImage,
   site,
+  meta,
   headChildren,
   bodyEnd,
   children,
 }: SiteDocumentProps) {
-  const origin = site.origin.replace(/\/$/, '')
+  const origin = normalizeOrigin(site.origin)
   const base = site.basePath || ''
   const canonicalUrl = url ? `${origin}${url}` : undefined
   const locale = site.seo?.locale || 'en_US'
@@ -63,7 +79,10 @@ export function SiteDocument({
   const darkColor = site.theme?.darkColor || '#020617'
   const gaId = site.analytics?.googleAnalytics
   const ogImage = socialImage ?? site.socialImage
-  const ogType = site.seo?.defaultOgType || 'website'
+  const ogType = meta?.ogType || site.seo?.defaultOgType || 'website'
+  const isArticle = ogType === 'article'
+  const articleAuthor = meta?.author || (isArticle ? site.maintainer?.name : undefined)
+  const twitterHandle = site.seo?.twitterHandle
   const searchEnabled = site.search?.enabled !== false
   const favicon = site.favicon
   const faviconFallback = site.faviconFallback
@@ -117,6 +136,28 @@ export function SiteDocument({
         ) : null}
         <meta property="og:locale" content={locale} />
         <meta property="og:site_name" content={site.name} />
+        {isArticle && articleAuthor ? (
+          <meta property="article:author" content={articleAuthor} />
+        ) : null}
+        {isArticle && meta?.publishedTime ? (
+          <meta property="article:published_time" content={meta.publishedTime} />
+        ) : null}
+        {isArticle && meta?.modifiedTime ? (
+          <meta property="article:modified_time" content={meta.modifiedTime} />
+        ) : null}
+        {isArticle && meta?.tags
+          ? meta.tags.map((tag) => <meta property="article:tag" content={tag} />)
+          : null}
+        <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+        <meta name="twitter:title" content={title} />
+        {description ? <meta name="twitter:description" content={description} /> : null}
+        {ogImage ? (
+          <meta
+            name="twitter:image"
+            content={ogImage.startsWith('http') ? ogImage : `${origin}${ogImage}`}
+          />
+        ) : null}
+        {twitterHandle ? <meta name="twitter:site" content={twitterHandle} /> : null}
         <meta name="theme-color" content={lightColor} media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content={darkColor} media="(prefers-color-scheme: dark)" />
         <link

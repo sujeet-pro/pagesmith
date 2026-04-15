@@ -33,6 +33,7 @@ const mockConfig: ResolvedDocsConfig = {
   outDir: '/tmp/gh-pages',
   publicDir: '/tmp/public',
   basePath: '',
+  trailingSlash: false,
   name: 'Test',
   title: 'Test Docs',
   description: 'Test',

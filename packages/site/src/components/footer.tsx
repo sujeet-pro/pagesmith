@@ -10,7 +10,7 @@ import type {
   SitePageLink,
   SiteThemeControls,
 } from './types.js'
-import { formatDate, getExternalLinkProps, isExternalUrl, withTrailingSlash } from './utils.js'
+import { formatDate, formatPath, getExternalLinkProps, isExternalUrl } from './utils.js'
 
 const PAGESMITH_URL = 'https://projects.sujeet.pro/pagesmith/'
 const FOOTER_YEAR_ID = 'pagesmith-footer-year-end'
@@ -31,10 +31,6 @@ function getFooterGridStyle(columnCount: number): string {
   return `--doc-footer-columns:${desktopColumns};--doc-footer-columns-compact:${compactColumns}`
 }
 
-function getLinkHref(path: string): string {
-  return isExternalUrl(path) ? path : withTrailingSlash(path)
-}
-
 export type SiteFooterProps = {
   links?: SiteFooterLinks
   footerText?: string
@@ -47,6 +43,8 @@ export type SiteFooterProps = {
   next?: SitePageLink
   themeControls?: SiteThemeControls
   showThemeControls?: boolean
+  trailingSlash?: boolean
+  extraContent?: unknown
 }
 
 function SiteFooterComponent({
@@ -61,6 +59,8 @@ function SiteFooterComponent({
   next,
   themeControls,
   showThemeControls = true,
+  trailingSlash,
+  extraContent,
 }: SiteFooterProps) {
   const buildYear = new Date().getFullYear()
   const hasPageMeta = !!editUrl || !!lastUpdated
@@ -120,7 +120,10 @@ function SiteFooterComponent({
       {hasPrevNext ? (
         <nav class="doc-article-nav" aria-label="Page navigation">
           {prev ? (
-            <a href={withTrailingSlash(prev.path)} class="doc-article-link doc-article-prev">
+            <a
+              href={formatPath(prev.path, trailingSlash)}
+              class="doc-article-link doc-article-prev"
+            >
               <span class="doc-article-label">Previous</span>
               <span class="doc-article-title">{prev.title}</span>
             </a>
@@ -128,7 +131,10 @@ function SiteFooterComponent({
             <span />
           )}
           {next ? (
-            <a href={withTrailingSlash(next.path)} class="doc-article-link doc-article-next">
+            <a
+              href={formatPath(next.path, trailingSlash)}
+              class="doc-article-link doc-article-next"
+            >
               <span class="doc-article-label">Next</span>
               <span class="doc-article-title">{next.title}</span>
             </a>
@@ -146,7 +152,7 @@ function SiteFooterComponent({
           {flatLinks.map((link) => (
             <a
               class="doc-footer-link-item"
-              href={getLinkHref(link.path)}
+              href={isExternalUrl(link.path) ? link.path : formatPath(link.path, trailingSlash)}
               {...getExternalLinkProps(link.path)}
             >
               <span class="doc-footer-link-label">{link.label}</span>
@@ -167,7 +173,9 @@ function SiteFooterComponent({
                 {group.links.map((link) => (
                   <a
                     class="doc-footer-group-link"
-                    href={getLinkHref(link.path)}
+                    href={
+                      isExternalUrl(link.path) ? link.path : formatPath(link.path, trailingSlash)
+                    }
                     {...getExternalLinkProps(link.path)}
                   >
                     <span class="doc-footer-link-label">{link.label}</span>
@@ -178,6 +186,7 @@ function SiteFooterComponent({
           ))}
         </nav>
       ) : null}
+      {extraContent ? <div class="doc-footer-extra">{extraContent}</div> : null}
       {showThemeControls ? <FooterThemeControls controls={themeControls} /> : null}
       <div class="doc-footer-legal">
         {copyright && renderedEndYear !== undefined ? (
