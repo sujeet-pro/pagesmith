@@ -211,9 +211,14 @@ function createPictureElement(img: Element, src: string): Element {
   }
 }
 
-function createSourceElement(srcset: string, type: string, media?: string): Element {
+function createSourceElement(
+  srcset: string,
+  type: string,
+  options?: { media?: string; scheme?: 'light' | 'dark' },
+): Element {
   const properties: Record<string, string> = { srcset, type }
-  if (media) properties.media = media
+  if (options?.media) properties.media = options.media
+  if (options?.scheme) properties['data-scheme'] = options.scheme
   return { type: 'element', tagName: 'source', properties, children: [] }
 }
 
@@ -222,37 +227,28 @@ function createThemedPictureElement(img: Element, lightSrc: string, darkSrc: str
   const darkIsSvg = isSvgRef(darkSrc)
 
   const sources: Element[] = []
+  const darkMedia = { media: '(prefers-color-scheme: dark)', scheme: 'dark' as const }
 
   if (darkIsSvg) {
-    // SVG: single source with type image/svg+xml
-    sources.push(createSourceElement(darkSrc, 'image/svg+xml', '(prefers-color-scheme: dark)'))
+    sources.push(createSourceElement(darkSrc, 'image/svg+xml', darkMedia))
   } else {
-    // Raster: AVIF + WebP variants
     sources.push(
-      createSourceElement(
-        buildVariantRef(darkSrc, 'avif'),
-        'image/avif',
-        '(prefers-color-scheme: dark)',
-      ),
-      createSourceElement(
-        buildVariantRef(darkSrc, 'webp'),
-        'image/webp',
-        '(prefers-color-scheme: dark)',
-      ),
+      createSourceElement(buildVariantRef(darkSrc, 'avif'), 'image/avif', darkMedia),
+      createSourceElement(buildVariantRef(darkSrc, 'webp'), 'image/webp', darkMedia),
     )
   }
 
   if (lightIsSvg) {
-    sources.push(createSourceElement(lightSrc, 'image/svg+xml'))
+    sources.push(createSourceElement(lightSrc, 'image/svg+xml', { scheme: 'light' }))
   } else {
     sources.push(
-      createSourceElement(buildVariantRef(lightSrc, 'avif'), 'image/avif'),
-      createSourceElement(buildVariantRef(lightSrc, 'webp'), 'image/webp'),
+      createSourceElement(buildVariantRef(lightSrc, 'avif'), 'image/avif', { scheme: 'light' }),
+      createSourceElement(buildVariantRef(lightSrc, 'webp'), 'image/webp', { scheme: 'light' }),
     )
   }
 
-  // Fallback img: use original src for SVGs, webp variant for rasters
-  const fallbackSrc = lightIsSvg ? lightSrc : buildVariantRef(lightSrc, 'webp')
+  // Fallback img: original source for the light variant (SVG as-is, raster original format)
+  const fallbackSrc = lightSrc
 
   return {
     type: 'element',

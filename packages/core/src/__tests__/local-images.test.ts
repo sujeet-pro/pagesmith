@@ -348,13 +348,17 @@ describe('local image markdown enhancements', () => {
 
     // Should produce a single themed figure, not two separate figures
     expect(result.html).toContain('ps-figure-themed')
-    // Dark sources should have prefers-color-scheme media query
-    expect(result.html).toContain('media="(prefers-color-scheme: dark)"')
-    // Light sources should NOT have media query (they're the default)
-    expect(result.html).toContain('srcset="./chart-light.avif" type="image/avif">')
+    // Dark sources should have prefers-color-scheme media query and data-scheme
+    expect(result.html).toContain('media="(prefers-color-scheme: dark)" data-scheme="dark"')
+    // Light sources should have data-scheme but no media query
+    expect(result.html).toContain(
+      'srcset="./chart-light.avif" type="image/avif" data-scheme="light"',
+    )
     // Dark sources
     expect(result.html).toContain('srcset="./chart-dark.avif"')
     expect(result.html).toContain('srcset="./chart-dark.webp"')
+    // Fallback img uses original light source (not a generated variant)
+    expect(result.html).toContain('src="./chart-light.png"')
     // Only one figure
     expect(result.html.match(/ps-figure/g)?.length).toBe(2) // ps-figure + ps-figure-themed
   })
