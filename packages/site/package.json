@@ -1,6 +1,6 @@
 {
   "name": "@pagesmith/site",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Pagesmith site toolkit — re-exported content APIs, JSX runtime, CSS/runtime exports, SSG Vite plugins, and a preset-driven pagesmith CLI",
   "keywords": [
     "jsx",
@@ -191,7 +191,7 @@
     "test": "vp test run"
   },
   "dependencies": {
-    "@pagesmith/core": "0.8.0",
+    "@pagesmith/core": "0.9.0",
     "json5": "^2.2.3",
     "lightningcss": "^1.32.0",
     "pagefind": "^1.5.0"
