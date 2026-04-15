@@ -124,6 +124,8 @@ function updateAllThemedImages(): void {
 }
 
 export function initThemedImages(): void {
+  if (typeof document === 'undefined') return
+
   teardown?.()
   lastScheme = undefined
 
