@@ -20,11 +20,8 @@ Source: [`examples/blog-site/`](https://github.com/sujeet-pro/pagesmith/tree/mai
 
 The diagram below highlights the ownership split: your project owns collections, routes, and page assembly, while Pagesmith provides the content layer, JSX runtime, shared site chrome, and static generation.
 
-<figure>
-  <img src="./diagrams/blog-site-assembly-light.svg" class="only-light" alt="Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, navigation, and search">
-  <img src="./diagrams/blog-site-assembly-dark.svg" class="only-dark" alt="Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, navigation, and search">
-  <figcaption>Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, navigation, and search.</figcaption>
-</figure>
+![Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, navigation, and search](./diagrams/blog-site-assembly-light.svg "Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, navigation, and search.")
+![Custom blog project files flowing through Pagesmith markdown, JSX, and SSG building blocks into generated pages, navigation, and search](./diagrams/blog-site-assembly-dark.svg)
 
 ## Prerequisites
 

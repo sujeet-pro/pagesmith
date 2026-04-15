@@ -32,11 +32,8 @@ Pagesmith is organized as a multi-package workspace under the `@pagesmith/` npm 
 
 The package layering and the intended entry points for consumers look like this:
 
-<figure>
-  <img src="./diagrams/package-layering-light.svg" class="only-light" alt="Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers">
-  <img src="./diagrams/package-layering-dark.svg" class="only-dark" alt="Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers">
-  <figcaption>Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers</figcaption>
-</figure>
+![Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers](./diagrams/package-layering-light.svg "Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers")
+![Package architecture showing @pagesmith/core as the reusable foundation, @pagesmith/site built on top of it, @pagesmith/docs built on both, and docs sites, custom sites, and framework-hosted apps consuming different layers](./diagrams/package-layering-dark.svg)
 
 Notice that `@pagesmith/core` stays reusable on its own, while `@pagesmith/site` and `@pagesmith/docs` add progressively higher-level site and docs behavior on top of that foundation.
 

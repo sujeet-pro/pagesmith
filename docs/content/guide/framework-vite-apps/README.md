@@ -17,11 +17,8 @@ Every Vite framework example uses the same content setup:
 
 The diagram below shows the shared pipeline across all three examples. Notice that only the framework renderer changes; the content definitions, virtual modules, and `getRoutes()` / `render()` contract stay the same.
 
-<figure>
-  <img src="./diagrams/vite-framework-shared-flow-light.svg" class="only-light" alt="Shared Vite framework pipeline from Pagesmith collections and virtual content modules through an SSR entry and framework renderer into static output">
-  <img src="./diagrams/vite-framework-shared-flow-dark.svg" class="only-dark" alt="Shared Vite framework pipeline from Pagesmith collections and virtual content modules through an SSR entry and framework renderer into static output">
-  <figcaption>Shared Vite framework pipeline from Pagesmith collections and virtual content modules through an SSR entry and framework renderer into static output</figcaption>
-</figure>
+![Shared Vite framework pipeline from Pagesmith collections and virtual content modules through an SSR entry and framework renderer into static output](./diagrams/vite-framework-shared-flow-light.svg "Shared Vite framework pipeline from Pagesmith collections and virtual content modules through an SSR entry and framework renderer into static output")
+![Shared Vite framework pipeline from Pagesmith collections and virtual content modules through an SSR entry and framework renderer into static output](./diagrams/vite-framework-shared-flow-dark.svg)
 
 ```ts title="content.config.ts"
 import { defineCollection, defineCollections, z } from '@pagesmith/site'

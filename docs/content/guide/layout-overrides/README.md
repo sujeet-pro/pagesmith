@@ -13,11 +13,8 @@ The default docs chrome itself now lives behind `@pagesmith/docs/components` and
 
 This diagram shows the two-step resolution process: the current route determines a layout name, then `theme.layouts` either maps that name to a custom TSX component or falls back to a built-in layout. Notice that section `meta.json5` selects the layout name for section landing and item pages, while built-in names such as `listing` still follow the same resolution and fallback rules.
 
-<figure>
-  <img src="./diagrams/layout-resolution-light.svg" class="only-light" alt="Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout">
-  <img src="./diagrams/layout-resolution-dark.svg" class="only-dark" alt="Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout">
-  <figcaption>Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout</figcaption>
-</figure>
+![Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout](./diagrams/layout-resolution-light.svg "Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout")
+![Diagram showing how Pagesmith docs resolves a layout name from the current route and section meta, then chooses either a custom theme layout or a built-in home, page, listing, or notFound layout](./diagrams/layout-resolution-dark.svg)
 
 ## Built-in Layouts
 

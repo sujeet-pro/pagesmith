@@ -13,11 +13,8 @@ Pagesmith separates validation from rendering so you can keep content workflows 
 
 The diagram below highlights the key boundary on this page: `getCollection()` performs the full validation path up front, while `entry.render()` is a separate lazy step that builds and caches HTML only when you need it.
 
-<figure>
-  <img src="./diagrams/validation-rendering-flow-light.svg" class="only-light" alt="Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result">
-  <img src="./diagrams/validation-rendering-flow-dark.svg" class="only-dark" alt="Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result">
-  <figcaption>Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result</figcaption>
-</figure>
+![Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result](./diagrams/validation-rendering-flow-light.svg "Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result")
+![Flow showing Pagesmith validating content during getCollection, then deferring markdown rendering until entry.render caches the HTML result](./diagrams/validation-rendering-flow-dark.svg)
 
 ## Validation Pipeline
 

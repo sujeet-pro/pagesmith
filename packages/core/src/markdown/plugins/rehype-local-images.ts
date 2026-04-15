@@ -12,6 +12,7 @@ const HTML_ATTR_PATTERN = /([^\s"'=<>`/]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s
 const SIMPLE_NUMBER_PATTERN = /^\s*(\d+)(?:\.\d+)?\s*$/u
 const PICTURE_TAG_PATTERN = /<\/?picture\b/gi
 const LIGHT_DARK_STEM_PATTERN = /^(.+)-(?:light|dark)$/i
+const INVERT_FILENAME_PATTERN = /\.invert\./i
 const SVG_EXT = '.svg'
 
 type HtmlAttribute = {
@@ -66,6 +67,27 @@ function isSvgRef(ref: string): boolean {
 
 function isRasterRef(ref: string): boolean {
   return isConvertibleImagePath(splitRef(ref).pathname)
+}
+
+function isInvertRef(ref: string): boolean {
+  const { pathname } = splitRef(ref)
+  const lastSlash = pathname.lastIndexOf('/')
+  const fileName = lastSlash >= 0 ? pathname.slice(lastSlash + 1) : pathname
+  return INVERT_FILENAME_PATTERN.test(fileName)
+}
+
+function appendClassName(properties: Element['properties'], className: string): void {
+  const existing = properties.className
+  if (Array.isArray(existing)) {
+    if (!existing.includes(className)) properties.className = [...existing, className]
+    return
+  }
+  if (typeof existing === 'string') {
+    const values = existing.split(/\s+/).filter(Boolean)
+    if (!values.includes(className)) properties.className = [...values, className]
+    return
+  }
+  properties.className = [className]
 }
 
 /**
@@ -189,60 +211,59 @@ function createPictureElement(img: Element, src: string): Element {
   }
 }
 
+function createSourceElement(srcset: string, type: string, media?: string): Element {
+  const properties: Record<string, string> = { srcset, type }
+  if (media) properties.media = media
+  return { type: 'element', tagName: 'source', properties, children: [] }
+}
+
 function createThemedPictureElement(img: Element, lightSrc: string, darkSrc: string): Element {
+  const lightIsSvg = isSvgRef(lightSrc)
+  const darkIsSvg = isSvgRef(darkSrc)
+
+  const sources: Element[] = []
+
+  if (darkIsSvg) {
+    // SVG: single source with type image/svg+xml
+    sources.push(createSourceElement(darkSrc, 'image/svg+xml', '(prefers-color-scheme: dark)'))
+  } else {
+    // Raster: AVIF + WebP variants
+    sources.push(
+      createSourceElement(
+        buildVariantRef(darkSrc, 'avif'),
+        'image/avif',
+        '(prefers-color-scheme: dark)',
+      ),
+      createSourceElement(
+        buildVariantRef(darkSrc, 'webp'),
+        'image/webp',
+        '(prefers-color-scheme: dark)',
+      ),
+    )
+  }
+
+  if (lightIsSvg) {
+    sources.push(createSourceElement(lightSrc, 'image/svg+xml'))
+  } else {
+    sources.push(
+      createSourceElement(buildVariantRef(lightSrc, 'avif'), 'image/avif'),
+      createSourceElement(buildVariantRef(lightSrc, 'webp'), 'image/webp'),
+    )
+  }
+
+  // Fallback img: use original src for SVGs, webp variant for rasters
+  const fallbackSrc = lightIsSvg ? lightSrc : buildVariantRef(lightSrc, 'webp')
+
   return {
     type: 'element',
     tagName: 'picture',
     properties: {},
     children: [
-      // Dark variants first (with media query)
-      {
-        type: 'element',
-        tagName: 'source',
-        properties: {
-          srcset: buildVariantRef(darkSrc, 'avif'),
-          type: 'image/avif',
-          media: '(prefers-color-scheme: dark)',
-        },
-        children: [],
-      },
-      {
-        type: 'element',
-        tagName: 'source',
-        properties: {
-          srcset: buildVariantRef(darkSrc, 'webp'),
-          type: 'image/webp',
-          media: '(prefers-color-scheme: dark)',
-        },
-        children: [],
-      },
-      // Light variants (default — no media query)
-      {
-        type: 'element',
-        tagName: 'source',
-        properties: {
-          srcset: buildVariantRef(lightSrc, 'avif'),
-          type: 'image/avif',
-        },
-        children: [],
-      },
-      {
-        type: 'element',
-        tagName: 'source',
-        properties: {
-          srcset: buildVariantRef(lightSrc, 'webp'),
-          type: 'image/webp',
-        },
-        children: [],
-      },
-      // Fallback img with light webp
+      ...sources,
       {
         type: 'element',
         tagName: 'img',
-        properties: {
-          ...(img.properties ?? {}),
-          src: buildVariantRef(lightSrc, 'webp'),
-        },
+        properties: { ...(img.properties ?? {}), src: fallbackSrc },
         children: [],
       },
     ],
@@ -309,17 +330,58 @@ function getImageElement(node: RootContent): Element | undefined {
 }
 
 /**
+ * Collect all light/dark-suffixed images in a parent and validate they have pairs.
+ * Warns for any -light or -dark image missing its counterpart but continues processing.
+ */
+function validateLightDarkPairs(parent: Root | Element, currentFilePath: string): void {
+  const children = parent.children as RootContent[]
+  const candidates: ImageCandidate[] = []
+
+  for (let i = 0; i < children.length; i++) {
+    const src = getImageSrc(children[i])
+    if (!src || !isLocalImageRef(src)) continue
+    const parsed = parseLightDarkFilename(src)
+    if (!parsed) continue
+    const node = getImageElement(children[i])
+    if (node) candidates.push({ index: i, src, parsed, node })
+  }
+
+  // Group by stem and check each stem has both variants
+  const byStem = new Map<string, ImageCandidate[]>()
+  for (const c of candidates) {
+    const group = byStem.get(c.parsed.stem) ?? []
+    group.push(c)
+    byStem.set(c.parsed.stem, group)
+  }
+
+  for (const [, group] of byStem) {
+    const variants = new Set(group.map((c) => c.parsed.variant))
+    if (variants.size === 1) {
+      const missing = variants.has('light') ? 'dark' : 'light'
+      const present = group[0].src
+      console.warn(
+        `[pagesmith] Image "${present}" in ${currentFilePath} has a -${group[0].parsed.variant} suffix but no matching -${missing} counterpart. ` +
+          `When using -light/-dark suffixes, both variants must be present as consecutive images.`,
+      )
+    }
+  }
+}
+
+/**
  * Scan parent children for consecutive light/dark image pairs and merge them.
  * Returns indices that were consumed by pairs (to skip during normal processing).
  */
-function detectAndMergePairs(
+async function detectAndMergePairs(
   parent: Root | Element,
   currentFilePath: string,
   assetRoot: string,
-): Set<number> {
+): Promise<Set<number>> {
   const consumed = new Set<number>()
   const children = parent.children as RootContent[]
   if (children.length < 2) return consumed
+
+  // Validate all light/dark images have counterparts before merging
+  validateLightDarkPairs(parent, currentFilePath)
 
   let i = 0
   while (i < children.length - 1) {
@@ -365,6 +427,16 @@ function detectAndMergePairs(
     const darkSrc = parsedA.variant === 'dark' ? srcA : srcB
     const lightImg =
       parsedA.variant === 'light' ? getImageElement(children[i])! : getImageElement(children[j])!
+
+    // Apply intrinsic dimensions from the light image
+    const lightPath = resolveLocalImagePath(currentFilePath, lightSrc, assetRoot)
+    if (lightPath) {
+      const intrinsic = await getLocalImageDimensions(lightPath)
+      if (intrinsic) {
+        lightImg.properties = lightImg.properties || {}
+        applyIntrinsicDimensions(lightImg.properties, intrinsic)
+      }
+    }
 
     // Use light image's properties (alt, title, dimensions)
     const title =
@@ -571,6 +643,16 @@ async function transformRawImageTag(
 
   applyIntrinsicHtmlDimensions(attrs, intrinsic)
 
+  // Apply invert-on-dark class for .invert. filenames
+  if (isInvertRef(src)) {
+    const existing = getHtmlAttribute(attrs, 'class')?.value ?? ''
+    const classes = existing.split(/\s+/).filter(Boolean)
+    if (!classes.includes('invert-on-dark')) {
+      classes.push('invert-on-dark')
+      setHtmlAttribute(attrs, 'class', classes.join(' '))
+    }
+  }
+
   if (isSvgRef(src)) {
     return buildHtmlSvgFigure(attrs)
   }
@@ -650,6 +732,11 @@ async function processImageNode(
   node.properties = node.properties || {}
   applyIntrinsicDimensions(node.properties, intrinsic)
 
+  // Apply invert-on-dark class for .invert. filenames
+  if (isInvertRef(src)) {
+    appendClassName(node.properties, 'invert-on-dark')
+  }
+
   // Don't figure-wrap images inside links — it would break the link structure
   if (insideLink || !parent || index === undefined) return
 
@@ -702,7 +789,7 @@ async function walk(
 
     // First pass: detect and merge light/dark pairs (only at block-level parents)
     if (!insideFigure && !insidePicture && !insideLink) {
-      detectAndMergePairs(parentElement, currentFilePath, assetRoot)
+      await detectAndMergePairs(parentElement, currentFilePath, assetRoot)
     }
 
     // Second pass: walk remaining children

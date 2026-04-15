@@ -10,11 +10,8 @@ Need ready-to-run prompt templates for setup and maintenance? See the [Prompts C
 
 Use this diagram as the fast filter: docs-first projects go to `@pagesmith/docs`, host-owned apps start with `@pagesmith/core`, and `@pagesmith/site` is the app-facing package when a project wants the content layer plus shared JSX, CSS/runtime, and Vite SSG helpers from one place.
 
-<figure>
-  <img src="./diagrams/package-decision-path-light.svg" class="only-light" alt="Package decision paths: docs-first to @pagesmith/docs, host-owned shell to @pagesmith/core, optional @pagesmith/site for shared JSX, CSS, runtime, and Vite SSG helpers">
-  <img src="./diagrams/package-decision-path-dark.svg" class="only-dark" alt="Package decision paths: docs-first to @pagesmith/docs, host-owned shell to @pagesmith/core, optional @pagesmith/site for shared JSX, CSS, runtime, and Vite SSG helpers">
-  <figcaption>Match the branch to your goal: notice who owns the site shell versus when you want the full docs preset and navigation.</figcaption>
-</figure>
+![Package decision paths: docs-first to @pagesmith/docs, host-owned shell to @pagesmith/core, optional @pagesmith/site for shared JSX, CSS, runtime, and Vite SSG helpers](./diagrams/package-decision-path-light.svg "Match the branch to your goal: notice who owns the site shell versus when you want the full docs preset and navigation.")
+![Package decision paths: docs-first to @pagesmith/docs, host-owned shell to @pagesmith/core, optional @pagesmith/site for shared JSX, CSS, runtime, and Vite SSG helpers](./diagrams/package-decision-path-dark.svg)
 
 ## AI-First Starting Point
 

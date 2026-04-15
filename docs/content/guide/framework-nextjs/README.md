@@ -14,11 +14,8 @@ The Next.js example keeps Next.js in charge of routing, layouts, metadata, and s
 
 The diagram highlights the boundary: the App Router stays in charge of the shell while `@pagesmith/site` supplies rendered markdown data plus the shared prose/code-block layer.
 
-<figure>
-  <img src="./diagrams/nextjs-pagesmith-boundary-light.svg" class="only-light" alt="Next.js App Router owning routes and shell while @pagesmith/site provides app-facing content loading, entry.render output, and shared content CSS/runtime on top of the core implementation">
-  <img src="./diagrams/nextjs-pagesmith-boundary-dark.svg" class="only-dark" alt="Next.js App Router owning routes and shell while @pagesmith/site provides app-facing content loading, entry.render output, and shared content CSS/runtime on top of the core implementation">
-  <figcaption>Integration boundary: Next.js owns the shell while `@pagesmith/site` stays the app-facing content and markdown package.</figcaption>
-</figure>
+![Next.js App Router owning routes and shell while @pagesmith/site provides app-facing content loading, entry.render output, and shared content CSS/runtime on top of the core implementation](./diagrams/nextjs-pagesmith-boundary-light.svg "Integration boundary: Next.js owns the shell while `@pagesmith/site` stays the app-facing content and markdown package.")
+![Next.js App Router owning routes and shell while @pagesmith/site provides app-facing content loading, entry.render output, and shared content CSS/runtime on top of the core implementation](./diagrams/nextjs-pagesmith-boundary-dark.svg)
 
 ## When to Choose This Pattern
 

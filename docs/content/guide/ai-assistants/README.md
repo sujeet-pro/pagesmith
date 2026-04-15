@@ -30,11 +30,8 @@ Use the command that matches the package workflow:
 
 Pick the branch that matches your project: docs init scaffolds the site plus AI files, while the core CLI only layers AI artifacts onto an existing app.
 
-<figure>
-  <img src="./diagrams/ai-artifact-install-flow-light.svg" class="only-light" alt="Flow from choosing docs versus core or site project to pagesmith-docs init or pagesmith-core ai then shared installed AI artifacts">
-  <img src="./diagrams/ai-artifact-install-flow-dark.svg" class="only-dark" alt="Flow from choosing docs versus core or site project to pagesmith-docs init or pagesmith-core ai then shared installed AI artifacts">
-  <figcaption>Two install paths converge on the same AI artifact set; the docs path also creates config and content scaffolding.</figcaption>
-</figure>
+![Flow from choosing docs versus core or site project to pagesmith-docs init or pagesmith-core ai then shared installed AI artifacts](./diagrams/ai-artifact-install-flow-light.svg "Two install paths converge on the same AI artifact set; the docs path also creates config and content scaffolding.")
+![Flow from choosing docs versus core or site project to pagesmith-docs init or pagesmith-core ai then shared installed AI artifacts](./diagrams/ai-artifact-install-flow-dark.svg)
 
 ### Core or site projects
 

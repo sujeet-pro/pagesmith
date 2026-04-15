@@ -341,11 +341,8 @@ Any non-code content (a paragraph, heading, or untitled code block) between titl
 
 The diagram below shows the package split that matters most here: `@pagesmith/core` turns fenced code into themed HTML markup, while `@pagesmith/site` provides the shared CSS and browser runtime that make tabs, copy, and collapse interactions work.
 
-<figure>
-  <img src="./diagrams/code-block-rendering-pipeline-light.svg" class="only-light" alt="Code block rendering pipeline showing markdown source flowing through @pagesmith/core into rendered HTML, with @pagesmith/site providing shared CSS and runtime behavior for the final interactive code block">
-  <img src="./diagrams/code-block-rendering-pipeline-dark.svg" class="only-dark" alt="Code block rendering pipeline showing markdown source flowing through @pagesmith/core into rendered HTML, with @pagesmith/site providing shared CSS and runtime behavior for the final interactive code block">
-  <figcaption>Code block rendering pipeline showing markdown source flowing through @pagesmith/core into rendered HTML, with @pagesmith/site providing shared CSS and runtime behavior for the final interactive code block</figcaption>
-</figure>
+![Code block rendering pipeline showing markdown source flowing through @pagesmith/core into rendered HTML, with @pagesmith/site providing shared CSS and runtime behavior for the final interactive code block](./diagrams/code-block-rendering-pipeline-light.svg "Code block rendering pipeline showing markdown source flowing through @pagesmith/core into rendered HTML, with @pagesmith/site providing shared CSS and runtime behavior for the final interactive code block")
+![Code block rendering pipeline showing markdown source flowing through @pagesmith/core into rendered HTML, with @pagesmith/site providing shared CSS and runtime behavior for the final interactive code block](./diagrams/code-block-rendering-pipeline-dark.svg)
 
 Pagesmith's built-in code renderer runs inside the unified markdown pipeline. During markdown processing, it:
 

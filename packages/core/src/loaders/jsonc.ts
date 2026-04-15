@@ -39,7 +39,7 @@ function stripComments(raw: string): string {
     if (raw[i] === '/' && raw[i + 1] === '*') {
       i += 2
       while (i < len && !(raw[i] === '*' && raw[i + 1] === '/')) i++
-      i += 2 // skip closing */
+      if (i < len) i += 2 // skip closing */ only if found
       continue
     }
 

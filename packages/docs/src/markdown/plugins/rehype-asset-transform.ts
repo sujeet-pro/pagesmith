@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs'
 import type { Element, Root, RootContent } from 'hast'
-import { basename, dirname, relative, resolve } from 'path'
+import { dirname, relative, resolve } from 'path'
 import { SKIP, visit } from 'unist-util-visit'
 import { getDocsTransformContext } from './context'
 
@@ -56,27 +56,6 @@ function toPublishedAssetUrl(
   const assetPath = toPublishedAssetPath(currentFilePath, contentDir, pathname)
   if (!assetPath) return undefined
   return `${normalizeBasePath(basePath)}/assets/${assetPath}${suffix}`
-}
-
-function appendClassName(node: Element, className: string): void {
-  const existing = node.properties?.className
-  if (Array.isArray(existing)) {
-    if (!existing.includes(className)) {
-      node.properties = node.properties || {}
-      node.properties.className = [...existing, className]
-    }
-    return
-  }
-  if (typeof existing === 'string') {
-    const values = existing.split(/\s+/).filter(Boolean)
-    if (!values.includes(className)) {
-      node.properties = node.properties || {}
-      node.properties.className = [...values, className]
-    }
-    return
-  }
-  node.properties = node.properties || {}
-  node.properties.className = [className]
 }
 
 function rewriteSrcset(
@@ -164,12 +143,14 @@ export function rehypeAssetTransform() {
             svgContent = svgContent.replace(/<!DOCTYPE[^>]*>\s*/g, '')
             // Add accessibility and styling attributes to root <svg>
             const alt = element.properties?.alt || ''
+            const escapedAlt = String(alt)
+              .replace(/&/g, '&amp;')
+              .replace(/"/g, '&quot;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
             svgContent = svgContent.replace(
               '<svg',
-              `<svg role="img" aria-label="${String(alt).replace(
-                /"/g,
-                '&quot;',
-              )}" class="inline-svg"`,
+              `<svg role="img" aria-label="${escapedAlt}" class="inline-svg"`,
             )
             if (parent && index !== undefined) {
               ;(parent.children as RootContent[])[index] = { type: 'raw', value: svgContent }
@@ -188,11 +169,6 @@ export function rehypeAssetTransform() {
 
         element.properties = element.properties || {}
         element.properties.src = publishedUrl
-
-        // Add invert class for .invert. images
-        if (basename(src).includes('.invert.')) {
-          appendClassName(element, 'invert-on-dark')
-        }
       }
 
       // Transform source srcset (for <picture> elements)

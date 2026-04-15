@@ -149,7 +149,7 @@ The `role="img"` and `aria-label` attributes ensure screen readers announce the 
 
 ## Local Images (rehype-local-images)
 
-When Pagesmith knows the markdown source path, relative local images automatically inherit intrinsic dimensions from the filesystem. All raster images (PNG, JPEG, WebP, GIF) render as a `<picture>` element with WebP and AVIF `<source>` variants, using the WebP variant as the `<img src>` fallback (broadest modern format support). SVG images are not wrapped in `<picture>`.
+When Pagesmith knows the markdown source path, relative local images automatically inherit intrinsic dimensions (`width`, `height`, `style="max-width:min({width}px,100%)"`) from the filesystem. All raster images (PNG, JPEG, WebP, GIF) render as a `<picture>` element with AVIF and WebP `<source>` variants, using the WebP variant as the `<img src>` fallback (broadest modern format support). SVG images are not wrapped in `<picture>` and receive no format conversion.
 
 Every markdown image is wrapped in `<figure class="ps-figure">`. The title attribute from markdown syntax (`![alt](src "title")`) becomes a `<figcaption>`. Images that appear inside `<a>` links are not figure-wrapped (to preserve the link structure). `.avif` source images are passed through as-is without re-wrapping in `<picture>`.
 
@@ -165,7 +165,7 @@ The first example produces:
   <picture>
     <source srcset="./hero.avif" type="image/avif">
     <source srcset="./hero.webp" type="image/webp">
-    <img src="./hero.webp" alt="Hero" width="..." height="...">
+    <img src="./hero.webp" alt="Hero" width="1200" height="800" style="max-width:min(1200px,100%)">
   </picture>
 </figure>
 ```
@@ -176,22 +176,39 @@ The second example produces a `<figcaption>Company Logo</figcaption>` inside the
 
 ### Automatic Light/Dark Pair Merging
 
-Consecutive images whose filenames end with `-light` and `-dark` suffixes (e.g. `diagram-light.svg` and `diagram-dark.svg`) are automatically merged into a single `<figure class="ps-figure ps-figure-themed">`. The dark variant uses `<source media="(prefers-color-scheme: dark)">` so the correct image displays without JavaScript.
+Consecutive images whose filenames end with `-light` and `-dark` suffixes (e.g. `diagram-light.svg` and `diagram-dark.svg`) are automatically merged into a single `<figure class="ps-figure ps-figure-themed">`. The merged image inherits intrinsic dimensions from the light variant. When using `-light`/`-dark` suffixes, **both variants must be present** as consecutive images — a lone `-light` or `-dark` image without its counterpart will throw an error.
+
+The generated `<picture>` element is format-aware:
+
+- **SVG pairs** use `<source type="image/svg+xml">` — no AVIF/WebP conversion is attempted since SVGs are already resolution-independent vectors.
+- **Raster pairs** use AVIF + WebP `<source>` variants, with generated format conversion files placed in the output directory.
 
 ```md
-![Architecture overview](./diagrams/arch-light.svg)
+![Architecture overview](./diagrams/arch-light.svg "Build pipeline architecture")
 ![Architecture overview](./diagrams/arch-dark.svg)
 ```
 
-Produces:
+Produces (for SVG pairs):
 
 ```html
 <figure class="ps-figure ps-figure-themed">
   <picture>
-    <source srcset="./diagrams/arch-dark.svg" media="(prefers-color-scheme: dark)">
-    <img src="./diagrams/arch-light.svg" alt="Architecture overview">
+    <source srcset="./diagrams/arch-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
+    <source srcset="./diagrams/arch-light.svg" type="image/svg+xml">
+    <img src="./diagrams/arch-light.svg" alt="Architecture overview" width="879" height="771" style="max-width:min(879px,100%)">
   </picture>
+  <figcaption>Build pipeline architecture</figcaption>
 </figure>
+```
+
+The title on the first (light) image becomes the `<figcaption>`. In auto mode, the browser natively evaluates the `<source media>` queries — zero JavaScript needed.
+
+### Invert on dark
+
+Images containing `.invert.` in their filename (e.g. `flow.invert.svg`) automatically receive the `invert-on-dark` class from the pipeline. This applies `invert(1) hue-rotate(180deg)` in dark mode via CSS. Best suited for simple black-and-white diagrams or icons.
+
+```md
+![Linear flow from input through validation to output](./simple-flow.invert.svg "Processing pipeline")
 ```
 
 ## Theme-Aware Images
@@ -200,27 +217,18 @@ When `@pagesmith/site` CSS is loaded, content images and other elements can resp
 
 ### Image best practices
 
-The pipeline automatically wraps markdown images in `<figure class="ps-figure">` and generates `<picture>` elements for raster images. Use the markdown title attribute for captions:
+Use standard markdown image syntax for all content images. The pipeline automatically wraps them in `<figure class="ps-figure">` and generates `<picture>` elements for raster images. Use the markdown title attribute for captions:
 
 ```md
 ![Dashboard showing real-time metrics](./hero.jpg "Production monitoring dashboard")
 ```
 
-For manual HTML images, prefer wrapping in `<figure>` with a `<figcaption>`. The `alt` attribute should be a detailed description of what the image renders (for screen readers and when the image fails to load). The `<figcaption>` is a short visible label shown below the image.
+For light/dark pairs, place the light and dark variants consecutively:
 
-### Light/dark image pairs
-
-For markdown images, consecutive `-light`/`-dark` pairs are automatically merged into a themed figure (see the Local Images section above). For manual HTML, wrap two `<img>` variants in a `<figure>`. The CSS shows the correct one based on the active color scheme:
-
-```html
-<figure>
-  <img src="./diagram-light.svg" class="only-light" alt="Architecture overview showing content flowing from markdown source through the build pipeline to static HTML output">
-  <img src="./diagram-dark.svg" class="only-dark" alt="Architecture overview showing content flowing from markdown source through the build pipeline to static HTML output">
-  <figcaption>Build pipeline architecture</figcaption>
-</figure>
+```md
+![Architecture overview](./diagrams/arch-light.svg "Build pipeline architecture")
+![Architecture overview](./diagrams/arch-dark.svg)
 ```
-
-In `color-scheme-auto` mode, the switch follows the OS `prefers-color-scheme` media query. In explicit light or dark mode, the matching variant is forced regardless of OS preference.
 
 ### CSS classes
 
@@ -228,11 +236,11 @@ In `color-scheme-auto` mode, the switch follows the OS `prefers-color-scheme` me
 |---|---|
 | `.ps-figure` | Wrapper class on all pipeline-generated `<figure>` elements |
 | `.ps-figure-themed` | Added when a light/dark pair is auto-merged |
-| `.only-light` | Show image only in light mode |
-| `.only-dark` | Show image only in dark mode |
+| `.invert-on-dark` | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
+| `.only-light` | Show element only in light mode (manual HTML) |
+| `.only-dark` | Show element only in dark mode (manual HTML) |
 | `.show-on-light` | Show any element only in light mode |
 | `.show-on-dark` | Show any element only in dark mode |
-| `.invert-on-dark` | Invert image colors in dark mode |
 
 ### Generic show/hide helpers
 
@@ -242,23 +250,6 @@ For non-image elements that should toggle with the color scheme, use the generic
 <div class="show-on-light">Light-mode only content</div>
 <div class="show-on-dark">Dark-mode only content</div>
 ```
-
-### Invert on dark
-
-For a single image that works in light mode and can be inverted for dark mode:
-
-```html
-<figure>
-  <img src="./simple-diagram.svg" class="invert-on-dark" alt="Request path from client through API gateway to database and back">
-  <figcaption>Request lifecycle</figcaption>
-</figure>
-```
-
-The filter applies `invert(1) hue-rotate(180deg)` in dark mode. Best suited for simple black-and-white diagrams or icons.
-
-### File naming convention
-
-Images containing `.invert.` in their filename (e.g. `flow.invert.svg`) automatically receive the `invert-on-dark` class from the rehype-local-images plugin.
 
 ## Heading Links (rehype-slug + rehype-autolink-headings)
 

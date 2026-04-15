@@ -12,11 +12,8 @@ This guide covers everything you need to go from an empty project to a running d
 
 Follow the arrows left to right: install pulls in core, init lays down config and content, and your scripts drive dev, build, and search indexing.
 
-<figure>
-  <img src="./diagrams/docs-bootstrap-flow-light.svg" class="only-light" alt="Docs bootstrap flow from npm install through pagesmith-docs init to config, content, package scripts, and build output with Pagefind">
-  <img src="./diagrams/docs-bootstrap-flow-dark.svg" class="only-dark" alt="Docs bootstrap flow from npm install through pagesmith-docs init to config, content, package scripts, and build output with Pagefind">
-  <figcaption>Typical docs-first bootstrap: one package install, one init command, then config-driven content and CLI scripts.</figcaption>
-</figure>
+![Docs bootstrap flow from npm install through pagesmith-docs init to config, content, package scripts, and build output with Pagefind](./diagrams/docs-bootstrap-flow-light.svg "Typical docs-first bootstrap: one package install, one init command, then config-driven content and CLI scripts.")
+![Docs bootstrap flow from npm install through pagesmith-docs init to config, content, package scripts, and build output with Pagefind](./diagrams/docs-bootstrap-flow-dark.svg)
 
 ## AI-First Setup
 

@@ -29,11 +29,8 @@ pagesmith-docs mcp --stdio [options]
 
 Notice that `init` is a setup step you can rerun safely, `dev`/`build`/`preview` form the main docs workflow, and `mcp --stdio` is a separate path for assistant tooling rather than static-site output.
 
-<figure>
-  <img src="./diagrams/command-lifecycle-light.svg" class="only-light" alt="Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path">
-  <img src="./diagrams/command-lifecycle-dark.svg" class="only-dark" alt="Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path">
-  <figcaption>Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path</figcaption>
-</figure>
+![Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path](./diagrams/command-lifecycle-light.svg "Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path")
+![Docs CLI lifecycle showing init feeding the dev to build to preview workflow, with mcp as a separate tooling path](./diagrams/command-lifecycle-dark.svg)
 
 ## `pagesmith-docs init`
 

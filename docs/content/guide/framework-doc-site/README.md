@@ -20,11 +20,8 @@ Source: [`examples/doc-site/`](https://github.com/sujeet-pro/pagesmith/tree/main
 
 The diagram below highlights the boundary: your project supplies content, config, and optional overrides, while `@pagesmith/docs` owns the docs-specific runtime and generation pipeline.
 
-<figure>
-  <img src="./diagrams/doc-site-assembly-light.svg" class="only-light" alt="Doc site project inputs flowing through the @pagesmith/docs preset into generated pages, navigation, and search">
-  <img src="./diagrams/doc-site-assembly-dark.svg" class="only-dark" alt="Doc site project inputs flowing through the @pagesmith/docs preset into generated pages, navigation, and search">
-  <figcaption>Doc site project inputs flowing through the `@pagesmith/docs` preset into generated pages, navigation, and search.</figcaption>
-</figure>
+![Doc site project inputs flowing through the @pagesmith/docs preset into generated pages, navigation, and search](./diagrams/doc-site-assembly-light.svg "Doc site project inputs flowing through the `@pagesmith/docs` preset into generated pages, navigation, and search.")
+![Doc site project inputs flowing through the @pagesmith/docs preset into generated pages, navigation, and search](./diagrams/doc-site-assembly-dark.svg)
 
 ## Prerequisites
 

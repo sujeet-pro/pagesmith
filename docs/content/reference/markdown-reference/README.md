@@ -170,19 +170,18 @@ Produces a `<figure class="ps-figure ps-figure-themed">` with `<source media="(p
 
 ## Theme-Aware Images
 
-Images and other elements can respond to the active color scheme. The pipeline handles figure wrapping and light/dark pairing automatically for markdown images (see above). For manual HTML control, use the utility classes below.
+Images and other elements can respond to the active color scheme. The pipeline handles figure wrapping and light/dark pairing automatically for markdown images (see above). Prefer markdown image syntax over raw HTML for all images.
 
-### Manual light/dark image pairs
+### Light/dark image pairs
 
-```html
-<figure>
-  <img src="./diagram-light.svg" class="only-light" alt="Architecture overview showing content flowing from markdown source through the build pipeline to static HTML output">
-  <img src="./diagram-dark.svg" class="only-dark" alt="Architecture overview showing content flowing from markdown source through the build pipeline to static HTML output">
-  <figcaption>Build pipeline architecture</figcaption>
-</figure>
+Place light and dark variants consecutively using standard markdown images. The pipeline auto-merges them:
+
+```markdown
+![Architecture overview](./diagrams/arch-light.svg "Build pipeline architecture")
+![Architecture overview](./diagrams/arch-dark.svg)
 ```
 
-In `color-scheme-auto` (the default), the switch follows the OS preference. In explicit light or dark mode, the matching variant is forced.
+The title on the first (light) image becomes the `<figcaption>`. In `color-scheme-auto` (the default), the switch follows the OS preference. In explicit light or dark mode, the matching variant is forced.
 
 ### Generic show/hide helpers
 
@@ -195,14 +194,11 @@ Works on any element, not just images.
 
 ### Invert on dark
 
-```html
-<figure>
-  <img src="./simple-diagram.svg" class="invert-on-dark" alt="Request path from client through API gateway to database and back">
-  <figcaption>Request lifecycle</figcaption>
-</figure>
+```markdown
+![Request path from client through API gateway to database and back](./simple-diagram.invert.svg "Request lifecycle")
 ```
 
-Applies `invert(1) hue-rotate(180deg)` in dark mode. Images with `.invert.` in their filename receive this class automatically.
+Images with `.invert.` in their filename receive the `invert-on-dark` class automatically, which applies `invert(1) hue-rotate(180deg)` in dark mode.
 
 ## Accessible Emojis
 

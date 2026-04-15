@@ -22,18 +22,47 @@ const KNOWN_META_PROPS = new Set([
   'del',
 ])
 
-/** Extract the property name portion of a meta token (before `=` or `{`). */
-function extractMetaPropNames(meta: string): string[] {
-  const props: string[] = []
+/** Meta properties that accept line range values like {1-5,8,10-12}. */
+const LINE_RANGE_PROPS = new Set(['mark', 'ins', 'del', 'collapse'])
 
-  // Match key=value, key={...}, or bare flags
-  const tokenRegex = /(\w+)(?:=(?:\{[^}]*\}|"[^"]*"|'[^']*'|\S+))?/g
+/** Extract meta tokens as key-value pairs from a meta string. */
+function extractMetaTokens(meta: string): Array<{ key: string; value?: string }> {
+  const tokens: Array<{ key: string; value?: string }> = []
+
+  const tokenRegex = /(\w+)(?:=(\{[^}]*\}|"[^"]*"|'[^']*'|\S+))?/g
   let match: RegExpExecArray | null
   while ((match = tokenRegex.exec(meta)) !== null) {
-    props.push(match[1]!)
+    const raw = match[2]
+    let value: string | undefined
+    if (raw !== undefined) {
+      // Strip surrounding braces, quotes
+      if (
+        (raw.startsWith('{') && raw.endsWith('}')) ||
+        (raw.startsWith('"') && raw.endsWith('"')) ||
+        (raw.startsWith("'") && raw.endsWith("'"))
+      ) {
+        value = raw.slice(1, -1)
+      } else {
+        value = raw
+      }
+    }
+    tokens.push({ key: match[1]!, value })
   }
 
-  return props
+  return tokens
+}
+
+/** Validate that a line range value contains only valid tokens. */
+function findMalformedRangeTokens(value: string): string[] {
+  const bad: string[] = []
+  for (const part of value.split(',')) {
+    const token = part.trim()
+    if (!token) continue
+    if (/^\d+$/.test(token)) continue
+    if (/^\d+\s*-\s*\d+$/.test(token)) continue
+    bad.push(token)
+  }
+  return bad
 }
 
 /** Collect all `code` nodes from MDAST. */
@@ -81,15 +110,26 @@ export const codeBlockValidator: ContentValidator = {
 
       if (!hasMeta) continue
 
-      // Check for unknown meta properties
-      const propNames = extractMetaPropNames(meta)
-      for (const prop of propNames) {
-        if (!KNOWN_META_PROPS.has(prop)) {
+      // Check for unknown meta properties and malformed line ranges
+      const tokens = extractMetaTokens(meta)
+      for (const { key, value } of tokens) {
+        if (!KNOWN_META_PROPS.has(key)) {
           issues.push({
             field: `code-block${lineInfo}`,
-            message: `Unknown code block meta property: "${prop}"`,
+            message: `Unknown code block meta property: "${key}"`,
             severity: 'warn',
           })
+        }
+
+        if (LINE_RANGE_PROPS.has(key) && typeof value === 'string' && value.length > 0) {
+          const bad = findMalformedRangeTokens(value)
+          for (const token of bad) {
+            issues.push({
+              field: `code-block${lineInfo}`,
+              message: `Malformed line range "${token}" in ${key}={...} — expected a number or range like 1-5`,
+              severity: 'warn',
+            })
+          }
         }
       }
     }

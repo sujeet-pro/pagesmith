@@ -21,11 +21,8 @@ The theme system sits on two independent CSS class axes applied to `<html>`:
 
 This state-flow view shows how server defaults, stored preferences, and theme controls all feed the `<html>` state. Notice that color scheme drives light/dark asset switching and code themes, while theme variant and text size change token resolution and typography.
 
-<figure>
-  <img src="./diagrams/theme-state-flow-light.svg" class="only-light" alt="Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size">
-  <img src="./diagrams/theme-state-flow-dark.svg" class="only-dark" alt="Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size">
-  <figcaption>Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size</figcaption>
-</figure>
+![Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size](./diagrams/theme-state-flow-light.svg "Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size")
+![Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size](./diagrams/theme-state-flow-dark.svg)
 
 The server-rendered default is:
 
@@ -339,19 +336,18 @@ The runtime reads this on page load, applies the stored classes and data attribu
 
 ## Image Switching
 
-Prefer wrapping images in `<figure>` with a `<figcaption>`. The `alt` attribute should be a detailed description of what the image renders (for screen readers and when the image fails to load). The `<figcaption>` is a short visible label shown below the image.
+Use standard markdown image syntax for all content images. The `alt` text should be a detailed description of what the image renders (for screen readers and when the image fails to load). The markdown title attribute becomes a visible `<figcaption>` below the image.
 
-For content images that need different versions in light and dark modes, wrap the pair in a `<figure>` and use the `.only-light` and `.only-dark` utility classes:
+For content images that need different versions in light and dark modes, place the light and dark variants consecutively. The pipeline automatically merges them into a single themed figure:
 
-```html
-<figure>
-  <img src="diagram-light.png" class="only-light" alt="Architecture diagram showing content flowing from markdown source through the build pipeline to static HTML output">
-  <img src="diagram-dark.png" class="only-dark" alt="Architecture diagram showing content flowing from markdown source through the build pipeline to static HTML output">
-  <figcaption>Build pipeline architecture</figcaption>
-</figure>
+```markdown
+![Architecture diagram showing content flowing from markdown source through the build pipeline to static HTML output](./diagrams/arch-light.svg "Build pipeline architecture")
+![Architecture diagram showing content flowing from markdown source through the build pipeline to static HTML output](./diagrams/arch-dark.svg)
 ```
 
-These classes are tied to the `color-scheme-*` class on `<html>`, not directly to `@media (prefers-color-scheme)`. In `color-scheme-auto` (the default), the OS preference drives the switch via a media query. In `color-scheme-light` or `color-scheme-dark`, the matching variant is forced regardless of OS preference. This ensures images switch correctly both when the OS preference changes and when the user manually selects a color scheme via the theme toggle.
+The automatic merging is triggered by consecutive images whose filenames end with `-light` and `-dark` suffixes. The title on the first (light) image becomes the `<figcaption>`.
+
+The resulting themed figure is tied to the `color-scheme-*` class on `<html>`, not directly to `@media (prefers-color-scheme)`. In `color-scheme-auto` (the default), the OS preference drives the switch via a media query. In `color-scheme-light` or `color-scheme-dark`, the matching variant is forced regardless of OS preference. This ensures images switch correctly both when the OS preference changes and when the user manually selects a color scheme via the theme toggle.
 
 ### Generic show/hide helpers
 
@@ -366,16 +362,13 @@ These work on any element and follow the same `color-scheme-*` class logic.
 
 ### Invert on dark
 
-For a single image that works in light mode and can be inverted for dark, use `.invert-on-dark` instead of maintaining two separate files:
+For a single image that works in light mode and can be inverted for dark, use the `.invert.` filename convention instead of maintaining two separate files:
 
-```html
-<figure>
-  <img src="simple-flow.svg" class="invert-on-dark" alt="Linear flow from input through validation to output">
-  <figcaption>Processing pipeline</figcaption>
-</figure>
+```markdown
+![Linear flow from input through validation to output](./simple-flow.invert.svg "Processing pipeline")
 ```
 
-The filter applies `invert(1) hue-rotate(180deg)` in dark mode. Best for simple black-and-white SVGs or icons. Images with `.invert.` in their filename (e.g. `flow.invert.svg`) receive this class automatically from the markdown pipeline.
+Images with `.invert.` in their filename (e.g. `flow.invert.svg`) receive the `invert-on-dark` class automatically from the markdown pipeline, which applies `invert(1) hue-rotate(180deg)` in dark mode. Best for simple black-and-white SVGs or icons.
 
 ## Code Block Themes
 

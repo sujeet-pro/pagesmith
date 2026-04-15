@@ -115,24 +115,22 @@ Available utility classes:
 |---|---|
 | `.ps-figure` | Wrapper on all pipeline-generated `<figure>` elements |
 | `.ps-figure-themed` | Added when a light/dark pair is auto-merged |
-| `.only-light` | Show image only in light mode |
-| `.only-dark` | Show image only in dark mode |
+| `.invert-on-dark` | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
+| `.only-light` | Show element only in light mode (manual HTML) |
+| `.only-dark` | Show element only in dark mode (manual HTML) |
 | `.show-on-light` | Show any element only in light mode |
 | `.show-on-dark` | Show any element only in dark mode |
-| `.invert-on-dark` | Invert image colors in dark mode |
 
-Markdown images are automatically wrapped in `<figure class="ps-figure">` with `<picture>` for raster formats. Consecutive `-light`/`-dark` image pairs are auto-merged into `<figure class="ps-figure ps-figure-themed">` with `<source media="(prefers-color-scheme: dark)">`.
+Markdown images are automatically wrapped in `<figure class="ps-figure">` with `<picture>` for raster formats and intrinsic dimensions applied. Consecutive `-light`/`-dark` image pairs are auto-merged into `<figure class="ps-figure ps-figure-themed">` with `<source media="(prefers-color-scheme: dark)">`. SVG pairs use `image/svg+xml` sources directly; raster pairs use AVIF/WebP converted variants.
 
-For manual HTML light/dark pairs:
+Use standard markdown image syntax for light/dark pairs:
 
-```html
-<figure>
-  <img src="./diagram-light.svg" class="only-light" alt="Diagram">
-  <img src="./diagram-dark.svg" class="only-dark" alt="Diagram">
-</figure>
+```md
+![Architecture overview](./diagrams/arch-light.svg "Build pipeline")
+![Architecture overview](./diagrams/arch-dark.svg)
 ```
 
-In `color-scheme-auto` mode, visibility follows the OS `prefers-color-scheme` media query. In explicit mode, the matching variant is forced.
+In `color-scheme-auto` mode, the browser natively evaluates the `<source media>` queries — zero JavaScript needed. In explicit light or dark mode, the themed-images runtime strips sources to the matching set.
 
 ## URL Strategy
 
@@ -214,12 +212,16 @@ Generated meta tags include:
 
 ## Themed Images Runtime
 
-The chrome runtime includes `initThemedImages()` for JavaScript-enhanced theme switching of `<figure class="ps-figure-themed">` elements:
+All three runtime tiers (content, chrome, standalone) include `initThemedImages()` for JavaScript-enhanced theme switching of `<figure class="ps-figure-themed">` elements.
 
-- MutationObserver on `<html>` class for theme switch detection
-- Uses `classList.contains()` for exact token matching
-- WeakMap-based source caching for performance
-- Proper observer cleanup on teardown
+How it works:
+
+- **Auto mode**: The `<picture>` media queries handle light/dark selection natively — zero JS cost. The runtime does not touch the DOM.
+- **Forced mode** (`color-scheme-light` or `color-scheme-dark` class): The runtime strips `<source>` elements to the matching set and updates the `<img>` fallback `src`.
+- **Detection**: Self-contained `MutationObserver` on `<html>` with `attributeFilter: ['class']`. A cached `lastScheme` guard means unrelated class changes (text-size, theme palette) never cause DOM mutations — just a single `classList.contains()` check.
+- **SVG-aware fallback**: In forced mode, the `<img>` src is updated to `image/webp` for raster pairs or `image/svg+xml` for SVG pairs.
+- **WeakMap-based source caching** for original `<source>` restoration when switching back to auto.
+- **No external dependencies**: Does not depend on `theme.ts` events — works with any code that sets `color-scheme-*` classes on `<html>`.
 
 ## When To Use `@pagesmith/docs` Instead
 

@@ -36,11 +36,8 @@ Every page is written as `<slug>/index.html`, so clean URLs work without server-
 
 The `basePath` setting controls the URL prefix for your site. This is required when deploying to a subdirectory (e.g. `https://user.github.io/my-project/`).
 
-<figure>
-  <img src="./diagrams/basepath-resolution-priority-light.svg" class="only-light" alt="Fall-through order for resolving basePath from CLI flag through environment variable config file git detection to default root">
-  <img src="./diagrams/basepath-resolution-priority-dark.svg" class="only-dark" alt="Fall-through order for resolving basePath from CLI flag through environment variable config file git detection to default root">
-  <figcaption>Fall-through order for resolving <code>basePath</code>: each source applies only when no higher-priority source set a value.</figcaption>
-</figure>
+![Fall-through order for resolving basePath from CLI flag through environment variable config file git detection to default root](./diagrams/basepath-resolution-priority-light.svg "Fall-through order for resolving basePath: each source applies only when no higher-priority source set a value.")
+![Fall-through order for resolving basePath from CLI flag through environment variable config file git detection to default root](./diagrams/basepath-resolution-priority-dark.svg)
 
 Notice the first set value wins, so CI can pass <code>--base-path</code> or <code>BASE_URL</code> without editing committed config.
 

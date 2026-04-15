@@ -122,7 +122,7 @@ Stock `@pagesmith/docs` adds a docs-site pass after heading extraction:
 - Relative markdown links between pages are rewritten under `basePath`.
 - Relative images and diagrams keep the intrinsic dimensions from the shared local-image pass, then publish under `/assets/<content-relative-path>` instead of flattening to basenames.
 - `*.inline.svg` images inline only when they stay inside the current page directory subtree.
-- Image names containing `.invert.` receive dark-theme inversion.
+- The `.invert.` filename convention and light/dark pair handling are core features (see the [Markdown Reference](/reference/markdown-reference)); the docs asset pass only handles URL rewriting to published paths.
 
 Example:
 
@@ -136,11 +136,8 @@ Example:
 
 The diagram below shows the shared core pipeline plus the docs-only post-processing that stock `@pagesmith/docs` adds after heading extraction. If you are using `@pagesmith/core` directly, the custom plugin slots are where your own remark and rehype plugins fit.
 
-<figure>
-  <img src="./diagrams/markdown-pipeline-overview-light.svg" class="only-light" alt="Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features including local image enhancement, and the docs-only link and asset transform stage before final HTML output">
-  <img src="./diagrams/markdown-pipeline-overview-dark.svg" class="only-dark" alt="Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features including local image enhancement, and the docs-only link and asset transform stage before final HTML output">
-  <figcaption>Shared markdown pipeline: custom plugin hooks live in `@pagesmith/core` integrations, local image enhancement happens in the shared rehype stage, and stock `@pagesmith/docs` adds docs-specific link and asset transforms near the end.</figcaption>
-</figure>
+![Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features including local image enhancement, and the docs-only link and asset transform stage before final HTML output](./diagrams/markdown-pipeline-overview-light.svg "Shared markdown pipeline: custom plugin hooks live in `@pagesmith/core` integrations, local image enhancement happens in the shared rehype stage, and stock `@pagesmith/docs` adds docs-specific link and asset transforms near the end.")
+![Markdown pipeline overview showing built-in remark features, core-only custom plugin hooks, the remark-to-rehype bridge, built-in rehype features including local image enhancement, and the docs-only link and asset transform stage before final HTML output](./diagrams/markdown-pipeline-overview-dark.svg)
 
 For `@pagesmith/core` integrations:
 

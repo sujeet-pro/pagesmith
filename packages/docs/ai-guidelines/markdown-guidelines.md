@@ -150,7 +150,7 @@ The `role="img"` and `aria-label` attributes ensure screen readers announce the 
 
 ## Local Images (rehype-local-images)
 
-Stock `@pagesmith/docs` automatically provides the source path that `rehype-local-images` needs, so relative local images inherit intrinsic dimensions during render. All raster images (PNG, JPEG, WebP, GIF) render as a `<picture>` element with WebP and AVIF `<source>` variants, using the WebP variant as the `<img src>` fallback (broadest modern format support). SVG images are not wrapped in `<picture>`. The docs asset pass then rewrites the published URLs under `/assets/...`. Resolution stays inside the configured docs `contentDir`.
+Stock `@pagesmith/docs` automatically provides the source path that `rehype-local-images` needs, so relative local images inherit intrinsic dimensions (`width`, `height`, `style="max-width:min({width}px,100%)"`) during render. All raster images (PNG, JPEG, WebP, GIF) render as a `<picture>` element with AVIF and WebP `<source>` variants, using the WebP variant as the `<img src>` fallback (broadest modern format support). SVG images are not wrapped in `<picture>` and receive no format conversion. The docs asset pass then rewrites the published URLs under `/assets/...` and the content hasher applies content-based hashes for cache busting. Resolution stays inside the configured docs `contentDir`.
 
 Every markdown image is wrapped in `<figure class="ps-figure">`. The title attribute from markdown syntax (`![alt](src "title")`) becomes a `<figcaption>`. Images inside `<a>` links are not figure-wrapped (to preserve link structure). `.avif` source images are passed through as-is without re-wrapping in `<picture>`.
 
@@ -161,10 +161,12 @@ Every markdown image is wrapped in `<figure class="ps-figure">`. The title attri
 
 ### Automatic Light/Dark Pair Merging
 
-Consecutive images whose filenames end with `-light` and `-dark` suffixes (e.g. `diagram-light.svg` and `diagram-dark.svg`) are automatically merged into a single `<figure class="ps-figure ps-figure-themed">`. The dark variant uses `<source media="(prefers-color-scheme: dark)">` so the correct image displays without JavaScript.
+Consecutive images whose filenames end with `-light` and `-dark` suffixes (e.g. `diagram-light.svg` and `diagram-dark.svg`) are automatically merged into a single `<figure class="ps-figure ps-figure-themed">` with intrinsic dimensions from the light variant. When using `-light`/`-dark` suffixes, **both variants must be present** as consecutive images — a lone variant without its counterpart will throw an error.
+
+The generated `<picture>` element is format-aware: SVG pairs use `<source type="image/svg+xml">` directly; raster pairs use AVIF + WebP converted variants. In auto mode, the browser natively evaluates the `<source media>` queries — zero JavaScript needed.
 
 ```md
-![Architecture overview](./diagrams/arch-light.svg)
+![Architecture overview](./diagrams/arch-light.svg "Build pipeline architecture")
 ![Architecture overview](./diagrams/arch-dark.svg)
 ```
 
@@ -207,7 +209,7 @@ Stock `@pagesmith/docs` adds a docs-specific rewrite pass after heading extracti
 - Relative image refs in markdown or raw HTML keep the intrinsic dimensions from the shared local-image pass, then publish under `/assets/<content-relative-path>`, so sibling assets keep their folder structure instead of flattening to basenames.
 - Relative HTML asset refs for `<img>`, `<source srcset>`, and `<a href="./image.svg">` follow the same published asset path rules.
 - Markdown images ending in `.inline.svg` inline the SVG into the HTML only when the file stays inside the current page directory subtree. Otherwise they fall back to a normal published asset URL.
-- Image file names containing `.invert.` receive an `invert-on-dark` class for dark-theme inversion.
+- The `.invert.` filename convention and light/dark pair handling are core features (see the Local Images section above); the docs asset pass only handles URL rewriting to published paths.
 
 Examples:
 
@@ -377,16 +379,13 @@ These classes respond to the `color-scheme-auto` / `color-scheme-light` / `color
 
 For non-image themed content, use the generic `.show-on-light` / `.show-on-dark` helpers on any element.
 
-For a single image that works in light mode and can be inverted for dark, use `.invert-on-dark` instead of maintaining two variants:
+For a single image that works in light mode and can be inverted for dark, use the `.invert.` filename convention:
 
-```html
-<figure>
-  <img src="./diagrams/simple-flow.svg" class="invert-on-dark" alt="Linear flow from input to validation to output">
-  <figcaption>Processing pipeline</figcaption>
-</figure>
+```md
+![Linear flow from input to validation to output](./diagrams/simple-flow.invert.svg "Processing pipeline")
 ```
 
-Images with `.invert.` in their filename (e.g. `flow.invert.svg`) automatically receive the `invert-on-dark` class.
+Images with `.invert.` in their filename automatically receive the `invert-on-dark` class from the core image pipeline, which applies `invert(1) hue-rotate(180deg)` in dark mode.
 
 Only tell an agent to rely on inline Mermaid-style rendering when the project explicitly configured that renderer through custom markdown plugins or custom runtime behavior.
 

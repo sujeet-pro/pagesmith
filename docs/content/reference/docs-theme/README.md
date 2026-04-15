@@ -11,11 +11,8 @@ description: Default @pagesmith/docs theme — layouts, shared site chrome, runt
 
 The main pattern is: docs layouts shape docs-specific page data, then hand off to the shared site shell for document markup, chrome, styles, and progressive enhancement.
 
-<figure>
-  <img src="./diagrams/theme-architecture-light.svg" class="only-light" alt="Docs theme architecture showing resolved docs config and page data flowing into docs layouts, then into the shared SiteDocument and PageShell from @pagesmith/site, with shared header sidebar TOC and footer components plus runtime and styles">
-  <img src="./diagrams/theme-architecture-dark.svg" class="only-dark" alt="Docs theme architecture showing resolved docs config and page data flowing into docs layouts, then into the shared SiteDocument and PageShell from @pagesmith/site, with shared header sidebar TOC and footer components plus runtime and styles">
-  <figcaption>The docs preset shapes docs-specific data, then composes the shared `@pagesmith/site` shell for document markup, chrome, CSS, and runtime behavior.</figcaption>
-</figure>
+![Docs theme architecture showing resolved docs config and page data flowing into docs layouts, then into the shared SiteDocument and PageShell from @pagesmith/site, with shared header sidebar TOC and footer components plus runtime and styles](./diagrams/theme-architecture-light.svg "The docs preset shapes docs-specific data, then composes the shared `@pagesmith/site` shell for document markup, chrome, CSS, and runtime behavior.")
+![Docs theme architecture showing resolved docs config and page data flowing into docs layouts, then into the shared SiteDocument and PageShell from @pagesmith/site, with shared header sidebar TOC and footer components plus runtime and styles](./diagrams/theme-architecture-dark.svg)
 
 ## Ownership Split
 

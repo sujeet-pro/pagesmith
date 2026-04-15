@@ -35,11 +35,8 @@ If you want a convention-based docs site with built-in navigation and search, se
 
 Use this diagram as the mental map: both integration styles start from the same typed content config, then branch into direct `entry.render()` usage or a Vite workflow with virtual content modules and optional SSG helpers.
 
-<figure>
-  <img src="./diagrams/core-integration-paths-light.svg" class="only-light" alt="Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg">
-  <img src="./diagrams/core-integration-paths-dark.svg" class="only-dark" alt="Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg">
-  <figcaption>Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg</figcaption>
-</figure>
+![Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg](./diagrams/core-integration-paths-light.svg "Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg")
+![Overview of Pagesmith core setup flowing from content files into a shared content config, then branching into direct entry.render usage or a Vite integration with pagesmithContent and optional pagesmithSsg](./diagrams/core-integration-paths-dark.svg)
 
 ## Install
 

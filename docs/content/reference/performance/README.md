@@ -9,11 +9,8 @@ This reference covers the performance characteristics of Pagesmith builds and th
 
 At a high level, Pagesmith stays fast by reusing expensive work at several layers and by narrowing rebuild scope when only content changes:
 
-<figure>
-  <img src="./diagrams/cache-and-rebuilds-light.svg" class="only-light" alt="Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind">
-  <img src="./diagrams/cache-and-rebuilds-dark.svg" class="only-dark" alt="Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind">
-  <figcaption>Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind</figcaption>
-</figure>
+![Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind](./diagrams/cache-and-rebuilds-light.svg "Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind")
+![Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind](./diagrams/cache-and-rebuilds-dark.svg)
 
 Notice that the biggest wins come from paying setup costs once, caching loaded and rendered content, and skipping CSS, JS, and Pagefind work when a change only affects page content.
 

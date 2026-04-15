@@ -7,11 +7,8 @@ description: Pre-built CSS and JavaScript exports from @pagesmith/site — conte
 
 `@pagesmith/site` provides pre-built CSS and JS assets for styling rendered markdown content. This page is the comprehensive guide for CSS imports, runtime JavaScript, design tokens, and customization across Vite sites and framework-hosted apps such as Next.js.
 
-<figure>
-  <img src="./diagrams/site-css-bundle-layers-light.svg" class="only-light" alt="Layered CSS bundles from foundations through content tier to standalone layout with optional separate fonts import">
-  <img src="./diagrams/site-css-bundle-layers-dark.svg" class="only-dark" alt="Layered CSS bundles from foundations through content tier to standalone layout with optional separate fonts import">
-  <figcaption>How the shipped CSS tiers stack: foundations and content styles are prerequisites for standalone layout rules; fonts stay a separate import you add when you want bundled faces.</figcaption>
-</figure>
+![Layered CSS bundles from foundations through content tier to standalone layout with optional separate fonts import](./diagrams/site-css-bundle-layers-light.svg "How the shipped CSS tiers stack: foundations and content styles are prerequisites for standalone layout rules; fonts stay a separate import you add when you want bundled faces.")
+![Layered CSS bundles from foundations through content tier to standalone layout with optional separate fonts import](./diagrams/site-css-bundle-layers-dark.svg)
 
 Notice standalone is a superset of the content tier (same markdown and code chrome) plus TOC, grid, and sidebar layout.
 
@@ -184,9 +181,10 @@ The standalone entry is therefore the combination of `getChromeJS()` plus the co
 
 The content runtime wires the markdown-specific browser behaviors:
 
-- **Code copy buttons**
-- **Code tab switching**
-- **Collapse / expand toggles**
+- **Code copy buttons** — event-delegated click handler copies code block text to clipboard via `navigator.clipboard.writeText` with legacy `execCommand` fallback.
+- **Code tab switching** — event-delegated click and keyboard (arrow, Home, End) handlers switch active tab and panel. A `MutationObserver` on `childList` auto-activates dynamically added tab containers.
+- **Collapse / expand toggles** — toggles `aria-expanded` and `hidden` state on collapsed code line groups.
+- **Themed image switching** — self-contained `MutationObserver` on the `class` attribute of `<html>` with a cached-scheme guard. In auto mode (`color-scheme-auto`), `<picture>` media queries handle light/dark natively — zero JS cost. In forced mode (`color-scheme-light`/`color-scheme-dark`), sources are stripped to the matching set. Unrelated class changes (text-size, theme palette) are a single `classList.contains()` check with no DOM mutations.
 
 It intentionally does **not** own your app shell, navigation, TOC implementation, or theme controls. That makes it a good fit for framework-hosted apps that already have their own layout and routing.
 
@@ -198,6 +196,7 @@ For advanced integrations, `@pagesmith/site` also exposes narrower browser entri
 |---|---|
 | `@pagesmith/site/runtime/code-blocks` | Copy buttons and collapse toggles for code blocks |
 | `@pagesmith/site/runtime/code-tabs` | Tab switching for grouped code blocks |
+| `@pagesmith/site/runtime/themed-images` | Theme-aware image source switching for light/dark pairs |
 | `@pagesmith/site/runtime/footer-year` | Footer year synchronization |
 | `@pagesmith/site/runtime/search-trigger` | Responsive search-trigger density |
 | `@pagesmith/site/runtime/sidebar` | Mobile sidebar dialog behavior |
@@ -209,7 +208,7 @@ Use these when you want to assemble your own browser runtime instead of taking t
 
 ### Progressive Enhancement
 
-The runtime JavaScript is strictly a progressive enhancement layer. All content is readable without JavaScript. Copy buttons, code tabs, and collapse controls are rendered in the HTML output during markdown processing, but they need the matching runtime entry point to become interactive.
+The runtime JavaScript is strictly a progressive enhancement layer. All content is readable without JavaScript. Copy buttons, code tabs, collapse controls, and themed images all render in the HTML output during markdown processing, but they need the matching runtime entry point for interactive behavior in forced color-scheme modes.
 
 ## Design Tokens (CSS Custom Properties)
 

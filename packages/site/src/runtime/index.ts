@@ -120,6 +120,7 @@ export function getChromeJS(): string {
       'runtime/sidebar',
       'runtime/skip-link',
       'runtime/theme',
+      'runtime/themed-images',
       'runtime/toc-highlight',
     ],
     [
@@ -128,6 +129,7 @@ export function getChromeJS(): string {
       'initSidebarModal()',
       'initSkipLinkFocus()',
       'initTheme()',
+      'initThemedImages()',
       'initTocHighlight()',
     ],
   )
@@ -151,6 +153,7 @@ export function getRuntimeJS(): string {
       'runtime/sidebar',
       'runtime/skip-link',
       'runtime/theme',
+      'runtime/themed-images',
       'runtime/toc-highlight',
       'runtime/code-blocks',
       'runtime/code-tabs',
@@ -161,6 +164,7 @@ export function getRuntimeJS(): string {
       'initSidebarModal()',
       'initSkipLinkFocus()',
       'initTheme()',
+      'initThemedImages()',
       'initTocHighlight()',
       'initCodeBlocks()',
       'initCodeTabs()',
@@ -180,8 +184,8 @@ export function getContentCSS(): string {
 }
 export function getContentJS(): string {
   return concatModuleSources(
-    ['runtime/code-blocks', 'runtime/code-tabs'],
-    ['initCodeBlocks()', 'initCodeTabs()'],
+    ['runtime/code-blocks', 'runtime/code-tabs', 'runtime/themed-images'],
+    ['initCodeBlocks()', 'initCodeTabs()', 'initThemedImages()'],
   )
 }
 export function getContentCSSPath(): string {

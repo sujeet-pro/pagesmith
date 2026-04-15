@@ -13,11 +13,8 @@ The template engine integrations keep `@pagesmith/site` as the app-facing packag
 
 Notice that `pagesmithSsg` drives the build while the content layer and templates meet at `entry.render()` output feeding the final HTML.
 
-<figure>
-  <img src="./diagrams/template-ssg-pipeline-light.svg" class="only-light" alt="Template SSG pipeline from content config and Vite pagesmithSsg through createContentLayer and entry.render into EJS or Handlebars and static output">
-  <img src="./diagrams/template-ssg-pipeline-dark.svg" class="only-dark" alt="Template SSG pipeline from content config and Vite pagesmithSsg through createContentLayer and entry.render into EJS or Handlebars and static output">
-  <figcaption>Template-engine static sites: Vite SSG invokes your entry, the content layer renders markdown, and templates wrap the HTML.</figcaption>
-</figure>
+![Template SSG pipeline from content config and Vite pagesmithSsg through createContentLayer and entry.render into EJS or Handlebars and static output](./diagrams/template-ssg-pipeline-light.svg "Template-engine static sites: Vite SSG invokes your entry, the content layer renders markdown, and templates wrap the HTML.")
+![Template SSG pipeline from content config and Vite pagesmithSsg through createContentLayer and entry.render into EJS or Handlebars and static output](./diagrams/template-ssg-pipeline-dark.svg)
 
 ## Shared Architecture
 

@@ -15,11 +15,8 @@ Pagesmith's content layer is framework-agnostic. Define collections once in `con
 
 Read this diagram left to right: headless integrations can stay on `@pagesmith/core`, Vite and custom-site paths usually live on `@pagesmith/site`, and `@pagesmith/docs` is the convention-based path when you want a docs site with built-in navigation, search, and theme.
 
-<figure>
-  <img src="./diagrams/framework-integration-patterns-light.svg" class="only-light" alt="Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites">
-  <img src="./diagrams/framework-integration-patterns-dark.svg" class="only-dark" alt="Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites">
-  <figcaption>Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites</figcaption>
-</figure>
+![Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites](./diagrams/framework-integration-patterns-light.svg "Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites")
+![Framework integration map showing how @pagesmith/core, @pagesmith/site, and @pagesmith/docs connect to Vite apps, custom sites, Next.js, and doc sites](./diagrams/framework-integration-patterns-dark.svg)
 
 ## Three Approaches
 

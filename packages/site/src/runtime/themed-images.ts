@@ -2,9 +2,16 @@
  * Theme-aware image runtime.
  *
  * Handles explicit color-scheme overrides (via class on <html>) for
- * `.ps-figure-themed` images. When the scheme is 'auto', <picture> media
- * queries handle selection natively. When forced to 'light' or 'dark',
- * this script swaps <source> srcsets and <img> src to match.
+ * `.ps-figure-themed` images.
+ *
+ * In auto mode (no forced class), `<picture>` media queries handle
+ * light/dark selection natively — zero JS cost. This runtime only
+ * intervenes when the scheme is explicitly forced to 'light' or 'dark'
+ * via a CSS class, stripping sources down to the matching set.
+ *
+ * Detection uses a MutationObserver on the `class` attribute of <html>
+ * with a cached-scheme guard, so unrelated class changes (text-size,
+ * theme palette) are a single classList check with no DOM mutations.
  */
 
 const THEMED_SELECTOR = '.ps-figure-themed'
@@ -18,7 +25,8 @@ type OriginalSources = {
 }
 
 const originals = new WeakMap<HTMLElement, OriginalSources>()
-let activeObserver: MutationObserver | undefined
+let lastScheme: 'light' | 'dark' | 'auto' | undefined
+let teardown: (() => void) | undefined
 
 function captureOriginals(figure: HTMLElement): OriginalSources {
   const cached = originals.get(figure)
@@ -45,7 +53,6 @@ function captureOriginals(figure: HTMLElement): OriginalSources {
 }
 
 function getEffectiveScheme(): 'light' | 'dark' | 'auto' {
-  // Use classList for exact token matching (avoids substring false positives)
   const cl = document.documentElement.classList
   if (cl.contains(SCHEME_DARK)) return 'dark'
   if (cl.contains(SCHEME_LIGHT)) return 'light'
@@ -59,7 +66,6 @@ function restoreOriginals(figure: HTMLElement): void {
   const picture = figure.querySelector('picture')
   if (!picture) return
 
-  // Remove all current sources and rebuild from originals
   for (const el of picture.querySelectorAll('source')) el.remove()
 
   const img = picture.querySelector('img')
@@ -84,10 +90,8 @@ function forceScheme(figure: HTMLElement, scheme: 'light' | 'dark'): void {
   const isDark = scheme === 'dark'
   const matchingSources = data.sources.filter((s) => (isDark ? s.media === DARK_MEDIA : !s.media))
 
-  // Remove all current sources
   for (const el of picture.querySelectorAll('source')) el.remove()
 
-  // Add only the matching sources (without media queries — force them)
   const img = picture.querySelector('img')
   for (const src of matchingSources) {
     const el = document.createElement('source')
@@ -96,15 +100,20 @@ function forceScheme(figure: HTMLElement, scheme: 'light' | 'dark'): void {
     picture.insertBefore(el, img)
   }
 
-  // Update img src to matching webp
   if (img) {
-    const webpSource = matchingSources.find((s) => s.type === 'image/webp')
-    if (webpSource) img.setAttribute('src', webpSource.srcset)
+    const fallback =
+      matchingSources.find((s) => s.type === 'image/webp') ??
+      matchingSources.find((s) => s.type === 'image/svg+xml') ??
+      matchingSources[0]
+    if (fallback) img.setAttribute('src', fallback.srcset)
   }
 }
 
 function updateAllThemedImages(): void {
   const scheme = getEffectiveScheme()
+  if (scheme === lastScheme) return
+  lastScheme = scheme
+
   for (const figure of document.querySelectorAll<HTMLElement>(THEMED_SELECTOR)) {
     if (scheme === 'auto') {
       restoreOriginals(figure)
@@ -115,16 +124,22 @@ function updateAllThemedImages(): void {
 }
 
 export function initThemedImages(): void {
-  // Disconnect any prior observer (safe to call multiple times)
-  if (activeObserver) {
-    activeObserver.disconnect()
-    activeObserver = undefined
-  }
+  teardown?.()
+  lastScheme = undefined
 
-  // Initial pass
   updateAllThemedImages()
 
-  // Re-run when theme changes (className mutation on <html>)
-  activeObserver = new MutationObserver(() => updateAllThemedImages())
-  activeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  // Only fires on class attribute changes — not data attributes, style, etc.
+  // The lastScheme guard ensures unrelated class changes (text-size, theme
+  // palette) never cause DOM mutations — just a single classList check.
+  const observer = new MutationObserver(() => updateAllThemedImages())
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  })
+
+  teardown = () => {
+    observer.disconnect()
+    teardown = undefined
+  }
 }

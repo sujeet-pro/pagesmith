@@ -11,11 +11,8 @@ description: Root and section meta.json5 files for header and footer links, side
 
 This diagram shows which file controls each navigation surface. Notice that root `meta.json5` owns site-wide header and footer links, while section meta plus page frontmatter determine sidebar grouping, ordering, and the flattened sequence that powers `prev` and `next`.
 
-<figure>
-  <img src="./diagrams/navigation-sources-light.svg" class="only-light" alt="Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs">
-  <img src="./diagrams/navigation-sources-dark.svg" class="only-dark" alt="Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs">
-  <figcaption>Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs</figcaption>
-</figure>
+![Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs](./diagrams/navigation-sources-light.svg "Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs")
+![Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs](./diagrams/navigation-sources-dark.svg)
 
 ## Root meta.json5
 

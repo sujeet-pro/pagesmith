@@ -65,11 +65,7 @@ describe('content companion assets', () => {
 
     expect(existsSync(join(outDir, 'guide', 'broken.avif'))).toBe(false)
     expect(existsSync(join(outDir, 'guide', 'broken.webp'))).toBe(false)
-    expect(
-      warnings.some((warning) => warning.includes('failed to emit generated avif image')),
-    ).toBe(true)
-    expect(
-      warnings.some((warning) => warning.includes('failed to emit generated webp image')),
-    ).toBe(true)
+    expect(warnings.some((w) => w.includes('failed to emit') && w.includes('avif'))).toBe(true)
+    expect(warnings.some((w) => w.includes('failed to emit') && w.includes('webp'))).toBe(true)
   })
 })

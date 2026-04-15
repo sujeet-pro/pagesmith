@@ -201,6 +201,7 @@ export async function emitGeneratedImageVariants(
   assets: ContentAssetMap,
 ): Promise<void> {
   const pending: Promise<void>[] = []
+  const failures: string[] = []
 
   for (const [assetPath, sourcePath] of assets.byPath) {
     if (!isConvertibleImagePath(assetPath)) continue
@@ -214,13 +215,18 @@ export async function emitGeneratedImageVariants(
             writeFileSync(destPath, buffer)
           })
           .catch((error) => {
-            console.warn(
-              `pagesmith: failed to emit generated ${format} image for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`,
-            )
+            const msg = `${format} variant for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`
+            failures.push(msg)
           }),
       )
     }
   }
 
   await Promise.all(pending)
+
+  if (failures.length > 0) {
+    console.warn(
+      `pagesmith: failed to emit ${failures.length} generated image variant(s):\n${failures.map((f) => `  - ${f}`).join('\n')}`,
+    )
+  }
 }
