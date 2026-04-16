@@ -64,37 +64,74 @@ function normalizePath(value: string): string {
 }
 
 /** Build a content-relative lookup for content assets. */
-function buildContentAssetMap(contentDir: string): ContentAssetLookup {
+function buildContentAssetMap(contentDirs: string | string[]): ContentAssetLookup {
+  const dirs = Array.isArray(contentDirs) ? contentDirs : [contentDirs]
   const byPath = new Map<string, string>()
   const byBasename = new Map<string, string[]>()
-  function walk(dir: string) {
-    if (!existsSync(dir)) return
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const full = join(dir, entry.name)
-      if (entry.isDirectory()) {
-        walk(full)
-        continue
-      }
-      const ext = extname(entry.name)
-      if (!CONTENT_ASSET_EXTS.has(ext)) continue
-      if (entry.name.endsWith('.inline.svg')) continue
-      const relPath = normalizePath(relative(contentDir, full))
-      byPath.set(relPath, full)
+  for (const contentDir of dirs) {
+    function walk(dir: string) {
+      if (!existsSync(dir)) return
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name)
+        if (entry.isDirectory()) {
+          walk(full)
+          continue
+        }
+        const ext = extname(entry.name)
+        if (!CONTENT_ASSET_EXTS.has(ext)) continue
+        if (entry.name.endsWith('.inline.svg')) continue
+        const relPath = normalizePath(relative(contentDir, full))
+        byPath.set(relPath, full)
 
-      const existing = byBasename.get(entry.name)
-      if (existing) {
-        if (!existing.includes(relPath)) existing.push(relPath)
-      } else {
-        byBasename.set(entry.name, [relPath])
+        const existing = byBasename.get(entry.name)
+        if (existing) {
+          if (!existing.includes(relPath)) existing.push(relPath)
+        } else {
+          byBasename.set(entry.name, [relPath])
+        }
       }
     }
+    walk(contentDir)
   }
-  walk(contentDir)
   return { byPath, byBasename }
 }
 
 function computeHash(content: Buffer): string {
   return createHash('sha256').update(content).digest('hex').slice(0, 8)
+}
+
+/**
+ * Strip unnecessary metadata from SVG content for the processed output.
+ * Removes XML processing instructions, comments, editor metadata elements,
+ * and unnecessary namespace declarations while preserving the visual output.
+ */
+function cleanSvgContent(content: Buffer): Buffer {
+  let svg = content.toString('utf-8')
+
+  // Remove XML processing instructions (<?xml ...?>)
+  svg = svg.replace(/<\?xml[^?]*\?>\s*/gi, '')
+
+  // Remove HTML comments (<!-- ... -->)
+  svg = svg.replace(/<!--[\s\S]*?-->\s*/g, '')
+
+  // Remove common editor metadata elements
+  svg = svg.replace(/<metadata[\s\S]*?<\/metadata>\s*/gi, '')
+  svg = svg.replace(/<sodipodi:[^>]*(?:\/>|>[\s\S]*?<\/sodipodi:[^>]*>)\s*/gi, '')
+  svg = svg.replace(/<inkscape:[^>]*(?:\/>|>[\s\S]*?<\/inkscape:[^>]*>)\s*/gi, '')
+
+  // Remove unnecessary namespace declarations from the root <svg> tag
+  svg = svg.replace(
+    /(<svg\b[^>]*?)\s+xmlns:(sodipodi|inkscape|dc|cc|rdf|sketch|illustrator)="[^"]*"/gi,
+    '$1',
+  )
+
+  // Remove empty <defs></defs> blocks
+  svg = svg.replace(/<defs\s*>\s*<\/defs>\s*/gi, '')
+
+  // Collapse multiple newlines into one
+  svg = svg.replace(/\n{3,}/g, '\n\n')
+
+  return Buffer.from(svg.trim(), 'utf-8')
 }
 
 function stripHashSuffix(name: string): string {
@@ -213,7 +250,7 @@ function rewriteSrcsetValue(srcset: string, rewriteRef: (ref: string) => string)
  * @param outDir - The dist output directory
  * @param contentDir - The content source directory (for finding referenced assets)
  */
-export function hashAssets(outDir: string, contentDir: string): void {
+export function hashAssets(outDir: string, contentDir: string | string[]): void {
   const assetsDir = join(outDir, 'assets')
   mkdirSync(assetsDir, { recursive: true })
 
@@ -235,7 +272,13 @@ export function hashAssets(outDir: string, contentDir: string): void {
   existing.sort((left, right) => Number(right.isHashed) - Number(left.isHashed))
 
   for (const file of existing) {
-    const content = readFileSync(file.full)
+    let content: Buffer = readFileSync(file.full)
+
+    // Clean SVG files: strip unnecessary metadata from processed output
+    if (file.ext === '.svg') {
+      content = cleanSvgContent(content)
+    }
+
     const hash = computeHash(content)
     const hashedFileName = toHashedAssetFileName(file.logicalFileName, hash)
     const hashedPath = join(assetsDir, hashedFileName)
@@ -243,9 +286,16 @@ export function hashAssets(outDir: string, contentDir: string): void {
     if (file.full !== hashedPath) {
       if (existsSync(hashedPath)) {
         rmSync(file.full, { force: true })
+      } else if (file.ext === '.svg') {
+        // Write cleaned content then rename (original may differ)
+        writeFileSync(file.full, content)
+        renameSync(file.full, hashedPath)
       } else {
         renameSync(file.full, hashedPath)
       }
+    } else if (file.ext === '.svg') {
+      // Same path but content was cleaned
+      writeFileSync(file.full, content)
     }
 
     renames.set(file.logicalFileName, hashedFileName)
@@ -255,6 +305,8 @@ export function hashAssets(outDir: string, contentDir: string): void {
   removeEmptyDirs(assetsDir)
 
   // Phase 2: Scan HTML — resolve content assets on demand, rewrite all references
+  const missingAssets: string[] = []
+
   function rewriteAssetReference(ref: string): string {
     if (isExternalRef(ref)) return ref
 
@@ -271,17 +323,29 @@ export function hashAssets(outDir: string, contentDir: string): void {
 
     if (!isContentAsset) return ref
 
-    const sourcePath =
-      contentAssets.byPath.get(assetPath) ??
-      (() => {
-        const fileName = basename(assetPath)
-        const candidates = contentAssets.byBasename.get(fileName)
-        if (!candidates || candidates.length !== 1) return undefined
-        return contentAssets.byPath.get(candidates[0])
-      })()
-    if (!sourcePath) return ref
+    // Check dist/assets/ first (content assets already copied there)
+    const distAsset = join(assetsDir, assetPath)
+    const sourcePath = existsSync(distAsset)
+      ? distAsset
+      : (contentAssets.byPath.get(assetPath) ??
+        (() => {
+          const fileName = basename(assetPath)
+          const candidates = contentAssets.byBasename.get(fileName)
+          if (!candidates || candidates.length !== 1) return undefined
+          return contentAssets.byPath.get(candidates[0])
+        })())
+    if (!sourcePath) {
+      if (!missingAssets.includes(assetPath)) missingAssets.push(assetPath)
+      return ref
+    }
 
-    const content = readFileSync(sourcePath)
+    let content: Buffer = readFileSync(sourcePath)
+
+    // Clean SVG files when copying to output
+    if (extname(assetPath).toLowerCase() === '.svg') {
+      content = cleanSvgContent(content)
+    }
+
     const hash = computeHash(content)
     const hashedName = toHashedAssetFileName(assetPath, hash)
     const hashedDest = join(assetsDir, hashedName)
@@ -321,4 +385,11 @@ export function hashAssets(outDir: string, contentDir: string): void {
     }
   }
   processHtml(outDir)
+
+  if (missingAssets.length > 0) {
+    throw new Error(
+      `[pagesmith] ${missingAssets.length} referenced content asset(s) not found:\n` +
+        missingAssets.map((a) => `  - /assets/${a}`).join('\n'),
+    )
+  }
 }

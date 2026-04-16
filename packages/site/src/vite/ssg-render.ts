@@ -29,6 +29,7 @@ import {
   CONTENT_ASSET_EXTS,
   copyPublicFiles,
   getGeneratedImageVariantPath,
+  hashAssets,
   resolveGeneratedImageSourceAssetPath,
 } from '../assets/index.js'
 import type { SsgRenderConfig } from './ssg-plugin'
@@ -421,6 +422,9 @@ export async function renderStaticSite(context: SsgBuildContext): Promise<number
   await Promise.all(workers)
 
   await copyContentAssetsToOutDir(outDir, contentAssets)
+
+  // Hash all assets and rewrite HTML references to hashed paths
+  hashAssets(outDir, contentDirs)
 
   // Cleanup SSR build
   rmSync(serverDir, { recursive: true, force: true })
