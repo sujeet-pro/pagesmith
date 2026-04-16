@@ -18,6 +18,7 @@ export default defineConfig({
       'mcp/server': 'src/mcp/server.ts',
       preset: 'src/preset.ts',
       'schemas/index': 'src/schemas/index.ts',
+      'build-validator': 'src/build-validator.ts',
     },
     deps: {
       onlyBundle: false,

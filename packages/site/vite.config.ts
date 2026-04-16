@@ -66,6 +66,7 @@ export default defineConfig({
       'runtime/theme': 'src/runtime/theme.ts',
       'vite/index': 'src/vite/index.ts',
       'ssg-utils/index': 'src/ssg-utils/index.ts',
+      'build-validator': 'src/build-validator.ts',
       'cli/bin': 'src/cli/bin.ts',
     },
     plugins: [fixPostcssDtsImports()],

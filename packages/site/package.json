@@ -173,6 +173,10 @@
       "types": "./dist/ssg-utils/index.d.mts",
       "import": "./dist/ssg-utils/index.mjs"
     },
+    "./build-validator": {
+      "types": "./dist/build-validator.d.mts",
+      "import": "./dist/build-validator.mjs"
+    },
     "./ai-guidelines/*": "./ai-guidelines/*",
     "./llms": "./ai-guidelines/llms.txt",
     "./llms-full": "./ai-guidelines/llms-full.txt",

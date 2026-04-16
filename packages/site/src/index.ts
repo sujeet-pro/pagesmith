@@ -114,4 +114,12 @@ export {
   buildPrevNext,
 } from './content-helpers.js'
 
+export {
+  validateBuildOutput,
+  runBuildValidation,
+  type BuildValidatorOptions,
+  type BuildValidationIssue,
+  type BuildValidationResult,
+} from './build-validator.js'
+
 export const SITE_PACKAGE_NAME = '@pagesmith/site'

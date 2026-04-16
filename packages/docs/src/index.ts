@@ -40,3 +40,10 @@ export type {
   DocsRootMeta,
 } from './content'
 export { buildSiteModel, getDocsListingCards, getPrevNext, getSitePayload } from './navigation'
+export {
+  validateBuildOutput,
+  runBuildValidation,
+  type BuildValidatorOptions,
+  type BuildValidationIssue,
+  type BuildValidationResult,
+} from '@pagesmith/site/build-validator'

@@ -72,6 +72,10 @@
       "types": "./dist/mcp/server.d.mts",
       "import": "./dist/mcp/server.mjs"
     },
+    "./build-validator": {
+      "types": "./dist/build-validator.d.mts",
+      "import": "./dist/build-validator.mjs"
+    },
     "./ai-guidelines/*": "./ai-guidelines/*",
     "./llms": "./ai-guidelines/llms.txt",
     "./llms-full": "./ai-guidelines/llms-full.txt",
