@@ -3,7 +3,7 @@
   "diagrams": {
     "doc-site-assembly.mermaid": {
       "hash": "sha256:06da137c8db8834c",
-      "generatedAt": "2026-04-16T10:03:31.637Z",
+      "generatedAt": "2026-04-16T14:37:59.228Z",
       "outputs": [
         {
           "file": "doc-site-assembly-light.svg",

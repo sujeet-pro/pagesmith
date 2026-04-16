@@ -3,7 +3,7 @@
   "diagrams": {
     "layout-resolution.dot": {
       "hash": "sha256:f2cd817f8358d2d3",
-      "generatedAt": "2026-04-16T10:03:31.633Z",
+      "generatedAt": "2026-04-16T14:37:59.224Z",
       "outputs": [
         {
           "file": "layout-resolution-light.svg",

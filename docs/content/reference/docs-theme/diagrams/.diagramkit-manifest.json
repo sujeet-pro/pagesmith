@@ -3,7 +3,7 @@
   "diagrams": {
     "theme-architecture.mermaid": {
       "hash": "sha256:29c1a36639bc5a07",
-      "generatedAt": "2026-04-16T10:03:31.643Z",
+      "generatedAt": "2026-04-16T14:37:59.233Z",
       "outputs": [
         {
           "file": "theme-architecture-light.svg",
