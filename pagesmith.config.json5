@@ -5,7 +5,7 @@
   title: 'Pagesmith',
   description: 'File-based CMS and static site generator',
   origin: 'https://projects.sujeet.pro',
-  contentDir: './docs/content',
+  contentDir: './docs-site/content',
   outDir: './gh-pages',
   basePath: '/pagesmith',
   maintainer: {
@@ -22,7 +22,7 @@
       header: 'Pagesmith',
       links: [
         { label: 'Overview', path: '/' },
-        { label: 'Philosophy', path: '/#philosophy' },
+        { label: 'Philosophy', path: '/guide/philosophy' },
         { label: 'Architecture', path: '/reference/architecture' },
         { label: 'Choose Your Path', path: '/guide/choose-your-path' },
       ],

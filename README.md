@@ -18,7 +18,7 @@ Use `@pagesmith/docs` when you want a batteries-included docs site from `pagesmi
 - Vite-native toolchain and plugins
 - Static-first output with progressive enhancement
 
-See `docs/content/reference/architecture/README.md` for the full architecture and rationale.
+See `docs-site/content/reference/architecture/README.md` for the full architecture and rationale.
 
 ## Install
 

@@ -28,6 +28,7 @@
     "theme/",
     "ai-guidelines/",
     "schemas/",
+    "skills/",
     "REFERENCE.md"
   ],
   "type": "module",
@@ -77,6 +78,7 @@
       "import": "./dist/build-validator.mjs"
     },
     "./ai-guidelines/*": "./ai-guidelines/*",
+    "./skills/*": "./skills/*",
     "./llms": "./ai-guidelines/llms.txt",
     "./llms-full": "./ai-guidelines/llms-full.txt",
     "./agents/setup-docs": "./ai-guidelines/setup-docs.md",
@@ -90,10 +92,13 @@
   },
   "scripts": {
     "build": "vp pack",
-    "generate:schemas": "vp pack && node ./scripts/generate-json-schemas.mjs",
-    "test": "vp test run"
+    "dev": "vp pack --watch",
+    "check": "vp check",
+    "test": "vp test run",
+    "generate:schemas": "vp pack && node ./scripts/generate-json-schemas.mjs"
   },
   "dependencies": {
+    "@clack/prompts": "^1.2.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@pagesmith/core": "0.9.5",
     "@pagesmith/site": "0.9.5",

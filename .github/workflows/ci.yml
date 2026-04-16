@@ -12,8 +12,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: Lint
+  # ---------------------------------------------------------------------------
+  # Fast fan-out jobs (run in parallel; each depends only on `install`).
+  # The local `npm run cicd` script chains these sequentially for contributors
+  # who want one command to reproduce CI.
+  # ---------------------------------------------------------------------------
+
+  install:
+    name: Install & cache
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+  lint:
+    name: Lint & format
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -25,8 +43,9 @@ jobs:
       - run: npm run build:library
       - run: npm run check
 
-  test:
-    name: Test
+  unit:
+    name: Unit & integration tests
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -38,8 +57,30 @@ jobs:
       - run: npm run build:library
       - run: npm test
 
-  build:
-    name: Build
+  build-library:
+    name: Build library
+    needs: install
+    runs-on: ubuntu-latest
+    outputs:
+      built: ${{ steps.library.outcome }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - id: library
+        run: npm run build:library
+      - uses: actions/upload-artifact@v4
+        with:
+          name: library-dist
+          path: |
+            packages/*/dist
+
+  build-docs:
+    name: Build docs site
+    needs: build-library
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -48,18 +89,123 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+      - run: npm run build:landing
+      - run: npm run build:docs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gh-pages-docs
+          path: gh-pages
+
+  build-examples:
+    name: Build example (${{ matrix.example }})
+    needs: build-library
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - blog-site
+          - doc-site
+          - with-nextjs
+          - with-react
+          - with-solid
+          - with-svelte
+          - with-vanilla-ejs
+          - with-vanilla-hbs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+      - run: npm run build:${{ matrix.example }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gh-pages-example-${{ matrix.example }}
+          path: gh-pages
+          if-no-files-found: ignore
+
+  validate-diagrams:
+    name: Validate diagrams
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
       - run: npm run validate:diagrams
+
+  validate-examples:
+    name: Validate examples (packaging)
+    needs: [build-library, build-examples]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
       - run: npm run validate:examples
+
+  e2e:
+    name: Playwright e2e
+    needs: build-docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: gh-pages-docs
+          path: gh-pages
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+
+  # ---------------------------------------------------------------------------
+  # Final deploy — only for pushes to main after all quality gates pass.
+  # ---------------------------------------------------------------------------
+
+  assemble-pages:
+    name: Assemble gh-pages artifact
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [lint, unit, build-docs, build-examples, validate-diagrams, validate-examples, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gh-pages-*
+          merge-multiple: true
+          path: gh-pages
       - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/main'
         with:
           path: gh-pages
 
   deploy-pages:
     name: Deploy Pages
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [check, test, build]
+    needs: assemble-pages
     runs-on: ubuntu-latest
     permissions:
       pages: write

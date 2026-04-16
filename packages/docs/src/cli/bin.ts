@@ -2,7 +2,14 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { basename, resolve } from 'path'
-import { createInterface } from 'readline/promises'
+import {
+  cancel,
+  confirm as clackConfirm,
+  intro as clackIntro,
+  isCancel,
+  outro as clackOutro,
+  text as clackText,
+} from '@clack/prompts'
 import { detectFirstCommitYear, detectGitOrigin, resolveInitOrigin, toTitleCase } from '../config'
 import { startDocsMcpServer } from '../mcp/server'
 import { build, preview, startDev } from '../site'
@@ -126,49 +133,68 @@ async function detectDefaults(projectDir: string): Promise<InitAnswers> {
   }
 }
 
-async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
-  const rl = createInterface({ input: process.stdin, output: process.stdout })
-
-  const onSigint = () => {
-    rl.close()
-    console.log('\n  Init cancelled.')
+function exitOnCancel<T>(value: T | symbol): T {
+  if (isCancel(value)) {
+    cancel('Init cancelled.')
     process.exit(130)
   }
-  process.once('SIGINT', onSigint)
+  return value as T
+}
 
-  const cleanup = () => {
-    process.removeListener('SIGINT', onSigint)
-    rl.close()
-  }
+async function promptInteractive(defaults: InitAnswers): Promise<InitAnswers> {
+  clackIntro(`Pagesmith v${getVersion()}`)
 
-  const ask = async (label: string, fallback: string): Promise<string> => {
-    const answer = await rl.question(`  ${label} (${fallback}): `)
-    return answer.trim() || fallback
-  }
-
-  const confirm = async (label: string, defaultYes: boolean): Promise<boolean> => {
-    const hint = defaultYes ? 'Y/n' : 'y/N'
-    const answer = await rl.question(`  ${label} (${hint}): `)
-    const trimmed = answer.trim().toLowerCase()
-    if (!trimmed) return defaultYes
-    return trimmed.startsWith('y')
-  }
-
-  console.log(`\n  Pagesmith v${getVersion()}\n`)
-
-  const name = await ask('Project name', defaults.name)
+  const name = exitOnCancel(
+    await clackText({
+      message: 'Project name',
+      placeholder: defaults.name,
+      defaultValue: defaults.name,
+    }),
+  )
   const titleFallback =
     defaults.title === toTitleCase(defaults.name) ? toTitleCase(name) : defaults.title
-  const title = await ask('Site title', titleFallback)
-  const origin = await ask('Site origin', defaults.origin)
-  const basePath = await ask('Base path', defaults.basePath)
-  const contentDir = await ask('Content directory', defaults.contentDir)
-  const search = await confirm('Enable search?', defaults.search)
-  const ai = await confirm('Install AI integrations?', defaults.ai)
-  const starterContent = await confirm('Create starter content?', defaults.starterContent)
+  const title = exitOnCancel(
+    await clackText({
+      message: 'Site title',
+      placeholder: titleFallback,
+      defaultValue: titleFallback,
+    }),
+  )
+  const origin = exitOnCancel(
+    await clackText({
+      message: 'Site origin',
+      placeholder: defaults.origin,
+      defaultValue: defaults.origin,
+    }),
+  )
+  const basePath = exitOnCancel(
+    await clackText({
+      message: 'Base path',
+      placeholder: defaults.basePath,
+      defaultValue: defaults.basePath,
+    }),
+  )
+  const contentDir = exitOnCancel(
+    await clackText({
+      message: 'Content directory',
+      placeholder: defaults.contentDir,
+      defaultValue: defaults.contentDir,
+    }),
+  )
+  const search = exitOnCancel(
+    await clackConfirm({ message: 'Enable search?', initialValue: defaults.search }),
+  )
+  const ai = exitOnCancel(
+    await clackConfirm({ message: 'Install AI integrations?', initialValue: defaults.ai }),
+  )
+  const starterContent = exitOnCancel(
+    await clackConfirm({
+      message: 'Create starter content?',
+      initialValue: defaults.starterContent,
+    }),
+  )
 
-  cleanup()
-  console.log()
+  clackOutro('Continuing…')
 
   return {
     name,

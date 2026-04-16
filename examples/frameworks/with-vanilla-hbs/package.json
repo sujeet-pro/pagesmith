@@ -1,0 +1,22 @@
+{
+  "name": "@pagesmith/example-with-vanilla-hbs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "vp check"
+  },
+  "dependencies": {
+    "@pagesmith/site": "*",
+    "handlebars": "^4.7.9",
+    "pagefind": "^1.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vite-plus": "0.1.18"
+  }
+}

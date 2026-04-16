@@ -4,10 +4,27 @@ Use this file when working inside the Pagesmith monorepo.
 
 ## Scope Split
 
-- **Repo-maintainer guidance**: this file, `CLAUDE.md`, root `ai-guidelines/` (especially `docs-guidelines.md`, `markdown-guidelines.md`, `diagram-guidelines.md`, and `docs-diagram-pass-prompt.md`), and `.claude/skills/`.
-- **Published user guidance**: `packages/core/ai-guidelines/`, `packages/site/ai-guidelines/`, `packages/docs/ai-guidelines/`, and `packages/docs/schemas/`.
-- **Latest-project docs**: `docs/content/` plus the repo-root `pagesmith.config.json5` describe the current main-branch behavior.
-- **Installed-package contract**: anything under `node_modules/@pagesmith/*/ai-guidelines/` and `node_modules/@pagesmith/docs/schemas/` must stay version-matched with the package release.
+- **Repo-maintainer guidance**: this file, `CLAUDE.md`, root `ai-guidelines/` (especially `docs-guidelines.md`, `markdown-guidelines.md`, `diagram-guidelines.md`, and `docs-diagram-pass-prompt.md`), and `.agents/skills/`. `.claude/skills/` and `.cursor/skills/` only hold thin wrappers that forward to `.agents/skills/`.
+- **Published user guidance**: `packages/core/ai-guidelines/`, `packages/site/ai-guidelines/`, `packages/docs/ai-guidelines/`, `packages/*/skills/` (consumer-installable), and `packages/docs/schemas/`.
+- **Latest-project docs**: `docs-site/content/` plus the repo-root `pagesmith.config.json5` describe the current main-branch behavior.
+- **Installed-package contract**: anything under `node_modules/@pagesmith/*/ai-guidelines/`, `node_modules/@pagesmith/*/skills/`, and `node_modules/@pagesmith/docs/schemas/` must stay version-matched with the package release.
+
+## Scratch Space
+
+- All exploratory or working files (plans, notes, cloned reference repos, scratch diffs) must live under `.temp/`. Examples:
+  - `.temp/plans/<name>.md`
+  - `.temp/reference-repo/<repo-name>/`
+  - `.temp/notes/<date>.md`
+- `.temp/` is git-ignored. Never commit its contents.
+
+## Keeping AI Guidance Current
+
+When code, architecture, public behavior, folder layout, or philosophy changes, in the same branch update:
+
+- Root `ai-guidelines/**` and affected project skills under `.agents/skills/**`.
+- Per-package `packages/*/ai-guidelines/**`, `packages/*/skills/**`, `packages/*/README.md`, `packages/*/REFERENCE.md`.
+- Generated AI installer content under `packages/core/src/ai/**`.
+- Root docs site under `docs-site/content/**` and affected examples under `examples/**`.
 
 ## Architecture Snapshot
 
@@ -61,7 +78,7 @@ Dependency graph:
 
 ### Monorepo Docs And Examples
 
-- Root docs site content: `docs/content/**`
+- Root docs site content: `docs-site/content/**`
 - Root docs site config: `pagesmith.config.json5`
 - Example sites: `examples/**`
 - Release/build helpers: `scripts/**`
@@ -69,11 +86,11 @@ Dependency graph:
 ## Repo Rules
 
 - Package `ai-guidelines` are for library users. Root `ai-guidelines` are for maintaining this repo.
-- The repo docs site uses the repo-root `pagesmith.config.json5`; in this repo the docs content lives in `docs/content/`.
+- The repo docs site uses the repo-root `pagesmith.config.json5`; in this repo the docs content lives in `docs-site/content/`.
 - Public behavior changes must update, in the same branch:
   - package `ai-guidelines`
   - package `README.md` / `REFERENCE.md`
-  - root docs site content under `docs/content/`
+  - root docs site content under `docs-site/content/`
   - affected examples under `examples/`
   - AI installer references under `packages/core/src/ai/`
 - Site-building behavior changes must update:
@@ -101,13 +118,18 @@ Dependency graph:
 
 ## Repo Skills
 
-Use the project skills in `.claude/skills/` when relevant:
+Canonical skills live under `.agents/skills/`; Claude and Cursor discover them via thin wrappers in `.claude/skills/` and `.cursor/skills/`.
 
 - `prj-update-content` — refresh root docs, examples, package AI guidance, and diagrams together
 - `prj-examples-parity` — keep examples aligned with docs/package behavior and diagram conventions
 - `prj-sync-package-ai-guidelines` — update published package AI guidance, schemas, and docs/diagram guidance
 - `prj-pagesmith-review` — review diffs for behavior, parity, diagram drift, and release readiness
 - `prj-docs-diagrams` — review docs pages and add diagrams with `diagramkit`
+- `prj-release` — publish coordinated releases via the publish workflow
+- `prj-add-example` — add a new example workspace that stays in parity with docs/packages
+- `prj-add-loader` — add a new content loader to `@pagesmith/core`
+- `prj-add-markdown-plugin` — add a remark/rehype plugin to the markdown pipeline
+- `prj-add-preset` — add a new `@pagesmith/site` preset
 
 ## Repo Prompts
 

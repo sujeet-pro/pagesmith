@@ -39,9 +39,9 @@ When public behavior changes, update all relevant items below:
 2. `packages/core/ai-guidelines/markdown-guidelines.md`
 3. `packages/core/ai-guidelines/usage.md`, `recipes.md`, `errors.md`, `migration.md`, `changelog-notes.md`, `llms*.txt`
 4. `packages/core/README.md` and `packages/core/REFERENCE.md`
-5. Root docs pages under `docs/content/`
+5. Root docs pages under `docs-site/content/`
 6. Affected example content and READMEs under `examples/`
-7. Tests under `packages/core/src/__tests__/` and `tests/e2e/`
+7. Tests under `packages/core/src/__tests__/`, `tests/integration/`, and `tests/e2e/` (Playwright)
 
 ## Core Behaviors To Preserve
 

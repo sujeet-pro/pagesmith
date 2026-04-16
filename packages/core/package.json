@@ -28,6 +28,7 @@
     "dist/",
     "templates/",
     "ai-guidelines/",
+    "skills/",
     "REFERENCE.md"
   ],
   "type": "module",
@@ -69,6 +70,7 @@
       "import": "./dist/mcp/index.mjs"
     },
     "./ai-guidelines/*": "./ai-guidelines/*",
+    "./skills/*": "./skills/*",
     "./llms": "./ai-guidelines/llms.txt",
     "./llms-full": "./ai-guidelines/llms-full.txt",
     "./agents/setup-core": "./ai-guidelines/setup-core.md",
@@ -82,9 +84,12 @@
   },
   "scripts": {
     "build": "vp pack",
+    "dev": "vp pack --watch",
+    "check": "vp check",
     "test": "vp test run"
   },
   "dependencies": {
+    "@clack/prompts": "^1.2.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "devalue": "^5.1.1",
     "fast-glob": "^3.3.0",

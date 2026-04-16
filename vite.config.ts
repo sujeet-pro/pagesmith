@@ -7,7 +7,7 @@ export default defineConfig({
     },
   },
   test: {
-    projects: ['packages/core', 'packages/site', 'packages/docs', 'tests/e2e'],
+    projects: ['packages/core', 'packages/site', 'packages/docs', 'tests/integration'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

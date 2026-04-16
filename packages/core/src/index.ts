@@ -8,6 +8,9 @@
 // ── Config ──
 export { defineCollection, defineCollections, defineConfig } from './config'
 
+// ── Convenience Collection Factories ──
+export { blogCollection, docsCollection, projectsCollection } from './collections'
+
 // ── Content Layer ──
 export {
   type ContentLayer,

@@ -2,7 +2,7 @@
 
 Repo-maintainer guidance for generating diagrams and other documentation images in the Pagesmith monorepo.
 
-Use this file when writing or updating docs under `docs/content/`, package `README.md` / `REFERENCE.md`, package `ai-guidelines/`, examples, or repo-maintainer guidance that would be clearer with a visual.
+Use this file when writing or updating docs under `docs-site/content/`, package `README.md` / `REFERENCE.md`, package `ai-guidelines/`, examples, or repo-maintainer guidance that would be clearer with a visual.
 
 ## Source Of Truth
 
@@ -30,10 +30,10 @@ Use this file when writing or updating docs under `docs/content/`, package `READ
 Preferred page-local layout:
 
 ```text
-docs/content/guide/architecture/README.md
-docs/content/guide/architecture/diagrams/system-overview.mermaid
-docs/content/guide/architecture/diagrams/system-overview-light.svg
-docs/content/guide/architecture/diagrams/system-overview-dark.svg
+docs-site/content/guide/architecture/README.md
+docs-site/content/guide/architecture/diagrams/system-overview.mermaid
+docs-site/content/guide/architecture/diagrams/system-overview-light.svg
+docs-site/content/guide/architecture/diagrams/system-overview-dark.svg
 ```
 
 The repo-level `diagramkit.config.json5` uses `sameFolder: true`, so rendered files land beside the source diagram file instead of inside a hidden `.diagramkit/` folder.
@@ -112,7 +112,7 @@ For non-image content that should toggle with the color scheme, use `.show-on-li
 
 Use the `<figure>` pattern for:
 
-- `docs/content/**`
+- `docs-site/content/**`
 - `examples/**/docs/**`
 - other Pagesmith-rendered markdown surfaces that support the shared theme CSS
 

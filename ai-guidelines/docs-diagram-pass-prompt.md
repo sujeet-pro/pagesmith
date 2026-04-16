@@ -18,7 +18,7 @@ Before editing anything, read:
 - every project skill under .claude/skills/prj-*/SKILL.md
 
 Audit these documentation surfaces:
-- docs/content/**/*.md
+- docs-site/content/**/*.md
 - packages/*/README.md
 - packages/*/REFERENCE.md
 - packages/*/ai-guidelines/**/*.md

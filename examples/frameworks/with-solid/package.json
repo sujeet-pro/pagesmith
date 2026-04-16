@@ -1,0 +1,23 @@
+{
+  "name": "@pagesmith/example-with-solid",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "vp check"
+  },
+  "dependencies": {
+    "@pagesmith/site": "*",
+    "pagefind": "^1.5.0",
+    "solid-js": "^1.9.12"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vite-plugin-solid": "^2.11.11",
+    "vite-plus": "0.1.18"
+  }
+}

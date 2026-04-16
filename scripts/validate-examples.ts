@@ -9,6 +9,7 @@ const execAsync = promisify(exec)
 
 interface Example {
   name: string
+  path: string
   buildCmd: string
   outDir: string
 }
@@ -22,18 +23,58 @@ interface Result {
 const root: string = process.cwd()
 
 const examples: Example[] = [
-  { name: 'blog-site', buildCmd: 'npm run build', outDir: 'gh-pages/examples/blog-site' },
-  { name: 'doc-site', buildCmd: 'npm run build', outDir: 'gh-pages/examples/doc-site' },
-  { name: 'with-nextjs', buildCmd: 'npm run build', outDir: 'gh-pages/examples/nextjs' },
-  { name: 'with-vanilla-ejs', buildCmd: 'npm run build', outDir: 'gh-pages/examples/vanilla-ejs' },
-  { name: 'with-vanilla-hbs', buildCmd: 'npm run build', outDir: 'gh-pages/examples/vanilla-hbs' },
-  { name: 'with-react', buildCmd: 'npm run build', outDir: 'gh-pages/examples/react' },
-  { name: 'with-solid', buildCmd: 'npm run build', outDir: 'gh-pages/examples/solid' },
-  { name: 'with-svelte', buildCmd: 'npm run build', outDir: 'gh-pages/examples/svelte' },
+  {
+    name: 'blog-site',
+    path: 'examples/blog-site',
+    buildCmd: 'npm run build',
+    outDir: 'gh-pages/examples/blog-site',
+  },
+  {
+    name: 'doc-site',
+    path: 'examples/doc-site',
+    buildCmd: 'npm run build',
+    outDir: 'gh-pages/examples/doc-site',
+  },
+  {
+    name: 'with-nextjs',
+    path: 'examples/frameworks/with-nextjs',
+    buildCmd: 'npm run build',
+    outDir: 'gh-pages/examples/nextjs',
+  },
+  {
+    name: 'with-vanilla-ejs',
+    path: 'examples/frameworks/with-vanilla-ejs',
+    buildCmd: 'npm run build',
+    outDir: 'gh-pages/examples/vanilla-ejs',
+  },
+  {
+    name: 'with-vanilla-hbs',
+    path: 'examples/frameworks/with-vanilla-hbs',
+    buildCmd: 'npm run build',
+    outDir: 'gh-pages/examples/vanilla-hbs',
+  },
+  {
+    name: 'with-react',
+    path: 'examples/frameworks/with-react',
+    buildCmd: 'npm run build',
+    outDir: 'gh-pages/examples/react',
+  },
+  {
+    name: 'with-solid',
+    path: 'examples/frameworks/with-solid',
+    buildCmd: 'npm run build',
+    outDir: 'gh-pages/examples/solid',
+  },
+  {
+    name: 'with-svelte',
+    path: 'examples/frameworks/with-svelte',
+    buildCmd: 'npm run build',
+    outDir: 'gh-pages/examples/svelte',
+  },
 ]
 
 async function validateExample(example: Example): Promise<Result> {
-  const dir: string = join(root, 'examples', example.name)
+  const dir: string = join(root, example.path)
   const outDir: string = join(root, example.outDir)
   const requiredSourceFiles = ['README.md', 'llms.txt', 'llms-full.txt']
 
@@ -43,7 +84,7 @@ async function validateExample(example: Example): Promise<Result> {
         return {
           name: example.name,
           passed: false,
-          error: `required source file not found: ${join('examples', example.name, relativePath)}`,
+          error: `required source file not found: ${join(example.path, relativePath)}`,
         }
       }
     }

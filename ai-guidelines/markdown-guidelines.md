@@ -11,10 +11,10 @@ Repo-maintainer guidance for keeping Pagesmith markdown behavior documented cons
   - `packages/core/ai-guidelines/markdown-guidelines.md`
   - `packages/docs/ai-guidelines/markdown-guidelines.md`
 - Root docs pages and examples:
-  - `docs/content/guide/code-blocks/README.md`
-  - `docs/content/guide/markdown-features/README.md`
+  - `docs-site/content/guide/code-blocks/README.md`
+  - `docs-site/content/guide/markdown-features/README.md`
   - `examples/**/content/features/*.md`
-  - `tests/e2e/markdown.test.ts`
+  - `tests/integration/markdown.test.ts`
 
 ## Maintainer Rules
 

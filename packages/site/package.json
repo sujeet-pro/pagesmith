@@ -29,6 +29,7 @@
     "assets/",
     "css.d.ts",
     "ai-guidelines/",
+    "skills/",
     "REFERENCE.md"
   ],
   "type": "module",
@@ -178,6 +179,7 @@
       "import": "./dist/build-validator.mjs"
     },
     "./ai-guidelines/*": "./ai-guidelines/*",
+    "./skills/*": "./skills/*",
     "./llms": "./ai-guidelines/llms.txt",
     "./llms-full": "./ai-guidelines/llms-full.txt",
     "./agents/setup-site": "./ai-guidelines/setup-site.md",
@@ -192,6 +194,8 @@
   },
   "scripts": {
     "build": "vp pack",
+    "dev": "vp pack --watch",
+    "check": "vp check",
     "test": "vp test run"
   },
   "dependencies": {

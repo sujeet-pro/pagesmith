@@ -9,3 +9,8 @@ gh-pages/
 coverage/
 *.tsbuildinfo
 .DS_Store
+# Playwright outputs
+playwright-report/
+test-results/
+blob-report/
+.playwright/
