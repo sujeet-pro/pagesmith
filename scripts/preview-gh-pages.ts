@@ -48,19 +48,21 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
     return
   }
 
-  if (!url.endsWith('/') && existsSync(filePath) && statSync(filePath).isDirectory()) {
-    res.writeHead(301, { Location: `${req.url}/` })
-    res.end()
-    return
-  }
-
-  if (existsSync(filePath) && statSync(filePath).isDirectory()) {
-    filePath = join(filePath, 'index.html')
+  // GitHub Pages-compatible resolution: path.html first, then path/index.html
+  if (!extname(filePath)) {
+    const flatHtml = `${filePath}.html`
+    const dirIndex = join(filePath, 'index.html')
+    if (existsSync(flatHtml)) {
+      filePath = flatHtml
+    } else if (existsSync(filePath) && statSync(filePath).isDirectory()) {
+      filePath = dirIndex
+    }
   }
 
   if (!existsSync(filePath)) {
+    const notFoundPage = join(outDir, '404.html')
     res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })
-    res.end('<h1>404 - Not Found</h1>')
+    res.end(existsSync(notFoundPage) ? readFileSync(notFoundPage) : '<h1>404 - Not Found</h1>')
     return
   }
 

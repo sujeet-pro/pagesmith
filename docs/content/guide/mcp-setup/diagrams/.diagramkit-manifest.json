@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "mcp-surfaces-overview.mermaid": {
-      "hash": "sha256:73b517271c946ab6",
-      "generatedAt": "2026-04-14T20:54:41.398Z",
+      "hash": "sha256:29545c77b928f491",
+      "generatedAt": "2026-04-16T07:36:39.498Z",
       "outputs": [
         {
           "file": "mcp-surfaces-overview-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776113132259.8262,
-      "size": 704
+      "mtimeMs": 1776318347713.1147,
+      "size": 757
     }
   }
 }

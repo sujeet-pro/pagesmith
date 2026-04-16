@@ -1,12 +1,14 @@
+%% Diagram: Frontmatter schema families
+%% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 flowchart TD
   subgraph DocsSite["Docs site"]
-    DO["DocsFrontmatterSchema"]
+    docsSchema["DocsFrontmatterSchema"]
   end
   subgraph Collections["defineCollection markdown"]
-    BA["BaseFrontmatterSchema"]
-    BL["BlogFrontmatterSchema"]
-    PR["ProjectFrontmatterSchema"]
-    BA --> BL
-    BA --> PR
+    baseSchema["BaseFrontmatterSchema"]
+    blogSchema["BlogFrontmatterSchema"]
+    projectSchema["ProjectFrontmatterSchema"]
+    baseSchema --> blogSchema
+    baseSchema --> projectSchema
   end

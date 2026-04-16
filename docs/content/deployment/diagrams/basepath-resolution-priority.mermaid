@@ -1,11 +1,13 @@
+%% Diagram: Base path resolution priority
+%% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 flowchart TD
-  A["CLI --base-path"]
-  B["BASE_URL"]
-  C["pagesmith.config.json5 basePath"]
-  D["Git remote repo name"]
-  E["Default /"]
-  A -->|"if unset"| B
-  B -->|"if unset"| C
-  C -->|"if unset"| D
-  D -->|"if unset"| E
+  cliFlag["CLI --base-path"]
+  envVar["BASE_URL"]
+  configFile["pagesmith.config.json5 basePath"]
+  gitRemote["Git remote repo name"]
+  defaultRoot["Default /"]
+  cliFlag -->|"if unset"| envVar
+  envVar -->|"if unset"| configFile
+  configFile -->|"if unset"| gitRemote
+  gitRemote -->|"if unset"| defaultRoot

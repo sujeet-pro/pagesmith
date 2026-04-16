@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "site-css-bundle-layers.mermaid": {
-      "hash": "sha256:3c194dec3eb6f272",
-      "generatedAt": "2026-04-14T20:54:41.400Z",
+      "hash": "sha256:8163d7033869e697",
+      "generatedAt": "2026-04-16T07:36:39.500Z",
       "outputs": [
         {
           "file": "site-css-bundle-layers-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776114737202.8057,
-      "size": 253
+      "mtimeMs": 1776318310079.9436,
+      "size": 411
     }
   }
 }

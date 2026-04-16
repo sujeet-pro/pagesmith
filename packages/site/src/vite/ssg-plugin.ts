@@ -42,6 +42,14 @@ export type SsgPluginOptions = {
    * @example './styles/main.css'
    */
   cssEntry?: string
+  /**
+   * Output file format for generated pages.
+   *
+   * When `false` (default), pages emit as `path.html` so `/path` resolves
+   * directly without a 301 redirect on GitHub Pages and similar hosts.
+   * When `true`, pages emit as `path/index.html` for trailing-slash URLs.
+   */
+  trailingSlash?: boolean
 }
 
 export type SsgRenderConfig = {
@@ -126,12 +134,17 @@ export function pagesmithSsg(options: SsgPluginOptions): Plugin[] {
         if (!routePath.startsWith('/')) routePath = '/' + routePath
         const cleanPath = routePath.replace(/\/$/u, '') || '/'
 
-        const htmlPath =
-          cleanPath === '/'
-            ? join(outDir, 'index.html')
-            : join(outDir, cleanPath.replace(/^\//, ''), 'index.html')
+        let htmlPath: string | undefined
+        if (cleanPath === '/') {
+          htmlPath = join(outDir, 'index.html')
+        } else {
+          const stripped = cleanPath.replace(/^\//, '')
+          const flatPath = join(outDir, `${stripped}.html`)
+          const dirPath = join(outDir, stripped, 'index.html')
+          htmlPath = existsSync(flatPath) ? flatPath : existsSync(dirPath) ? dirPath : undefined
+        }
 
-        if (existsSync(htmlPath)) {
+        if (htmlPath && existsSync(htmlPath)) {
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
           res.end(readFileSync(htmlPath))
           return
@@ -174,6 +187,7 @@ export function pagesmithSsg(options: SsgPluginOptions): Plugin[] {
         outDir,
         contentDirs,
         entry: options.entry,
+        trailingSlash: options.trailingSlash ?? false,
       })
 
       if (enablePagefind) {

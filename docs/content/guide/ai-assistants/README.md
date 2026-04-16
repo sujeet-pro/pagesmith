@@ -124,7 +124,7 @@ The installer updates managed sections inside existing memory files, so custom c
 
 ## Related Pages
 
-- [Choose Your Path](/guide/choose-your-path/)
-- [Docs Getting Started](/guide/docs-getting-started/)
-- [Prompts Cookbook](/guide/prompts-cookbook/)
-- [MCP Setup](/guide/mcp-setup/)
+- [Choose Your Path](/guide/choose-your-path)
+- [Docs Getting Started](/guide/docs-getting-started)
+- [Prompts Cookbook](/guide/prompts-cookbook)
+- [MCP Setup](/guide/mcp-setup)

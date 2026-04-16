@@ -25,7 +25,7 @@ If `@pagesmith/docs` is already installed and you want the version-matched local
 
 > Set up docs using Pagesmith for this repository. Read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` first and follow it exactly.
 
-If you want full copy-paste prompt bodies for both initial setup and upgrades, use [Agent Prompts Cookbook](/guide/prompts-cookbook/). That page includes the repo-configuration prompt plus the upgrade prompt for an existing `@pagesmith/docs` integration.
+If you want full copy-paste prompt bodies for both initial setup and upgrades, use [Agent Prompts Cookbook](/guide/prompts-cookbook). That page includes the repo-configuration prompt plus the upgrade prompt for an existing `@pagesmith/docs` integration.
 
 Your agent will create:
 - `pagesmith.config.json5` -- site configuration, including a `$schema` pointer to the installed package schema

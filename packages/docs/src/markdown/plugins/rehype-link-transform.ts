@@ -1,4 +1,5 @@
 import type { Element, Root } from 'hast'
+import { existsSync } from 'fs'
 import { dirname, extname, relative, resolve } from 'path'
 import { visit } from 'unist-util-visit'
 import { getDocsTransformContext } from './context'
@@ -33,12 +34,62 @@ function splitPathSuffix(href: string): { pathPart: string; suffix: string } {
     : { pathPart: href, suffix: '' }
 }
 
+function isExternalUrl(href: string): boolean {
+  return (
+    href.startsWith('http://') ||
+    href.startsWith('https://') ||
+    href.startsWith('mailto:') ||
+    href.startsWith('tel:') ||
+    href.startsWith('//')
+  )
+}
+
+function hasFileExtension(path: string): boolean {
+  return /\/[^/?#]+\.[^/?#]+(?:[?#].*)?$/u.test(path)
+}
+
+function formatTrailingSlash(path: string, trailingSlash: boolean): string {
+  if (!path || path === '/') return '/'
+  if (trailingSlash) {
+    return path.endsWith('/') ? path : `${path}/`
+  }
+  return path.endsWith('/') ? path.slice(0, -1) : path
+}
+
+/** Resolve a relative href to a content page file path, or undefined if not a content page. */
+function resolveContentTarget(
+  href: string,
+  currentFilePath: string,
+  contentDir: string,
+): string | undefined {
+  const targetPath = resolve(dirname(currentFilePath), href)
+  if (!isInsideRoot(targetPath, contentDir)) return undefined
+
+  // Direct .md file
+  if (existsSync(targetPath) && extname(targetPath) === '.md') {
+    return targetPath
+  }
+
+  // Directory with README.md or index.md
+  for (const indexFile of ['README.md', 'index.md']) {
+    const candidate = resolve(targetPath, indexFile)
+    if (existsSync(candidate)) return candidate
+  }
+
+  // Bare name — try appending .md
+  const withMd = `${targetPath}.md`
+  if (existsSync(withMd)) return withMd
+
+  return undefined
+}
+
 export function rehypeLinkTransform() {
   return (tree: Root) => {
     const docsData = getDocsTransformContext()
     const basePath = docsData?.basePath ?? ''
     const contentDir = docsData?.contentDir
     const currentFilePath = docsData?.filePath
+    const trailingSlash = docsData?.trailingSlash ?? false
 
     if (!contentDir || !currentFilePath) return
 
@@ -48,40 +99,39 @@ export function rehypeLinkTransform() {
       const href = node.properties?.href
       if (typeof href !== 'string') return
 
-      // Skip external URLs
-      if (
-        href.startsWith('http://') ||
-        href.startsWith('https://') ||
-        href.startsWith('mailto:') ||
-        href.startsWith('tel:')
-      ) {
-        return
-      }
+      // Skip external URLs and fragment-only links
+      if (isExternalUrl(href) || href.startsWith('#')) return
 
-      if (href.includes('.md')) {
-        const { pathPart, suffix } = splitPathSuffix(href)
-        if (!pathPart.endsWith('.md')) return
+      const { pathPart, suffix } = splitPathSuffix(href)
+      if (!pathPart) return
 
-        const targetPath = resolve(dirname(currentFilePath), pathPart)
-        if (!isInsideRoot(targetPath, contentDir)) return
+      // Relative link — resolve against current file
+      if (!pathPart.startsWith('/')) {
+        const contentTarget = resolveContentTarget(pathPart, currentFilePath, contentDir)
+        if (!contentTarget) return
 
-        const slug = toContentSlug(targetPath, contentDir)
+        const slug = toContentSlug(contentTarget, contentDir)
         const routePath = slug === '/' ? '/' : `/${slug}`
+        const formatted = formatTrailingSlash(routePath, trailingSlash)
 
         node.properties = node.properties || {}
-        node.properties.href = `${basePath}${routePath}${suffix}`
+        node.properties.href = `${basePath}${formatted}${suffix}`
         return
       }
 
-      if (
-        basePath &&
-        href.startsWith('/') &&
-        !href.startsWith('//') &&
-        href !== basePath &&
-        !href.startsWith(`${basePath}/`)
-      ) {
+      // Absolute internal link — apply basePath prefix and trailingSlash
+      if (pathPart.startsWith('/') && !hasFileExtension(pathPart)) {
+        // Strip existing basePath if already present to avoid double-prefix
+        const cleanPath =
+          basePath && pathPart.startsWith(`${basePath}/`)
+            ? pathPart.slice(basePath.length)
+            : pathPart === basePath
+              ? '/'
+              : pathPart
+        const formatted = formatTrailingSlash(cleanPath, trailingSlash)
+
         node.properties = node.properties || {}
-        node.properties.href = `${basePath}${href}`
+        node.properties.href = `${basePath}${formatted}${suffix}`
       }
     })
   }

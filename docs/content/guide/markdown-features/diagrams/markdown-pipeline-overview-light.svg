@@ -11,104 +11,104 @@
 <!-- source -->
 <g id="node1" class="node">
 <title>source</title>
-<path fill="none" stroke="black" d="M115.39,-77.04C115.39,-77.04 12,-77.04 12,-77.04 6,-77.04 0,-71.04 0,-65.04 0,-65.04 0,-53.04 0,-53.04 0,-47.04 6,-41.04 12,-41.04 12,-41.04 115.39,-41.04 115.39,-41.04 121.39,-41.04 127.39,-47.04 127.39,-53.04 127.39,-53.04 127.39,-65.04 127.39,-65.04 127.39,-71.04 121.39,-77.04 115.39,-77.04"/>
-<text xml:space="preserve" text-anchor="middle" x="63.7" y="-54.84" font-family="Times,serif" font-size="14.00">Markdown source</text>
+<path fill="#dae8fc" stroke="#6c8ebf" d="M115.39,-77.04C115.39,-77.04 12,-77.04 12,-77.04 6,-77.04 0,-71.04 0,-65.04 0,-65.04 0,-53.04 0,-53.04 0,-47.04 6,-41.04 12,-41.04 12,-41.04 115.39,-41.04 115.39,-41.04 121.39,-41.04 127.39,-47.04 127.39,-53.04 127.39,-53.04 127.39,-65.04 127.39,-65.04 127.39,-71.04 121.39,-77.04 115.39,-77.04"/>
+<text xml:space="preserve" text-anchor="middle" x="63.7" y="-54.84" font-family="Times,serif" font-size="14.00" fill="#333333">Markdown source</text>
 </g>
 <!-- remark -->
 <g id="node2" class="node">
 <title>remark</title>
-<path fill="none" stroke="black" d="M339.67,-101.28C339.67,-101.28 197.39,-101.28 197.39,-101.28 191.39,-101.28 185.39,-95.28 185.39,-89.28 185.39,-89.28 185.39,-28.8 185.39,-28.8 185.39,-22.8 191.39,-16.8 197.39,-16.8 197.39,-16.8 339.67,-16.8 339.67,-16.8 345.67,-16.8 351.67,-22.8 351.67,-28.8 351.67,-28.8 351.67,-89.28 351.67,-89.28 351.67,-95.28 345.67,-101.28 339.67,-101.28"/>
-<text xml:space="preserve" text-anchor="middle" x="268.53" y="-80.04" font-family="Times,serif" font-size="14.00">Built&#45;in remark stage</text>
-<text xml:space="preserve" text-anchor="middle" x="268.53" y="-63.24" font-family="Times,serif" font-size="14.00">parse, GFM, frontmatter,</text>
-<text xml:space="preserve" text-anchor="middle" x="268.53" y="-46.44" font-family="Times,serif" font-size="14.00">alerts, smartypants,</text>
-<text xml:space="preserve" text-anchor="middle" x="268.53" y="-29.64" font-family="Times,serif" font-size="14.00">optional math</text>
+<path fill="#dae8fc" stroke="#6c8ebf" d="M339.67,-101.28C339.67,-101.28 197.39,-101.28 197.39,-101.28 191.39,-101.28 185.39,-95.28 185.39,-89.28 185.39,-89.28 185.39,-28.8 185.39,-28.8 185.39,-22.8 191.39,-16.8 197.39,-16.8 197.39,-16.8 339.67,-16.8 339.67,-16.8 345.67,-16.8 351.67,-22.8 351.67,-28.8 351.67,-28.8 351.67,-89.28 351.67,-89.28 351.67,-95.28 345.67,-101.28 339.67,-101.28"/>
+<text xml:space="preserve" text-anchor="middle" x="268.53" y="-80.04" font-family="Times,serif" font-size="14.00" fill="#333333">Built&#45;in remark stage</text>
+<text xml:space="preserve" text-anchor="middle" x="268.53" y="-63.24" font-family="Times,serif" font-size="14.00" fill="#333333">parse, GFM, frontmatter,</text>
+<text xml:space="preserve" text-anchor="middle" x="268.53" y="-46.44" font-family="Times,serif" font-size="14.00" fill="#333333">alerts, smartypants,</text>
+<text xml:space="preserve" text-anchor="middle" x="268.53" y="-29.64" font-family="Times,serif" font-size="14.00" fill="#333333">optional math</text>
 </g>
 <!-- source&#45;&gt;remark -->
 <g id="edge1" class="edge">
 <title>source&#45;&gt;remark</title>
-<path fill="none" stroke="black" d="M127.76,-59.04C142.36,-59.04 158.2,-59.04 173.8,-59.04"/>
-<polygon fill="black" stroke="black" points="173.58,-62.54 183.58,-59.04 173.58,-55.54 173.58,-62.54"/>
+<path fill="none" stroke="#7b7b7b" d="M127.76,-59.04C142.36,-59.04 158.2,-59.04 173.8,-59.04"/>
+<polygon fill="#7b7b7b" stroke="#7b7b7b" points="173.58,-62.54 183.58,-59.04 173.58,-55.54 173.58,-62.54"/>
 </g>
 <!-- userRemark -->
 <g id="node3" class="node">
 <title>userRemark</title>
-<path fill="none" stroke="black" d="M559.72,-84.48C559.72,-84.48 421.67,-84.48 421.67,-84.48 415.67,-84.48 409.67,-78.48 409.67,-72.48 409.67,-72.48 409.67,-45.6 409.67,-45.6 409.67,-39.6 415.67,-33.6 421.67,-33.6 421.67,-33.6 559.72,-33.6 559.72,-33.6 565.72,-33.6 571.72,-39.6 571.72,-45.6 571.72,-45.6 571.72,-72.48 571.72,-72.48 571.72,-78.48 565.72,-84.48 559.72,-84.48"/>
-<text xml:space="preserve" text-anchor="middle" x="490.69" y="-63.24" font-family="Times,serif" font-size="14.00">Custom remark plugins</text>
-<text xml:space="preserve" text-anchor="middle" x="490.69" y="-46.44" font-family="Times,serif" font-size="14.00">(@pagesmith/core only)</text>
+<path fill="#dae8fc" stroke="#6c8ebf" d="M559.72,-84.48C559.72,-84.48 421.67,-84.48 421.67,-84.48 415.67,-84.48 409.67,-78.48 409.67,-72.48 409.67,-72.48 409.67,-45.6 409.67,-45.6 409.67,-39.6 415.67,-33.6 421.67,-33.6 421.67,-33.6 559.72,-33.6 559.72,-33.6 565.72,-33.6 571.72,-39.6 571.72,-45.6 571.72,-45.6 571.72,-72.48 571.72,-72.48 571.72,-78.48 565.72,-84.48 559.72,-84.48"/>
+<text xml:space="preserve" text-anchor="middle" x="490.69" y="-63.24" font-family="Times,serif" font-size="14.00" fill="#333333">Custom remark plugins</text>
+<text xml:space="preserve" text-anchor="middle" x="490.69" y="-46.44" font-family="Times,serif" font-size="14.00" fill="#333333">(@pagesmith/core only)</text>
 </g>
 <!-- remark&#45;&gt;userRemark -->
 <g id="edge2" class="edge">
 <title>remark&#45;&gt;userRemark</title>
-<path fill="none" stroke="black" d="M352.14,-59.04C367.01,-59.04 382.61,-59.04 397.73,-59.04"/>
-<polygon fill="black" stroke="black" points="397.67,-62.54 407.67,-59.04 397.67,-55.54 397.67,-62.54"/>
+<path fill="none" stroke="#7b7b7b" d="M352.14,-59.04C367.01,-59.04 382.61,-59.04 397.73,-59.04"/>
+<polygon fill="#7b7b7b" stroke="#7b7b7b" points="397.67,-62.54 407.67,-59.04 397.67,-55.54 397.67,-62.54"/>
 </g>
 <!-- alias -->
 <g id="node4" class="node">
 <title>alias</title>
-<path fill="none" stroke="black" d="M785.92,-77.04C785.92,-77.04 641.72,-77.04 641.72,-77.04 635.72,-77.04 629.72,-71.04 629.72,-65.04 629.72,-65.04 629.72,-53.04 629.72,-53.04 629.72,-47.04 635.72,-41.04 641.72,-41.04 641.72,-41.04 785.92,-41.04 785.92,-41.04 791.92,-41.04 797.92,-47.04 797.92,-53.04 797.92,-53.04 797.92,-65.04 797.92,-65.04 797.92,-71.04 791.92,-77.04 785.92,-77.04"/>
-<text xml:space="preserve" text-anchor="middle" x="713.82" y="-54.84" font-family="Times,serif" font-size="14.00">Language alias transform</text>
+<path fill="#dae8fc" stroke="#6c8ebf" d="M785.92,-77.04C785.92,-77.04 641.72,-77.04 641.72,-77.04 635.72,-77.04 629.72,-71.04 629.72,-65.04 629.72,-65.04 629.72,-53.04 629.72,-53.04 629.72,-47.04 635.72,-41.04 641.72,-41.04 641.72,-41.04 785.92,-41.04 785.92,-41.04 791.92,-41.04 797.92,-47.04 797.92,-53.04 797.92,-53.04 797.92,-65.04 797.92,-65.04 797.92,-71.04 791.92,-77.04 785.92,-77.04"/>
+<text xml:space="preserve" text-anchor="middle" x="713.82" y="-54.84" font-family="Times,serif" font-size="14.00" fill="#333333">Language alias transform</text>
 </g>
 <!-- userRemark&#45;&gt;alias -->
 <g id="edge3" class="edge">
 <title>userRemark&#45;&gt;alias</title>
-<path fill="none" stroke="black" d="M572.15,-59.04C587.15,-59.04 602.96,-59.04 618.34,-59.04"/>
-<polygon fill="black" stroke="black" points="617.93,-62.54 627.93,-59.04 617.93,-55.54 617.93,-62.54"/>
+<path fill="none" stroke="#7b7b7b" d="M572.15,-59.04C587.15,-59.04 602.96,-59.04 618.34,-59.04"/>
+<polygon fill="#7b7b7b" stroke="#7b7b7b" points="617.93,-62.54 627.93,-59.04 617.93,-55.54 617.93,-62.54"/>
 </g>
 <!-- bridge -->
 <g id="node5" class="node">
 <title>bridge</title>
-<path fill="none" stroke="black" d="M1050.39,-84.48C1050.39,-84.48 867.92,-84.48 867.92,-84.48 861.92,-84.48 855.92,-78.48 855.92,-72.48 855.92,-72.48 855.92,-45.6 855.92,-45.6 855.92,-39.6 861.92,-33.6 867.92,-33.6 867.92,-33.6 1050.39,-33.6 1050.39,-33.6 1056.39,-33.6 1062.39,-39.6 1062.39,-45.6 1062.39,-45.6 1062.39,-72.48 1062.39,-72.48 1062.39,-78.48 1056.39,-84.48 1050.39,-84.48"/>
-<text xml:space="preserve" text-anchor="middle" x="959.15" y="-63.24" font-family="Times,serif" font-size="14.00">remark&#45;rehype</text>
-<text xml:space="preserve" text-anchor="middle" x="959.15" y="-46.44" font-family="Times,serif" font-size="14.00">Markdown AST &#45;&gt; HTML AST</text>
+<path fill="#dae8fc" stroke="#6c8ebf" d="M1050.39,-84.48C1050.39,-84.48 867.92,-84.48 867.92,-84.48 861.92,-84.48 855.92,-78.48 855.92,-72.48 855.92,-72.48 855.92,-45.6 855.92,-45.6 855.92,-39.6 861.92,-33.6 867.92,-33.6 867.92,-33.6 1050.39,-33.6 1050.39,-33.6 1056.39,-33.6 1062.39,-39.6 1062.39,-45.6 1062.39,-45.6 1062.39,-72.48 1062.39,-72.48 1062.39,-78.48 1056.39,-84.48 1050.39,-84.48"/>
+<text xml:space="preserve" text-anchor="middle" x="959.15" y="-63.24" font-family="Times,serif" font-size="14.00" fill="#333333">remark&#45;rehype</text>
+<text xml:space="preserve" text-anchor="middle" x="959.15" y="-46.44" font-family="Times,serif" font-size="14.00" fill="#333333">Markdown AST &#45;&gt; HTML AST</text>
 </g>
 <!-- alias&#45;&gt;bridge -->
 <g id="edge4" class="edge">
 <title>alias&#45;&gt;bridge</title>
-<path fill="none" stroke="black" d="M798.22,-59.04C813.05,-59.04 828.73,-59.04 844.24,-59.04"/>
-<polygon fill="black" stroke="black" points="843.98,-62.54 853.98,-59.04 843.98,-55.54 843.98,-62.54"/>
+<path fill="none" stroke="#7b7b7b" d="M798.22,-59.04C813.05,-59.04 828.73,-59.04 844.24,-59.04"/>
+<polygon fill="#7b7b7b" stroke="#7b7b7b" points="843.98,-62.54 853.98,-59.04 843.98,-55.54 843.98,-62.54"/>
 </g>
 <!-- rehype -->
 <g id="node6" class="node">
 <title>rehype</title>
-<path fill="none" stroke="black" d="M1271.95,-118.08C1271.95,-118.08 1132.39,-118.08 1132.39,-118.08 1126.39,-118.08 1120.39,-112.08 1120.39,-106.08 1120.39,-106.08 1120.39,-12 1120.39,-12 1120.39,-6 1126.39,0 1132.39,0 1132.39,0 1271.95,0 1271.95,0 1277.95,0 1283.95,-6 1283.95,-12 1283.95,-12 1283.95,-106.08 1283.95,-106.08 1283.95,-112.08 1277.95,-118.08 1271.95,-118.08"/>
-<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-96.84" font-family="Times,serif" font-size="14.00">Built&#45;in rehype stage</text>
-<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-80.04" font-family="Times,serif" font-size="14.00">MathJax, code renderer,</text>
-<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-63.24" font-family="Times,serif" font-size="14.00">code tabs, tables, slug,</text>
-<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-46.44" font-family="Times,serif" font-size="14.00">autolinks, external links,</text>
-<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-29.64" font-family="Times,serif" font-size="14.00">emoji, local images,</text>
-<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-12.84" font-family="Times,serif" font-size="14.00">heading extraction</text>
+<path fill="#dae8fc" stroke="#6c8ebf" d="M1271.95,-118.08C1271.95,-118.08 1132.39,-118.08 1132.39,-118.08 1126.39,-118.08 1120.39,-112.08 1120.39,-106.08 1120.39,-106.08 1120.39,-12 1120.39,-12 1120.39,-6 1126.39,0 1132.39,0 1132.39,0 1271.95,0 1271.95,0 1277.95,0 1283.95,-6 1283.95,-12 1283.95,-12 1283.95,-106.08 1283.95,-106.08 1283.95,-112.08 1277.95,-118.08 1271.95,-118.08"/>
+<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-96.84" font-family="Times,serif" font-size="14.00" fill="#333333">Built&#45;in rehype stage</text>
+<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-80.04" font-family="Times,serif" font-size="14.00" fill="#333333">MathJax, code renderer,</text>
+<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-63.24" font-family="Times,serif" font-size="14.00" fill="#333333">code tabs, tables, slug,</text>
+<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-46.44" font-family="Times,serif" font-size="14.00" fill="#333333">autolinks, external links,</text>
+<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-29.64" font-family="Times,serif" font-size="14.00" fill="#333333">emoji, local images,</text>
+<text xml:space="preserve" text-anchor="middle" x="1202.17" y="-12.84" font-family="Times,serif" font-size="14.00" fill="#333333">heading extraction</text>
 </g>
 <!-- bridge&#45;&gt;rehype -->
 <g id="edge5" class="edge">
 <title>bridge&#45;&gt;rehype</title>
-<path fill="none" stroke="black" d="M1062.71,-59.04C1078.03,-59.04 1093.74,-59.04 1108.82,-59.04"/>
-<polygon fill="black" stroke="black" points="1108.71,-62.54 1118.71,-59.04 1108.71,-55.54 1108.71,-62.54"/>
+<path fill="none" stroke="#7b7b7b" d="M1062.71,-59.04C1078.03,-59.04 1093.74,-59.04 1108.82,-59.04"/>
+<polygon fill="#7b7b7b" stroke="#7b7b7b" points="1108.71,-62.54 1118.71,-59.04 1108.71,-55.54 1108.71,-62.54"/>
 </g>
 <!-- post -->
 <g id="node7" class="node">
 <title>post</title>
-<path fill="none" stroke="black" d="M1608.67,-92.88C1608.67,-92.88 1353.95,-92.88 1353.95,-92.88 1347.95,-92.88 1341.95,-86.88 1341.95,-80.88 1341.95,-80.88 1341.95,-37.2 1341.95,-37.2 1341.95,-31.2 1347.95,-25.2 1353.95,-25.2 1353.95,-25.2 1608.67,-25.2 1608.67,-25.2 1614.67,-25.2 1620.67,-31.2 1620.67,-37.2 1620.67,-37.2 1620.67,-80.88 1620.67,-80.88 1620.67,-86.88 1614.67,-92.88 1608.67,-92.88"/>
-<text xml:space="preserve" text-anchor="middle" x="1481.31" y="-71.64" font-family="Times,serif" font-size="14.00">Post&#45;processing</text>
-<text xml:space="preserve" text-anchor="middle" x="1481.31" y="-54.84" font-family="Times,serif" font-size="14.00">@pagesmith/core: custom rehype plugins</text>
-<text xml:space="preserve" text-anchor="middle" x="1481.31" y="-38.04" font-family="Times,serif" font-size="14.00">@pagesmith/docs: docs link/asset transforms</text>
+<path fill="#dae8fc" stroke="#6c8ebf" d="M1608.67,-92.88C1608.67,-92.88 1353.95,-92.88 1353.95,-92.88 1347.95,-92.88 1341.95,-86.88 1341.95,-80.88 1341.95,-80.88 1341.95,-37.2 1341.95,-37.2 1341.95,-31.2 1347.95,-25.2 1353.95,-25.2 1353.95,-25.2 1608.67,-25.2 1608.67,-25.2 1614.67,-25.2 1620.67,-31.2 1620.67,-37.2 1620.67,-37.2 1620.67,-80.88 1620.67,-80.88 1620.67,-86.88 1614.67,-92.88 1608.67,-92.88"/>
+<text xml:space="preserve" text-anchor="middle" x="1481.31" y="-71.64" font-family="Times,serif" font-size="14.00" fill="#333333">Post&#45;processing</text>
+<text xml:space="preserve" text-anchor="middle" x="1481.31" y="-54.84" font-family="Times,serif" font-size="14.00" fill="#333333">@pagesmith/core: custom rehype plugins</text>
+<text xml:space="preserve" text-anchor="middle" x="1481.31" y="-38.04" font-family="Times,serif" font-size="14.00" fill="#333333">@pagesmith/docs: docs link/asset transforms</text>
 </g>
 <!-- rehype&#45;&gt;post -->
 <g id="edge6" class="edge">
 <title>rehype&#45;&gt;post</title>
-<path fill="none" stroke="black" d="M1284.45,-59.04C1298.9,-59.04 1314.37,-59.04 1330.04,-59.04"/>
-<polygon fill="black" stroke="black" points="1329.96,-62.54 1339.96,-59.04 1329.96,-55.54 1329.96,-62.54"/>
+<path fill="none" stroke="#7b7b7b" d="M1284.45,-59.04C1298.9,-59.04 1314.37,-59.04 1330.04,-59.04"/>
+<polygon fill="#7b7b7b" stroke="#7b7b7b" points="1329.96,-62.54 1339.96,-59.04 1329.96,-55.54 1329.96,-62.54"/>
 </g>
 <!-- output -->
 <g id="node8" class="node">
 <title>output</title>
-<path fill="none" stroke="black" d="M1767.64,-77.04C1767.64,-77.04 1690.67,-77.04 1690.67,-77.04 1684.67,-77.04 1678.67,-71.04 1678.67,-65.04 1678.67,-65.04 1678.67,-53.04 1678.67,-53.04 1678.67,-47.04 1684.67,-41.04 1690.67,-41.04 1690.67,-41.04 1767.64,-41.04 1767.64,-41.04 1773.64,-41.04 1779.64,-47.04 1779.64,-53.04 1779.64,-53.04 1779.64,-65.04 1779.64,-65.04 1779.64,-71.04 1773.64,-77.04 1767.64,-77.04"/>
-<text xml:space="preserve" text-anchor="middle" x="1729.15" y="-54.84" font-family="Times,serif" font-size="14.00">HTML string</text>
+<path fill="#dae8fc" stroke="#6c8ebf" d="M1767.64,-77.04C1767.64,-77.04 1690.67,-77.04 1690.67,-77.04 1684.67,-77.04 1678.67,-71.04 1678.67,-65.04 1678.67,-65.04 1678.67,-53.04 1678.67,-53.04 1678.67,-47.04 1684.67,-41.04 1690.67,-41.04 1690.67,-41.04 1767.64,-41.04 1767.64,-41.04 1773.64,-41.04 1779.64,-47.04 1779.64,-53.04 1779.64,-53.04 1779.64,-65.04 1779.64,-65.04 1779.64,-71.04 1773.64,-77.04 1767.64,-77.04"/>
+<text xml:space="preserve" text-anchor="middle" x="1729.15" y="-54.84" font-family="Times,serif" font-size="14.00" fill="#333333">HTML string</text>
 </g>
 <!-- post&#45;&gt;output -->
 <g id="edge7" class="edge">
 <title>post&#45;&gt;output</title>
-<path fill="none" stroke="black" d="M1621.04,-59.04C1637.19,-59.04 1652.98,-59.04 1667.25,-59.04"/>
-<polygon fill="black" stroke="black" points="1666.84,-62.54 1676.84,-59.04 1666.84,-55.54 1666.84,-62.54"/>
+<path fill="none" stroke="#7b7b7b" d="M1621.04,-59.04C1637.19,-59.04 1652.98,-59.04 1667.25,-59.04"/>
+<polygon fill="#7b7b7b" stroke="#7b7b7b" points="1666.84,-62.54 1676.84,-59.04 1666.84,-55.54 1666.84,-62.54"/>
 </g>
 </g>
 </svg>

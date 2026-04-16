@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "code-block-rendering-pipeline.dot": {
-      "hash": "sha256:b874c3ce8679878b",
-      "generatedAt": "2026-04-14T20:54:41.393Z",
+      "hash": "sha256:f4cbcd71b5cc540b",
+      "generatedAt": "2026-04-16T07:36:39.492Z",
       "outputs": [
         {
           "file": "code-block-rendering-pipeline-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776098905018.7869,
-      "size": 592
+      "mtimeMs": 1776318281119.6633,
+      "size": 759
     }
   }
 }

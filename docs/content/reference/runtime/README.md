@@ -213,7 +213,7 @@ The runtime JavaScript is strictly a progressive enhancement layer. All content 
 ## Design Tokens (CSS Custom Properties)
 
 > [!NOTE]
-> These design tokens are for `@pagesmith/site`'s shared CSS bundles. The default `@pagesmith/docs` theme composes these bundles and layers docs-specific layout/home/not-found styling on top. See the [Docs Theme reference](/reference/docs-theme/) for the preset's ownership split and override points.
+> These design tokens are for `@pagesmith/site`'s shared CSS bundles. The default `@pagesmith/docs` theme composes these bundles and layers docs-specific layout/home/not-found styling on top. See the [Docs Theme reference](/reference/docs-theme) for the preset's ownership split and override points.
 
 All visual properties in Pagesmith CSS are defined as CSS custom properties in `foundations/tokens.css` under `:root`. The tokens use the CSS `light-dark()` function for automatic dark mode support, with `color-scheme: light dark` on `:root`.
 

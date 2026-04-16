@@ -155,11 +155,14 @@ async function resolveDocsLayouts(
   return registry
 }
 
-function writeHtml(outDir: string, routePath: string, html: string): void {
+function writeHtml(outDir: string, routePath: string, html: string, trailingSlash: boolean): void {
+  const content = `<!DOCTYPE html>\n${html}`
   const outputPath =
-    routePath === '/' ? join(outDir, 'index.html') : join(outDir, routePath.slice(1), 'index.html')
+    routePath === '/' || trailingSlash
+      ? join(outDir, routePath === '/' ? '' : routePath.slice(1), 'index.html')
+      : join(outDir, `${routePath.slice(1)}.html`)
   mkdirSync(dirname(outputPath), { recursive: true })
-  writeFileSync(outputPath, `<!DOCTYPE html>\n${html}`)
+  writeFileSync(outputPath, content)
 }
 
 export async function renderDocs(
@@ -223,7 +226,7 @@ export async function renderDocs(
         listingGroups: listingData?.groups,
         listingTotal: listingData?.totalItems,
       })
-      writeHtml(config.outDir, page.routePath, String(output))
+      writeHtml(config.outDir, page.routePath, String(output), config.trailingSlash)
       return
     }
 
@@ -249,7 +252,7 @@ export async function renderDocs(
       listingGroups: listingData?.groups,
       listingTotal: listingData?.totalItems,
     })
-    writeHtml(config.outDir, page.routePath, String(output))
+    writeHtml(config.outDir, page.routePath, String(output), config.trailingSlash)
   }
 
   for (const page of pages) {
@@ -267,7 +270,7 @@ export async function renderDocs(
     site,
   })
   const notFoundHtml = `<!DOCTYPE html>\n${String(notFound)}`
-  writeHtml(config.outDir, '/404', String(notFound))
+  writeHtml(config.outDir, '/404', String(notFound), config.trailingSlash)
   // Also write 404.html at root for GitHub Pages
   writeFileSync(join(config.outDir, '404.html'), notFoundHtml)
 

@@ -1,10 +1,12 @@
+%% Diagram: Cache and rebuilds
+%% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 
 flowchart TB
-  classDef source fill:#eef7ee,stroke:#2f9e44,stroke-width:2px,color:#16331b
-  classDef cache fill:#e8f1ff,stroke:#4c6ef5,stroke-width:2px,color:#0b1f44
-  classDef build fill:#fff4e6,stroke:#f08c00,stroke-width:2px,color:#5f370e
-  classDef output fill:#f3f0ff,stroke:#7950f2,stroke-width:2px,color:#27104e
+  classDef source fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333333
+  classDef cache fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#333333
+  classDef build fill:#ffe6cc,stroke:#d6b656,stroke-width:2px,color:#333333
+  classDef output fill:#e1d5e7,stroke:#9673a6,stroke-width:2px,color:#333333
 
   subgraph Reuse["Reuse expensive work"]
     Config["Shared MarkdownConfig"]

@@ -105,9 +105,17 @@ Prefixes site-local absolute paths with `basePath` while leaving already-prefixe
 
 Removes `basePath` from a request URL and returns the site-local path.
 
+### `formatPath(path, trailingSlash?)`
+
+Formats an internal path based on the trailing-slash preference. When `trailingSlash` is `true`, appends `/`; when `false` (default), strips trailing `/`. External URLs, anchors, and paths with file extensions are returned as-is. This is the preferred utility for link output in components.
+
 ### `withTrailingSlash(path)`
 
-Normalizes route-style paths for link output (`/guide` -> `/guide/`, `/` stays `/`).
+Adds a trailing slash to route-style paths (`/guide` -> `/guide/`, `/` stays `/`). Prefer `formatPath()` for config-aware formatting.
+
+### `withoutTrailingSlash(path)`
+
+Removes a trailing slash from route-style paths (`/guide/` -> `/guide`, `/` stays `/`). Prefer `formatPath()` for config-aware formatting.
 
 ### `normalizePresetSpecifier(value)`
 
@@ -134,6 +142,71 @@ Default fallback:
 
 ```ts
 process.env.PAGESMITH_PRESET ?? '@pagesmith/site/preset'
+```
+
+## Content Helpers
+
+Shared utilities for building navigation structures from content entry lists. Imported from the main `@pagesmith/site` barrel.
+
+### `sortByManualOrder(entries, orderedSlugs, getSlug, fallbackCompare?)`
+
+Sort entries by manual order. Items matching `orderedSlugs` come first (in that order); remaining items are appended, sorted by the optional `fallbackCompare` (defaults to stable order).
+
+```ts
+import { sortByManualOrder } from '@pagesmith/site'
+
+const sorted = sortByManualOrder(
+  projects,
+  meta.items ?? [],
+  (p) => p.slug,
+  (a, b) => a.title.localeCompare(b.title),
+)
+```
+
+### `sortByDate(entries, getDate, fallbackCompare?)`
+
+Sort entries newest-first by a date accessor. Entries without dates sort last.
+
+```ts
+import { sortByDate } from '@pagesmith/site'
+
+const sorted = sortByDate(articles, (a) => a.publishedDate)
+```
+
+### `buildBreadcrumbs(basePath, crumbs)`
+
+Build a `SiteBreadcrumb[]` from a list of label/path pairs. Paths are prefixed with `basePath`.
+
+```ts
+import { buildBreadcrumbs } from '@pagesmith/site'
+
+const crumbs = buildBreadcrumbs(basePath, [
+  { label: 'Articles', path: '/articles' },
+  { label: article.title },
+])
+```
+
+### `buildSidebarFromEntries(title, entries, options?)`
+
+Build a `SiteSidebarSection[]` from an array of `{ title, path }` entries. Pass `options.overviewPath` to prepend an "Overview" link.
+
+```ts
+import { buildSidebarFromEntries } from '@pagesmith/site'
+
+const sidebar = buildSidebarFromEntries('Projects', projects.map((p) => ({ title: p.title, path: p.path })), {
+  overviewPath: withBasePath(basePath, '/projects'),
+})
+```
+
+### `buildPrevNext(entries, currentIndex, getTitle, getPath)`
+
+Build prev/next `SitePageLink` objects from an ordered entry list and the current entry's index.
+
+```ts
+import { buildPrevNext } from '@pagesmith/site'
+
+const index = articles.findIndex((a) => a.slug === currentSlug)
+const { prev, next } = buildPrevNext(articles, index, (a) => a.title, (a) => a.path)
 ```
 
 ## Preset Contract
@@ -220,6 +293,7 @@ type SsgPluginOptions = {
   pagefind?: boolean
   contentDirs?: string[]
   cssEntry?: string
+  trailingSlash?: boolean
 }
 ```
 
@@ -227,9 +301,11 @@ Responsibilities:
 
 - dev SSR middleware
 - production static rendering after the Vite build
-- preview serving from the built output on disk
+- preview serving from the built output on disk (supports both `path.html` and `path/index.html`)
 - content companion asset copying
 - Pagefind indexing after build unless `pagefind: false`
+
+The `trailingSlash` option controls the output file format: `false` (default) emits `path.html` for direct resolution on GitHub Pages without 301 redirects; `true` emits `path/index.html` for trailing-slash URLs.
 
 The SSR entry module must export:
 

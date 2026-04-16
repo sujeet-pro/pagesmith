@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "basepath-resolution-priority.mermaid": {
-      "hash": "sha256:02ecc749bac16be0",
-      "generatedAt": "2026-04-14T20:54:41.395Z",
+      "hash": "sha256:731e49e0ea883570",
+      "generatedAt": "2026-04-16T07:36:39.495Z",
       "outputs": [
         {
           "file": "basepath-resolution-priority-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776114736665.053,
-      "size": 258
+      "mtimeMs": 1776318305093.9956,
+      "size": 417
     }
   }
 }

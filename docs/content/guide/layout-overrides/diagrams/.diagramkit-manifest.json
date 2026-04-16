@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "layout-resolution.dot": {
-      "hash": "sha256:8790a41a60785213",
-      "generatedAt": "2026-04-14T20:54:41.394Z",
+      "hash": "sha256:f2cd817f8358d2d3",
+      "generatedAt": "2026-04-16T07:36:39.494Z",
       "outputs": [
         {
           "file": "layout-resolution-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 860,
-          "height": 549
+          "width": 766,
+          "height": 561
         },
         {
           "file": "layout-resolution-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 860,
-          "height": 549
+          "width": 766,
+          "height": 561
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776098964493.4194,
-      "size": 1795
+      "mtimeMs": 1776318298899.163,
+      "size": 1935
     }
   }
 }

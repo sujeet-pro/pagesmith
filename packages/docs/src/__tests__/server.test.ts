@@ -90,7 +90,7 @@ describe('server shared static routing', () => {
     })
   })
 
-  it('serves slashless clean URLs under the basePath and rejects unrelated roots', () => {
+  it('serves directory-based index.html for trailingSlash: true output', () => {
     const outDir = mkdtempSync(join(tmpdir(), 'ps-docs-static-'))
     tempDirs.push(outDir)
 
@@ -105,6 +105,43 @@ describe('server shared static routing', () => {
       statusCode: 200,
     })
     expect(resolveStaticRequest('/outside', '/pagesmith', outDir)).toEqual({ type: 'not-found' })
+  })
+
+  it('serves flat path.html for trailingSlash: false output', () => {
+    const outDir = mkdtempSync(join(tmpdir(), 'ps-docs-static-'))
+    tempDirs.push(outDir)
+
+    mkdirSync(join(outDir, 'guide'), { recursive: true })
+    writeFileSync(join(outDir, 'index.html'), '<h1>Home</h1>')
+    writeFileSync(join(outDir, 'guide', 'intro.html'), '<h1>Intro</h1>')
+    writeFileSync(join(outDir, '404.html'), '<h1>Not Found</h1>')
+
+    expect(resolveStaticRequest('/pagesmith/guide/intro', '/pagesmith', outDir)).toEqual({
+      type: 'file',
+      filePath: join(outDir, 'guide', 'intro.html'),
+      statusCode: 200,
+    })
+    expect(resolveStaticRequest('/pagesmith', '/pagesmith', outDir)).toEqual({
+      type: 'file',
+      filePath: join(outDir, 'index.html'),
+      statusCode: 200,
+    })
+  })
+
+  it('prefers path.html over path/index.html when both exist', () => {
+    const outDir = mkdtempSync(join(tmpdir(), 'ps-docs-static-'))
+    tempDirs.push(outDir)
+
+    mkdirSync(join(outDir, 'guide', 'intro'), { recursive: true })
+    writeFileSync(join(outDir, 'guide', 'intro.html'), '<h1>Flat</h1>')
+    writeFileSync(join(outDir, 'guide', 'intro', 'index.html'), '<h1>Dir</h1>')
+
+    // path.html takes priority (GitHub Pages behavior)
+    expect(resolveStaticRequest('/guide/intro', '', outDir)).toEqual({
+      type: 'file',
+      filePath: join(outDir, 'guide', 'intro.html'),
+      statusCode: 200,
+    })
   })
 
   it('rejects traversal attempts outside the output directory', () => {

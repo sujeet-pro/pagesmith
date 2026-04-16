@@ -1,6 +1,8 @@
+%% Diagram: Config surfaces core vs docs
+%% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 flowchart TD
-  CL["ContentLayerConfig in content.config.ts"]
-  PJ["pagesmith.config.json5"]
-  CL --> CC["Collections loaders schemas markdown assets plugins"]
-  PJ --> PD["Docs site theme navigation search basePath output"]
+  contentLayerConfig["ContentLayerConfig in content.config.ts"]
+  pagesmithConfig["pagesmith.config.json5"]
+  contentLayerConfig --> coreCapabilities["Collections loaders schemas markdown assets plugins"]
+  pagesmithConfig --> docsCapabilities["Docs site theme navigation search basePath output"]

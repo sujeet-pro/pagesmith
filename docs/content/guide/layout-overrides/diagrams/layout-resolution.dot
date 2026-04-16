@@ -1,4 +1,7 @@
+// Diagram: Layout resolution
+// Type: graphviz
 digraph LayoutResolution {
+  bgcolor="transparent"
   graph [
     rankdir=TB,
     splines=ortho,
@@ -12,42 +15,45 @@ digraph LayoutResolution {
     style="rounded,filled",
     fontname="Arial",
     fontsize=11,
-    color="#94A3B8",
-    fillcolor="#F8FAFC"
+    color="#6c8ebf",
+    fillcolor="#dae8fc",
+    fontcolor="#333333"
   ];
 
   edge [
     fontname="Arial",
     fontsize=10,
-    color="#64748B"
+    color="#7B7B7B",
+    fontcolor="#333333"
   ];
 
   route [label="Current route"];
   kind [
     label="Which page is being rendered?",
     shape=diamond,
-    color="#FB923C",
-    fillcolor="#FFF7ED"
+    color="#d6b656",
+    fillcolor="#ffe6cc"
   ];
   home [label="layout name = home"];
-  section [label="layout name = section meta.layout\\nor page"];
-  item [label="layout name = section meta.itemLayout\\nor page"];
+  section [label="layout name = section meta.layout\nor page"];
+  item [label="layout name = section meta.itemLayout\nor page"];
   missing [label="layout name = notFound"];
   resolve [
     label="How is that layout name resolved?",
     shape=diamond,
-    color="#60A5FA",
-    fillcolor="#EFF6FF"
+    color="#6c8ebf",
+    fillcolor="#dae8fc"
   ];
   custom [label="Use custom TSX component"];
-  builtin [label="Use built-in layout\\nhome, page, listing, or notFound"];
+  builtin [label="Use built-in layout\nhome, page, listing, or notFound"];
   error [
-    label="Build error\\nmissing layout registration",
-    color="#F87171",
-    fillcolor="#FEF2F2"
+    label="Build error\nmissing layout registration",
+    color="#C23B3A",
+    fillcolor="#E45756",
+    fontcolor="#ffffff"
   ];
-  render [label="Render with shared props\\ncontent, frontmatter, headings, slug, site"];
-  extra [label="Docs-page layouts also receive\\nsidebarSections, prev, and next"];
+  render [label="Render with shared props\ncontent, frontmatter, headings, slug, site"];
+  extra [label="Docs-page layouts also receive\nsidebarSections, prev, and next"];
 
   route -> kind;
   kind -> home [label="root content/README.md"];
@@ -61,7 +67,7 @@ digraph LayoutResolution {
   missing -> resolve;
 
   resolve -> custom [label="theme.layouts[name] exists"];
-  resolve -> builtin [label="no override, built-in name\\nincluding listing"];
+  resolve -> builtin [label="no override, built-in name\nincluding listing"];
   resolve -> error [label="no override, unknown custom name"];
 
   custom -> render;

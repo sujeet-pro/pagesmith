@@ -210,7 +210,7 @@ content/
     about.md
 ```
 
-Guide entries use frontmatter like `title`, `description`, `date`, `tags`, `series`, and `seriesOrder`. Because entries live beside their own assets, normal relative image paths work well here too. For the canonical local-image and JPEG `<picture>` rules, see [Markdown Features](/guide/markdown-features/).
+Guide entries use frontmatter like `title`, `description`, `date`, `tags`, `series`, and `seriesOrder`. Because entries live beside their own assets, normal relative image paths work well here too. For the canonical local-image and JPEG `<picture>` rules, see [Markdown Features](/guide/markdown-features).
 
 ## Running The Example
 
@@ -237,4 +237,4 @@ Choose this pattern when:
 - you want Pagesmith's content layer, JSX runtime, CSS/runtime bundles, and SSG helpers from one package
 - you do not want a framework runtime or the `@pagesmith/docs` preset
 
-If you want a convention-based docs app instead, move up to [`@pagesmith/docs`](/guide/framework-doc-site). If you only want the headless content layer and your framework already owns the whole shell, step down to [`@pagesmith/core`](/reference/api/) or a framework-hosted `@pagesmith/site` setup.
+If you want a convention-based docs app instead, move up to [`@pagesmith/docs`](/guide/framework-doc-site). If you only want the headless content layer and your framework already owns the whole shell, step down to [`@pagesmith/core`](/reference/api) or a framework-hosted `@pagesmith/site` setup.

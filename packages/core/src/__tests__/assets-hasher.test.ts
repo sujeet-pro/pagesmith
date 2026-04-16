@@ -13,7 +13,7 @@ describe('hashAssets', () => {
     }
   })
 
-  it('preserves nested content asset paths when hashing and avoids basename collisions', () => {
+  it('flattens content asset paths to /assets/name.hash.ext and avoids basename collisions', () => {
     rootDir = mkdtempSync(join(tmpdir(), 'ps-hash-assets-'))
     const contentDir = join(rootDir, 'content')
     const outDir = join(rootDir, 'dist')
@@ -48,21 +48,28 @@ describe('hashAssets', () => {
     hashAssets(outDir, contentDir)
 
     const html = readFileSync(join(outDir, 'index.html'), 'utf-8')
-    const alphaMatch = html.match(/\/docs\/assets\/(guide\/alpha\/diagram\.[a-f0-9]{8}\.svg)/)
-    const betaMatch = html.match(/\/docs\/assets\/(guide\/beta\/diagram\.[a-f0-9]{8}\.svg)/)
+
+    // Both assets should be flattened to /docs/assets/diagram.HASH.svg
+    const alphaMatch = html.match(/\/docs\/assets\/(diagram\.[a-f0-9]{8}\.svg).*?alt="alpha"/)
+    const betaMatch = html.match(/\/docs\/assets\/(diagram\.[a-f0-9]{8}\.svg).*?alt="beta"/)
 
     expect(alphaMatch).toBeTruthy()
     expect(betaMatch).toBeTruthy()
+
+    // Different content produces different hashes — no collision
     expect(alphaMatch?.[1]).not.toBe(betaMatch?.[1])
 
     const alphaAsset = alphaMatch![1]
     const betaAsset = betaMatch![1]
 
+    // Flat hashed files exist in assets root
     expect(existsSync(join(outDir, 'assets', alphaAsset))).toBe(true)
     expect(existsSync(join(outDir, 'assets', betaAsset))).toBe(true)
-    expect(existsSync(join(outDir, 'assets', 'guide', 'alpha', 'diagram.svg'))).toBe(false)
-    expect(existsSync(join(outDir, 'assets', 'guide', 'beta', 'diagram.svg'))).toBe(false)
-    expect(existsSync(join(outDir, 'assets', 'diagram.svg'))).toBe(false)
+
+    // Original nested files are cleaned up
+    expect(existsSync(join(outDir, 'assets', 'guide'))).toBe(false)
+
+    // Content is preserved
     expect(readFileSync(join(outDir, 'assets', alphaAsset), 'utf-8')).toContain('alpha')
     expect(readFileSync(join(outDir, 'assets', betaAsset), 'utf-8')).toContain('beta')
   })

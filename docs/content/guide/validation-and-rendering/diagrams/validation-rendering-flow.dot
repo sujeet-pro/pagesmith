@@ -1,7 +1,10 @@
+// Diagram: Validation and rendering flow
+// Type: graphviz
 digraph ValidationRenderingFlow {
+  bgcolor="transparent"
   graph [rankdir=TB, nodesep=0.45, ranksep=0.65, pad=0.2]
-  node [shape=box, style="rounded", margin="0.18,0.12"]
-  edge [fontsize=10]
+  node [shape=box, style="rounded,filled", fillcolor="#dae8fc", color="#6c8ebf", fontcolor="#333333", margin="0.18,0.12"]
+  edge [fontsize=10, color="#7B7B7B"]
 
   start [label="getCollection()\nload collection files"]
   schema [label="Phase 1\nschema validation\nZod safeParse + coercion"]

@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "blog-site-assembly.mermaid": {
-      "hash": "sha256:39499c725bda51bb",
-      "generatedAt": "2026-04-14T20:54:41.396Z",
+      "hash": "sha256:df99a48c4ebb406d",
+      "generatedAt": "2026-04-16T07:36:39.496Z",
       "outputs": [
         {
           "file": "blog-site-assembly-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776113113163.8545,
-      "size": 593
+      "mtimeMs": 1776318341596.8752,
+      "size": 643
     }
   }
 }

@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "command-lifecycle.mermaid": {
-      "hash": "sha256:b58b9d1e8526b91c",
-      "generatedAt": "2026-04-14T20:54:41.399Z",
+      "hash": "sha256:6baf9c22ae81e500",
+      "generatedAt": "2026-04-16T07:36:39.499Z",
       "outputs": [
         {
           "file": "command-lifecycle-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776113135570.7722,
-      "size": 608
+      "mtimeMs": 1776318349122.1387,
+      "size": 657
     }
   }
 }

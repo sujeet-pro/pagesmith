@@ -201,29 +201,6 @@ function wrapMarkdownFileError(
   })
 }
 
-function prefixBasePathLinks(html: string, basePath: string): string {
-  if (!basePath) return html
-
-  return html.replace(/<a\s[^>]*>/g, (tag) => {
-    const hrefMatch = tag.match(/href=(?:"([^"]*)"|'([^']*)')/)
-    if (!hrefMatch) return tag
-
-    const href = hrefMatch[1] ?? hrefMatch[2]
-    const quote = tag.includes('href="') ? '"' : "'"
-
-    if (
-      !href.startsWith('/') ||
-      href.startsWith('//') ||
-      href === basePath ||
-      href.startsWith(`${basePath}/`)
-    ) {
-      return tag
-    }
-
-    return tag.replace(`href=${quote}${href}${quote}`, `href=${quote}${basePath}${href}${quote}`)
-  })
-}
-
 /**
  * Run async tasks with bounded concurrency.
  * Prevents memory blowup when processing thousands of pages.
@@ -346,6 +323,7 @@ export async function loadDocsPages(
           basePath: config.basePath,
           contentDir: config.contentDir,
           filePath,
+          trailingSlash: config.trailingSlash,
         },
         () =>
           processMarkdown(raw, sharedMarkdownConfig, {
@@ -360,7 +338,7 @@ export async function loadDocsPages(
     } catch (error) {
       throw wrapMarkdownFileError(filePath, config.rootDir, 'Failed to render markdown', error)
     }
-    const html = prefixBasePathLinks(result.html, config.basePath)
+    const html = result.html
 
     const routePath = isHome ? '/' : `/${contentSlug}`
     const section = resolvePageSection(filePath, config.contentDir, isHome)

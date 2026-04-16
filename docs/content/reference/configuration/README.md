@@ -148,7 +148,7 @@ type ContentPlugin = {
 
 ## pagesmith.config.json5
 
-The `@pagesmith/docs` package is configured through a JSON5 file. See the [Docs Configuration Reference](/reference/docs-config/) for the full specification.
+The `@pagesmith/docs` package is configured through a JSON5 file. See the [Docs Configuration Reference](/reference/docs-config) for the full specification.
 
 Quick example:
 
@@ -159,6 +159,7 @@ Quick example:
   contentDir: "./content",
   outDir: "./dist",
   basePath: "/",
+  trailingSlash: false, // false → path.html output; true → path/index.html
   search: { enabled: true },
   markdown: {
     shiki: {

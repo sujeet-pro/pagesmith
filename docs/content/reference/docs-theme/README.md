@@ -160,7 +160,7 @@ That means:
 - the docs theme adds docs-home and not-found styling on top
 - docs overrides should usually start by layering more CSS on top of the shared bundles, not by forking the entire preset
 
-For token-level theming and runtime-owned preferences, see [Runtime](/reference/runtime/) and [Theming](/reference/theming/).
+For token-level theming and runtime-owned preferences, see [Runtime](/reference/runtime) and [Theming](/reference/theming).
 
 ## Runtime
 

@@ -170,7 +170,7 @@ For custom sites built on `@pagesmith/site`, add the import after your foundatio
 @import './themes/ocean.css';
 ```
 
-For `@pagesmith/docs` sites, you'll need a layout override that includes your custom CSS. See the [Layout Overrides](/guide/layout-overrides/) guide.
+For `@pagesmith/docs` sites, you'll need a layout override that includes your custom CSS. See the [Layout Overrides](/guide/layout-overrides) guide.
 
 ### Step 3: Apply the Theme Class
 

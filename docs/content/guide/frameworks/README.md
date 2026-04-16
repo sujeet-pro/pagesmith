@@ -104,7 +104,7 @@ The examples do not all share the same page chrome:
 - **Framework-hosted examples** such as Next.js can keep the outer shell fully native to the host app and reuse only the shared content CSS/runtime.
 - **Template and custom-site examples** can pick either approach depending on how much of the site shell they want Pagesmith to own.
 
-For full details, see the [Theming reference](/reference/theming/).
+For full details, see the [Theming reference](/reference/theming).
 
 ## CSS Imports
 

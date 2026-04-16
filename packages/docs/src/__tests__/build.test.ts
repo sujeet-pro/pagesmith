@@ -150,22 +150,19 @@ describe('build', () => {
     await build({ configPath: join(rootDir, 'pagesmith.config.json5'), basePath: '/docs' })
 
     const outDir = join(rootDir, 'gh-pages')
-    const pagePath = join(outDir, 'guide', 'intro', 'index.html')
+    const pagePath = join(outDir, 'guide', 'intro.html')
     let html = readFileSync(pagePath, 'utf-8')
     const lightAsset = expectCaptured(
       html,
-      /src="\/docs\/assets\/(guide\/diagram-light\.[a-f0-9]{8}\.svg)"/,
+      /src="\/docs\/assets\/(diagram-light\.[a-f0-9]{8}\.svg)"/,
     )
-    const darkAsset = expectCaptured(
-      html,
-      /src="\/docs\/assets\/(guide\/diagram-dark\.[a-f0-9]{8}\.svg)"/,
-    )
+    const darkAsset = expectCaptured(html, /src="\/docs\/assets\/(diagram-dark\.[a-f0-9]{8}\.svg)"/)
 
     expect(html).toContain('<figure>')
     expect(existsSync(join(outDir, 'assets', lightAsset))).toBe(true)
     expect(existsSync(join(outDir, 'assets', darkAsset))).toBe(true)
-    expect(existsSync(join(outDir, 'assets', 'guide', 'diagram-light.svg'))).toBe(false)
-    expect(existsSync(join(outDir, 'assets', 'guide', 'diagram-dark.svg'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'diagram-light.svg'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'diagram-dark.svg'))).toBe(false)
 
     writeFileSync(
       join(rootDir, 'content', 'guide', 'intro.md'),
@@ -222,21 +219,15 @@ describe('build', () => {
     await build({ configPath: join(rootDir, 'pagesmith.config.json5'), basePath: '/docs' })
 
     const outDir = join(rootDir, 'gh-pages')
-    const pagePath = join(outDir, 'guide', 'intro', 'index.html')
+    const pagePath = join(outDir, 'guide', 'intro.html')
     const html = readFileSync(pagePath, 'utf-8')
 
-    const avifAsset = expectCaptured(
-      html,
-      /srcset="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.avif)"/,
-    )
-    const webpAsset = expectCaptured(
-      html,
-      /srcset="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.webp)"/,
-    )
+    const avifAsset = expectCaptured(html, /srcset="\/docs\/assets\/(hero\.[a-f0-9]{8}\.avif)"/)
+    const webpAsset = expectCaptured(html, /srcset="\/docs\/assets\/(hero\.[a-f0-9]{8}\.webp)"/)
     // Fallback img src now uses webp variant
     const imgWebpAsset = expectCaptured(
       html,
-      /src="\/docs\/assets\/(guide\/hero\.[a-f0-9]{8}\.webp)" alt="Hero image"/,
+      /src="\/docs\/assets\/(hero\.[a-f0-9]{8}\.webp)" alt="Hero image"/,
     )
 
     expect(html).toContain('<picture>')
@@ -247,9 +238,9 @@ describe('build', () => {
     expect(existsSync(join(outDir, 'assets', webpAsset))).toBe(true)
     expect(existsSync(join(outDir, 'assets', imgWebpAsset))).toBe(true)
     // Original JPEG should not be in output (unhashed or hashed)
-    expect(existsSync(join(outDir, 'assets', 'guide', 'hero.jpg'))).toBe(false)
-    expect(existsSync(join(outDir, 'assets', 'guide', 'hero.avif'))).toBe(false)
-    expect(existsSync(join(outDir, 'assets', 'guide', 'hero.webp'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'hero.jpg'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'hero.avif'))).toBe(false)
+    expect(existsSync(join(outDir, 'assets', 'hero.webp'))).toBe(false)
   })
 
   it('builds in zero-config mode when a docs directory exists', async () => {
@@ -293,7 +284,7 @@ describe('build', () => {
     const outDir = join(rootDir, 'gh-pages')
     const sitemap = readFileSync(join(outDir, 'sitemap.xml'), 'utf-8')
 
-    expect(existsSync(join(outDir, 'guide', 'getting-started', 'index.html'))).toBe(true)
+    expect(existsSync(join(outDir, 'guide', 'getting-started.html'))).toBe(true)
     expect(sitemap).toContain('<loc>https://example.dev/docs</loc>')
     expect(sitemap).toContain('<loc>https://example.dev/docs/guide/getting-started</loc>')
     expect(sitemap).not.toContain('<loc>https://example.dev/docs/</loc>')

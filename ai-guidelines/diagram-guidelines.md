@@ -9,7 +9,7 @@ Use this file when writing or updating docs under `docs/content/`, package `READ
 - Repo docs authoring rules: `ai-guidelines/docs-guidelines.md`
 - Repo markdown parity rules: `ai-guidelines/markdown-guidelines.md`
 - Published docs-package guidance: `packages/docs/ai-guidelines/docs-guidelines.md`, `packages/docs/ai-guidelines/markdown-guidelines.md`
-- Diagram toolchain: `diagramkit.config.json5`, `package.json` scripts, `node_modules/diagramkit/README.md`
+- Diagram toolchain: `diagramkit.config.json5`, `package.json` scripts, `node_modules/diagramkit/ai-guidelines/usage.md`, `node_modules/diagramkit/ai-guidelines/diagram-authoring.md`
 - External skill references that informed this file:
   - `~/personal/agents-devkit/skills/diagram-mermaid/SKILL.md`
   - `~/personal/agents-devkit/skills/diagram-excalidraw/SKILL.md`

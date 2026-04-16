@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "doc-site-assembly.mermaid": {
-      "hash": "sha256:1e729bbf16d01897",
-      "generatedAt": "2026-04-14T20:54:41.396Z",
+      "hash": "sha256:06da137c8db8834c",
+      "generatedAt": "2026-04-16T07:36:39.496Z",
       "outputs": [
         {
           "file": "doc-site-assembly-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776113124886.1934,
-      "size": 403
+      "mtimeMs": 1776318346310.34,
+      "size": 452
     }
   }
 }

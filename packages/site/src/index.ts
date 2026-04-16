@@ -106,4 +106,12 @@ export type {
 export type { SitePageMeta } from './components/document.js'
 export type { SiteBuildOptions, SiteDevOptions, SiteLogLevel, SitePreset } from './preset.js'
 
+export {
+  sortByManualOrder,
+  sortByDate,
+  buildBreadcrumbs,
+  buildSidebarFromEntries,
+  buildPrevNext,
+} from './content-helpers.js'
+
 export const SITE_PACKAGE_NAME = '@pagesmith/site'

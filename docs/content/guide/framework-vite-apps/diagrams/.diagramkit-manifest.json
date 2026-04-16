@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "vite-framework-shared-flow.mermaid": {
-      "hash": "sha256:40669e01b4cda272",
-      "generatedAt": "2026-04-14T20:54:41.397Z",
+      "hash": "sha256:145c667d3113e3e9",
+      "generatedAt": "2026-04-16T07:36:39.497Z",
       "outputs": [
         {
           "file": "vite-framework-shared-flow-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776113111550.5085,
-      "size": 419
+      "mtimeMs": 1776318340191.845,
+      "size": 477
     }
   }
 }

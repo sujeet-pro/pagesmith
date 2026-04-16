@@ -179,8 +179,14 @@ export function resolveStaticRequest(
   }
 
   let filePath = resolvedPath
-  if (existsSync(filePath) && !extname(filePath)) {
-    filePath = join(filePath, 'index.html')
+
+  // GitHub Pages-compatible resolution: for paths without a file extension,
+  // try path.html first (trailingSlash: false), then path/index.html (trailingSlash: true).
+  if (!existsSync(filePath) || !extname(filePath)) {
+    const flatHtml = `${resolvedPath}.html`
+    const dirIndex = join(resolvedPath, 'index.html')
+    if (existsSync(flatHtml)) filePath = flatHtml
+    else if (existsSync(dirIndex)) filePath = dirIndex
   }
 
   if (!existsSync(filePath)) {

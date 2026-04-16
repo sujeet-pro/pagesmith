@@ -48,7 +48,8 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
     basePath: options.basePath,
   })
   const requestedPort = options.port ?? config.server.devPort
-  const port = await findAvailablePort(requestedPort, config.server.strictPort, 'dev', logger)
+  const strictPort = options.port !== undefined
+  const port = await findAvailablePort(requestedPort, strictPort, 'dev', logger)
   const themeRoot = getThemeRoot()
   const watchTargets = [config.contentDir, configPath, themeRoot]
   if (existsSync(config.publicDir)) {
@@ -245,7 +246,8 @@ export async function preview(options: DocsDevOptions = {}): Promise<void> {
   }
 
   const requestedPort = options.port ?? config.server.previewPort
-  const port = await findAvailablePort(requestedPort, config.server.strictPort, 'preview', logger)
+  const strictPort = options.port !== undefined
+  const port = await findAvailablePort(requestedPort, strictPort, 'preview', logger)
   const previewBase = config.basePath.replace(/\/+$/, '')
 
   function logRequest(status: number, method: string, pathname: string): void {

@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "nextjs-pagesmith-boundary.mermaid": {
-      "hash": "sha256:221af9139fcfbfda",
-      "generatedAt": "2026-04-14T20:54:41.396Z",
+      "hash": "sha256:3bf3dae31ef586a4",
+      "generatedAt": "2026-04-16T07:36:39.496Z",
       "outputs": [
         {
           "file": "nextjs-pagesmith-boundary-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776185174084.7632,
-      "size": 740
+      "mtimeMs": 1776318363609.3972,
+      "size": 798
     }
   }
 }

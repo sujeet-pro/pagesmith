@@ -205,8 +205,9 @@ Rendered HTML:
 
 Stock `@pagesmith/docs` adds a docs-specific rewrite pass after heading extraction:
 
-- Relative markdown links between pages are rewritten to site-relative routes under `basePath`.
-- Relative image refs in markdown or raw HTML keep the intrinsic dimensions from the shared local-image pass, then publish under `/assets/<content-relative-path>`, so sibling assets keep their folder structure instead of flattening to basenames.
+- Relative markdown links between pages (e.g., `../getting-started`, `./sub-page`) are resolved to root-relative routes under `basePath` and formatted according to the `trailingSlash` config (default: slashless).
+- Absolute internal links are also normalized to match the `trailingSlash` setting and prefixed with `basePath`.
+- Relative image refs in markdown or raw HTML keep the intrinsic dimensions from the shared local-image pass, then publish under flat content-hashed `/assets/name.hash.ext` paths.
 - Relative HTML asset refs for `<img>`, `<source srcset>`, and `<a href="./image.svg">` follow the same published asset path rules.
 - Markdown images ending in `.inline.svg` inline the SVG into the HTML only when the file stays inside the current page directory subtree. Otherwise they fall back to a normal published asset URL.
 - The `.invert.` filename convention and light/dark pair handling are core features (see the Local Images section above); the docs asset pass only handles URL rewriting to published paths.
@@ -354,7 +355,7 @@ For a single rendered asset, standard markdown image syntax is enough:
 ![Request flow from CLI to API to storage](./diagrams/request-flow.svg)
 ```
 
-Rendered assets keep their content-relative paths under `/assets/`, so `guide/setup/diagrams/request-flow.svg` and `reference/setup/diagrams/request-flow.svg` do not collide in the final build.
+Rendered assets are published under flat content-hashed paths (`/assets/name.hash.ext`). Different content produces different hashes, so `guide/setup/diagrams/request-flow.svg` and `reference/setup/diagrams/request-flow.svg` do not collide even though both are published as flat files.
 
 The pipeline automatically wraps markdown images in `<figure class="ps-figure">` with `<picture>` for raster images. Use the markdown title attribute for visible captions. Use `alt` for a detailed description of what the image renders (for accessibility and fallback).
 

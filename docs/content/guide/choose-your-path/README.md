@@ -6,7 +6,7 @@ order: 1
 
 # Choose Your Path
 
-Need ready-to-run prompt templates for setup and maintenance? See the [Prompts Cookbook](/guide/prompts-cookbook/).
+Need ready-to-run prompt templates for setup and maintenance? See the [Prompts Cookbook](/guide/prompts-cookbook).
 
 Use this diagram as the fast filter: docs-first projects go to `@pagesmith/docs`, host-owned apps start with `@pagesmith/core`, and `@pagesmith/site` is the app-facing package when a project wants the content layer plus shared JSX, CSS/runtime, and Vite SSG helpers from one place.
 
@@ -58,7 +58,7 @@ Best for:
 - custom SSR apps
 - projects that want typed content data without a Pagesmith-owned site shell
 
-Manual guide: [Getting Started](/guide/getting-started/)
+Manual guide: [Getting Started](/guide/getting-started)
 
 ### `@pagesmith/site` — Site Toolkit
 
@@ -94,7 +94,7 @@ Best for:
 - API references
 - knowledge bases
 
-Manual guide: [Docs Getting Started](/guide/docs-getting-started/)
+Manual guide: [Docs Getting Started](/guide/docs-getting-started)
 
 ## Decision Matrix
 
@@ -113,8 +113,8 @@ Start with `@pagesmith/docs` when the project is truly docs-first. Start with `@
 
 ## What To Read Next
 
-- [AI Assistants](/guide/ai-assistants/) for package-owned AI setup flows
-- [Prompts Cookbook](/guide/prompts-cookbook/) for copy-paste prompts
-- [Getting Started](/guide/getting-started/) for core-first integrations
-- [Docs Getting Started](/guide/docs-getting-started/) for docs-first integrations
-- [Next.js (App Router)](/guide/framework-nextjs/) for a framework-hosted core example
+- [AI Assistants](/guide/ai-assistants) for package-owned AI setup flows
+- [Prompts Cookbook](/guide/prompts-cookbook) for copy-paste prompts
+- [Getting Started](/guide/getting-started) for core-first integrations
+- [Docs Getting Started](/guide/docs-getting-started) for docs-first integrations
+- [Next.js (App Router)](/guide/framework-nextjs) for a framework-hosted core example

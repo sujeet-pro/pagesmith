@@ -549,7 +549,7 @@ await prerenderRoutes({
 
 ## `@pagesmith/site/runtime`
 
-CSS and JS asset accessors for pre-built runtime bundles. See the [Runtime Reference](/reference/runtime/) for full details.
+CSS and JS asset accessors for pre-built runtime bundles. See the [Runtime Reference](/reference/runtime) for full details.
 
 | Function | Returns |
 |---|---|

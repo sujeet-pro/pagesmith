@@ -337,6 +337,8 @@ export type SsgBuildContext = {
   contentDirs: string[]
   /** Path to the SSR entry module */
   entry: string
+  /** Output file format: false → path.html, true → path/index.html */
+  trailingSlash: boolean
 }
 
 /**
@@ -345,7 +347,7 @@ export type SsgBuildContext = {
  * Returns the number of pages rendered.
  */
 export async function renderStaticSite(context: SsgBuildContext): Promise<number> {
-  const { config, projectRoot, base, outDir, contentDirs, entry } = context
+  const { config, projectRoot, base, outDir, contentDirs, entry, trailingSlash } = context
 
   console.log('\nSSG: Starting static site generation...')
 
@@ -401,12 +403,16 @@ export async function renderStaticSite(context: SsgBuildContext): Promise<number
         contentAssets,
         routePath,
       )
-      const outputPath = join(outDir, routePath, 'index.html')
+      const content = `<!DOCTYPE html>\n${html}`
+      const outputPath =
+        route === '/' || trailingSlash
+          ? join(outDir, routePath, 'index.html')
+          : join(outDir, `${routePath}.html`)
       mkdirSync(dirname(outputPath), { recursive: true })
-      writeFileSync(outputPath, `<!DOCTYPE html>\n${html}`)
+      writeFileSync(outputPath, content)
 
       if (route === '/404') {
-        writeFileSync(join(outDir, '404.html'), `<!DOCTYPE html>\n${html}`)
+        writeFileSync(join(outDir, '404.html'), content)
       }
     }
   }

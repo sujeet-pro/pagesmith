@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "template-ssg-pipeline.mermaid": {
-      "hash": "sha256:7f92bbd76f3b7985",
-      "generatedAt": "2026-04-14T20:54:41.397Z",
+      "hash": "sha256:463ee984209ad4cd",
+      "generatedAt": "2026-04-16T07:36:39.497Z",
       "outputs": [
         {
           "file": "template-ssg-pipeline-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776114731848.0176,
-      "size": 517
+      "mtimeMs": 1776318360411.2305,
+      "size": 570
     }
   }
 }

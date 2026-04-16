@@ -194,7 +194,7 @@ Notice that most visual changes flow through CSS custom properties: color-scheme
 ![CSS customization layers showing base tokens and root overrides feeding resolved custom properties, which drive the shipped Pagesmith CSS bundles and final UI, while theme-color config only affects browser chrome](./diagrams/theme-customization-layers-light.svg "CSS customization layers showing base tokens and root overrides feeding resolved custom properties, which drive the shipped Pagesmith CSS bundles and final UI, while theme-color config only affects browser chrome")
 ![CSS customization layers showing base tokens and root overrides feeding resolved custom properties, which drive the shipped Pagesmith CSS bundles and final UI, while theme-color config only affects browser chrome](./diagrams/theme-customization-layers-dark.svg)
 
-The `@pagesmith/docs` theme includes built-in UI for switching both axes (header dropdown + footer selector), with preferences persisted to `localStorage`. See the [Theming](/reference/theming/) reference for the full system, built-in themes, and how to create custom theme variants.
+The `@pagesmith/docs` theme includes built-in UI for switching both axes (header dropdown + footer selector), with preferences persisted to `localStorage`. See the [Theming](/reference/theming) reference for the full system, built-in themes, and how to create custom theme variants.
 
 ### How light-dark() Works
 

@@ -187,6 +187,6 @@ npx pagesmith-docs preview
 
 ## Related References
 
-- [Docs Getting Started](/guide/docs-getting-started/)
-- [AI Assistants](/guide/ai-assistants/)
-- [Prompts Cookbook](/guide/prompts-cookbook/)
+- [Docs Getting Started](/guide/docs-getting-started)
+- [AI Assistants](/guide/ai-assistants)
+- [Prompts Cookbook](/guide/prompts-cookbook)

@@ -11,26 +11,29 @@ description: Deploy your Pagesmith site to various hosting platforms
 
 Running `pagesmith-docs build` produces a self-contained directory (default: `gh-pages/`) with the following structure:
 
-```text title="Build output"
+```text title="Build output (trailingSlash: false — default)"
 gh-pages/
   index.html              # Home page
   404.html                # GitHub Pages-compatible 404
-  404/index.html          # Directory-based 404 fallback
   .nojekyll               # Prevents GitHub Pages from ignoring _-prefixed dirs
   sitemap.xml             # Auto-generated sitemap (when origin is set)
   robots.txt              # Auto-generated if not in publicDir
   assets/
-    style.css             # Bundled theme CSS
-    main.js               # Bundled runtime JS
+    style.a1b2c3d4.css    # Bundled theme CSS (content-hashed)
+    main.e5f6g7h8.js      # Bundled runtime JS (content-hashed)
+    diagram.i9j0k1l2.svg  # Content images (flat, content-hashed)
     fonts/                # Bundled Open Sans + JetBrains Mono (woff2)
   pagefind/               # Search index (when search is enabled)
   guide/
-    getting-started/
-      index.html          # /guide/getting-started/
+    getting-started.html  # /guide/getting-started
     ...
 ```
 
-Every page is written as `<slug>/index.html`, so clean URLs work without server-side rewrites. The `.nojekyll` file is always generated to prevent GitHub Pages from ignoring the `_`-prefixed `pagefind/` directory.
+By default (`trailingSlash: false`), every page is written as `<slug>.html`, so requesting `/guide/getting-started` resolves directly on GitHub Pages without a 301 redirect. Set `trailingSlash: true` in `pagesmith.config.json5` to use `<slug>/index.html` instead.
+
+Content images are published as flat `name.hash.ext` files under `/assets/` rather than preserving the content directory structure. The content hash in the filename enables long-lived browser caching.
+
+The `.nojekyll` file is always generated to prevent GitHub Pages from ignoring the `_`-prefixed `pagefind/` directory.
 
 ## basePath Configuration
 
@@ -188,12 +191,11 @@ Create `vercel.json` in your project root:
 {
   "buildCommand": "npx pagesmith-docs build --out-dir dist",
   "outputDirectory": "dist",
-  "cleanUrls": true,
-  "trailingSlash": true
+  "cleanUrls": true
 }
 ```
 
-The `cleanUrls` and `trailingSlash` settings match the Pagesmith URL convention where each page lives at `<slug>/index.html`.
+The `cleanUrls` setting tells Vercel to serve `path.html` files for clean `/path` URLs. No `trailingSlash` setting is needed because Pagesmith's default output format (`path.html`) already matches Vercel's `cleanUrls` behavior. If you set `trailingSlash: true` in your `pagesmith.config.json5`, also add `"trailingSlash": true` to `vercel.json`.
 
 ### Framework Preset
 

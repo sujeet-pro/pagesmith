@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "collection-pipeline.dot": {
-      "hash": "sha256:b670cf8c3830ce8b",
-      "generatedAt": "2026-04-14T20:54:41.394Z",
+      "hash": "sha256:b5922bf9c0763940",
+      "generatedAt": "2026-04-16T07:36:39.493Z",
       "outputs": [
         {
           "file": "collection-pipeline-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776098870410.0083,
-      "size": 1025
+      "mtimeMs": 1776318278761.1982,
+      "size": 1182
     }
   }
 }

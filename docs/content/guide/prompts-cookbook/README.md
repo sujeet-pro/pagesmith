@@ -8,7 +8,7 @@ order: 3
 
 Ready-to-use prompts for AI assistants. Paste these directly into your agent. Each prompt points to the installed package docs so the agent can use version-matched guidance.
 
-If you are still deciding which package to adopt, start with [Choose Your Path](/guide/choose-your-path/).
+If you are still deciding which package to adopt, start with [Choose Your Path](/guide/choose-your-path).
 
 ## Project Setup
 
@@ -101,6 +101,6 @@ Configure the Pagesmith docs MCP server for this project. Use `pagesmith-docs mc
 
 ## Related Pages
 
-- [Choose Your Path](/guide/choose-your-path/)
-- [AI Assistants](/guide/ai-assistants/)
-- [Docs CLI Reference](/reference/docs-cli/)
+- [Choose Your Path](/guide/choose-your-path)
+- [AI Assistants](/guide/ai-assistants)
+- [Docs CLI Reference](/reference/docs-cli)

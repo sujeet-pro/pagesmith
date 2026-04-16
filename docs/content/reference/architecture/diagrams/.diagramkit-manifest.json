@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "package-layering.mermaid": {
-      "hash": "sha256:a32170df474aaf8c",
-      "generatedAt": "2026-04-14T20:54:41.398Z",
+      "hash": "sha256:869269cbeb5b2495",
+      "generatedAt": "2026-04-16T07:36:39.498Z",
       "outputs": [
         {
           "file": "package-layering-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776113139110.2537,
-      "size": 956
+      "mtimeMs": 1776318333866.2498,
+      "size": 1004
     }
   }
 }

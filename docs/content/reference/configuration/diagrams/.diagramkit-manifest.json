@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "config-surfaces-core-vs-docs.mermaid": {
-      "hash": "sha256:4085277f82279ef4",
-      "generatedAt": "2026-04-14T20:54:41.398Z",
+      "hash": "sha256:f5b5e28521b4a54f",
+      "generatedAt": "2026-04-16T07:36:39.499Z",
       "outputs": [
         {
           "file": "config-surfaces-core-vs-docs-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776114726259.2493,
-      "size": 258
+      "mtimeMs": 1776318393867.6594,
+      "size": 404
     }
   }
 }

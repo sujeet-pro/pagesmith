@@ -61,11 +61,11 @@ describe('renderDocs', () => {
     expect(model.pageByPath.has('/')).toBe(true)
     expect(model.pageByPath.has('/guide/intro')).toBe(true)
     expect(existsSync(join(config.outDir, 'index.html'))).toBe(true)
-    expect(existsSync(join(config.outDir, 'guide', 'intro', 'index.html'))).toBe(true)
+    expect(existsSync(join(config.outDir, 'guide', 'intro.html'))).toBe(true)
     expect(existsSync(join(config.outDir, '404.html'))).toBe(true)
 
     const homeHtml = readFileSync(join(config.outDir, 'index.html'), 'utf-8')
-    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro', 'index.html'), 'utf-8')
+    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro.html'), 'utf-8')
     const notFoundHtml = readFileSync(join(config.outDir, '404.html'), 'utf-8')
     expect(homeHtml).toContain('Skip to main content')
     expect(homeHtml).toContain('href="#doc-main-content"')
@@ -110,7 +110,7 @@ describe('renderDocs', () => {
 
     await renderDocs(config)
 
-    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro', 'index.html'), 'utf-8')
+    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro.html'), 'utf-8')
     expect(introHtml).toContain('doc-footer-links-flat')
     expect(introHtml).toContain('style="--doc-footer-columns:3;--doc-footer-columns-compact:2"')
   })
@@ -153,7 +153,7 @@ describe('renderDocs', () => {
       process.chdir(previousCwd)
     }
 
-    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro', 'index.html'), 'utf-8')
+    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro.html'), 'utf-8')
     const pageMetaMatches = introHtml.match(/class="doc-page-meta"/g) ?? []
     const metaIndex = introHtml.indexOf('class="doc-page-meta"')
     const editIndex = introHtml.indexOf('class="doc-edit-link"')
@@ -213,7 +213,7 @@ describe('renderDocs', () => {
 
     await renderDocs(config)
 
-    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro', 'index.html'), 'utf-8')
+    const introHtml = readFileSync(join(config.outDir, 'guide', 'intro.html'), 'utf-8')
     expect(introHtml).toContain('pagesmith-footer-year-end')
     expect(introHtml).toContain('data-auto-update="true"')
     expect(introHtml).toContain('Render Test')
@@ -279,7 +279,7 @@ Pick a topic below.`,
 
     await renderDocs(config)
 
-    const listingHtml = readFileSync(join(config.outDir, 'guide', 'index.html'), 'utf-8')
+    const listingHtml = readFileSync(join(config.outDir, 'guide.html'), 'utf-8')
     expect(listingHtml).toContain('doc-listing-grid')
     expect(listingHtml).toContain('doc-listing-intro')
     expect(listingHtml).toContain('doc-listing-stats')
@@ -368,7 +368,7 @@ Pick a topic below.`,
 
     await renderDocs(config)
 
-    const listingHtml = readFileSync(join(config.outDir, 'guide', 'index.html'), 'utf-8')
+    const listingHtml = readFileSync(join(config.outDir, 'guide.html'), 'utf-8')
     expect(listingHtml).toContain('data-custom-listing=""')
     expect(listingHtml).toContain('1 cards')
   })
@@ -407,7 +407,7 @@ Body.`,
 
     await renderDocs(config)
 
-    const pageHtml = readFileSync(join(config.outDir, 'guide', 'intro', 'index.html'), 'utf-8')
+    const pageHtml = readFileSync(join(config.outDir, 'guide', 'intro.html'), 'utf-8')
     expect(pageHtml).not.toContain('class="doc-header"')
     expect(pageHtml).not.toContain('class="doc-sidebar"')
     expect(pageHtml).not.toContain('class="doc-aside"')

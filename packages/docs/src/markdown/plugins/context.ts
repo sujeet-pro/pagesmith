@@ -4,6 +4,7 @@ export type PagesmithDocsTransformContext = {
   basePath: string
   contentDir: string
   filePath: string
+  trailingSlash: boolean
 }
 
 const contextStorage = new AsyncLocalStorage<PagesmithDocsTransformContext>()

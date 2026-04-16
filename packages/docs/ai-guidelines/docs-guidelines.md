@@ -54,7 +54,7 @@ Use this file when writing or reorganizing docs content. For bootstrap or retrof
 - Use `DocHome` when the home page needs a polished landing experience with hero content, feature cards, package cards, and a code sample.
 - Use `meta.json5` `series` when a section needs guided reading order. Pages not referenced by a series still stay visible under the automatic `Miscellaneous` group.
 - Use `assets` or `publicDir` when docs need stable URLs for schemas, prompts, OpenAPI files, downloads, or other machine-readable artifacts.
-- Use page-local markdown companion assets for page-owned images and diagrams; stock docs publishes them under preserved content-relative `/assets/` paths.
+- Use page-local markdown companion assets for page-owned images and diagrams; stock docs publishes them under flat content-hashed `/assets/name.hash.ext` paths.
 - Use `.only-light` and `.only-dark` on images when a diagram or screenshot needs theme-specific rendered variants.
 - Use `theme.layouts.home`, `theme.layouts.page`, `theme.layouts.listing`, and `theme.layouts.notFound` only when the default docs experience is insufficient. When overriding, prefer composing `@pagesmith/docs/components` and `@pagesmith/docs/layouts` before copying docs-theme internals.
 - Keep `data-pagefind-body` on the content-only wrapper in custom layouts so search indexes the page body instead of the whole shell.
@@ -70,6 +70,7 @@ Use this file when writing or reorganizing docs content. For bootstrap or retrof
 6. Decide whether a diagram would clarify a flow, architecture, lifecycle, dependency graph, or system boundary better than prose alone.
 7. If a diagram helps, keep the editable source and rendered assets with the page, then embed the rendered asset in the document.
 8. Verify internal links, heading order, and final navigation placement in preview or build output.
+9. Use relative links between content pages (e.g., `../getting-started`, `./sub-page`). The docs link transform resolves them to root-relative URLs under `basePath` and formats them according to the `trailingSlash` config (default: `false` — slashless URLs).
 
 ## Diagram Guidance
 

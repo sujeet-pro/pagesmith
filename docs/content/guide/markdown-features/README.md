@@ -119,15 +119,17 @@ Stock `@pagesmith/docs` keeps `pagesmith.config.json5` JSON-safe and does not ex
 
 Stock `@pagesmith/docs` adds a docs-site pass after heading extraction:
 
-- Relative markdown links between pages are rewritten under `basePath`.
-- Relative images and diagrams keep the intrinsic dimensions from the shared local-image pass, then publish under `/assets/<content-relative-path>` instead of flattening to basenames.
+- **Relative link resolution** — relative links between content pages (e.g., `../getting-started`, `./sub-page`, or `../reference/architecture/README.md`) are resolved to root-relative URLs under `basePath`. The `trailingSlash` config controls whether the output uses `/guide/getting-started` or `/guide/getting-started/`.
+- **Absolute link formatting** — absolute internal links like `/guide/getting-started/` are normalized to match the `trailingSlash` setting and prefixed with `basePath`.
+- **Asset path publishing** — relative images and diagrams keep the intrinsic dimensions from the shared local-image pass, then publish under flat content-hashed paths (`/assets/name.hash.ext`).
 - `*.inline.svg` images inline only when they stay inside the current page directory subtree.
 - The `.invert.` filename convention and light/dark pair handling are core features (see the [Markdown Reference](/reference/markdown-reference)); the docs asset pass only handles URL rewriting to published paths.
 
 Example:
 
 ```markdown
-[Architecture](../reference/architecture/README.md)
+[Architecture](../reference/architecture)
+[Getting Started](../getting-started)
 ![Flow](./diagrams/request-flow.svg)
 ![Inline logo](./diagrams/logo.inline.svg)
 ```

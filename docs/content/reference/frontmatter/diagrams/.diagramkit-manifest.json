@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "frontmatter-schema-families.mermaid": {
-      "hash": "sha256:f588e364189118c6",
-      "generatedAt": "2026-04-14T20:54:41.399Z",
+      "hash": "sha256:974af2af950bb73a",
+      "generatedAt": "2026-04-16T07:36:39.500Z",
       "outputs": [
         {
           "file": "frontmatter-schema-families-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776114738151.697,
-      "size": 303
+      "mtimeMs": 1776318315018.1973,
+      "size": 432
     }
   }
 }

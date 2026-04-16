@@ -115,9 +115,7 @@ function toLogicalAssetFileName(assetPath: string): string {
 
 function toHashedAssetFileName(assetPath: string, hash: string): string {
   const ext = extname(assetPath)
-  const hashedName = `${stripHashSuffix(basename(assetPath, ext))}.${hash}${ext}`
-  const assetDir = dirname(assetPath)
-  return assetDir === '.' ? hashedName : normalizePath(join(assetDir, hashedName))
+  return `${stripHashSuffix(basename(assetPath, ext))}.${hash}${ext}`
 }
 
 function isExternalRef(ref: string): boolean {
@@ -184,6 +182,18 @@ function listAssetFiles(dir: string, prefix = ''): string[] {
   return files
 }
 
+/** Remove empty directories left behind after flattening asset files. */
+function removeEmptyDirs(dir: string): void {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+    const full = join(dir, entry.name)
+    removeEmptyDirs(full)
+    if (readdirSync(full).length === 0) {
+      rmSync(full, { recursive: true, force: true })
+    }
+  }
+}
+
 function rewriteSrcsetValue(srcset: string, rewriteRef: (ref: string) => string): string {
   return srcset
     .split(',')
@@ -229,9 +239,6 @@ export function hashAssets(outDir: string, contentDir: string): void {
     const hash = computeHash(content)
     const hashedFileName = toHashedAssetFileName(file.logicalFileName, hash)
     const hashedPath = join(assetsDir, hashedFileName)
-    const logicalPath = join(assetsDir, file.logicalFileName)
-
-    mkdirSync(dirname(hashedPath), { recursive: true })
 
     if (file.full !== hashedPath) {
       if (existsSync(hashedPath)) {
@@ -243,6 +250,9 @@ export function hashAssets(outDir: string, contentDir: string): void {
 
     renames.set(file.logicalFileName, hashedFileName)
   }
+
+  // Clean up empty subdirectories left after flattening
+  removeEmptyDirs(assetsDir)
 
   // Phase 2: Scan HTML — resolve content assets on demand, rewrite all references
   function rewriteAssetReference(ref: string): string {
@@ -275,8 +285,6 @@ export function hashAssets(outDir: string, contentDir: string): void {
     const hash = computeHash(content)
     const hashedName = toHashedAssetFileName(assetPath, hash)
     const hashedDest = join(assetsDir, hashedName)
-
-    mkdirSync(dirname(hashedDest), { recursive: true })
 
     if (!existsSync(hashedDest)) {
       writeFileSync(hashedDest, content)

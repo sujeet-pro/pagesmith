@@ -1,9 +1,11 @@
+%% Diagram: Site CSS bundle layers
+%% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 flowchart TB
-  F["Foundations reset and tokens"]
-  C["Content tier prose code tabs inline viewport"]
-  S["Standalone tier TOC grid sidebar"]
-  FN["Fonts export optional separate import"]
-  F --> C
-  C --> S
-  FN -.-> F
+  foundations["Foundations reset and tokens"]
+  contentTier["Content tier prose code tabs inline viewport"]
+  standaloneTier["Standalone tier TOC grid sidebar"]
+  fontsExport["Fonts export optional separate import"]
+  foundations --> contentTier
+  contentTier --> standaloneTier
+  fontsExport -.-> foundations

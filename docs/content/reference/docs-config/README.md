@@ -124,6 +124,7 @@ type DocsUserConfig = {
 | Field | Type | Default | Description |
 |---|---|---|---|
 | `basePath` | `string` | git-detected repo name &rarr; `"/"` | Base URL path prefix for deployment under a subdirectory (e.g. `"/docs"` or `"/pagesmith"`). Trailing slashes are automatically stripped. CLI `--base-path` wins, and `BASE_URL` only overrides when it is set to a non-root value. |
+| `trailingSlash` | `boolean` | `false` | Controls the output file format and URL style. When `false`, pages emit as `path.html` for direct resolution on GitHub Pages without 301 redirects. When `true`, pages emit as `path/index.html` for trailing-slash URLs. Internal links in markdown content are automatically formatted to match. |
 
 The base path follows a priority resolution order:
 
@@ -267,7 +268,7 @@ search: {
 | `theme.lightColor` | `string` | `"#f8fafc"` | The `theme-color` meta tag value for light mode. Affects the browser chrome color on mobile devices. |
 | `theme.darkColor` | `string` | `"#020617"` | The `theme-color` meta tag value for dark mode. |
 | `theme.defaultColorScheme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Initial color scheme class on `<html>`. `'auto'` follows OS preference via `color-scheme: light dark`. `'light'` or `'dark'` forces a single scheme. |
-| `theme.defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Initial theme variant class on `<html>`. Controls which set of CSS token overrides is active. See the [Theming](/reference/theming/) reference. |
+| `theme.defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Initial theme variant class on `<html>`. Controls which set of CSS token overrides is active. See the [Theming](/reference/theming) reference. |
 | `theme.layouts` | `Record<string, string>` | `{}` | A map of layout names to file paths for overriding the default theme layouts. Paths are resolved relative to the project root (the directory containing `pagesmith.config.json5`). |
 | `theme.socialImage` | `string` | auto-detect | Path to default Open Graph social sharing image. Checked in order: config value, then `public/og-image.png` (or `.jpg`). Per-page override via `socialImage` frontmatter. |
 
