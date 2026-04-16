@@ -3,7 +3,7 @@
   "diagrams": {
     "command-lifecycle.mermaid": {
       "hash": "sha256:6baf9c22ae81e500",
-      "generatedAt": "2026-04-16T07:36:39.499Z",
+      "generatedAt": "2026-04-16T10:03:31.642Z",
       "outputs": [
         {
           "file": "command-lifecycle-light.svg",

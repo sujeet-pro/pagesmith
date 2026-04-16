@@ -3,7 +3,7 @@
   "diagrams": {
     "basepath-resolution-priority.mermaid": {
       "hash": "sha256:731e49e0ea883570",
-      "generatedAt": "2026-04-16T07:36:39.495Z",
+      "generatedAt": "2026-04-16T10:03:31.635Z",
       "outputs": [
         {
           "file": "basepath-resolution-priority-light.svg",

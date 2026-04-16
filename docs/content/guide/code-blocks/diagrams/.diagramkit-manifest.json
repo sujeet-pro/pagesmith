@@ -3,7 +3,7 @@
   "diagrams": {
     "code-block-rendering-pipeline.dot": {
       "hash": "sha256:f4cbcd71b5cc540b",
-      "generatedAt": "2026-04-16T07:36:39.492Z",
+      "generatedAt": "2026-04-16T10:03:31.632Z",
       "outputs": [
         {
           "file": "code-block-rendering-pipeline-light.svg",

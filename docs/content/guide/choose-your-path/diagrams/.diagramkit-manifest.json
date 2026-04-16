@@ -3,7 +3,7 @@
   "diagrams": {
     "package-decision-path.mermaid": {
       "hash": "sha256:af29c27fa7e05761",
-      "generatedAt": "2026-04-16T07:36:39.495Z",
+      "generatedAt": "2026-04-16T10:03:31.636Z",
       "outputs": [
         {
           "file": "package-decision-path-light.svg",

@@ -56,7 +56,7 @@
     "prepare": "vp config"
   },
   "dependencies": {
-    "diagramkit": "^0.2.3"
+    "diagramkit": "^0.2.4"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.3",

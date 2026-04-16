@@ -3,7 +3,7 @@
   "diagrams": {
     "package-layering.mermaid": {
       "hash": "sha256:869269cbeb5b2495",
-      "generatedAt": "2026-04-16T07:36:39.498Z",
+      "generatedAt": "2026-04-16T10:03:31.641Z",
       "outputs": [
         {
           "file": "package-layering-light.svg",

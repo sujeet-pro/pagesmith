@@ -3,7 +3,7 @@
   "diagrams": {
     "blog-site-assembly.mermaid": {
       "hash": "sha256:df99a48c4ebb406d",
-      "generatedAt": "2026-04-16T07:36:39.496Z",
+      "generatedAt": "2026-04-16T10:03:31.637Z",
       "outputs": [
         {
           "file": "blog-site-assembly-light.svg",
