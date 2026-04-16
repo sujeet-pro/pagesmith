@@ -497,6 +497,10 @@ async function buildSsrBundle(
       logLevel: 'warn',
       mode: ${JSON.stringify(config.mode)},
       ${hasAliases ? `plugins: [${aliasPlugin}],` : ''}
+      ssr: {
+        // Bundle CJS-only packages so named exports work in the ESM SSR bundle.
+        noExternal: ['clsx'],
+      },
       build: {
         ssr: ${JSON.stringify(ssrEntry)},
         outDir: ${JSON.stringify(serverDir)},
