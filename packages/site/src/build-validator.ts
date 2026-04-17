@@ -104,6 +104,27 @@ const DEFAULT_EXCLUDE = ['pagefind']
 
 // ── Helpers ──
 
+/**
+ * Return true if an href resolves into a top-level directory listed in the
+ * build-validator's `exclude` set. Used to skip links into subsites that
+ * are assembled outside this build (for example `/pagesmith/examples/*`
+ * when the docs-only build excludes `examples/`).
+ */
+function refResolvesIntoExcludedDir(
+  ref: string,
+  basePath: string,
+  excludeDirs: Set<string>,
+): boolean {
+  if (!ref.startsWith('/')) return false
+  const clean = ref.split('#')[0]!.split('?')[0]!
+  let path = clean
+  if (basePath && path.startsWith(`${basePath}/`)) path = path.slice(basePath.length)
+  else if (basePath && path === basePath) return false
+  const segments = path.split('/').filter(Boolean)
+  if (segments.length === 0) return false
+  return excludeDirs.has(segments[0]!)
+}
+
 function walkFiles(dir: string, ext?: string, excludeDirs?: Set<string>): string[] {
   const results: string[] = []
   if (!existsSync(dir)) return results
@@ -386,6 +407,12 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
       }
 
       if (isExternal(ref)) continue
+
+      // Refs that resolve into an excluded top-level directory are assumed
+      // to be assembled from a sibling build (e.g. `/pagesmith/examples/*`
+      // when examples/ is excluded from this validator). Skip them so
+      // docs-only builds don't false-trip on hrefs into subsites.
+      if (refResolvesIntoExcludedDir(ref, basePath, excludeDirs)) continue
 
       const resolved = resolveLocalHref(ref, htmlPath, outDir, basePath)
       if (!resolved) continue
