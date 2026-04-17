@@ -5,9 +5,9 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 ## Agent Onboarding (Read In This Order)
 
 1. Run `npx pagesmith-docs init --ai` for docs projects, or `npx pagesmith-core ai --profile default` for core/site projects, to scaffold assistant context and markdown guidelines.
-2. For docs workflows, read `node_modules/@pagesmith/docs/ai-guidelines/usage.md`.
-3. For core/custom-site workflows, read `node_modules/@pagesmith/core/ai-guidelines/usage.md`.
-4. Use `node_modules/@pagesmith/docs/ai-guidelines/llms.txt` or `node_modules/@pagesmith/core/ai-guidelines/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
+2. For docs workflows, read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`.
+3. For core/custom-site workflows, read `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`.
+4. Use `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/llms.txt` or `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
 5. If MCP is enabled, use `pagesmith-docs mcp --stdio` for docs projects and `@pagesmith/core/mcp` for collection-aware inspection and validation in custom core/site integrations.
 6. For upgrades across pre-1.0 versions, review `MIGRATING.md` before proposing refactors.
 
@@ -236,7 +236,7 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 | `@pagesmith/core/mcp` | Programmatic MCP server entry |
 | `@pagesmith/core/llms` | Compact AI context index |
 | `@pagesmith/core/llms-full` | Full AI context |
-| `@pagesmith/core/ai-guidelines/*` | Version-matched core AI guidance files |
+| `@pagesmith/core/skills/pagesmith-core-setup/references/*` | Version-matched core AI guidance files |
 | `@pagesmith/core/agents/*` | Stable agent-friendly aliases for core prompts/files |
 | `@pagesmith/site` | Site package plus re-exported content-layer APIs for site consumers |
 | `@pagesmith/site/jsx-runtime` | h, Fragment, HtmlString |
@@ -260,5 +260,5 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 | `@pagesmith/docs/mcp` | Programmatic docs MCP entry |
 | `@pagesmith/docs/llms` | Compact docs AI context index |
 | `@pagesmith/docs/llms-full` | Full docs AI context |
-| `@pagesmith/docs/ai-guidelines/*` | Version-matched docs AI guidance files |
+| `@pagesmith/docs/skills/pagesmith-docs-setup/references/*` | Version-matched docs AI guidance files |
 | `@pagesmith/docs/agents/*` | Stable agent-friendly aliases for docs prompts/files |

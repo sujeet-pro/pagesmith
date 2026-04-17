@@ -22,8 +22,34 @@ pagesmith-docs init [options]
 pagesmith-docs dev [options]
 pagesmith-docs build [options]
 pagesmith-docs preview [options]
+pagesmith-docs validate [options]
 pagesmith-docs mcp --stdio [options]
 ```
+
+## Configuration File
+
+`pagesmith-docs` resolves the config file in this order (first match wins):
+
+1. `--config <path>` (explicit override)
+2. `pagesmith.config.ts` (loaded via `jiti`, supports `defineConfig`)
+3. `pagesmith.config.mts`
+4. `pagesmith.config.mjs`
+5. `pagesmith.config.js`
+6. `pagesmith.config.json5`
+7. `pagesmith.config.json`
+
+```ts title="pagesmith.config.ts"
+import { defineConfig } from '@pagesmith/docs'
+
+export default defineConfig({
+  name: 'my-docs',
+  title: 'My Docs',
+  origin: 'https://example.com',
+  basePath: '/my-docs',
+})
+```
+
+`init` writes a JSON5 file. When you already have a `.ts`/`.js` config, init reads it for prompt defaults but does not overwrite the file — the user owns code-shaped configs.
 
 ## How The Commands Fit Together
 
@@ -49,6 +75,8 @@ Common flags:
 | Flag | Purpose |
 |---|---|
 | `-y`, `--yes` | Accept detected defaults without prompting |
+| `--non-interactive` | Same as `--yes`, named for CI/CD pipelines |
+| `--interactive` | Force prompts even when the environment looks non-TTY |
 | `--ai` | Install AI memory files, skills, Markdown guidance, and `llms*.txt` |
 | `--no-llms` | Skip `llms.txt` and `llms-full.txt` generation |
 | `--config <path>` | Write the config to a non-default path |
@@ -56,12 +84,25 @@ Common flags:
 | `--base-path <path>` | Override the detected GitHub Pages-style base path |
 | `--origin <url>` | Override the detected site origin |
 
+`init` runs as an interactive prompt by default when stdout and stdin are both
+TTYs. It auto-falls back to non-interactive mode (using the detected defaults)
+when `--yes` / `--non-interactive` is passed, when `CI=1` or
+`PAGESMITH_NON_INTERACTIVE=1` is set, or when stdout/stdin are not TTYs. This
+keeps CI/CD pipelines from blocking on a prompt.
+
+In non-interactive mode `init` fails fast when `--name`, `--origin`, or
+`--base-path` cannot be resolved from flags, the existing
+`pagesmith.config.{ts,json5,...}`, or smart defaults (git remote, package.json
+name, repo basename). The error message points at the missing flag and config
+key so the failure is immediately actionable.
+
 Examples:
 
 ```bash title="Terminal"
 npx pagesmith-docs init
 npx pagesmith-docs init --yes --ai
-npx pagesmith-docs init --yes --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
+npx pagesmith-docs init --non-interactive --ai --content-dir docs --base-path /my-repo --origin https://my-user.github.io
+CI=1 npx pagesmith-docs init --ai   # non-interactive auto-detected from env
 ```
 
 `init` is safe to rerun. It backfills missing config fields instead of blindly replacing the whole file.
@@ -122,6 +163,32 @@ npx pagesmith-docs preview
 ```
 
 Use preview to verify production behavior such as built search assets, slashless routing, and `basePath` handling.
+
+## `pagesmith-docs validate`
+
+Runs the docs validator against your content and (optionally) the build output.
+
+```bash title="Terminal"
+npx pagesmith-docs validate
+npx pagesmith-docs validate --content       # only content
+npx pagesmith-docs validate --build         # only build output (after a build)
+npx pagesmith-docs validate --full          # enable every opt-in offline check
+```
+
+Common flags:
+
+| Flag | Purpose |
+|---|---|
+| `--content` | Only run content validation |
+| `--build` | Only run build-output validation |
+| `--full` | Enable every opt-in offline check (raster fallbacks, both trailing-slash forms, internal-links-must-be-markdown) |
+| `--check-external` | Fetch external URLs and report non-2xx as warnings |
+| `--require-theme-variants` | Enforce light + dark `<picture>` sources (default: on) |
+| `--no-theme-variants` | Opt out of theme-variant checks |
+| `--required-file <name>` | Require `<name>` in the build output (repeatable) |
+| `--show-clean` | Also list files that pass content validation |
+
+Validate exits non-zero on the first error so it works as a CI gate.
 
 ## `pagesmith-docs mcp --stdio`
 

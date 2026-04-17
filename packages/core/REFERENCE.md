@@ -5,8 +5,22 @@ Link this file from your project's CLAUDE.md or AGENTS.md to give AI assistants 
 ```markdown
 <!-- In your CLAUDE.md or AGENTS.md -->
 For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
-For @pagesmith/core setup and follow-up prompts, read: node_modules/@pagesmith/core/ai-guidelines/setup-core.md and node_modules/@pagesmith/core/ai-guidelines/usage.md
+For @pagesmith/core setup and follow-up prompts, read: node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md and node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md
 ```
+
+## Agent Skills
+
+Install the companion [Agent Skills](https://agentskills.io/) so AI coding agents can drive core content tasks end-to-end:
+
+```bash
+npx skills install \
+  @pagesmith/pagesmith-core-add-collection \
+  @pagesmith/pagesmith-core-add-loader \
+  @pagesmith/pagesmith-core-customize-markdown \
+  @pagesmith/pagesmith-core-write-validator
+```
+
+Each skill is self-contained and triggers when the user asks the agent to register a content type, add a custom loader, extend the markdown pipeline, or enforce content rules. Browse the full set at [pagesmith `skills/`](https://github.com/sujeet-pro/pagesmith/tree/main/skills).
 
 ---
 
@@ -18,9 +32,9 @@ ESM only (`"type": "module"`). Node 24+.
 
 ## Adoption Paths
 
-- AI-first bootstrap or retrofit: `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
-- Follow-up usage patterns and prompts: `node_modules/@pagesmith/core/ai-guidelines/usage.md`
-- Upgrade an existing integration: `node_modules/@pagesmith/core/ai-guidelines/migration.md`
+- AI-first bootstrap or retrofit: `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`
+- Follow-up usage patterns and prompts: `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`
+- Upgrade an existing integration: `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/migration.md`
 - Use `@pagesmith/site` instead when you need the Pagesmith JSX runtime, CSS/runtime bundles, Vite SSG helpers, or the `pagesmith-site` CLI from one package
 - Use `@pagesmith/docs` instead when you want the opinionated docs preset and docs consumers should stay on one package
 
@@ -307,7 +321,7 @@ import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 | `@pagesmith/core/mcp`     | Core MCP server and helper utilities |
 | `@pagesmith/core/llms` | Compact AI context index |
 | `@pagesmith/core/llms-full` | Full AI context reference |
-| `@pagesmith/core/ai-guidelines/*` | Package-shipped AI guidance files |
+| `@pagesmith/core/skills/pagesmith-core-setup/references/*` | Package-shipped AI guidance files |
 | `@pagesmith/core/agents/setup-core` | Bootstrap prompt for project agents |
 | `@pagesmith/core/agents/usage` | Agent operating rules and prompts |
 | `@pagesmith/core/agents/recipes` | Task-specific recipes |
@@ -348,10 +362,10 @@ Version-matched MCP resources:
 
 ## Related Docs
 
-- **Setup prompt:** `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
-- **Agent prompts and rules:** `node_modules/@pagesmith/core/ai-guidelines/usage.md`
-- **Step-by-step recipes:** `node_modules/@pagesmith/core/ai-guidelines/recipes.md`
-- **Error catalog:** `node_modules/@pagesmith/core/ai-guidelines/errors.md`
+- **Setup prompt:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`
+- **Agent prompts and rules:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/recipes.md`
+- **Error catalog:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/errors.md`
 - **User README:** `node_modules/@pagesmith/core/README.md`
 - **Site toolkit reference:** `node_modules/@pagesmith/site/REFERENCE.md`
 - **Site toolkit README:** `node_modules/@pagesmith/site/README.md`

@@ -4,7 +4,7 @@ Svelte-based static site using `@pagesmith/site` as the app-facing package for c
 
 ## AI-First Starting Point
 
-To recreate this shape in another repository, install `@pagesmith/site` and `svelte`, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` for the content model, Vite wiring, and SSG flow.
+To recreate this shape in another repository, install `@pagesmith/site` and `svelte`, then start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` for the content model, Vite wiring, and SSG flow.
 
 Tell the agent to:
 

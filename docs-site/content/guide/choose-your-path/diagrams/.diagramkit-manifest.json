@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "package-decision-path.mermaid": {
-      "hash": "sha256:af29c27fa7e05761",
-      "generatedAt": "2026-04-16T14:37:59.227Z",
+      "hash": "sha256:8c3bff5ef414361d",
+      "generatedAt": "2026-04-17T08:13:20.504Z",
       "outputs": [
         {
           "file": "package-decision-path-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776318338522.0146,
-      "size": 804
+      "mtimeMs": 1776413233453.0073,
+      "size": 777
     }
   }
 }

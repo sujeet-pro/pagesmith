@@ -20,7 +20,7 @@ This directory is the monorepo’s **@pagesmith/site** static site: no React/Sol
 
 ## Markdown in this repo
 
-Authoritative syntax, code-fence meta, math, and alerts live in **Pagesmith’s main docs** and `packages/core/ai-guidelines/markdown-guidelines.md`. Here, `content/guide/kitchen-sink.md` is the single markdown regression page.
+Authoritative syntax, code-fence meta, math, and alerts live in **Pagesmith’s main docs** and `packages/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`. Here, `content/guide/kitchen-sink.md` is the single markdown regression page.
 
 ## Agent constraints
 

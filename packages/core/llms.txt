@@ -1,0 +1,89 @@
+# @pagesmith/core
+
+Version-matched AI context for the installed `@pagesmith/core` package.
+
+## Install
+
+```bash
+npm add @pagesmith/core
+```
+
+## Use this package when
+
+- You need the headless content layer directly: collections, schemas, markdown, validation, and custom content architecture.
+- You want typed content collections with explicit schemas and runtime control.
+- You want the headless content layer for direct markdown rendering inside an existing app.
+- You want the headless content layer and will pair it with `@pagesmith/site` for shared CSS/runtime or site-building concerns.
+
+## Start here
+
+- **Bootstrap / retrofit prompt:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`
+- **Full API reference:** `node_modules/@pagesmith/core/REFERENCE.md`
+- **Package rules:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`
+- **Agent rules + prompts:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`
+- **Markdown authoring rules:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`
+- **Upgrade prompt:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/migration.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/recipes.md`
+
+## Requirements
+
+- **Node.js 24+** (`engines.node` in package.json).
+
+## Content layer snapshot
+
+- **`ContentLayerConfig`** (via `defineConfig`): `collections`, optional `root`, `markdown`, `assets`, `plugins`, and optional **`strict`** (throw on load errors). There is no top-level `cache` or `eager` field on this config.
+- **`defineCollections({ ... })`** — helper to build the `collections` map in one call (same as registering multiple `defineCollection` defs).
+- **`ContentLayer`** methods include: `getCollection`, `getEntry`, `convert`, `invalidate` / `invalidateCollection` / `invalidateAll`, `validate`, `getCollectionNames`, `getCollectionDef`, `getCollections`, `invalidateWhere`, `watch`, `getCacheStats`.
+
+## CLI
+
+The **`pagesmith`** CLI (also published as **`pagesmith-site`**) ships with **`@pagesmith/site`**. `@pagesmith/docs` ships its own **`pagesmith-docs`** CLI for init, dev, build, preview, and MCP flows.
+
+## All guidance files
+
+| File | Purpose |
+|---|---|
+| `node_modules/@pagesmith/core/REFERENCE.md` | Complete API: content layer, collections, loaders, markdown, validation, assets, and `pagesmithContent` |
+| `node_modules/@pagesmith/core/README.md` | User-facing quick start and API overview |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` | Canonical bootstrap/retrofit prompt for existing apps and Vite repos |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md` | Package-specific rules and expectations |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md` | Supported markdown, code-block, and authoring rules |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/recipes.md` | Task-specific step-by-step recipes |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/errors.md` | Error catalog with patterns and fixes |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/changelog-notes.md` | Version highlights |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/AGENTS.md.template` | Template for project-level AGENTS.md |
+
+## Project memory pointer
+
+In the consuming project, add this to `CLAUDE.md` or `AGENTS.md`:
+
+```
+For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md
+For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REFERENCE.md
+```
+
+## Related package
+
+- Site reference: `node_modules/@pagesmith/site/REFERENCE.md`
+- Site usage: `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md`
+- Docs reference: `node_modules/@pagesmith/docs/REFERENCE.md`
+- Docs usage: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`
+
+## Related site package
+
+If a project needs site-building concerns, choose `@pagesmith/site` instead of layering both packages into the same app-facing contract:
+- JSX runtime: `node_modules/@pagesmith/site/REFERENCE.md` (`@pagesmith/site/jsx-runtime`)
+- CSS bundles and CSS builder: `@pagesmith/site/css/*`
+- Runtime JS helpers: `@pagesmith/site/runtime/*`
+- SSG helpers and the CLI: `@pagesmith/site/vite`, `@pagesmith/site/ssg-utils`, `pagesmith`
+
+Framework-hosted apps that only need the shipped prose/code-block presentation layer can either stay on `@pagesmith/core` alone or move up to `@pagesmith/site` when they want those shared CSS/runtime modules too.
+
+## Recent changes
+
+- `ValidationIssue` now includes an optional `source` field (`'schema' | 'content' | 'plugin' | 'custom'`) to identify which validation phase produced the issue.
+- New `core_search_entries` MCP tool: search entries across collections by title, description, tags, and slug (case-insensitive, max 20 results).
+- `@pagesmith/core/mcp` now exports shared MCP utilities (`getPackageVersion`, `resolvePackageDocPath`, `asTextResource`) alongside the server factory.
+- Error catalog added at `skills/pagesmith-core-setup/references/errors.md` with machine-readable patterns and fixes for schema, content, plugin, load, and MCP errors.

@@ -14,9 +14,9 @@ Before you ask an agent to scaffold anything, hand it the package-owned setup pr
 
 | Goal | Read first |
 |---|---|
-| Typed content layer in an existing app | `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` |
-| Custom site on top of core | `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` |
-| Convention-based docs site | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` |
+| Typed content layer in an existing app | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` |
+| Custom site on top of core | `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` |
+| Convention-based docs site | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` |
 
 Hosted copies for copy-paste are available under `/prompts/` on this docs site:
 
@@ -41,7 +41,7 @@ npx pagesmith-core ai --profile default
 
 This installs assistant memory files, package-aware skills/commands, `.pagesmith/markdown-guidelines.md`, and `llms.txt` / `llms-full.txt` without scaffolding a docs site.
 
-If a repo stays on `@pagesmith/site` only and does not install `@pagesmith/core` directly, you can rely on the package-owned prompts and references under `node_modules/@pagesmith/site/ai-guidelines/` instead of adding core only for AI artifact generation.
+If a repo stays on `@pagesmith/site` only and does not install `@pagesmith/core` directly, you can rely on the package-owned prompts and references under `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/` instead of adding core only for AI artifact generation.
 
 ### Docs projects
 
@@ -60,13 +60,51 @@ This scaffolds `pagesmith.config.json5`, content, and the same AI artifacts in o
 | `.pagesmith/markdown-guidelines.md` | Shared markdown authoring rules for Pagesmith content |
 | `llms.txt` / `llms-full.txt` | Compact and expanded LLM context files |
 
+## Install Consumer Agent Skills With `npx skills`
+
+In addition to the assistant-specific commands above, Pagesmith publishes a set of [Agent Skills](https://agentskills.io/) that any compatible coding agent (Cursor, Claude Code, Codex, GitHub Copilot, Windsurf, Cline, Gemini CLI, and ~40 more) can pick up. Each skill is a self-contained `SKILL.md` that triggers when the user asks for the matching task — for example "set up Pagesmith docs" or "add a new doc page".
+
+Install them in the consumer repo with the `agent-skills-cli` package via `npx`:
+
+```bash
+npx skills install \
+  @pagesmith/pagesmith-docs-setup \
+  @pagesmith/pagesmith-docs-add-page \
+  @pagesmith/pagesmith-docs-configure-nav \
+  @pagesmith/pagesmith-docs-add-search \
+  @pagesmith/pagesmith-docs-customize-theme \
+  @pagesmith/pagesmith-docs-deploy-gh-pages \
+  @pagesmith/pagesmith-generate-docs \
+  @pagesmith/pagesmith-site-setup \
+  @pagesmith/pagesmith-site-use-preset \
+  @pagesmith/pagesmith-site-customize-theme \
+  @pagesmith/pagesmith-core-add-collection \
+  @pagesmith/pagesmith-core-add-loader \
+  @pagesmith/pagesmith-core-customize-markdown \
+  @pagesmith/pagesmith-core-write-validator
+```
+
+The CLI auto-detects every supported agent in the project and writes the skill into each one's directory (`.cursor/skills`, `.claude/skills`, `.agents/skills`, `.codex/skills`, `.github/skills`, etc). Use `-t cursor,claude` to target specific agents or `--all` to install everywhere.
+
+Pick only the skills relevant to your stack:
+
+| Package | Skills |
+|---|---|
+| `@pagesmith/docs` | `pagesmith-docs-setup`, `pagesmith-docs-add-page`, `pagesmith-docs-configure-nav`, `pagesmith-docs-add-search`, `pagesmith-docs-customize-theme`, `pagesmith-docs-deploy-gh-pages`, `pagesmith-generate-docs` |
+| `@pagesmith/site` | `pagesmith-site-setup`, `pagesmith-site-use-preset`, `pagesmith-site-customize-theme` |
+| `@pagesmith/core` | `pagesmith-core-add-collection`, `pagesmith-core-add-loader`, `pagesmith-core-customize-markdown`, `pagesmith-core-write-validator` |
+
+Each skill always reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the agent uses the CLI flags and config schema that match the version actually installed in the project, instead of relying on globally cached or generic guidance.
+
+Browse the full set in the [pagesmith repo `skills/` folder](https://github.com/sujeet-pro/pagesmith/tree/main/skills). If you do not want to install the CLI, copy any skill folder directly into your project's `.cursor/skills/`, `.claude/skills/`, or `.agents/skills/` — they are self-contained.
+
 ## Version-Matched Package Files
 
 The installed package is the source of truth for AI guidance:
 
-- `node_modules/@pagesmith/core/ai-guidelines/*`
-- `node_modules/@pagesmith/site/ai-guidelines/*`
-- `node_modules/@pagesmith/docs/ai-guidelines/*`
+- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/*`
+- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/*`
+- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/*`
 - `node_modules/@pagesmith/docs/schemas/*.schema.json`
 
 Use the docs site when you want the latest main-branch guidance. Use `node_modules/` when you want the exact version that is actually installed in the project.

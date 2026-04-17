@@ -27,9 +27,10 @@
   "files": [
     "dist/",
     "templates/",
-    "ai-guidelines/",
     "skills/",
-    "REFERENCE.md"
+    "REFERENCE.md",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "type": "module",
   "exports": {
@@ -65,21 +66,24 @@
       "types": "./dist/create/index.d.mts",
       "import": "./dist/create/index.mjs"
     },
+    "./cli-kit": {
+      "types": "./dist/cli-kit/index.d.mts",
+      "import": "./dist/cli-kit/index.mjs"
+    },
     "./mcp": {
       "types": "./dist/mcp/index.d.mts",
       "import": "./dist/mcp/index.mjs"
     },
-    "./ai-guidelines/*": "./ai-guidelines/*",
     "./skills/*": "./skills/*",
-    "./llms": "./ai-guidelines/llms.txt",
-    "./llms-full": "./ai-guidelines/llms-full.txt",
-    "./agents/setup-core": "./ai-guidelines/setup-core.md",
-    "./agents/usage": "./ai-guidelines/usage.md",
-    "./agents/recipes": "./ai-guidelines/recipes.md",
-    "./agents/changelog-notes": "./ai-guidelines/changelog-notes.md",
-    "./agents/errors": "./ai-guidelines/errors.md",
-    "./agents/migration": "./ai-guidelines/migration.md",
-    "./agents/template": "./ai-guidelines/AGENTS.md.template",
+    "./llms": "./llms.txt",
+    "./llms-full": "./llms-full.txt",
+    "./agents/setup-core": "./skills/pagesmith-core-setup/references/setup-core.md",
+    "./agents/usage": "./skills/pagesmith-core-setup/references/usage.md",
+    "./agents/recipes": "./skills/pagesmith-core-setup/references/recipes.md",
+    "./agents/changelog-notes": "./skills/pagesmith-core-setup/references/changelog-notes.md",
+    "./agents/errors": "./skills/pagesmith-core-setup/references/errors.md",
+    "./agents/migration": "./skills/pagesmith-core-setup/references/migration.md",
+    "./agents/template": "./skills/pagesmith-core-setup/references/AGENTS.md.template",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -91,9 +95,11 @@
   "dependencies": {
     "@clack/prompts": "^1.2.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "cac": "^6.7.14",
     "devalue": "^5.1.1",
     "fast-glob": "^3.3.0",
     "gray-matter": "^4.0.3",
+    "jiti": "^2.6.1",
     "json5": "^2.2.3",
     "rehype-accessible-emojis": "^0.3.2",
     "rehype-autolink-headings": "^7.1.0",
@@ -124,8 +130,8 @@
     "node": ">=24"
   },
   "ai": {
-    "context": "./ai-guidelines/llms.txt",
-    "fullContext": "./ai-guidelines/llms-full.txt",
-    "agentsDir": "./ai-guidelines"
+    "context": "./llms.txt",
+    "fullContext": "./llms-full.txt",
+    "agentsDir": "./skills/pagesmith-core-setup/references"
   }
 }

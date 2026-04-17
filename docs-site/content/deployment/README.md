@@ -1,7 +1,8 @@
 ---
-title: Deployment
+
+## title: Deployment
+
 description: Deploy your Pagesmith site to various hosting platforms
----
 
 # Deployment
 
@@ -39,10 +40,10 @@ The `.nojekyll` file is always generated to prevent GitHub Pages from ignoring t
 
 The `basePath` setting controls the URL prefix for your site. This is required when deploying to a subdirectory (e.g. `https://user.github.io/my-project/`).
 
-![Fall-through order for resolving basePath from CLI flag through environment variable config file git detection to default root](./diagrams/basepath-resolution-priority-light.svg "Fall-through order for resolving basePath: each source applies only when no higher-priority source set a value.")
-![Fall-through order for resolving basePath from CLI flag through environment variable config file git detection to default root](./diagrams/basepath-resolution-priority-dark.svg)
+Fall-through order for resolving basePath from CLI flag through environment variable config file git detection to default root
+Fall-through order for resolving basePath from CLI flag through environment variable config file git detection to default root
 
-Notice the first set value wins, so CI can pass <code>--base-path</code> or <code>BASE_URL</code> without editing committed config.
+Notice the first set value wins, so CI can pass `--base-path` or `BASE_URL` without editing committed config.
 
 ```json5 title="pagesmith.config.json5"
 {
@@ -260,12 +261,14 @@ This file is copied to the build output automatically and tells GitHub Pages to 
 
 Point your domain to the hosting platform:
 
-| Platform | Record Type | Value |
-|---|---|---|
-| GitHub Pages | `CNAME` | `username.github.io` |
-| Netlify | `CNAME` | `your-site.netlify.app` |
-| Vercel | `CNAME` | `cname.vercel-dns.com` |
-| Cloudflare Pages | `CNAME` | `your-site.pages.dev` |
+
+| Platform         | Record Type | Value                   |
+| ---------------- | ----------- | ----------------------- |
+| GitHub Pages     | `CNAME`     | `username.github.io`    |
+| Netlify          | `CNAME`     | `your-site.netlify.app` |
+| Vercel           | `CNAME`     | `cname.vercel-dns.com`  |
+| Cloudflare Pages | `CNAME`     | `your-site.pages.dev`   |
+
 
 For apex domains (no subdomain), use `A` records or `ALIAS` records as documented by each platform.
 
@@ -273,10 +276,12 @@ For apex domains (no subdomain), use `A` records or `ALIAS` records as documente
 
 These environment variables affect the build:
 
-| Variable | Effect |
-|---|---|
-| `BASE_URL` | Overrides `basePath` in config (used by CI/CD) |
+
+| Variable   | Effect                                                       |
+| ---------- | ------------------------------------------------------------ |
+| `BASE_URL` | Overrides `basePath` in config (used by CI/CD)               |
 | `NODE_ENV` | Set to `production` for optimized builds (usually automatic) |
+
 
 Example in a CI pipeline:
 

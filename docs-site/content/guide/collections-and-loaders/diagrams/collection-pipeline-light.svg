@@ -27,8 +27,8 @@
 <!-- files&#45;&gt;loader -->
 <g id="edge1" class="edge">
 <title>files&#45;&gt;loader</title>
-<path fill="none" stroke="#7b7b7b" d="M146.44,-883.48C136.07,-871.56 124.25,-857.97 113.35,-845.43"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="116.18,-843.35 106.97,-838.1 110.9,-847.95 116.18,-843.35"/>
+<path fill="none" stroke="#aaaaaa" d="M146.44,-883.48C136.07,-871.56 124.25,-857.97 113.35,-845.43"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="116.18,-843.35 106.97,-838.1 110.9,-847.95 116.18,-843.35"/>
 </g>
 <!-- slugify -->
 <g id="node10" class="node">
@@ -40,8 +40,8 @@
 <!-- files&#45;&gt;slugify -->
 <g id="edge9" class="edge">
 <title>files&#45;&gt;slugify</title>
-<path fill="none" stroke="#7b7b7b" stroke-dasharray="5,2" d="M204.19,-883.48C216.93,-868.83 231.87,-851.65 244.6,-837.02"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="246.88,-839.72 250.81,-829.88 241.6,-835.13 246.88,-839.72"/>
+<path fill="none" stroke="#aaaaaa" stroke-dasharray="5,2" d="M204.19,-883.48C216.93,-868.83 231.87,-851.65 244.6,-837.02"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="246.88,-839.72 250.81,-829.88 241.6,-835.13 246.88,-839.72"/>
 </g>
 <!-- raw -->
 <g id="node3" class="node">
@@ -54,8 +54,8 @@
 <!-- loader&#45;&gt;raw -->
 <g id="edge2" class="edge">
 <title>loader&#45;&gt;raw</title>
-<path fill="none" stroke="#7b7b7b" d="M106.19,-768.8C116.55,-756.88 128.38,-743.29 139.28,-730.75"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="141.73,-733.27 145.65,-723.42 136.45,-728.67 141.73,-733.27"/>
+<path fill="none" stroke="#aaaaaa" d="M106.19,-768.8C116.55,-756.88 128.38,-743.29 139.28,-730.75"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="141.73,-733.27 145.65,-723.42 136.45,-728.67 141.73,-733.27"/>
 </g>
 <!-- transform -->
 <g id="node4" class="node">
@@ -68,8 +68,8 @@
 <!-- raw&#45;&gt;transform -->
 <g id="edge3" class="edge">
 <title>raw&#45;&gt;transform</title>
-<path fill="none" stroke="#7b7b7b" d="M175.31,-654.12C175.31,-643.12 175.31,-630.69 175.31,-618.98"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="178.81,-619.11 175.31,-609.11 171.81,-619.11 178.81,-619.11"/>
+<path fill="none" stroke="#aaaaaa" d="M175.31,-654.12C175.31,-643.12 175.31,-630.69 175.31,-618.98"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="178.81,-619.11 175.31,-609.11 171.81,-619.11 178.81,-619.11"/>
 </g>
 <!-- schema -->
 <g id="node5" class="node">
@@ -81,8 +81,8 @@
 <!-- transform&#45;&gt;schema -->
 <g id="edge4" class="edge">
 <title>transform&#45;&gt;schema</title>
-<path fill="none" stroke="#7b7b7b" d="M175.31,-539.36C175.31,-528.21 175.31,-515.73 175.31,-504.38"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="178.81,-504.58 175.31,-494.58 171.81,-504.58 178.81,-504.58"/>
+<path fill="none" stroke="#aaaaaa" d="M175.31,-539.36C175.31,-528.21 175.31,-515.73 175.31,-504.38"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="178.81,-504.58 175.31,-494.58 171.81,-504.58 178.81,-504.58"/>
 </g>
 <!-- derived -->
 <g id="node6" class="node">
@@ -96,8 +96,8 @@
 <!-- schema&#45;&gt;derived -->
 <g id="edge5" class="edge">
 <title>schema&#45;&gt;derived</title>
-<path fill="none" stroke="#7b7b7b" d="M175.31,-441.63C175.31,-431.22 175.31,-418.67 175.31,-406.36"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="178.81,-406.7 175.31,-396.7 171.81,-406.7 178.81,-406.7"/>
+<path fill="none" stroke="#aaaaaa" d="M175.31,-441.63C175.31,-431.22 175.31,-418.67 175.31,-406.36"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="178.81,-406.7 175.31,-396.7 171.81,-406.7 178.81,-406.7"/>
 </g>
 <!-- filter -->
 <g id="node7" class="node">
@@ -109,8 +109,8 @@
 <!-- derived&#45;&gt;filter -->
 <g id="edge6" class="edge">
 <title>derived&#45;&gt;filter</title>
-<path fill="none" stroke="#7b7b7b" d="M175.31,-310.04C175.31,-298.62 175.31,-286.34 175.31,-275.25"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="178.81,-275.3 175.31,-265.3 171.81,-275.3 178.81,-275.3"/>
+<path fill="none" stroke="#aaaaaa" d="M175.31,-310.04C175.31,-298.62 175.31,-286.34 175.31,-275.25"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="178.81,-275.3 175.31,-265.3 171.81,-275.3 178.81,-275.3"/>
 </g>
 <!-- entries -->
 <g id="node8" class="node">
@@ -122,8 +122,8 @@
 <!-- filter&#45;&gt;entries -->
 <g id="edge7" class="edge">
 <title>filter&#45;&gt;entries</title>
-<path fill="none" stroke="#7b7b7b" d="M175.31,-212.31C175.31,-201.57 175.31,-188.78 175.31,-177.03"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="178.81,-177.24 175.31,-167.24 171.81,-177.24 178.81,-177.24"/>
+<path fill="none" stroke="#aaaaaa" d="M175.31,-212.31C175.31,-201.57 175.31,-188.78 175.31,-177.03"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="178.81,-177.24 175.31,-167.24 171.81,-177.24 178.81,-177.24"/>
 </g>
 <!-- consume -->
 <g id="node9" class="node">
@@ -136,14 +136,14 @@
 <!-- entries&#45;&gt;consume -->
 <g id="edge8" class="edge">
 <title>entries&#45;&gt;consume</title>
-<path fill="none" stroke="#7b7b7b" d="M175.31,-114.41C175.31,-103.91 175.31,-91.34 175.31,-79.32"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="178.81,-79.57 175.31,-69.57 171.81,-79.57 178.81,-79.57"/>
+<path fill="none" stroke="#aaaaaa" d="M175.31,-114.41C175.31,-103.91 175.31,-91.34 175.31,-79.32"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="178.81,-79.57 175.31,-69.57 171.81,-79.57 178.81,-79.57"/>
 </g>
 <!-- slugify&#45;&gt;raw -->
 <g id="edge10" class="edge">
 <title>slugify&#45;&gt;raw</title>
-<path fill="none" stroke="#7b7b7b" stroke-dasharray="5,2" d="M251.81,-777.27C240.02,-763.72 225.09,-746.55 211.55,-730.99"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="214.4,-728.93 205.2,-723.68 209.12,-733.53 214.4,-728.93"/>
+<path fill="none" stroke="#aaaaaa" stroke-dasharray="5,2" d="M251.81,-777.27C240.02,-763.72 225.09,-746.55 211.55,-730.99"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="214.4,-728.93 205.2,-723.68 209.12,-733.53 214.4,-728.93"/>
 </g>
 </g>
 </svg>

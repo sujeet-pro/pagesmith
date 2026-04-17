@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "cache-and-rebuilds.mermaid": {
-      "hash": "sha256:22c7a9a979b86abe",
-      "generatedAt": "2026-04-16T14:37:59.234Z",
+      "hash": "sha256:6915f417ec621100",
+      "generatedAt": "2026-04-17T08:13:20.511Z",
       "outputs": [
         {
           "file": "cache-and-rebuilds-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776318323415.61,
-      "size": 1501
+      "mtimeMs": 1776413360298.8003,
+      "size": 1604
     }
   }
 }

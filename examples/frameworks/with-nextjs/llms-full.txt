@@ -32,4 +32,4 @@ Agent-focused notes for this framework-hosted example. Scope: `@pagesmith/site` 
 
 ## Upstream docs
 
-For package APIs, markdown features, and framework guidance, follow the published Pagesmith docs and package `ai-guidelines/` files. This directory only demonstrates the Next.js wiring.
+For package APIs, markdown features, and framework guidance, follow the published Pagesmith docs and package `skills/` files. This directory only demonstrates the Next.js wiring.

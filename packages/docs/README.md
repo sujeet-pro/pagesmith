@@ -2,7 +2,7 @@
 
 Convention-based documentation package built on the Pagesmith content + site stack. Create a full docs site from a `pagesmith.config.json5` file and a content directory — with the docs preset, built-in Pagefind search, sidebar generation, listing pages, and an optional layout override system.
 
-Package guidance shipped inside npm (`node_modules/@pagesmith/docs/ai-guidelines/*` and `node_modules/@pagesmith/docs/schemas/*`) is version-matched to the installed package. The hosted docs site in this repository tracks the latest implementation.
+Package guidance shipped inside npm (`node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/*` and `node_modules/@pagesmith/docs/schemas/*`) is version-matched to the installed package. The hosted docs site in this repository tracks the latest implementation.
 
 ## Requirements
 
@@ -30,14 +30,14 @@ This scaffolds a root `pagesmith.config.json5`, a docs content directory, starte
 
 Copy-paste playbooks:
 
-- Fresh setup or retrofit: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
-- Upgrade an existing integration: `node_modules/@pagesmith/docs/ai-guidelines/migration.md`
+- Fresh setup or retrofit: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`
+- Upgrade an existing integration: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md`
 
 If your project already has custom root `llms.txt` files, use `npx pagesmith-docs init --ai --no-llms` to skip regenerating them.
 
 For agent-driven setup in an existing repository, use the dedicated prompt file instead of a vague install request:
 
-- Package path: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
+- Package path: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`
 - Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md)
 
 That prompt tells the agent to inspect existing docs-like folders, confirm the chosen docs directory, detect a GitHub Pages-friendly `origin` and `basePath`, prefer running `npx pagesmith-docs init` with explicit values, wire `docs:dev` / `docs:build` / `docs:preview` scripts, update `CLAUDE.md` / `AGENTS.md`, and use the version-matched schema files under `node_modules/@pagesmith/docs/schemas/`.
@@ -111,13 +111,13 @@ npx pagesmith-docs dev
 npx pagesmith-docs build
 ```
 
-For upgrade playbooks and pre-1.0 notes, see `ai-guidelines/migration.md`.
+For upgrade playbooks and pre-1.0 notes, see `skills/pagesmith-docs-setup/references/migration.md`.
 
 ## Playbooks
 
-- `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` — copy-paste prompt for fresh setup or retrofitting docs into an existing repo
-- `node_modules/@pagesmith/docs/ai-guidelines/migration.md` — copy-paste prompt for upgrading an existing `@pagesmith/docs` integration and adopting the latest guidance/features
-- `node_modules/@pagesmith/docs/ai-guidelines/usage.md` — agent operating rules plus follow-up prompts after the docs integration exists
+- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` — copy-paste prompt for fresh setup or retrofitting docs into an existing repo
+- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md` — copy-paste prompt for upgrading an existing `@pagesmith/docs` integration and adopting the latest guidance/features
+- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md` — agent operating rules plus follow-up prompts after the docs integration exists
 
 ## Content Structure
 
@@ -548,16 +548,16 @@ These files are available at `node_modules/@pagesmith/docs/` after installation:
 | File | Purpose |
 |---|---|
 | `REFERENCE.md` | Full reference for config, CLI, content, markdown, layouts, deployment |
-| `ai-guidelines/setup-docs.md` | Bootstrap/retrofit prompt for setting up docs in an existing repo |
-| `ai-guidelines/docs-guidelines.md` | Docs-specific structure, navigation, and ownership rules |
-| `ai-guidelines/markdown-guidelines.md` | Markdown authoring and pipeline guidance for docs projects |
-| `ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
-| `ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
-| `ai-guidelines/errors.md` | Error catalog with patterns and fixes |
-| `ai-guidelines/migration.md` | Upgrade playbook and prompt for existing integrations |
+| `skills/pagesmith-docs-setup/references/setup-docs.md` | Bootstrap/retrofit prompt for setting up docs in an existing repo |
+| `skills/pagesmith-docs-setup/references/docs-guidelines.md` | Docs-specific structure, navigation, and ownership rules |
+| `skills/pagesmith-docs-setup/references/markdown-guidelines.md` | Markdown authoring and pipeline guidance for docs projects |
+| `skills/pagesmith-docs-setup/references/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `skills/pagesmith-docs-setup/references/recipes.md` | Step-by-step recipes for common tasks |
+| `skills/pagesmith-docs-setup/references/errors.md` | Error catalog with patterns and fixes |
+| `skills/pagesmith-docs-setup/references/migration.md` | Upgrade playbook and prompt for existing integrations |
 | `schemas/*.schema.json` | Version-matched schemas for config, meta.json5, and docs frontmatter |
-| `ai-guidelines/llms.txt` | Compact AI context index |
-| `ai-guidelines/llms-full.txt` | Full AI context with all file pointers |
+| `skills/pagesmith-docs-setup/references/llms.txt` | Compact AI context index |
+| `skills/pagesmith-docs-setup/references/llms-full.txt` | Full AI context with all file pointers |
 
 ## License
 

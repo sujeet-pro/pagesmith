@@ -9,7 +9,10 @@ import type { ContentValidator, MdastNode, ResolvedValidatorContext } from './ty
 
 /** Extract plain text from a heading node's children. */
 function getTextContent(node: MdastNode): string {
-  if (node.type === 'text') return node.value ?? ''
+  // Text-bearing leaf nodes whose `value` carries user-visible characters.
+  // `inlineCode` in particular is common in heading text like `\`npm run\``
+  // and should not be treated as empty content.
+  if (node.type === 'text' || node.type === 'inlineCode') return node.value ?? ''
   if (node.children) return node.children.map(getTextContent).join('')
   return ''
 }

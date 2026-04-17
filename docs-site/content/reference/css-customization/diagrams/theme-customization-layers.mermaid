@@ -4,15 +4,15 @@
 
 flowchart LR
   subgraph Inputs["Customization inputs"]
-    Root[":root base tokens<br/>plus your global token overrides"]
-    Scheme["color-scheme-* on <html><br/>picks the light or dark branch"]
-    Variant["theme-* on <html><br/>applies theme-variant token overrides"]
-    Scoped["Scoped selector overrides<br/>target one component or region"]
-    Meta["theme.lightColor / theme.darkColor<br/>config values"]
+    Root[":root base tokens\nplus your global token overrides"]
+    Scheme["color-scheme-* on <html>\npicks the light or dark branch"]
+    Variant["theme-* on <html>\napplies theme-variant token overrides"]
+    Scoped["Scoped selector overrides\ntarget one component or region"]
+    Meta["theme.lightColor / theme.darkColor\nconfig values"]
   end
 
-  Tokens["Resolved custom properties<br/>including light-dark() values"]
-  Css["Pagesmith CSS bundles<br/>content, layout, code, and components"]
+  Tokens["Resolved custom properties\nincluding light-dark() values"]
+  Css["Pagesmith CSS bundles\ncontent, layout, code, and components"]
   Ui["Rendered site UI"]
   Chrome["Browser chrome color only"]
 
@@ -23,3 +23,5 @@ flowchart LR
   Css --> Ui
   Scoped --> Ui
   Meta --> Chrome
+
+  style Inputs fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

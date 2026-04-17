@@ -26,8 +26,8 @@
 <!-- source&#45;&gt;remark -->
 <g id="edge1" class="edge">
 <title>source&#45;&gt;remark</title>
-<path fill="none" stroke="#7b7b7b" d="M127.76,-59.04C142.36,-59.04 158.2,-59.04 173.8,-59.04"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="173.58,-62.54 183.58,-59.04 173.58,-55.54 173.58,-62.54"/>
+<path fill="none" stroke="#aaaaaa" d="M127.76,-59.04C142.36,-59.04 158.2,-59.04 173.8,-59.04"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="173.58,-62.54 183.58,-59.04 173.58,-55.54 173.58,-62.54"/>
 </g>
 <!-- userRemark -->
 <g id="node3" class="node">
@@ -39,8 +39,8 @@
 <!-- remark&#45;&gt;userRemark -->
 <g id="edge2" class="edge">
 <title>remark&#45;&gt;userRemark</title>
-<path fill="none" stroke="#7b7b7b" d="M352.14,-59.04C367.01,-59.04 382.61,-59.04 397.73,-59.04"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="397.67,-62.54 407.67,-59.04 397.67,-55.54 397.67,-62.54"/>
+<path fill="none" stroke="#aaaaaa" d="M352.14,-59.04C367.01,-59.04 382.61,-59.04 397.73,-59.04"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="397.67,-62.54 407.67,-59.04 397.67,-55.54 397.67,-62.54"/>
 </g>
 <!-- alias -->
 <g id="node4" class="node">
@@ -51,8 +51,8 @@
 <!-- userRemark&#45;&gt;alias -->
 <g id="edge3" class="edge">
 <title>userRemark&#45;&gt;alias</title>
-<path fill="none" stroke="#7b7b7b" d="M572.15,-59.04C587.15,-59.04 602.96,-59.04 618.34,-59.04"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="617.93,-62.54 627.93,-59.04 617.93,-55.54 617.93,-62.54"/>
+<path fill="none" stroke="#aaaaaa" d="M572.15,-59.04C587.15,-59.04 602.96,-59.04 618.34,-59.04"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="617.93,-62.54 627.93,-59.04 617.93,-55.54 617.93,-62.54"/>
 </g>
 <!-- bridge -->
 <g id="node5" class="node">
@@ -64,8 +64,8 @@
 <!-- alias&#45;&gt;bridge -->
 <g id="edge4" class="edge">
 <title>alias&#45;&gt;bridge</title>
-<path fill="none" stroke="#7b7b7b" d="M798.22,-59.04C813.05,-59.04 828.73,-59.04 844.24,-59.04"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="843.98,-62.54 853.98,-59.04 843.98,-55.54 843.98,-62.54"/>
+<path fill="none" stroke="#aaaaaa" d="M798.22,-59.04C813.05,-59.04 828.73,-59.04 844.24,-59.04"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="843.98,-62.54 853.98,-59.04 843.98,-55.54 843.98,-62.54"/>
 </g>
 <!-- rehype -->
 <g id="node6" class="node">
@@ -81,8 +81,8 @@
 <!-- bridge&#45;&gt;rehype -->
 <g id="edge5" class="edge">
 <title>bridge&#45;&gt;rehype</title>
-<path fill="none" stroke="#7b7b7b" d="M1062.71,-59.04C1078.03,-59.04 1093.74,-59.04 1108.82,-59.04"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="1108.71,-62.54 1118.71,-59.04 1108.71,-55.54 1108.71,-62.54"/>
+<path fill="none" stroke="#aaaaaa" d="M1062.71,-59.04C1078.03,-59.04 1093.74,-59.04 1108.82,-59.04"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="1108.71,-62.54 1118.71,-59.04 1108.71,-55.54 1108.71,-62.54"/>
 </g>
 <!-- post -->
 <g id="node7" class="node">
@@ -95,8 +95,8 @@
 <!-- rehype&#45;&gt;post -->
 <g id="edge6" class="edge">
 <title>rehype&#45;&gt;post</title>
-<path fill="none" stroke="#7b7b7b" d="M1284.45,-59.04C1298.9,-59.04 1314.37,-59.04 1330.04,-59.04"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="1329.96,-62.54 1339.96,-59.04 1329.96,-55.54 1329.96,-62.54"/>
+<path fill="none" stroke="#aaaaaa" d="M1284.45,-59.04C1298.9,-59.04 1314.37,-59.04 1330.04,-59.04"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="1329.96,-62.54 1339.96,-59.04 1329.96,-55.54 1329.96,-62.54"/>
 </g>
 <!-- output -->
 <g id="node8" class="node">
@@ -107,8 +107,8 @@
 <!-- post&#45;&gt;output -->
 <g id="edge7" class="edge">
 <title>post&#45;&gt;output</title>
-<path fill="none" stroke="#7b7b7b" d="M1621.04,-59.04C1637.19,-59.04 1652.98,-59.04 1667.25,-59.04"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="1666.84,-62.54 1676.84,-59.04 1666.84,-55.54 1666.84,-62.54"/>
+<path fill="none" stroke="#aaaaaa" d="M1621.04,-59.04C1637.19,-59.04 1652.98,-59.04 1667.25,-59.04"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="1666.84,-62.54 1676.84,-59.04 1666.84,-55.54 1666.84,-62.54"/>
 </g>
 </g>
 </svg>

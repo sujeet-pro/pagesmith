@@ -203,46 +203,70 @@ This generates:
 
 Point your AI assistant at the package-shipped setup prompt:
 
-> Add documentation to this repo using @pagesmith/docs. Read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` first and follow it exactly. Use `npx pagesmith-docs init --yes --ai` when it fits the repo, keep `pagesmith.config.json5` at the root, preserve useful existing docs content, and update the project memory files to point at the installed package guidance.
+> Add documentation to this repo using @pagesmith/docs. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` first and follow it exactly. Use `npx pagesmith-docs init --yes --ai` when it fits the repo, keep `pagesmith.config.json5` at the root, preserve useful existing docs content, and update the project memory files to point at the installed package guidance.
 
 ### Set up core via an AI assistant
 
-> Add content collections to this repo using @pagesmith/core. Read `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` first and follow it exactly. Keep the work focused on collections, validation, markdown rendering, and either `pagesmithContent` or direct `createContentLayer()` usage.
+> Add content collections to this repo using @pagesmith/core. Read `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` first and follow it exactly. Keep the work focused on collections, validation, markdown rendering, and either `pagesmithContent` or direct `createContentLayer()` usage.
 
 ### Reference files in npm packages
 
 The packages ship `REFERENCE.md`, agent guidance files, and `llms*.txt` inside the npm package. After installing, link to them from your project's `CLAUDE.md` or `AGENTS.md`:
 
 ```markdown
-For @pagesmith/docs usage and prompts, read node_modules/@pagesmith/docs/ai-guidelines/usage.md
+For @pagesmith/docs usage and prompts, read node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md
 For the full @pagesmith/docs reference, see node_modules/@pagesmith/docs/REFERENCE.md
-For @pagesmith/site usage and prompts, read node_modules/@pagesmith/site/ai-guidelines/usage.md
+For @pagesmith/site usage and prompts, read node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md
 For the full @pagesmith/site reference, see node_modules/@pagesmith/site/REFERENCE.md
-For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/ai-guidelines/usage.md
+For @pagesmith/core usage and prompts, read node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md
 For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REFERENCE.md
 ```
 
 Or copy the AGENTS.md template from the package:
-- `node_modules/@pagesmith/docs/ai-guidelines/AGENTS.md.template`
-- `node_modules/@pagesmith/site/ai-guidelines/AGENTS.md.template`
-- `node_modules/@pagesmith/core/ai-guidelines/AGENTS.md.template`
+- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/AGENTS.md.template`
+- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/AGENTS.md.template`
+- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/AGENTS.md.template`
+
+### Install consumer Agent Skills with `npx skills`
+
+Pagesmith publishes a set of [Agent Skills](https://agentskills.io/) so any compatible coding agent (Cursor, Claude Code, Codex, GitHub Copilot, Windsurf, Cline, Gemini CLI, and many more) can drive Pagesmith tasks end-to-end. Install them with the `agent-skills-cli` package via `npx`:
+
+```bash
+npx skills install \
+  @pagesmith/pagesmith-docs-setup \
+  @pagesmith/pagesmith-docs-add-page \
+  @pagesmith/pagesmith-docs-configure-nav \
+  @pagesmith/pagesmith-docs-add-search \
+  @pagesmith/pagesmith-docs-customize-theme \
+  @pagesmith/pagesmith-docs-deploy-gh-pages \
+  @pagesmith/pagesmith-generate-docs \
+  @pagesmith/pagesmith-site-setup \
+  @pagesmith/pagesmith-site-use-preset \
+  @pagesmith/pagesmith-site-customize-theme \
+  @pagesmith/pagesmith-core-add-collection \
+  @pagesmith/pagesmith-core-add-loader \
+  @pagesmith/pagesmith-core-customize-markdown \
+  @pagesmith/pagesmith-core-write-validator
+```
+
+The CLI auto-detects every supported agent in the repo and writes each skill into the right directory (`.cursor/skills`, `.claude/skills`, `.agents/skills`, `.codex/skills`, `.github/skills`, etc). Use `-t cursor,claude` to target specific agents or `--all` to install everywhere. Each skill reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the CLI flags and config schema match the version actually installed in the project, not a globally cached one.
+
+Browse the full set in [`skills/`](skills/) or pick the subset that matches the package you installed.
 
 ### AI guidance files in each package
 
-Both packages ship these files under `node_modules/@pagesmith/<pkg>/`:
+Each package ships these files under `node_modules/@pagesmith/<pkg>/`:
 
 | File | Purpose |
 |---|---|
 | `REFERENCE.md` | Complete reference (config, API, markdown, layouts, deployment) |
 | `README.md` | User-facing quick start and API overview |
-| `ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts for common workflows |
-| `ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
-| `ai-guidelines/errors.md` | Error catalog with patterns and fixes |
-| `ai-guidelines/migration.md` | Pre-1.0 upgrade notes |
-| `ai-guidelines/changelog-notes.md` | Version highlights |
-| `ai-guidelines/AGENTS.md.template` | Template for project-level AGENTS.md |
-| `ai-guidelines/llms.txt` | Compact AI context index |
-| `ai-guidelines/llms-full.txt` | Full AI context with all file pointers |
+| `llms.txt` | Compact, package-scoped AI context index |
+| `llms-full.txt` | Full AI context with all file pointers for this package |
+| `skills/pagesmith-<pkg>-<action>/SKILL.md` | Self-contained Agent Skill for a specific task (setup, add-loader, configure-nav, deploy-gh-pages, …) |
+| `skills/pagesmith-<pkg>-<action>/references/**` | Reference files that the sibling `SKILL.md` depends on, duplicated per-skill so each skill is self-contained |
+
+The canonical home for per-package consumer guidance (setup prompts, package rules, markdown rules, usage, recipes, errors, migration, AGENTS template) is `skills/pagesmith-<pkg>-setup/references/**` inside the tarball.
 
 
 ## Docs

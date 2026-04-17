@@ -293,7 +293,10 @@ export function createCoreMcpServer(options: CoreMcpServerOptions): McpServer {
     async () =>
       asTextResource(
         'pagesmith://core/agents/usage',
-        resolvePackageDocPath(import.meta.dirname, 'ai-guidelines/usage.md'),
+        resolvePackageDocPath(
+          import.meta.dirname,
+          'skills/pagesmith-core-setup/references/usage.md',
+        ),
       ),
   )
 
@@ -308,7 +311,7 @@ export function createCoreMcpServer(options: CoreMcpServerOptions): McpServer {
     async () =>
       asTextResource(
         'pagesmith://core/llms-full',
-        resolvePackageDocPath(import.meta.dirname, 'ai-guidelines/llms-full.txt'),
+        resolvePackageDocPath(import.meta.dirname, 'llms-full.txt'),
       ),
   )
 

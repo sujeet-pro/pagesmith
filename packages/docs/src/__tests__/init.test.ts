@@ -8,7 +8,7 @@ import {
   getDocsConfigSchemaRef,
   type InitAnswers,
   updateInitConfigFile,
-} from '../cli/init.js'
+} from '../cli/init-fs.js'
 
 function makeAnswers(overrides: Partial<InitAnswers> = {}): InitAnswers {
   return {

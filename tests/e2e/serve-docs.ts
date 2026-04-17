@@ -5,9 +5,14 @@
  * this script tiny and dependency-free; the Pagesmith preview server lives in
  * `scripts/preview-gh-pages.ts` and is more feature-rich, but for e2e we only
  * need deterministic, reuse-existing-server-friendly behavior.
+ *
+ * The Pagesmith docs site builds with `basePath: '/pagesmith'` but the output
+ * directory (`gh-pages/`) contains the site at its root. When Playwright
+ * requests URLs under `/pagesmith/...` we therefore strip the base prefix
+ * before resolving files, so `/pagesmith/llms.txt` maps to `gh-pages/llms.txt`.
  */
 
-import { createReadStream, existsSync, statSync } from 'fs'
+import { createReadStream, existsSync, readFileSync, statSync } from 'fs'
 import { createServer } from 'http'
 import { extname, join, resolve } from 'path'
 
@@ -34,6 +39,25 @@ if (!existsSync(ROOT)) {
   process.exit(1)
 }
 
+/**
+ * Read the repo config to discover the configured basePath so the static
+ * server matches production routing during tests.
+ */
+function readBasePath(): string {
+  try {
+    const configPath = resolve(import.meta.dirname, '..', '..', 'pagesmith.config.json5')
+    if (!existsSync(configPath)) return ''
+    const text = readFileSync(configPath, 'utf-8')
+    const match = text.match(/basePath\s*:\s*['"]([^'"]+)['"]/)
+    const raw = match?.[1] ?? ''
+    return raw.replace(/\/+$/, '')
+  } catch {
+    return ''
+  }
+}
+
+const BASE = readBasePath()
+
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -52,7 +76,13 @@ const MIME: Record<string, string> = {
 }
 
 function resolveRequestPath(urlPath: string): string | undefined {
-  const clean = urlPath.split('?')[0]?.replace(/\/+$/, '') ?? ''
+  const noQuery = urlPath.split('?')[0] ?? ''
+  const noTrailing = noQuery.replace(/\/+$/, '')
+  let clean = noTrailing
+  if (BASE) {
+    if (clean === BASE) clean = ''
+    else if (clean.startsWith(`${BASE}/`)) clean = clean.slice(BASE.length)
+  }
   const candidates = [
     join(ROOT, clean),
     join(ROOT, clean, 'index.html'),
@@ -73,6 +103,10 @@ const server = createServer((req, res) => {
     res.end('Not found')
     return
   }
+  // Treat the 404.html fallback as a real 404 response so clients can
+  // distinguish missing pages from real content.
+  const isFallback = filePath === join(ROOT, '404.html')
+  res.statusCode = isFallback ? 404 : 200
   const mime = MIME[extname(filePath)] ?? 'application/octet-stream'
   res.setHeader('content-type', mime)
   res.setHeader('cache-control', 'no-store')

@@ -25,16 +25,29 @@ Reference for the Pagesmith site toolkit.
 
 ## Adoption Paths
 
-- AI-first bootstrap or retrofit: `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`
-- Follow-up usage patterns and prompts: `node_modules/@pagesmith/site/ai-guidelines/usage.md`
-- Upgrade an existing integration: `node_modules/@pagesmith/site/ai-guidelines/migration.md`
+- AI-first bootstrap or retrofit: `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`
+- Follow-up usage patterns and prompts: `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md`
+- Upgrade an existing integration: `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/migration.md`
 - Use `@pagesmith/docs` instead when you want the opinionated docs preset and the `pagesmith-docs` CLI
+
+## Agent Skills
+
+Install the companion [Agent Skills](https://agentskills.io/) so AI coding agents can drive site tasks end-to-end:
+
+```bash
+npx skills install \
+  @pagesmith/pagesmith-site-setup \
+  @pagesmith/pagesmith-site-use-preset \
+  @pagesmith/pagesmith-site-customize-theme
+```
+
+Each skill is self-contained and triggers when the user asks the agent to bootstrap a custom site, consume a preset, or customize the Pagesmith theme. Browse the full set at [pagesmith `skills/`](https://github.com/sujeet-pro/pagesmith/tree/main/skills).
 
 ## Setup Prompt
 
 For agent-driven setup in an existing repository, start with:
 
-- Package path: `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`
+- Package path: `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`
 - Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-site.md](https://projects.sujeet.pro/pagesmith/prompts/setup-site.md)
 
 ## Config API
@@ -255,26 +268,30 @@ Commands:
 - `pagesmith-site dev`
 - `pagesmith-site build`
 - `pagesmith-site preview`
+- `pagesmith-site validate`
 - `pagesmith-site init`
 - `pagesmith-site mcp`
 
 Shared flags:
 
 - `--preset <module>`
-- `--config <path>`
+- `--config <path>` (auto-discovers `pagesmith.config.{ts,mts,js,mjs,json5,json}` when omitted)
 - `--out-dir <path>`
 - `--base-path <path>`
 - `-p, --port <number>`
 - `--open`
 - `--log-level <level>`
+- `--yes` / `--non-interactive` / `--interactive` (passed to the preset's init flow)
 - `-h, --help`
 - `-v, --version`
 
 Important behavior:
 
-- the fallback preset is `@pagesmith/site/preset`, which exists to surface a helpful error when no real preset was selected
-- `--preset`, `PAGESMITH_PRESET`, and top-level `preset` / `presets` choose the active preset
-- use `pagesmith-docs` when you want the built-in docs workflow from `@pagesmith/docs`
+- arg parsing is built on `cac`; help (`--help`) and version (`--version`) are auto-generated per command.
+- the fallback preset is `@pagesmith/site/preset`, which exists to surface a helpful error when no real preset was selected.
+- `--preset`, `PAGESMITH_PRESET`, and top-level `preset` / `presets` choose the active preset.
+- `init` and `mcp` pass their argv through to the active preset; the docs preset is the canonical implementer for both.
+- use `pagesmith-docs` when you want the built-in docs workflow from `@pagesmith/docs`.
 
 ## Vite
 
@@ -512,12 +529,12 @@ Includes:
 | `@pagesmith/site/runtime/*` | Browser runtime entry points |
 | `@pagesmith/site/vite` | SSG, prerender, shared asset Vite helpers |
 | `@pagesmith/site/ssg-utils` | Shared SSG helpers |
-| `@pagesmith/site/ai-guidelines/*` | Package AI guidance |
+| `@pagesmith/site/skills/pagesmith-site-setup/references/*` | Package AI guidance |
 
 ## Related Docs
 
 - `README.md`
-- `ai-guidelines/site-guidelines.md`
-- `ai-guidelines/usage.md`
+- `skills/pagesmith-site-setup/references/site-guidelines.md`
+- `skills/pagesmith-site-setup/references/usage.md`
 - `../core/REFERENCE.md`
 - `../docs/REFERENCE.md`

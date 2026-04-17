@@ -10,9 +10,9 @@ order: 4
 
 Use the package-owned setup prompt instead of a generic install request:
 
-> Set up `@pagesmith/core` in this project. Read `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` first and follow it exactly. Keep the work focused on collections, schemas, `createContentLayer()`, and either `entry.render()` or `pagesmithContent` for Vite.
+> Set up `@pagesmith/core` in this project. Read `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` first and follow it exactly. Keep the work focused on collections, schemas, `createContentLayer()`, and either `entry.render()` or `pagesmithContent` for Vite.
 
-If the project also needs the shared Pagesmith site layer, tell the agent to read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` too. If you want the convention-based docs workflow instead, use [Docs Getting Started](/guide/docs-getting-started).
+If the project also needs the shared Pagesmith site layer, tell the agent to read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` too. If you want the convention-based docs workflow instead, use [Docs Getting Started](/guide/docs-getting-started).
 
 To add AI memory files without scaffolding a docs site, run:
 
@@ -206,10 +206,10 @@ export function render(url: string, config: SsgRenderConfig): string {
 
 When you are working with an installed project, these are the first files to hand to an agent:
 
-- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
-- `node_modules/@pagesmith/core/ai-guidelines/usage.md`
+- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`
+- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`
 - `node_modules/@pagesmith/core/REFERENCE.md`
-- `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` when the project also uses `@pagesmith/site`
+- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` when the project also uses `@pagesmith/site`
 - `.pagesmith/markdown-guidelines.md` after AI artifacts are installed
 
 ## Import Map

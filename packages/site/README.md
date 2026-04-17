@@ -27,16 +27,16 @@ If you are building a docs site with the default Pagesmith docs preset, install 
 
 ## Adoption Paths
 
-- AI-first bootstrap or retrofit: start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`
-- Follow-up usage patterns and prompts: `node_modules/@pagesmith/site/ai-guidelines/usage.md`
-- Upgrade an existing integration: start with `node_modules/@pagesmith/site/ai-guidelines/migration.md`
+- AI-first bootstrap or retrofit: start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`
+- Follow-up usage patterns and prompts: `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md`
+- Upgrade an existing integration: start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/migration.md`
 - Manual setup: follow the Vite, JSX, CSS/runtime, and CLI sections below
 
 ## Setup Prompt
 
 For agent-driven setup in an existing repository, start with the dedicated prompt file:
 
-- Package path: `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`
+- Package path: `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`
 - Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-site.md](https://projects.sujeet.pro/pagesmith/prompts/setup-site.md)
 
 ## Quick Start
@@ -262,9 +262,9 @@ For typed custom-site config, `@pagesmith/site/schemas` exports `SiteUserConfigS
 ## Further Reading
 
 - `REFERENCE.md`
-- `ai-guidelines/setup-site.md`
-- `ai-guidelines/site-guidelines.md`
-- `ai-guidelines/usage.md`
+- `skills/pagesmith-site-setup/references/setup-site.md`
+- `skills/pagesmith-site-setup/references/site-guidelines.md`
+- `skills/pagesmith-site-setup/references/usage.md`
 - `../core/README.md`
 - `../docs/README.md`
 

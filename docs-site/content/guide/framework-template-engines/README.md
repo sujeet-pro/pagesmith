@@ -6,7 +6,7 @@ description: Build content-driven static sites using EJS or Handlebars templates
 # Template Engines (EJS & Handlebars)
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Set up a Pagesmith static site using [EJS/Handlebars] templates with `createContentLayer`. Create `content.config.mjs` on `@pagesmith/site`, keep the app-facing imports on `@pagesmith/site`, use `createContentLayer()` from `@pagesmith/site`, wire `pagesmithSsg` from `@pagesmith/site/vite`, and build the HTML shell in templates. Read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and `node_modules/@pagesmith/site/ai-guidelines/usage.md` for reference."
+> Ask your AI agent: "Set up a Pagesmith static site using [EJS/Handlebars] templates with `createContentLayer`. Create `content.config.mjs` on `@pagesmith/site`, keep the app-facing imports on `@pagesmith/site`, use `createContentLayer()` from `@pagesmith/site`, wire `pagesmithSsg` from `@pagesmith/site/vite`, and build the HTML shell in templates. Read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` and `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md` for reference."
 > Then read on to understand what happened and customize further.
 
 The template engine integrations keep `@pagesmith/site` as the app-facing package for both content and site-building concerns. Unlike the React, Solid, and Svelte examples that use virtual content modules (`virtual:content/*`), these examples use the programmatic `createContentLayer` API directly. The result is a fully static site with no framework runtime shipped to the browser.

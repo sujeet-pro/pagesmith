@@ -3,13 +3,13 @@
 %%{init: {'htmlLabels': false}}%%
 
 flowchart TD
-    cfg["content.config.mjs<br/>defineCollection + schemas"]
-    vite["Vite config<br/>pagesmithSsg + sharedAssetsPlugin"]
-    entry["SSR entry server<br/>getLayer per root"]
+    cfg["content.config.mjs\ndefineCollection + schemas"]
+    vite["Vite config\npagesmithSsg + sharedAssetsPlugin"]
+    entry["SSR entry server\ngetLayer per root"]
     layer["createContentLayer()"]
-    md["entry.render()<br/>markdown to HTML"]
-    tpl["EJS or Handlebars<br/>layout + page bodies"]
-    out["Static HTML + assets<br/>Pagefind optional"]
+    md["entry.render()\nmarkdown to HTML"]
+    tpl["EJS or Handlebars\nlayout + page bodies"]
+    out["Static HTML + assets\nPagefind optional"]
 
     cfg --> layer
     vite --> entry

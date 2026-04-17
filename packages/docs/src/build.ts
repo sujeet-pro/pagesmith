@@ -18,7 +18,7 @@ import {
   getThemeRuntimeEntry,
   getThemeStylesEntry,
   reportConfigIssues,
-  resolveDocsConfig,
+  resolveDocsConfigAsync,
   validateConfig,
   type DocsBuildOptions,
   type ResolvedDocsConfig,
@@ -185,7 +185,7 @@ function copyLlmsFiles(config: ResolvedDocsConfig): void {
 
 export async function build(options: DocsBuildOptions = {}): Promise<void> {
   const startTime = performance.now()
-  const config = resolveDocsConfig(options.configPath, {
+  const config = await resolveDocsConfigAsync(options.configPath, {
     outDir: options.outDir,
     basePath: options.basePath,
   })
@@ -270,7 +270,7 @@ export async function build(options: DocsBuildOptions = {}): Promise<void> {
  * Used by the dev server for fast content-only rebuilds.
  */
 export async function rebuildContent(options: DocsBuildOptions = {}): Promise<void> {
-  const config = resolveDocsConfig(options.configPath, {
+  const config = await resolveDocsConfigAsync(options.configPath, {
     outDir: options.outDir,
     basePath: options.basePath,
   })

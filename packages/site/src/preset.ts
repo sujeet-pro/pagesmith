@@ -12,12 +12,42 @@ export type SiteDevOptions = SiteBuildOptions & {
   logLevel?: SiteLogLevel
 }
 
+export type SiteValidateOptions = SiteBuildOptions & {
+  /** Explicit content directory override (defaults to the preset's content dir). */
+  contentDir?: string
+  /** Skip content validation. */
+  skipContent?: boolean
+  /** Skip build-output validation. */
+  skipBuild?: boolean
+  /** Fetch external URLs to check reachability. */
+  checkExternal?: boolean
+  /** Enforce webp+avif siblings for raster <picture> fallbacks. */
+  requireRasterModernFormats?: boolean
+  /** Enforce light+dark <picture> sources. */
+  requireThemeVariants?: boolean
+  /** Trailing-slash override for link resolution in build output. */
+  trailingSlash?: boolean
+  /** Fetch timeout (ms). */
+  timeoutMs?: number
+  /** Fetch concurrency. */
+  concurrency?: number
+  /** Print files with no issues during the content report. */
+  showClean?: boolean
+}
+
 export interface SitePreset {
   build?(options?: SiteBuildOptions): Promise<void>
   dev?(options?: SiteDevOptions): Promise<void>
   preview?(options?: SiteDevOptions): Promise<void>
   init?(argv: string[]): Promise<void>
   mcp?(argv: string[]): Promise<void>
+  /**
+   * Run the preset's validation pipeline (content + build output). Presets
+   * should read their config, resolve content/outDir/basePath, and return a
+   * non-zero exit when issues are found. Presets that do not define this
+   * method fall back to the generic site validator in the CLI.
+   */
+  validate?(options?: SiteValidateOptions): Promise<number>
 }
 
 function missingPreset(command: string): never {

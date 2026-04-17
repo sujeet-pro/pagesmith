@@ -16,6 +16,8 @@ export type MdastNode = {
   lang?: string | null
   meta?: string | null
   value?: string
+  /** Alt text — present on `image` nodes. */
+  alt?: string
   children?: MdastNode[]
   position?: { start: { line: number } }
 }

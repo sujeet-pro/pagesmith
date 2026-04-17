@@ -4,7 +4,7 @@ Handlebars-based static site using `@pagesmith/site` as the app-facing package f
 
 ## AI-First Starting Point
 
-To recreate this shape in another repository, install `@pagesmith/site`, `handlebars`, and your Vite tooling, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` for the content model, direct rendering helpers, and Vite/SSG flow.
+To recreate this shape in another repository, install `@pagesmith/site`, `handlebars`, and your Vite tooling, then start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` for the content model, direct rendering helpers, and Vite/SSG flow.
 
 Tell the agent to:
 

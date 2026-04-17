@@ -198,4 +198,105 @@ describe('validateBuildOutput', () => {
     const result = validateBuildOutput({ outDir })
     expect(result.passed).toBe(true)
   })
+
+  it('detects broken in-page anchors when checkInPageAnchors is enabled', () => {
+    const outDir = makeTempDir()
+    writeFileSync(
+      join(outDir, 'index.html'),
+      '<!DOCTYPE html><html><body>' +
+        '<h2 id="intro">Intro</h2>' +
+        '<a href="#intro">Intro</a>' +
+        '<a href="#missing">Missing</a>' +
+        '</body></html>',
+    )
+
+    const permissive = validateBuildOutput({ outDir })
+    expect(permissive.passed).toBe(true)
+
+    const strict = validateBuildOutput({ outDir, checkInPageAnchors: true })
+    expect(strict.passed).toBe(false)
+    expect(strict.errors.some((e) => e.message.includes('#missing'))).toBe(true)
+    expect(strict.errors.some((e) => e.message.includes('#intro'))).toBe(false)
+  })
+
+  it('warns when themed picture elements miss a theme variant', () => {
+    const outDir = makeTempDir()
+    writeFileSync(
+      join(outDir, 'index.html'),
+      '<!DOCTYPE html><html><body>' +
+        '<figure class="ps-figure-themed"><picture>' +
+        '<source srcset="/a-light.svg" data-scheme="light">' +
+        '<img src="/a-light.svg" alt="">' +
+        '</picture></figure></body></html>',
+    )
+    writeFileSync(
+      join(outDir, 'a-light.svg'),
+      '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>',
+    )
+
+    const result = validateBuildOutput({
+      outDir,
+      requireThemeVariants: true,
+      requireAssetHash: false,
+    })
+    expect(result.warnings.some((w) => w.message.includes('dark variant'))).toBe(true)
+  })
+
+  it('reports missing required output files', () => {
+    const outDir = makeTempDir()
+    writeFileSync(join(outDir, 'index.html'), '<!DOCTYPE html><html><body></body></html>')
+
+    const result = validateBuildOutput({
+      outDir,
+      requiredFiles: [['favicon.svg', 'favicon.ico'], 'sitemap.xml', 'robots.txt'],
+    })
+    expect(result.passed).toBe(false)
+    expect(result.errors.some((e) => e.message.includes('favicon.svg | favicon.ico'))).toBe(true)
+    expect(result.errors.some((e) => e.message.includes('sitemap.xml'))).toBe(true)
+    expect(result.errors.some((e) => e.message.includes('robots.txt'))).toBe(true)
+  })
+
+  it('passes required-file check when an alternative exists', () => {
+    const outDir = makeTempDir()
+    writeFileSync(join(outDir, 'index.html'), '<!DOCTYPE html><html><body></body></html>')
+    writeFileSync(join(outDir, 'favicon.ico'), 'x')
+    writeFileSync(join(outDir, 'sitemap.xml'), '<urlset/>')
+    writeFileSync(join(outDir, 'robots.txt'), 'User-agent: *\n')
+
+    const result = validateBuildOutput({
+      outDir,
+      requiredFiles: [['favicon.svg', 'favicon.ico'], 'sitemap.xml', 'robots.txt'],
+    })
+    expect(result.passed).toBe(true)
+  })
+
+  it('warns when both trailing-slash forms are not available', () => {
+    const outDir = makeTempDir()
+    writeFileSync(join(outDir, 'about.html'), '<!DOCTYPE html><html><body>About</body></html>')
+    writeFileSync(join(outDir, 'index.html'), '<!DOCTYPE html><html><body>Home</body></html>')
+
+    const result = validateBuildOutput({ outDir, requireBothTrailingSlashForms: true })
+    expect(result.warnings.some((w) => w.message.includes('trailing-slash alternative'))).toBe(true)
+  })
+
+  it('warns when raster pictures miss modern formats', () => {
+    const outDir = makeTempDir()
+    writeFileSync(
+      join(outDir, 'index.html'),
+      '<!DOCTYPE html><html><body>' +
+        '<picture>' +
+        '<source srcset="/hero.png" type="image/png">' +
+        '<img src="/hero.png" alt="">' +
+        '</picture></body></html>',
+    )
+    writeFileSync(join(outDir, 'hero.png'), 'x')
+
+    const result = validateBuildOutput({
+      outDir,
+      requireRasterModernFormats: true,
+      requireAssetHash: false,
+    })
+    expect(result.warnings.some((w) => w.message.includes('webp'))).toBe(true)
+    expect(result.warnings.some((w) => w.message.includes('avif'))).toBe(true)
+  })
 })

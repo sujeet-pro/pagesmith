@@ -16,16 +16,16 @@ export function renderClaudeSkill(skillName: string, profile: AiInstallProfile):
     'When helping:',
     '- prefer `defineCollection`, `defineConfig`, and `createContentLayer`',
     '- recommend folder-based entries when markdown references sibling assets',
-    '- for content-layer bootstrap or retrofit work, start with `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`',
-    '- if the project also uses `@pagesmith/site`, start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` before changing site shell, preset, or SSG behavior',
+    '- for content-layer bootstrap or retrofit work, start with `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`',
+    '- if the project also uses `@pagesmith/site`, start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` before changing site shell, preset, or SSG behavior',
     '- for assistant artifact generation in core/site projects, use `npx pagesmith-core ai --profile default`',
     '- for docs projects, use `npx pagesmith-docs init --ai`',
     '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
     ...(profile === 'docs'
       ? [
-          '- for docs bootstrap or retrofit tasks, start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`',
-          '- for shared site shell, preset, or runtime work inside docs projects, also read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and `node_modules/@pagesmith/site/REFERENCE.md`',
-          '- read `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md` for the docs package workflow and `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md` for supported markdown features',
+          '- for docs bootstrap or retrofit tasks, start with `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`',
+          '- for shared site shell, preset, or runtime work inside docs projects, also read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` and `node_modules/@pagesmith/site/REFERENCE.md`',
+          '- read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md` for the docs package workflow and `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` for supported markdown features',
           '- for docs sites, derive top navigation from top-level content folders',
           '- use `content/README.md` for the home page',
           '- use frontmatter fields like `sidebarLabel`, `navLabel`, and `order` for docs navigation',
@@ -38,26 +38,26 @@ export function renderClaudeSkill(skillName: string, profile: AiInstallProfile):
     'For package guidance and full API reference, read the package-shipped docs:',
     ...(profile === 'docs'
       ? [
-          '- `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`',
-          '- `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`',
-          '- `node_modules/@pagesmith/site/ai-guidelines/usage.md`',
+          '- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`',
+          '- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`',
+          '- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md`',
           '- `node_modules/@pagesmith/site/REFERENCE.md`',
-          '- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`',
-          '- `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`',
-          '- `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`',
-          '- `node_modules/@pagesmith/docs/ai-guidelines/usage.md`',
+          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`',
+          '- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`',
+          '- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`',
+          '- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`',
           '- `node_modules/@pagesmith/docs/REFERENCE.md`',
           '- `node_modules/@pagesmith/docs/schemas/*.schema.json`',
-          '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`',
-          '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`',
-          '- `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
+          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`',
+          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`',
+          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`',
           '- `node_modules/@pagesmith/core/REFERENCE.md`',
         ]
       : [
-          '- `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`',
-          '- `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`',
-          '- `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`',
-          '- `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
+          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`',
+          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`',
+          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`',
+          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`',
           '- `node_modules/@pagesmith/core/REFERENCE.md`',
         ]),
     '',
@@ -72,7 +72,7 @@ export function renderUpdateDocsSkill(profile: AiInstallProfile): string {
   const docsSteps =
     profile === 'docs'
       ? [
-          '1. Read package guidance first: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`, `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`, `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`, `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`, `node_modules/@pagesmith/docs/ai-guidelines/usage.md`, plus `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`, and `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
+          '1. Read package guidance first: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`, `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`, `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`, `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`, `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`, plus `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`, `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`, `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`, and `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`',
           '2. Read `pagesmith.config.json5` to understand the docs configuration',
           '3. Read all `meta.json5` files to understand the current content structure and page ordering',
           '4. Read the project source code to identify public APIs, types, exports, config options, and CLI commands',
@@ -92,7 +92,7 @@ export function renderUpdateDocsSkill(profile: AiInstallProfile): string {
           '11. Ensure heading hierarchy is sequential (no skipping levels)',
         ]
       : [
-          '1. Read package guidance first: `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`, and `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
+          '1. Read package guidance first: `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`, `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`, `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`, and `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`',
           '2. Read `content.config.ts` or equivalent to understand the content collections',
           '3. Read the project source code to identify what needs documentation',
           '4. For each existing content entry:',
@@ -137,7 +137,7 @@ export function renderUpdateAllDocsSkill(profile: AiInstallProfile): string {
   const docsSteps =
     profile === 'docs'
       ? [
-          '1. Read package guidance first: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`, `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`, `node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md`, `node_modules/@pagesmith/docs/ai-guidelines/markdown-guidelines.md`, `node_modules/@pagesmith/docs/ai-guidelines/usage.md`, plus `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`, and `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
+          '1. Read package guidance first: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`, `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`, `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`, `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`, `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`, plus `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`, `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`, `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`, and `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`',
           '2. Read `pagesmith.config.json5` and all `meta.json5` files before editing anything',
           '3. Discover project skills in `.claude/skills/`, `.codex/skills/`, and `.gemini/commands/` and identify docs-update related skills',
           '4. Scan source code, README, CHANGELOG, package exports, and CLI commands to build a complete docs delta list',
@@ -150,7 +150,7 @@ export function renderUpdateAllDocsSkill(profile: AiInstallProfile): string {
           '11. Validate navigation integrity and ensure every linked page exists',
         ]
       : [
-          '1. Read package guidance first: `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`, `node_modules/@pagesmith/core/ai-guidelines/core-guidelines.md`, `node_modules/@pagesmith/core/ai-guidelines/markdown-guidelines.md`, and `node_modules/@pagesmith/core/ai-guidelines/usage.md`',
+          '1. Read package guidance first: `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`, `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`, `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`, and `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`',
           '2. Discover docs/update skills in the project and align them to current Pagesmith conventions',
           '3. Scan source code, README, CHANGELOG, package exports, and CLI commands to build a complete docs delta list',
           '4. Update all content entries to match implementation and remove stale details',

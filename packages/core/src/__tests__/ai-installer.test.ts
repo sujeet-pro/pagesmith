@@ -54,7 +54,9 @@ describe('getAiArtifacts', () => {
     const docsContent = getAiArtifactContent('claude', 'memory', { profile: 'docs' })
     expect(docsContent).toContain('Docs-specific rules')
     expect(defaultContent).not.toContain('Docs-specific rules')
-    expect(docsContent).toContain('node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md')
+    expect(docsContent).toContain(
+      'node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md',
+    )
     expect(docsContent).toContain('node_modules/@pagesmith/docs/schemas/')
     expect(docsContent).not.toContain('node_modules/@pagesmith/docs/docs/')
   })
@@ -65,7 +67,7 @@ describe('getAiArtifacts', () => {
       readBundled('@pagesmith/core/llms-full'),
     )
     expect(getAiArtifactContent('shared', 'markdown-guidelines')).toBe(
-      readBundled('@pagesmith/core/ai-guidelines/markdown-guidelines.md'),
+      readBundled('@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md'),
     )
   })
 
@@ -77,13 +79,17 @@ describe('getAiArtifacts', () => {
       readBundled('@pagesmith/docs/llms-full'),
     )
     expect(getAiArtifactContent('shared', 'markdown-guidelines', { profile: 'docs' })).toBe(
-      readBundled('@pagesmith/docs/ai-guidelines/markdown-guidelines.md'),
+      readBundled('@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md'),
     )
   })
 
   it('keeps packaged markdown guidance documenting the local image stage', () => {
-    const coreGuide = readBundled('@pagesmith/core/ai-guidelines/markdown-guidelines.md')
-    const docsGuide = readBundled('@pagesmith/docs/ai-guidelines/markdown-guidelines.md')
+    const coreGuide = readBundled(
+      '@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md',
+    )
+    const docsGuide = readBundled(
+      '@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md',
+    )
 
     expect(coreGuide).toContain('rehype-local-images')
     expect(coreGuide).toContain('sourcePath')
@@ -95,10 +101,18 @@ describe('getAiArtifacts', () => {
     const memory = getAiArtifactContent('claude', 'memory', { profile: 'default' })
     const skill = getAiArtifactContent('claude', 'skill', { profile: 'default' })
 
-    expect(memory).toContain('node_modules/@pagesmith/core/ai-guidelines/setup-core.md')
-    expect(memory).toContain('node_modules/@pagesmith/site/ai-guidelines/setup-site.md')
-    expect(skill).toContain('node_modules/@pagesmith/core/ai-guidelines/setup-core.md')
-    expect(skill).toContain('node_modules/@pagesmith/site/ai-guidelines/setup-site.md')
+    expect(memory).toContain(
+      'node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md',
+    )
+    expect(memory).toContain(
+      'node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md',
+    )
+    expect(skill).toContain(
+      'node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md',
+    )
+    expect(skill).toContain(
+      'node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md',
+    )
   })
 
   it('generates valid managed block markers', () => {
@@ -132,7 +146,7 @@ describe('getAiArtifacts', () => {
     })
 
     expect(artifacts.find((a) => a.kind === 'markdown-guidelines')?.content.trim()).toBe(
-      readBundled('@pagesmith/docs/ai-guidelines/markdown-guidelines.md'),
+      readBundled('@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md'),
     )
     expect(artifacts.find((a) => a.kind === 'llms-full')?.content).toContain(
       readBundled('@pagesmith/docs/llms-full'),
@@ -146,8 +160,12 @@ describe('getAiArtifacts', () => {
 
   it('references packaged docs guidance and schemas in docs profile skills', () => {
     const content = getAiArtifactContent('claude', 'skill', { profile: 'docs' })
-    expect(content).toContain('node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md')
-    expect(content).toContain('node_modules/@pagesmith/docs/ai-guidelines/docs-guidelines.md')
+    expect(content).toContain(
+      'node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md',
+    )
+    expect(content).toContain(
+      'node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md',
+    )
     expect(content).toContain('node_modules/@pagesmith/docs/schemas/*.schema.json')
     expect(content).toContain('./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json')
     expect(content).not.toContain('node_modules/@pagesmith/docs/docs/')
@@ -155,7 +173,9 @@ describe('getAiArtifacts', () => {
 
   it('keeps docs update skills aligned to root config and packaged guidance paths', () => {
     const content = getAiArtifactContent('claude', 'update-docs', { profile: 'docs' })
-    expect(content).toContain('node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md')
+    expect(content).toContain(
+      'node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md',
+    )
     expect(content).toContain('Read `pagesmith.config.json5` to understand the docs configuration')
     expect(content).not.toContain('docs/pagesmith.config.json5')
   })

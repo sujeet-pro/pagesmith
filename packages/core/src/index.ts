@@ -64,20 +64,34 @@ export type { ContentLayerConfig, ContentPlugin } from './schemas/content-config
 
 // ── Validation ──
 export type {
+  ContentFileResult,
   ContentValidator,
+  DiscoveredContentConfig,
+  FileSchemaEntry,
+  LinkValidatorOptions,
+  LoadedCollection,
+  LoadedCollections,
   ResolvedValidatorContext,
+  ValidateContentOptions,
+  ValidateContentSummary,
   ValidationEntryResult,
   ValidationIssue,
   ValidationResult,
   ValidatorContext,
 } from './validation'
 export {
+  buildFileSchemaMap,
   builtinMarkdownValidators,
   codeBlockValidator,
   createLinkValidator,
+  discoverContentConfig,
+  formatContentValidationReport,
   headingValidator,
   linkValidator,
+  loadContentCollections,
+  loadContentSchemaMap,
   runValidators,
+  validateContent,
 } from './validation'
 
 // ── Loaders ──

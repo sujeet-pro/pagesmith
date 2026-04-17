@@ -3,19 +3,19 @@
 %%{init: {'htmlLabels': false}}%%
 
 flowchart TD
-    files["Content files<br/>markdown, JSON, and sibling assets"]
-    config["content.config.ts<br/>defineCollection() + defineConfig()"]
+    files["Content files\nmarkdown, JSON, and sibling assets"]
+    config["content.config.ts\ndefineCollection() + defineConfig()"]
 
     files --> config
 
-    config --> layer["createContentLayer()<br/>shared typed content layer"]
+    config --> layer["createContentLayer()\nshared typed content layer"]
     layer --> direct["getCollection() + entry.render()"]
-    direct --> framework["Framework host or custom SSR app<br/>renders only the entries it needs"]
+    direct --> framework["Framework host or custom SSR app\nrenders only the entries it needs"]
 
-    config --> contentPlugin["pagesmithContent(collections)<br/>from @pagesmith/core/vite"]
-    contentPlugin --> virtual["virtual:content/* modules<br/>typed content in app code"]
+    config --> contentPlugin["pagesmithContent(collections)\nfrom @pagesmith/core/vite"]
+    contentPlugin --> virtual["virtual:content/* modules\ntyped content in app code"]
     virtual --> viteApp["Vite application code"]
 
-    config --> sitePlugin["Optional pagesmithSsg()<br/>from @pagesmith/site/vite"]
+    config --> sitePlugin["Optional pagesmithSsg()\nfrom @pagesmith/site/vite"]
     sitePlugin --> viteApp
     viteApp --> staticOutput["Dev SSR or static route output"]

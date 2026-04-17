@@ -17,9 +17,8 @@
   "type": "module",
   "scripts": {
     "dev": "npm run dev:docs",
-    "build": "vp run clean && npm run build:library && npm run build:landing && npm run build:docs && npm run build:examples",
+    "build": "vp run clean && npm run build:library && npm run build:docs && npm run build:examples",
     "build:library": "node --strip-types --no-warnings scripts/build-packages.ts",
-    "build:landing": "node --strip-types --no-warnings scripts/build.ts",
     "build:docs": "npm run --workspace @pagesmith/docs-site build",
     "build:examples": "npm run build:blog-site && npm run build:doc-site && npm run build:with-nextjs && npm run build:with-vanilla-ejs && npm run build:with-vanilla-hbs && npm run build:with-react && npm run build:with-solid && npm run build:with-svelte",
     "build:blog-site": "npm run --workspace @pagesmith/example-blog-site build",
@@ -52,7 +51,9 @@
     "clean": "rm -rf gh-pages packages/*/dist docs-site/dist examples/*/dist examples/*/.next examples/*/out examples/frameworks/*/dist examples/frameworks/*/.next examples/frameworks/*/out",
     "preview": "node --strip-types --no-warnings scripts/preview-gh-pages.ts",
     "validate:examples": "node --strip-types --no-warnings scripts/validate-examples.ts",
-    "validate": "npm run build:library && npm run build:docs && npm run validate:examples && npm run check && npm run test",
+    "validate:pagesmith": "node --strip-types --no-warnings scripts/validate-pagesmith.ts",
+    "validate:pagesmith:full": "node --strip-types --no-warnings scripts/validate-pagesmith.ts --full",
+    "validate": "npm run build:library && npm run build:docs && npm run validate:examples && npm run validate:pagesmith && npm run check && npm run test",
     "cicd": "npm run check && npm run build && npm run validate:diagrams && npm run validate:examples && npm run test && npm run e2e",
     "test": "vp test run",
     "test:watch": "vp test",
@@ -66,6 +67,9 @@
     "check": "vp check",
     "check:fix": "vp check --fix",
     "prepare": "vp config"
+  },
+  "dependencies": {
+    "diagramkit": "^0.3.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",

@@ -4,7 +4,7 @@ A custom static site that uses `@pagesmith/site` as the app-facing package. It d
 
 ## AI-First Starting Point
 
-To recreate this shape in another repository, install `@pagesmith/site`, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md`.
+To recreate this shape in another repository, install `@pagesmith/site`, then start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`.
 
 Tell the agent to:
 

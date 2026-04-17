@@ -1,0 +1,31 @@
+name: Setup Node + workspaces
+description: >
+  Shared setup for every CI/Publish job. Pins Node 24, restores the npm
+  download cache (keyed on package-lock.json) and runs a fast `npm ci`.
+  Each runner is fresh so node_modules are not shared between jobs — the
+  npm download cache + `--prefer-offline` is the next best thing and keeps
+  install time per job around 20–40s once warm.
+
+inputs:
+  node-version:
+    description: Node version to install
+    required: false
+    default: '24'
+  registry-url:
+    description: Optional registry-url passed to setup-node (used by publish)
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+        registry-url: ${{ inputs.registry-url }}
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci --prefer-offline --no-audit --fund=false

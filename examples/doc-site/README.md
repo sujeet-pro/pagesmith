@@ -4,7 +4,7 @@ A config-driven documentation site built with `@pagesmith/docs`. This is the ref
 
 ## AI-First Starting Point
 
-To recreate this shape in another repository, install `@pagesmith/docs` and start with `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`.
+To recreate this shape in another repository, install `@pagesmith/docs` and start with `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`.
 
 That prompt already covers:
 

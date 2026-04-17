@@ -8,7 +8,7 @@ description: Publish a coordinated @pagesmith/core + @pagesmith/site + @pagesmit
 ## Quick Start
 
 1. Read `CLAUDE.md` and `.github/workflows/publish.yml`.
-2. Check `MIGRATING.md` and `packages/*/ai-guidelines/changelog-notes.md` for pending release notes.
+2. Check `MIGRATING.md` and `packages/*/skills/pagesmith-*-setup/references/changelog-notes.md` for pending release notes.
 3. Confirm `npm run cicd` passes locally before triggering a release.
 
 ## Workflow

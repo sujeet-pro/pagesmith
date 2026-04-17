@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'fs'
 import { z } from '@pagesmith/core'
+import { loadPagesmithConfig } from '@pagesmith/core/cli-kit'
 import JSON5 from 'json5'
 import { resolve } from 'path'
 
@@ -136,6 +137,13 @@ export function defineSiteConfig<T extends SiteUserConfig>(config: T): T {
   return config
 }
 
+/**
+ * Identity helper for `pagesmith.config.ts` files. Equivalent to
+ * `defineSiteConfig`; provided as the canonical name users expect from other
+ * Pagesmith packages.
+ */
+export const defineConfig = defineSiteConfig
+
 export function parseSiteConfig(config: unknown): SiteUserConfig {
   return SiteUserConfigSchema.parse(config)
 }
@@ -214,10 +222,34 @@ export function normalizePresetSpecifier(value: string | undefined): string | un
   return value
 }
 
+/**
+ * Synchronous loader. Reads the JSON5/JSON form of `pagesmith.config.*`. Use
+ * `loadSiteConfigAsync` for `.ts/.mts/.js/.mjs` configs (the CLI always uses
+ * the async variant).
+ */
 export function loadSiteConfig(configPath = 'pagesmith.config.json5'): RawSiteConfig | undefined {
   const resolved = resolve(configPath)
   if (!existsSync(resolved)) return undefined
+  if (
+    resolved.endsWith('.ts') ||
+    resolved.endsWith('.mts') ||
+    resolved.endsWith('.js') ||
+    resolved.endsWith('.mjs')
+  ) {
+    return undefined
+  }
   return JSON5.parse(readFileSync(resolved, 'utf-8')) as RawSiteConfig
+}
+
+/**
+ * Async loader for any supported config format
+ * (`.ts`, `.mts`, `.js`, `.mjs`, `.json5`, `.json`).
+ */
+export async function loadSiteConfigAsync(
+  configPath = 'pagesmith.config.json5',
+): Promise<RawSiteConfig | undefined> {
+  const result = await loadPagesmithConfig({ explicitPath: configPath })
+  return result.config as RawSiteConfig | undefined
 }
 
 export function resolveSitePresetSpecifier(

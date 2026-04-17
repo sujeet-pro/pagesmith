@@ -4,11 +4,11 @@
 
 flowchart TD
     assistant["AI assistant or MCP client"]
-    assistant -->|"stdio"| docs["pagesmith-docs mcp --stdio<br/>Ready-made docs MCP server"]
-    assistant -->|"stdio"| core["Custom wrapper script<br/>calls startCoreMcpServer()"]
+    assistant -->|"stdio"| docs["pagesmith-docs mcp --stdio\nReady-made docs MCP server"]
+    assistant -->|"stdio"| core["Custom wrapper script\ncalls startCoreMcpServer()"]
 
-    docs --> docsFiles["Reads pagesmith.config.json5<br/>and docs content files"]
-    docs --> docsTools["Docs tools<br/>docs_validate_config<br/>docs_resolve_config<br/>docs_list_pages / docs_get_page / docs_search_pages"]
+    docs --> docsFiles["Reads pagesmith.config.json5\nand docs content files"]
+    docs --> docsTools["Docs tools\ndocs_validate_config\ndocs_resolve_config\ndocs_list_pages / docs_get_page / docs_search_pages"]
 
-    core --> coreLayer["Uses a live ContentLayer<br/>built from your collections"]
-    core --> coreTools["Core tools<br/>core_list_collections<br/>core_list_entries<br/>core_get_entry<br/>core_validate"]
+    core --> coreLayer["Uses a live ContentLayer\nbuilt from your collections"]
+    core --> coreTools["Core tools\ncore_list_collections\ncore_list_entries\ncore_get_entry\ncore_validate"]

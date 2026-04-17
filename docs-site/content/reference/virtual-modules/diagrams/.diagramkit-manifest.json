@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "virtual-module-flow.mermaid": {
-      "hash": "sha256:49248bc0d728355e",
-      "generatedAt": "2026-04-16T14:37:59.236Z",
+      "hash": "sha256:bf983c5b49e11683",
+      "generatedAt": "2026-04-17T08:13:20.512Z",
       "outputs": [
         {
           "file": "virtual-module-flow-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776318329216.7659,
-      "size": 1202
+      "mtimeMs": 1776413237735.242,
+      "size": 1178
     }
   }
 }

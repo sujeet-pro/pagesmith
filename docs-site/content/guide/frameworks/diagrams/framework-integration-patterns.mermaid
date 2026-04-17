@@ -4,16 +4,16 @@
 
 flowchart LR
   subgraph foundation["Pagesmith packages"]
-    core["@pagesmith/core<br/>Headless content layer<br/>and markdown pipeline"]
-    site["@pagesmith/site<br/>App-facing package for sites:<br/>re-exported content APIs,<br/>JSX/CSS/runtime, Vite SSG"]
-    docs["@pagesmith/docs<br/>Docs preset with nav,<br/>search, and theme"]
+    core["@pagesmith/core\nHeadless content layer\nand markdown pipeline"]
+    site["@pagesmith/site\nApp-facing package for sites:\nre-exported content APIs,\nJSX/CSS/runtime, Vite SSG"]
+    docs["@pagesmith/docs\nDocs preset with nav,\nsearch, and theme"]
   end
 
   subgraph patterns["Integration patterns"]
-    vite["Virtual content modules<br/>React, Solid, Svelte"]
-    programmatic["Programmatic content layer<br/>EJS, Handlebars, Blog Site"]
-    hosted["Framework-hosted rendering<br/>Next.js App Router"]
-    convention["Convention-based docs<br/>Doc Site"]
+    vite["Virtual content modules\nReact, Solid, Svelte"]
+    programmatic["Programmatic content layer\nEJS, Handlebars, Blog Site"]
+    hosted["Framework-hosted rendering\nNext.js App Router"]
+    convention["Convention-based docs\nDoc Site"]
   end
 
   core --> site
@@ -24,3 +24,6 @@ flowchart LR
   site --> docs
   core -. "advanced headless path" .-> hosted
   docs --> convention
+
+  style foundation fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
+  style patterns fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

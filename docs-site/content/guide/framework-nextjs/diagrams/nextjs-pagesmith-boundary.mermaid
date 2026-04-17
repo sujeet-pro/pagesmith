@@ -4,12 +4,12 @@
 
 flowchart TB
     subgraph next["Next.js App Router"]
-        routes["Routes layouts metadata<br/>static export shell"]
+        routes["Routes layouts metadata\nstatic export shell"]
     end
 
     subgraph site["@pagesmith/site app-facing package"]
-        layer["createContentLayer()<br/>defineCollection() + defineConfig()"]
-        render["entry.render()<br/>HTML headings readTime"]
+        layer["createContentLayer()\ndefineCollection() + defineConfig()"]
+        render["entry.render()\nHTML headings readTime"]
         css["@pagesmith/site/css/content"]
         runtime["@pagesmith/site/runtime/content"]
     end
@@ -25,3 +25,7 @@ flowchart TB
     runtime --> routes
     engine -. powers .-> layer
     engine -. powers .-> render
+
+    style next fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
+    style site fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
+    style core fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

@@ -9,6 +9,9 @@ tags: [philosophy, architecture]
 
 Pagesmith is built around seven locked principles. They are not style preferences; they are load-bearing constraints that govern every change to the public API and every change to the docs.
 
+![Seven Pagesmith principles radiating from a central Pagesmith hub](./diagrams/principles-overview-light.svg "Seven locked principles that hold Pagesmith up: filesystem, boundaries, validation, Vite, progressive enhancement, configuration, and parity.")
+![Seven Pagesmith principles radiating from a central Pagesmith hub](./diagrams/principles-overview-dark.svg)
+
 ## 1. Filesystem-first source of truth
 
 Content lives on disk. Collections, assets, navigation, and diagrams are all discovered from folders, not from a database or a service. This makes Pagesmith trivially portable, trivially diff-able, and trivially reproducible in any Node environment.
@@ -35,7 +38,7 @@ Users should be able to configure the common case in `pagesmith.config.json5` wi
 
 ## 7. Docs, examples, and published AI guidance change together
 
-When public behavior changes, the implementation, the per-package `ai-guidelines/`, the README / REFERENCE, the root docs under `docs-site/content/`, and the affected examples all change in the same branch. The `prj-update-content` and `prj-examples-parity` skills exist to make this automatic.
+When public behavior changes, the implementation, the per-package `skills/`, the README / REFERENCE, the root docs under `docs-site/content/`, and the affected examples all change in the same branch. The `prj-update-content` and `prj-examples-parity` skills exist to make this automatic.
 
 ## Why this list is small
 

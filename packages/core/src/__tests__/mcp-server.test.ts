@@ -178,8 +178,11 @@ describe('MCP shared utilities', () => {
   describe('resolvePackageDocPath', () => {
     it('resolves doc path relative to package root', () => {
       const moduleDir = resolve(import.meta.dirname, '..', 'mcp')
-      const docPath = resolvePackageDocPath(moduleDir, 'ai-guidelines/usage.md')
-      expect(docPath).toContain('ai-guidelines/usage.md')
+      const docPath = resolvePackageDocPath(
+        moduleDir,
+        'skills/pagesmith-core-setup/references/usage.md',
+      )
+      expect(docPath).toContain('skills/pagesmith-core-setup/references/usage.md')
     })
   })
 

@@ -11,9 +11,9 @@ flowchart TB
   subgraph Reuse["Reuse expensive work"]
     Config["Shared MarkdownConfig"]
     Files["Content files"]
-    Processor["Processor cache<br/>WeakMap keyed by config object"]
-    Store["ContentStore<br/>cached loaded entries"]
-    Render["ContentEntry.render()<br/>lazy rendered HTML cache<br/>used by bounded page workers"]
+    Processor["Processor cache\nWeakMap keyed by config object"]
+    Store["ContentStore\ncached loaded entries"]
+    Render["ContentEntry.render()\nlazy rendered HTML cache\nused by bounded page workers"]
     Pages["Rendered pages"]
 
     Config --> Processor
@@ -26,10 +26,10 @@ flowchart TB
   subgraph Rebuilds["Scope rebuilds narrowly"]
     ContentChange["Content file change"]
     ConfigChange["Config or theme change"]
-    ContentOnly["Content-only rebuild<br/>re-render pages only"]
+    ContentOnly["Content-only rebuild\nre-render pages only"]
     Full["Full rebuild"]
-    Skip["Skip CSS bundling,<br/>JS bundling, and Pagefind"]
-    Rebundle["Rebundle CSS + JS,<br/>re-render pages, rerun Pagefind"]
+    Skip["Skip CSS bundling,\nJS bundling, and Pagefind"]
+    Rebundle["Rebundle CSS + JS,\nre-render pages, rerun Pagefind"]
 
     ContentChange --> ContentOnly
     ContentOnly --> Skip
@@ -41,3 +41,6 @@ flowchart TB
   class Processor,Store,Render cache
   class ContentOnly,Full,Skip,Rebundle build
   class Pages output
+
+  style Reuse fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
+  style Rebuilds fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

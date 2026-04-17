@@ -3,16 +3,43 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import JSON5 from 'json5'
 import { basename, dirname, join, resolve } from 'path'
+import { loadPagesmithConfig } from '@pagesmith/core/cli-kit'
 import type { DocsUserConfig, GitOriginInfo, ResolvedDocsConfig } from './types'
 
-export function defineDocsConfig(config: DocsUserConfig): DocsUserConfig {
+export function defineDocsConfig<T extends DocsUserConfig>(config: T): T {
   return config
 }
 
+/**
+ * Identity helper for `pagesmith.config.ts` files. Equivalent to
+ * `defineDocsConfig`; provided as the canonical name users expect from other
+ * Pagesmith packages.
+ */
+export const defineConfig = defineDocsConfig
+
+/**
+ * Synchronous loader. Reads `pagesmith.config.json5` (or any explicit path
+ * with a JSON5/JSON extension). Throws when handed a `.ts/.mts/.js/.mjs` path
+ * because TypeScript/JS configs require asynchronous loading via `jiti` /
+ * dynamic `import()`. CLI commands always go through `loadDocsConfigAsync`,
+ * which handles every supported extension.
+ */
 export function loadDocsConfig(configPath?: string): DocsUserConfig {
   const resolvedConfigPath = resolve(configPath ?? join(process.cwd(), 'pagesmith.config.json5'))
   if (!existsSync(resolvedConfigPath)) {
     return {}
+  }
+
+  if (
+    resolvedConfigPath.endsWith('.ts') ||
+    resolvedConfigPath.endsWith('.mts') ||
+    resolvedConfigPath.endsWith('.js') ||
+    resolvedConfigPath.endsWith('.mjs')
+  ) {
+    throw new Error(
+      `loadDocsConfig is synchronous and only supports JSON5/JSON configs (got: ${resolvedConfigPath}).\n` +
+        '  Use `await loadDocsConfigAsync(path)` for TypeScript/JS configs.',
+    )
   }
 
   try {
@@ -25,6 +52,24 @@ export function loadDocsConfig(configPath?: string): DocsUserConfig {
         `  Check that the file contains valid JSON5 syntax.`,
     )
   }
+}
+
+/**
+ * Async loader for any supported config file extension
+ * (`.ts`, `.mts`, `.js`, `.mjs`, `.json5`, `.json`).
+ *
+ * Used by every CLI command (init/dev/build/preview/validate/mcp) so users can
+ * author their docs config in TypeScript and still get the same resolved shape.
+ */
+export async function loadDocsConfigAsync(configPath?: string): Promise<DocsUserConfig> {
+  const resolved = configPath
+    ? resolve(configPath)
+    : resolve(join(process.cwd(), 'pagesmith.config.json5'))
+  if (!existsSync(resolved)) {
+    return {}
+  }
+  const result = await loadPagesmithConfig({ explicitPath: resolved })
+  return (result.config as DocsUserConfig | undefined) ?? {}
 }
 
 /** Detect basePath and origin from git remote URL. */
@@ -192,8 +237,30 @@ export function resolveDocsConfig(
   overrides?: { outDir?: string; basePath?: string },
 ): ResolvedDocsConfig {
   const resolvedConfigPath = resolve(configPath ?? join(process.cwd(), 'pagesmith.config.json5'))
-  const rootDir = dirname(resolvedConfigPath)
   const userConfig = loadDocsConfig(resolvedConfigPath)
+  return resolveDocsConfigFromUser(resolvedConfigPath, userConfig, overrides)
+}
+
+/**
+ * Async equivalent of `resolveDocsConfig` that supports every config file
+ * extension (`.ts`, `.mts`, `.js`, `.mjs`, `.json5`, `.json`). CLI commands
+ * always use this so authors can pick whichever config format they prefer.
+ */
+export async function resolveDocsConfigAsync(
+  configPath?: string,
+  overrides?: { outDir?: string; basePath?: string },
+): Promise<ResolvedDocsConfig> {
+  const resolvedConfigPath = resolve(configPath ?? join(process.cwd(), 'pagesmith.config.json5'))
+  const userConfig = await loadDocsConfigAsync(resolvedConfigPath)
+  return resolveDocsConfigFromUser(resolvedConfigPath, userConfig, overrides)
+}
+
+function resolveDocsConfigFromUser(
+  resolvedConfigPath: string,
+  userConfig: DocsUserConfig,
+  overrides?: { outDir?: string; basePath?: string },
+): ResolvedDocsConfig {
+  const rootDir = dirname(resolvedConfigPath)
   const packageName = basename(rootDir)
   const pkg = readPackageJson(rootDir)
   const pkgDisplayName = pkg?.name?.replace(/^@[^/]+\//, '')

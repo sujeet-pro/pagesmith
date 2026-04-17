@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'fs'
 import { basename, isAbsolute, relative, resolve } from 'path'
 import { z } from 'zod'
 import { loadDocsPages, loadSectionMetas } from '../content.js'
-import { resolveDocsConfig, validateConfig, type ResolvedDocsConfig } from '../config.js'
+import { resolveDocsConfigAsync, validateConfig, type ResolvedDocsConfig } from '../config.js'
 
 export type DocsMcpServerOptions = {
   rootDir?: string
@@ -31,9 +31,9 @@ function withConfigPath(baseRoot: string, configPath?: string): string {
   return ensurePathWithinRoot(baseRoot, candidate)
 }
 
-function resolveConfig(baseRoot: string, configPath?: string): ResolvedDocsConfig {
+function resolveConfig(baseRoot: string, configPath?: string): Promise<ResolvedDocsConfig> {
   const absolutePath = withConfigPath(baseRoot, configPath)
-  return resolveDocsConfig(absolutePath)
+  return resolveDocsConfigAsync(absolutePath)
 }
 
 export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServer {
@@ -62,7 +62,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       },
     },
     async ({ configPath }: { configPath?: string }) => {
-      const config = resolveConfig(baseRoot, configPath)
+      const config = await resolveConfig(baseRoot, configPath)
       const issues = validateConfig(config)
       const hasErrors = issues.some((issue) => issue.severity === 'error')
       return {
@@ -93,7 +93,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       },
     },
     async ({ configPath }: { configPath?: string }) => {
-      const config = resolveConfig(baseRoot, configPath)
+      const config = await resolveConfig(baseRoot, configPath)
       return {
         content: [
           {
@@ -130,7 +130,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       },
     },
     async ({ configPath, section }: { configPath?: string; section?: string }) => {
-      const config = resolveConfig(baseRoot, configPath)
+      const config = await resolveConfig(baseRoot, configPath)
       const sectionMetas = loadSectionMetas(config.contentDir)
       const pages = await loadDocsPages(config, sectionMetas)
       const filtered = section ? pages.filter((page) => page.section === section) : pages
@@ -173,7 +173,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
     async ({ slug, configPath }: { slug: string; configPath?: string }) => {
       const normalized =
         slug === '/' ? '/' : `/${slug}`.replace(/\/+/g, '/').replace(/\/$/, '').replace(/^\//, '')
-      const config = resolveConfig(baseRoot, configPath)
+      const config = await resolveConfig(baseRoot, configPath)
       const sectionMetas = loadSectionMetas(config.contentDir)
       const pages = await loadDocsPages(config, sectionMetas)
 
@@ -248,7 +248,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
         }
       }
 
-      const config = resolveConfig(baseRoot, configPath)
+      const config = await resolveConfig(baseRoot, configPath)
       const sectionMetas = loadSectionMetas(config.contentDir)
       const pages = await loadDocsPages(config, sectionMetas)
       const filtered = section ? pages.filter((page) => page.section === section) : pages
@@ -336,7 +336,10 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
     async () =>
       asTextResource(
         'pagesmith://docs/agents/usage',
-        resolvePackageDocPath(import.meta.dirname, 'ai-guidelines/usage.md'),
+        resolvePackageDocPath(
+          import.meta.dirname,
+          'skills/pagesmith-docs-setup/references/usage.md',
+        ),
       ),
   )
 
@@ -351,7 +354,7 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
     async () =>
       asTextResource(
         'pagesmith://docs/llms-full',
-        resolvePackageDocPath(import.meta.dirname, 'ai-guidelines/llms-full.txt'),
+        resolvePackageDocPath(import.meta.dirname, 'llms-full.txt'),
       ),
   )
 

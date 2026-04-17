@@ -51,8 +51,8 @@ const SHARED_ARTIFACT_SPECIFIERS: Record<SharedArtifactKind, { default: string; 
     docs: '@pagesmith/docs/llms-full',
   },
   'markdown-guidelines': {
-    default: '@pagesmith/core/ai-guidelines/markdown-guidelines.md',
-    docs: '@pagesmith/docs/ai-guidelines/markdown-guidelines.md',
+    default: '@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md',
+    docs: '@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md',
   },
 }
 

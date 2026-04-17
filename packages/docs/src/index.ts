@@ -1,10 +1,13 @@
 export {
   build,
+  defineConfig,
   defineDocsConfig,
   loadDocsConfig,
+  loadDocsConfigAsync,
   preview,
   reportConfigIssues,
   resolveDocsConfig,
+  resolveDocsConfigAsync,
   startDev,
   validateConfig,
   type ConfigValidationIssue,
@@ -47,3 +50,4 @@ export {
   type BuildValidationIssue,
   type BuildValidationResult,
 } from '@pagesmith/site/build-validator'
+export { validateDocs, type DocsValidateOptions, type DocsValidateResult } from './validate'

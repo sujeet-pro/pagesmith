@@ -11,72 +11,92 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  # ---------------------------------------------------------------------------
-  # Fast fan-out jobs (run in parallel; each depends only on `install`).
-  # The local `npm run cicd` script chains these sequentially for contributors
-  # who want one command to reproduce CI.
-  # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Dependency graph (parallelism maximised, jobs run independently so a
+# failure in one branch never cancels siblings — we want to surface every
+# failure in a single run):
+#
+#   ┌──── validate-diagrams ──────────────────────────────────────────┐
+#   │                                                                 │
+#   ├──── build-library ──┬── lint ────────────────────────────────┐  │
+#   │                     ├── unit ────────────────────────────────┤  │
+#   │                     ├── build-docs ──── e2e ─────────────────┤  ├── ci-success
+#   │                     └── build-examples [matrix x8, fail-fast: │  │            │
+#   │                                          false, inline       │  │            │ (only on main + push)
+#   │                                          validation] ────────┘  │            ├── assemble-pages ── deploy-pages
+#   └─────────────────────────────────────────────────────────────────┘
+#
+# Notes:
+#   - The legacy `install` job was dropped: each runner is fresh so it
+#     could not share node_modules; `setup-node@v5` with `cache: npm`
+#     warms the npm download cache for every downstream `npm ci` already.
+#   - `lint` and `unit` reuse the `library-dist` artifact instead of each
+#     re-running `npm run build:library` (~3 min saved per job).
+#   - `validate-examples` was folded into the `build-examples` matrix —
+#     the standalone job rebuilt every example a second time.
+#   - `e2e` caches `~/.cache/ms-playwright` keyed on package-lock.json so
+#     the chromium download (~150 MB) only happens when the lockfile
+#     changes.
+# ---------------------------------------------------------------------------
 
-  install:
-    name: Install & cache
+jobs:
+  # -------------------------------------------------------------------------
+  # Tier 1 — independent jobs (run in parallel, only need the source tree).
+  # -------------------------------------------------------------------------
+
+  validate-diagrams:
+    name: Validate diagrams
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: ./.github/actions/setup
+      - run: npm run validate:diagrams
+
+  build-library:
+    name: Build library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: npm run build:library
+      - name: Upload library dist
+        uses: actions/upload-artifact@v4
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
+          name: library-dist
+          path: packages/*/dist
+          if-no-files-found: error
+          retention-days: 1
+
+  # -------------------------------------------------------------------------
+  # Tier 2 — anything that needs the built library. Each job downloads the
+  # `library-dist` artifact instead of rebuilding it.
+  # -------------------------------------------------------------------------
 
   lint:
-    name: Lint & format
-    needs: install
+    name: Lint & typecheck
+    needs: build-library
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run build:library
+          name: library-dist
+          path: packages
       - run: npm run check
 
   unit:
     name: Unit & integration tests
-    needs: install
+    needs: build-library
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run build:library
-      - run: npm test
-
-  build-library:
-    name: Build library
-    needs: install
-    runs-on: ubuntu-latest
-    outputs:
-      built: ${{ steps.library.outcome }}
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - id: library
-        run: npm run build:library
-      - uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
         with:
           name: library-dist
-          path: |
-            packages/*/dist
+          path: packages
+      - run: npm test
 
   build-docs:
     name: Build docs site
@@ -84,85 +104,73 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
+      - uses: ./.github/actions/setup
       - uses: actions/download-artifact@v4
         with:
           name: library-dist
           path: packages
-      - run: npm run build:landing
       - run: npm run build:docs
-      - uses: actions/upload-artifact@v4
+      - name: Upload docs gh-pages output
+        uses: actions/upload-artifact@v4
         with:
           name: gh-pages-docs
           path: gh-pages
+          if-no-files-found: error
+          retention-days: 1
 
   build-examples:
-    name: Build example (${{ matrix.example }})
+    name: Build & validate example (${{ matrix.example.name }})
     needs: build-library
     runs-on: ubuntu-latest
     strategy:
+      # Always run every example so a single broken example does not hide
+      # other failures in the same run.
       fail-fast: false
       matrix:
         example:
-          - blog-site
-          - doc-site
-          - with-nextjs
-          - with-react
-          - with-solid
-          - with-svelte
-          - with-vanilla-ejs
-          - with-vanilla-hbs
+          - { name: blog-site, out: gh-pages/examples/blog-site }
+          - { name: doc-site, out: gh-pages/examples/doc-site }
+          - { name: with-nextjs, out: gh-pages/examples/nextjs }
+          - { name: with-react, out: gh-pages/examples/react }
+          - { name: with-solid, out: gh-pages/examples/solid }
+          - { name: with-svelte, out: gh-pages/examples/svelte }
+          - { name: with-vanilla-ejs, out: gh-pages/examples/vanilla-ejs }
+          - { name: with-vanilla-hbs, out: gh-pages/examples/vanilla-hbs }
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
+      - uses: ./.github/actions/setup
       - uses: actions/download-artifact@v4
         with:
           name: library-dist
           path: packages
-      - run: npm run build:${{ matrix.example }}
-      - uses: actions/upload-artifact@v4
+      - name: Build ${{ matrix.example.name }}
+        run: npm run build:${{ matrix.example.name }}
+      # Inline parity with `scripts/validate-examples.ts`. Doing it here
+      # avoids a second job that rebuilt every example after the matrix.
+      - name: Validate example output
+        env:
+          OUT: ${{ matrix.example.out }}
+        run: |
+          test -d "$OUT" || { echo "::error::output dir not found: $OUT"; exit 1; }
+          missing=0
+          for f in index.html llms.txt llms-full.txt; do
+            if ! find "$OUT" -name "$f" -print -quit 2>/dev/null | grep -q .; then
+              echo "::error::missing $f under $OUT"
+              missing=1
+            fi
+          done
+          exit $missing
+      - name: Upload example gh-pages output
+        uses: actions/upload-artifact@v4
         with:
-          name: gh-pages-example-${{ matrix.example }}
+          name: gh-pages-example-${{ matrix.example.name }}
           path: gh-pages
           if-no-files-found: ignore
+          retention-days: 1
 
-  validate-diagrams:
-    name: Validate diagrams
-    needs: install
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run validate:diagrams
-
-  validate-examples:
-    name: Validate examples (packaging)
-    needs: [build-library, build-examples]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - uses: actions/download-artifact@v4
-        with:
-          name: library-dist
-          path: packages
-      - run: npm run validate:examples
+  # -------------------------------------------------------------------------
+  # Tier 3 — needs the built docs site.
+  # -------------------------------------------------------------------------
 
   e2e:
     name: Playwright e2e
@@ -170,29 +178,72 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
+      - uses: ./.github/actions/setup
       - uses: actions/download-artifact@v4
         with:
           name: gh-pages-docs
           path: gh-pages
-      - run: npx playwright install --with-deps chromium
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Install Playwright OS deps
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
       - run: npm run e2e
 
-  # ---------------------------------------------------------------------------
-  # Final deploy — only for pushes to main after all quality gates pass.
-  # ---------------------------------------------------------------------------
+  # -------------------------------------------------------------------------
+  # Single aggregator gate. `if: always()` so it runs even when a sibling
+  # failed; this lets every quality gate finish (instead of fail-fast)
+  # while still surfacing a single required check on the PR.
+  # -------------------------------------------------------------------------
+
+  ci-success:
+    name: CI success
+    if: always()
+    needs:
+      - validate-diagrams
+      - build-library
+      - lint
+      - unit
+      - build-docs
+      - build-examples
+      - e2e
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all required jobs succeeded
+        env:
+          RESULTS_JSON: ${{ toJSON(needs) }}
+        run: |
+          echo "Aggregated needs results:"
+          echo "$RESULTS_JSON"
+          # `jq` is preinstalled on ubuntu-latest. We let every required job
+          # finish (no fail-fast across jobs) and only fail the aggregator at
+          # the end, so a single CI run surfaces every failure at once.
+          mapfile -t failed < <(echo "$RESULTS_JSON" | jq -r 'to_entries | map(select(.value.result != "success")) | .[].key')
+          if [ ${#failed[@]} -gt 0 ]; then
+            for job in "${failed[@]}"; do
+              echo "::error::$job did not succeed"
+            done
+            exit 1
+          fi
+          echo "All required jobs succeeded."
+
+  # -------------------------------------------------------------------------
+  # Final deploy — only for pushes to main after the aggregator gate passes.
+  # -------------------------------------------------------------------------
 
   assemble-pages:
     name: Assemble gh-pages artifact
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [lint, unit, build-docs, build-examples, validate-diagrams, validate-examples, e2e]
+    needs: ci-success
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
       - uses: actions/download-artifact@v4
         with:
           pattern: gh-pages-*

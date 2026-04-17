@@ -26,8 +26,8 @@
 <!-- start&#45;&gt;schema -->
 <g id="edge1" class="edge">
 <title>start&#45;&gt;schema</title>
-<path fill="none" stroke="#7b7b7b" d="M103.26,-1095.72C103.26,-1084.73 103.26,-1071.47 103.26,-1058.87"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="106.76,-1059.09 103.26,-1049.09 99.76,-1059.09 106.76,-1059.09"/>
+<path fill="none" stroke="#aaaaaa" d="M103.26,-1095.72C103.26,-1084.73 103.26,-1071.47 103.26,-1058.87"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="106.76,-1059.09 103.26,-1049.09 99.76,-1059.09 106.76,-1059.09"/>
 </g>
 <!-- mdast -->
 <g id="node3" class="node">
@@ -39,8 +39,8 @@
 <!-- schema&#45;&gt;mdast -->
 <g id="edge2" class="edge">
 <title>schema&#45;&gt;mdast</title>
-<path fill="none" stroke="#7b7b7b" d="M103.26,-979.02C103.26,-967.34 103.26,-954.16 103.26,-942.25"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="106.76,-942.38 103.26,-932.38 99.76,-942.38 106.76,-942.38"/>
+<path fill="none" stroke="#aaaaaa" d="M103.26,-979.02C103.26,-967.34 103.26,-954.16 103.26,-942.25"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="106.76,-942.38 103.26,-932.38 99.76,-942.38 106.76,-942.38"/>
 </g>
 <!-- validators -->
 <g id="node4" class="node">
@@ -53,8 +53,8 @@
 <!-- mdast&#45;&gt;validators -->
 <g id="edge3" class="edge">
 <title>mdast&#45;&gt;validators</title>
-<path fill="none" stroke="#7b7b7b" d="M103.26,-879.16C103.26,-868.17 103.26,-854.91 103.26,-842.31"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="106.76,-842.53 103.26,-832.53 99.76,-842.53 106.76,-842.53"/>
+<path fill="none" stroke="#aaaaaa" d="M103.26,-879.16C103.26,-868.17 103.26,-854.91 103.26,-842.31"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="106.76,-842.53 103.26,-832.53 99.76,-842.53 106.76,-842.53"/>
 </g>
 <!-- plugins -->
 <g id="node5" class="node">
@@ -66,8 +66,8 @@
 <!-- validators&#45;&gt;plugins -->
 <g id="edge4" class="edge">
 <title>validators&#45;&gt;plugins</title>
-<path fill="none" stroke="#7b7b7b" d="M103.26,-762.46C103.26,-750.78 103.26,-737.6 103.26,-725.69"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="106.76,-725.82 103.26,-715.82 99.76,-725.82 106.76,-725.82"/>
+<path fill="none" stroke="#aaaaaa" d="M103.26,-762.46C103.26,-750.78 103.26,-737.6 103.26,-725.69"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="106.76,-725.82 103.26,-715.82 99.76,-725.82 106.76,-725.82"/>
 </g>
 <!-- entry -->
 <g id="node6" class="node">
@@ -80,8 +80,8 @@
 <!-- plugins&#45;&gt;entry -->
 <g id="edge5" class="edge">
 <title>plugins&#45;&gt;entry</title>
-<path fill="none" stroke="#7b7b7b" d="M103.26,-662.6C103.26,-651.61 103.26,-638.35 103.26,-625.75"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="106.76,-625.97 103.26,-615.97 99.76,-625.97 106.76,-625.97"/>
+<path fill="none" stroke="#aaaaaa" d="M103.26,-662.6C103.26,-651.61 103.26,-638.35 103.26,-625.75"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="106.76,-625.97 103.26,-615.97 99.76,-625.97 106.76,-625.97"/>
 </g>
 <!-- render -->
 <g id="node7" class="node">
@@ -93,8 +93,8 @@
 <!-- entry&#45;&gt;render -->
 <g id="edge6" class="edge">
 <title>entry&#45;&gt;render</title>
-<path fill="none" stroke="#7b7b7b" d="M103.26,-546C103.26,-534.86 103.26,-522.04 103.26,-509.43"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="106.76,-509.46 103.26,-499.46 99.76,-509.46 106.76,-509.46"/>
+<path fill="none" stroke="#aaaaaa" d="M103.26,-546C103.26,-534.86 103.26,-522.04 103.26,-509.43"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="106.76,-509.46 103.26,-499.46 99.76,-509.46 106.76,-509.46"/>
 </g>
 <!-- wait -->
 <g id="node8" class="node">
@@ -106,9 +106,9 @@
 <!-- render&#45;&gt;wait -->
 <g id="edge7" class="edge">
 <title>render&#45;&gt;wait</title>
-<path fill="none" stroke="#7b7b7b" d="M95,-399.29C91.95,-382.2 88.53,-363.09 85.67,-347.05"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="89.16,-346.7 83.96,-337.47 82.27,-347.93 89.16,-346.7"/>
-<text xml:space="preserve" text-anchor="middle" x="95.94" y="-362.64" font-family="Times,serif" font-size="10.00">No</text>
+<path fill="none" stroke="#aaaaaa" d="M95,-399.29C91.95,-382.2 88.53,-363.09 85.67,-347.05"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="89.16,-346.7 83.96,-337.47 82.27,-347.93 89.16,-346.7"/>
+<text xml:space="preserve" text-anchor="middle" x="95.94" y="-362.64" font-family="Times,serif" font-size="10.00" fill="#333333">No</text>
 </g>
 <!-- pipeline -->
 <g id="node9" class="node">
@@ -120,9 +120,9 @@
 <!-- render&#45;&gt;pipeline -->
 <g id="edge8" class="edge">
 <title>render&#45;&gt;pipeline</title>
-<path fill="none" stroke="#7b7b7b" d="M141.3,-414.37C167.4,-392.99 201.93,-364.71 228.24,-343.16"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="230.13,-346.13 235.65,-337.09 225.7,-340.72 230.13,-346.13"/>
-<text xml:space="preserve" text-anchor="middle" x="212.55" y="-362.64" font-family="Times,serif" font-size="10.00">Yes</text>
+<path fill="none" stroke="#aaaaaa" d="M141.3,-414.37C167.4,-392.99 201.93,-364.71 228.24,-343.16"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="230.13,-346.13 235.65,-337.09 225.7,-340.72 230.13,-346.13"/>
+<text xml:space="preserve" text-anchor="middle" x="212.55" y="-362.64" font-family="Times,serif" font-size="10.00" fill="#333333">Yes</text>
 </g>
 <!-- headings -->
 <g id="node10" class="node">
@@ -134,8 +134,8 @@
 <!-- pipeline&#45;&gt;headings -->
 <g id="edge9" class="edge">
 <title>pipeline&#45;&gt;headings</title>
-<path fill="none" stroke="#7b7b7b" d="M267.26,-284.5C267.26,-273.26 267.26,-259.73 267.26,-247.38"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="270.76,-247.52 267.26,-237.52 263.76,-247.52 270.76,-247.52"/>
+<path fill="none" stroke="#aaaaaa" d="M267.26,-284.5C267.26,-273.26 267.26,-259.73 267.26,-247.38"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="270.76,-247.52 267.26,-237.52 263.76,-247.52 270.76,-247.52"/>
 </g>
 <!-- cache -->
 <g id="node11" class="node">
@@ -146,8 +146,8 @@
 <!-- headings&#45;&gt;cache -->
 <g id="edge10" class="edge">
 <title>headings&#45;&gt;cache</title>
-<path fill="none" stroke="#7b7b7b" d="M267.26,-184.61C267.26,-173.07 267.26,-159.29 267.26,-147.32"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="270.76,-147.63 267.26,-137.63 263.76,-147.63 270.76,-147.63"/>
+<path fill="none" stroke="#aaaaaa" d="M267.26,-184.61C267.26,-173.07 267.26,-159.29 267.26,-147.32"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="270.76,-147.63 267.26,-137.63 263.76,-147.63 270.76,-147.63"/>
 </g>
 <!-- reuse -->
 <g id="node12" class="node">
@@ -159,8 +159,8 @@
 <!-- cache&#45;&gt;reuse -->
 <g id="edge11" class="edge">
 <title>cache&#45;&gt;reuse</title>
-<path fill="none" stroke="#7b7b7b" d="M267.26,-99.44C267.26,-88.99 267.26,-75.3 267.26,-62.61"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="270.76,-62.86 267.26,-52.86 263.76,-62.86 270.76,-62.86"/>
+<path fill="none" stroke="#aaaaaa" d="M267.26,-99.44C267.26,-88.99 267.26,-75.3 267.26,-62.61"/>
+<polygon fill="#aaaaaa" stroke="#aaaaaa" points="270.76,-62.86 267.26,-52.86 263.76,-62.86 270.76,-62.86"/>
 </g>
 </g>
 </svg>

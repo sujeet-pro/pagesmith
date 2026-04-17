@@ -12,177 +12,177 @@
 <g id="node1" class="node">
 <title>route</title>
 <path fill="#193966" stroke="#6c8ebf" d="M357.39,-532C357.39,-532 300.58,-532 300.58,-532 294.58,-532 288.58,-526 288.58,-520 288.58,-520 288.58,-508 288.58,-508 288.58,-502 294.58,-496 300.58,-496 300.58,-496 357.39,-496 357.39,-496 363.39,-496 369.39,-502 369.39,-508 369.39,-508 369.39,-520 369.39,-520 369.39,-526 363.39,-532 357.39,-532"/>
-<text xml:space="preserve" text-anchor="middle" x="328.99" y="-510.7" font-family="Arial" font-size="11.00" fill="#333333">Current route</text>
+<text xml:space="preserve" text-anchor="middle" x="328.99" y="-510.7" font-family="Arial" font-size="11.00" fill="#e5e7eb">Current route</text>
 </g>
 <!-- kind -->
 <g id="node2" class="node">
 <title>kind</title>
 <path fill="#664119" stroke="#d6b656" d="M317.08,-453.54C317.08,-453.54 193.68,-438.46 193.68,-438.46 187.73,-437.73 187.73,-436.27 193.68,-435.54 193.68,-435.54 317.08,-420.46 317.08,-420.46 323.03,-419.73 334.94,-419.73 340.9,-420.46 340.9,-420.46 464.29,-435.54 464.29,-435.54 470.25,-436.27 470.25,-437.73 464.29,-438.46 464.29,-438.46 340.9,-453.54 340.9,-453.54 334.94,-454.27 323.03,-454.27 317.08,-453.54"/>
-<text xml:space="preserve" text-anchor="middle" x="328.99" y="-433.7" font-family="Arial" font-size="11.00" fill="#333333">Which page is being rendered?</text>
+<text xml:space="preserve" text-anchor="middle" x="328.99" y="-433.7" font-family="Arial" font-size="11.00" fill="#e5e7eb">Which page is being rendered?</text>
 </g>
 <!-- route&#45;&gt;kind -->
 <g id="edge1" class="edge">
 <title>route&#45;&gt;kind</title>
-<path fill="none" stroke="#7b7b7b" d="M328.99,-495.75C328.99,-495.75 328.99,-466.9 328.99,-466.9"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="332.49,-466.9 328.99,-456.9 325.49,-466.9 332.49,-466.9"/>
+<path fill="none" stroke="#aaaaaa" d="M328.99,-495.75C328.99,-495.75 328.99,-466.9 328.99,-466.9"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="332.49,-466.9 328.99,-456.9 325.49,-466.9 332.49,-466.9"/>
 </g>
 <!-- home -->
 <g id="node3" class="node">
 <title>home</title>
 <path fill="#193966" stroke="#6c8ebf" d="M103.98,-367C103.98,-367 12,-367 12,-367 6,-367 0,-361 0,-355 0,-355 0,-343 0,-343 0,-337 6,-331 12,-331 12,-331 103.98,-331 103.98,-331 109.98,-331 115.98,-337 115.98,-343 115.98,-343 115.98,-355 115.98,-355 115.98,-361 109.98,-367 103.98,-367"/>
-<text xml:space="preserve" text-anchor="middle" x="57.99" y="-345.7" font-family="Arial" font-size="11.00" fill="#333333">layout name = home</text>
+<text xml:space="preserve" text-anchor="middle" x="57.99" y="-345.7" font-family="Arial" font-size="11.00" fill="#e5e7eb">layout name = home</text>
 </g>
 <!-- kind&#45;&gt;home -->
 <g id="edge2" class="edge">
 <title>kind&#45;&gt;home</title>
-<path fill="none" stroke="#7b7b7b" d="M178.04,-437C115.81,-437 57.99,-437 57.99,-437 57.99,-437 57.99,-378.75 57.99,-378.75"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="61.49,-378.75 57.99,-368.75 54.49,-378.75 61.49,-378.75"/>
-<text xml:space="preserve" text-anchor="middle" x="154.51" y="-390" font-family="Arial" font-size="10.00" fill="#333333">root content/README.md</text>
+<path fill="none" stroke="#aaaaaa" d="M178.04,-437C115.81,-437 57.99,-437 57.99,-437 57.99,-437 57.99,-378.75 57.99,-378.75"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="61.49,-378.75 57.99,-368.75 54.49,-378.75 61.49,-378.75"/>
+<text xml:space="preserve" text-anchor="middle" x="154.51" y="-390" font-family="Arial" font-size="10.00" fill="#e5e7eb">root content/README.md</text>
 </g>
 <!-- section -->
 <g id="node4" class="node">
 <title>section</title>
 <path fill="#193966" stroke="#6c8ebf" d="M319.61,-367C319.61,-367 160.37,-367 160.37,-367 154.37,-367 148.37,-361 148.37,-355 148.37,-355 148.37,-343 148.37,-343 148.37,-337 154.37,-331 160.37,-331 160.37,-331 319.61,-331 319.61,-331 325.61,-331 331.61,-337 331.61,-343 331.61,-343 331.61,-355 331.61,-355 331.61,-361 325.61,-367 319.61,-367"/>
-<text xml:space="preserve" text-anchor="middle" x="239.99" y="-352.3" font-family="Arial" font-size="11.00" fill="#333333">layout name = section meta.layout</text>
-<text xml:space="preserve" text-anchor="middle" x="239.99" y="-339.1" font-family="Arial" font-size="11.00" fill="#333333">or page</text>
+<text xml:space="preserve" text-anchor="middle" x="239.99" y="-352.3" font-family="Arial" font-size="11.00" fill="#e5e7eb">layout name = section meta.layout</text>
+<text xml:space="preserve" text-anchor="middle" x="239.99" y="-339.1" font-family="Arial" font-size="11.00" fill="#e5e7eb">or page</text>
 </g>
 <!-- kind&#45;&gt;section -->
 <g id="edge3" class="edge">
 <title>kind&#45;&gt;section</title>
-<path fill="none" stroke="#7b7b7b" d="M256.69,-427.58C256.69,-427.58 256.69,-378.71 256.69,-378.71"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="260.19,-378.71 256.69,-368.71 253.19,-378.71 260.19,-378.71"/>
-<text xml:space="preserve" text-anchor="middle" x="310.95" y="-390" font-family="Arial" font-size="10.00" fill="#333333">section README.md</text>
+<path fill="none" stroke="#aaaaaa" d="M256.69,-427.58C256.69,-427.58 256.69,-378.71 256.69,-378.71"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="260.19,-378.71 256.69,-368.71 253.19,-378.71 260.19,-378.71"/>
+<text xml:space="preserve" text-anchor="middle" x="310.95" y="-390" font-family="Arial" font-size="10.00" fill="#e5e7eb">section README.md</text>
 </g>
 <!-- item -->
 <g id="node5" class="node">
 <title>item</title>
 <path fill="#193966" stroke="#6c8ebf" d="M558.83,-367C558.83,-367 375.14,-367 375.14,-367 369.14,-367 363.14,-361 363.14,-355 363.14,-355 363.14,-343 363.14,-343 363.14,-337 369.14,-331 375.14,-331 375.14,-331 558.83,-331 558.83,-331 564.83,-331 570.83,-337 570.83,-343 570.83,-343 570.83,-355 570.83,-355 570.83,-361 564.83,-367 558.83,-367"/>
-<text xml:space="preserve" text-anchor="middle" x="466.99" y="-352.3" font-family="Arial" font-size="11.00" fill="#333333">layout name = section meta.itemLayout</text>
-<text xml:space="preserve" text-anchor="middle" x="466.99" y="-339.1" font-family="Arial" font-size="11.00" fill="#333333">or page</text>
+<text xml:space="preserve" text-anchor="middle" x="466.99" y="-352.3" font-family="Arial" font-size="11.00" fill="#e5e7eb">layout name = section meta.itemLayout</text>
+<text xml:space="preserve" text-anchor="middle" x="466.99" y="-339.1" font-family="Arial" font-size="11.00" fill="#e5e7eb">or page</text>
 </g>
 <!-- kind&#45;&gt;item -->
 <g id="edge4" class="edge">
 <title>kind&#45;&gt;item</title>
-<path fill="none" stroke="#7b7b7b" d="M419.67,-429.8C419.67,-429.8 419.67,-378.75 419.67,-378.75"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="423.17,-378.75 419.67,-368.75 416.17,-378.75 423.17,-378.75"/>
-<text xml:space="preserve" text-anchor="middle" x="473.56" y="-390" font-family="Arial" font-size="10.00" fill="#333333">section article</text>
+<path fill="none" stroke="#aaaaaa" d="M419.67,-429.8C419.67,-429.8 419.67,-378.75 419.67,-378.75"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="423.17,-378.75 419.67,-368.75 416.17,-378.75 423.17,-378.75"/>
+<text xml:space="preserve" text-anchor="middle" x="473.56" y="-390" font-family="Arial" font-size="10.00" fill="#e5e7eb">section article</text>
 </g>
 <!-- missing -->
 <g id="node6" class="node">
 <title>missing</title>
 <path fill="#193966" stroke="#6c8ebf" d="M725.46,-367C725.46,-367 614.52,-367 614.52,-367 608.52,-367 602.52,-361 602.52,-355 602.52,-355 602.52,-343 602.52,-343 602.52,-337 608.52,-331 614.52,-331 614.52,-331 725.46,-331 725.46,-331 731.46,-331 737.46,-337 737.46,-343 737.46,-343 737.46,-355 737.46,-355 737.46,-361 731.46,-367 725.46,-367"/>
-<text xml:space="preserve" text-anchor="middle" x="669.99" y="-345.7" font-family="Arial" font-size="11.00" fill="#333333">layout name = notFound</text>
+<text xml:space="preserve" text-anchor="middle" x="669.99" y="-345.7" font-family="Arial" font-size="11.00" fill="#e5e7eb">layout name = notFound</text>
 </g>
 <!-- kind&#45;&gt;missing -->
 <g id="edge5" class="edge">
 <title>kind&#45;&gt;missing</title>
-<path fill="none" stroke="#7b7b7b" d="M480.05,-437C571.26,-437 669.99,-437 669.99,-437 669.99,-437 669.99,-378.75 669.99,-378.75"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="673.49,-378.75 669.99,-368.75 666.49,-378.75 673.49,-378.75"/>
-<text xml:space="preserve" text-anchor="middle" x="655.35" y="-390" font-family="Arial" font-size="10.00" fill="#333333">no content match</text>
+<path fill="none" stroke="#aaaaaa" d="M480.05,-437C571.26,-437 669.99,-437 669.99,-437 669.99,-437 669.99,-378.75 669.99,-378.75"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="673.49,-378.75 669.99,-368.75 666.49,-378.75 673.49,-378.75"/>
+<text xml:space="preserve" text-anchor="middle" x="655.35" y="-390" font-family="Arial" font-size="10.00" fill="#e5e7eb">no content match</text>
 </g>
 <!-- resolve -->
 <g id="node7" class="node">
 <title>resolve</title>
 <path fill="#193966" stroke="#6c8ebf" d="M341.06,-288.67C341.06,-288.67 203.81,-273.33 203.81,-273.33 197.85,-272.67 197.85,-271.33 203.81,-270.67 203.81,-270.67 341.06,-255.33 341.06,-255.33 347.03,-254.67 358.95,-254.67 364.91,-255.33 364.91,-255.33 502.17,-270.67 502.17,-270.67 508.13,-271.33 508.13,-272.67 502.17,-273.33 502.17,-273.33 364.91,-288.67 364.91,-288.67 358.95,-289.33 347.03,-289.33 341.06,-288.67"/>
-<text xml:space="preserve" text-anchor="middle" x="352.99" y="-268.7" font-family="Arial" font-size="11.00" fill="#333333">How is that layout name resolved?</text>
+<text xml:space="preserve" text-anchor="middle" x="352.99" y="-268.7" font-family="Arial" font-size="11.00" fill="#e5e7eb">How is that layout name resolved?</text>
 </g>
 <!-- home&#45;&gt;resolve -->
 <g id="edge6" class="edge">
 <title>home&#45;&gt;resolve</title>
-<path fill="none" stroke="#7b7b7b" d="M96.98,-330.75C96.98,-307.98 96.98,-272 96.98,-272 96.98,-272 176.09,-272 176.09,-272"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="176.09,-275.5 186.09,-272 176.09,-268.5 176.09,-275.5"/>
+<path fill="none" stroke="#aaaaaa" d="M96.98,-330.75C96.98,-307.98 96.98,-272 96.98,-272 96.98,-272 176.09,-272 176.09,-272"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="176.09,-275.5 186.09,-272 176.09,-268.5 176.09,-275.5"/>
 </g>
 <!-- section&#45;&gt;resolve -->
 <g id="edge7" class="edge">
 <title>section&#45;&gt;resolve</title>
-<path fill="none" stroke="#7b7b7b" d="M261.74,-330.75C261.74,-330.75 261.74,-291.74 261.74,-291.74"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="265.24,-291.74 261.74,-281.74 258.24,-291.74 265.24,-291.74"/>
+<path fill="none" stroke="#aaaaaa" d="M261.74,-330.75C261.74,-330.75 261.74,-291.74 261.74,-291.74"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="265.24,-291.74 261.74,-281.74 258.24,-291.74 265.24,-291.74"/>
 </g>
 <!-- item&#45;&gt;resolve -->
 <g id="edge8" class="edge">
 <title>item&#45;&gt;resolve</title>
-<path fill="none" stroke="#7b7b7b" d="M438.62,-330.75C438.62,-330.75 438.62,-292.14 438.62,-292.14"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="442.12,-292.14 438.62,-282.14 435.12,-292.14 442.12,-292.14"/>
+<path fill="none" stroke="#aaaaaa" d="M438.62,-330.75C438.62,-330.75 438.62,-292.14 438.62,-292.14"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="442.12,-292.14 438.62,-282.14 435.12,-292.14 442.12,-292.14"/>
 </g>
 <!-- missing&#45;&gt;resolve -->
 <g id="edge9" class="edge">
 <title>missing&#45;&gt;resolve</title>
-<path fill="none" stroke="#7b7b7b" d="M608.54,-330.75C608.54,-307.98 608.54,-272 608.54,-272 608.54,-272 529.96,-272 529.96,-272"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="529.96,-268.5 519.96,-272 529.96,-275.5 529.96,-268.5"/>
+<path fill="none" stroke="#aaaaaa" d="M608.54,-330.75C608.54,-307.98 608.54,-272 608.54,-272 608.54,-272 529.96,-272 529.96,-272"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="529.96,-268.5 519.96,-272 529.96,-275.5 529.96,-268.5"/>
 </g>
 <!-- custom -->
 <g id="node8" class="node">
 <title>custom</title>
 <path fill="#193966" stroke="#6c8ebf" d="M221.99,-190C221.99,-190 89.99,-190 89.99,-190 83.99,-190 77.99,-184 77.99,-178 77.99,-178 77.99,-166 77.99,-166 77.99,-160 83.99,-154 89.99,-154 89.99,-154 221.99,-154 221.99,-154 227.99,-154 233.99,-160 233.99,-166 233.99,-166 233.99,-178 233.99,-178 233.99,-184 227.99,-190 221.99,-190"/>
-<text xml:space="preserve" text-anchor="middle" x="155.99" y="-168.7" font-family="Arial" font-size="11.00" fill="#333333">Use custom TSX component</text>
+<text xml:space="preserve" text-anchor="middle" x="155.99" y="-168.7" font-family="Arial" font-size="11.00" fill="#e5e7eb">Use custom TSX component</text>
 </g>
 <!-- resolve&#45;&gt;custom -->
 <g id="edge10" class="edge">
 <title>resolve&#45;&gt;custom</title>
-<path fill="none" stroke="#7b7b7b" d="M212.94,-269.53C212.94,-269.53 212.94,-201.75 212.94,-201.75"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="216.44,-201.75 212.94,-191.75 209.44,-201.75 216.44,-201.75"/>
-<text xml:space="preserve" text-anchor="middle" x="236.57" y="-219" font-family="Arial" font-size="10.00" fill="#333333">theme.layouts[name] exists</text>
+<path fill="none" stroke="#aaaaaa" d="M212.94,-269.53C212.94,-269.53 212.94,-201.75 212.94,-201.75"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="216.44,-201.75 212.94,-191.75 209.44,-201.75 216.44,-201.75"/>
+<text xml:space="preserve" text-anchor="middle" x="236.57" y="-219" font-family="Arial" font-size="10.00" fill="#e5e7eb">theme.layouts[name] exists</text>
 </g>
 <!-- builtin -->
 <g id="node9" class="node">
 <title>builtin</title>
 <path fill="#193966" stroke="#6c8ebf" d="M427.87,-190C427.87,-190 278.11,-190 278.11,-190 272.11,-190 266.11,-184 266.11,-178 266.11,-178 266.11,-166 266.11,-166 266.11,-160 272.11,-154 278.11,-154 278.11,-154 427.87,-154 427.87,-154 433.87,-154 439.87,-160 439.87,-166 439.87,-166 439.87,-178 439.87,-178 439.87,-184 433.87,-190 427.87,-190"/>
-<text xml:space="preserve" text-anchor="middle" x="352.99" y="-175.3" font-family="Arial" font-size="11.00" fill="#333333">Use built&#45;in layout</text>
-<text xml:space="preserve" text-anchor="middle" x="352.99" y="-162.1" font-family="Arial" font-size="11.00" fill="#333333">home, page, listing, or notFound</text>
+<text xml:space="preserve" text-anchor="middle" x="352.99" y="-175.3" font-family="Arial" font-size="11.00" fill="#e5e7eb">Use built&#45;in layout</text>
+<text xml:space="preserve" text-anchor="middle" x="352.99" y="-162.1" font-family="Arial" font-size="11.00" fill="#e5e7eb">home, page, listing, or notFound</text>
 </g>
 <!-- resolve&#45;&gt;builtin -->
 <g id="edge11" class="edge">
 <title>resolve&#45;&gt;builtin</title>
-<path fill="none" stroke="#7b7b7b" d="M352.99,-253.66C352.99,-253.66 352.99,-201.74 352.99,-201.74"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="356.49,-201.74 352.99,-191.74 349.49,-201.74 356.49,-201.74"/>
-<text xml:space="preserve" text-anchor="middle" x="409.41" y="-225" font-family="Arial" font-size="10.00" fill="#333333">no override, built&#45;in name</text>
-<text xml:space="preserve" text-anchor="middle" x="409.41" y="-213" font-family="Arial" font-size="10.00" fill="#333333">including listing</text>
+<path fill="none" stroke="#aaaaaa" d="M352.99,-253.66C352.99,-253.66 352.99,-201.74 352.99,-201.74"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="356.49,-201.74 352.99,-191.74 349.49,-201.74 356.49,-201.74"/>
+<text xml:space="preserve" text-anchor="middle" x="409.41" y="-225" font-family="Arial" font-size="10.00" fill="#e5e7eb">no override, built&#45;in name</text>
+<text xml:space="preserve" text-anchor="middle" x="409.41" y="-213" font-family="Arial" font-size="10.00" fill="#e5e7eb">including listing</text>
 </g>
 <!-- error -->
 <g id="node10" class="node">
 <title>error</title>
-<path fill="#e45756" stroke="#c23b3a" d="M602.57,-190C602.57,-190 483.41,-190 483.41,-190 477.41,-190 471.41,-184 471.41,-178 471.41,-178 471.41,-166 471.41,-166 471.41,-160 477.41,-154 483.41,-154 483.41,-154 602.57,-154 602.57,-154 608.57,-154 614.57,-160 614.57,-166 614.57,-166 614.57,-178 614.57,-178 614.57,-184 608.57,-190 602.57,-190"/>
-<text xml:space="preserve" text-anchor="middle" x="542.99" y="-175.3" font-family="Arial" font-size="11.00" fill="#404040">Build error</text>
-<text xml:space="preserve" text-anchor="middle" x="542.99" y="-162.1" font-family="Arial" font-size="11.00" fill="#404040">missing layout registration</text>
+<path fill="#b43a3a" stroke="#8e2828" d="M602.57,-190C602.57,-190 483.41,-190 483.41,-190 477.41,-190 471.41,-184 471.41,-178 471.41,-178 471.41,-166 471.41,-166 471.41,-160 477.41,-154 483.41,-154 483.41,-154 602.57,-154 602.57,-154 608.57,-154 614.57,-160 614.57,-166 614.57,-166 614.57,-178 614.57,-178 614.57,-184 608.57,-190 602.57,-190"/>
+<text xml:space="preserve" text-anchor="middle" x="542.99" y="-175.3" font-family="Arial" font-size="11.00" fill="#e5e7eb">Build error</text>
+<text xml:space="preserve" text-anchor="middle" x="542.99" y="-162.1" font-family="Arial" font-size="11.00" fill="#e5e7eb">missing layout registration</text>
 </g>
 <!-- resolve&#45;&gt;error -->
 <g id="edge12" class="edge">
 <title>resolve&#45;&gt;error</title>
-<path fill="none" stroke="#7b7b7b" d="M492.75,-269.12C492.75,-269.12 492.75,-201.89 492.75,-201.89"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="496.25,-201.89 492.75,-191.89 489.25,-201.89 496.25,-201.89"/>
-<text xml:space="preserve" text-anchor="middle" x="622.2" y="-219" font-family="Arial" font-size="10.00" fill="#333333">no override, unknown custom name</text>
+<path fill="none" stroke="#aaaaaa" d="M492.75,-269.12C492.75,-269.12 492.75,-201.89 492.75,-201.89"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="496.25,-201.89 492.75,-191.89 489.25,-201.89 496.25,-201.89"/>
+<text xml:space="preserve" text-anchor="middle" x="622.2" y="-219" font-family="Arial" font-size="10.00" fill="#e5e7eb">no override, unknown custom name</text>
 </g>
 <!-- render -->
 <g id="node11" class="node">
 <title>render</title>
 <path fill="#193966" stroke="#6c8ebf" d="M347.82,-113C347.82,-113 160.16,-113 160.16,-113 154.16,-113 148.16,-107 148.16,-101 148.16,-101 148.16,-89 148.16,-89 148.16,-83 154.16,-77 160.16,-77 160.16,-77 347.82,-77 347.82,-77 353.82,-77 359.82,-83 359.82,-89 359.82,-89 359.82,-101 359.82,-101 359.82,-107 353.82,-113 347.82,-113"/>
-<text xml:space="preserve" text-anchor="middle" x="253.99" y="-98.3" font-family="Arial" font-size="11.00" fill="#333333">Render with shared props</text>
-<text xml:space="preserve" text-anchor="middle" x="253.99" y="-85.1" font-family="Arial" font-size="11.00" fill="#333333">content, frontmatter, headings, slug, site</text>
+<text xml:space="preserve" text-anchor="middle" x="253.99" y="-98.3" font-family="Arial" font-size="11.00" fill="#e5e7eb">Render with shared props</text>
+<text xml:space="preserve" text-anchor="middle" x="253.99" y="-85.1" font-family="Arial" font-size="11.00" fill="#e5e7eb">content, frontmatter, headings, slug, site</text>
 </g>
 <!-- custom&#45;&gt;render -->
 <g id="edge13" class="edge">
 <title>custom&#45;&gt;render</title>
-<path fill="none" stroke="#7b7b7b" d="M191.07,-153.75C191.07,-153.75 191.07,-124.9 191.07,-124.9"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="194.57,-124.9 191.07,-114.9 187.57,-124.9 194.57,-124.9"/>
+<path fill="none" stroke="#aaaaaa" d="M191.07,-153.75C191.07,-153.75 191.07,-124.9 191.07,-124.9"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="194.57,-124.9 191.07,-114.9 187.57,-124.9 194.57,-124.9"/>
 </g>
 <!-- builtin&#45;&gt;render -->
 <g id="edge14" class="edge">
 <title>builtin&#45;&gt;render</title>
-<path fill="none" stroke="#7b7b7b" d="M312.96,-153.75C312.96,-153.75 312.96,-124.9 312.96,-124.9"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="316.46,-124.9 312.96,-114.9 309.46,-124.9 316.46,-124.9"/>
+<path fill="none" stroke="#aaaaaa" d="M312.96,-153.75C312.96,-153.75 312.96,-124.9 312.96,-124.9"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="316.46,-124.9 312.96,-114.9 309.46,-124.9 316.46,-124.9"/>
 </g>
 <!-- extra -->
 <g id="node12" class="node">
 <title>extra</title>
 <path fill="#193966" stroke="#6c8ebf" d="M327.03,-36C327.03,-36 180.94,-36 180.94,-36 174.94,-36 168.94,-30 168.94,-24 168.94,-24 168.94,-12 168.94,-12 168.94,-6 174.94,0 180.94,0 180.94,0 327.03,0 327.03,0 333.03,0 339.03,-6 339.03,-12 339.03,-12 339.03,-24 339.03,-24 339.03,-30 333.03,-36 327.03,-36"/>
-<text xml:space="preserve" text-anchor="middle" x="253.99" y="-21.3" font-family="Arial" font-size="11.00" fill="#333333">Docs&#45;page layouts also receive</text>
-<text xml:space="preserve" text-anchor="middle" x="253.99" y="-8.1" font-family="Arial" font-size="11.00" fill="#333333">sidebarSections, prev, and next</text>
+<text xml:space="preserve" text-anchor="middle" x="253.99" y="-21.3" font-family="Arial" font-size="11.00" fill="#e5e7eb">Docs&#45;page layouts also receive</text>
+<text xml:space="preserve" text-anchor="middle" x="253.99" y="-8.1" font-family="Arial" font-size="11.00" fill="#e5e7eb">sidebarSections, prev, and next</text>
 </g>
 <!-- render&#45;&gt;extra -->
 <g id="edge15" class="edge">
 <title>render&#45;&gt;extra</title>
-<path fill="none" stroke="#7b7b7b" d="M253.99,-76.75C253.99,-76.75 253.99,-47.9 253.99,-47.9"/>
-<polygon fill="#7b7b7b" stroke="#7b7b7b" points="257.49,-47.9 253.99,-37.9 250.49,-47.9 257.49,-47.9"/>
+<path fill="none" stroke="#aaaaaa" d="M253.99,-76.75C253.99,-76.75 253.99,-47.9 253.99,-47.9"/>
+<polygon fill="#404040" stroke="#aaaaaa" points="257.49,-47.9 253.99,-37.9 250.49,-47.9 257.49,-47.9"/>
 </g>
 </g>
 </svg>

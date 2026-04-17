@@ -1,0 +1,24 @@
+%% Diagram: Seven Pagesmith principles
+%% Type: flowchart
+%%{init: {'htmlLabels': false}}%%
+flowchart TB
+  hub(["Pagesmith\nseven locked principles"]):::hub
+
+  hub --- filesystem
+  hub --- boundaries
+  hub --- validation
+  hub --- vite
+  hub --- progressive
+  hub --- config
+  hub --- parity
+
+  filesystem["1. Filesystem-first\nsource of truth\ncollections, assets, nav on disk"]:::tenet
+  boundaries["2. Strict package\nboundaries\ncore / site / docs"]:::tenet
+  validation["3. Validation before\nrender or runtime\nZod + content validators"]:::tenet
+  vite["4. Vite-native\nexecution\nno custom toolchain"]:::tenet
+  progressive["5. Progressive\nenhancement\nHTML first, JS optional"]:::tenet
+  config["6. Configuration\nbefore customization\nJSON5 over TypeScript"]:::tenet
+  parity["7. Docs, examples,\nAI guidance move together\nsame branch, same PR"]:::tenet
+
+  classDef hub fill:#2E5A88,stroke:#1F4870,color:#ffffff
+  classDef tenet fill:#1F6E68,stroke:#155752,color:#ffffff

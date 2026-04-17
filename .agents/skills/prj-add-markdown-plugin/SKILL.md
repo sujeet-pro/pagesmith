@@ -8,7 +8,7 @@ description: Add a remark or rehype plugin to the @pagesmith/core markdown pipel
 ## Quick Start
 
 1. Read `packages/core/src/markdown/pipeline.ts` — this is the single source of truth for plugin order.
-2. Read `ai-guidelines/markdown-guidelines.md` and `packages/core/ai-guidelines/markdown-guidelines.md`.
+2. Read the "Markdown Parity" section of `AGENTS.md` and `packages/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`.
 3. Decide:
    - First-party plugin (goes in `packages/core/src/markdown/plugins/`)
    - Third-party plugin (consumed only; no source in this repo)
@@ -25,8 +25,8 @@ description: Add a remark or rehype plugin to the @pagesmith/core markdown pipel
    - Respect ordering constraints (frontmatter before GFM transforms, rehype-stringify last, etc.).
 3. Update documentation:
    - `packages/core/CLAUDE.md` markdown-pipeline section.
-   - `packages/core/ai-guidelines/markdown-guidelines.md`.
-   - `packages/docs/ai-guidelines/markdown-guidelines.md` if docs consumers need to know.
+   - `packages/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`.
+   - `packages/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` if docs consumers need to know.
    - Root docs under `docs-site/content/guide/markdown/` and `docs-site/content/reference/core/markdown-reference/`.
    - Example pages demonstrating the new syntax in at least `examples/blog-site/` and `examples/doc-site/`.
 4. Validation:

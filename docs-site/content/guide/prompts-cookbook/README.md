@@ -16,39 +16,39 @@ If you are still deciding which package to adopt, start with [Choose Your Path](
 
 | Source | Value |
 |---|---|
-| Package path | `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` |
+| Package path | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` |
 | Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-core.md](https://projects.sujeet.pro/pagesmith/prompts/setup-core.md) |
 
 ```text
-Set up `@pagesmith/core` in this repository. Read `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` first and follow it exactly. Keep the work focused on collections, schemas, `createContentLayer()`, and either `entry.render()` or `pagesmithContent` for Vite. If the repo also needs the shared Pagesmith site layer, tell me before adding `@pagesmith/site`.
+Set up `@pagesmith/core` in this repository. Read `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` first and follow it exactly. Keep the work focused on collections, schemas, `createContentLayer()`, and either `entry.render()` or `pagesmithContent` for Vite. If the repo also needs the shared Pagesmith site layer, tell me before adding `@pagesmith/site`.
 ```
 
 ### Custom site on top of core
 
 | Source | Value |
 |---|---|
-| Package path | `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` |
+| Package path | `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` |
 | Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-site.md](https://projects.sujeet.pro/pagesmith/prompts/setup-site.md) |
 
 ```text
-Set up `@pagesmith/site` in this repository. Read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` first and follow it exactly. Keep the app-facing integration on `@pagesmith/site` for content collections, markdown rendering, Vite wiring, and the JSX/runtime layer unless this repo explicitly wants the lower-level headless-only `@pagesmith/core` package instead.
+Set up `@pagesmith/site` in this repository. Read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` first and follow it exactly. Keep the app-facing integration on `@pagesmith/site` for content collections, markdown rendering, Vite wiring, and the JSX/runtime layer unless this repo explicitly wants the lower-level headless-only `@pagesmith/core` package instead.
 ```
 
 ### Docs site for a repo
 
 | Source | Value |
 |---|---|
-| Package path | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` |
+| Package path | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` |
 | Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md) |
 
 ```text
-Set up docs for this repository using `@pagesmith/docs`. Read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` first and follow it exactly. Prefer `npx pagesmith-docs init --yes --ai` with explicit values when that fits the repo. Keep `pagesmith.config.json5` at the repo root, preserve useful existing docs content, and verify the docs build before finishing.
+Set up docs for this repository using `@pagesmith/docs`. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` first and follow it exactly. Prefer `npx pagesmith-docs init --yes --ai` with explicit values when that fits the repo. Keep `pagesmith.config.json5` at the repo root, preserve useful existing docs content, and verify the docs build before finishing.
 ```
 
 ### Upgrade an existing docs integration
 
 ```text
-Upgrade the existing `@pagesmith/docs` integration in this repository. Read `node_modules/@pagesmith/docs/ai-guidelines/migration.md` first and follow it exactly. Keep the existing `pagesmith.config.json5` location and docs tree unless a schema or config issue requires a change. Revalidate `origin`, `basePath`, docs scripts, AI pointers, and schema usage before finishing.
+Upgrade the existing `@pagesmith/docs` integration in this repository. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md` first and follow it exactly. Keep the existing `pagesmith.config.json5` location and docs tree unless a schema or config issue requires a change. Revalidate `origin`, `basePath`, docs scripts, AI pointers, and schema usage before finishing.
 ```
 
 ## AI Context Installation
@@ -84,13 +84,13 @@ Run a full Pagesmith docs refresh for this repository. Read the package setup pr
 ### Fix docs build failures
 
 ```text
-The docs build is failing. Read `node_modules/@pagesmith/docs/ai-guidelines/errors.md`, then run `npx pagesmith-docs build`, diagnose the root cause, fix it, and explain whether the problem came from config, content structure, frontmatter, schema validation, or layout files.
+The docs build is failing. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/errors.md`, then run `npx pagesmith-docs build`, diagnose the root cause, fix it, and explain whether the problem came from config, content structure, frontmatter, schema validation, or layout files.
 ```
 
 ### Fix missing virtual content modules
 
 ```text
-I am getting `Cannot find module 'virtual:content/...'`. Read `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` and `node_modules/@pagesmith/core/REFERENCE.md`, then verify the collection name, `pagesmithContent` wiring, and the exported content config shape.
+I am getting `Cannot find module 'virtual:content/...'`. Read `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` and `node_modules/@pagesmith/core/REFERENCE.md`, then verify the collection name, `pagesmithContent` wiring, and the exported content config shape.
 ```
 
 ### Configure MCP for docs tools

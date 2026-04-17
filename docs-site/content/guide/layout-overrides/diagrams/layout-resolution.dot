@@ -23,7 +23,7 @@ digraph LayoutResolution {
   edge [
     fontname="Arial",
     fontsize=10,
-    color="#7B7B7B",
+    color="#AAAAAA",
     fontcolor="#333333"
   ];
 
@@ -48,8 +48,8 @@ digraph LayoutResolution {
   builtin [label="Use built-in layout\nhome, page, listing, or notFound"];
   error [
     label="Build error\nmissing layout registration",
-    color="#C23B3A",
-    fillcolor="#E45756",
+    color="#8E2828",
+    fillcolor="#B43A3A",
     fontcolor="#ffffff"
   ];
   render [label="Render with shared props\ncontent, frontmatter, headings, slug, site"];

@@ -23,7 +23,7 @@ Use this when you want a docs site with config, conventions, navigation, search,
 
 Copy-paste prompt:
 
-> Install `@pagesmith/docs`, then read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` and follow it exactly. Use `npx pagesmith-docs init --yes --ai` for bootstrap work, keep `pagesmith.config.json5` at the repo root, and explain any GitHub Pages `origin` or `basePath` decisions before finishing.
+> Install `@pagesmith/docs`, then read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` and follow it exactly. Use `npx pagesmith-docs init --yes --ai` for bootstrap work, keep `pagesmith.config.json5` at the repo root, and explain any GitHub Pages `origin` or `basePath` decisions before finishing.
 
 ### `@pagesmith/site`
 
@@ -31,7 +31,7 @@ Use this when you want a custom site with Pagesmith's content layer plus the sha
 
 Copy-paste prompt:
 
-> Install `@pagesmith/site`, then read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and follow it exactly. Keep the app-facing imports on `@pagesmith/site`, use `@pagesmith/core` directly only if the repo intentionally wants the lower-level headless package, and choose between a Vite SSG setup or a framework-hosted setup based on the repo.
+> Install `@pagesmith/site`, then read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` and follow it exactly. Keep the app-facing imports on `@pagesmith/site`, use `@pagesmith/core` directly only if the repo intentionally wants the lower-level headless package, and choose between a Vite SSG setup or a framework-hosted setup based on the repo.
 
 ### `@pagesmith/core`
 
@@ -39,7 +39,7 @@ Use this when the host app already owns routing, layout, or build tooling and on
 
 Copy-paste prompt:
 
-> Install `@pagesmith/core`, then read `node_modules/@pagesmith/core/ai-guidelines/setup-core.md` and follow it exactly. Keep the work focused on collections, schemas, `createContentLayer()`, and either `entry.render()` or `pagesmithContent` for Vite.
+> Install `@pagesmith/core`, then read `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` and follow it exactly. Keep the work focused on collections, schemas, `createContentLayer()`, and either `entry.render()` or `pagesmithContent` for Vite.
 
 ## Package Roles
 

@@ -31,22 +31,43 @@ concurrency:
   group: publish
   cancel-in-progress: false
 
+# ---------------------------------------------------------------------------
+# Dependency graph (mirrors `ci.yml` so quality gates stay in lockstep with
+# release validation, and runs them in parallel instead of as one giant
+# sequential `npm run validate` step):
+#
+#   prepare ──┬── build-library ──┬── lint
+#             │                   ├── unit
+#             │                   ├── validate-examples
+#             │                   ├── build-docs ── validate-pagesmith
+#             │                   └── (feeds publish)
+#             ├── validate-diagrams
+#             │
+#             └── (all gates pass) ─── publish ─── tag-and-commit
+#
+# `prepare` syncs the new release version into every package.json + the
+# lockfile and uploads them as an artifact. Every downstream job restores
+# that artifact before running `npm ci`, so they all build/test/publish
+# against the exact release version.
+# ---------------------------------------------------------------------------
+
 jobs:
-  publish:
-    name: Publish to npm
+  prepare:
+    name: Resolve & sync release version
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      exact_version_mode: ${{ steps.version.outputs.exact_version_mode }}
+      selected_core: ${{ steps.selection.outputs.selected_core }}
+      selected_site: ${{ steps.selection.outputs.selected_site }}
+      selected_docs: ${{ steps.selection.outputs.selected_docs }}
+      publish_core: ${{ steps.published.outputs.publish_core }}
+      publish_site: ${{ steps.published.outputs.publish_site }}
+      publish_docs: ${{ steps.published.outputs.publish_docs }}
     steps:
       - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-          registry-url: https://registry.npmjs.org
-
-      - run: npm ci
+      - uses: ./.github/actions/setup
 
       # Resolve the release version from the current package line or an explicit override.
       - name: Resolve version
@@ -246,29 +267,198 @@ jobs:
           npm run sync:versions -- "$VERSION"
           npm install --package-lock-only --ignore-scripts
 
-      - name: Validate release candidate
-        run: npm run validate
+      - name: Upload synced manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-manifests
+          path: |
+            package.json
+            package-lock.json
+            packages/*/package.json
+          if-no-files-found: error
+          retention-days: 1
 
-      - name: Validate diagrams
-        run: npm run validate:diagrams
+  # -------------------------------------------------------------------------
+  # Tier 1 — independent jobs that need no library build.
+  # -------------------------------------------------------------------------
 
-      # Publish the coordinated package set with provenance (Trusted Publisher / OIDC)
+  validate-diagrams:
+    name: Validate diagrams
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+      - run: npm run validate:diagrams
+
+  build-library:
+    name: Build library
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+      - run: npm run build:library
+      - name: Upload library dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-dist
+          path: packages/*/dist
+          if-no-files-found: error
+          retention-days: 1
+
+  # -------------------------------------------------------------------------
+  # Tier 2 — needs the built library. Runs in parallel.
+  # -------------------------------------------------------------------------
+
+  lint:
+    name: Lint & typecheck
+    needs: build-library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+      - run: npm run check
+
+  unit:
+    name: Unit & integration tests
+    needs: build-library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+      - run: npm test
+
+  validate-examples:
+    name: Validate examples
+    needs: build-library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+      - run: npm run validate:examples
+
+  build-docs:
+    name: Build docs site
+    needs: build-library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+      - run: npm run build:docs
+      - name: Upload docs gh-pages output
+        uses: actions/upload-artifact@v4
+        with:
+          name: gh-pages-docs
+          path: gh-pages
+          if-no-files-found: error
+          retention-days: 1
+
+  # -------------------------------------------------------------------------
+  # Tier 3 — needs the built docs site.
+  # -------------------------------------------------------------------------
+
+  validate-pagesmith:
+    name: Validate Pagesmith docs
+    needs: build-docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+      - uses: actions/download-artifact@v4
+        with:
+          name: gh-pages-docs
+          path: gh-pages
+      - run: npm run validate:pagesmith
+
+  # -------------------------------------------------------------------------
+  # Publish — needs every quality gate to succeed AND the built library.
+  # `id-token: write` is granted at the workflow level for npm provenance.
+  # -------------------------------------------------------------------------
+
+  publish:
+    name: Publish to npm
+    needs:
+      - prepare
+      - build-library
+      - lint
+      - unit
+      - validate-examples
+      - validate-pagesmith
+      - validate-diagrams
+    runs-on: ubuntu-latest
+    outputs:
+      all_published: ${{ steps.final.outputs.all_published }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+        with:
+          registry-url: https://registry.npmjs.org
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+
       - name: Publish @pagesmith/core
-        if: steps.published.outputs.publish_core == 'true'
+        if: needs.prepare.outputs.publish_core == 'true'
         working-directory: packages/core
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @pagesmith/site
-        if: steps.published.outputs.publish_site == 'true'
+        if: needs.prepare.outputs.publish_site == 'true'
         working-directory: packages/site
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @pagesmith/docs
-        if: steps.published.outputs.publish_docs == 'true'
+        if: needs.prepare.outputs.publish_docs == 'true'
         working-directory: packages/docs
         run: npm publish --provenance --access public
         env:
@@ -277,7 +467,7 @@ jobs:
       - name: Check final published versions
         id: final
         run: |
-          VERSION=${{ steps.version.outputs.version }}
+          VERSION=${{ needs.prepare.outputs.version }}
 
           package_exists() {
             if npm view "$1@${VERSION}" version >/dev/null 2>&1; then
@@ -308,12 +498,26 @@ jobs:
           echo "all_published=false" >> "$GITHUB_OUTPUT"
           echo "Version ${VERSION} is not fully published after 5 attempts; skipping release commit/tag."
 
-      # Only commit and tag after the full coordinated version is published.
+  # -------------------------------------------------------------------------
+  # Tag and commit — only after the full coordinated version is published.
+  # Uses fetch-depth: 0 so existing tags are visible.
+  # -------------------------------------------------------------------------
+
+  tag-and-commit:
+    name: Tag & commit release
+    needs: [prepare, publish]
+    if: needs.publish.outputs.all_published == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
       - name: Commit and tag
-        if: steps.final.outputs.all_published == 'true'
         run: |
-          VERSION=${{ steps.version.outputs.version }}
-          TAG=${{ steps.version.outputs.tag }}
+          TAG=${{ needs.prepare.outputs.tag }}
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package-lock.json packages/core/package.json packages/site/package.json packages/docs/package.json

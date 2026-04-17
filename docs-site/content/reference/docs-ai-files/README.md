@@ -13,9 +13,9 @@ Use this prompt file when you want an agent to set up docs in an existing reposi
 
 | Location | Value |
 |---|---|
-| Package path | `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` |
+| Package path | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` |
 | Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md) |
-| Source in this repo | `packages/docs/ai-guidelines/setup-docs.md` |
+| Source in this repo | `packages/docs/skills/pagesmith-docs-setup/references/setup-docs.md` |
 
 The docs site now exposes two ready-to-use agent flows:
 
@@ -28,13 +28,13 @@ Use this prompt file when the repository already uses `@pagesmith/docs` and you 
 
 | Location | Value |
 |---|---|
-| Package path | `node_modules/@pagesmith/docs/ai-guidelines/migration.md` |
-| Source in this repo | `packages/docs/ai-guidelines/migration.md` |
+| Package path | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md` |
+| Source in this repo | `packages/docs/skills/pagesmith-docs-setup/references/migration.md` |
 
 Recommended instruction:
 
 ```text
-Upgrade the existing @pagesmith/docs integration in this repository. Read node_modules/@pagesmith/docs/ai-guidelines/migration.md first and follow it exactly.
+Upgrade the existing @pagesmith/docs integration in this repository. Read node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md first and follow it exactly.
 ```
 
 ## Recommended Agent Instruction
@@ -48,7 +48,7 @@ Set up docs using Pagesmith for this repository. Read https://projects.sujeet.pr
 If the package is already installed and you want the version-matched local copy instead of the hosted one:
 
 ```text
-Set up docs using Pagesmith for this repository. Read node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md first and follow it exactly.
+Set up docs using Pagesmith for this repository. Read node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md first and follow it exactly.
 ```
 
 ## Version-Matched Schemas

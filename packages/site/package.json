@@ -28,9 +28,10 @@
     "src/styles/",
     "assets/",
     "css.d.ts",
-    "ai-guidelines/",
     "skills/",
-    "REFERENCE.md"
+    "REFERENCE.md",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "type": "module",
   "exports": {
@@ -178,18 +179,17 @@
       "types": "./dist/build-validator.d.mts",
       "import": "./dist/build-validator.mjs"
     },
-    "./ai-guidelines/*": "./ai-guidelines/*",
     "./skills/*": "./skills/*",
-    "./llms": "./ai-guidelines/llms.txt",
-    "./llms-full": "./ai-guidelines/llms-full.txt",
-    "./agents/setup-site": "./ai-guidelines/setup-site.md",
-    "./agents/site-guidelines": "./ai-guidelines/site-guidelines.md",
-    "./agents/usage": "./ai-guidelines/usage.md",
-    "./agents/recipes": "./ai-guidelines/recipes.md",
-    "./agents/changelog-notes": "./ai-guidelines/changelog-notes.md",
-    "./agents/errors": "./ai-guidelines/errors.md",
-    "./agents/migration": "./ai-guidelines/migration.md",
-    "./agents/template": "./ai-guidelines/AGENTS.md.template",
+    "./llms": "./llms.txt",
+    "./llms-full": "./llms-full.txt",
+    "./agents/setup-site": "./skills/pagesmith-site-setup/references/setup-site.md",
+    "./agents/site-guidelines": "./skills/pagesmith-site-setup/references/site-guidelines.md",
+    "./agents/usage": "./skills/pagesmith-site-setup/references/usage.md",
+    "./agents/recipes": "./skills/pagesmith-site-setup/references/recipes.md",
+    "./agents/changelog-notes": "./skills/pagesmith-site-setup/references/changelog-notes.md",
+    "./agents/errors": "./skills/pagesmith-site-setup/references/errors.md",
+    "./agents/migration": "./skills/pagesmith-site-setup/references/migration.md",
+    "./agents/template": "./skills/pagesmith-site-setup/references/AGENTS.md.template",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -199,7 +199,9 @@
     "test": "vp test run"
   },
   "dependencies": {
+    "@clack/prompts": "^1.2.0",
     "@pagesmith/core": "0.9.5",
+    "cac": "^6.7.14",
     "json5": "^2.2.3",
     "lightningcss": "^1.32.0",
     "pagefind": "^1.5.0"
@@ -213,8 +215,8 @@
     "node": ">=24"
   },
   "ai": {
-    "context": "./ai-guidelines/llms.txt",
-    "fullContext": "./ai-guidelines/llms-full.txt",
-    "agentsDir": "./ai-guidelines"
+    "context": "./llms.txt",
+    "fullContext": "./llms-full.txt",
+    "agentsDir": "./skills/pagesmith-site-setup/references"
   }
 }

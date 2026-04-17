@@ -6,7 +6,7 @@ description: Build content-driven static sites using React, SolidJS, or Svelte w
 # Vite Framework Apps
 
 > [!TIP] AI Quick Start
-> Ask your AI agent: "Set up a Pagesmith content-driven static site with [React/SolidJS/Svelte]. Create `content.config.ts` on `@pagesmith/site`, keep the app-facing imports on `@pagesmith/site`, add `vite.config.ts` with `pagesmithContent` and `pagesmithSsg` from `@pagesmith/site/vite`, and an SSR entry that exports `getRoutes()` and `render()`. Read `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and `node_modules/@pagesmith/site/ai-guidelines/usage.md` for reference."
+> Ask your AI agent: "Set up a Pagesmith content-driven static site with [React/SolidJS/Svelte]. Create `content.config.ts` on `@pagesmith/site`, keep the app-facing imports on `@pagesmith/site`, add `vite.config.ts` with `pagesmithContent` and `pagesmithSsg` from `@pagesmith/site/vite`, and an SSR entry that exports `getRoutes()` and `render()`. Read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` and `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md` for reference."
 > Then read on to understand what happened and customize further.
 
 All three Vite framework integrations follow the same pattern: define collections in `content.config.ts` with `@pagesmith/site`, wire up the `pagesmithContent` and `pagesmithSsg` Vite plugins from `@pagesmith/site/vite`, and write an SSR entry that exports `getRoutes()` and `render()`. The framework-specific differences are limited to the JSX/template syntax, the rendering function, and how raw HTML is injected.

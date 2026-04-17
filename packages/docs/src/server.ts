@@ -6,7 +6,7 @@ import { watch } from 'chokidar'
 import { type WebSocket, WebSocketServer } from 'ws'
 import {
   getThemeRoot,
-  resolveDocsConfig,
+  resolveDocsConfigAsync,
   type DocsDevOptions,
   type ResolvedDocsConfig,
 } from './config.js'
@@ -43,7 +43,7 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
   }
 
   await build(buildOverrides)
-  const config = resolveDocsConfig(configPath, {
+  const config = await resolveDocsConfigAsync(configPath, {
     outDir: options.outDir,
     basePath: options.basePath,
   })
@@ -231,7 +231,7 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 
 export async function preview(options: DocsDevOptions = {}): Promise<void> {
   const logger = createLogger(options.logLevel ?? 'warn')
-  const config = resolveDocsConfig(options.configPath, {
+  const config = await resolveDocsConfigAsync(options.configPath, {
     outDir: options.outDir,
     basePath: options.basePath,
   })

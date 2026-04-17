@@ -1,6 +1,6 @@
 # @pagesmith/docs — AI Reference
 
-Versioning note: files shipped in `node_modules/@pagesmith/docs/ai-guidelines/*` and `node_modules/@pagesmith/docs/schemas/*` match the exact installed package version. The Pagesmith docs site content in this repository reflects the latest implementation.
+Versioning note: files shipped in `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/*` and `node_modules/@pagesmith/docs/schemas/*` match the exact installed package version. The Pagesmith docs site content in this repository reflects the latest implementation.
 
 Link this file from your project's CLAUDE.md or AGENTS.md to give AI assistants a comprehensive reference for `@pagesmith/docs`.
 
@@ -9,6 +9,23 @@ Link this file from your project's CLAUDE.md or AGENTS.md to give AI assistants 
 For the full @pagesmith/docs reference, see: node_modules/@pagesmith/docs/REFERENCE.md
 For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
 ```
+
+## Agent Skills
+
+Install the companion [Agent Skills](https://agentskills.io/) into your repo so AI coding agents can drive docs tasks end-to-end:
+
+```bash
+npx skills install \
+  @pagesmith/pagesmith-docs-setup \
+  @pagesmith/pagesmith-docs-add-page \
+  @pagesmith/pagesmith-docs-configure-nav \
+  @pagesmith/pagesmith-docs-add-search \
+  @pagesmith/pagesmith-docs-customize-theme \
+  @pagesmith/pagesmith-docs-deploy-gh-pages \
+  @pagesmith/pagesmith-generate-docs
+```
+
+Each skill is self-contained and triggers when the user asks the agent to set up, extend, theme, or deploy Pagesmith docs. Browse the full set at [pagesmith `skills/`](https://github.com/sujeet-pro/pagesmith/tree/main/skills).
 
 ---
 
@@ -26,7 +43,7 @@ For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/RE
 
 For agent-driven setup in an existing repository, start with the dedicated prompt file:
 
-- Package path: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
+- Package path: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`
 - Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md)
 
 Version-matched schema files are available under `node_modules/@pagesmith/docs/schemas/` and hosted under [https://projects.sujeet.pro/pagesmith/schemas/](https://projects.sujeet.pro/pagesmith/schemas/):
@@ -45,8 +62,8 @@ For GitHub repositories, prefer a GitHub Pages-style default when bootstrapping 
 
 ## Adoption Playbooks
 
-- Bootstrap or retrofit docs in an existing repo: `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
-- Upgrade an existing docs integration and adopt the latest guidance/features: `node_modules/@pagesmith/docs/ai-guidelines/migration.md`
+- Bootstrap or retrofit docs in an existing repo: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`
+- Upgrade an existing docs integration and adopt the latest guidance/features: `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md`
 - Follow the manual path in `node_modules/@pagesmith/docs/README.md` when you want to wire the same structure without delegating the work to an agent
 
 ## Recommended Project Structure
@@ -86,8 +103,37 @@ pagesmith-docs init [--ai] [--no-llms] [--config path]   # Initialize config + c
 pagesmith-docs dev [--port N] [--open]                   # Development server with live reload
 pagesmith-docs build [--out-dir path]                    # Production build with Pagefind indexing
 pagesmith-docs preview [--port N]                        # Preview built site locally
+pagesmith-docs validate [--content] [--build] [--full]   # Validate content + build output using pagesmith.config
 pagesmith-docs mcp --stdio [--config path]               # Start stdio MCP server for docs tooling
 ```
+
+### Configuration File
+
+`pagesmith-docs` resolves the config file in the following order (first match wins):
+
+1. `--config <path>` (explicit override)
+2. `pagesmith.config.ts`
+3. `pagesmith.config.mts`
+4. `pagesmith.config.mjs`
+5. `pagesmith.config.js`
+6. `pagesmith.config.json5`
+7. `pagesmith.config.json`
+
+TypeScript configs are loaded via [`jiti`](https://github.com/unjs/jiti) so users can author with the type-safe `defineConfig` helper:
+
+```ts
+// pagesmith.config.ts
+import { defineConfig } from '@pagesmith/docs'
+
+export default defineConfig({
+  name: 'my-docs',
+  title: 'My Docs',
+  origin: 'https://example.com',
+  basePath: '/my-docs',
+})
+```
+
+`pagesmith-docs init` continues to write a JSON5 file. When a `.ts` config already exists, init reads its values to seed prompts but does not overwrite the file — the user owns code-shaped configs.
 
 ### pagesmith-docs mcp
 
@@ -140,11 +186,31 @@ The dev server uses incremental rebuilds for fast iteration:
 | `--base-path <path>` | string | Config `basePath` | Override URL base path |
 | `--log-level <level>` | string | `warn` | Server log level (`silent`, `error`, `warn`, `info`, `verbose`) |
 
+`pagesmith-docs init` runs as an interactive prompt by default when stdout
+and stdin are both TTYs. It auto-falls back to non-interactive mode (using
+the detected defaults) when:
+
+- `--yes` or `--non-interactive` is passed.
+- `CI=1` or `PAGESMITH_NON_INTERACTIVE=1` is set in the environment.
+- stdout or stdin is not a TTY (for example, redirected output).
+
+Use `--interactive` to force prompts even when the environment looks
+non-TTY (the command errors out if no real TTY is attached).
+
+In non-interactive mode `init` fails fast when `--name`, `--origin`, or
+`--base-path` cannot be resolved from flags, the existing
+`pagesmith.config.{ts,json5,...}`, or smart defaults (git remote, package.json
+name, repo basename). The error message points at the missing flag and config
+key so CI/CD pipelines surface a clear failure instead of silently writing
+empty values.
+
 Useful `init` flags for non-interactive setup:
 
 | Option | Type | Description |
 |---|---|---|
-| `--yes` | boolean | Accept detected defaults without prompting |
+| `--yes`, `-y` | boolean | Accept detected defaults without prompting |
+| `--non-interactive` | boolean | Same as `--yes`, named for CI/CD pipelines |
+| `--interactive` | boolean | Force prompts even when the environment looks non-TTY |
 | `--name <value>` | string | Override detected project name |
 | `--title <value>` | string | Override detected site title |
 | `--origin <url>` | string | Override detected site origin |
@@ -551,7 +617,7 @@ const url = withBase('/guide/getting-started', config.basePath)
 | `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
 | `@pagesmith/docs/llms` | Compact AI context index |
 | `@pagesmith/docs/llms-full` | Full AI context reference |
-| `@pagesmith/docs/ai-guidelines/*` | Package-shipped AI guidance files |
+| `@pagesmith/docs/skills/pagesmith-docs-setup/references/*` | Package-shipped AI guidance files |
 | `@pagesmith/docs/agents/setup-docs` | Bootstrap prompt for project agents |
 | `@pagesmith/docs/agents/usage` | Agent operating rules and prompts |
 | `@pagesmith/docs/agents/recipes` | Task-specific recipes |
@@ -703,10 +769,10 @@ Pages are processed with bounded concurrency using `os.availableParallelism() * 
 
 ## Related Docs
 
-- **Setup prompt:** `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md`
-- **Agent prompts and rules:** `node_modules/@pagesmith/docs/ai-guidelines/usage.md`
-- **Step-by-step recipes:** `node_modules/@pagesmith/docs/ai-guidelines/recipes.md`
-- **Error catalog:** `node_modules/@pagesmith/docs/ai-guidelines/errors.md`
+- **Setup prompt:** `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`
+- **Agent prompts and rules:** `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/recipes.md`
+- **Error catalog:** `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/errors.md`
 - **JSON schemas:** `node_modules/@pagesmith/docs/schemas/*.schema.json`
 - **User README:** `node_modules/@pagesmith/docs/README.md`
 - **Core package reference:** `node_modules/@pagesmith/core/REFERENCE.md`

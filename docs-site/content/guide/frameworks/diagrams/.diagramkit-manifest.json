@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "framework-integration-patterns.mermaid": {
-      "hash": "sha256:6eda82ca444adc08",
-      "generatedAt": "2026-04-16T14:37:59.230Z",
+      "hash": "sha256:780a800f1e257ad5",
+      "generatedAt": "2026-04-17T08:13:20.507Z",
       "outputs": [
         {
           "file": "framework-integration-patterns-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776318365022.6438,
-      "size": 921
+      "mtimeMs": 1776413344421.7678,
+      "size": 1017
     }
   }
 }

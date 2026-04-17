@@ -4,7 +4,7 @@ digraph MarkdownPipelineOverview {
   bgcolor="transparent"
   graph [rankdir=LR, nodesep=0.5, ranksep=0.8, pad=0.2]
   node [shape=box, style="rounded,filled", fillcolor="#dae8fc", color="#6c8ebf", fontcolor="#333333", margin="0.18,0.12"]
-  edge [fontsize=10, color="#7B7B7B"]
+  edge [fontsize=10, color="#AAAAAA", fontcolor="#333333"]
 
   source [label="Markdown source"]
   remark [label="Built-in remark stage\nparse, GFM, frontmatter,\nalerts, smartypants,\noptional math"]

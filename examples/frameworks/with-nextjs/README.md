@@ -6,7 +6,7 @@ This example does not use Pagesmith's Vite plugins, JSX runtime, CLI, or SSG hel
 
 ## AI-First Starting Point
 
-To recreate this shape in another repository, install `@pagesmith/site`, `next`, `react`, and `react-dom`, then start with `node_modules/@pagesmith/site/ai-guidelines/setup-site.md` and keep Next.js responsible for routing, layout, metadata, and export.
+To recreate this shape in another repository, install `@pagesmith/site`, `next`, `react`, and `react-dom`, then start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` and keep Next.js responsible for routing, layout, metadata, and export.
 
 Tell the agent to:
 

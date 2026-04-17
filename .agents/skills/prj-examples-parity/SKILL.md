@@ -19,7 +19,7 @@ Check these example surfaces when behavior changes:
 
 ## Workflow
 
-1. Read `ai-guidelines/markdown-guidelines.md`, `ai-guidelines/diagram-guidelines.md`, and the relevant package `ai-guidelines` files.
+1. Read the "Markdown Parity" and "Diagrams" sections of `AGENTS.md`, follow `prj-docs-diagrams` for diagram work, and read the relevant `packages/*/skills/pagesmith-*-setup/references/` files for the consumer surface.
 2. Identify the canonical behavior in `packages/core/src/**` or `packages/docs/src/**`.
 3. Compare the affected example pages, README files, runtime files, config files, and diagram usage against that behavior.
 4. Update every example that advertises the feature, not just the first one you find.

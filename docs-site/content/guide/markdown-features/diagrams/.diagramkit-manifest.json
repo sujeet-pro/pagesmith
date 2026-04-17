@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "markdown-pipeline-overview.dot": {
-      "hash": "sha256:cc2fd0e31bf79f68",
-      "generatedAt": "2026-04-16T14:37:59.225Z",
+      "hash": "sha256:1431a166daa2273a",
+      "generatedAt": "2026-04-17T08:13:20.502Z",
       "outputs": [
         {
           "file": "markdown-pipeline-overview-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776318283477.6436,
-      "size": 1037
+      "mtimeMs": 1776413450399.4507,
+      "size": 1058
     }
   }
 }

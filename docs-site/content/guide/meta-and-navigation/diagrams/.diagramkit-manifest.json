@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "navigation-sources.mermaid": {
-      "hash": "sha256:412bc7a6203f7456",
-      "generatedAt": "2026-04-16T14:37:59.231Z",
+      "hash": "sha256:6280dee79ffab3ce",
+      "generatedAt": "2026-04-17T08:13:20.508Z",
       "outputs": [
         {
           "file": "navigation-sources-light.svg",
@@ -22,8 +22,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776318350660.7935,
-      "size": 1268
+      "mtimeMs": 1776413341562.0957,
+      "size": 1400
     }
   }
 }

@@ -8,14 +8,14 @@ flowchart LR
   classDef output fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#333333
   classDef consumer fill:#e1d5e7,stroke:#9673a6,stroke-width:2px,color:#333333
 
-  Config["content.config.ts<br/>Collections + Zod schemas"]
-  Files["content/**<br/>Markdown and data files"]
-  Plugin["pagesmithContent()<br/>Vite plugin"]
-  RootModule["virtual:content<br/>All collections"]
-  CollectionModule["virtual:content/posts<br/>Single collection"]
-  Dts["pagesmith-content.d.ts<br/>Generated module types"]
-  App["App or SSG entry<br/>Imports virtual modules"]
-  IDE["TypeScript + editor<br/>Autocomplete and type checking"]
+  Config["content.config.ts\nCollections + Zod schemas"]
+  Files["content/**\nMarkdown and data files"]
+  Plugin["pagesmithContent()\nVite plugin"]
+  RootModule["virtual:content\nAll collections"]
+  CollectionModule["virtual:content/posts\nSingle collection"]
+  Dts["pagesmith-content.d.ts\nGenerated module types"]
+  App["App or SSG entry\nImports virtual modules"]
+  IDE["TypeScript + editor\nAutocomplete and type checking"]
 
   Config --> Plugin
   Files --> Plugin

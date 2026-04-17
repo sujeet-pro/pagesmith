@@ -2,8 +2,8 @@
   "version": 2,
   "diagrams": {
     "theme-architecture.mermaid": {
-      "hash": "sha256:29c1a36639bc5a07",
-      "generatedAt": "2026-04-16T14:37:59.233Z",
+      "hash": "sha256:7ee86da711965074",
+      "generatedAt": "2026-04-17T08:13:20.510Z",
       "outputs": [
         {
           "file": "theme-architecture-light.svg",
@@ -18,8 +18,8 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776318376414.8157,
-      "size": 1499
+      "mtimeMs": 1776413348640.4043,
+      "size": 1596
     }
   }
 }

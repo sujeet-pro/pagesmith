@@ -1,47 +1,42 @@
 import { describe, expect, it } from 'vite-plus/test'
-import { parseInitArgs, parseServerArgs } from '../cli/args.js'
+import { isInteractive, isNonInteractiveEnv } from '@pagesmith/core/cli-kit'
+import { parseLogLevel, parsePort } from '../cli/log-level.js'
 
-describe('parseServerArgs', () => {
-  it('parses log level aliases used in real CLI workflows', () => {
-    expect(parseServerArgs(['--log-level', 'info']).logLevel).toBe('info')
-    expect(parseServerArgs(['--log-level', 'log']).logLevel).toBe('info')
-    expect(parseServerArgs(['--log-level', 'verbose']).logLevel).toBe('verbose')
-    expect(parseServerArgs(['--log-level', 'warnings']).logLevel).toBe('warn')
-    expect(parseServerArgs(['--log-level', 'errors']).logLevel).toBe('error')
+describe('parseLogLevel', () => {
+  it('accepts canonical values and common aliases', () => {
+    expect(parseLogLevel('silent')).toBe('silent')
+    expect(parseLogLevel('error')).toBe('error')
+    expect(parseLogLevel('errors')).toBe('error')
+    expect(parseLogLevel('warn')).toBe('warn')
+    expect(parseLogLevel('warning')).toBe('warn')
+    expect(parseLogLevel('warnings')).toBe('warn')
+    expect(parseLogLevel('info')).toBe('info')
+    expect(parseLogLevel('log')).toBe('info')
+    expect(parseLogLevel('verbose')).toBe('verbose')
+    expect(parseLogLevel('debug')).toBe('verbose')
   })
 
-  it('throws on invalid log level values', () => {
-    expect(() => parseServerArgs(['--log-level', 'chatty'])).toThrow(/--log-level must be one of/)
+  it('rejects unknown values with a clear message', () => {
+    expect(() => parseLogLevel('chatty')).toThrow(/--log-level must be one of/)
   })
 })
 
-describe('parseInitArgs', () => {
-  it('parses explicit init values for non-interactive setup', () => {
-    const args = parseInitArgs([
-      '--yes',
-      '--name',
-      'repo-name',
-      '--title',
-      'Repo Docs',
-      '--origin',
-      'https://owner.github.io',
-      '--base-path',
-      '/repo-name',
-      '--content-dir',
-      'docs',
-      '--no-search',
-      '--starter-content',
-      '--ai',
-    ])
+describe('parsePort', () => {
+  it('accepts numbers and numeric strings within range', () => {
+    expect(parsePort(3000)).toBe(3000)
+    expect(parsePort('4000')).toBe(4000)
+  })
 
-    expect(args.yes).toBe(true)
-    expect(args.name).toBe('repo-name')
-    expect(args.title).toBe('Repo Docs')
-    expect(args.origin).toBe('https://owner.github.io')
-    expect(args.basePath).toBe('/repo-name')
-    expect(args.contentDir).toBe('docs')
-    expect(args.search).toBe(false)
-    expect(args.starterContent).toBe(true)
-    expect(args.ai).toBe(true)
+  it('rejects out-of-range or invalid values', () => {
+    expect(() => parsePort('0')).toThrow(/between 1 and 65535/)
+    expect(() => parsePort('65536')).toThrow(/between 1 and 65535/)
+    expect(() => parsePort('abc')).toThrow(/--port must be a valid number/)
+  })
+})
+
+describe('shared interactive helpers', () => {
+  it('re-exports isInteractive / isNonInteractiveEnv from cli-kit', () => {
+    expect(typeof isInteractive).toBe('function')
+    expect(typeof isNonInteractiveEnv).toBe('function')
   })
 })

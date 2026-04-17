@@ -9,7 +9,7 @@ description: Add a new example workspace under examples/ that stays in parity wi
 
 1. Read `.agents/skills/prj-examples-parity/SKILL.md` first — every new example has to start in parity.
 2. Read the closest existing example (`examples/with-react/`, `examples/blog-site/`, etc.) for conventions.
-3. Read `packages/site/ai-guidelines/recipes.md` or `packages/docs/ai-guidelines/recipes.md` as the spec for the new variant.
+3. Read `packages/site/skills/pagesmith-site-setup/references/recipes.md` or `packages/docs/skills/pagesmith-docs-setup/references/recipes.md` as the spec for the new variant.
 
 ## Workflow
 

@@ -62,6 +62,7 @@ export default defineConfig({
       'ai/index': 'src/ai/index.ts',
       'vite/index': 'src/vite/index.ts',
       'create/index': 'src/create/index.ts',
+      'cli-kit/index': 'src/cli-kit/index.ts',
       'cli/bin': 'src/cli/bin.ts',
       'mcp/index': 'src/mcp/index.ts',
       'mcp/server': 'src/mcp/server.ts',

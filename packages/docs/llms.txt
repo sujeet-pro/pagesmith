@@ -1,0 +1,94 @@
+# @pagesmith/docs
+
+Version-matched AI context for the installed `@pagesmith/docs` package.
+
+## Install
+
+```bash
+npm add @pagesmith/docs
+```
+
+## Use this package when
+
+- You want convention-based docs with minimal setup.
+- You want built-in docs navigation, default theme, and Pagefind search.
+
+## Start here
+
+- **Bootstrap / retrofit prompt:** `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`
+- **Upgrade prompt:** `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md`
+- **Full reference:** `node_modules/@pagesmith/docs/REFERENCE.md`
+- **Agent rules + prompts:** `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`
+- **Step-by-step recipes:** `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/recipes.md`
+
+## All guidance files
+
+| File | Purpose |
+|---|---|
+| `node_modules/@pagesmith/docs/REFERENCE.md` | Complete config, CLI, content, markdown, layout, deployment |
+| `node_modules/@pagesmith/docs/README.md` | User-facing quick start and API overview |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` | Canonical bootstrap/retrofit prompt for existing repos |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md` | Docs-specific structure, navigation, and ownership rules |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` | Markdown authoring and pipeline rules for docs projects |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/recipes.md` | Task-specific step-by-step recipes |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/errors.md` | Error catalog with patterns and fixes |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
+| `node_modules/@pagesmith/docs/schemas/*.schema.json` | Version-matched schemas for config, meta.json5, and docs frontmatter |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/changelog-notes.md` | Version highlights |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/AGENTS.md.template` | Template for project-level AGENTS.md |
+
+## Agent-first setup
+
+- For repo bootstrap or retrofit work, start with `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`.
+- For version upgrades or feature adoption on an existing docs site, start with `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md`.
+- Prefer `pagesmith-docs init --ai` for initial setup so docs structure and AI context are generated together.
+- Use `node_modules/@pagesmith/docs/schemas/*.schema.json` for version-matched config, meta, and frontmatter shapes.
+- When `pagesmith.config.json5` is committed, keep its `$schema` pointing at the installed file in `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`.
+- If generated Pagesmith skills exist, you can use them for bulk refreshes. Otherwise, paste the setup or upgrade prompt directly into your agent.
+- MCP server: `pagesmith-docs mcp --stdio`
+
+## Config and paths (`pagesmith.config.json5`)
+
+- Top-level fields include **`home`**, **`server`** (e.g. `devPort`, **`previewPort`** default **4000**, `strictPort`), **`icon`**, **`maintainer`**, **`footerLinks`**, **`footerText`**, **`copyright`**, **`editLink`**, **`lastUpdated`**, plus `contentDir`, `outDir`, `basePath`, `theme`, etc.
+- **`contentDir`**: defaults to **`docs/`** if that directory exists in the project root, otherwise **`content/`**.
+- For GitHub repos, bootstrap flows should prefer GitHub Pages defaults: `basePath` as `/<repo-name>` and `origin` from `https://<owner>.github.io`, following redirects when possible.
+- When overriding layouts with search enabled, keep `data-pagefind-body` on the content-only wrapper (page article or home body), not the full shell.
+
+## Main package exports (`@pagesmith/docs`)
+
+- From the primary entry: `build`, `defineDocsConfig`, **`loadDocsConfig`**, `preview`, **`reportConfigIssues`**, `resolveDocsConfig`, `startDev`, `validateConfig`, **`withBase`**, **`docsPreset`**, `createDocsMcpServer`, `startDocsMcpServer`, **`Html`**, **`buildSiteModel`**, **`getPrevNext`**, **`getSitePayload`**, and related types (`DocsUserConfig`, `ResolvedDocsConfig`, …).
+
+## Project memory pointer
+
+In the consuming project, add this to `CLAUDE.md` or `AGENTS.md`:
+
+```
+For @pagesmith/docs bootstrap and retrofit tasks, read node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md
+For @pagesmith/docs usage and prompts, read node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md
+For the full @pagesmith/docs reference, see node_modules/@pagesmith/docs/REFERENCE.md
+For version-matched docs schemas, read node_modules/@pagesmith/docs/schemas/*.schema.json
+```
+
+## Related package
+
+- Core content layer reference: `node_modules/@pagesmith/core/REFERENCE.md`
+- Core usage: `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`
+
+## Theme system
+
+Built-in theme toggle (header dropdown) and theme selector (footer). Config options:
+- `theme.defaultColorScheme`: `'auto'` (OS preference) | `'light'` | `'dark'`
+- `theme.defaultTheme`: `'paper'` (warm, low-contrast) | `'high-contrast'` (WCAG AAA)
+- User preferences persist in `localStorage('pagesmith-theme')`.
+- Progressive enhancement: without JS, follows OS preference via `color-scheme: light dark`.
+
+## Recent changes
+
+- Multi-theme system with header toggle, footer selector, and config options for default color scheme/theme.
+- Footer links now support two modes: a flat link grid or grouped columns with optional headers. On wide screens they use up to 4 evenly spaced columns, and prev/next navigation now renders between page metadata and the footer link area. Footer links still fall back to the top-level nav links when `footerLinks` is omitted.
+- `DocHome` now uses the same main content-column width and inline padding as `DocPage`, so the landing page and content pages stay visually aligned while sidebars appear or disappear around the content.
+- The footer legal line now combines `copyright` with the default "Made with <3 using Pagesmith" sign-off; `footerText` overrides only the sign-off segment and the theme/footer controls still use segmented button groups.
+- `editLink` now auto-detects from supported git remotes unless set to `false`, and `lastUpdated` defaults to `true`.
+- `@pagesmith/docs` now exports navigation and content types (`NavItem`, `SidebarSection`, `SidebarItem`, `PrevNextLink`, `SiteModel`, `DocsPage`, `DocsSectionMeta`, `DocsRootMeta`) and functions (`buildSiteModel`, `getPrevNext`, `getSitePayload`) for theme customization.
+- Error catalog added at `skills/pagesmith-docs-setup/references/errors.md` with machine-readable patterns and fixes.

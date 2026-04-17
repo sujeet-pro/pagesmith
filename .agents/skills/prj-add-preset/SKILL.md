@@ -8,7 +8,7 @@ description: Add a new @pagesmith/site preset (alongside the built-in default an
 ## Quick Start
 
 1. Read `packages/site/src/preset.ts`, `packages/site/src/cli/load-preset.ts`, and `packages/docs/src/preset.ts` for a reference implementation of a preset.
-2. Read `packages/site/ai-guidelines/site-guidelines.md`.
+2. Read `packages/site/skills/pagesmith-site-setup/references/site-guidelines.md`.
 
 ## Workflow
 
@@ -26,7 +26,7 @@ description: Add a new @pagesmith/site preset (alongside the built-in default an
    - `preset.ts` entry + typed config
    - `theme/` and `layouts/` for default JSX components
    - `schemas/*.schema.json` for IDE autocomplete on `pagesmith.config.json5`
-   - `ai-guidelines/setup-<preset>.md`, `usage.md`, `recipes.md`, `errors.md`, `migration.md`, `llms.txt`, `llms-full.txt`
+   - `skills/setup-<preset>.md`, `usage.md`, `recipes.md`, `errors.md`, `migration.md`, `llms.txt`, `llms-full.txt`
    - `REFERENCE.md` at package root
    - `skills/` folder with consumer-installable SKILL.md files
 5. Update:

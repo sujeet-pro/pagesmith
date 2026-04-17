@@ -1,9 +1,12 @@
 // Re-export public API from focused modules
 export {
+  defineConfig,
   defineDocsConfig,
   loadDocsConfig,
+  loadDocsConfigAsync,
   reportConfigIssues,
   resolveDocsConfig,
+  resolveDocsConfigAsync,
   validateConfig,
   type ConfigValidationIssue,
   type DocsBuildOptions,

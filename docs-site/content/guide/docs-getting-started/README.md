@@ -23,7 +23,7 @@ Paste this into your AI assistant when you want it to retrofit docs into an exis
 
 If `@pagesmith/docs` is already installed and you want the version-matched local file instead of the hosted one:
 
-> Set up docs using Pagesmith for this repository. Read `node_modules/@pagesmith/docs/ai-guidelines/setup-docs.md` first and follow it exactly.
+> Set up docs using Pagesmith for this repository. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` first and follow it exactly.
 
 If you want full copy-paste prompt bodies for both initial setup and upgrades, use [Agent Prompts Cookbook](/guide/prompts-cookbook). That page includes the repo-configuration prompt plus the upgrade prompt for an existing `@pagesmith/docs` integration.
 

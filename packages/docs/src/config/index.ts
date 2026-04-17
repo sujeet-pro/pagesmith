@@ -1,10 +1,13 @@
 export {
-  detectFirstCommitYear,
+  defineConfig,
   defineDocsConfig,
+  detectFirstCommitYear,
   detectGitOrigin,
   loadDocsConfig,
+  loadDocsConfigAsync,
   probeHostedOrigin,
   resolveDocsConfig,
+  resolveDocsConfigAsync,
   resolveInitOrigin,
 } from './resolve'
 export {

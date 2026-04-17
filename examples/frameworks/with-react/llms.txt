@@ -25,4 +25,4 @@ Agent-focused notes for this static-site example. Scope: `@pagesmith/site` colle
 
 ## Upstream docs
 
-For Markdown syntax, validators, and package APIs, follow the published Pagesmith docs and `packages/core/ai-guidelines/` — this directory only demonstrates wiring.
+For Markdown syntax, validators, and package APIs, follow the published Pagesmith docs and `packages/core/skills/pagesmith-core-setup/references/` — this directory only demonstrates wiring.

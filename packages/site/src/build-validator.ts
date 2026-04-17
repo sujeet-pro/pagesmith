@@ -1,15 +1,20 @@
 /**
  * Post-build output validator.
  *
- * Walks a static site output directory and checks:
- *  - Internal links resolve to existing files
- *  - Image sources (src, srcset) resolve to existing files
- *  - All images in /assets/ carry a content hash in the filename
- *  - SVG files are well-formed (parseable, no error text)
+ * Walks a static site output directory and verifies:
+ *  - Internal links and image sources resolve to existing files.
+ *  - `srcset` entries all resolve.
+ *  - Every image below `<outDir>/assets/` carries a content-hash in its name
+ *    (e.g. `foo.1a2b3c4d.png`). This check is opt-out via `requireAssetHash`.
+ *  - SVG files are well-formed (`<svg>` present, no parser error markers).
+ *  - Optional: raster images declared inside `<picture>` elements provide
+ *    modern formats (webp + avif) as additional `<source>` entries.
+ *  - Optional: `<picture>` elements annotated as "themed" expose both a
+ *    light and a dark variant source.
  *
- * Designed for use after `hashAssets()` runs so all images should
- * already have hashed filenames. Accepts trailing-slash and basePath
- * settings to correctly resolve HTML file locations.
+ * Designed for use after `hashAssets()` runs so all images should already
+ * have hashed filenames. Accepts trailing-slash and `basePath` settings to
+ * correctly resolve HTML file locations.
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs'
@@ -26,6 +31,47 @@ export type BuildValidatorOptions = {
   trailingSlash?: boolean
   /** Directory names to exclude from validation (e.g. ["examples", "pagefind"]). Default: ["pagefind"] */
   exclude?: string[]
+  /**
+   * When true, every raster image referenced from an `<img>` inside a
+   * `<picture>` element must be accompanied by matching webp and avif
+   * sources in the same `<picture>`. Default: false.
+   */
+  requireRasterModernFormats?: boolean
+  /**
+   * When true, every `<picture>` element flagged as themed (either via the
+   * `ps-figure-themed` class on the enclosing figure or via a
+   * `media="(prefers-color-scheme: ...)"` source) must expose both a light
+   * and a dark variant source. Default: false.
+   */
+  requireThemeVariants?: boolean
+  /**
+   * Whether files in the `assets/` directory must have a content hash.
+   * Default: true.
+   */
+  requireAssetHash?: boolean
+  /**
+   * When true, every `<a href="#id">` within an HTML file must correspond to
+   * an element with `id="id"` on the same page. Catches broken TOC and
+   * "on this page" links. Default: false.
+   */
+  checkInPageAnchors?: boolean
+  /**
+   * File names (relative to `outDir`) that must exist after build. Useful
+   * for docs sites that need `favicon.svg`, `sitemap.xml`, `robots.txt`,
+   * `llms.txt`, `llms-full.txt`, etc. Any file missing is flagged as an
+   * error. Default: `[]`.
+   *
+   * Each entry may be a single filename, an array of alternatives (any one
+   * is enough — e.g. `['favicon.svg', 'favicon.ico']`), or a string with
+   * `|`-separated alternatives.
+   */
+  requiredFiles?: Array<string | string[]>
+  /**
+   * When true, every canonical page (html file) must have both trailing
+   * forms available — `path.html` *and* `path/index.html`. The missing
+   * variant is typically emitted as a redirect. Default: false.
+   */
+  requireBothTrailingSlashForms?: boolean
 }
 
 export type BuildValidationIssue = {
@@ -48,13 +94,15 @@ const HASH_SUFFIX_PATTERN = /\.[a-f0-9]{8}\.[^.]+$/i
 
 const IMAGE_EXTS = new Set(['.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico'])
 
+const RASTER_EXTS = new Set(['.png', '.jpg', '.jpeg', '.gif'])
+
 const EXTERNAL_PATTERN = /^(https?:|\/\/|#|data:|mailto:|tel:|javascript:|blob:)/i
 
 const SVG_ERROR_PATTERNS = [/<parsererror[\s>]/i, /Syntax error/i, /<error[\s>]/i]
 
-// ── Helpers ──
-
 const DEFAULT_EXCLUDE = ['pagefind']
+
+// ── Helpers ──
 
 function walkFiles(dir: string, ext?: string, excludeDirs?: Set<string>): string[] {
   const results: string[] = []
@@ -103,16 +151,19 @@ function isImageFile(path: string): boolean {
   return IMAGE_EXTS.has(extname(path).toLowerCase())
 }
 
+function isRasterExt(ext: string): boolean {
+  return RASTER_EXTS.has(ext.toLowerCase())
+}
+
 /**
- * Resolve a local href to an absolute filesystem path within the output directory.
- * Returns null for external/anchor/data URLs.
+ * Resolve a local href to an absolute filesystem path within the output
+ * directory. Returns `null` for external/anchor/data URLs.
  */
 function resolveLocalHref(
   href: string,
   htmlFile: string,
   outDir: string,
   basePath: string,
-  trailingSlash: boolean,
 ): string | null {
   if (isExternal(href)) return null
   if (href.trim() === '') return null
@@ -134,8 +185,8 @@ function resolveLocalHref(
 }
 
 /**
- * Check whether a resolved path corresponds to an existing file.
- * Handles both trailing-slash (path/index.html) and flat (path.html) modes.
+ * Check whether a resolved path corresponds to an existing file. Handles
+ * both trailing-slash (path/index.html) and flat (path.html) modes.
  */
 function resolvedPathExists(resolved: string, trailingSlash: boolean): boolean {
   if (fileExists(resolved)) return true
@@ -144,10 +195,6 @@ function resolvedPathExists(resolved: string, trailingSlash: boolean): boolean {
   return false
 }
 
-/**
- * Validate that an SVG file is renderable — contains a valid <svg> root
- * and no parser error markers.
- */
 function validateSvgContent(content: string, relPath: string): BuildValidationIssue[] {
   const issues: BuildValidationIssue[] = []
 
@@ -173,15 +220,112 @@ function validateSvgContent(content: string, relPath: string): BuildValidationIs
   return issues
 }
 
+// ── <picture> helpers ──
+
+type ParsedSource = {
+  srcset: string
+  type?: string
+  media?: string
+  scheme?: string
+}
+
+type ParsedPicture = {
+  raw: string
+  sources: ParsedSource[]
+  imgSrc: string | null
+  isThemed: boolean
+}
+
+const PICTURE_RE = /<picture\b[^>]*>([\s\S]*?)<\/picture>/gi
+const SOURCE_RE = /<source\b([^>]*)>/gi
+const IMG_SRC_RE = /<img\b[^>]*\bsrc=(["'])([^"']*)\1/i
+const ATTR_RE = /([a-zA-Z-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g
+
+function parseAttrs(raw: string): Record<string, string> {
+  const attrs: Record<string, string> = {}
+  let match: RegExpExecArray | null
+  ATTR_RE.lastIndex = 0
+  while ((match = ATTR_RE.exec(raw)) !== null) {
+    attrs[match[1]!.toLowerCase()] = match[2] ?? match[3] ?? ''
+  }
+  return attrs
+}
+
+function parsePictures(html: string): ParsedPicture[] {
+  const pictures: ParsedPicture[] = []
+  let m: RegExpExecArray | null
+  PICTURE_RE.lastIndex = 0
+  while ((m = PICTURE_RE.exec(html)) !== null) {
+    const raw = m[0]!
+    const body = m[1]!
+    const sources: ParsedSource[] = []
+    let sm: RegExpExecArray | null
+    SOURCE_RE.lastIndex = 0
+    while ((sm = SOURCE_RE.exec(body)) !== null) {
+      const attrs = parseAttrs(sm[1]!)
+      if (!attrs.srcset) continue
+      sources.push({
+        srcset: attrs.srcset,
+        type: attrs.type,
+        media: attrs.media,
+        scheme: attrs['data-scheme'],
+      })
+    }
+    const imgMatch = IMG_SRC_RE.exec(body)
+    pictures.push({
+      raw,
+      sources,
+      imgSrc: imgMatch?.[2] ?? null,
+      isThemed:
+        /ps-figure-themed/.test(raw) ||
+        sources.some((s) => /prefers-color-scheme/.test(s.media ?? '')) ||
+        sources.some((s) => s.scheme != null),
+    })
+  }
+  return pictures
+}
+
+function pickFirstSrc(srcset: string): string | null {
+  const entry = srcset.split(',')[0]?.trim()
+  if (!entry) return null
+  const src = entry.split(/\s+/)[0]
+  return src ?? null
+}
+
+/** Collect all `id="..."` attributes from an HTML string. */
+function collectIds(html: string): Set<string> {
+  const ids = new Set<string>()
+  const re = /\bid=(["'])([^"']+)\1/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(html)) !== null) {
+    ids.add(m[2]!)
+  }
+  // href="#top" is special-cased by browsers and always valid.
+  ids.add('top')
+  return ids
+}
+
 // ── Main validator ──
 
 /**
  * Validate a static site build output directory.
  *
- * Checks internal links, image sources, asset hashes, and SVG validity.
+ * Checks internal links, image sources, asset hashes, SVG validity, and
+ * optionally enforces modern raster image formats + theme variants.
  */
 export function validateBuildOutput(options: BuildValidatorOptions): BuildValidationResult {
-  const { outDir, basePath: rawBasePath, trailingSlash = false, exclude } = options
+  const {
+    outDir,
+    basePath: rawBasePath,
+    trailingSlash = false,
+    exclude,
+    requireRasterModernFormats = false,
+    requireThemeVariants = false,
+    requireAssetHash = true,
+    checkInPageAnchors = false,
+    requiredFiles = [],
+    requireBothTrailingSlashForms = false,
+  } = options
 
   const basePath = rawBasePath?.replace(/\/+$/, '') ?? ''
   const excludeDirs = new Set([...DEFAULT_EXCLUDE, ...(exclude ?? [])])
@@ -198,26 +342,26 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
     return { errors, warnings, htmlFileCount: 0, imageFileCount: 0, passed: false }
   }
 
-  // Collect HTML files
   const htmlPaths = walkFiles(outDir, '.html', excludeDirs)
   const htmlFiles = new Map<string, string>()
   for (const p of htmlPaths) {
     htmlFiles.set(p, readFileSync(p, 'utf-8'))
   }
 
-  // Collect all image files
   const allFiles = walkFiles(outDir, undefined, excludeDirs)
   const imageFiles = allFiles.filter((f) => isImageFile(f))
 
   const assetsDir = join(outDir, 'assets')
 
-  // 1. Check internal links and image sources
   for (const [htmlPath, content] of htmlFiles) {
     if (isRedirect(content)) continue
     const rel = relative(outDir, htmlPath)
     const stripped = stripCodeContent(content)
 
-    // Extract href and src attributes
+    // Collect all IDs for in-page anchor validation.
+    const pageIds = checkInPageAnchors ? collectIds(stripped) : null
+
+    // href/src attribute checks ────────────────────────────────────────────
     const refPattern = /\b(href|src)=(["'])([^"']*)\2/gi
     let match: RegExpExecArray | null
     while ((match = refPattern.exec(stripped)) !== null) {
@@ -225,9 +369,25 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
       const ref = match[3]!
 
       if (ref === '...' || ref === '…' || ref === '') continue
+
+      // In-page anchor (href="#foo") validation.
+      if (attr === 'href' && ref.startsWith('#')) {
+        if (checkInPageAnchors && pageIds) {
+          const id = ref.slice(1)
+          if (id && !pageIds.has(id)) {
+            errors.push({
+              file: rel,
+              message: `Broken in-page anchor: ${ref}`,
+              severity: 'error',
+            })
+          }
+        }
+        continue
+      }
+
       if (isExternal(ref)) continue
 
-      const resolved = resolveLocalHref(ref, htmlPath, outDir, basePath, trailingSlash)
+      const resolved = resolveLocalHref(ref, htmlPath, outDir, basePath)
       if (!resolved) continue
 
       if (!resolvedPathExists(resolved, trailingSlash)) {
@@ -249,7 +409,7 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
       }
     }
 
-    // Extract srcset attributes
+    // srcset checks ────────────────────────────────────────────────────────
     const srcsetPattern = /\bsrcset=(["'])([^"']*)\1/gi
     while ((match = srcsetPattern.exec(stripped)) !== null) {
       const srcset = match[2]!
@@ -259,7 +419,7 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
         const [ref] = trimmed.split(/\s+/)
         if (!ref || isExternal(ref)) continue
 
-        const resolved = resolveLocalHref(ref, htmlPath, outDir, basePath, trailingSlash)
+        const resolved = resolveLocalHref(ref, htmlPath, outDir, basePath)
         if (!resolved) continue
 
         if (!resolvedPathExists(resolved, trailingSlash)) {
@@ -271,10 +431,96 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
         }
       }
     }
+
+    // <picture> checks ─────────────────────────────────────────────────────
+    if (requireRasterModernFormats || requireThemeVariants) {
+      const pictures = parsePictures(stripped)
+      for (const pic of pictures) {
+        const fallbackSrc = pic.imgSrc
+        const fallbackExt = fallbackSrc ? extname(stripQueryHash(fallbackSrc)).toLowerCase() : ''
+
+        if (requireRasterModernFormats && fallbackSrc && isRasterExt(fallbackExt)) {
+          const types = new Set(
+            pic.sources.map((s) => s.type?.toLowerCase()).filter(Boolean) as string[],
+          )
+          if (!types.has('image/webp')) {
+            warnings.push({
+              file: rel,
+              message: `<picture> with raster fallback is missing a webp <source>: ${fallbackSrc}`,
+              severity: 'warn',
+            })
+          }
+          if (!types.has('image/avif')) {
+            warnings.push({
+              file: rel,
+              message: `<picture> with raster fallback is missing an avif <source>: ${fallbackSrc}`,
+              severity: 'warn',
+            })
+          }
+        }
+
+        if (requireThemeVariants && pic.isThemed) {
+          const schemes = new Set<string>()
+          for (const source of pic.sources) {
+            if (source.scheme) {
+              schemes.add(source.scheme.toLowerCase())
+              continue
+            }
+            const media = source.media ?? ''
+            if (/prefers-color-scheme:\s*dark/i.test(media)) schemes.add('dark')
+            else if (/prefers-color-scheme:\s*light/i.test(media)) schemes.add('light')
+          }
+          // The `<img>` element acts as the default fallback when no media
+          // query matches. Convention used across the Pagesmith ecosystem:
+          //   <picture>
+          //     <source media="(prefers-color-scheme: dark)" srcset="x-dark">
+          //     <img src="x-light">
+          //   </picture>
+          // Infer the fallback's variant from its filename (`-light` /
+          // `.light` / `-dark` / `.dark`) so the missing-variant check
+          // accepts that pattern without needing an explicit `<source>` for
+          // the light variant.
+          if (fallbackSrc) {
+            if (/-light\b|\.light\b/i.test(fallbackSrc)) schemes.add('light')
+            if (/-dark\b|\.dark\b/i.test(fallbackSrc)) schemes.add('dark')
+          }
+          const hasLight = schemes.has('light')
+          const hasDark = schemes.has('dark')
+          if (!hasDark) {
+            warnings.push({
+              file: rel,
+              message: `Themed <picture> is missing a dark variant (${fallbackSrc ?? '<unknown>'})`,
+              severity: 'warn',
+            })
+          }
+          if (!hasLight) {
+            warnings.push({
+              file: rel,
+              message: `Themed <picture> is missing a light variant (${fallbackSrc ?? '<unknown>'})`,
+              severity: 'warn',
+            })
+          }
+          // Verify every <source> srcset resolves to a file on disk.
+          for (const source of pic.sources) {
+            const first = pickFirstSrc(source.srcset)
+            if (!first || isExternal(first)) continue
+            const resolved = resolveLocalHref(first, htmlPath, outDir, basePath)
+            if (!resolved) continue
+            if (!resolvedPathExists(resolved, trailingSlash)) {
+              errors.push({
+                file: rel,
+                message: `Themed <picture> source missing on disk: ${first}`,
+                severity: 'error',
+              })
+            }
+          }
+        }
+      }
+    }
   }
 
-  // 2. Check that all images under assets/ have content hashes
-  if (existsSync(assetsDir)) {
+  // Asset hash check ───────────────────────────────────────────────────────
+  if (requireAssetHash && existsSync(assetsDir)) {
     const assetImages = walkFiles(assetsDir).filter((f) => isImageFile(f))
     for (const imgPath of assetImages) {
       const fileName = basename(imgPath)
@@ -288,7 +534,7 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
     }
   }
 
-  // 3. Validate SVG files are renderable
+  // SVG validity check ─────────────────────────────────────────────────────
   for (const imgPath of imageFiles) {
     if (extname(imgPath).toLowerCase() !== '.svg') continue
     const content = readFileSync(imgPath, 'utf-8')
@@ -299,6 +545,53 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
         errors.push(issue)
       } else {
         warnings.push(issue)
+      }
+    }
+  }
+
+  // Required-file presence check ───────────────────────────────────────────
+  for (const entry of requiredFiles) {
+    const alternatives = typeof entry === 'string' ? entry.split('|').map((s) => s.trim()) : entry
+    const exists = alternatives.some((name) => fileExists(join(outDir, name)))
+    if (!exists) {
+      errors.push({
+        file: relative(outDir, outDir) || '.',
+        message: `Required file missing: ${alternatives.join(' | ')}`,
+        severity: 'error',
+      })
+    }
+  }
+
+  // Both-trailing-slash-forms check ────────────────────────────────────────
+  if (requireBothTrailingSlashForms) {
+    const htmlSet = new Set(htmlPaths)
+    for (const htmlPath of htmlPaths) {
+      const rel = relative(outDir, htmlPath)
+      if (rel === 'index.html' || rel.endsWith('/index.html')) {
+        // expect sibling flat file: parent/index.html → parent.html
+        const parent = dirname(htmlPath)
+        const base = basename(parent)
+        if (!base) continue
+        const flat = join(dirname(parent), `${base}.html`)
+        if (!htmlSet.has(flat)) {
+          warnings.push({
+            file: rel,
+            message: `Missing flat alternative (${relative(outDir, flat)}) — serve one as redirect for trailing-slash neutrality.`,
+            severity: 'warn',
+          })
+        }
+      } else {
+        // flat file: expect a folder/index.html sibling
+        const name = basename(htmlPath, '.html')
+        if (name === 'index') continue
+        const folderIndex = join(dirname(htmlPath), name, 'index.html')
+        if (!htmlSet.has(folderIndex)) {
+          warnings.push({
+            file: rel,
+            message: `Missing trailing-slash alternative (${relative(outDir, folderIndex)}) — serve one as redirect for trailing-slash neutrality.`,
+            severity: 'warn',
+          })
+        }
       }
     }
   }
@@ -317,11 +610,32 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
  * Returns the process exit code (0 = pass, 1 = fail).
  */
 export function runBuildValidation(options: BuildValidatorOptions): number {
-  const { outDir, basePath, trailingSlash, exclude } = options
+  const {
+    outDir,
+    basePath,
+    trailingSlash,
+    exclude,
+    requireRasterModernFormats,
+    requireThemeVariants,
+    requireAssetHash,
+    checkInPageAnchors,
+    requiredFiles,
+    requireBothTrailingSlashForms,
+  } = options
 
   console.log(`Validating build output: ${outDir}`)
   if (basePath) console.log(`  basePath: ${basePath}`)
   console.log(`  trailingSlash: ${trailingSlash ?? false}`)
+  if (requireRasterModernFormats) console.log(`  requireRasterModernFormats: true`)
+  if (requireThemeVariants) console.log(`  requireThemeVariants: true`)
+  if (checkInPageAnchors) console.log(`  checkInPageAnchors: true`)
+  if (requireBothTrailingSlashForms) console.log(`  requireBothTrailingSlashForms: true`)
+  if (requireAssetHash === false) console.log(`  requireAssetHash: false`)
+  if (requiredFiles && requiredFiles.length > 0) {
+    console.log(
+      `  requiredFiles: ${requiredFiles.length} entr${requiredFiles.length === 1 ? 'y' : 'ies'}`,
+    )
+  }
   const allExclude = [...DEFAULT_EXCLUDE, ...(exclude ?? [])]
   if (allExclude.length > 0) console.log(`  exclude: ${allExclude.join(', ')}`)
 
@@ -333,14 +647,14 @@ export function runBuildValidation(options: BuildValidatorOptions): number {
   if (result.warnings.length > 0) {
     console.log(`\n${result.warnings.length} warning(s):`)
     for (const w of result.warnings) {
-      console.log(`  ⚠ ${w.file}: ${w.message}`)
+      console.log(`  \u26A0 ${w.file}: ${w.message}`)
     }
   }
 
   if (result.errors.length > 0) {
     console.log(`\n${result.errors.length} error(s):`)
     for (const e of result.errors) {
-      console.log(`  ✗ ${e.file}: ${e.message}`)
+      console.log(`  \u2717 ${e.file}: ${e.message}`)
     }
   }
 

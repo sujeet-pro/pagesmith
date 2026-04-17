@@ -8,7 +8,7 @@ description: Add a new content loader to @pagesmith/core. Use when introducing a
 ## Quick Start
 
 1. Read `packages/core/CLAUDE.md` and `packages/core/src/loaders/` for the current loader contract.
-2. Read `packages/core/ai-guidelines/core-guidelines.md` for the documented loader behavior.
+2. Read `packages/core/skills/pagesmith-core-setup/references/core-guidelines.md` for the documented loader behavior.
 
 ## Workflow
 
@@ -26,10 +26,10 @@ description: Add a new content loader to @pagesmith/core. Use when introducing a
    - Add a `packages/core/src/__tests__/<name>-loader.test.ts` that covers happy path, parse error, and missing-file cases.
    - Add a fixture under `tests/integration/fixtures/` if the loader needs real files.
 5. Update guidance:
-   - `packages/core/ai-guidelines/core-guidelines.md` (loader table)
-   - `packages/core/ai-guidelines/usage.md` (recipe)
+   - `packages/core/skills/pagesmith-core-setup/references/core-guidelines.md` (loader table)
+   - `packages/core/skills/pagesmith-core-setup/references/usage.md` (recipe)
    - Root docs under `docs-site/content/reference/core/api/` and `docs-site/content/guide/content-layer/`
-   - Add a consumer-facing `SKILL.md` under `packages/core/skills/add-loader/` if the new loader needs a distinct workflow (or update the existing one).
+   - Update the consumer-facing skill at `skills/pagesmith-core-add-loader/SKILL.md` if the new loader changes the consumer workflow, and refresh `skills/README.md` if you introduced a new skill entry.
 6. Run `npm run cicd` (or at minimum `vp test run` + `vp check`).
 
 ## Rules

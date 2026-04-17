@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "diagrams": {
+    "principles-overview.mermaid": {
+      "hash": "sha256:98a58d60e27d0e75",
+      "generatedAt": "2026-04-17T08:13:20.509Z",
+      "outputs": [
+        {
+          "file": "principles-overview-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 1885.609375,
+          "height": 219.39999389648438
+        },
+        {
+          "file": "principles-overview-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 1885.609375,
+          "height": 219.39999389648438
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776413583878.567,
+      "size": 982
+    }
+  }
+}

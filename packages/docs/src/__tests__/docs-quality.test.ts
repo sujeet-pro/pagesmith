@@ -67,9 +67,9 @@ describe('docs quality guards', () => {
     }
 
     expect(config.assets?.['/prompts']).toEqual([
-      './packages/core/ai-guidelines/setup-core.md',
-      './packages/site/ai-guidelines/setup-site.md',
-      './packages/docs/ai-guidelines/setup-docs.md',
+      './packages/core/skills/pagesmith-core-setup/references/setup-core.md',
+      './packages/site/skills/pagesmith-site-setup/references/setup-site.md',
+      './packages/docs/skills/pagesmith-docs-setup/references/setup-docs.md',
     ])
     expect(config.assets?.['/']).toEqual(
       expect.arrayContaining(['./llms.txt', './llms-full.txt', './packages/docs/schemas']),
@@ -158,10 +158,11 @@ describe('docs quality guards', () => {
     expect(publishWorkflow).toContain('Selective publish requires an explicit version')
     expect(publishWorkflow).toContain('Skipping @pagesmith/site@${VERSION}; already published.')
     expect(publishWorkflow).toContain('Check final published versions')
-    expect(publishWorkflow).toContain('run: npm run validate')
-    expect(publishWorkflow).toContain('run: npm run validate:diagrams')
-    expect(publishWorkflow).toContain("if: steps.published.outputs.publish_core == 'true'")
-    expect(publishWorkflow).toContain("if: steps.final.outputs.all_published == 'true'")
+    expect(publishWorkflow).toContain('npm run validate:diagrams')
+    expect(publishWorkflow).toContain('npm run validate:examples')
+    expect(publishWorkflow).toContain('npm run validate:pagesmith')
+    expect(publishWorkflow).toContain("if: needs.prepare.outputs.publish_core == 'true'")
+    expect(publishWorkflow).toContain("if: needs.publish.outputs.all_published == 'true'")
   })
 
   it('keeps the hosted markdown guide aligned with the docs-package markdown surface', () => {
@@ -446,52 +447,68 @@ describe('docs quality guards', () => {
     expect(sitePackage.bin?.['pagesmith-site']).toBe('dist/cli/bin.mjs')
     expect(docsPackage.bin?.['pagesmith-docs']).toBe('dist/cli/bin.mjs')
 
-    expect(corePackage.files).toContain('ai-guidelines/')
-    expect(corePackage.exports?.['./ai-guidelines/*']).toBe('./ai-guidelines/*')
-    expect(corePackage.exports?.['./llms']).toBe('./ai-guidelines/llms.txt')
-    expect(corePackage.exports?.['./llms-full']).toBe('./ai-guidelines/llms-full.txt')
-    expect(corePackage.exports?.['./agents/setup-core']).toBe('./ai-guidelines/setup-core.md')
+    expect(corePackage.files).toContain('skills/')
+    expect(corePackage.files).toContain('llms.txt')
+    expect(corePackage.files).toContain('llms-full.txt')
+    expect(corePackage.exports?.['./skills/*']).toBe('./skills/*')
+    expect(corePackage.exports?.['./llms']).toBe('./llms.txt')
+    expect(corePackage.exports?.['./llms-full']).toBe('./llms-full.txt')
+    expect(corePackage.exports?.['./agents/setup-core']).toBe(
+      './skills/pagesmith-core-setup/references/setup-core.md',
+    )
     expect(corePackage.ai).toEqual(
       expect.objectContaining({
-        context: './ai-guidelines/llms.txt',
-        fullContext: './ai-guidelines/llms-full.txt',
-        agentsDir: './ai-guidelines',
+        context: './llms.txt',
+        fullContext: './llms-full.txt',
+        agentsDir: './skills/pagesmith-core-setup/references',
       }),
     )
 
-    expect(sitePackage.files).toContain('ai-guidelines/')
-    expect(sitePackage.exports?.['./ai-guidelines/*']).toBe('./ai-guidelines/*')
-    expect(sitePackage.exports?.['./llms']).toBe('./ai-guidelines/llms.txt')
-    expect(sitePackage.exports?.['./llms-full']).toBe('./ai-guidelines/llms-full.txt')
-    expect(sitePackage.exports?.['./agents/setup-site']).toBe('./ai-guidelines/setup-site.md')
+    expect(sitePackage.files).toContain('skills/')
+    expect(sitePackage.files).toContain('llms.txt')
+    expect(sitePackage.files).toContain('llms-full.txt')
+    expect(sitePackage.exports?.['./skills/*']).toBe('./skills/*')
+    expect(sitePackage.exports?.['./llms']).toBe('./llms.txt')
+    expect(sitePackage.exports?.['./llms-full']).toBe('./llms-full.txt')
+    expect(sitePackage.exports?.['./agents/setup-site']).toBe(
+      './skills/pagesmith-site-setup/references/setup-site.md',
+    )
     expect(sitePackage.ai).toEqual(
       expect.objectContaining({
-        context: './ai-guidelines/llms.txt',
-        fullContext: './ai-guidelines/llms-full.txt',
-        agentsDir: './ai-guidelines',
+        context: './llms.txt',
+        fullContext: './llms-full.txt',
+        agentsDir: './skills/pagesmith-site-setup/references',
       }),
     )
 
-    expect(docsPackage.files).toEqual(expect.arrayContaining(['ai-guidelines/', 'schemas/']))
-    expect(docsPackage.exports?.['./ai-guidelines/*']).toBe('./ai-guidelines/*')
-    expect(docsPackage.exports?.['./llms']).toBe('./ai-guidelines/llms.txt')
-    expect(docsPackage.exports?.['./llms-full']).toBe('./ai-guidelines/llms-full.txt')
-    expect(docsPackage.exports?.['./agents/setup-docs']).toBe('./ai-guidelines/setup-docs.md')
+    expect(docsPackage.files).toEqual(expect.arrayContaining(['skills/', 'schemas/']))
+    expect(docsPackage.exports?.['./skills/*']).toBe('./skills/*')
+    expect(docsPackage.exports?.['./llms']).toBe('./llms.txt')
+    expect(docsPackage.exports?.['./llms-full']).toBe('./llms-full.txt')
+    expect(docsPackage.exports?.['./agents/setup-docs']).toBe(
+      './skills/pagesmith-docs-setup/references/setup-docs.md',
+    )
     expect(docsPackage.ai).toEqual(
       expect.objectContaining({
-        context: './ai-guidelines/llms.txt',
-        fullContext: './ai-guidelines/llms-full.txt',
-        agentsDir: './ai-guidelines',
+        context: './llms.txt',
+        fullContext: './llms-full.txt',
+        agentsDir: './skills/pagesmith-docs-setup/references',
       }),
     )
     expect(docsPackage.ai?.mcp?.command).toBe('pagesmith-docs mcp --stdio')
 
-    expect(existsSync(join(corePackageDir, 'ai-guidelines', 'setup-core.md'))).toBe(true)
-    expect(existsSync(join(sitePackageDir, 'ai-guidelines', 'setup-site.md'))).toBe(true)
-    expect(existsSync(join(docsPackageDir, 'ai-guidelines', 'setup-docs.md'))).toBe(true)
-    expect(existsSync(join(corePackageDir, 'ai-guidelines', 'llms.txt'))).toBe(true)
-    expect(existsSync(join(sitePackageDir, 'ai-guidelines', 'llms.txt'))).toBe(true)
-    expect(existsSync(join(docsPackageDir, 'ai-guidelines', 'llms.txt'))).toBe(true)
+    expect(
+      existsSync(join(corePackageDir, 'skills/pagesmith-core-setup/references/setup-core.md')),
+    ).toBe(true)
+    expect(
+      existsSync(join(sitePackageDir, 'skills/pagesmith-site-setup/references/setup-site.md')),
+    ).toBe(true)
+    expect(
+      existsSync(join(docsPackageDir, 'skills/pagesmith-docs-setup/references/setup-docs.md')),
+    ).toBe(true)
+    expect(existsSync(join(corePackageDir, 'llms.txt'))).toBe(true)
+    expect(existsSync(join(sitePackageDir, 'llms.txt'))).toBe(true)
+    expect(existsSync(join(docsPackageDir, 'llms.txt'))).toBe(true)
     expect(existsSync(join(docsPackageDir, 'schemas', 'pagesmith-config.schema.json'))).toBe(true)
   })
 

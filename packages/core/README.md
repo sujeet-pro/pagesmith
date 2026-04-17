@@ -20,16 +20,16 @@ npm add @pagesmith/core
 
 ## Adoption Paths
 
-- AI-first bootstrap or retrofit: start with `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
-- Follow-up usage patterns and prompts: `node_modules/@pagesmith/core/ai-guidelines/usage.md`
-- Upgrade an existing integration: start with `node_modules/@pagesmith/core/ai-guidelines/migration.md`
+- AI-first bootstrap or retrofit: start with `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`
+- Follow-up usage patterns and prompts: `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`
+- Upgrade an existing integration: start with `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/migration.md`
 - Manual setup: follow the Quick Start and Vite Integration sections below
 
 ## Setup Prompt
 
 For agent-driven setup in an existing repository, start with the dedicated prompt file:
 
-- Package path: `node_modules/@pagesmith/core/ai-guidelines/setup-core.md`
+- Package path: `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`
 - Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-core.md](https://projects.sujeet.pro/pagesmith/prompts/setup-core.md)
 
 ## Quick Start
@@ -53,7 +53,7 @@ const rendered = await entries[0]?.render()
 // rendered.html, rendered.headings, rendered.readTime
 ```
 
-For AI-first setup, usage prompts, and upgrade notes, see `ai-guidelines/setup-core.md`, `ai-guidelines/usage.md`, and `ai-guidelines/migration.md`.
+For AI-first setup, usage prompts, and upgrade notes, see `skills/pagesmith-core-setup/references/setup-core.md`, `skills/pagesmith-core-setup/references/usage.md`, and `skills/pagesmith-core-setup/references/migration.md`.
 
 ### Framework-hosted rendering
 
@@ -489,9 +489,9 @@ Version-matched MCP resources:
 ## Further Reading
 
 - **[REFERENCE.md](REFERENCE.md)** — complete reference covering the content layer API, collections, loaders, markdown pipeline, validators, frontmatter schemas, and Vite content plugin
-- **`node_modules/@pagesmith/core/ai-guidelines/setup-core.md`** — canonical bootstrap/retrofit prompt for `@pagesmith/core`
-- **`node_modules/@pagesmith/core/ai-guidelines/usage.md`** — follow-up prompts and integration rules after setup
-- **`node_modules/@pagesmith/core/ai-guidelines/migration.md`** — upgrade playbook for existing integrations
+- **`node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`** — canonical bootstrap/retrofit prompt for `@pagesmith/core`
+- **`node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`** — follow-up prompts and integration rules after setup
+- **`node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/migration.md`** — upgrade playbook for existing integrations
 - **`node_modules/@pagesmith/site/README.md`** — site toolkit with JSX, CSS/runtime bundles, SSG helpers, and `pagesmith-site`
 - **`node_modules/@pagesmith/site/REFERENCE.md`** — full site reference for Pagesmith site-building
 - **`node_modules/@pagesmith/docs/README.md`** — convention-based docs site package with built-in navigation, search, and theme
@@ -504,17 +504,17 @@ These files are available at `node_modules/@pagesmith/core/` after installation:
 | File | Purpose |
 |---|---|
 | `REFERENCE.md` | Full API reference for content layer, collections, markdown, validation, and Vite content access |
-| `ai-guidelines/setup-core.md` | Bootstrap/retrofit prompt for installing `@pagesmith/core` in an existing repo |
-| `ai-guidelines/core-guidelines.md` | Package responsibilities, boundaries, and non-negotiable rules |
-| `ai-guidelines/markdown-guidelines.md` | Markdown pipeline, code-block features, and authoring rules |
-| `ai-guidelines/usage.md` | Agent rules, integration shape, copy-paste prompts |
-| `ai-guidelines/recipes.md` | Step-by-step recipes for common tasks |
-| `ai-guidelines/errors.md` | Error catalog with patterns and fixes |
-| `ai-guidelines/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
-| `ai-guidelines/changelog-notes.md` | Version highlights and upgrade notes |
-| `ai-guidelines/AGENTS.md.template` | Template for project-level `AGENTS.md` memory files |
-| `ai-guidelines/llms.txt` | Compact AI context index |
-| `ai-guidelines/llms-full.txt` | Full AI context with all file pointers |
+| `skills/pagesmith-core-setup/references/setup-core.md` | Bootstrap/retrofit prompt for installing `@pagesmith/core` in an existing repo |
+| `skills/pagesmith-core-setup/references/core-guidelines.md` | Package responsibilities, boundaries, and non-negotiable rules |
+| `skills/pagesmith-core-setup/references/markdown-guidelines.md` | Markdown pipeline, code-block features, and authoring rules |
+| `skills/pagesmith-core-setup/references/usage.md` | Agent rules, integration shape, copy-paste prompts |
+| `skills/pagesmith-core-setup/references/recipes.md` | Step-by-step recipes for common tasks |
+| `skills/pagesmith-core-setup/references/errors.md` | Error catalog with patterns and fixes |
+| `skills/pagesmith-core-setup/references/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
+| `skills/pagesmith-core-setup/references/changelog-notes.md` | Version highlights and upgrade notes |
+| `skills/pagesmith-core-setup/references/AGENTS.md.template` | Template for project-level `AGENTS.md` memory files |
+| `skills/pagesmith-core-setup/references/llms.txt` | Compact AI context index |
+| `skills/pagesmith-core-setup/references/llms-full.txt` | Full AI context with all file pointers |
 
 ## License
 
