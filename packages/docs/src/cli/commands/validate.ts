@@ -15,6 +15,7 @@ type ValidateOpts = {
   requireThemeVariants?: boolean
   requireBothTrailingSlashForms?: boolean
   internalLinksMustBeMarkdown?: boolean
+  requireCanonicalInternalLinks?: boolean
   requireAltText?: boolean
   allowHtmlImgTag?: boolean
   themeVariantPairs?: boolean
@@ -52,6 +53,14 @@ export function registerValidateCommand(command: Command): Command {
     .option(
       '--internal-links-must-be-markdown',
       'Fail if a non-image internal link resolves to a non-markdown file',
+    )
+    .option(
+      '--require-canonical-internal-links',
+      'Require internal page links be authored as ./relative/path.md (default: on under docs preset)',
+    )
+    .option(
+      '--no-require-canonical-internal-links',
+      'Accept absolute /guide/foo and bare ./foo forms for internal page links',
     )
     .option('--no-require-alt-text', 'Downgrade missing image alt text from error to warning')
     .option('--allow-html-img-tag', 'Allow raw <img> tags in markdown (default: disallowed)')
@@ -93,6 +102,12 @@ export function registerValidateCommand(command: Command): Command {
               : undefined,
         requireBothTrailingSlashForms,
         internalLinksMustBeMarkdown,
+        requireCanonicalInternalLinks:
+          options.requireCanonicalInternalLinks === false
+            ? false
+            : options.requireCanonicalInternalLinks === true
+              ? true
+              : undefined,
         requireAltText: options.requireAltText === false ? false : undefined,
         forbidHtmlImgTag: options.allowHtmlImgTag === true ? false : undefined,
         requireThemeVariantPairs: options.themeVariantPairs === false ? false : undefined,

@@ -80,7 +80,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx pagesmith-docs build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: gh-pages
 
@@ -92,7 +92,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 ```
 
 Requirements on the repo:

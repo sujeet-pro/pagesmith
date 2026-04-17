@@ -9,7 +9,7 @@ tags: [markdown, regression]
 
 This is the single markdown regression page for the `@pagesmith/docs` example. It exercises alerts, math, GFM, tables, tasks, code fences, typography, and footnotes together so this example has one obvious place to verify markdown rendering.
 
-For how this docs site is wired, use the rest of the [Guide](/guide/installation): `pagesmith.config.json5`, `content/`, `meta.json5`, layout overrides, Pagefind, and CLI flows all live there.
+For how this docs site is wired, use the rest of the [Guide](./installation.md): `pagesmith.config.json5`, `content/`, `meta.json5`, layout overrides, Pagefind, and CLI flows all live there.
 
 > [!NOTE]
 > This page intentionally stacks many features. In real docs, prefer focused content and use a page like this only for regression coverage.
@@ -152,10 +152,10 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: gh-pages
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
 ```
 
 ## Quick reference

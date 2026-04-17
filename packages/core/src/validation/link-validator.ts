@@ -133,6 +133,20 @@ export type LinkValidatorOptions = {
   internalLinksMustBeMarkdown?: boolean
 
   /**
+   * When `true`, every internal page link must be authored as a *relative*
+   * path ending in `.md` or `.mdx` (for example `./relative/README.md`,
+   * `./foo.md`, `../sibling/index.md`). Bare forms (`./foo`, `./foo/`) and
+   * site-absolute URLs (`/guide/foo`) are rejected so the source form is
+   * always an unambiguous, grep-able path to a real file on disk.
+   *
+   * Images, fragment-only hrefs, `mailto:`/`tel:`, external URLs, and any
+   * URL matching `skipPatterns` / resolving under an `additionalRoots`
+   * asset tree are exempt. The docs preset turns this on by default; the
+   * core default stays `false` so third-party consumers are not broken.
+   */
+  requireCanonicalInternalLinks?: boolean
+
+  /**
    * When `true`, every image must carry non-empty alt text. Default: `true`.
    * Set to `false` to treat missing alt only as a warning (via the existing
    * accessibility channel).
@@ -376,6 +390,7 @@ export function createLinkValidator(options?: LinkValidatorOptions): ContentVali
   const additionalRoots = options?.additionalRoots ?? []
   const allowInternalTarget = options?.allowInternalTarget
   const internalLinksMustBeMarkdown = options?.internalLinksMustBeMarkdown ?? false
+  const requireCanonicalInternalLinks = options?.requireCanonicalInternalLinks ?? false
   const requireAltText = options?.requireAltText ?? true
   const forbidHtmlImgTag = options?.forbidHtmlImgTag ?? true
   const requireThemeVariantPairs = options?.requireThemeVariantPairs ?? true
@@ -504,6 +519,36 @@ export function createLinkValidator(options?: LinkValidatorOptions): ContentVali
 
         if (shouldSkip(skipPatterns, link.url)) continue
 
+        // Canonical-form check runs before the resolver so bare `./foo` or
+        // `/guide/foo` links are flagged even when they happen to resolve
+        // (e.g. via `README.md` suffix expansion). Images are exempt
+        // because they legitimately point at static assets that do not
+        // have markdown extensions.
+        if (
+          link.kind === 'link' &&
+          requireCanonicalInternalLinks &&
+          isInternalLink(link.url) &&
+          !link.url.startsWith('#')
+        ) {
+          const cleanPath = stripFragmentAndQuery(link.url)
+          const exemptByAssetRoot = additionalRoots.some((root) => {
+            const prefix = root.prefix.endsWith('/') ? root.prefix : `${root.prefix}/`
+            return cleanPath === root.prefix || cleanPath.startsWith(prefix)
+          })
+          if (!exemptByAssetRoot) {
+            const isRelative = cleanPath.startsWith('./') || cleanPath.startsWith('../')
+            const endsWithMarkdown = /\.(?:md|mdx)$/i.test(cleanPath)
+            if (!isRelative || !endsWithMarkdown) {
+              issues.push({
+                field: `links${lineInfo}`,
+                message: `Non-canonical internal link: ${link.url}. Internal page links must be authored as a relative path ending in \`.md\` (for example \`./relative/README.md\`) so the target is a real, grep-able file on disk.`,
+                severity: 'error',
+              })
+              continue
+            }
+          }
+        }
+
         if (link.url.startsWith('http://') || link.url.startsWith('https://')) {
           if (!isWellFormedUrl(link.url)) {
             issues.push({
@@ -555,7 +600,18 @@ export function createLinkValidator(options?: LinkValidatorOptions): ContentVali
         }
 
         if (link.kind === 'link' && internalLinksMustBeMarkdown) {
-          if (!isMarkdownFile(resolved)) {
+          // Links that resolve through a registered asset root (passthrough
+          // URLs like `/llms.txt`, `/prompts/setup-core.md`, `/schemas/*`)
+          // are intentionally non-page asset targets and must not trip
+          // the "internal links must be markdown" rule.
+          const cleanUrl = stripFragmentAndQuery(link.url)
+          const isAssetRootLink =
+            cleanUrl.startsWith('/') &&
+            additionalRoots.some((root) => {
+              const prefix = root.prefix.endsWith('/') ? root.prefix : `${root.prefix}/`
+              return cleanUrl === root.prefix || cleanUrl.startsWith(prefix)
+            })
+          if (!isAssetRootLink && !isMarkdownFile(resolved)) {
             issues.push({
               field: `links${lineInfo}`,
               message: `Internal link must point to a markdown file (got ${extname(resolved) || 'no-extension'}): ${link.url}`,

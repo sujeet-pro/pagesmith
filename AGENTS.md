@@ -31,7 +31,7 @@ pagesmith/
 ├── MIGRATING.md
 ├── LICENSE
 ├── package.json              # monorepo workspaces
-├── pagesmith.config.json5    # root docs-site config
+├── pagesmith.config.json5    # root docs config
 ├── diagramkit.config.json5   # root diagramkit config
 ├── playwright.config.ts
 ├── tsconfig.json
@@ -58,7 +58,7 @@ pagesmith/
 │   ├── site/                 # @pagesmith/site (same shape as core, skills named pagesmith-site-*)
 │   └── docs/                 # @pagesmith/docs (adds schemas/, theme/; skills named pagesmith-docs-*)
 │
-├── docs-site/content/        # root docs site content (uses @pagesmith/docs)
+├── docs/content/        # root docs site content (uses @pagesmith/docs)
 ├── examples/                 # example consumer projects
 │   ├── blog-site/
 │   ├── doc-site/
@@ -78,7 +78,7 @@ Keep folder nesting shallow (max 3–4 levels from the repo root for any source 
   - `.temp/notes/<date>.md` — working notes.
   - `.temp/cache/` — any tool cache the agent needs between runs.
 - `.temp/` is already in `.gitignore`. Never commit its contents.
-- Do not scatter scratch files across the repo. If a working doc outgrows `.temp/`, promote it into `AGENTS.md`, the right `.agents/skills/prj-*/SKILL.md`, or `docs-site/content/` with a proper title.
+- Do not scatter scratch files across the repo. If a working doc outgrows `.temp/`, promote it into `AGENTS.md`, the right `.agents/skills/prj-*/SKILL.md`, or `docs/content/` with a proper title.
 
 ## Architecture Snapshot
 
@@ -143,7 +143,7 @@ Core behaviors to preserve when changing this package:
 
 ### Monorepo Content
 
-- Root docs site content: `docs-site/content/**`
+- Root docs site content: `docs/content/**`
 - Root docs site config: `pagesmith.config.json5`
 - Example sites: `examples/**`
 - Release/build helpers: `scripts/**`
@@ -190,7 +190,7 @@ Any public behavior change updates, in the same branch:
 - Implementation under `packages/<pkg>/src/**`.
 - Matching package guidance under `packages/<pkg>/skills/pagesmith-<pkg>-*/references/**`, `packages/<pkg>/llms.txt`, `packages/<pkg>/llms-full.txt`, and `packages/<pkg>/REFERENCE.md`.
 - Root consumer skills under `skills/pagesmith-*/SKILL.md` if the feature surfaces there.
-- Root docs site content under `docs-site/content/**`.
+- Root docs site content under `docs/content/**`.
 - Affected examples under `examples/**`.
 - AI installer content under `packages/core/src/ai/**`.
 - Diagrams under sibling `diagrams/` folders (run `npm run render:diagrams`).
@@ -199,7 +199,7 @@ Any public behavior change updates, in the same branch:
 ## Repo Rules
 
 - Contributor guidance lives only in `AGENTS.md` and `.agents/skills/prj-*/SKILL.md`. Each `packages/*/skills/pagesmith-*-setup/references/` folder is consumer-facing and ships in the npm tarball.
-- The root docs site uses `pagesmith.config.json5`; its content lives in `docs-site/content/`.
+- The root docs site uses `pagesmith.config.json5`; its content lives in `docs/content/`.
 - Site-building behavior changes must update `packages/site/skills/pagesmith-site-setup/references/**`, `packages/site/README.md`/`REFERENCE.md`, root docs pages covering CLI/Vite/runtime/CSS/layouts, and affected custom-site examples.
 - Markdown/code-renderer changes must update implementation plus `packages/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`, `packages/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`, root docs pages covering markdown/code, example feature pages across all examples, and markdown tests.
 - Docs-package changes must update `packages/docs/skills/pagesmith-docs-setup/references/setup-docs.md`, `docs-guidelines.md`, `schemas/*.schema.json`, root docs pages for config/frontmatter/navigation/deployment, and `examples/doc-site/`.
@@ -220,7 +220,7 @@ The single source of truth for supported markdown:
 - Renderer: `packages/core/src/markdown/code/**`
 - Validators: `packages/core/src/validation/code-block-validator.ts`, `heading-validator.ts`, `link-validator.ts`
 - Published guidance: `packages/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`, `packages/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`
-- Root docs and examples: `docs-site/content/guide/code-blocks/README.md`, `docs-site/content/guide/markdown-features/README.md`, `examples/**/content/features/*.md`, `tests/integration/markdown.test.ts`
+- Root docs and examples: `docs/content/guide/code-blocks/README.md`, `docs/content/guide/markdown-features/README.md`, `examples/**/content/features/*.md`, `tests/integration/markdown.test.ts`
 
 Maintainer rules:
 
@@ -239,7 +239,7 @@ Repo defaults:
 - Prefer SVG. Add PNG only when another surface explicitly needs a raster.
 - Re-render from source instead of hand-editing generated images.
 
-Embed pattern for Pagesmith-rendered docs (`docs-site/content/**`, `examples/**/docs/**`, any surface with the shared theme CSS):
+Embed pattern for Pagesmith-rendered docs (`docs/content/**`, `examples/**/docs/**`, any surface with the shared theme CSS):
 
 ```html
 <figure>

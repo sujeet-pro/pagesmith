@@ -28,7 +28,7 @@ description: Add a new content loader to @pagesmith/core. Use when introducing a
 5. Update guidance:
    - `packages/core/skills/pagesmith-core-setup/references/core-guidelines.md` (loader table)
    - `packages/core/skills/pagesmith-core-setup/references/usage.md` (recipe)
-   - Root docs under `docs-site/content/reference/core/api/` and `docs-site/content/guide/content-layer/`
+   - Root docs under `docs/content/reference/core/api/` and `docs/content/guide/content-layer/`
    - Update the consumer-facing skill at `skills/pagesmith-core-add-loader/SKILL.md` if the new loader changes the consumer workflow, and refresh `skills/README.md` if you introduced a new skill entry.
 6. Run `npm run cicd` (or at minimum `vp test run` + `vp check`).
 

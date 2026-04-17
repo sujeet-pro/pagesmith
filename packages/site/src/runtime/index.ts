@@ -57,11 +57,45 @@ function stripSourceMapComment(source: string): string {
   return source.replace(/^\s*\/\/# sourceMappingURL=.*$/gm, '').trim()
 }
 
+/**
+ * When the bundler splits runtime modules into hashed chunks, the published
+ * `dist/runtime/<name>.mjs` files are thin re-exports (e.g.
+ * `import { t as initFoo } from '../foo-HASH.mjs'; export { initFoo };`).
+ * Follow the chain and return the first chunk whose source actually
+ * contains implementation (non-re-export content).
+ */
+function inlineReexportedChunk(distPath: string): string {
+  const seen = new Set<string>()
+  let current = distPath
+  for (let hop = 0; hop < 6; hop += 1) {
+    if (seen.has(current)) break
+    seen.add(current)
+    const src = readFileSync(current, 'utf-8')
+    const lines = src
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith('//'))
+    // A re-export chunk only contains one import and one export statement
+    // pointing at a sibling chunk. Anything else means real code is here.
+    const isThinReexport =
+      lines.length <= 3 &&
+      lines.every(
+        (line) => line.startsWith('import ') || line.startsWith('export ') || line.endsWith(';'),
+      ) &&
+      lines.some((line) => line.startsWith('import '))
+    if (!isThinReexport) return src
+    const importMatch = src.match(/from\s+["']([^"']+)["']/)
+    if (!importMatch) return src
+    current = join(current, '..', importMatch[1]!)
+  }
+  return readFileSync(distPath, 'utf-8')
+}
+
 function readModuleSource(relPath: string): string {
   const pkgDir = getPackageDir()
   const distPath = join(pkgDir, 'dist', `${relPath}.mjs`)
   if (existsSync(distPath)) {
-    return stripSourceMapComment(readFileSync(distPath, 'utf-8'))
+    return stripSourceMapComment(inlineReexportedChunk(distPath))
   }
 
   const srcPath = join(pkgDir, 'src', `${relPath}.ts`)

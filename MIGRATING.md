@@ -4,6 +4,20 @@ Pagesmith is still pre-1.0, so breaking changes are expected between minor relea
 
 This guide covers the current split into `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs`.
 
+## 0.9.6 (patch)
+
+Additive updates, no breaking changes. Highlights:
+
+- `@pagesmith/core` — new `imageStructureValidator` enforces the canonical `<figure> > <picture> > <source>* + <img> + <figcaption>?` shape and catches common mistakes (`<figure>` nested in `<picture>`, missing/multiple `<img>`, unbalanced tags, disallowed inner elements). The validator is now part of `builtinMarkdownValidators` and runs by default on every content entry. Fenced code and inline code are stripped from the raw-content sweep so documentation examples are not false-flagged.
+- `@pagesmith/core` — new `requireCanonicalInternalLinks` option on `createLinkValidator`. When true, internal page links must be authored as `./relative/path/README.md` (or `./x.md`, `../x/README.md`). Absolute `/guide/foo` and bare `./foo` / `./foo/` forms become errors. Images, `#fragment`-only, `mailto:` / `tel:`, external URLs, and URLs under configured `additionalRoots` stay exempt. Opt-in at the core level; `@pagesmith/docs` turns it on by default.
+- `@pagesmith/site` / `@pagesmith/docs` — new `--require-canonical-internal-links` / `--no-require-canonical-internal-links` flags on `validate`. `@pagesmith/docs` validate enables the rule by default; `--full` picks it up automatically.
+- `@pagesmith/core` — the `internalLinksMustBeMarkdown` rule now exempts links that resolve through registered `additionalRoots`, so passthrough asset URLs (`/llms.txt`, `/prompts/*.md`, `/schemas/*.json`) no longer false-trip the check.
+- Repo-level — the root docs content directory moved from `docs-site/` to `docs/`. The internal workspace keeps the name `@pagesmith/docs-site` to avoid colliding with the published `@pagesmith/docs` package. Consumers building docs via `pagesmith.config.json5` should update `contentDir` to match their own rename if they want to follow suit — no change is forced.
+- Repo-level — `scripts/validate-pagesmith.ts` gains a new cross-reference check: every URL shipped through `pagesmith.config.json5#assets` must be linked from at least one content page, so bundled `llms.txt`, `llms-full.txt`, prompts, and schemas stay discoverable.
+- CLI documentation synced to code: `pagesmith-docs build --base-path`, `pagesmith-docs init --name/--title/--search/--starter-content`, and the full `pagesmith-docs validate` / `pagesmith-site validate` flag tables are now reflected in `REFERENCE.md` for each package and in the docs site's CLI reference page.
+
+No action required to upgrade. Enforce the new link rule in your own repo by passing `--require-canonical-internal-links` to `pagesmith-docs validate` (or enabling `--full`).
+
 ## High-impact changes
 
 ### Consumer AI surface moved: `ai-guidelines/` → per-package `skills/` + package-root `llms*.txt`

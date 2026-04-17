@@ -27,7 +27,7 @@ description: Add a remark or rehype plugin to the @pagesmith/core markdown pipel
    - `packages/core/CLAUDE.md` markdown-pipeline section.
    - `packages/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`.
    - `packages/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` if docs consumers need to know.
-   - Root docs under `docs-site/content/guide/markdown/` and `docs-site/content/reference/core/markdown-reference/`.
+   - Root docs under `docs/content/guide/markdown/` and `docs/content/reference/core/markdown-reference/`.
    - Example pages demonstrating the new syntax in at least `examples/blog-site/` and `examples/doc-site/`.
 4. Validation:
    - Add markdown snapshot / HTML assertions in `packages/core/src/__tests__/markdown.test.ts`.

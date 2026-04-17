@@ -16,6 +16,7 @@ type ValidateOpts = {
   checkExternal?: boolean
   requireRasterModernFormats?: boolean
   requireThemeVariants?: boolean
+  requireCanonicalInternalLinks?: boolean
   trailingSlash?: boolean
   timeoutMs?: number
   concurrency?: number
@@ -38,6 +39,14 @@ export function registerValidateCommand(
       'Enforce webp+avif siblings for <picture> raster fallbacks',
     )
     .option('--require-theme-variants', 'Enforce light+dark <picture> sources')
+    .option(
+      '--require-canonical-internal-links',
+      'Require internal page links be authored as ./relative/path.md',
+    )
+    .option(
+      '--no-require-canonical-internal-links',
+      'Accept absolute /guide/foo and bare ./foo forms',
+    )
     .option('--trailing-slash', 'Override trailing-slash routing mode')
     .option('--no-trailing-slash', 'Override to flat HTML files')
     .option('--timeout-ms <number>', 'External fetch timeout (default: 10000)')
@@ -58,6 +67,12 @@ export function registerValidateCommand(
         checkExternal: options.checkExternal,
         requireRasterModernFormats: options.requireRasterModernFormats,
         requireThemeVariants: options.requireThemeVariants,
+        requireCanonicalInternalLinks:
+          options.requireCanonicalInternalLinks === false
+            ? false
+            : options.requireCanonicalInternalLinks === true
+              ? true
+              : undefined,
         trailingSlash: options.trailingSlash,
         timeoutMs: options.timeoutMs,
         concurrency: options.concurrency,
@@ -89,6 +104,7 @@ export function registerValidateCommand(
           linkValidator: {
             rootDir: contentDir,
             basePath: siteOptions.basePath,
+            requireCanonicalInternalLinks: siteOptions.requireCanonicalInternalLinks,
             checkExternalReachability: siteOptions.checkExternal,
             fetchTimeoutMs: siteOptions.timeoutMs,
             fetchConcurrency: siteOptions.concurrency,

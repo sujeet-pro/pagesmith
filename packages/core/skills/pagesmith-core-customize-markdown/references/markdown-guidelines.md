@@ -2,7 +2,7 @@
 
 Standalone markdown reference for the shared Pagesmith markdown pipeline. This file covers the base features that `@pagesmith/core` exposes directly and that `@pagesmith/docs` builds on top of.
 
-Both packages share the same core unified pipeline. `@pagesmith/docs` then adds docs-specific frontmatter plus a docs-only link and asset rewrite pass after heading extraction. For stock docs-site authoring rules such as page-local diagram/image publishing, `.inline.svg`, and theme-aware image embedding, also read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`.
+Both packages share the same core unified pipeline. `@pagesmith/docs` then adds docs-specific frontmatter plus a docs-only link and asset rewrite pass after heading extraction. For stock docs authoring rules such as page-local diagram/image publishing, `.inline.svg`, and theme-aware image embedding, also read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`.
 
 ## Pipeline Order
 

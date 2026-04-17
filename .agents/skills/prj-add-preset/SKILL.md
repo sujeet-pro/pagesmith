@@ -30,7 +30,7 @@ description: Add a new @pagesmith/site preset (alongside the built-in default an
    - `REFERENCE.md` at package root
    - `skills/` folder with consumer-installable SKILL.md files
 5. Update:
-   - `docs-site/content/guide/frameworks/` and `docs-site/content/reference/` with a per-preset series.
+   - `docs/content/guide/frameworks/` and `docs/content/reference/` with a per-preset series.
    - An `examples/` example demonstrating the preset end-to-end.
 6. Validation:
    - Tests under the preset package's `src/__tests__/`.

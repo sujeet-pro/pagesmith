@@ -47,10 +47,10 @@ Skip diagrams when a short paragraph, table, or code sample is already clearer t
 Page-local layout (`diagramkit.config.json5` uses `sameFolder: true`, so rendered files land beside the source file):
 
 ```text
-docs-site/content/guide/architecture/README.md
-docs-site/content/guide/architecture/diagrams/system-overview.mermaid
-docs-site/content/guide/architecture/diagrams/system-overview-light.svg
-docs-site/content/guide/architecture/diagrams/system-overview-dark.svg
+docs/content/guide/architecture/README.md
+docs/content/guide/architecture/diagrams/system-overview.mermaid
+docs/content/guide/architecture/diagrams/system-overview-light.svg
+docs/content/guide/architecture/diagrams/system-overview-dark.svg
 ```
 
 ## Workflow
@@ -77,7 +77,7 @@ docs-site/content/guide/architecture/diagrams/system-overview-dark.svg
 
 ## Embed Patterns
 
-Pagesmith-rendered docs (`docs-site/content/**`, `examples/**/docs/**`, any surface with the shared theme CSS):
+Pagesmith-rendered docs (`docs/content/**`, `examples/**/docs/**`, any surface with the shared theme CSS):
 
 ```html
 <figure>
@@ -134,7 +134,7 @@ Before editing anything, read:
 - every project skill under .agents/skills/prj-*/SKILL.md
 
 Audit these documentation surfaces:
-- docs-site/content/**/*.md
+- docs/content/**/*.md
 - packages/*/README.md
 - packages/*/REFERENCE.md
 - packages/*/skills/pagesmith-*-setup/references/**/*.md

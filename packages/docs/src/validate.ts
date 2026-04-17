@@ -90,6 +90,14 @@ export type DocsValidateOptions = {
    */
   internalLinksMustBeMarkdown?: boolean
   /**
+   * When true, every internal page link must be authored as a relative
+   * path ending in `.md` / `.mdx` (for example `./relative/README.md`).
+   * Site-absolute URLs like `/guide/foo` and bare relative forms like
+   * `./foo` / `./foo/` become errors. Default: true under the docs preset
+   * so the source form is always a real, grep-able file path.
+   */
+  requireCanonicalInternalLinks?: boolean
+  /**
    * When true, every image must carry non-empty alt text. Default: true.
    */
   requireAltText?: boolean
@@ -254,6 +262,7 @@ export async function validateDocs(options: DocsValidateOptions = {}): Promise<D
         basePath,
         additionalRoots,
         internalLinksMustBeMarkdown: options.internalLinksMustBeMarkdown,
+        requireCanonicalInternalLinks: options.requireCanonicalInternalLinks ?? true,
         requireAltText: options.requireAltText,
         forbidHtmlImgTag: options.forbidHtmlImgTag,
         requireThemeVariantPairs: options.requireThemeVariantPairs,

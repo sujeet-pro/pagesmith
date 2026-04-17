@@ -23,7 +23,7 @@ Check these example surfaces when behavior changes:
 2. Identify the canonical behavior in `packages/core/src/**` or `packages/docs/src/**`.
 3. Compare the affected example pages, README files, runtime files, config files, and diagram usage against that behavior.
 4. Update every example that advertises the feature, not just the first one you find.
-5. Keep wording aligned with the root docs site under `docs-site/content/`.
+5. Keep wording aligned with the root docs site under `docs/content/`.
 6. When examples include diagrams, keep source files plus rendered `-light.svg` / `-dark.svg` outputs together and rerun `npm run render:diagrams`.
 7. Run `vp run validate:examples` after parity edits.
 

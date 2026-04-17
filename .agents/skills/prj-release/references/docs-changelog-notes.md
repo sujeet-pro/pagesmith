@@ -1,5 +1,11 @@
 # @pagesmith/docs Changelog Notes
 
+## v0.9.6
+
+- `pagesmith-docs validate` accepts `--require-canonical-internal-links` / `--no-require-canonical-internal-links`. Docs preset turns the rule on by default so `validateDocs()` and `validate --full` both enforce the canonical form (`./relative/path.md`) for internal page links. Passthrough asset URLs (`/prompts/*.md`, `/llms*.txt`, `/schemas/*.json`) stay exempt.
+- Added the matching `requireCanonicalInternalLinks` field on `DocsValidateOptions`; default `true`.
+- `REFERENCE.md` and the docs site's CLI reference page now enumerate every flag the CLI accepts, including `pagesmith-docs build --base-path`, `pagesmith-docs init --name`/`--title`/`--search`/`--starter-content`, and the full `pagesmith-docs validate` flag table.
+
 ## Unreleased
 
 - Added a dedicated `skills/setup-docs.md` bootstrap/retrofit prompt for AI agents working in existing repositories.

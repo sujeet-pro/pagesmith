@@ -65,6 +65,6 @@ This site is the `@pagesmith/docs` package example: config-first (`pagesmith.con
 
 ## Explore
 
-- **[Guide](/guide/installation)** — install, dev/build/preview/MCP, project layout, `meta.json5`, layouts, search, and how `@pagesmith/core` backs the markdown pipeline.
-- **[Configuration](/guide/configuration)** — the same options as this repo’s `pagesmith.config.json5`, explained field-by-field.
-- **[Kitchen sink](/guide/kitchen-sink)** — single markdown regression page for this example's rendered output.
+- **[Guide](./guide/installation.md)** — install, dev/build/preview/MCP, project layout, `meta.json5`, layouts, search, and how `@pagesmith/core` backs the markdown pipeline.
+- **[Configuration](./guide/configuration.md)** — the same options as this repo’s `pagesmith.config.json5`, explained field-by-field.
+- **[Kitchen sink](./guide/kitchen-sink.md)** — single markdown regression page for this example's rendered output.

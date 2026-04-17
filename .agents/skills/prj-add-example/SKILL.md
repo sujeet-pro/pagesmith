@@ -28,7 +28,7 @@ description: Add a new example workspace under examples/ that stays in parity wi
 4. Wire it into validation:
    - Ensure `npm run validate:examples` includes the new folder (see `scripts/validate-examples.ts`).
    - Add fixture references to `tests/integration/` when behavior is non-trivial.
-5. Update root docs under `docs-site/content/guide/` (e.g. the frameworks series) with a new page that uses the "With an agent / Manual" two-track pattern.
+5. Update root docs under `docs/content/guide/` (e.g. the frameworks series) with a new page that uses the "With an agent / Manual" two-track pattern.
 6. Run `npm run cicd` (or the minimal subset) to confirm everything passes.
 
 ## Rules

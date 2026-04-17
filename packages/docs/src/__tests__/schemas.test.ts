@@ -125,7 +125,7 @@ describe('docs schemas', () => {
     }
   })
 
-  it('publishes installed-package and docs-site schema paths consistently', () => {
+  it('publishes installed-package and docs schema paths consistently', () => {
     for (const schemaFile of buildDocsJsonSchemas()) {
       expect(schemaFile.nodeModulesPath).toBe(
         `node_modules/@pagesmith/docs/schemas/${schemaFile.fileName}`,

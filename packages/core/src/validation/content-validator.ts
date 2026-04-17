@@ -22,6 +22,7 @@ import { unified } from 'unified'
 import type { ZodType } from 'zod'
 import { codeBlockValidator } from './code-block-validator'
 import { headingValidator } from './heading-validator'
+import { imageStructureValidator } from './image-structure-validator'
 import { createLinkValidator, type LinkValidatorOptions } from './link-validator'
 import { runValidators } from './runner'
 import { validateSchema, type ValidationIssue } from './schema-validator'
@@ -156,6 +157,7 @@ export async function validateContent(
   if (includeStructuralValidators) {
     validators.push(codeBlockValidator)
     validators.push(headingValidator)
+    validators.push(imageStructureValidator)
   }
   validators.push(...extraValidators)
 

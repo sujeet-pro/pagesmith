@@ -14,6 +14,7 @@ export type {
 
 export { codeBlockValidator } from './code-block-validator'
 export { headingValidator } from './heading-validator'
+export { imageStructureValidator, validateImageHtml } from './image-structure-validator'
 export { createLinkValidator, linkValidator } from './link-validator'
 export type { LinkValidatorOptions } from './link-validator'
 export { builtinMarkdownValidators, runValidators } from './runner'

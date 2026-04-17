@@ -31,7 +31,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'guide',
       'meta.json5',
@@ -172,7 +172,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'guide',
       'markdown-features',
@@ -197,7 +197,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'guide',
       'frameworks',
@@ -209,7 +209,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'guide',
       'mcp-setup',
@@ -221,7 +221,7 @@ describe('docs quality guards', () => {
 
     expect(frameworksGuide).toContain('use `@pagesmith/site` as the app-facing Pagesmith package')
     expect(frameworksGuide).toContain(
-      '| [Next.js](/guide/framework-nextjs) | `@pagesmith/site` | Next.js App Router | `createContentLayer` |',
+      '| [Next.js](../framework-nextjs/README.md) | `@pagesmith/site` | Next.js App Router | `createContentLayer` |',
     )
     expect(mcpGuide).toContain('pagesmith://core/llms-full')
     expect(mcpGuide).toContain('core_search_entries')
@@ -235,7 +235,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'guide',
       'framework-blog-site',
@@ -247,7 +247,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'guide',
       'framework-doc-site',
@@ -304,7 +304,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'guide',
       'collections-and-loaders',
@@ -332,7 +332,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'reference',
       'docs-theme',
@@ -344,7 +344,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'reference',
       'runtime',
@@ -356,7 +356,7 @@ describe('docs quality guards', () => {
       '..',
       '..',
       '..',
-      'docs-site',
+      'docs',
       'content',
       'reference',
       'architecture',
@@ -513,7 +513,7 @@ describe('docs quality guards', () => {
   })
 
   it('keeps committed docs diagram SVGs compatible with img embedding', () => {
-    const docsContentDir = join(import.meta.dirname, '..', '..', '..', '..', 'docs-site', 'content')
+    const docsContentDir = join(import.meta.dirname, '..', '..', '..', '..', 'docs', 'content')
     const diagramsSegment = join('diagrams', '')
     const diagramSvgFiles = collectFiles(
       docsContentDir,
@@ -526,5 +526,83 @@ describe('docs quality guards', () => {
       const svg = readFileSync(svgFile, 'utf-8')
       expect(svg).not.toContain('<foreignObject')
     }
+  })
+
+  it('enforces every internal link in docs/content uses the canonical ./relative/path.md form', () => {
+    const docsContentDir = join(import.meta.dirname, '..', '..', '..', '..', 'docs', 'content')
+    const mdFiles = collectFiles(docsContentDir, (p) => p.endsWith('.md'))
+    expect(mdFiles.length).toBeGreaterThan(0)
+
+    const FENCED = /```[\s\S]*?```|~~~[\s\S]*?~~~/g
+    const violations: string[] = []
+
+    for (const file of mdFiles) {
+      const src = readFileSync(file, 'utf-8').replace(FENCED, (m) => m.replace(/[^\n]/g, ' '))
+      const linkRe = /(!?)\[[^\]]*\]\(([^)\s]+)\)/g
+      let m: RegExpExecArray | null
+      while ((m = linkRe.exec(src)) !== null) {
+        if (m[1] === '!') continue
+        const href = m[2]!
+        if (
+          href.startsWith('http://') ||
+          href.startsWith('https://') ||
+          href.startsWith('mailto:') ||
+          href.startsWith('tel:') ||
+          href.startsWith('//') ||
+          href.startsWith('#') ||
+          href.startsWith('data:')
+        )
+          continue
+        // Exempt site-absolute asset passthrough URLs (bundled prompts,
+        // llms indexes, schemas, per-package indexes, static assets).
+        if (
+          href.startsWith('/prompts/') ||
+          href.startsWith('/packages/') ||
+          href.startsWith('/schemas/') ||
+          href.startsWith('/llms')
+        )
+          continue
+        // Exempt any site-absolute URL ending in a non-markdown file
+        // extension (favicon.svg, static images, etc.).
+        const cleanHref = href.split('#')[0]!.split('?')[0]!
+        if (
+          href.startsWith('/') &&
+          /\.[a-z0-9]+$/i.test(cleanHref) &&
+          !/\.(md|mdx)$/i.test(cleanHref)
+        )
+          continue
+        if (href.startsWith('/') || !/\.(md|mdx)(?:[?#]|$)/.test(href)) {
+          violations.push(`${file}: ${href}`)
+        }
+      }
+    }
+
+    expect(violations, violations.slice(0, 10).join('\n')).toEqual([])
+  })
+
+  it('requires every pagesmith.config.json5 assets URL to be referenced from docs/content', () => {
+    const repoRoot = join(import.meta.dirname, '..', '..', '..', '..')
+    const docsConfigPath = join(repoRoot, 'pagesmith.config.json5')
+    const config = JSON5.parse(readFileSync(docsConfigPath, 'utf-8')) as {
+      basePath?: string
+      assets?: Record<string, string[]>
+    }
+    const basePath = (config.basePath ?? '').replace(/\/$/, '')
+    const contentDir = join(repoRoot, 'docs', 'content')
+    const mdFiles = collectFiles(contentDir, (p) => p.endsWith('.md'))
+    const haystack = mdFiles.map((f) => readFileSync(f, 'utf-8')).join('\n')
+
+    const missing: string[] = []
+    for (const [prefix, sources] of Object.entries(config.assets ?? {})) {
+      const cleanPrefix = prefix === '/' ? '' : prefix.replace(/\/$/, '')
+      for (const src of sources) {
+        const base = src.split('/').pop() ?? src
+        const publicUrl = `${cleanPrefix}/${base}`
+        if (!haystack.includes(publicUrl) && !haystack.includes(`${basePath}${publicUrl}`)) {
+          missing.push(`${prefix}: ${publicUrl}`)
+        }
+      }
+    }
+    expect(missing).toEqual([])
   })
 })

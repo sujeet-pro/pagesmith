@@ -317,6 +317,92 @@ describe('local image markdown enhancements', () => {
     expect(result.html).toContain('<figure class="ps-figure">')
   })
 
+  it('never nests a <figure> inside a user-authored <picture> (diagramkit pattern)', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-core-images-'))
+    const contentDir = join(rootDir, 'content')
+    mkdirSync(contentDir, { recursive: true })
+
+    const markdownPath = join(contentDir, 'post.md')
+
+    // Theme-aware diagram as authored by diagramkit consumers: a raw
+    // <picture> with a dark <source> and a light <img> fallback. Pagesmith
+    // must enrich the img (dimensions) but must NOT wrap it in a <figure>
+    // while it's still inside the <picture>.
+    await sharp({
+      create: { width: 90, height: 45, channels: 3, background: '#ffffff' },
+    })
+      .png()
+      .toFile(join(contentDir, 'flow-light.png'))
+    await sharp({
+      create: { width: 90, height: 45, channels: 3, background: '#000000' },
+    })
+      .png()
+      .toFile(join(contentDir, 'flow-dark.png'))
+
+    const raw = [
+      '<picture>',
+      '  <source srcset="./flow-dark.png" media="(prefers-color-scheme: dark)">',
+      '  <img src="./flow-light.png" alt="Flow diagram">',
+      '</picture>',
+    ].join('\n')
+
+    const result = await processMarkdown(raw, undefined, {
+      content: raw,
+      frontmatter: {},
+      fileData: { pagesmithFilePath: markdownPath },
+    })
+
+    // Sanity: picture is preserved and the img picked up dimensions.
+    expect(result.html).toContain('<picture>')
+    expect(result.html).toContain('alt="Flow diagram"')
+    expect(result.html).toContain('width="90"')
+    expect(result.html).toContain('height="45"')
+
+    // The critical guarantee: no <figure> nested inside the <picture>.
+    const pictureBlock = result.html.match(/<picture[\s\S]*?<\/picture>/i)?.[0] ?? ''
+    expect(pictureBlock).not.toContain('<figure')
+    expect(pictureBlock).not.toContain('</figure>')
+  })
+
+  it('preserves author-written <figure><picture> wrappers without double-wrapping', async () => {
+    rootDir = mkdtempSync(join(tmpdir(), 'ps-core-images-'))
+    const contentDir = join(rootDir, 'content')
+    mkdirSync(contentDir, { recursive: true })
+
+    const markdownPath = join(contentDir, 'post.md')
+
+    await sharp({
+      create: { width: 60, height: 30, channels: 3, background: '#223344' },
+    })
+      .jpeg()
+      .toFile(join(contentDir, 'cover.jpg'))
+
+    const raw = [
+      '<figure>',
+      '  <picture>',
+      '    <source srcset="./cover.jpg" type="image/jpeg">',
+      '    <img src="./cover.jpg" alt="Cover">',
+      '  </picture>',
+      '  <figcaption>Author caption</figcaption>',
+      '</figure>',
+    ].join('\n')
+
+    const result = await processMarkdown(raw, undefined, {
+      content: raw,
+      frontmatter: {},
+      fileData: { pagesmithFilePath: markdownPath },
+    })
+
+    // Exactly one <figure> — no extra wrap.
+    expect(result.html.match(/<figure\b/g)?.length).toBe(1)
+    expect(result.html).toContain('Author caption')
+    // Dimensions applied on the inner <img>.
+    expect(result.html).toContain('width="60"')
+    expect(result.html).toContain('height="30"')
+    const pictureBlock = result.html.match(/<picture[\s\S]*?<\/picture>/i)?.[0] ?? ''
+    expect(pictureBlock).not.toContain('<figure')
+  })
+
   it('merges consecutive light/dark image pairs into themed figure', async () => {
     rootDir = mkdtempSync(join(tmpdir(), 'ps-core-images-'))
     const contentDir = join(rootDir, 'content')

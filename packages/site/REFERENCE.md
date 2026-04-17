@@ -285,6 +285,26 @@ Shared flags:
 - `-h, --help`
 - `-v, --version`
 
+### `pagesmith-site validate`
+
+The preset implements validation when available; when absent, the CLI runs generic content + build-output checks. Flags:
+
+| Flag | Purpose |
+|---|---|
+| `--content-dir <path>` | Content directory override |
+| `--out-dir <path>` | Build output directory override |
+| `--base-path <path>` | Site base path override |
+| `--content` | Only run content validation |
+| `--build` | Only run build-output validation |
+| `--check-external` | Fetch external URLs and report non-2xx |
+| `--require-raster-modern-formats` | Enforce webp+avif siblings for `<picture>` raster fallbacks |
+| `--require-theme-variants` | Enforce light+dark `<picture>` sources |
+| `--require-canonical-internal-links` / `--no-require-canonical-internal-links` | Require `./relative/path.md` authoring form |
+| `--trailing-slash` / `--no-trailing-slash` | Override trailing-slash routing mode |
+| `--timeout-ms <number>` | External fetch timeout (default: 10000) |
+| `--concurrency <number>` | External fetch concurrency (default: 8) |
+| `--show-clean` | Also list files that pass content validation |
+
 Important behavior:
 
 - arg parsing is built on `cac`; help (`--help`) and version (`--version`) are auto-generated per command.

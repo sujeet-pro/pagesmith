@@ -621,6 +621,39 @@ function buildHtmlSvgFigure(attrs: HtmlAttribute[]): string {
   return ['<figure class="ps-figure">', img, figcaption, '</figure>'].filter(Boolean).join('')
 }
 
+/**
+ * Apply intrinsic dimensions + invert-on-dark class to a raw `<img>` tag
+ * without changing its wrapping. Used when the img already lives inside a
+ * `<figure>` or `<picture>` the author wrote directly, so we must not add a
+ * new figure/picture around it.
+ */
+async function enrichRawImageTag(
+  imgTag: string,
+  currentFilePath: string,
+  assetRoot: string,
+): Promise<string> {
+  const { attrs } = parseHtmlAttributes(imgTag)
+  const src = getHtmlAttribute(attrs, 'src')?.value
+  if (typeof src !== 'string' || !isLocalImageRef(src)) return imgTag
+
+  const sourcePath = resolveLocalImagePath(currentFilePath, src, assetRoot)
+  if (sourcePath) {
+    const intrinsic = await getLocalImageDimensions(sourcePath)
+    if (intrinsic) applyIntrinsicHtmlDimensions(attrs, intrinsic)
+  }
+
+  if (isInvertRef(src)) {
+    const existing = getHtmlAttribute(attrs, 'class')?.value ?? ''
+    const classes = existing.split(/\s+/).filter(Boolean)
+    if (!classes.includes('invert-on-dark')) {
+      classes.push('invert-on-dark')
+      setHtmlAttribute(attrs, 'class', classes.join(' '))
+    }
+  }
+
+  return renderHtmlImgTag(attrs)
+}
+
 async function transformRawImageTag(
   imgTag: string,
   currentFilePath: string,
@@ -683,20 +716,14 @@ async function transformRawHtmlImages(
     const insideFigure = before.lastIndexOf('<figure') > before.lastIndexOf('</figure>')
     output += html.slice(lastIndex, index)
 
-    if (insideFigure) {
-      // Already inside a figure — don't re-wrap, just apply dimensions
-      const { attrs } = parseHtmlAttributes(imgTag)
-      const src = getHtmlAttribute(attrs, 'src')?.value
-      if (typeof src === 'string' && isLocalImageRef(src)) {
-        const sourcePath = resolveLocalImagePath(currentFilePath, src, assetRoot)
-        if (sourcePath) {
-          const intrinsic = await getLocalImageDimensions(sourcePath)
-          if (intrinsic) applyIntrinsicHtmlDimensions(attrs, intrinsic)
-        }
-      }
-      output += renderHtmlImgTag(attrs)
+    // If the img is already inside a <figure> or <picture>, we must NOT wrap
+    // it in a new <figure>. `<figure>` nested inside `<picture>` is invalid
+    // HTML and collapses the theme-source fallback. Instead, just enrich the
+    // existing img tag with intrinsic dimensions and the invert class.
+    if (insideFigure || insidePicture) {
+      output += await enrichRawImageTag(imgTag, currentFilePath, assetRoot)
     } else {
-      output += await transformRawImageTag(imgTag, currentFilePath, assetRoot, !insidePicture)
+      output += await transformRawImageTag(imgTag, currentFilePath, assetRoot, true)
     }
     lastIndex = index + imgTag.length
   }
@@ -733,8 +760,12 @@ async function processImageNode(
     appendClassName(node.properties, 'invert-on-dark')
   }
 
-  // Don't figure-wrap images inside links — it would break the link structure
-  if (insideLink || !parent || index === undefined) return
+  // Don't figure-wrap images inside links — it would break the link structure.
+  // Don't figure-wrap images already inside a <picture> — a figure nested inside
+  // a picture is invalid HTML (figure must wrap picture, not the other way
+  // around). Leave those imgs alone; the surrounding author-written picture is
+  // preserved as-is and the caller is responsible for wrapping it in a figure.
+  if (insideLink || insidePicture || !parent || index === undefined) return
 
   const title = typeof node.properties.title === 'string' ? node.properties.title : undefined
   // Remove title from img (it will go to figcaption)

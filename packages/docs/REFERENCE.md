@@ -99,13 +99,42 @@ Alternate layouts are still supported through `--config` and `contentDir`, but t
 `@pagesmith/docs` publishes the `pagesmith-docs` binary. The package also exposes `@pagesmith/docs/preset` for integration through `pagesmith-site`, but `pagesmith-docs` is the canonical docs command.
 
 ```bash
-pagesmith-docs init [--ai] [--no-llms] [--config path]   # Initialize config + content + AI integrations
-pagesmith-docs dev [--port N] [--open]                   # Development server with live reload
-pagesmith-docs build [--out-dir path]                    # Production build with Pagefind indexing
-pagesmith-docs preview [--port N]                        # Preview built site locally
-pagesmith-docs validate [--content] [--build] [--full]   # Validate content + build output using pagesmith.config
-pagesmith-docs mcp --stdio [--config path]               # Start stdio MCP server for docs tooling
+pagesmith-docs init [--ai] [--no-llms] [--config path]                      # Initialize config + content + AI integrations
+pagesmith-docs dev [--port N] [--open]                                      # Development server with live reload
+pagesmith-docs build [--out-dir path] [--base-path path]                    # Production build with Pagefind indexing
+pagesmith-docs preview [--port N]                                           # Preview built site locally
+pagesmith-docs validate [--content] [--build] [--full] [--<rule-flag> ...]  # Validate content + build output using pagesmith.config
+pagesmith-docs mcp --stdio [--config path]                                  # Start stdio MCP server for docs tooling
 ```
+
+### pagesmith-docs validate
+
+Runs the same validation surface as `validate:pagesmith` but against any repo with a `pagesmith.config.json5`. Options are additive — `--full` is a shortcut that turns on every opt-in offline check.
+
+| Option | Type | Description |
+|---|---|---|
+| `--content` | boolean | Only run content validation (skip build output checks) |
+| `--build` | boolean | Only run build-output validation (skip content checks) |
+| `--full` | boolean | Enable every opt-in offline check (`--require-*`, `--internal-links-must-be-markdown`, `--require-canonical-internal-links`) |
+| `--content-dir <path>` | string | Content directory override |
+| `--out-dir <path>` | string | Build output directory override |
+| `--base-path <path>` | string | Site base path override |
+| `--trailing-slash` / `--no-trailing-slash` | boolean | Force trailing-slash routing mode |
+| `--check-external` | boolean | Fetch external URLs and report non-2xx |
+| `--require-raster-modern-formats` | boolean | Require webp+avif siblings for `<picture>` raster fallbacks |
+| `--require-theme-variants` / `--no-theme-variants` | boolean | Enforce light+dark `<picture>` sources (default: on) |
+| `--require-both-trailing-slash-forms` | boolean | Warn when pages are missing a redirect sibling |
+| `--internal-links-must-be-markdown` | boolean | Fail if a non-image internal link resolves to a non-markdown file |
+| `--require-canonical-internal-links` / `--no-require-canonical-internal-links` | boolean | Require `./relative/path.md` authoring form (default: on under docs preset) |
+| `--no-require-alt-text` | boolean | Downgrade missing image alt text from error to warning |
+| `--allow-html-img-tag` | boolean | Allow raw `<img>` tags in markdown (default: disallowed) |
+| `--no-theme-variant-pairs` | boolean | Do not enforce adjacent `-light`/`-dark` image pairing |
+| `--required-file <name>` | string (repeatable) | Require `<name>` to exist in the build output |
+| `--no-required-files` | boolean | Skip the default required-output-files check |
+| `--content-config <path>` / `--no-content-config` | string\|boolean | Explicit or disabled `content.config.{ts,mjs,...}` auto-load |
+| `--timeout-ms <number>` | number | External fetch timeout (default: 10000) |
+| `--concurrency <number>` | number | External fetch concurrency (default: 8) |
+| `--show-clean` | boolean | Also list files that pass content validation |
 
 ### Configuration File
 
@@ -656,7 +685,7 @@ jobs:
           node-version: 24
       - run: npm ci
       - run: npx pagesmith-docs build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: gh-pages
 
@@ -668,7 +697,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 ```
 
 ## When Adding New Pages

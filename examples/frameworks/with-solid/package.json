@@ -10,7 +10,11 @@
     "check": "vp check"
   },
   "dependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-typescript": "^7.28.5",
     "@pagesmith/site": "*",
+    "babel-preset-solid": "^1.9.12",
+    "merge-anything": "^5.1.7",
     "pagefind": "^1.5.0",
     "solid-js": "^1.9.12"
   },

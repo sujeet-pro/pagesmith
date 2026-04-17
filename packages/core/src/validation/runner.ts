@@ -13,6 +13,7 @@ import type { ContentValidator, ResolvedValidatorContext, ValidatorContext } fro
 
 import { codeBlockValidator } from './code-block-validator'
 import { headingValidator } from './heading-validator'
+import { imageStructureValidator } from './image-structure-validator'
 import { linkValidator } from './link-validator'
 
 /** The built-in validators for markdown content. */
@@ -20,6 +21,7 @@ export const builtinMarkdownValidators: ContentValidator[] = [
   linkValidator,
   codeBlockValidator,
   headingValidator,
+  imageStructureValidator,
 ]
 
 /** Parse raw markdown to MDAST once, reusing any pre-parsed tree. */

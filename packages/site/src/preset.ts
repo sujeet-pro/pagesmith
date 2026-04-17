@@ -25,6 +25,13 @@ export type SiteValidateOptions = SiteBuildOptions & {
   requireRasterModernFormats?: boolean
   /** Enforce light+dark <picture> sources. */
   requireThemeVariants?: boolean
+  /**
+   * Enforce that internal page links are authored as `./relative/path.md`.
+   * Absolute `/guide/foo` and bare `./foo` forms become errors when set.
+   * Default: off at the site level (presets such as `@pagesmith/docs`
+   * turn it on by default).
+   */
+  requireCanonicalInternalLinks?: boolean
   /** Trailing-slash override for link resolution in build output. */
   trailingSlash?: boolean
   /** Fetch timeout (ms). */

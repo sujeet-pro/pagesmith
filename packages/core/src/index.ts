@@ -87,11 +87,13 @@ export {
   discoverContentConfig,
   formatContentValidationReport,
   headingValidator,
+  imageStructureValidator,
   linkValidator,
   loadContentCollections,
   loadContentSchemaMap,
   runValidators,
   validateContent,
+  validateImageHtml,
 } from './validation'
 
 // ── Loaders ──

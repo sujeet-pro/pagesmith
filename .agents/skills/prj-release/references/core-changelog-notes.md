@@ -1,5 +1,11 @@
 # @pagesmith/core Changelog Notes
 
+## v0.9.6
+
+- Added `imageStructureValidator` (registered in `builtinMarkdownValidators`) and exported `validateImageHtml()` for reuse. Enforces the canonical `<figure> > <picture> > <source>* + <img> + <figcaption>?` shape: no `<figure>` inside `<picture>`, exactly one `<img>` per `<picture>`, no unbalanced tags, no disallowed inner elements. Fenced code blocks and inline code are stripped from the raw-content sweep so documentation examples are not false-flagged.
+- Added `requireCanonicalInternalLinks` option to `createLinkValidator` (off by default). When true, every internal page link must be authored as `./relative/path.md` (or `../x.md`, `./x/README.md`). Site-absolute `/guide/foo` and bare `./foo` / `./foo/` forms become errors. Images, `#fragment`-only, `mailto:`/`tel:`, external URLs, and URLs under configured `additionalRoots` stay exempt.
+- `internalLinksMustBeMarkdown` now exempts links that resolve under registered `additionalRoots` so passthrough asset URLs (`/llms.txt`, `/prompts/*.md`, `/schemas/*.json`) no longer trip the rule.
+
 ## v0.3.0
 
 - Added `TypedContentLayer` for type-safe `getCollection<K>()` and `getEntry<K>()` with full Zod schema inference

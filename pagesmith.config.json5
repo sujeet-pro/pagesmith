@@ -5,7 +5,7 @@
   title: 'Pagesmith',
   description: 'File-based CMS and static site generator',
   origin: 'https://projects.sujeet.pro',
-  contentDir: './docs-site/content',
+  contentDir: './docs/content',
   outDir: './gh-pages',
   basePath: '/pagesmith',
   maintainer: {

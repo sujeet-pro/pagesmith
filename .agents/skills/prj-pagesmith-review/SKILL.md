@@ -11,7 +11,7 @@ Prioritize findings about:
 - behavior regressions in `packages/core/src/**` or `packages/docs/src/**`
 - package boundary violations between core and docs
 - missing updates to `packages/*/skills/pagesmith-*-setup/references/` or `packages/docs/schemas/`
-- docs drift under `docs-site/content/`
+- docs drift under `docs/content/`
 - example drift under `examples/`
 - missing tests or validation coverage
 - missing diagram updates where new docs flows or architectures became hard to understand without visuals
@@ -39,7 +39,7 @@ before opening a PR:
 
 ```bash
 npm run build:library    # only when packages/ changed
-npm run build:docs       # only when docs-site/ changed
+npm run build:docs       # only when docs/ changed
 npm run validate:pagesmith         # content + gh-pages build (default rules)
 npm run validate:pagesmith:full    # adds the strict opt-in checks
 ```
