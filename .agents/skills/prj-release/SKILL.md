@@ -20,7 +20,7 @@ description: Publish a coordinated @pagesmith/core + @pagesmith/site + @pagesmit
    - Verify `npm view @pagesmith/core@<version>` and siblings.
    - Confirm the workflow created the release commit + tag on `main`.
    - Smoke-test `npx pagesmith-docs@<version> init --ai` in an empty folder.
-5. Update repo docs content for new public behavior if the release introduced it.
+5. Update repo docs content for new public behavior if the release introduced it (follow [`prj-maintain-docs`](../prj-maintain-docs/SKILL.md)).
 
 ## Rules
 

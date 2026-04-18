@@ -10,7 +10,7 @@ seriesOrder: 1
 
 # Installation
 
-This guide is **example-local**: it describes how to run and build `examples/with-vanilla-ejs/`. For general Markdown and package behavior, see the main Pagesmith documentation.
+This guide is **example-local**: it describes how to run and build `examples/frameworks/with-vanilla-ejs/`. For general Markdown and package behavior, see the main Pagesmith documentation.
 
 ## Dependencies
 
@@ -45,14 +45,14 @@ vp run dev:eg:vanilla-ejs
 Or from this directory:
 
 ```bash
-cd examples/with-vanilla-ejs
+cd examples/frameworks/with-vanilla-ejs
 npm run dev
 ```
 
 Production build (static HTML + Pagefind index):
 
 ```bash
-cd examples/with-vanilla-ejs
+cd examples/frameworks/with-vanilla-ejs
 npm run build
 ```
 

@@ -88,7 +88,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       let pageEditUrl: string | undefined
 
       const githubEditBase =
-        'https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-svelte/content'
+        'https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-svelte/content'
 
       if (guideEntry) {
         const i = guideEntries.indexOf(guideEntry)

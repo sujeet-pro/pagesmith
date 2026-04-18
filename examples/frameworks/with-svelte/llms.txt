@@ -1,4 +1,4 @@
-# Pagesmith + Svelte (examples/with-svelte)
+# Pagesmith + Svelte (examples/frameworks/with-svelte)
 
 Use this path as the **`@pagesmith/site` + Svelte SSG** reference: filesystem collections, Vite virtual modules, `svelte/server` HTML, shared document shell, vanilla client enhancements.
 
@@ -18,4 +18,4 @@ Use this path as the **`@pagesmith/site` + Svelte SSG** reference: filesystem co
 
 ## Commands (monorepo)
 
-From repo root: `vp install`, `vp run dev:eg:svelte`, or `cd examples/with-svelte && npm run build`.
+From repo root: `vp install`, `vp run dev:eg:svelte`, or `cd examples/frameworks/with-svelte && npm run build`.

@@ -2,7 +2,7 @@
 
 Single source of truth for AI agents working **inside** the Pagesmith monorepo. If you are maintaining, extending, or reviewing this repository, read this file top to bottom.
 
-Other agent-config files (`CLAUDE.md`, `.claude/skills/`, `.cursor/skills/`) are thin wrappers that point here.
+`CLAUDE.md` is a thin pointer → this file. **Contributor** Agent Skills are canonical under [`.agents/skills/`](./.agents/skills/) only; [`.claude/skills/`](./.claude/skills/) and [`.cursor/skills/`](./.cursor/skills/) are **reference-only mirrors** (same folder names, each `SKILL.md` points at the matching canonical file). Never treat `.claude/skills/` or `.cursor/skills/` as the place to author or edit skill bodies.
 
 ## Scope Split
 
@@ -11,7 +11,7 @@ This repo has **two audiences** for AI guidance. Do not mix them up.
 
 | Audience                                 | Where guidance lives                                                                                                                                                             | Who reads it                                           |
 | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| **Contributors** (maintaining Pagesmith) | `AGENTS.md`, `CLAUDE.md`, `.agents/skills/prj-*`, `.claude/skills/prj-*`, `.cursor/skills/prj-*` | Agents working in the monorepo itself                  |
+| **Contributors** (maintaining Pagesmith) | `AGENTS.md`, `CLAUDE.md`, `.agents/skills/` (canonical `prj-*` skills), `.claude/skills/` + `.cursor/skills/` (wrappers only — must mirror `.agents/skills/`) | Agents working in the monorepo itself                  |
 | **Consumers** (using `@pagesmith/*`)      | Each package's `packages/<pkg>/skills/pagesmith-<pkg>-<action>/`, each `packages/<pkg>/REFERENCE.md`, each package's root `llms.txt` / `llms-full.txt`, `packages/docs/schemas/` | Agents working in a project that installed the package |
 
 
@@ -40,12 +40,10 @@ pagesmith/
 ├── vite.config.ts
 ├── llms.txt, llms-full.txt   # llms-friendly repo indexes
 │
-├── .agents/skills/prj-*/                # canonical contributor skills
-├── .agents/skills/prj-diagramkit-*/     # pointers → node_modules/diagramkit/skills/*
-├── .claude/skills/prj-*/                # thin wrappers → .agents/skills/prj-*
-├── .claude/skills/prj-diagramkit-*/     # thin wrappers → .agents/skills/prj-diagramkit-*
-├── .cursor/skills/prj-*/                # thin wrappers → .agents/skills/prj-*
-├── .cursor/skills/prj-diagramkit-*/     # thin wrappers → .agents/skills/prj-diagramkit-*
+├── .agents/skills/prj-*/                # canonical contributor skills (edit here)
+├── .agents/skills/prj-diagramkit-{auto,review}/  # repo-local diagramkit pointers (+ Pagesmith notes); engines → node_modules/diagramkit/skills/
+├── .claude/skills/prj-*/                # mirror: thin wrappers → read .agents/skills/prj-*
+├── .cursor/skills/prj-*/                # mirror: thin wrappers → read .agents/skills/prj-*
 ├── .github/                  # workflows, templates
 ├── .gitignore
 ├── .temp/                    # scratch workspace (git-ignored)
@@ -164,53 +162,53 @@ Consumer Agent Skills live inside each package and ship in the npm tarball under
 - Body stays under ~500 lines / ~5,000 tokens.
 - Only cite paths the consumer's project actually has: `node_modules/@pagesmith/*/REFERENCE.md`, `node_modules/@pagesmith/*/llms.txt`, `node_modules/@pagesmith/*/skills/**/references/`, `node_modules/@pagesmith/docs/schemas/`.
 
-When public behavior changes, update the matching `packages/<pkg>/skills/pagesmith-<pkg>-*/SKILL.md` (and their `references/`) in the same branch. Run `prj-sync-package-ai-guidelines` to keep per-package `skills/`, `schemas/`, `llms.txt`, and `llms-full.txt` version-aligned.
+When public behavior changes, update the matching `packages/<pkg>/skills/pagesmith-<pkg>-*/SKILL.md` (and their `references/`) in the same branch. Run `prj-maintain-docs` to keep per-package `skills/`, `schemas/`, `llms.txt`, `llms-full.txt`, root docs, and diagrams version-aligned with the implementation.
 
-## Contributor Skills Contract (`.agents/skills/prj-*`)
+## Contributor Skills Contract (`.agents/skills/`)
 
-- Canonical contributor skills live under `.agents/skills/prj-*/SKILL.md`.
-- `.claude/skills/prj-*/SKILL.md` and `.cursor/skills/prj-*/SKILL.md` contain only a short pointer sentence that tells the client agent to read the canonical file at `.agents/skills/prj-<name>/SKILL.md`.
-- Edit the canonical copy. Do not edit the wrappers.
-- All contributor skills share the `prj-` prefix and stay self-contained so they can be cloned into other Pagesmith-like repos without modification.
+- **Canonical source of truth:** `.agents/skills/<skill-name>/SKILL.md` (every contributor skill: `prj-*` and `prj-diagramkit-*`). All substantive content — workflow steps, tables, code samples, links — lives **only** there.
+- **Tool mirrors:** `.claude/skills/` and `.cursor/skills/` must stay in **lockstep** with `.agents/skills/`:
+  - The same set of directories (one folder per canonical skill, identical names).
+  - No extra skill folders under `.claude/skills/` or `.cursor/skills/` that do not exist under `.agents/skills/`.
+  - Each mirrored `SKILL.md` is a short pointer that tells the agent to read `.agents/skills/<skill-name>/SKILL.md`. Optionally duplicate canonical frontmatter `name` and `description` for discoverability in each tool — when those fields change in the canonical file, update them in both wrappers in the **same commit**.
+- **Do not** edit workflow prose in `.claude/skills/` or `.cursor/skills/`. **Do not** add a skill only under a tool directory without adding the canonical `.agents/skills/<skill-name>/SKILL.md` first.
+- **Whenever you add, remove, or rename** a skill under `.agents/skills/`, update `.claude/skills/` and `.cursor/skills/` in the same change (add/remove/rename matching folders and wrapper files).
+- **Sanity check** (three trees must list the same directory names): `diff <(ls -1 .agents/skills | sort) <(ls -1 .cursor/skills | sort)` and `diff <(ls -1 .agents/skills | sort) <(ls -1 .claude/skills | sort)` — neither should print anything.
+- All contributor skills use the `prj-` prefix (`prj-*` and `prj-diagramkit-*`) and stay self-contained where applicable so they can be cloned into other Pagesmith-like repos without modification.
 
 ## diagramkit Skills Contract (`.agents/skills/prj-diagramkit-*`)
 
-The `diagramkit` npm package ships its own Agent Skills under `node_modules/diagramkit/skills/diagramkit-*/SKILL.md` that cover engine selection, per-engine authoring, rendering, and review. This repo surfaces them as thin, version-pinned pointers — prefixed with `prj-` to match the rest of the contributor skills — so every agent reads exactly the skill that matches the installed CLI.
+The `diagramkit` npm package ships Agent Skills under `node_modules/diagramkit/skills/diagramkit-*/SKILL.md` (engine selection, per-engine authoring, setup, review). **Per-engine authoring** (`diagramkit-mermaid`, `diagramkit-excalidraw`, `diagramkit-draw-io`, `diagramkit-graphviz`) and **bootstrap** (`diagramkit-setup`) are read **directly** from that path — this repo does not duplicate thin wrappers for them under `.agents/skills/`.
 
-- `.agents/skills/prj-diagramkit-*/SKILL.md` — canonical pointer. Its body simply defers to `node_modules/diagramkit/skills/diagramkit-<name>/SKILL.md` and adds Pagesmith-specific notes (sibling `diagrams/` folder, `sameFolder: true`, `npm run render:diagrams`, embed patterns, etc.).
-- `.claude/skills/prj-diagramkit-*/SKILL.md` and `.cursor/skills/prj-diagramkit-*/SKILL.md` — thin wrappers that point back at the canonical `.agents/skills/prj-diagramkit-<name>/SKILL.md`.
-- Never hand-edit `node_modules/diagramkit/skills/**`. Bump `diagramkit` to pull updated skill bodies, then re-run [`prj-diagramkit-setup`](./.agents/skills/prj-diagramkit-setup/SKILL.md) if new skills appeared in the package.
-- Pagesmith-specific workflow lives in `prj-docs-diagrams`. That skill decides **when** to add a diagram and **how** to embed it in Pagesmith docs, then delegates engine selection / authoring / review to the matching `prj-diagramkit-*` skill.
+Only two repo-local contributor skills wrap diagramkit here:
 
-### Installed diagramkit Skills
+- **`prj-diagramkit-auto`** — points at `diagramkit-auto` plus Pagesmith-specific notes (sibling `diagrams/`, `npm run render:diagrams`, embed patterns).
+- **`prj-diagramkit-review`** — points at `diagramkit-review` plus Pagesmith-specific audit scope and reporting paths.
 
-| Skill                       | Purpose                                                                                                                                       |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prj-diagramkit-setup`      | Bootstrap diagramkit in a fresh repo (install, warmup, scripts, pointer skills).                                                              |
-| `prj-diagramkit-auto`       | Route a new diagram request to the best engine (Mermaid / Excalidraw / Draw.io / Graphviz).                                                   |
-| `prj-diagramkit-mermaid`    | Author `.mermaid` sources (21+ types) and render to SVG/PNG/JPEG/WebP/AVIF.                                                                   |
-| `prj-diagramkit-excalidraw` | Author `.excalidraw` sources (hand-drawn freeform) and render to SVG/PNG/JPEG/WebP/AVIF.                                                      |
-| `prj-diagramkit-draw-io`    | Author `.drawio` sources (cloud vendor icons, BPMN, swimlanes, multi-page) and render to SVG/PNG/JPEG/WebP/AVIF.                              |
-| `prj-diagramkit-graphviz`   | Author `.dot` / `.gv` sources (WASM, no browser) and render to SVG/PNG/JPEG/WebP/AVIF.                                                        |
-| `prj-diagramkit-review`     | Repo-wide audit + repair: force re-render, validate SVG structure + `<img>`-embed safety, fix WCAG 2.2 AA contrast, delegate per-engine fixes. |
+- `.agents/skills/prj-diagramkit-{auto,review}/SKILL.md` — edit when Pagesmith-specific notes change; never hand-edit `node_modules/diagramkit/skills/**`.
+- `.claude/skills/prj-diagramkit-*/SKILL.md` and `.cursor/skills/prj-diagramkit-*/SKILL.md` — **mirrors only** (same rules as **Contributor Skills Contract** above); folder names must match `.agents/skills/` exactly (here: only `prj-diagramkit-auto` and `prj-diagramkit-review`).
+- Bump `diagramkit` to pull updated upstream skill bodies. If `diagramkit` ships a **new** skill you need often, read `node_modules/diagramkit/skills/diagramkit-<name>/SKILL.md`. Add a new `prj-diagramkit-<name>/SKILL.md` under `.agents/skills/` **only** when you must persist Pagesmith-specific notes in-repo; otherwise rely on `node_modules`.
+- Pagesmith-specific docs + diagram workflow lives in `prj-maintain-docs`: prose vs code, **when** to diagram, **how** to embed, delegate engine choice to **`prj-diagramkit-auto`**, authoring to **`node_modules/diagramkit/skills/diagramkit-<engine>/`**, audits to **`prj-diagramkit-review`**.
+
+### Repo-local diagramkit skills
+
+| Skill                   | Purpose                                                                                                                                 |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `prj-diagramkit-auto`   | Choose engine (Mermaid / Excalidraw / Draw.io / Graphviz); then follow `node_modules/diagramkit/skills/diagramkit-<engine>/SKILL.md`. |
+| `prj-diagramkit-review` | Repo-wide audit + repair; delegates per-engine fixes via `node_modules/diagramkit/skills/diagramkit-<engine>/SKILL.md`.                  |
 
 Read `node_modules/diagramkit/REFERENCE.md` before running any `diagramkit` command — it's version-pinned to the installed package.
 
 ## Contributor Skills
 
 
-| Skill                            | Purpose                                                                                  |
-| -------------------------------- | ---------------------------------------------------------------------------------------- |
-| `prj-update-content`             | Refresh root docs, examples, package AI guidance, and diagrams together.                 |
-| `prj-examples-parity`            | Keep examples aligned with docs/package behavior and diagram conventions.                |
-| `prj-sync-package-ai-guidelines` | Update published package AI guidance, schemas, and docs/diagram guidance.                |
-| `prj-pagesmith-review`           | Review diffs for behavior, parity, diagram drift, and release readiness.                 |
-| `prj-docs-diagrams`              | Decide when to add a diagram in Pagesmith docs and how to embed it; delegates engine choice / authoring / review to the `prj-diagramkit-*` skills. |
-| `prj-release`                    | Publish a coordinated `@pagesmith/core` + `@pagesmith/site` + `@pagesmith/docs` release. |
-| `prj-add-example`                | Add a new example workspace that stays in parity with docs/packages.                     |
-| `prj-add-loader`                 | Add a new content loader to `@pagesmith/core`.                                           |
-| `prj-add-markdown-plugin`        | Add a remark or rehype plugin to the markdown pipeline.                                  |
-| `prj-add-preset`                 | Add a new `@pagesmith/site` preset.                                                      |
+| Skill                   | Purpose                                                                                                                                                    |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prj-maintain-docs`     | Align `docs/content/`, package `skills/` / `llms*.txt` / schemas, consumer `skills/pagesmith-*`, diagrams, and `packages/core/src/ai/**` with the code. |
+| `prj-maintain-examples` | Update every example for behavior changes or scaffold a new `examples/` workspace with validation and guide cross-links.                                   |
+| `prj-review-repo`       | Review changes with repo context: boundaries, tests, docs/examples/diagram parity, validation, release readiness.                                          |
+| `prj-release`           | Publish a coordinated `@pagesmith/core` + `@pagesmith/site` + `@pagesmith/docs` release.                                                                   |
+| `prj-extend-packages`   | Add a content loader, markdown pipeline plugin, or site preset (`@pagesmith/core` / `@pagesmith/site`).                                                      |
 
 
 ## Keeping AI Guidance Current
@@ -224,7 +222,7 @@ Any public behavior change updates, in the same branch:
 - Affected examples under `examples/**`.
 - AI installer content under `packages/core/src/ai/**`.
 - Diagrams under sibling `diagrams/` folders (run `npm run render:diagrams`).
-- Contributor skills under `.agents/skills/**` if workflow steps changed.
+- Contributor skills under `.agents/skills/**` if workflow steps changed, and the matching thin wrappers under `.claude/skills/**` and `.cursor/skills/**` (same folder names; update or add wrappers when the canonical skill set changes).
 
 ## Repo Rules
 
@@ -233,7 +231,7 @@ Any public behavior change updates, in the same branch:
 - Site-building behavior changes must update `packages/site/skills/pagesmith-site-setup/references/**`, `packages/site/README.md`/`REFERENCE.md`, root docs pages covering CLI/Vite/runtime/CSS/layouts, and affected custom-site examples.
 - Markdown/code-renderer changes must update implementation plus `packages/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`, `packages/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`, root docs pages covering markdown/code, example feature pages across all examples, and markdown tests.
 - Docs-package changes must update `packages/docs/skills/pagesmith-docs-setup/references/setup-docs.md`, `docs-guidelines.md`, `schemas/*.schema.json`, root docs pages for config/frontmatter/navigation/deployment, and `examples/doc-site/`.
-- When writing or updating docs, follow `prj-docs-diagrams` and add diagrams wherever they materially simplify the explanation. Keep diagram sources plus rendered light/dark SVGs in sibling `diagrams/` folders and render them with `npm run render:diagrams`.
+- When writing or updating docs, follow `prj-maintain-docs` and add diagrams wherever they materially simplify the explanation. Keep diagram sources plus rendered light/dark SVGs in sibling `diagrams/` folders and render them with `npm run render:diagrams`.
 
 ## Hosting And Routing Rules
 
@@ -291,7 +289,7 @@ Embed pattern for GitHub-facing markdown (package `README.md`, package `REFERENC
 </picture>
 ```
 
-For full diagram authoring rules, engine selection, and the full-repo pass prompt, follow `prj-docs-diagrams`. It delegates engine choice to `prj-diagramkit-auto`, per-engine authoring to `prj-diagramkit-mermaid` / `prj-diagramkit-excalidraw` / `prj-diagramkit-draw-io` / `prj-diagramkit-graphviz`, and repo-wide audits to `prj-diagramkit-review`.
+For full diagram authoring rules, engine selection, embed patterns, and the full-repo documentation pass prompt, follow `prj-maintain-docs`. It delegates engine choice to `prj-diagramkit-auto`, per-engine authoring to `node_modules/diagramkit/skills/diagramkit-<engine>/SKILL.md`, and repo-wide audits to `prj-diagramkit-review`.
 
 ## Commands
 

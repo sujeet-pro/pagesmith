@@ -345,7 +345,7 @@ npm install @pagesmith/core
 ```
 ````
 
-Values: `"code"` (editor), `"terminal"`, `"none"`, `"auto"` (default).
+Values: `"code"` (editor frame), `"terminal"`, or `"plain"` (alias `"none"`). When `frame=` is omitted, terminal-style languages auto-select `"terminal"` and everything else auto-selects `"code"`.
 
 ### Meta String Quick Reference
 

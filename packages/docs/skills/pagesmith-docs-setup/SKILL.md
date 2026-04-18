@@ -143,19 +143,15 @@ Only declare the setup done when all four succeed.
 
 ## Install the full consumer skill pack
 
-After setup, make the other Pagesmith skills discoverable to the user's agent by committing or installing the full skill pack:
+After setup, make the other Pagesmith skills discoverable to the user's agent by running the bundled installer (it copies every shipped skill from the installed packages into `.agents/skills/<name>/SKILL.md` with thin wrappers in `.claude/skills/<name>/` and `.cursor/skills/<name>/`):
 
 ```bash
-npx skills install @pagesmith/pagesmith-docs-setup \
-                   @pagesmith/pagesmith-docs-add-page \
-                   @pagesmith/pagesmith-docs-configure-nav \
-                   @pagesmith/pagesmith-docs-add-search \
-                   @pagesmith/pagesmith-docs-customize-theme \
-                   @pagesmith/pagesmith-docs-deploy-gh-pages \
-                   @pagesmith/pagesmith-generate-docs
+npx pagesmith-core skills
 ```
 
-Or copy the `skills/pagesmith-*` folders from the Pagesmith repo into the user's `.agents/skills/`.
+Pass `--package @pagesmith/docs` (repeatable) to scope the install to specific packages, `--dry-run` to preview, or `--no-overwrite` to leave existing canonical skills untouched.
+
+Or copy the `skills/pagesmith-*` folders from `node_modules/@pagesmith/<pkg>/skills/` directly into the user's `.agents/skills/`.
 
 ## Reference
 

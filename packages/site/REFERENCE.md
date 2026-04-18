@@ -32,7 +32,7 @@ Reference for the Pagesmith site toolkit.
 
 ## Agent Skills
 
-`@pagesmith/site` ships self-contained [Agent Skills](https://agentskills.io/) inside the npm tarball at `node_modules/@pagesmith/site/skills/`. They are version-matched to the installed package — the bundle in `node_modules` is always the one your agent should read.
+`@pagesmith/site` ships self-contained Agent Skills inside the npm tarball at `node_modules/@pagesmith/site/skills/`. They are version-matched to the installed package — the bundle in `node_modules` is always the one your agent should read.
 
 | Skill                              | Triggers when the user asks to                                                           |
 | ---------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -44,14 +44,13 @@ Reference for the Pagesmith site toolkit.
 
 After `npm install @pagesmith/site`, pick one of:
 
-1. **Agent Skills CLI** (preferred when you have it):
+1. **Pagesmith's bundled installer** (preferred — no extra tooling required):
 
    ```bash
-   npx skills install \
-     @pagesmith/pagesmith-site-setup \
-     @pagesmith/pagesmith-site-use-preset \
-     @pagesmith/pagesmith-site-customize-theme
+   npx pagesmith-core skills --package @pagesmith/site
    ```
+
+   Copies every shipped skill to a canonical `.agents/skills/<name>/SKILL.md` and writes thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point at the canonical file. Drop `--package` to pull skills from `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` together. Add `--dry-run` or `--no-overwrite` as needed.
 
 2. **Copy the skill folder** into the agent directory your tool watches (`.agents/skills/`, `.claude/skills/`, or `.cursor/skills/`):
 

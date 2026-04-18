@@ -24,7 +24,7 @@ This example is a **best-practice `@pagesmith/site` + Vite + Handlebars** static
 
 5. **Client** — `client.js` imports site CSS and `@pagesmith/site/runtime/content` for small runtime behaviors on top of already-generated HTML (see [Search integration](./search-integration) for Pagefind UI).
 
-6. **Agent notes** — The example root includes `llms.txt` (repository path `examples/with-vanilla-hbs/llms.txt`) for a compact integration checklist. It is meant for tooling and clones, not linked from the generated site navigation.
+6. **Agent notes** — The example root includes `llms.txt` (repository path `examples/frameworks/with-vanilla-hbs/llms.txt`) for a compact integration checklist. It is meant for tooling and clones, not linked from the generated site navigation.
 
 ## Dependencies
 
@@ -62,7 +62,7 @@ Production build from the repo root:
 npm run build:eg:vanilla-hbs
 ```
 
-Or from `examples/with-vanilla-hbs/`:
+Or from `examples/frameworks/with-vanilla-hbs/`:
 
 ```bash
 npm run build

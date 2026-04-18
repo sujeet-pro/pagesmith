@@ -11,7 +11,7 @@ seriesOrder: 2
 # Project Structure
 
 ```text
-examples/with-solid/
+examples/frameworks/with-solid/
   content/
     guide/             This guide series, including `kitchen-sink.md`
     pages/             `pages` collection (e.g. about)

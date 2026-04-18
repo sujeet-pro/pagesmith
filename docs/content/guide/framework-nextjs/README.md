@@ -8,7 +8,7 @@ description: Use @pagesmith/site as the app-facing Pagesmith package inside a Ne
 > [!TIP] AI Quick Start
 > Ask your AI agent: "Integrate Pagesmith into my Next.js App Router project. Read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`, `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md`, and `node_modules/@pagesmith/site/REFERENCE.md` first. Keep Next.js in charge of routing and export, but use `@pagesmith/site` as the app-facing Pagesmith package for `defineCollection()`, `createContentLayer()`, and `entry.render()`. Add `@pagesmith/site/css/content` and mount `@pagesmith/site/runtime/content` once in a client component."
 
-Source: [`examples/with-nextjs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-nextjs) | Output: <a href="/pagesmith/examples/nextjs" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/frameworks/with-nextjs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-nextjs) | Output: <a href="/pagesmith/examples/nextjs" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 The Next.js example keeps Next.js in charge of routing, layouts, metadata, and static export while using `@pagesmith/site` as the app-facing Pagesmith package. `@pagesmith/site` owns the imports for collection definitions, markdown rendering, headings, and read time in this shape, while the underlying implementation still builds on `@pagesmith/core`.
 

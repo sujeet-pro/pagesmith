@@ -15,7 +15,7 @@ Content, Vite config, and SSG entry are separated so the **integration path** st
 ## Directory overview
 
 ```text
-examples/with-svelte/
+examples/frameworks/with-svelte/
   content/
     guide/             How this example is wired, including `kitchen-sink.md`
     pages/             Standalone pages (about)

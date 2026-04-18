@@ -60,43 +60,37 @@ This scaffolds `pagesmith.config.json5`, content, and the same AI artifacts in o
 | `.pagesmith/markdown-guidelines.md` | Shared markdown authoring rules for Pagesmith content |
 | `llms.txt` / `llms-full.txt` | Compact and expanded LLM context files |
 
-## Install Consumer Agent Skills With `npx skills`
+## Install Consumer Agent Skills With `pagesmith-core skills`
 
-In addition to the assistant-specific commands above, Pagesmith publishes a set of [Agent Skills](https://agentskills.io/) that any compatible coding agent (Cursor, Claude Code, Codex, GitHub Copilot, Windsurf, Cline, Gemini CLI, and ~40 more) can pick up. Each skill is a self-contained `SKILL.md` that triggers when the user asks for the matching task — for example "set up Pagesmith docs" or "add a new doc page".
-
-Install them in the consumer repo with the `agent-skills-cli` package via `npx`:
+In addition to the assistant-specific commands above, each Pagesmith package ships its own `skills/` folder inside the npm package (not as separate npm packages). Use the bundled installer to copy them into the project:
 
 ```bash
-npx skills install \
-  @pagesmith/pagesmith-docs-setup \
-  @pagesmith/pagesmith-docs-add-page \
-  @pagesmith/pagesmith-docs-configure-nav \
-  @pagesmith/pagesmith-docs-add-search \
-  @pagesmith/pagesmith-docs-customize-theme \
-  @pagesmith/pagesmith-docs-deploy-gh-pages \
-  @pagesmith/pagesmith-generate-docs \
-  @pagesmith/pagesmith-site-setup \
-  @pagesmith/pagesmith-site-use-preset \
-  @pagesmith/pagesmith-site-customize-theme \
-  @pagesmith/pagesmith-core-add-collection \
-  @pagesmith/pagesmith-core-add-loader \
-  @pagesmith/pagesmith-core-customize-markdown \
-  @pagesmith/pagesmith-core-write-validator
+npx pagesmith-core skills
 ```
 
-The CLI auto-detects every supported agent in the project and writes the skill into each one's directory (`.cursor/skills`, `.claude/skills`, `.agents/skills`, `.codex/skills`, `.github/skills`, etc). Use `-t cursor,claude` to target specific agents or `--all` to install everywhere.
+By default this scans `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` for `skills/<name>/SKILL.md` files and writes them in two places:
 
-Pick only the skills relevant to your stack:
+- A canonical copy at `.agents/skills/<name>/SKILL.md` (the source of truth).
+- Thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point Claude Code and Cursor at the canonical file.
+
+Useful flags:
+
+- `--package <pkg>` (repeatable) — limit the install to specific packages.
+- `--cwd <dir>` — install into a different project directory.
+- `--dry-run` — print what would change without writing files.
+- `--no-overwrite` — leave existing canonical skills untouched (wrappers always refresh).
+
+Available skills (all live inside the package they document):
 
 | Package | Skills |
 |---|---|
 | `@pagesmith/docs` | `pagesmith-docs-setup`, `pagesmith-docs-add-page`, `pagesmith-docs-configure-nav`, `pagesmith-docs-add-search`, `pagesmith-docs-customize-theme`, `pagesmith-docs-deploy-gh-pages`, `pagesmith-generate-docs` |
 | `@pagesmith/site` | `pagesmith-site-setup`, `pagesmith-site-use-preset`, `pagesmith-site-customize-theme` |
-| `@pagesmith/core` | `pagesmith-core-add-collection`, `pagesmith-core-add-loader`, `pagesmith-core-customize-markdown`, `pagesmith-core-write-validator` |
+| `@pagesmith/core` | `pagesmith-core-setup`, `pagesmith-core-add-collection`, `pagesmith-core-add-loader`, `pagesmith-core-customize-markdown`, `pagesmith-core-write-validator` |
 
 Each skill always reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the agent uses the CLI flags and config schema that match the version actually installed in the project, instead of relying on globally cached or generic guidance.
 
-Browse the full set in the [pagesmith repo `skills/` folder](https://github.com/sujeet-pro/pagesmith/tree/main/skills). If you do not want to install the CLI, copy any skill folder directly into your project's `.cursor/skills/`, `.claude/skills/`, or `.agents/skills/` — they are self-contained.
+Browse the full set in the [pagesmith repo `packages/<pkg>/skills/` folders](https://github.com/sujeet-pro/pagesmith/tree/main/packages). Each folder is self-contained, so you can also copy one into `.cursor/skills/`, `.claude/skills/`, or `.agents/skills/` by hand.
 
 ## Version-Matched Package Files
 
@@ -146,7 +140,7 @@ Docs projects expose the docs-aware MCP server through `@pagesmith/docs`:
 pagesmith-docs mcp --stdio
 ```
 
-That gives editors and agents access to docs-specific tools such as `docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, and `docs_get_page`.
+That gives editors and agents access to docs-specific tools: `docs_validate_config`, `docs_resolve_config`, `docs_list_pages`, `docs_get_page`, and `docs_search_pages`.
 
 ## Keep AI Context Current
 

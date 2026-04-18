@@ -74,9 +74,11 @@ The package exposes multiple entry points via the `exports` field in `package.js
 | `@pagesmith/core/markdown` | `src/markdown/index.ts` | `processMarkdown()` function |
 | `@pagesmith/core/schemas` | `src/schemas/index.ts` | Zod schemas and inferred TypeScript types |
 | `@pagesmith/core/loaders` | `src/loaders/index.ts` | Loader classes and the `resolveLoader()` registry |
-| `@pagesmith/core/assets` | `src/assets/index.ts` | Static file copying and content-hash filenames |
+| `@pagesmith/core/assets` | `src/assets/index.ts` | Static file copying, content-hash filenames, AVIF/WebP variant generation |
 | `@pagesmith/core/ai` | `src/ai/index.ts` | AI assistant artifact installer |
 | `@pagesmith/core/create` | `src/create/index.ts` | Project scaffolding utilities |
+| `@pagesmith/core/cli-kit` | `src/cli-kit/index.ts` | Shared CLI building blocks (cac wrapper, clack prompts, config loader) |
+| `@pagesmith/core/mcp` | `src/mcp/index.ts` | Programmatic MCP server (`createCoreMcpServer`, `startCoreMcpServer`) |
 
 ### Module Map
 
@@ -107,17 +109,60 @@ loaders/
   yaml.ts / toml.ts       YAML and TOML loaders
 
 validation/
-  runner.ts               runValidators(), builtinMarkdownValidators
-  types.ts                ContentValidator, ValidatorContext
-  schema-validator.ts     validateSchema() via Zod safeParse
-  link-validator.ts       Warns on bare URLs, empty link text
-  heading-validator.ts    Enforces single h1, sequential depth
-  code-block-validator.ts Warns on missing language
+  runner.ts                       runValidators(), builtinMarkdownValidators
+  types.ts                        ContentValidator, ValidatorContext
+  schema-validator.ts             validateSchema() via Zod safeParse
+  link-validator.ts               linkValidator + createLinkValidator() — empty link text, missing alt, raw <img> outside <picture>, broken internal links, themed-image pair mismatches, optional external reachability
+  heading-validator.ts            Warn on no headings, empty heading text, multiple h1, skipped levels
+  code-block-validator.ts         Warn on meta without language, unknown meta keys, malformed line ranges
+  image-structure-validator.ts    Enforce <figure><picture>...<img></picture><figcaption?></figure> structure
+  content-validator.ts            validateContent() + formatContentValidationReport() for the validate CLI
+  load-content-config.ts          discover content.config.* and build per-file schema maps
 
 vite/
   index.ts                pagesmithContent() plugin + type exports
   content-plugin.ts       Virtual module resolution, HMR, and DTS generation
   dts.ts                  TypeScript declaration file generator for virtual modules
+
+assets/
+  index.ts                collectContentAssets, CONTENT_ASSET_EXTS, ContentAssetMap
+  images.ts               sharp-based dimensions + AVIF/WebP variant generation
+  copier.ts               copyPublicFiles()
+  hasher.ts               hashAssets() — content-hash + HTML rewrite pipeline
+
+ai/
+  index.ts                installAiArtifacts(), getAiArtifacts(), getAiArtifactContent()
+  content-shared.ts       llms.txt / llms-full.txt / markdown-guidelines renderers
+  content-claude.ts / content-codex.ts / content-gemini.ts
+  content-memory.ts       CLAUDE.md / AGENTS.md / GEMINI.md renderer
+
+cli/
+  bin.ts                  pagesmith-core CLI entry
+  defaults.ts             readCoreCliDefaults()
+  skills-install.ts       installPackageSkills()
+  commands/               templates, create, ai, skills, validate
+
+cli-kit/
+  parse.ts                defineCli(), withInteractivityFlags, withConfigFlag (cac wrapper)
+  modes.ts                resolveInteractive, isInteractive, isNonInteractiveEnv, assertValue
+  prompts.ts              promptText/Confirm/Select/Multiselect, intro/outro/note/log/spinner
+  load-config.ts          findPagesmithConfig, loadPagesmithConfig, readPagesmithConfig
+  errors.ts               CliError, formatCliError, exitCodeFor
+
+mcp/
+  server.ts               createCoreMcpServer, startCoreMcpServer
+  shared.ts               package version + REFERENCE resolution helpers
+
+create/
+  index.ts                listTemplates(), createProject(), templates registry
+
+plugins/
+  index.ts                collectRemarkPlugins, collectRehypePlugins, runPluginValidators
+
+utils/
+  slug.ts                 toSlug()
+  glob.ts                 discoverFiles() (fast-glob)
+  read-time.ts            computeReadTime()
 ```
 
 ## Content Loading Flow
@@ -160,7 +205,7 @@ The content layer follows a strict pipeline when `getCollection(name)` is called
 
 10. Content validators (markdown collections only)
     Parse MDAST once, shared across all validators via ValidatorContext.mdast
-    Built-in: linkValidator, headingValidator, codeBlockValidator
+    Built-in: linkValidator, headingValidator, codeBlockValidator, imageStructureValidator
     Custom: def.validators[]
     Disable built-ins: def.disableBuiltinValidators
 

@@ -4,7 +4,7 @@ This directory is the monorepo’s **@pagesmith/site** static site: no React/Sol
 
 ## Read first
 
-- `README.md` — quick start, how this differs from `examples/with-*`
+- `README.md` — quick start, how this differs from `examples/frameworks/with-*`
 - `content/guide/overview.md` — Vite/SSG vs framework flow
 - `src/content.ts` — collections, content layer, helpers
 - `src/components.tsx` — JSX components, document shell

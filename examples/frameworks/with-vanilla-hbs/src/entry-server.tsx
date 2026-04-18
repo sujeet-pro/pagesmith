@@ -129,7 +129,7 @@ function renderTocAside(headings: any[]) {
 }
 
 const GITHUB_EDIT_BASE =
-  'https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-vanilla-hbs/content'
+  'https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-vanilla-hbs/content'
 
 function formatArticleDate(date: string | Date) {
   return new Date(date).toLocaleDateString('en-US', {

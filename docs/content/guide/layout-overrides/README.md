@@ -57,9 +57,13 @@ The override file is resolved relative to the directory containing `pagesmith.co
 The docs system looks for the layout component in this order:
 
 1. The `default` export
-2. A named export matching a known alias (e.g. `DocHome`, `Home` for the `home` layout; `DocPage`, `Page` for the `page` layout; `DocNotFound`, `NotFound` for the `notFound` layout)
+2. A named export matching a known alias:
+   - `home` -> `DocHome` or `Home`
+   - `page` -> `DocPage` or `Page`
+   - `listing` -> `DocListing` or `Listing`
+   - `notFound` -> `DocNotFound` or `NotFound`
 
-For custom layout names (beyond the three built-in ones), the system looks for `default` or an export matching the layout name.
+For custom layout names (beyond the four built-in ones), the system looks for `default` or an export matching the layout name.
 
 ## Layout Component Props
 
@@ -77,31 +81,51 @@ Every layout component receives the same base set of props, with the `page` layo
 
 ### Site Object
 
-The `site` prop contains:
+The `site` prop is built by `getSitePayload(config, model)` and contains:
 
 | Field | Type | Description |
 |---|---|---|
 | `site.origin` | `string` | The production origin URL |
 | `site.basePath` | `string` | The URL base path (empty string if root) |
+| `site.homeLink` | `string` | Where the header logo links to (defaults to `basePath`) |
+| `site.trailingSlash` | `boolean` | Whether routes are emitted as `path/index.html` (true) or `path.html` (false) |
 | `site.name` | `string` | Site name for display |
 | `site.title` | `string` | Full site title |
 | `site.description` | `string` | Site description |
 | `site.language` | `string` | HTML lang attribute value |
 | `site.navItems` | `Array<{ label: string; path: string }>` | Header navigation items |
 | `site.footerLinks` | `Array<{ label: string; path: string }> \| Array<{ header?: string; links: Array<{ label: string; path: string }> }>` | Footer links as a flat row or grouped columns |
+| `site.footerText` | `string \| undefined` | Footer sign-off override |
+| `site.maintainer` | `{ name: string; link?: string } \| undefined` | Maintainer credit |
+| `site.copyright` | `{ projectName?: string; startYear?: number; endYear?: number \| null } \| undefined` | Copyright bar inputs |
 | `site.search` | `{ enabled: boolean; showImages: boolean; showSubResults: boolean }` | Search configuration |
+| `site.sidebar` | `{ collapsible: boolean }` | Sidebar configuration |
 | `site.analytics` | `{ googleAnalytics?: string }` | Analytics config |
-| `site.theme` | `{ lightColor?: string; darkColor?: string }` | Theme colors |
+| `site.theme` | `{ lightColor?: string; darkColor?: string; defaultColorScheme: 'auto'\|'light'\|'dark'; defaultTheme: 'paper'\|'high-contrast'; defaultTextSize: 'small'\|'base'\|'large' }` | Theme defaults and meta-colors |
+| `site.socialImage` | `string \| undefined` | OG image URL |
+| `site.icon` | `string \| undefined` | Inline SVG icon (markup) |
+| `site.favicon` | `string \| undefined` | Resolved favicon URL |
+| `site.faviconFallback` | `string \| undefined` | Fallback favicon URL (for example, `.ico` when an `.svg` is the primary) |
+| `site.appleTouchIcon` | `string \| undefined` | Apple touch icon URL when `public/apple-touch-icon.png` exists |
 
 ### Page Layout Additional Props
 
-The `page` layout (and any layout used for documentation pages) receives these additional props:
+Layouts used for non-home pages (`page`, `listing`, and any custom item layouts) receive these additional props on top of the base set:
 
 | Prop | Type | Description |
 |---|---|---|
-| `sidebarSections` | `SidebarSection[]` | Sidebar navigation data for the current section |
+| `sidebarSections` | `SidebarSection[] \| undefined` | Sidebar navigation data for the current section |
 | `prev` | `{ title: string; path: string } \| undefined` | Previous page in sidebar order |
 | `next` | `{ title: string; path: string } \| undefined` | Next page in sidebar order |
+| `breadcrumbs` | `Array<{ label: string; href?: string }>` | Breadcrumb trail from site root to current page |
+| `editUrl` | `string \| undefined` | Computed edit-this-page URL when `editLink` is configured |
+| `editLabel` | `string \| undefined` | Edit link label from `config.editLink.label` |
+| `lastUpdated` | `string \| undefined` | ISO timestamp from `git log` when `lastUpdated: true` |
+| `listingCards` | `SiteListingCard[] \| undefined` | Cards for `listing` layouts (also available on the `home` layout when its section meta requests listing data) |
+| `listingGroups` | `SiteListingGroup[] \| undefined` | Series-grouped listing cards |
+| `listingTotal` | `number \| undefined` | Total card count for the listing |
+
+The `home` layout receives the base props plus `listingCards` / `listingGroups` / `listingTotal` when relevant; sidebar/prev/next/breadcrumb props are omitted because the home page has no surrounding section.
 
 A `SidebarSection` has:
 
@@ -246,6 +270,8 @@ For each layout name, the system looks for:
 
 1. A registered override in `theme.layouts`
 2. The built-in default (only for `home`, `page`, `listing`, and `notFound`)
+
+If a section meta or page frontmatter references a layout name that is neither built in nor registered in `theme.layouts`, the build throws.
 
 ## Example: Custom Home Page
 

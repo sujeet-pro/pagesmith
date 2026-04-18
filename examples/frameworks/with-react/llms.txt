@@ -1,4 +1,4 @@
-# Pagesmith + React (examples/with-react)
+# Pagesmith + React (examples/frameworks/with-react)
 
 Agent-focused notes for this static-site example. Scope: `@pagesmith/site` collection APIs + Vite/runtime helpers + React at **build time only** (no client React runtime).
 

@@ -10,6 +10,6 @@ Read `AGENTS.md` in full before acting. It covers:
 - Canonical locations for contributor skills (`.agents/skills/prj-*`) and consumer skills (`skills/pagesmith-*`).
 - Locked principles, repo rules, and the commands you will most often run.
 
-The `.claude/skills/prj-*` folders are thin wrappers that point at the canonical skill files under `.agents/skills/`. Edit the canonical copies, not the wrappers.
+The `.claude/skills/` and `.cursor/skills/` trees mirror `.agents/skills/` (same folder names only): each `SKILL.md` points at the canonical file under `.agents/skills/<name>/SKILL.md`. Edit skill bodies only under `.agents/skills/`; when you add, remove, rename, or change canonical frontmatter (`name` / `description`), update both `.claude/skills/` and `.cursor/skills/` wrappers in the same commit per `AGENTS.md`.
 
 Do not duplicate guidance here — if you need to change Claude-specific behavior, either update `AGENTS.md` (if it applies to all agents) or add a Claude-only addendum at the bottom of this file.

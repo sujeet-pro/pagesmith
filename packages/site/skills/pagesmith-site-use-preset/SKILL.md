@@ -103,7 +103,7 @@ export default {
 
 Export both a module entry (so `preset: '@your-scope/pagesmith-preset-x'` resolves) and a `bin/` wrapper (so `your-preset-name init` works like `pagesmith-site init --preset <x>`).
 
-Publish it with the `skills/` folder shipped the same way `@pagesmith/docs` ships skills, so downstream agents can install them with `npx skills install`.
+Publish it with the `skills/` folder shipped the same way `@pagesmith/docs` ships skills, so downstream agents can install them with `npx pagesmith-core skills --package <your-preset-package>`.
 
 ## Verify
 

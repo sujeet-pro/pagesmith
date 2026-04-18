@@ -40,17 +40,14 @@ defineConfig({
     },
   },
 
-  // Asset hashing configuration
+  // Asset hashing configuration (consumed by @pagesmith/site's build pipeline)
   assets: {
     hashFilenames: false,
     outputDir: undefined,
   },
 
-  // In-memory caching of loaded entries (default: implicit)
-  cache: true,
-
-  // Load all entries eagerly on creation
-  eager: false,
+  // Throw on file load errors instead of recording per-entry error issues
+  strict: false,
 
   // Content plugins for pipeline extension and validation
   plugins: [],
@@ -64,10 +61,11 @@ defineConfig({
 | `collections` | `CollectionMap` | Required | Named collection definitions |
 | `root` | `string` | `process.cwd()` | Root directory for resolving relative collection paths |
 | `markdown` | `MarkdownConfig` | `{}` | Markdown pipeline configuration |
-| `assets` | `{ hashFilenames?: boolean; outputDir?: string }` | `undefined` | Asset hashing configuration |
-| `cache` | `boolean` | `undefined` | Enable in-memory caching of loaded entries |
-| `eager` | `boolean` | `undefined` | Load all entries eagerly on creation |
+| `assets` | `{ hashFilenames?: boolean; outputDir?: string }` | `undefined` | Asset hashing configuration. `@pagesmith/core` only stores this; `@pagesmith/site`/`@pagesmith/docs` consume it during build. |
+| `strict` | `boolean` | `false` | When `true`, throw on file load errors. When `false`, record per-entry error issues and continue with empty data. |
 | `plugins` | `ContentPlugin[]` | `[]` | Content plugins for pipeline and validation |
+
+The content layer caches loaded entries internally; there is no `cache` or `eager` toggle. To force a refresh, call `layer.invalidate()`, `layer.invalidateCollection()`, or `layer.invalidateAll()`.
 
 ## CollectionDef
 

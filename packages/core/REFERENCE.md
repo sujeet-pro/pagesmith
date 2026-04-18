@@ -10,17 +10,23 @@ For @pagesmith/core setup and follow-up prompts, read: node_modules/@pagesmith/c
 
 ## Agent Skills
 
-Install the companion [Agent Skills](https://agentskills.io/) so AI coding agents can drive core content tasks end-to-end:
+Each Pagesmith package ships its skill folder inside the npm tarball at `node_modules/@pagesmith/<pkg>/skills/`. Install them into the consumer project with the bundled installer so AI coding agents can drive content tasks end-to-end:
 
 ```bash
-npx skills install \
-  @pagesmith/pagesmith-core-add-collection \
-  @pagesmith/pagesmith-core-add-loader \
-  @pagesmith/pagesmith-core-customize-markdown \
-  @pagesmith/pagesmith-core-write-validator
+npx pagesmith-core skills --package @pagesmith/core
 ```
 
-Each skill is self-contained and triggers when the user asks the agent to register a content type, add a custom loader, extend the markdown pipeline, or enforce content rules. Browse the full set at [pagesmith `skills/`](https://github.com/sujeet-pro/pagesmith/tree/main/skills).
+This copies every shipped skill to a canonical `.agents/skills/<name>/SKILL.md` and writes thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point at the canonical file. Drop `--package` to install skills from `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` together. Useful flags: `--cwd <dir>`, `--dry-run`, `--no-overwrite`.
+
+Core ships the following skills (each self-contained with its own `references/` folder):
+
+- `pagesmith-core-setup` — bootstrap or retrofit `@pagesmith/core` in an existing app.
+- `pagesmith-core-add-collection` — register a new content collection with a Zod schema.
+- `pagesmith-core-add-loader` — author a custom `Loader` for a non-built-in content format.
+- `pagesmith-core-customize-markdown` — add remark/rehype plugins or change Shiki themes.
+- `pagesmith-core-write-validator` — implement a custom `ContentValidator` over the shared MDAST.
+
+Browse the full set at [`pagesmith packages/<pkg>/skills/`](https://github.com/sujeet-pro/pagesmith/tree/main/packages).
 
 ---
 

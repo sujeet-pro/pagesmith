@@ -46,7 +46,7 @@ const guideEntries = [...(guideCollection as Entry[])].sort((left, right) => {
 const pageEntries = [...(pagesCollection as Entry[])]
 
 function contentEditUrl(contentSlug: string): string {
-  return `https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-solid/content/${contentSlug}.md`
+  return `https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-solid/content/${contentSlug}.md`
 }
 
 function escapeHtml(value: string): string {
@@ -313,7 +313,7 @@ function HomeBody(props: {
         <div class="doc-home-footer">
           <footer class="doc-footer">
             <div class="doc-footer-links">
-              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-solid">
+              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-solid">
                 GitHub
               </a>
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
@@ -516,7 +516,7 @@ function PageBody(props: {
               </div>
             </Show>
             <div class="doc-footer-links">
-              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-solid">
+              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-solid">
                 GitHub
               </a>
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>

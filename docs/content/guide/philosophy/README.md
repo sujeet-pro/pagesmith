@@ -38,7 +38,7 @@ Users should be able to configure the common case in `pagesmith.config.json5` wi
 
 ## 7. Docs, examples, and published AI guidance change together
 
-When public behavior changes, the implementation, the per-package `skills/`, the README / REFERENCE, the root docs under `docs/content/`, and the affected examples all change in the same branch. The `prj-update-content` and `prj-examples-parity` skills exist to make this automatic.
+When public behavior changes, the implementation, the per-package `skills/`, the README / REFERENCE, the root docs under `docs/content/`, and the affected examples all change in the same branch. The `prj-maintain-docs` and `prj-maintain-examples` contributor skills capture that workflow.
 
 ## Why this list is small
 

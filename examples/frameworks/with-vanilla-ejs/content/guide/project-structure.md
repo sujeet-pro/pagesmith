@@ -15,7 +15,7 @@ The EJS example follows a conventional layout where content, templates, and rend
 ## Directory overview
 
 ```text
-examples/with-vanilla-ejs/
+examples/frameworks/with-vanilla-ejs/
   content/
     guide/              Markdown articles for the guide collection, including `kitchen-sink.md`
     pages/              Standalone pages (e.g., about)

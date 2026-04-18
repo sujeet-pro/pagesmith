@@ -1,4 +1,4 @@
-# Pagesmith + Solid (examples/with-solid)
+# Pagesmith + Solid (examples/frameworks/with-solid)
 
 Agent-oriented notes for this monorepo example only. Start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/` after install, and drop to `node_modules/@pagesmith/core/REFERENCE.md` only when you intentionally need the lower-level contract details.
 
@@ -24,7 +24,7 @@ Agent-oriented notes for this monorepo example only. Start with `node_modules/@p
 ## Commands (from monorepo root)
 
 - `vp install` then `vp run dev:eg:solid` for dev SSR preview.
-- `cd examples/with-solid && npm run build` for static output + Pagefind index (see `build.outDir` in Vite config).
+- `cd examples/frameworks/with-solid && npm run build` for static output + Pagefind index (see `build.outDir` in Vite config).
 
 ## Do not assume
 

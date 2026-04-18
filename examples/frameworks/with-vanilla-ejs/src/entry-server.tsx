@@ -100,7 +100,7 @@ function formatDate(date: string | Date) {
 }
 
 const GITHUB_EDIT_BASE =
-  'https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-vanilla-ejs/content'
+  'https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-vanilla-ejs/content'
 
 function editUrlForEntry(entry: { collection: string; slug: string }) {
   return `${GITHUB_EDIT_BASE}/${entry.collection}/${entry.slug}.md`

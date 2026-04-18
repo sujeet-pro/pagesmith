@@ -88,7 +88,7 @@ Subpath exports in `package.json` followed the same rename:
 
 1. Search your `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and any custom agent prompts for `@pagesmith/<pkg>/ai-guidelines/` and replace with the new paths from the table above (or run `npx pagesmith-core ai --profile default` to regenerate the AI scaffolding with the latest pointers).
 2. If you hand-rolled any tooling that globs `node_modules/@pagesmith/<pkg>/ai-guidelines/**`, point it at `node_modules/@pagesmith/<pkg>/skills/**/references/**` instead.
-3. The root `skills/pagesmith-*` folder that used to live at the Pagesmith repo root is gone — each skill now ships with its owning package. Consumers that previously ran `npx skills install @pagesmith/pagesmith-<skill>` should now install skills from their owning package path (e.g. `node_modules/@pagesmith/core/skills/pagesmith-core-add-loader/`).
+3. The root `skills/pagesmith-*` folder that used to live at the Pagesmith repo root is gone — each skill now ships with its owning package. Use `npx pagesmith-core skills` (optionally with `--package @pagesmith/<pkg>`) to install skills into `.agents/skills/`, `.claude/skills/`, and `.cursor/skills/`. Or read the skill directly from its owning package path (e.g. `node_modules/@pagesmith/core/skills/pagesmith-core-add-loader/SKILL.md`).
 
 ## Other high-impact changes
 

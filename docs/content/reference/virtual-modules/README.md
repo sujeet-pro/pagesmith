@@ -199,4 +199,4 @@ import {
 } from '@pagesmith/site/ssg-utils'
 ```
 
-See the framework examples (`examples/with-react/`, `examples/with-svelte/`, etc.) for complete Vite usage. For non-Vite host apps, see [Next.js (App Router)](../../guide/framework-nextjs/README.md).
+See the framework examples (`examples/frameworks/with-react/`, `examples/frameworks/with-svelte/`, etc.) for complete Vite usage. For non-Vite host apps, see [Next.js (App Router)](../../guide/framework-nextjs/README.md).

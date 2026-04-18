@@ -55,21 +55,29 @@ The MDAST tree is parsed once in `runValidators()` using `unified().use(remarkPa
 
 #### Built-in Validators
 
-Pagesmith provides three built-in validators for markdown content (the `builtinMarkdownValidators` array):
+Pagesmith provides four built-in validators for markdown content (the `builtinMarkdownValidators` array):
 
-**`linkValidator`** -- Checks link quality:
-- Warns on bare URLs (links where the text matches the href)
-- Warns on empty link text
-- Warns on suspicious protocols (javascript:, data:, vbscript:)
+**`linkValidator`** (configurable via `createLinkValidator(options)`) -- Checks links and images:
+- Warns on empty link text.
+- Errors on missing image `alt` text (toggle with `requireAltText`).
+- Errors on raw `<img>` tags outside a `<picture>` element (toggle with `forbidHtmlImgTag`).
+- Errors when adjacent `*-light.<ext>` / `*-dark.<ext>` image pairs do not match (toggle with `requireThemeVariantPairs`).
+- Warns on malformed external URLs.
+- Errors on broken internal links (resolved against the markdown source path, the configured `rootDir`/`basePath`, and `additionalRoots`).
+- Optional checks: `internalLinksMustBeMarkdown`, `requireCanonicalInternalLinks`, and an opt-in external-URL reachability fetch (`unreachableSeverity`, `fetchTimeoutMs`, `fetchConcurrency`).
 
-**`headingValidator`** -- Enforces heading structure:
-- Enforces a single `h1` per document
-- Checks for sequential heading depth (no jumping from `h2` to `h4`)
-- Warns on empty heading text
+**`headingValidator`** -- Checks heading structure (all warnings, never aborts):
+- Warns when a document with content has no headings.
+- Warns on empty heading text.
+- Warns when more than one `h1` is present (one warning per extra `h1`).
+- Warns when heading levels skip (for example `h1` → `h3`).
 
-**`codeBlockValidator`** -- Checks code block metadata:
-- Warns on fenced code blocks with no language specified
-- Warns on unknown language aliases
+**`codeBlockValidator`** -- Checks fenced code block meta syntax:
+- Warns when meta is set but the code block has no language identifier.
+- Warns on unknown meta keys (anything outside `title`, `showLineNumbers`, `startLineNumber`, `wrap`, `frame`, `mark`, `ins`, `del`, `collapse`).
+- Warns on malformed line ranges in `mark`, `ins`, `del`, or `collapse`.
+
+**`imageStructureValidator`** -- Enforces the `<figure><picture>...<img></picture><figcaption?></figure>` shape (and `<figure><img></figure>` for SVG/GIF). Errors on `<figure>` nested inside `<picture>`, missing or multiple `<img>` inside `<picture>`, unbalanced `<picture>` tags, or foreign tags inside `<picture>`. Walks both MDAST html nodes and raw markdown.
 
 #### Custom Content Validators
 
@@ -127,7 +135,7 @@ const imageAltValidator: ContentValidator = {
 
 #### Disabling Built-in Validators
 
-Set `disableBuiltinValidators: true` on a collection to skip the built-in link, heading, and code block validators:
+Set `disableBuiltinValidators: true` on a collection to skip the built-in link, heading, code block, and image-structure validators:
 
 ```ts title="content.config.ts"
 const posts = defineCollection({
@@ -255,6 +263,7 @@ remark-parse                    Parse markdown to MDAST
   -> rehype-autolink-headings  Wrap heading text in anchor links (behavior: 'wrap')
   -> rehype-external-links     target="_blank" on external URLs
   -> rehype-accessible-emojis  aria-label on emoji characters
+  -> rehype-local-images       Fill intrinsic image dimensions, AVIF/WebP <picture> fallbacks, light/dark <picture> pairs, <figure>/<figcaption> wrapping
   -> heading extraction        Custom plugin: walk HAST, collect Heading[]
   -> [user rehype plugins]     From MarkdownConfig.rehypePlugins
   -> rehype-stringify           Serialize HAST to HTML string
@@ -418,14 +427,14 @@ Use the content layer when you need collection semantics (file discovery, schema
 ```ts title="convert.ts"
 // Via the content layer (respects the layer's markdown config)
 const fragment = await layer.convert('# Hello\n\nWorld')
-// fragment.html, fragment.toc, fragment.frontmatter
+// fragment.html, fragment.headings, fragment.toc, fragment.frontmatter
 
 // Via the standalone convert() function
 import { convert } from '@pagesmith/core'
 const result = await convert('# Hello\n\nWorld', {
   markdown: { shiki: { themes: { light: 'github-light', dark: 'github-dark' } } },
 })
-// result.html, result.toc, result.frontmatter
+// result.html, result.headings, result.toc, result.frontmatter
 ```
 
 The `ConvertResult` type:
@@ -433,12 +442,14 @@ The `ConvertResult` type:
 ```ts title="ConvertResult Type"
 type ConvertResult = {
   html: string
+  headings: Heading[]
+  /** @deprecated Use `headings` instead. */
   toc: Heading[]
   frontmatter: Record<string, any>
 }
 ```
 
-Note that `convert()` extracts the TOC from the rendered HTML using `extractToc()` (regex-based heading extraction), while `entry.render()` extracts headings from the HAST during processing (more accurate).
+`convert()` extracts headings from the rendered HTML using `extractToc()` (regex-based) and exposes them on both `headings` and the deprecated `toc` alias. `entry.render()` extracts headings from the HAST during processing (more accurate) and only returns `headings`.
 
 ## Validation in CI
 

@@ -243,8 +243,8 @@ These are defined on `:root` and are shared across all themes. Override them to 
 | `--radius-sm` | `2px` | Small border radius |
 | `--radius-md` | `4px` | Medium border radius |
 | `--radius-lg` | `6px` | Large border radius |
-| `--transition-fast` | `150ms ease` | Quick interactions |
-| `--transition-normal` | `250ms ease` | Standard transitions |
+| `--transition-fast` | `150ms cubic-bezier(0.4, 0, 0.2, 1)` | Quick interactions |
+| `--transition-normal` | `250ms cubic-bezier(0.4, 0, 0.2, 1)` | Standard transitions |
 | `--header-height` | `60px` | Fixed header height |
 
 ## Docs Theme Configuration

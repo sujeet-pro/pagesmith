@@ -312,7 +312,7 @@ function HomeBody(props: {
         <div className="doc-home-footer">
           <footer className="doc-footer">
             <div className="doc-footer-links">
-              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-react">
+              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-react">
                 GitHub
               </a>
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
@@ -522,7 +522,7 @@ function PageBody(props: {
               </div>
             ) : null}
             <div className="doc-footer-links">
-              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-react">
+              <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-react">
                 GitHub
               </a>
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
@@ -750,7 +750,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
               }
             : undefined
         }
-        editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-react/content/${guideEntry.contentSlug}.md`}
+        editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-react/content/${guideEntry.contentSlug}.md`}
       />,
     )
 
@@ -788,7 +788,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
         date={toIso(aboutEntry.frontmatter.date)}
-        editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/with-react/content/${aboutEntry.contentSlug}.md`}
+        editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-react/content/${aboutEntry.contentSlug}.md`}
       />,
     )
 

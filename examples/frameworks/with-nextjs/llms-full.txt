@@ -1,4 +1,4 @@
-Pagesmith + Next.js (examples/with-nextjs)
+Pagesmith + Next.js (examples/frameworks/with-nextjs)
 
 Agent-focused notes for this framework-hosted example. Scope: `@pagesmith/site` for collections, markdown, and shared content CSS/runtime inside Next.js App Router.
 

@@ -126,7 +126,7 @@ async function loadContent(root: string) {
 
 ## EJS
 
-Source: [`examples/with-vanilla-ejs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-vanilla-ejs) | Output: <a href="/pagesmith/examples/vanilla-ejs" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/frameworks/with-vanilla-ejs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-vanilla-ejs) | Output: <a href="/pagesmith/examples/vanilla-ejs" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 
@@ -205,7 +205,7 @@ EJS uses `<%-` for unescaped output (rendered markdown HTML) and `<%=` for escap
 
 ## Handlebars
 
-Source: [`examples/with-vanilla-hbs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-vanilla-hbs) | Output: <a href="/pagesmith/examples/vanilla-hbs" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/frameworks/with-vanilla-hbs/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-vanilla-hbs) | Output: <a href="/pagesmith/examples/vanilla-hbs" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 

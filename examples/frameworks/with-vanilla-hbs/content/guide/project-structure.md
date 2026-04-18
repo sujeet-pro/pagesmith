@@ -15,7 +15,7 @@ Content, SSR TypeScript, and Handlebars templates are separated so each layer ha
 ## Directory overview
 
 ```text
-examples/with-vanilla-hbs/
+examples/frameworks/with-vanilla-hbs/
   content/
     guide/              Markdown for the guide collection, including `kitchen-sink.md`
     pages/              Standalone pages (about)

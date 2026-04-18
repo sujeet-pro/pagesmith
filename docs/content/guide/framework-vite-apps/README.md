@@ -87,7 +87,7 @@ The `SsgRenderConfig` provides:
 
 ## React
 
-Source: [`examples/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-react) | Output: <a href="/pagesmith/examples/react" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/frameworks/with-react/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-react) | Output: <a href="/pagesmith/examples/react" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 
@@ -173,7 +173,7 @@ import './src/runtime.ts'
 
 ## SolidJS
 
-Source: [`examples/with-solid/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-solid) | Output: <a href="/pagesmith/examples/solid" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/frameworks/with-solid/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-solid) | Output: <a href="/pagesmith/examples/solid" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 
@@ -246,7 +246,7 @@ const bodyHtml = renderToString(() => (
 
 ## Svelte
 
-Source: [`examples/with-svelte/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-svelte) | Output: <a href="/pagesmith/examples/svelte" target="_blank" rel="noopener noreferrer">Live Demo</a>
+Source: [`examples/frameworks/with-svelte/`](https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-svelte) | Output: <a href="/pagesmith/examples/svelte" target="_blank" rel="noopener noreferrer">Live Demo</a>
 
 ### Dependencies
 

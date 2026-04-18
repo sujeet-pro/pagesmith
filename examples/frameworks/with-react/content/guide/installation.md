@@ -52,7 +52,7 @@ vp run dev:eg:react
 Or build for production:
 
 ```bash
-cd examples/with-react
+cd examples/frameworks/with-react
 vp build
 ```
 

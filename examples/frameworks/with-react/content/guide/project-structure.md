@@ -15,7 +15,7 @@ The React example keeps **content**, **build config**, **SSG entry**, and **brow
 ## Directory overview
 
 ```text
-examples/with-react/
+examples/frameworks/with-react/
   content/
     guide/            Markdown for the `guide` collection, including `kitchen-sink.md`
     pages/            Standalone pages (e.g. about)

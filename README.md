@@ -124,12 +124,12 @@ If your app already owns routing and build tooling (for example Next.js), render
 | ---------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------- |
 | [blog-site](examples/blog-site/)               | Custom site built on `@pagesmith/site` with Pagesmith JSX and Vite SSG | [README](examples/blog-site/README.md) |
 | [doc-site](examples/doc-site/)                 | `@pagesmith/docs` with layout overrides via `theme.layouts.*` and docs preset wiring | [README](examples/doc-site/README.md) |
-| [with-react](examples/with-react/)             | `@pagesmith/site` + React (react-dom/server) | [README](examples/with-react/README.md) |
-| [with-solid](examples/with-solid/)             | `@pagesmith/site` + SolidJS | [README](examples/with-solid/README.md) |
-| [with-svelte](examples/with-svelte/)           | `@pagesmith/site` + Svelte 5 | [README](examples/with-svelte/README.md) |
-| [with-nextjs](examples/with-nextjs/)           | `@pagesmith/site` content APIs inside Next.js, with optional shared content CSS/runtime | [README](examples/with-nextjs/README.md) |
-| [with-vanilla-ejs](examples/with-vanilla-ejs/) | `@pagesmith/site` + EJS templates | [README](examples/with-vanilla-ejs/README.md) |
-| [with-vanilla-hbs](examples/with-vanilla-hbs/) | `@pagesmith/site` + Handlebars templates | [README](examples/with-vanilla-hbs/README.md) |
+| [with-react](examples/frameworks/with-react/)             | `@pagesmith/site` + React (react-dom/server) | [README](examples/frameworks/with-react/README.md) |
+| [with-solid](examples/frameworks/with-solid/)             | `@pagesmith/site` + SolidJS | [README](examples/frameworks/with-solid/README.md) |
+| [with-svelte](examples/frameworks/with-svelte/)           | `@pagesmith/site` + Svelte 5 | [README](examples/frameworks/with-svelte/README.md) |
+| [with-nextjs](examples/frameworks/with-nextjs/)           | `@pagesmith/site` content APIs inside Next.js, with optional shared content CSS/runtime | [README](examples/frameworks/with-nextjs/README.md) |
+| [with-vanilla-ejs](examples/frameworks/with-vanilla-ejs/) | `@pagesmith/site` + EJS templates | [README](examples/frameworks/with-vanilla-ejs/README.md) |
+| [with-vanilla-hbs](examples/frameworks/with-vanilla-hbs/) | `@pagesmith/site` + Handlebars templates | [README](examples/frameworks/with-vanilla-hbs/README.md) |
 
 
 ## Framework Support
@@ -137,12 +137,12 @@ If your app already owns routing and build tooling (for example Next.js), render
 
 | Framework  | Pattern                                                    | Example                      |
 | ---------- | ---------------------------------------------------------- | ---------------------------- |
-| React      | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-react/` |
-| SolidJS    | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-solid/` |
-| Svelte     | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-svelte/` |
-| Next.js    | `createContentLayer` from `@pagesmith/site` + optional `@pagesmith/site/css/content` / `@pagesmith/site/runtime/content` | `examples/with-nextjs/` |
-| EJS        | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-vanilla-ejs/` |
-| Handlebars | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/with-vanilla-hbs/` |
+| React      | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-react/` |
+| SolidJS    | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-solid/` |
+| Svelte     | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-svelte/` |
+| Next.js    | `createContentLayer` from `@pagesmith/site` + optional `@pagesmith/site/css/content` / `@pagesmith/site/runtime/content` | `examples/frameworks/with-nextjs/` |
+| EJS        | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-vanilla-ejs/` |
+| Handlebars | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-vanilla-hbs/` |
 | Docs       | `@pagesmith/docs` preset on the `pagesmith-docs` CLI       | `examples/doc-site/`         |
 | Custom     | `@pagesmith/site` JSX runtime + Vite SSG on top of its re-exported content APIs | `examples/blog-site/` |
 
@@ -227,31 +227,19 @@ Or copy the AGENTS.md template from the package:
 - `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/AGENTS.md.template`
 - `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/AGENTS.md.template`
 
-### Install consumer Agent Skills with `npx skills`
+### Install consumer Agent Skills with `pagesmith-core skills`
 
-Pagesmith publishes a set of [Agent Skills](https://agentskills.io/) so any compatible coding agent (Cursor, Claude Code, Codex, GitHub Copilot, Windsurf, Cline, Gemini CLI, and many more) can drive Pagesmith tasks end-to-end. Install them with the `agent-skills-cli` package via `npx`:
+Each Pagesmith package ships its own `skills/` folder inside the npm tarball (they are not separate npm packages). The bundled installer copies them into the project:
 
 ```bash
-npx skills install \
-  @pagesmith/pagesmith-docs-setup \
-  @pagesmith/pagesmith-docs-add-page \
-  @pagesmith/pagesmith-docs-configure-nav \
-  @pagesmith/pagesmith-docs-add-search \
-  @pagesmith/pagesmith-docs-customize-theme \
-  @pagesmith/pagesmith-docs-deploy-gh-pages \
-  @pagesmith/pagesmith-generate-docs \
-  @pagesmith/pagesmith-site-setup \
-  @pagesmith/pagesmith-site-use-preset \
-  @pagesmith/pagesmith-site-customize-theme \
-  @pagesmith/pagesmith-core-add-collection \
-  @pagesmith/pagesmith-core-add-loader \
-  @pagesmith/pagesmith-core-customize-markdown \
-  @pagesmith/pagesmith-core-write-validator
+npx pagesmith-core skills
 ```
 
-The CLI auto-detects every supported agent in the repo and writes each skill into the right directory (`.cursor/skills`, `.claude/skills`, `.agents/skills`, `.codex/skills`, `.github/skills`, etc). Use `-t cursor,claude` to target specific agents or `--all` to install everywhere. Each skill reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the CLI flags and config schema match the version actually installed in the project, not a globally cached one.
+By default this scans `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` for `skills/<name>/SKILL.md` files, writes the canonical copy at `.agents/skills/<name>/SKILL.md`, and adds thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point at the canonical file. Pass `--package <pkg>` (repeatable) to limit the install, `--cwd <dir>` to install into a different project, `--dry-run` to preview, or `--no-overwrite` to leave existing canonical skills untouched.
 
-Browse the full set in [`skills/`](skills/) or pick the subset that matches the package you installed.
+Each skill reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the CLI flags and config schema match the version actually installed in the project, not a globally cached one.
+
+Browse the full set in [`packages/<pkg>/skills/`](packages/) or pick the subset that matches the package you installed.
 
 ### AI guidance files in each package
 

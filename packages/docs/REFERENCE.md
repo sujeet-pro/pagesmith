@@ -12,7 +12,7 @@ For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/RE
 
 ## Agent Skills
 
-`@pagesmith/docs` ships self-contained [Agent Skills](https://agentskills.io/) inside the npm tarball at `node_modules/@pagesmith/docs/skills/`. They are version-matched to the installed package and read their sibling `references/` folder for guidelines, recipes, and error catalogs — so the skill is fully usable even in a repo that has never seen Pagesmith before.
+`@pagesmith/docs` ships self-contained Agent Skills inside the npm tarball at `node_modules/@pagesmith/docs/skills/`. They are version-matched to the installed package and read their sibling `references/` folder for guidelines, recipes, and error catalogs — so the skill is fully usable even in a repo that has never seen Pagesmith before.
 
 | Skill                              | Triggers when the user asks to                                                               |
 | ---------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -28,18 +28,13 @@ For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/RE
 
 After `npm install @pagesmith/docs`, pick one of:
 
-1. **Agent Skills CLI** (preferred when you have it):
+1. **Pagesmith's bundled installer** (preferred — no extra tooling required):
 
    ```bash
-   npx skills install \
-     @pagesmith/pagesmith-docs-setup \
-     @pagesmith/pagesmith-docs-add-page \
-     @pagesmith/pagesmith-docs-configure-nav \
-     @pagesmith/pagesmith-docs-add-search \
-     @pagesmith/pagesmith-docs-customize-theme \
-     @pagesmith/pagesmith-docs-deploy-gh-pages \
-     @pagesmith/pagesmith-generate-docs
+   npx pagesmith-core skills --package @pagesmith/docs
    ```
+
+   This copies every shipped skill to a canonical `.agents/skills/<name>/SKILL.md` and writes thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point at the canonical file. Drop `--package` to install skills from `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` together. Add `--dry-run` to preview, or `--no-overwrite` to leave existing canonical files untouched.
 
 2. **Copy the skill folder** into the agent directory your tool watches (`.agents/skills/`, `.claude/skills/`, or `.cursor/skills/`):
 

@@ -19,13 +19,21 @@ Complete API reference for the public Pagesmith package surfaces.
 | `@pagesmith/core/assets` | Static file copying and content-hash filenames |
 | `@pagesmith/core/ai` | AI assistant artifact installer |
 | `@pagesmith/core/create` | Project scaffolding utilities |
+| `@pagesmith/core/cli-kit` | Shared CLI building blocks (cac wrapper, clack prompts, config loader) reused by `pagesmith-core`, `pagesmith-site`, `pagesmith-docs` |
+| `@pagesmith/core/mcp` | Programmatic MCP server entry (`createCoreMcpServer`, `startCoreMcpServer`) — wrap a live `ContentLayer` to expose core tools over stdio |
 | `@pagesmith/site` | App-facing site/content barrel -- re-exported content APIs, site config helpers, and preset types |
-| `@pagesmith/site/vite` | App-facing Vite barrel -- `pagesmithContent()`, `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
+| `@pagesmith/site/vite` | App-facing Vite barrel -- `pagesmithSite()`, `pagesmithContent()`, `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
+| `@pagesmith/site/preset` | Fallback `sitePreset()` factory for the `pagesmith-site` CLI when no real preset is selected |
 | `@pagesmith/site/jsx-runtime` | Server-side JSX: `h()`, `Fragment()`, `HtmlString` |
 | `@pagesmith/site/runtime` | Pre-built CSS/JS asset accessors |
+| `@pagesmith/site/runtime/*` | Granular browser entry modules (`code-blocks`, `code-tabs`, `chrome`, `content`, `standalone`, `footer-year`, `search-trigger`, `sidebar`, `skip-link`, `theme`, `toc-highlight`) |
+| `@pagesmith/site/components` | Reusable JSX/HTML components (`SiteDocument`, `SiteHeader`, `SiteSidebar`, `SiteFooter`, `TableOfContents`, `Breadcrumbs`, `ListingCards`, `HeroSection`, `ContentMeta`, theme controls) |
+| `@pagesmith/site/layouts` | Reusable site layouts (`PageShell`, `HomeLayout`, `ListingLayout`, `NotFoundLayout`) |
+| `@pagesmith/site/theme` | Theme defaults + `resolveThemeControls()` |
 | `@pagesmith/site/css` | `buildCss()` via LightningCSS |
-| `@pagesmith/site/css/*` | Shared CSS bundles (`content`, `standalone`, `viewport`, `fonts`, code styles) |
-| `@pagesmith/site/ssg-utils` | Shared SSG utility helpers |
+| `@pagesmith/site/css/*` | Shared CSS bundles (`chrome`, `standalone`, `content`, `code-block`, `code-inline`, `tabs`, `viewport`, `fonts`) |
+| `@pagesmith/site/ssg-utils` | Shared SSG utility helpers (`runPagefindIndexing`, route/date helpers, `renderDocumentShell`) |
+| `@pagesmith/site/build-validator` | `validateBuildOutput`, `runBuildValidation` and types for post-build checks |
 | `@pagesmith/docs` | Main docs barrel -- config helpers, build/dev/preview APIs, navigation helpers, theme exports, and MCP entrypoints |
 | `@pagesmith/docs/preset` | `docsPreset()` -- docs-package preset entry |
 | `@pagesmith/docs/components` | Reusable docs chrome components for layout overrides |
@@ -314,21 +322,28 @@ type ValidatorContext = {
 
 | Export | Description |
 |---|---|
-| `linkValidator` | Warns on bare URLs, empty link text, suspicious protocols |
-| `headingValidator` | Enforces single h1, sequential heading depth, non-empty text |
-| `codeBlockValidator` | Warns on missing language, unknown language aliases |
-| `builtinMarkdownValidators` | Array containing all three built-in validators |
-| `runValidators(ctx, validators)` | Execute validators and collect issues |
+| `linkValidator` | Default-configured link/image validator. Warns on empty link text and malformed external URLs; errors on missing alt text, raw `<img>` outside `<picture>`, mismatched light/dark image pairs, and broken internal links. Configurable via `createLinkValidator(options)`. |
+| `createLinkValidator(options)` | Factory for a customised `linkValidator` with overrides for alt-text, theme-variant pair enforcement, internal-link rules, additional roots, and optional external-URL reachability fetch. |
+| `headingValidator` | Warns when a content-bearing document has no headings, on empty heading text, on multiple `h1`s, and on skipped heading levels. |
+| `codeBlockValidator` | Warns when meta is set without a language, on unknown meta keys, and on malformed line ranges in `mark`/`ins`/`del`/`collapse`. |
+| `imageStructureValidator` | Enforces `<figure><picture>...<img></picture><figcaption?></figure>` (or `<figure><img></figure>` for SVG/GIF). Errors on nested `<figure>`/`<picture>`, missing or duplicate `<img>` inside `<picture>`, unbalanced `<picture>` tags, and foreign tags inside `<picture>`. |
+| `builtinMarkdownValidators` | Array containing all four built-in validators. |
+| `runValidators(ctx, validators)` | Execute validators against a shared MDAST parse and collect issues. |
+| `validateContent(options)` / `formatContentValidationReport(summary)` | Walk a directory, validate every markdown file, and pretty-print the report. Used by `pagesmith-core validate` and `pagesmith-docs validate`. |
 
 ### Loaders
 
 | Export | Description |
 |---|---|
 | `MarkdownLoader` | Loads `.md` files via `gray-matter` |
-| `JsonLoader` | Loads `.json` files via `JSON.parse` or `json5` |
-| `JsoncLoader` | Loads `.json` / `.jsonc` files via `json5` (JSON with comments) |
+| `JsonLoader` | Loads `.json` files via `JSON.parse` and `.json5` files via `json5` |
+| `JsoncLoader` | Loads `.jsonc` files (strips `//` and `/* */` comments and trailing commas, then `JSON.parse`) |
 | `YamlLoader` | Loads `.yml` / `.yaml` files via the `yaml` package |
 | `TomlLoader` | Loads `.toml` files via `smol-toml` |
+| `resolveLoader(name)` | Resolve a built-in loader by `LoaderType` string or pass through a custom `Loader` instance |
+| `registerLoader(name, loader)` | Register an additional loader so it can be referenced by string |
+| `defaultIncludePatterns(loader)` | Compute the default `**/*<ext>` include globs from a loader's `extensions` |
+| `LoaderError` | Error subclass with `filePath`, `format`, optional `line`/`column` for better diagnostics |
 
 ### JSX Runtime
 
@@ -436,6 +451,32 @@ For data collections, each entry has:
 
 ## `@pagesmith/site/vite`
 
+### `pagesmithSite(options)`
+
+Convenience super-plugin that composes `pagesmithContent`, `pagesmithSsg`, and `sharedAssetsPlugin` in one call. Returns a `Plugin[]`:
+
+```ts title="vite.config.ts"
+import { pagesmithSite } from '@pagesmith/site/vite'
+import collections from './content.config'
+
+export default defineConfig({
+  plugins: [
+    pagesmithSite({
+      collections,
+      content: { /* PagesmithContentPluginOptions, minus `collections` */ },
+      ssg: { entry: './src/entry-server.tsx' }, // pass `false` to skip SSG (e.g. Next.js)
+    }),
+  ],
+})
+```
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `collections` | `CollectionMap` | Required | Forwarded to `pagesmithContent` |
+| `content` | `Omit<PagesmithContentPluginOptions, 'collections'>` | `undefined` | Extra `pagesmithContent` options (e.g. `markdown`, `dts`) |
+| `ssg` | `SsgPluginOptions \| false` | `{ entry: './src/entry-server.tsx' }` | SSG plugin options. Pass `false` to skip SSG entirely (when an outer framework owns rendering) |
+| `disableSharedAssets` | `boolean` | `false` | Skip the dev-only fonts middleware |
+
 ### `pagesmithContent(collections, options?)`
 
 `@pagesmith/site/vite` re-exports the content plugin so site consumers can keep both content and SSG Vite imports on one package:
@@ -476,7 +517,9 @@ export default defineConfig({
 |---|---|---|---|
 | `entry` | `string` | Required | Path to the SSR entry module |
 | `pagefind` | `boolean` | `true` | Run Pagefind indexer after build |
-| `contentDirs` | `string[]` | `[]` | Content directories for copying companion assets |
+| `contentDirs` | `string[]` | `[]` | Content directories whose companion assets should be served in dev and copied at build time |
+| `cssEntry` | `string` | `'./src/theme.css'` | Dev-only CSS entry injected into rendered HTML |
+| `trailingSlash` | `boolean` | `false` | When `true`, dev server resolves clean URLs to `path/index.html`; otherwise to `path.html` |
 
 **SSR Entry Module** must export:
 
@@ -666,7 +709,7 @@ AI assistant artifact installer for generating memory, skill, and llms files.
 
 Import: `@pagesmith/docs/preset`
 
-Returns an object with `build()`, `dev()`, and `preview()` methods for programmatic control over the docs lifecycle. Useful for tooling integrations or custom build scripts that need to drive the docs pipeline without going through the CLI.
+Returns a `SitePreset`-shaped object that the `pagesmith-site` CLI can also drive. Useful for tooling integrations or custom build scripts that want to invoke the docs pipeline without going through the `pagesmith-docs` CLI.
 
 ```ts
 import { docsPreset } from '@pagesmith/docs/preset'
@@ -681,32 +724,64 @@ await docs.dev({ configPath: './pagesmith.config.json5', port: 3000 })
 
 // Preview built output
 await docs.preview({ configPath: './pagesmith.config.json5', port: 4000 })
+
+// Run validate; returns the process exit code (0 = pass)
+const code = await docs.validate({ configPath: './pagesmith.config.json5' })
+
+// init / mcp accept argv-style strings and forward to the matching CLI command
+await docs.init(['--ai', '--yes'])
+await docs.mcp(['--stdio'])
 ```
 
 **Methods:**
 
 | Method | Signature | Description |
 |---|---|---|
-| `build` | `(options?: DocsBuildOptions) => Promise<void>` | Run a full production build |
-| `dev` | `(options?: DocsDevOptions) => Promise<void>` | Start the dev server with live reload |
-| `preview` | `(options?: DocsDevOptions) => Promise<void>` | Serve the built output for local verification |
+| `build` | `(options?: SiteBuildOptions) => Promise<void>` | Run a full production build |
+| `dev` | `(options?: SiteDevOptions) => Promise<void>` | Start the dev server with live reload |
+| `preview` | `(options?: SiteDevOptions) => Promise<void>` | Serve the built output for local verification |
+| `validate` | `(options?: SiteValidateOptions) => Promise<number>` | Run content + build-output validation; returns the process exit code |
+| `init` | `(argv: string[]) => Promise<void>` | Forward to `pagesmith-docs init` argv |
+| `mcp` | `(argv: string[]) => Promise<void>` | Start the docs MCP server (`--stdio`) |
 
-**DocsBuildOptions:**
+`SiteBuildOptions`, `SiteDevOptions`, and `SiteValidateOptions` are the same option types the `pagesmith-site` CLI passes to a preset (see `@pagesmith/site/preset`). `SiteBuildOptions` carries `configPath`, `outDir`, and `basePath`; `SiteDevOptions` adds `port`, `open`, and `logLevel`; `SiteValidateOptions` adds the same flag set the `pagesmith-docs validate` CLI exposes.
 
-```ts
-type DocsBuildOptions = {
-  configPath?: string
-  outDir?: string
-  basePath?: string
-}
+---
+
+## `@pagesmith/core/mcp`
+
+Programmatic MCP server entry. Import after wiring up your own `ContentLayer`:
+
+```ts title="scripts/pagesmith-core-mcp.mjs"
+import collections from '../content.config.js'
+import { createContentLayer, defineConfig } from '@pagesmith/core'
+import { startCoreMcpServer } from '@pagesmith/core/mcp'
+
+const layer = createContentLayer(defineConfig({ collections }))
+await startCoreMcpServer({ layer, rootDir: process.cwd() })
 ```
 
-**DocsDevOptions** extends `DocsBuildOptions` with:
+| Export | Description |
+|---|---|
+| `createCoreMcpServer({ layer, rootDir? })` | Build (but do not connect) an `McpServer` named `@pagesmith/core-mcp` |
+| `startCoreMcpServer({ layer, rootDir? })` | Build and connect via `StdioServerTransport` |
 
-```ts
-type DocsDevOptions = DocsBuildOptions & {
-  port?: number
-  open?: boolean
-  logLevel?: DocsLogLevel
-}
-```
+Tools registered: `core_list_collections`, `core_list_entries`, `core_get_entry`, `core_validate`, `core_search_entries`. Resources: `pagesmith://core/agents/usage`, `pagesmith://core/llms-full`, `pagesmith://core/reference`.
+
+There is no standalone `pagesmith-core mcp` CLI because the server needs a live `ContentLayer` instance from the host project.
+
+---
+
+## `@pagesmith/core/cli-kit`
+
+Shared CLI building blocks reused by `pagesmith-core`, `pagesmith-site`, and `pagesmith-docs`. Use this when you build your own CLI on top of Pagesmith conventions.
+
+| Export | Description |
+|---|---|
+| `defineCli({ name, version, description })` | Wraps `cac` and returns `{ cli, run }`; honors `--yes`, `--non-interactive`, `--interactive`, `--config`, `CI=1`, `PAGESMITH_NON_INTERACTIVE=1` |
+| `withInteractivityFlags(command)` / `withConfigFlag(command)` | Add the standard interactivity / `--config` flags to an individual `cac` command |
+| `CliError`, `formatCliError`, `exitCodeFor` | Structured CLI errors with `hint` support and predictable exit codes |
+| `assertValue`, `resolveInteractive`, `isInteractive`, `isNonInteractiveEnv` | Interactivity helpers used inside command implementations |
+| `promptText` / `promptConfirm` / `promptSelect` / `promptMultiselect`, `intro`, `outro`, `note`, `log`, `spinner`, `tasks`, `group`, `cancel`, `isCancel` | `@clack/prompts` re-exports for consistent UX |
+| `findPagesmithConfig`, `loadPagesmithConfig`, `readPagesmithConfig`, `PAGESMITH_CONFIG_BASENAMES` | Locate and load `pagesmith.config.{ts,mts,mjs,js,json5,json}` (TS/JS via `jiti`, JSON5/JSON via `JSON5.parse`) |
+| `readPackageVersion(metaDirname)` | Read the `version` from the nearest `package.json` (used by CLI bins) |

@@ -56,7 +56,7 @@ vp run dev:eg:svelte
 Production build:
 
 ```bash
-cd examples/with-svelte
+cd examples/frameworks/with-svelte
 npm run build
 ```
 

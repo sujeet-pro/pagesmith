@@ -59,7 +59,7 @@
   <div class="doc-home-footer">
     <footer class="doc-footer">
       <div class="doc-footer-links">
-        <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/with-svelte">GitHub</a>
+        <a href="https://github.com/sujeet-pro/pagesmith/tree/main/examples/frameworks/with-svelte">GitHub</a>
         <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
       </div>
       <div class="doc-footer-theme no-js-hidden" data-footer-theme>

@@ -65,7 +65,7 @@ export const templates: Template[] = [
     name: 'react',
     description: 'React SSG site with react-router',
     source: 'github',
-    path: 'examples/with-react',
+    path: 'examples/frameworks/with-react',
     dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
@@ -78,7 +78,7 @@ export const templates: Template[] = [
     name: 'solid',
     description: 'SolidJS SSG site',
     source: 'github',
-    path: 'examples/with-solid',
+    path: 'examples/frameworks/with-solid',
     dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
@@ -91,7 +91,7 @@ export const templates: Template[] = [
     name: 'svelte',
     description: 'Svelte SSG site',
     source: 'github',
-    path: 'examples/with-svelte',
+    path: 'examples/frameworks/with-svelte',
     dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
@@ -104,7 +104,7 @@ export const templates: Template[] = [
     name: 'ejs',
     description: 'Vanilla Node.js + EJS templates',
     source: 'github',
-    path: 'examples/with-vanilla-ejs',
+    path: 'examples/frameworks/with-vanilla-ejs',
     dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',
@@ -116,7 +116,7 @@ export const templates: Template[] = [
     name: 'hbs',
     description: 'Vanilla Node.js + Handlebars templates',
     source: 'github',
-    path: 'examples/with-vanilla-hbs',
+    path: 'examples/frameworks/with-vanilla-hbs',
     dependency: '@pagesmith/site',
     scripts: {
       dev: 'vp dev',

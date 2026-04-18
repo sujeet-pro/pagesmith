@@ -113,7 +113,7 @@ Get a single page by slug, including full metadata and raw markdown source.
 
 ### docs_search_pages
 
-Full-text search across page titles, descriptions, and content.
+Case-insensitive substring search across each page's title, description, and raw markdown source. Optional `section` filter narrows the search.
 
 **When to use:** To find pages related to a topic without knowing the exact slug.
 
@@ -121,7 +121,7 @@ Full-text search across page titles, descriptions, and content.
 { "query": "validation", "section": "reference" }
 ```
 
-**Returns:** Up to 20 matching pages ranked by relevance.
+**Returns:** Up to 20 matching pages with snippets. Results are returned in discovery order — there is no relevance ranking.
 
 ## Core MCP Server (@pagesmith/core)
 
@@ -199,18 +199,26 @@ Search entries by slug, title, description, or tags before pulling full rendered
 
 ## Available Resources
 
-Together, the docs and core MCP servers expose versioned documentation as resources:
+Each MCP server exposes versioned documentation as resources tied to the installed package version, so AI agents always get version-matched guidance.
+
+**Docs MCP server (`pagesmith-docs mcp --stdio`):**
 
 | Resource URI | Content |
 |---|---|
-| `pagesmith://docs/agents/usage` | @pagesmith/docs usage rules |
-| `pagesmith://docs/llms-full` | Full docs reference |
-| `pagesmith://docs/reference` | REFERENCE.md |
-| `pagesmith://core/agents/usage` | @pagesmith/core usage rules |
-| `pagesmith://core/llms-full` | Full core reference |
-| `pagesmith://core/reference` | Core REFERENCE.md |
+| `pagesmith://docs/agents/usage` | `@pagesmith/docs` usage rules (`skills/pagesmith-docs-setup/references/usage.md`) |
+| `pagesmith://docs/llms-full` | Full docs reference (`llms-full.txt`) |
+| `pagesmith://docs/reference` | `@pagesmith/docs` `REFERENCE.md` |
+| `pagesmith://core/reference` | `@pagesmith/core` `REFERENCE.md` resolved from the installed core package |
 
-These resources are tied to the installed package version, so AI agents always get version-matched guidance.
+**Core MCP server (your custom wrapper around `@pagesmith/core/mcp`):**
+
+| Resource URI | Content |
+|---|---|
+| `pagesmith://core/agents/usage` | `@pagesmith/core` usage rules (`skills/pagesmith-core-setup/references/usage.md`) |
+| `pagesmith://core/llms-full` | Full core reference (`llms-full.txt`) |
+| `pagesmith://core/reference` | `@pagesmith/core` `REFERENCE.md` |
+
+The docs server intentionally also exposes the core `REFERENCE.md` so docs-only setups can read the underlying content-layer reference without registering a second server.
 
 ## Practical Workflows
 

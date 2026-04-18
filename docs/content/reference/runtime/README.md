@@ -196,7 +196,6 @@ For advanced integrations, `@pagesmith/site` also exposes narrower browser entri
 |---|---|
 | `@pagesmith/site/runtime/code-blocks` | Copy buttons and collapse toggles for code blocks |
 | `@pagesmith/site/runtime/code-tabs` | Tab switching for grouped code blocks |
-| `@pagesmith/site/runtime/themed-images` | Theme-aware image source switching for light/dark pairs |
 | `@pagesmith/site/runtime/footer-year` | Footer year synchronization |
 | `@pagesmith/site/runtime/search-trigger` | Responsive search-trigger density |
 | `@pagesmith/site/runtime/sidebar` | Mobile sidebar dialog behavior |
@@ -204,7 +203,7 @@ For advanced integrations, `@pagesmith/site` also exposes narrower browser entri
 | `@pagesmith/site/runtime/toc-highlight` | Active-heading tracking for TOC links |
 | `@pagesmith/site/runtime/theme` | Theme and text-size persistence |
 
-Use these when you want to assemble your own browser runtime instead of taking the full `content`, `chrome`, or `standalone` bundle.
+Use these when you want to assemble your own browser runtime instead of taking the full `content`, `chrome`, or `standalone` bundle. The themed-image switcher is not exposed as a standalone entry — it ships as part of the `chrome`, `content`, and `standalone` bundles.
 
 ### Progressive Enhancement
 

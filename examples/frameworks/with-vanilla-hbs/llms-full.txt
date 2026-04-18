@@ -1,4 +1,4 @@
-# Pagesmith + Handlebars (examples/with-vanilla-hbs)
+# Pagesmith + Handlebars (examples/frameworks/with-vanilla-hbs)
 
 Agent-oriented notes for this monorepo example: `@pagesmith/site` content + Vite/runtime layer and Handlebars (no `@pagesmith/docs` app shell).
 
