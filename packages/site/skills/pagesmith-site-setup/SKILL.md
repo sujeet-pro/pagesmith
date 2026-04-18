@@ -136,29 +136,50 @@ If you drop `fonts`, provide alternatives or typography breaks.
 
 ## Runtime JS (progressive enhancement)
 
-Opt into the runtimes you actually want:
+Opt into the runtimes you actually want. Each is a tiny browser module that no-ops when its `data-ps-*` hook is absent:
 
 ```ts
-import '@pagesmith/site/runtime/theme-toggle'
-import '@pagesmith/site/runtime/toc-highlight'
-import '@pagesmith/site/runtime/code-tabs'
-import '@pagesmith/site/runtime/copy-buttons'
-import '@pagesmith/site/runtime/sidebar'
-import '@pagesmith/site/runtime/search-trigger'
-import '@pagesmith/site/runtime/footer-year'
-import '@pagesmith/site/runtime/skip-link'
+import '@pagesmith/site/runtime/theme'            // color scheme / theme / text-size controls
+import '@pagesmith/site/runtime/toc-highlight'    // active-heading highlighting in the TOC
+import '@pagesmith/site/runtime/code-blocks'      // copy buttons + collapsible regions in code fences
+import '@pagesmith/site/runtime/code-tabs'        // tab switching for grouped fences
+import '@pagesmith/site/runtime/sidebar'          // collapsible sidebar + mobile sidebar modal
+import '@pagesmith/site/runtime/search-trigger'   // Cmd/Ctrl-K + `[data-ps-search-trigger]`
+import '@pagesmith/site/runtime/footer-year'      // auto-advance copyright year
+import '@pagesmith/site/runtime/skip-link'        // focus management for the skip link
 ```
 
-Each runtime targets `data-pagesmith-*` attributes on the DOM. Skip what you don't render.
+Convenience bundles:
+
+- `@pagesmith/site/runtime/chrome` — wires header, sidebar, footer, TOC, theme controls.
+- `@pagesmith/site/runtime/content` — wires code blocks + code tabs.
+- `@pagesmith/site/runtime/standalone` — chrome + content bundle for single-script sites.
+
+The hook attributes are on the `data-ps-*` prefix (legacy `data-theme-*`/`data-footer-*` aliases still work). For example: `data-ps-theme-toggle-button`, `data-ps-theme-dropdown`, `data-ps-toc`, `data-ps-code-copy`, `data-ps-code-collapse-toggle`, `data-ps-footer-scheme`, `data-ps-footer-theme`, `data-ps-footer-text-size`. When you write your own markup, keep these attributes on the interactive elements so the runtimes can find them.
 
 ## Layouts and components
 
 ```tsx
-import { DefaultLayout } from '@pagesmith/site/layouts'
-import { Header, Footer, TOC } from '@pagesmith/site/components'
+import { PageShell, HomeLayout, ListingLayout, NotFoundLayout } from '@pagesmith/site/layouts'
+import {
+  SiteDocument,      // also exported as Html
+  SiteHeader,
+  SiteSidebar,
+  SiteSidebarModal,
+  SiteFooter,
+  TableOfContents,
+  AccordionTableOfContents,
+  Breadcrumbs,
+  ListingCards,
+  ThemeDropdownControls,
+  FooterThemeControls,
+  HeroSection,
+  ActionButtons,
+  ContentMeta,
+} from '@pagesmith/site/components'
 ```
 
-Compose your own layout or use the defaults as a reference. Keep `data-pagesmith-*` attributes on the elements your runtimes target.
+Compose your own layout or use `PageShell` as a starting point. Keep `data-ps-*` attributes on the elements your runtimes target.
 
 ## Scripts
 

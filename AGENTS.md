@@ -8,10 +8,12 @@ Other agent-config files (`CLAUDE.md`, `.claude/skills/`, `.cursor/skills/`) are
 
 This repo has **two audiences** for AI guidance. Do not mix them up.
 
-| Audience | Where guidance lives | Who reads it |
-| --- | --- | --- |
-| **Contributors** (maintaining Pagesmith) | `AGENTS.md`, `CLAUDE.md`, `.agents/skills/prj-*`, `.claude/skills/prj-*`, `.cursor/skills/prj-*` | Agents working in the monorepo itself |
-| **Consumers** (using `@pagesmith/*`) | Each package's `packages/<pkg>/skills/pagesmith-<pkg>-<action>/`, each `packages/<pkg>/REFERENCE.md`, each package's root `llms.txt` / `llms-full.txt`, `packages/docs/schemas/` | Agents working in a project that installed the package |
+
+| Audience                                 | Where guidance lives                                                                                                                                                             | Who reads it                                           |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| **Contributors** (maintaining Pagesmith) | `AGENTS.md`, `CLAUDE.md`, `.agents/skills/prj-*`, `.claude/skills/prj-*`, `.cursor/skills/prj-*` | Agents working in the monorepo itself                  |
+| **Consumers** (using `@pagesmith/*`)      | Each package's `packages/<pkg>/skills/pagesmith-<pkg>-<action>/`, each `packages/<pkg>/REFERENCE.md`, each package's root `llms.txt` / `llms-full.txt`, `packages/docs/schemas/` | Agents working in a project that installed the package |
+
 
 Published consumer surface ships inside the npm tarballs:
 
@@ -38,9 +40,12 @@ pagesmith/
 ├── vite.config.ts
 ├── llms.txt, llms-full.txt   # llms-friendly repo indexes
 │
-├── .agents/skills/prj-*/     # canonical contributor skills
-├── .claude/skills/prj-*/     # thin wrappers → .agents/skills/prj-*
-├── .cursor/skills/prj-*/     # thin wrappers → .agents/skills/prj-*
+├── .agents/skills/prj-*/                # canonical contributor skills
+├── .agents/skills/prj-diagramkit-*/     # pointers → node_modules/diagramkit/skills/*
+├── .claude/skills/prj-*/                # thin wrappers → .agents/skills/prj-*
+├── .claude/skills/prj-diagramkit-*/     # thin wrappers → .agents/skills/prj-diagramkit-*
+├── .cursor/skills/prj-*/                # thin wrappers → .agents/skills/prj-*
+├── .cursor/skills/prj-diagramkit-*/     # thin wrappers → .agents/skills/prj-diagramkit-*
 ├── .github/                  # workflows, templates
 ├── .gitignore
 ├── .temp/                    # scratch workspace (git-ignored)
@@ -168,20 +173,45 @@ When public behavior changes, update the matching `packages/<pkg>/skills/pagesmi
 - Edit the canonical copy. Do not edit the wrappers.
 - All contributor skills share the `prj-` prefix and stay self-contained so they can be cloned into other Pagesmith-like repos without modification.
 
+## diagramkit Skills Contract (`.agents/skills/prj-diagramkit-*`)
+
+The `diagramkit` npm package ships its own Agent Skills under `node_modules/diagramkit/skills/diagramkit-*/SKILL.md` that cover engine selection, per-engine authoring, rendering, and review. This repo surfaces them as thin, version-pinned pointers — prefixed with `prj-` to match the rest of the contributor skills — so every agent reads exactly the skill that matches the installed CLI.
+
+- `.agents/skills/prj-diagramkit-*/SKILL.md` — canonical pointer. Its body simply defers to `node_modules/diagramkit/skills/diagramkit-<name>/SKILL.md` and adds Pagesmith-specific notes (sibling `diagrams/` folder, `sameFolder: true`, `npm run render:diagrams`, embed patterns, etc.).
+- `.claude/skills/prj-diagramkit-*/SKILL.md` and `.cursor/skills/prj-diagramkit-*/SKILL.md` — thin wrappers that point back at the canonical `.agents/skills/prj-diagramkit-<name>/SKILL.md`.
+- Never hand-edit `node_modules/diagramkit/skills/**`. Bump `diagramkit` to pull updated skill bodies, then re-run [`prj-diagramkit-setup`](./.agents/skills/prj-diagramkit-setup/SKILL.md) if new skills appeared in the package.
+- Pagesmith-specific workflow lives in `prj-docs-diagrams`. That skill decides **when** to add a diagram and **how** to embed it in Pagesmith docs, then delegates engine selection / authoring / review to the matching `prj-diagramkit-*` skill.
+
+### Installed diagramkit Skills
+
+| Skill                       | Purpose                                                                                                                                       |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prj-diagramkit-setup`      | Bootstrap diagramkit in a fresh repo (install, warmup, scripts, pointer skills).                                                              |
+| `prj-diagramkit-auto`       | Route a new diagram request to the best engine (Mermaid / Excalidraw / Draw.io / Graphviz).                                                   |
+| `prj-diagramkit-mermaid`    | Author `.mermaid` sources (21+ types) and render to SVG/PNG/JPEG/WebP/AVIF.                                                                   |
+| `prj-diagramkit-excalidraw` | Author `.excalidraw` sources (hand-drawn freeform) and render to SVG/PNG/JPEG/WebP/AVIF.                                                      |
+| `prj-diagramkit-draw-io`    | Author `.drawio` sources (cloud vendor icons, BPMN, swimlanes, multi-page) and render to SVG/PNG/JPEG/WebP/AVIF.                              |
+| `prj-diagramkit-graphviz`   | Author `.dot` / `.gv` sources (WASM, no browser) and render to SVG/PNG/JPEG/WebP/AVIF.                                                        |
+| `prj-diagramkit-review`     | Repo-wide audit + repair: force re-render, validate SVG structure + `<img>`-embed safety, fix WCAG 2.2 AA contrast, delegate per-engine fixes. |
+
+Read `node_modules/diagramkit/REFERENCE.md` before running any `diagramkit` command — it's version-pinned to the installed package.
+
 ## Contributor Skills
 
-| Skill | Purpose |
-| --- | --- |
-| `prj-update-content` | Refresh root docs, examples, package AI guidance, and diagrams together. |
-| `prj-examples-parity` | Keep examples aligned with docs/package behavior and diagram conventions. |
-| `prj-sync-package-ai-guidelines` | Update published package AI guidance, schemas, and docs/diagram guidance. |
-| `prj-pagesmith-review` | Review diffs for behavior, parity, diagram drift, and release readiness. |
-| `prj-docs-diagrams` | Review docs pages and add diagrams with `diagramkit`. |
-| `prj-release` | Publish a coordinated `@pagesmith/core` + `@pagesmith/site` + `@pagesmith/docs` release. |
-| `prj-add-example` | Add a new example workspace that stays in parity with docs/packages. |
-| `prj-add-loader` | Add a new content loader to `@pagesmith/core`. |
-| `prj-add-markdown-plugin` | Add a remark or rehype plugin to the markdown pipeline. |
-| `prj-add-preset` | Add a new `@pagesmith/site` preset. |
+
+| Skill                            | Purpose                                                                                  |
+| -------------------------------- | ---------------------------------------------------------------------------------------- |
+| `prj-update-content`             | Refresh root docs, examples, package AI guidance, and diagrams together.                 |
+| `prj-examples-parity`            | Keep examples aligned with docs/package behavior and diagram conventions.                |
+| `prj-sync-package-ai-guidelines` | Update published package AI guidance, schemas, and docs/diagram guidance.                |
+| `prj-pagesmith-review`           | Review diffs for behavior, parity, diagram drift, and release readiness.                 |
+| `prj-docs-diagrams`              | Decide when to add a diagram in Pagesmith docs and how to embed it; delegates engine choice / authoring / review to the `prj-diagramkit-*` skills. |
+| `prj-release`                    | Publish a coordinated `@pagesmith/core` + `@pagesmith/site` + `@pagesmith/docs` release. |
+| `prj-add-example`                | Add a new example workspace that stays in parity with docs/packages.                     |
+| `prj-add-loader`                 | Add a new content loader to `@pagesmith/core`.                                           |
+| `prj-add-markdown-plugin`        | Add a remark or rehype plugin to the markdown pipeline.                                  |
+| `prj-add-preset`                 | Add a new `@pagesmith/site` preset.                                                      |
+
 
 ## Keeping AI Guidance Current
 
@@ -261,7 +291,7 @@ Embed pattern for GitHub-facing markdown (package `README.md`, package `REFERENC
 </picture>
 ```
 
-For full diagram authoring rules, engine selection, and the full-repo pass prompt, follow `prj-docs-diagrams`.
+For full diagram authoring rules, engine selection, and the full-repo pass prompt, follow `prj-docs-diagrams`. It delegates engine choice to `prj-diagramkit-auto`, per-engine authoring to `prj-diagramkit-mermaid` / `prj-diagramkit-excalidraw` / `prj-diagramkit-draw-io` / `prj-diagramkit-graphviz`, and repo-wide audits to `prj-diagramkit-review`.
 
 ## Commands
 
@@ -270,10 +300,14 @@ vp install
 vp check
 vp test
 vp run build
-vp run build:docs
+vp run build:docs              # transitively runs `npm run validate:diagrams`
 vp run build:examples
 vp run validate:examples
 npm run diagramkit:warmup
-npm run render:diagrams
+npm run render:diagrams        # render + validate every project diagram SVG
+npm run validate:diagrams      # validate-only (structure + embed-safety + WCAG 2.2 AA contrast)
 npm run validate
 ```
+
+`npm run validate:diagrams` is wired into `build:docs`, so any docs build fails fast on broken or low-contrast diagram SVGs. It scopes to project-owned `**/diagrams/**/*-{light,dark}.svg` files (skipping `gh-pages/`, `node_modules/`, and other generated/vendored locations). Fatal classes: any `severity: error`, plus `LOW_CONTRAST_TEXT`, `CONTAINS_FOREIGN_OBJECT`, `CONTAINS_SCRIPT`, and `EXTERNAL_RESOURCE` warnings — because the docs site embeds SVGs via `<img>` / `<figure>` / `<picture>`, all four silently degrade in those embeds.
+

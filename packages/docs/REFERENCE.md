@@ -12,20 +12,63 @@ For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/RE
 
 ## Agent Skills
 
-Install the companion [Agent Skills](https://agentskills.io/) into your repo so AI coding agents can drive docs tasks end-to-end:
+`@pagesmith/docs` ships self-contained [Agent Skills](https://agentskills.io/) inside the npm tarball at `node_modules/@pagesmith/docs/skills/`. They are version-matched to the installed package and read their sibling `references/` folder for guidelines, recipes, and error catalogs — so the skill is fully usable even in a repo that has never seen Pagesmith before.
 
-```bash
-npx skills install \
-  @pagesmith/pagesmith-docs-setup \
-  @pagesmith/pagesmith-docs-add-page \
-  @pagesmith/pagesmith-docs-configure-nav \
-  @pagesmith/pagesmith-docs-add-search \
-  @pagesmith/pagesmith-docs-customize-theme \
-  @pagesmith/pagesmith-docs-deploy-gh-pages \
-  @pagesmith/pagesmith-generate-docs
-```
+| Skill                              | Triggers when the user asks to                                                               |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| `pagesmith-docs-setup`             | Bootstrap docs in a fresh or existing repo (`pagesmith-docs init`, AI memory files, CI wire). |
+| `pagesmith-docs-add-page`          | Create a new docs page with correct frontmatter and sidebar placement.                        |
+| `pagesmith-docs-configure-nav`     | Edit `meta.json5`, ordering, series, and header/footer link groups.                           |
+| `pagesmith-docs-add-search`        | Toggle or tune the bundled Pagefind search (config keys, trigger, Pagefind attributes).       |
+| `pagesmith-docs-customize-theme`   | Override `theme.layouts`, CSS custom properties, and JSX layouts.                             |
+| `pagesmith-docs-deploy-gh-pages`   | Wire the GitHub Pages workflow, set `basePath`, and add the `.nojekyll` bits.                 |
+| `pagesmith-generate-docs`          | Generate docs automatically from existing package sources.                                    |
 
-Each skill is self-contained and triggers when the user asks the agent to set up, extend, theme, or deploy Pagesmith docs. Browse the full set at [pagesmith `skills/`](https://github.com/sujeet-pro/pagesmith/tree/main/skills).
+### Installing the skills into a consumer project
+
+After `npm install @pagesmith/docs`, pick one of:
+
+1. **Agent Skills CLI** (preferred when you have it):
+
+   ```bash
+   npx skills install \
+     @pagesmith/pagesmith-docs-setup \
+     @pagesmith/pagesmith-docs-add-page \
+     @pagesmith/pagesmith-docs-configure-nav \
+     @pagesmith/pagesmith-docs-add-search \
+     @pagesmith/pagesmith-docs-customize-theme \
+     @pagesmith/pagesmith-docs-deploy-gh-pages \
+     @pagesmith/pagesmith-generate-docs
+   ```
+
+2. **Copy the skill folder** into the agent directory your tool watches (`.agents/skills/`, `.claude/skills/`, or `.cursor/skills/`):
+
+   ```bash
+   mkdir -p .agents/skills
+   cp -R node_modules/@pagesmith/docs/skills/pagesmith-docs-* .agents/skills/
+   cp -R node_modules/@pagesmith/docs/skills/pagesmith-generate-docs .agents/skills/
+   ```
+
+   Cursor / Claude also load skills directly from `node_modules/@pagesmith/docs/skills/*/SKILL.md`, so the copy step is optional if you only need them for on-demand discovery.
+
+3. **Point the agent at the installed path** from `CLAUDE.md` / `AGENTS.md`:
+
+   ```markdown
+   When the user asks to set up docs with Pagesmith, read and follow:
+   node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/SKILL.md
+   ```
+
+### Configuring the skills
+
+Skills read configuration from `pagesmith.config.json5` in the consumer project. When they need to verify behavior, they consult:
+
+- `node_modules/@pagesmith/docs/REFERENCE.md` (this file) — CLI flags, config schema, export map, theme override seams.
+- `node_modules/@pagesmith/docs/schemas/*.schema.json` — version-matched JSON Schemas for config, frontmatter, and meta files.
+- Each skill's sibling `references/` folder — `docs-guidelines.md`, `recipes.md`, `errors.md`, `usage.md`, `setup-docs.md`.
+
+Invoke CLI commands as `npx pagesmith-docs <command>` so the agent always uses the project-local binary.
+
+The full set of skills is browsable at [pagesmith `packages/docs/skills/`](https://github.com/sujeet-pro/pagesmith/tree/main/packages/docs/skills).
 
 ---
 

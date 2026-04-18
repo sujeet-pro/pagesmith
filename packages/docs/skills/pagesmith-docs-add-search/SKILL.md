@@ -32,51 +32,51 @@ That alone gives you:
 - Pagefind index built into `<outDir>/pagefind/` on `pagesmith-docs build`.
 - Search UI styled to match the docs theme.
 
-## Tune relevance
+## Configuration keys
 
-Override the per-heading-level boost:
+The `search` object is validated against `packages/docs/schemas/pagesmith-config.schema.json`. Supported keys (everything else is rejected at build time):
 
-```json5
-{
-  search: {
-    enabled: true,
-    weights: {
-      title: 10,
-      h1:    5,
-      h2:    3,
-      h3:    2,
-      body:  1,
-    },
-  },
-}
-```
-
-Higher numbers bubble matches in those locations to the top. Keep `title` the highest. Non-integer weights work but stay in the 0-20 range for sanity.
-
-## Scope the index
+| Key               | Type       | Default | Purpose                                                                   |
+| ----------------- | ---------- | ------- | ------------------------------------------------------------------------- |
+| `enabled`         | `boolean`  | `true`  | Toggle the whole search integration (index + trigger + UI).               |
+| `showImages`      | `boolean`  | `false` | Show images inside result tiles.                                          |
+| `showSubResults`  | `boolean`  | `true`  | Show per-heading sub-results for long pages.                              |
+| `pagefindFlags`   | `string[]` | `[]`    | Extra CLI flags forwarded to `pagefind` during `pagesmith-docs build`.    |
 
 ```json5
 {
   search: {
     enabled: true,
-    exclude: ['drafts', 'changelog', 'internal/**'],
+    showImages: false,
+    showSubResults: true,
+    pagefindFlags: ['--exclude-selectors', '.no-index'],
   },
 }
 ```
 
-`exclude` patterns are glob-style, relative to `contentDir`, and hide pages from search only — pages remain reachable by URL. Use this for internal-only docs, archived pages, or noisy reference tables you don't want in results.
+There is no `weights` or `exclude` key. Use frontmatter `draft: true` to hide a page, and the Pagefind `data-pagefind-ignore` / `data-pagefind-weight` attributes on elements inside a layout to tune what gets indexed.
+
+## Scope the index from content
+
+Because Pagesmith calls Pagefind over the built HTML, you scope the index with attributes and frontmatter, not a config-level glob:
+
+- Mark any HTML region with `data-pagefind-ignore` to omit it from the index.
+- Use `data-pagefind-weight="N"` on an element to boost or demote that region.
+- Wrap the page body with `data-pagefind-body` in your custom layout so nav/footer chrome does not dominate results (the default layouts already do this).
+- Set frontmatter `draft: true` on individual pages to exclude them from the build entirely.
 
 ## Custom trigger placement
 
-The default header already ships a trigger. Add more triggers by rendering the component:
+The shipped `SiteHeader` already renders a trigger. When you author a custom layout, add any element with `data-ps-search-trigger` to open the modal — the `runtime/search-trigger` module (bundled into `runtime/chrome` and `runtime/standalone`) wires it up.
 
 ```tsx
-import { SearchTrigger } from '@pagesmith/docs/components'
-
-<SearchTrigger label="Search docs" />
+<button type="button" data-ps-search-trigger>
+  Search docs
+  <kbd>⌘K</kbd>
+</button>
 ```
 
-`SearchTrigger` renders nothing when `search.enabled` is false, so it is safe to leave in shared templates across environments.
+When `search.enabled` is `false` the runtime is not shipped, so these buttons are inert — safe to leave in shared templates across environments.
 
 ## Preview the built index
 
@@ -111,14 +111,14 @@ After a `build`, verify:
 | Search icon missing in header | Confirm `search.enabled: true` in `pagesmith.config.json5`. Restart `dev`. |
 | "No results" for content that clearly exists | Check the page frontmatter: `draft: true` excludes it from the index. |
 | Results point at wrong URLs on deploy | `basePath` drift — make sure the built host matches `basePath`. Do not hand-edit URLs. |
-| Heavy first-load | Disable search on build-time-only pages with `exclude`, or remove large asset galleries from indexed content. |
-| Custom trigger not opening search | Use `SearchTrigger` from `@pagesmith/docs/components`; a raw `<button>` will not. |
+| Heavy first-load | Wrap noisy regions with `data-pagefind-ignore`, or drop huge reference tables into non-indexed pages via frontmatter `draft: true`. |
+| Custom trigger not opening search | The trigger button must have `data-ps-search-trigger` and the page must ship `@pagesmith/site/runtime/search-trigger` (already included in `runtime/chrome` / `runtime/standalone`). |
 
 ## Gotchas
 
 - Pagefind runs during `pagesmith-docs build`. `dev` uses a lightweight fallback — minor ranking differences between dev and build are expected.
 - Do not run `pagefind` CLI separately. Pagesmith orchestrates build + index + runtime together; a manual run produces an index that does not match Pagesmith's asset hashing.
-- When `basePath` is set, client JS fetches `<basePath>/pagefind/...`. Do not hand-assemble that URL; use the shipped `SearchTrigger`.
+- When `basePath` is set, client JS fetches `<basePath>/pagefind/...`. Do not hand-assemble that URL; rely on the runtime + `data-ps-search-trigger` hook.
 - Disabling search does not remove Pagefind from `node_modules`. That is expected — it is a transitive dependency.
 
 ## Reference

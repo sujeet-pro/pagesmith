@@ -19,7 +19,7 @@
     "dev": "npm run dev:docs",
     "build": "vp run clean && npm run build:library && npm run build:docs && npm run build:examples",
     "build:library": "node --strip-types --no-warnings scripts/build-packages.ts",
-    "build:docs": "npm run --workspace @pagesmith/docs-site build",
+    "build:docs": "npm run validate:diagrams && npm run --workspace @pagesmith/docs-site build",
     "build:examples": "npm run build:blog-site && npm run build:doc-site && npm run build:with-nextjs && npm run build:with-vanilla-ejs && npm run build:with-vanilla-hbs && npm run build:with-react && npm run build:with-solid && npm run build:with-svelte",
     "build:blog-site": "npm run --workspace @pagesmith/example-blog-site build",
     "build:doc-site": "npm run --workspace @pagesmith/example-doc-site build",
@@ -69,7 +69,7 @@
     "prepare": "vp config"
   },
   "dependencies": {
-    "diagramkit": "^0.3.0"
+    "diagramkit": "^0.3.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",

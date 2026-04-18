@@ -32,23 +32,65 @@ Reference for the Pagesmith site toolkit.
 
 ## Agent Skills
 
-Install the companion [Agent Skills](https://agentskills.io/) so AI coding agents can drive site tasks end-to-end:
+`@pagesmith/site` ships self-contained [Agent Skills](https://agentskills.io/) inside the npm tarball at `node_modules/@pagesmith/site/skills/`. They are version-matched to the installed package — the bundle in `node_modules` is always the one your agent should read.
 
-```bash
-npx skills install \
-  @pagesmith/pagesmith-site-setup \
-  @pagesmith/pagesmith-site-use-preset \
-  @pagesmith/pagesmith-site-customize-theme
-```
+| Skill                              | Triggers when the user asks to                                                           |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| `pagesmith-site-setup`             | Bootstrap a custom Pagesmith site (`@pagesmith/site`) without the docs preset.           |
+| `pagesmith-site-use-preset`        | Consume a preset (`@pagesmith/docs`, a custom preset) through the `pagesmith-site` CLI.  |
+| `pagesmith-site-customize-theme`   | Swap CSS bundles, runtime JS, layouts, or components shipped by `@pagesmith/site`.       |
 
-Each skill is self-contained and triggers when the user asks the agent to bootstrap a custom site, consume a preset, or customize the Pagesmith theme. Browse the full set at [pagesmith `skills/`](https://github.com/sujeet-pro/pagesmith/tree/main/skills).
+### Installing the skills into a consumer project
+
+After `npm install @pagesmith/site`, pick one of:
+
+1. **Agent Skills CLI** (preferred when you have it):
+
+   ```bash
+   npx skills install \
+     @pagesmith/pagesmith-site-setup \
+     @pagesmith/pagesmith-site-use-preset \
+     @pagesmith/pagesmith-site-customize-theme
+   ```
+
+2. **Copy the skill folder** into the agent directory your tool watches (`.agents/skills/`, `.claude/skills/`, or `.cursor/skills/`):
+
+   ```bash
+   mkdir -p .agents/skills
+   cp -R node_modules/@pagesmith/site/skills/pagesmith-site-* .agents/skills/
+   ```
+
+   Cursor / Claude both also read the same skill directly from `node_modules/@pagesmith/site/skills/*/SKILL.md`, so the copy step is optional if you only need the agent to discover a skill on demand.
+
+3. **Point the agent at the installed path** from `CLAUDE.md` / `AGENTS.md`:
+
+   ```markdown
+   When the user asks to bootstrap a Pagesmith site, read and follow:
+   node_modules/@pagesmith/site/skills/pagesmith-site-setup/SKILL.md
+   ```
+
+### Configuring the skills
+
+The skills read configuration from `pagesmith.config.json5` and `content.config.ts` in the consumer project — there is no separate per-skill config. When they need to branch on behavior, they use:
+
+- The installed `node_modules/@pagesmith/site/REFERENCE.md` (this file) — the source of truth for CLI flags, export map, runtime hooks.
+- The installed `node_modules/@pagesmith/core/REFERENCE.md` — the source of truth for the content layer and markdown pipeline.
+- Each skill's sibling `references/` folder, which ships copies of every guideline the skill needs. The folder is self-contained so the skill still works if the repo has never seen Pagesmith before.
+
+Invoke CLI commands as `npx pagesmith-site <command>` so the agent always uses the project-local binary.
 
 ## Setup Prompt
 
 For agent-driven setup in an existing repository, start with:
 
 - Package path: `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`
-- Hosted URL: [https://projects.sujeet.pro/pagesmith/prompts/setup-site.md](https://projects.sujeet.pro/pagesmith/prompts/setup-site.md)
+- Hosted URL: <https://projects.sujeet.pro/pagesmith/prompts/setup-site.md>
+
+The same prompt is exposed as a subpath export for agents that prefer to resolve it through Node:
+
+```ts
+import setupSite from '@pagesmith/site/agents/setup-site'
+```
 
 ## Config API
 

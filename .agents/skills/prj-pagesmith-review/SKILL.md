@@ -30,7 +30,7 @@ Prioritize findings about:
 
 ## Verification
 
-Use targeted tests first, then broader validation when the surface area is large. When diagram sources changed, include `npm run render:diagrams` in the verification path.
+Use targeted tests first, then broader validation when the surface area is large. When diagram sources changed, include `npm run render:diagrams` in the verification path and hand off a repo-wide diagram audit (re-render + SVG structure + `<img>`-embed safety + WCAG 2.2 AA contrast) to [`prj-diagramkit-review`](../prj-diagramkit-review/SKILL.md).
 
 ### Content + build validation
 

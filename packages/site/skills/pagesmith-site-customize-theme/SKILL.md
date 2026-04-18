@@ -11,7 +11,7 @@ If you are using the docs preset (`@pagesmith/docs`), use `pagesmith-docs-custom
 
 ## Read the locally installed reference first
 
-Before editing CSS, JSX, or running CLI commands, open `node_modules/@pagesmith/site/REFERENCE.md` in the consumer's project. It is version-matched to the installed package and authoritative for the CSS bundle list, runtime entry points, exported components/layouts, the `--pagesmith-*` CSS custom properties, the `data-pagesmith-*` runtime hooks, and `pagesmith-site` CLI flags. If it disagrees with this skill or general training data, follow the local file.
+Before editing CSS, JSX, or running CLI commands, open `node_modules/@pagesmith/site/REFERENCE.md` in the consumer's project. It is version-matched to the installed package and authoritative for the CSS bundle list, runtime entry points, exported components/layouts, the `--pagesmith-*` CSS custom properties, the `data-ps-*` runtime hooks, and `pagesmith-site` CLI flags. If it disagrees with this skill or general training data, follow the local file.
 
 Always invoke the CLI through `npx pagesmith-site <command>` (or via `package.json` scripts) so it resolves to the project's `node_modules/.bin` instead of a globally installed binary that may be a different version.
 
@@ -44,76 +44,83 @@ If you drop `css/fonts`, provide alternatives or typography breaks everywhere pr
 
 ## Layer 2 — Runtime JS
 
-`@pagesmith/site/runtime/*` exports small browser runtimes. Import only the ones your markup uses:
+`@pagesmith/site/runtime/*` exports small browser runtimes. Each one is a no-op when its DOM hook is absent, so import only the ones your markup uses.
 
-| Runtime | DOM hook |
-| --- | --- |
-| `theme-toggle` | `data-pagesmith-theme-toggle` |
-| `toc-highlight` | `data-pagesmith-toc` |
-| `code-tabs` | `data-pagesmith-code-tabs` |
-| `copy-buttons` | `data-pagesmith-copy` |
-| `sidebar` | `data-pagesmith-sidebar` |
-| `search-trigger` | `data-pagesmith-search-trigger` |
-| `footer-year` | `data-pagesmith-year` |
-| `skip-link` | `data-pagesmith-skip-link` |
+Individual runtimes:
+
+| Runtime                   | DOM hook(s)                                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `runtime/theme`           | `[data-ps-theme-toggle-button]`, `[data-ps-theme-dropdown]`, `[data-ps-footer-scheme\|theme\|text-size]` |
+| `runtime/toc-highlight`   | `[data-ps-toc]`                                                                                       |
+| `runtime/code-blocks`     | `[data-ps-code-copy]`, `[data-ps-code-collapse]`, `[data-ps-code-collapse-toggle]`                    |
+| `runtime/code-tabs`       | `[data-ps-code-tabs]`                                                                                 |
+| `runtime/sidebar`         | `[data-ps-sidebar]`, `[data-ps-sidebar-modal]`                                                        |
+| `runtime/search-trigger`  | `[data-ps-search-trigger]` and `Cmd/Ctrl-K`                                                           |
+| `runtime/footer-year`     | `[data-ps-footer-year]`                                                                               |
+| `runtime/skip-link`       | `[data-ps-skip-link]`                                                                                 |
+
+Bundled entry points (use these if you prefer fewer imports):
+
+- `runtime/chrome` — theme, sidebar, search, toc, footer-year, skip-link.
+- `runtime/content` — code-blocks + code-tabs.
+- `runtime/standalone` — chrome + content.
 
 ```ts
-import '@pagesmith/site/runtime/theme-toggle'
+import '@pagesmith/site/runtime/theme'
 import '@pagesmith/site/runtime/toc-highlight'
-import '@pagesmith/site/runtime/copy-buttons'
+import '@pagesmith/site/runtime/code-blocks'
 ```
 
-Each runtime is a no-op when its target attribute is not present.
+Legacy `data-theme-toggle` / `data-footer-*` attributes are still recognised as fallbacks, but prefer the `data-ps-*` form in new markup.
 
 ## Layer 3 — Layouts
 
-`@pagesmith/site/layouts` ships default JSX layouts. Three ways to customize:
+`@pagesmith/site/layouts` ships composable JSX layouts. Three ways to customize:
 
-1. **Import as-is** — use the default layout verbatim.
-2. **Wrap** — render the default layout inside your own shell.
-3. **Replace** — write your own layout that renders the same `data-pagesmith-*` hooks.
+1. **Import as-is** — use the shipped `PageShell`/`HomeLayout`/`ListingLayout` verbatim.
+2. **Wrap** — render a shipped layout inside your own shell.
+3. **Replace** — write your own layout that renders the same `data-ps-*` hooks.
 
 ```tsx
-import { DefaultLayout } from '@pagesmith/site/layouts'
-import { Header, Footer } from '@pagesmith/site/components'
+import { PageShell } from '@pagesmith/site/layouts'
+import { SiteHeader, SiteFooter } from '@pagesmith/site/components'
 
-export function PageLayout({ children, title }) {
+export function PageLayout({ children, site, currentPath, headings, sidebarSections }) {
   return (
-    <html>
-      <head><title>{title}</title></head>
-      <body>
-        <Header data-pagesmith-search-trigger />
-        <main>{children}</main>
-        <Footer />
-      </body>
-    </html>
+    <PageShell site={site} currentPath={currentPath} headings={headings} sidebarSections={sidebarSections}>
+      <div class="prose">{children}</div>
+    </PageShell>
   )
 }
 ```
 
-Keep the `data-pagesmith-*` attributes on anything interactive — skipping them silently disables runtime behavior.
+Available layouts: `PageShell` (aliased as `DocPageShell`), `HomeLayout`, `ListingLayout`, `NotFoundLayout`. Keep `data-ps-*` attributes on anything interactive — dropping one silently disables the paired runtime behavior.
 
 ## Layer 4 — Components
 
 `@pagesmith/site/components` exports the low-level building blocks:
 
-- `Header`
-- `Footer`
-- `TOC`
-- `Sidebar`
-- `SearchTrigger`
-- `PageMeta`
+- `SiteDocument` (also exported as `Html`)
+- `SiteHeader` / `DocHeader`
+- `SiteSidebar` / `DocSidebar` / `SiteSidebarModal` / `DocSidebarModal`
+- `SiteFooter` / `DocFooter`
+- `TableOfContents` (`DocTOC`) and `AccordionTableOfContents`
+- `Breadcrumbs`
+- `ListingCards` / `DocListingCards`
+- `ThemeDropdownControls`, `FooterThemeControls`
+- `HeroSection`, `ActionButtons`
+- `ContentMeta`
 
 Swap one, keep the rest:
 
 ```tsx
-import { Header as DefaultHeader } from '@pagesmith/site/components'
+import { SiteHeader } from '@pagesmith/site/components'
 
 export function Header(props) {
   return (
     <header class="my-header">
       <img src="/logo.svg" alt="" />
-      <DefaultHeader {...props} />
+      <SiteHeader {...props} />
     </header>
   )
 }
@@ -121,7 +128,7 @@ export function Header(props) {
 
 ## Dark mode
 
-- The theme-toggle runtime writes `[data-theme='dark']` on `<html>` and persists the choice in `localStorage['pagesmith-theme']`.
+- The `runtime/theme` module writes `[data-theme='dark']` on `<html>` and persists the user choice in `localStorage['pagesmith-theme']`.
 - Prefer `[data-theme='dark']` selectors in CSS over raw `@media (prefers-color-scheme: dark)` so the toggle takes effect immediately.
 
 ## Verify
@@ -133,9 +140,9 @@ export function Header(props) {
 ## Gotchas
 
 - Don't edit anything under `node_modules/@pagesmith/site/`. Overrides live in the project.
-- Keep `data-pagesmith-*` attributes on elements paired with runtime JS. Drop one and that behavior silently stops working.
+- Keep `data-ps-*` attributes on elements paired with runtime JS. Drop one and that behavior silently stops working.
 - CSS custom properties (`--pagesmith-*`) are the supported extension API. Do not override internal rule blocks — class names are not part of the public contract.
-- If you need bundled CSS + runtime but fully custom layout, use `pagesmithSite()` without `layouts:` and render the provided components from your own pages.
+- If you need bundled CSS + runtime but fully custom layout, compose your own layout from `@pagesmith/site/components` + `@pagesmith/site/layouts` and skip the docs preset entirely.
 - When using `@pagesmith/docs`, prefer `pagesmith-docs-customize-theme`. It offers higher-level overrides via `pagesmith.config.json5` without JSX.
 
 ## Reference

@@ -15,31 +15,41 @@ Always invoke the CLI through `npx pagesmith-docs <command>` (or via `package.js
 
 ## Override seams (lightest → heaviest)
 
-1. **Config fields** — `footerLinks`, `copyright`, `editLink`, `maintainer`, `logo` in `pagesmith.config.json5`. No code needed.
-2. **CSS custom properties** — override `--pagesmith-*` variables in your own stylesheet.
-3. **Individual components** — `theme.components.*` maps component names to your JSX files.
-4. **Layout override** — `theme.layouts.*` replaces a whole page layout (docs, listing, home).
-5. **Custom preset** — only if you need a radically different structure. Out of scope here; see `pagesmith-site-setup` and `pagesmith-site-use-preset`.
+1. **Config fields** — `icon`, `footerLinks`, `copyright`, `editLink`, `maintainer`, `theme.*` in `pagesmith.config.json5`. No code needed.
+2. **CSS custom properties** — override `--pagesmith-*` variables in a stylesheet that `@pagesmith/docs` loads after its own bundles (for example by adding it to a custom layout via `theme.layouts`).
+3. **Layout override** — `theme.layouts.*` replaces a whole page layout (`page`, `home`, `listing`, `notFound`) with your own TSX file. The individual components are composed inside the layout file, which is the supported way to swap a header/footer/sidebar without forking the preset.
+4. **Custom preset** — only if you need a radically different structure. Out of scope here; see `pagesmith-site-setup` and `pagesmith-site-use-preset`.
 
 ## Config-level customization
 
-Use this for everything that fits in declarative config:
+Use this for everything that fits in declarative config (all keys validated by `packages/docs/schemas/pagesmith-config.schema.json`):
 
 ```json5
 // pagesmith.config.json5
 {
-  logo: { src: '/logo.svg', alt: 'Acme' },
+  // Header logo — inline SVG string OR public-relative path (auto-detected from public/favicon.* otherwise)
+  icon: './public/logo.svg',
+  // Flat grid or grouped columns (up to 4 columns on wide screens)
   footerLinks: [
-    { label: 'GitHub', href: 'https://github.com/<owner>/<repo>' },
-    { label: 'Twitter', href: 'https://twitter.com/acme' },
+    { label: 'GitHub', path: 'https://github.com/<owner>/<repo>' },
+    { label: 'Twitter', path: 'https://twitter.com/acme' },
   ],
-  copyright: '© 2026 Acme Inc.',
+  // Copyright is a struct, not a string. Leave endYear as null to auto-advance via browser.
+  copyright: { projectName: 'Acme', startYear: 2024, endYear: null },
+  // Edit-link schema: { repo, branch?, label? }
   editLink: {
-    repoUrl: 'https://github.com/<owner>/<repo>',
+    repo: 'https://github.com/<owner>/<repo>',
     branch: 'main',
-    dir: 'docs',
+    label: 'Edit this page',
   },
-  maintainer: { name: 'Acme Docs Team', url: 'https://acme.example.com' },
+  maintainer: { name: 'Acme Docs Team', link: 'https://acme.example.com' },
+  theme: {
+    lightColor: '#f8fafc',
+    darkColor: '#0f172a',
+    defaultColorScheme: 'auto',
+    defaultTheme: 'paper',
+    defaultTextSize: 'base',
+  },
 }
 ```
 
@@ -47,7 +57,7 @@ Prefer this over writing custom JSX — the preset updates in place and you do n
 
 ## CSS custom properties
 
-Override `--pagesmith-*` variables in a stylesheet the docs site imports:
+Override `--pagesmith-*` variables in a stylesheet that your layout imports:
 
 ```css
 /* styles/docs-overrides.css */
@@ -63,83 +73,44 @@ Override `--pagesmith-*` variables in a stylesheet the docs site imports:
 }
 ```
 
-Wire it up:
-
-```json5
-// pagesmith.config.json5
-{
-  css: ['./styles/docs-overrides.css'],
-}
-```
-
-Place the override stylesheet **after** the default Pagesmith CSS so cascade wins. The preset handles ordering when you use `css:`.
-
-## Component-level override
-
-Swap a single component while keeping the rest of the theme:
+Wire it up through a custom layout (there is no top-level `css:` key — `@pagesmith/docs` owns stylesheet composition):
 
 ```tsx
-// theme/Footer.tsx
-import type { FooterProps } from '@pagesmith/docs/components'
+// theme/layouts/DocPage.tsx
+import '../../styles/docs-overrides.css'
+import { PageShell, SiteDocument } from '@pagesmith/docs'
 
-export default function Footer(props: FooterProps) {
-  return (
-    <footer class="acme-footer">
-      <div>{props.copyright}</div>
-      <nav>
-        {props.links.map(l => (
-          <a href={l.href}>{l.label}</a>
-        ))}
-      </nav>
-    </footer>
-  )
+export default function DocPage(props) {
+  /* render PageShell ... */
 }
 ```
 
-```json5
-// pagesmith.config.json5
-{
-  theme: {
-    components: {
-      Footer: './theme/Footer.tsx',
-    },
-  },
-}
-```
-
-Overridable components (names are stable across minor versions):
-
-| Name | Purpose |
-| --- | --- |
-| `Header` | Top bar, logo, nav, search trigger |
-| `Footer` | Bottom bar, links, copyright |
-| `Sidebar` | Section navigation |
-| `TOC` | Right-side table of contents |
-| `SearchTrigger` | Opens the search modal |
-| `PageMeta` | "Last updated", "Edit this page" links |
+Place the override stylesheet import **after** any `@pagesmith/docs` CSS so cascade wins.
 
 ## Layout override
 
-For a wholesale page rewrite:
+For a page rewrite, replace the whole layout via `theme.layouts`:
 
 ```tsx
-// theme/DocsLayout.tsx
-import type { DocsLayoutProps } from '@pagesmith/docs'
-import { Header, Sidebar, Footer, TOC } from '@pagesmith/docs/components'
+// theme/layouts/DocPage.tsx
+import { SiteDocument } from '@pagesmith/docs/components'
+import { PageShell } from '@pagesmith/docs/layouts'
 
-export default function DocsLayout(props: DocsLayoutProps) {
+export default function DocPage(props) {
+  const { content, frontmatter, headings, slug, site, sidebarSections, prev, next } = props
   return (
-    <div class="acme-docs">
-      <Header {...props.header} />
-      <div class="acme-docs__body">
-        <Sidebar {...props.sidebar} />
-        <article>
-          {props.children}
-          <TOC {...props.toc} />
+    <SiteDocument title={`${frontmatter.title} — ${site.title}`} site={site}>
+      <PageShell
+        site={site}
+        currentPath={slug}
+        headings={headings}
+        sidebarSections={sidebarSections}
+      >
+        <article data-pagefind-body="">
+          <div class="prose" innerHTML={content} />
         </article>
-      </div>
-      <Footer {...props.footer} />
-    </div>
+      </PageShell>
+    </SiteDocument>
   )
 }
 ```
@@ -149,26 +120,47 @@ export default function DocsLayout(props: DocsLayoutProps) {
 {
   theme: {
     layouts: {
-      docs: './theme/DocsLayout.tsx',
-      home: './theme/HomeLayout.tsx',
-      listing: './theme/ListingLayout.tsx',
+      page: './theme/layouts/DocPage.tsx',
+      home: './theme/layouts/DocHome.tsx',
+      listing: './theme/layouts/DocListing.tsx',
+      notFound: './theme/layouts/DocNotFound.tsx',
     },
   },
 }
 ```
 
-Only the layouts you specify are overridden — everything else keeps the preset default.
+Only the layouts you specify are overridden — everything else keeps the preset default. The four supported layout keys are `page`, `home`, `listing`, and `notFound`.
+
+## Component building blocks
+
+`@pagesmith/docs/components` re-exports everything under `@pagesmith/site/components`, so inside a custom layout you can compose:
+
+| Component                                              | Purpose                                    |
+| ------------------------------------------------------ | ------------------------------------------ |
+| `SiteDocument` (aliased as `Html`)                     | `<html>` shell, `<head>`, security defaults |
+| `SiteHeader` / `DocHeader`                             | Top bar with logo, nav, theme, search       |
+| `SiteSidebar` / `DocSidebar` / `SiteSidebarModal`      | Section navigation (desktop + modal)        |
+| `SiteFooter` / `DocFooter`                             | Bottom bar, links, copyright                |
+| `TableOfContents` (`DocTOC`), `AccordionTableOfContents` | Right-side / accordion TOC                  |
+| `Breadcrumbs`                                          | Auto-generated breadcrumbs                  |
+| `ListingCards` (`DocListingCards`)                     | Home / listing page cards                   |
+| `ThemeDropdownControls`, `FooterThemeControls`         | Theme / color-scheme / text-size controls   |
+| `HeroSection`, `ActionButtons`                         | Home page hero + CTAs                       |
+| `ContentMeta`                                          | "Last updated", "Edit this page" links      |
+
+Layout wrappers from `@pagesmith/docs/layouts` (re-exported from `@pagesmith/site/layouts`): `PageShell` (aliased as `DocPageShell`), `HomeLayout`, `ListingLayout`, `NotFoundLayout`. Pair them with the runtime hooks in the next section.
 
 ## Preserve runtime hooks
 
-The shipped runtime (theme toggle, TOC highlight, sidebar collapse, code tabs, copy buttons, search) hooks onto `data-pagesmith-*` attributes. If you rewrite layouts or components:
+The shipped runtime (theme toggle, TOC highlight, sidebar collapse, code tabs, copy buttons, search) hooks onto `data-ps-*` attributes. If you rewrite layouts or components:
 
-- Keep `data-pagesmith-theme-toggle` on the theme-toggle button.
-- Keep `data-pagesmith-toc` on the TOC container.
-- Keep `data-pagesmith-sidebar` on the sidebar nav.
-- Keep `data-pagesmith-search-trigger` on any element that opens search.
+- Keep `data-ps-theme-toggle-button` on the theme toggle button and `data-ps-theme-controls` on the wrapping region (`data-ps-theme-dropdown` on the dropdown form, if used).
+- Keep `data-ps-toc` on the TOC container.
+- Keep `data-ps-sidebar` and `data-ps-sidebar-modal` on the sidebar / modal containers.
+- Keep `data-ps-search-trigger` on any element that opens search.
+- Keep `data-ps-code-copy`, `data-ps-code-collapse`, and `data-ps-code-collapse-toggle` on code-block chrome if you re-emit it.
 
-Drop one and the corresponding interactive behavior silently stops working.
+Drop one and the corresponding interactive behavior silently stops working. Legacy `data-theme-toggle` / `data-footer-*` aliases continue to work, but new markup should use the `data-ps-*` form.
 
 ## Dark mode
 
@@ -189,9 +181,9 @@ npx pagesmith-docs dev
 ## Gotchas
 
 - Don't edit files under `node_modules/@pagesmith/docs/theme/`. Upgrades will overwrite them.
-- Always re-check search, theme toggle, and TOC highlight after a theme change — they depend on `data-pagesmith-*` attributes.
-- `css:` paths are relative to the config file, not the project root.
-- When overriding `Header`, keep the search trigger unless you know you want to remove search entirely.
+- Always re-check search, theme toggle, and TOC highlight after a theme change — they depend on `data-ps-*` attributes.
+- `theme.layouts.*` paths are resolved relative to the config file, not the project root.
+- When replacing the header, keep `SiteHeader`'s search trigger element (the `data-ps-search-trigger` button) unless you know you want to remove search entirely.
 - Keep custom JSX layouts minimal; import `@pagesmith/docs/components` for the heavy pieces so you inherit accessibility behavior.
 
 ## Reference
