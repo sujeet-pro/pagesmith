@@ -78,12 +78,12 @@ Stock `@pagesmith/docs` does not turn raw `mermaid`, `dot`, `excalidraw`, or `dr
 
 ### Pick The Right Diagram Tool
 
-| Need | Best choice | Why |
-|---|---|---|
-| Flowcharts, sequence diagrams, state diagrams, ER diagrams, timelines, simple C4 views | Mermaid | Text-first, diff-friendly, and fast to edit |
-| Architecture overviews, conceptual maps, presentation-style sketches | Excalidraw | Hand-drawn feel and flexible layout |
-| Network topology, BPMN, cloud/vendor icon diagrams, precise layout, multi-page diagrams | draw.io | Rich libraries and manual control |
-| Dependency graphs, call graphs, existing `.dot` assets, rank-constrained layouts | Graphviz | Strong algorithmic layout |
+| Need                                                                                    | Best choice | Why                                         |
+| --------------------------------------------------------------------------------------- | ----------- | ------------------------------------------- |
+| Flowcharts, sequence diagrams, state diagrams, ER diagrams, timelines, simple C4 views  | Mermaid     | Text-first, diff-friendly, and fast to edit |
+| Architecture overviews, conceptual maps, presentation-style sketches                    | Excalidraw  | Hand-drawn feel and flexible layout         |
+| Network topology, BPMN, cloud/vendor icon diagrams, precise layout, multi-page diagrams | draw.io     | Rich libraries and manual control           |
+| Dependency graphs, call graphs, existing `.dot` assets, rank-constrained layouts        | Graphviz    | Strong algorithmic layout                   |
 
 ### Diagram Workflow
 
@@ -111,8 +111,16 @@ docs/
 
 ```html
 <figure>
-  <img src="./diagrams/system-overview-light.svg" class="only-light" alt="System overview showing requests moving from the CLI through the API layer into storage">
-  <img src="./diagrams/system-overview-dark.svg" class="only-dark" alt="System overview showing requests moving from the CLI through the API layer into storage">
+  <img
+    src="./diagrams/system-overview-light.svg"
+    class="only-light"
+    alt="System overview showing requests moving from the CLI through the API layer into storage"
+  />
+  <img
+    src="./diagrams/system-overview-dark.svg"
+    class="only-dark"
+    alt="System overview showing requests moving from the CLI through the API layer into storage"
+  />
 </figure>
 ```
 

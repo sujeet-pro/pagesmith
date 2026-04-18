@@ -23,11 +23,11 @@ npm add @pagesmith/site
 ### 2. Create content collections
 
 ```ts
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from "@pagesmith/core";
 
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -35,44 +35,44 @@ const posts = defineCollection({
     tags: z.array(z.string()).default([]),
     draft: z.boolean().optional().default(false),
   }),
-})
+});
 
-export default defineCollections({ posts })
+export default defineCollections({ posts });
 ```
 
 ### 3. Use the content layer directly
 
 ```ts
-import { createContentLayer, defineConfig, z } from '@pagesmith/core'
-import collections from './content.config'
+import { createContentLayer, defineConfig, z } from "@pagesmith/core";
+import collections from "./content.config";
 
 const layer = createContentLayer(
   defineConfig({
     collections,
   }),
-)
+);
 
-const entries = await layer.getCollection('posts')
-const rendered = await entries[0]?.render()
+const entries = await layer.getCollection("posts");
+const rendered = await entries[0]?.render();
 ```
 
 ### 4. Configure Vite content access
 
 ```ts
-import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithContent } from "@pagesmith/core/vite";
+import collections from "./content.config";
 
 export default defineConfig({
   plugins: [pagesmithContent({ collections })],
-})
+});
 ```
 
 If the project also needs Pagesmith site-building and still keeps lower-level core imports explicit, split the imports like this:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent } from "@pagesmith/core/vite";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 ```
 
 ## What Lives In `@pagesmith/core`
@@ -107,12 +107,12 @@ Move these to `@pagesmith/site`:
 Use `createContentLayer` + `defineConfig` for direct control:
 
 ```ts
-import { createContentLayer, defineConfig } from '@pagesmith/core'
-import collections from './content.config'
+import { createContentLayer, defineConfig } from "@pagesmith/core";
+import collections from "./content.config";
 
-const layer = createContentLayer(defineConfig({ collections }))
-const entry = await layer.getEntry('posts', 'hello-world')
-const rendered = await entry?.render()
+const layer = createContentLayer(defineConfig({ collections }));
+const entry = await layer.getEntry("posts", "hello-world");
+const rendered = await entry?.render();
 ```
 
 ### Vite Plugin Flow
@@ -120,7 +120,7 @@ const rendered = await entry?.render()
 Use `pagesmithContent` to expose virtual content modules:
 
 ```ts
-import posts from 'virtual:content/posts'
+import posts from "virtual:content/posts";
 ```
 
 ### Frontmatter Schemas

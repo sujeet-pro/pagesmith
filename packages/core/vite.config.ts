@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite-plus'
+import { defineConfig } from "vite-plus";
 
 /**
  * Rolldown plugin that fixes postcss/lightningcss .d.ts/.d.mts files where
@@ -10,74 +10,75 @@ import { defineConfig } from 'vite-plus'
  * 2. `export { Named } from '...'` → `export type { Named } from '...'`
  */
 function fixPostcssDtsImports() {
-  const DTS_RE = /node_modules\/(postcss|lightningcss|vite)\/.*\.d\.(ts|mts|cts)$/
+  const DTS_RE = /node_modules\/(postcss|lightningcss|vite)\/.*\.d\.(ts|mts|cts)$/;
   return {
-    name: 'pagesmith:fix-postcss-dts-imports',
+    name: "pagesmith:fix-postcss-dts-imports",
     transform: {
       filter: { id: { include: [DTS_RE] } },
       handler(code: string, id: string) {
-        let result = code
+        let result = code;
         // Convert `import DefaultExport, { Named1, Named2 } from '...'`
         // into `import type { default as DefaultExport, Named1, Named2 } from '...'`
         result = result.replace(
           /^import\s+(\w+)\s*,\s*\{([^}]+)\}\s*from\s*(['"][^'"]+['"])/gm,
           (_, defaultName, named, source) =>
             `import type { default as ${defaultName}, ${named} } from ${source}`,
-        )
+        );
         // Convert `export { Named1, Named2 } from '...'`
         // into `export type { Named1, Named2 } from '...'`
         // (only for postcss/lightningcss .d.mts re-exports)
         if (/node_modules\/(postcss|lightningcss)\//.test(id)) {
           result = result.replace(
             /^(export\s+)(?!type\s)(\{[^}]+\}\s*from\s*['"][^'"]+['"])/gm,
-            '$1type $2',
-          )
+            "$1type $2",
+          );
         }
         // For vite .d.ts: add type modifier to imports from postcss/lightningcss
         if (/node_modules\/vite\//.test(id)) {
           result = result.replace(
             /^(import\s+)(?!type\s)(.+from\s+['"](?:postcss|lightningcss)['"])/gm,
-            'import type $2',
-          )
+            "import type $2",
+          );
         }
-        return result
+        return result;
       },
     },
-  }
+  };
 }
 
 export default defineConfig({
   resolve: {
     alias: {
-      'vite-plus/test': 'vitest',
+      "vite-plus/test": "vitest",
     },
   },
   pack: {
     entry: {
-      index: 'src/index.ts',
-      'markdown/index': 'src/markdown/index.ts',
-      'schemas/index': 'src/schemas/index.ts',
-      'loaders/index': 'src/loaders/index.ts',
-      'assets/index': 'src/assets/index.ts',
-      'ai/index': 'src/ai/index.ts',
-      'vite/index': 'src/vite/index.ts',
-      'create/index': 'src/create/index.ts',
-      'cli-kit/index': 'src/cli-kit/index.ts',
-      'cli/bin': 'src/cli/bin.ts',
-      'mcp/index': 'src/mcp/index.ts',
-      'mcp/server': 'src/mcp/server.ts',
+      index: "src/index.ts",
+      "markdown/index": "src/markdown/index.ts",
+      "schemas/index": "src/schemas/index.ts",
+      "loaders/index": "src/loaders/index.ts",
+      "assets/index": "src/assets/index.ts",
+      "ai/index": "src/ai/index.ts",
+      "vite/index": "src/vite/index.ts",
+      "create/index": "src/create/index.ts",
+      "cli-kit/index": "src/cli-kit/index.ts",
+      "cli/bin": "src/cli/bin.ts",
+      "mcp/index": "src/mcp/index.ts",
+      "mcp/server": "src/mcp/server.ts",
+      "log/index": "src/log/index.ts",
     },
     plugins: [fixPostcssDtsImports()],
     deps: {
       onlyBundle: false,
     },
-    format: 'esm',
+    format: "esm",
     dts: true,
     sourcemap: true,
     clean: true,
-    platform: 'node',
+    platform: "node",
   },
   test: {
-    include: ['src/**/*.test.ts'],
+    include: ["src/**/*.test.ts"],
   },
-})
+});

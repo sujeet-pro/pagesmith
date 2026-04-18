@@ -84,13 +84,13 @@
   background: var(--color-bg-hover, #efefeb);
 }
 
-.ps-code-tab[aria-selected='true'] {
+.ps-code-tab[aria-selected="true"] {
   color: var(--color-text, #111110);
   background: var(--color-bg, Canvas);
 }
 
-.ps-code-tab[aria-selected='true']::after {
-  content: '';
+.ps-code-tab[aria-selected="true"]::after {
+  content: "";
   position: absolute;
   inset-inline: 0;
   bottom: -1px;

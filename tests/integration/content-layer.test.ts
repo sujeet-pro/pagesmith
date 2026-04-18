@@ -1,17 +1,17 @@
-import { describe, expect, it } from 'vite-plus/test'
-import { resolve } from 'path'
-import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
+import { describe, expect, it } from "vite-plus/test";
+import { resolve } from "path";
+import { createContentLayer, defineCollection, defineConfig, z } from "@pagesmith/core";
 
-const FIXTURES = resolve(import.meta.dirname, './fixtures')
+const FIXTURES = resolve(import.meta.dirname, "./fixtures");
 
-describe('content layer', () => {
-  it('loads a markdown collection', async () => {
+describe("content layer", () => {
+  it("loads a markdown collection", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         posts: defineCollection({
-          loader: 'markdown',
-          directory: './posts',
+          loader: "markdown",
+          directory: "./posts",
           schema: z.object({
             title: z.string(),
             description: z.string(),
@@ -22,24 +22,24 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
-    const posts = await layer.getCollection('posts')
-    expect(posts.length).toBeGreaterThanOrEqual(3)
+    });
+    const layer = createContentLayer(config);
+    const posts = await layer.getCollection("posts");
+    expect(posts.length).toBeGreaterThanOrEqual(3);
 
-    const hello = posts.find((p) => p.slug === 'hello-world')
-    expect(hello).toBeDefined()
-    expect(hello!.data.title).toBe('Hello World')
-    expect(hello!.data.tags).toContain('intro')
-  })
+    const hello = posts.find((p) => p.slug === "hello-world");
+    expect(hello).toBeDefined();
+    expect(hello!.data.title).toBe("Hello World");
+    expect(hello!.data.tags).toContain("intro");
+  });
 
-  it('renders markdown entries to HTML', async () => {
+  it("renders markdown entries to HTML", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         posts: defineCollection({
-          loader: 'markdown',
-          directory: './posts',
+          loader: "markdown",
+          directory: "./posts",
           schema: z.object({
             title: z.string(),
             description: z.string(),
@@ -50,25 +50,25 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
-    const posts = await layer.getCollection('posts')
-    const hello = posts.find((p) => p.slug === 'hello-world')!
+    });
+    const layer = createContentLayer(config);
+    const posts = await layer.getCollection("posts");
+    const hello = posts.find((p) => p.slug === "hello-world")!;
 
-    const rendered = await hello.render()
-    expect(rendered.html).toContain('<h1')
-    expect(rendered.html).toContain('Hello World')
-    expect(rendered.headings.length).toBeGreaterThan(0)
-    expect(rendered.readTime).toBeGreaterThan(0)
-  })
+    const rendered = await hello.render();
+    expect(rendered.html).toContain("<h1");
+    expect(rendered.html).toContain("Hello World");
+    expect(rendered.headings.length).toBeGreaterThan(0);
+    expect(rendered.readTime).toBeGreaterThan(0);
+  });
 
-  it('loads a JSON collection', async () => {
+  it("loads a JSON collection", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         authors: defineCollection({
-          loader: 'json',
-          directory: './authors',
+          loader: "json",
+          directory: "./authors",
           schema: z.object({
             name: z.string(),
             bio: z.string(),
@@ -76,24 +76,24 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
-    const authors = await layer.getCollection('authors')
-    expect(authors.length).toBe(2)
+    });
+    const layer = createContentLayer(config);
+    const authors = await layer.getCollection("authors");
+    expect(authors.length).toBe(2);
 
-    const john = authors.find((a) => a.slug === 'john-doe')
-    expect(john).toBeDefined()
-    expect(john!.data.name).toBe('John Doe')
-  })
+    const john = authors.find((a) => a.slug === "john-doe");
+    expect(john).toBeDefined();
+    expect(john!.data.name).toBe("John Doe");
+  });
 
-  it('loads a YAML collection', async () => {
+  it("loads a YAML collection", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         configYaml: defineCollection({
-          loader: 'yaml',
-          directory: './config',
-          include: ['*.yaml'],
+          loader: "yaml",
+          directory: "./config",
+          include: ["*.yaml"],
           schema: z.object({
             site: z
               .object({
@@ -111,21 +111,21 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
-    const entries = await layer.getCollection('configYaml')
-    expect(entries.length).toBe(1)
-    expect(entries[0]!.data.site?.title).toBe('Pagesmith Documentation')
-  })
+    });
+    const layer = createContentLayer(config);
+    const entries = await layer.getCollection("configYaml");
+    expect(entries.length).toBe(1);
+    expect(entries[0]!.data.site?.title).toBe("Pagesmith Documentation");
+  });
 
-  it('loads a TOML collection', async () => {
+  it("loads a TOML collection", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         configToml: defineCollection({
-          loader: 'toml',
-          directory: './config',
-          include: ['*.toml'],
+          loader: "toml",
+          directory: "./config",
+          include: ["*.toml"],
           schema: z.object({
             search: z
               .object({
@@ -142,21 +142,21 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
-    const entries = await layer.getCollection('configToml')
-    expect(entries.length).toBe(1)
-    expect(entries[0]!.data.search?.provider).toBe('pagefind')
-  })
+    });
+    const layer = createContentLayer(config);
+    const entries = await layer.getCollection("configToml");
+    expect(entries.length).toBe(1);
+    expect(entries[0]!.data.search?.provider).toBe("pagefind");
+  });
 
-  it('loads a JSON5 collection', async () => {
+  it("loads a JSON5 collection", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         configJson5: defineCollection({
-          loader: 'json5',
-          directory: './config',
-          include: ['*.json5'],
+          loader: "json5",
+          directory: "./config",
+          include: ["*.json5"],
           schema: z.object({
             colors: z.record(z.string(), z.string()).optional(),
             fonts: z.record(z.string(), z.string()).optional(),
@@ -166,20 +166,20 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
-    const entries = await layer.getCollection('configJson5')
-    expect(entries.length).toBe(1)
-    expect(entries[0]!.data.colors?.primary).toBe('#3b82f6')
-  })
+    });
+    const layer = createContentLayer(config);
+    const entries = await layer.getCollection("configJson5");
+    expect(entries.length).toBe(1);
+    expect(entries[0]!.data.colors?.primary).toBe("#3b82f6");
+  });
 
-  it('gets a single entry by slug', async () => {
+  it("gets a single entry by slug", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         authors: defineCollection({
-          loader: 'json',
-          directory: './authors',
+          loader: "json",
+          directory: "./authors",
           schema: z.object({
             name: z.string(),
             bio: z.string(),
@@ -187,20 +187,20 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
-    const jane = await layer.getEntry('authors', 'jane-doe')
-    expect(jane).toBeDefined()
-    expect(jane!.data.name).toBe('Jane Doe')
-  })
+    });
+    const layer = createContentLayer(config);
+    const jane = await layer.getEntry("authors", "jane-doe");
+    expect(jane).toBeDefined();
+    expect(jane!.data.name).toBe("Jane Doe");
+  });
 
-  it('returns undefined for nonexistent entry', async () => {
+  it("returns undefined for nonexistent entry", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         authors: defineCollection({
-          loader: 'json',
-          directory: './authors',
+          loader: "json",
+          directory: "./authors",
           schema: z.object({
             name: z.string(),
             bio: z.string(),
@@ -208,28 +208,28 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
-    const nope = await layer.getEntry('authors', 'nonexistent')
-    expect(nope).toBeUndefined()
-  })
+    });
+    const layer = createContentLayer(config);
+    const nope = await layer.getEntry("authors", "nonexistent");
+    expect(nope).toBeUndefined();
+  });
 
-  it('throws for nonexistent collection', async () => {
+  it("throws for nonexistent collection", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {},
-    })
-    const layer = createContentLayer(config)
-    await expect(layer.getCollection('nope')).rejects.toThrow('not found')
-  })
+    });
+    const layer = createContentLayer(config);
+    await expect(layer.getCollection("nope")).rejects.toThrow("not found");
+  });
 
-  it('invalidates cache and reloads', async () => {
+  it("invalidates cache and reloads", async () => {
     const config = defineConfig({
       root: FIXTURES,
       collections: {
         authors: defineCollection({
-          loader: 'json',
-          directory: './authors',
+          loader: "json",
+          directory: "./authors",
           schema: z.object({
             name: z.string(),
             bio: z.string(),
@@ -237,14 +237,14 @@ describe('content layer', () => {
           }),
         }),
       },
-    })
-    const layer = createContentLayer(config)
+    });
+    const layer = createContentLayer(config);
 
-    const first = await layer.getCollection('authors')
-    expect(first.length).toBe(2)
+    const first = await layer.getCollection("authors");
+    expect(first.length).toBe(2);
 
-    layer.invalidateAll()
-    const second = await layer.getCollection('authors')
-    expect(second.length).toBe(2)
-  })
-})
+    layer.invalidateAll();
+    const second = await layer.getCollection("authors");
+    expect(second.length).toBe(2);
+  });
+});

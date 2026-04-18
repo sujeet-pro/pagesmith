@@ -10,11 +10,11 @@ inputs:
   node-version:
     description: Node version to install
     required: false
-    default: '24'
+    default: "24"
   registry-url:
     description: Optional registry-url passed to setup-node (used by publish)
     required: false
-    default: ''
+    default: ""
 
 runs:
   using: composite

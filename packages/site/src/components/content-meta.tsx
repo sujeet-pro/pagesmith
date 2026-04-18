@@ -1,23 +1,23 @@
-import { Fragment, h } from '../jsx-runtime/index.js'
-import { SITE_CHROME_ASSETS, withComponentAssets } from './assets.js'
+import { Fragment, h } from "../jsx-runtime/index.js";
+import { SITE_CHROME_ASSETS, withComponentAssets } from "./assets.js";
 
 function formatMetaDate(value: string | Date | undefined): string | null {
-  if (!value) return null
-  const date = value instanceof Date ? value : new Date(value)
-  if (Number.isNaN(date.getTime())) return null
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 export type ContentMetaProps = {
-  publishedDate?: string | Date
-  lastUpdatedDate?: string | Date
-  isDraft?: boolean
-  tags?: string[]
-}
+  publishedDate?: string | Date;
+  lastUpdatedDate?: string | Date;
+  isDraft?: boolean;
+  tags?: string[];
+};
 
 function ContentMetaComponent({
   publishedDate,
@@ -25,12 +25,12 @@ function ContentMetaComponent({
   isDraft,
   tags = [],
 }: ContentMetaProps) {
-  const published = formatMetaDate(publishedDate)
-  const updated = formatMetaDate(lastUpdatedDate)
-  const showUpdated = updated && updated !== published
+  const published = formatMetaDate(publishedDate);
+  const updated = formatMetaDate(lastUpdatedDate);
+  const showUpdated = updated && updated !== published;
 
   if (!isDraft && !published && !showUpdated && tags.length === 0) {
-    return <Fragment />
+    return <Fragment />;
   }
 
   return (
@@ -48,7 +48,7 @@ function ContentMetaComponent({
         </div>
       ) : null}
     </div>
-  )
+  );
 }
 
-export const ContentMeta = withComponentAssets(ContentMetaComponent, SITE_CHROME_ASSETS)
+export const ContentMeta = withComponentAssets(ContentMetaComponent, SITE_CHROME_ASSETS);

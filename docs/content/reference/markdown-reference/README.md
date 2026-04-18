@@ -14,19 +14,19 @@ Enabled via `remark-gfm`. All GFM extensions are available out of the box.
 ### Tables
 
 ```markdown
-| Feature       | Syntax              |
-|---------------|---------------------|
-| Bold          | `**bold**`          |
-| Italic        | `*italic*`          |
-| Strikethrough | `~~deleted~~`       |
+| Feature       | Syntax        |
+| ------------- | ------------- |
+| Bold          | `**bold**`    |
+| Italic        | `*italic*`    |
+| Strikethrough | `~~deleted~~` |
 ```
 
 Alignment is controlled by colons in the separator row:
 
 ```markdown
-| Left   | Center  | Right  |
-|:-------|:-------:|-------:|
-| text   | text    | text   |
+| Left | Center | Right |
+| :--- | :----: | ----: |
+| text |  text  |  text |
 ```
 
 ### Strikethrough
@@ -82,13 +82,13 @@ Five alert types are available using blockquote syntax. This is the same format 
 > Negative potential consequences of an action.
 ```
 
-| Type           | Color  | Use For                              |
-|----------------|--------|--------------------------------------|
-| `[!NOTE]`      | Blue   | General supplementary information    |
+| Type           | Color  | Use For                                |
+| -------------- | ------ | -------------------------------------- |
+| `[!NOTE]`      | Blue   | General supplementary information      |
 | `[!TIP]`       | Green  | Helpful suggestions and best practices |
-| `[!IMPORTANT]` | Purple | Key details the reader must know     |
-| `[!WARNING]`   | Yellow | Things to watch out for              |
-| `[!CAUTION]`   | Red    | Dangerous actions or breaking changes |
+| `[!IMPORTANT]` | Purple | Key details the reader must know       |
+| `[!WARNING]`   | Yellow | Things to watch out for                |
+| `[!CAUTION]`   | Red    | Dangerous actions or breaking changes  |
 
 ## Math
 
@@ -116,22 +116,22 @@ $$
 
 ASCII punctuation is automatically upgraded to proper typographic characters by `remark-smartypants`. Code blocks and inline code are never affected.
 
-| Input     | Output | Description        |
-|-----------|--------|--------------------|
-| `"hello"` | \u201chello\u201d  | Curly double quotes |
-| `'hello'` | \u2018hello\u2019  | Curly single quotes |
-| `--`      | \u2013     | En dash            |
-| `---`     | \u2014     | Em dash            |
-| `...`     | \u2026    | Ellipsis           |
+| Input     | Output            | Description         |
+| --------- | ----------------- | ------------------- |
+| `"hello"` | \u201chello\u201d | Curly double quotes |
+| `'hello'` | \u2018hello\u2019 | Curly single quotes |
+| `--`      | \u2013            | En dash             |
+| `---`     | \u2014            | Em dash             |
+| `...`     | \u2026            | Ellipsis            |
 
 ## External Links
 
 Any link pointing to an absolute URL (`http://` or `https://`) automatically receives `target="_blank"` and `rel="noopener noreferrer"`. Internal links (relative paths, anchors) are unaffected.
 
 ```markdown
-[External](https://example.com)          <!-- new tab, noopener -->
-[Internal](../../guide/getting-started/README.md)        <!-- same tab -->
-[Anchor](#math)                           <!-- same tab -->
+[External](https://example.com) <!-- new tab, noopener -->
+[Internal](../../guide/getting-started/README.md) <!-- same tab -->
+[Anchor](#math) <!-- same tab -->
 ```
 
 ## Images
@@ -149,9 +149,9 @@ Produces:
 ```html
 <figure class="ps-figure">
   <picture>
-    <source srcset="./hero.avif" type="image/avif">
-    <source srcset="./hero.webp" type="image/webp">
-    <img src="./hero.webp" alt="Dashboard metrics" width="..." height="...">
+    <source srcset="./hero.avif" type="image/avif" />
+    <source srcset="./hero.webp" type="image/webp" />
+    <img src="./hero.webp" alt="Dashboard metrics" width="..." height="..." />
   </picture>
   <figcaption>Production monitoring dashboard</figcaption>
 </figure>
@@ -186,8 +186,7 @@ The title on the first (light) image becomes the `<figcaption>`. In `color-schem
 ### Generic show/hide helpers
 
 ```html
-<span class="show-on-light">Light content</span>
-<span class="show-on-dark">Dark content</span>
+<span class="show-on-light">Light content</span> <span class="show-on-dark">Dark content</span>
 ```
 
 Works on any element, not just images.
@@ -240,7 +239,7 @@ Use a fenced code block with a language identifier:
 
 ````markdown
 ```ts
-const greeting = 'Hello, world!'
+const greeting = "Hello, world!";
 ```
 ````
 
@@ -252,8 +251,8 @@ Add `title="..."` to show a filename or label above the block:
 
 ````markdown
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite'
-export default defineConfig({})
+import { defineConfig } from "vite";
+export default defineConfig({});
 ```
 ````
 
@@ -267,7 +266,9 @@ npm install @pagesmith/core
 ```
 
 ```ts startLineNumber=42
-export function resolve() { /* ... */ }
+export function resolve() {
+  /* ... */
+}
 ```
 ````
 
@@ -285,14 +286,14 @@ Mark, insert, or delete lines to draw attention:
 
 ````markdown
 ```ts mark={2-3}
-const name = 'Pagesmith'
-const version = '0.8.0'
-const highlighted = true
+const name = "Pagesmith";
+const version = "0.8.0";
+const highlighted = true;
 ```
 
 ```ts ins={2} del={1}
-const old = 'before'
-const updated = 'after'
+const old = "before";
+const updated = "after";
 ```
 ````
 
@@ -315,13 +316,13 @@ Hide boilerplate that readers can expand on click:
 
 ````markdown
 ```ts collapse={1-5}
-import { defineConfig } from 'vite'
-import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
-import collections from './content.config'
-import path from 'node:path'
+import { defineConfig } from "vite";
+import { pagesmithContent, pagesmithSsg } from "@pagesmith/site/vite";
+import collections from "./content.config";
+import path from "node:path";
 export default defineConfig({
   plugins: [pagesmithContent(collections), pagesmithSsg()],
-})
+});
 ```
 ````
 
@@ -331,7 +332,11 @@ Enable word wrapping for long lines:
 
 ````markdown
 ```json wrap
-{"name": "@pagesmith/core", "description": "A very long description that would overflow", "version": "0.8.0"}
+{
+  "name": "@pagesmith/core",
+  "description": "A very long description that would overflow",
+  "version": "0.8.0"
+}
 ```
 ````
 
@@ -351,29 +356,29 @@ Values: `"code"` (editor frame), `"terminal"`, or `"plain"` (alias `"none"`). Wh
 
 All properties go after the language identifier in the opening fence:
 
-| Property          | Syntax                         | Description                        |
-|-------------------|--------------------------------|------------------------------------|
-| `title`           | `title="file.ts"`              | Filename or label above the block  |
-| `showLineNumbers` | `showLineNumbers=false`        | Show or hide line numbers          |
-| `startLineNumber` | `startLineNumber=42`           | Start numbering from a given line  |
-| `mark`            | `mark={3}` or `mark={1,3-5}`  | Highlight lines (neutral)          |
-| `ins`             | `ins={2-3}`                    | Mark lines as inserted (green)     |
-| `del`             | `del={1}`                      | Mark lines as deleted (red)        |
-| `collapse`        | `collapse={1-5}`               | Collapse a range of lines          |
-| `wrap`            | `wrap`                         | Enable word wrapping               |
-| `frame`           | `frame="terminal"`             | Override the frame style           |
+| Property          | Syntax                       | Description                       |
+| ----------------- | ---------------------------- | --------------------------------- |
+| `title`           | `title="file.ts"`            | Filename or label above the block |
+| `showLineNumbers` | `showLineNumbers=false`      | Show or hide line numbers         |
+| `startLineNumber` | `startLineNumber=42`         | Start numbering from a given line |
+| `mark`            | `mark={3}` or `mark={1,3-5}` | Highlight lines (neutral)         |
+| `ins`             | `ins={2-3}`                  | Mark lines as inserted (green)    |
+| `del`             | `del={1}`                    | Mark lines as deleted (red)       |
+| `collapse`        | `collapse={1-5}`             | Collapse a range of lines         |
+| `wrap`            | `wrap`                       | Enable word wrapping              |
+| `frame`           | `frame="terminal"`           | Override the frame style          |
 
 Combine multiple properties on the same fence:
 
 ````markdown
 ```ts title="example.ts" mark={3} ins={5} collapse={1-2}
-import { z } from 'zod'
-import { defineCollection } from '@pagesmith/core'
+import { z } from "zod";
+import { defineCollection } from "@pagesmith/core";
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({ title: z.string() }),
-})
+});
 ```
 ````
 
@@ -404,12 +409,15 @@ Rendered sample:
 ```bash title="npm"
 npm install @pagesmith/core
 ```
+
 ```bash title="pnpm"
 pnpm add @pagesmith/core
 ```
+
 ```bash title="yarn"
 yarn add @pagesmith/core
 ```
+
 ```bash title="bun"
 bun add @pagesmith/core
 ```
@@ -428,8 +436,8 @@ The `title` value becomes the tab label. The first tab is active by default.
 ````markdown
 ```ts title="TypeScript"
 interface Config {
-  host: string
-  port: number
+  host: string;
+  port: number;
 }
 ```
 
@@ -452,16 +460,18 @@ Rendered sample:
 
 ```ts title="TypeScript"
 interface Config {
-  host: string
-  port: number
+  host: string;
+  port: number;
 }
 ```
+
 ```python title="Python"
 @dataclass
 class Config:
     host: str = "localhost"
     port: int = 3000
 ```
+
 ```go title="Go"
 type Config struct {
     Host string
@@ -474,7 +484,7 @@ type Config struct {
 Some languages that Shiki does not recognize natively are aliased to a supported language for highlighting:
 
 | Alias        | Highlighted As |
-|--------------|----------------|
+| ------------ | -------------- |
 | `dot`        | `text`         |
 | `mermaid`    | `text`         |
 | `plantuml`   | `text`         |
@@ -522,16 +532,16 @@ Pagesmith maps themes to `.color-scheme-light` and `.color-scheme-dark` CSS clas
 Extend the pipeline with your own remark or rehype plugins:
 
 ```ts
-import remarkToc from 'remark-toc'
-import rehypeFigure from 'rehype-figure'
+import remarkToc from "remark-toc";
+import rehypeFigure from "rehype-figure";
 
 const config = defineConfig({
   collections: { posts },
   markdown: {
     remarkPlugins: [remarkToc],
-    rehypePlugins: [[rehypeFigure, { className: 'figure' }]],
+    rehypePlugins: [[rehypeFigure, { className: "figure" }]],
   },
-})
+});
 ```
 
 Tuple form `[plugin, options]` is supported for both remark and rehype.

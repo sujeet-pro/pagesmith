@@ -6,10 +6,10 @@
  */
 
 // ── Config ──
-export { defineCollection, defineCollections, defineConfig } from './config'
+export { defineCollection, defineCollections, defineConfig } from "./config";
 
 // ── Convenience Collection Factories ──
-export { blogCollection, docsCollection, projectsCollection } from './collections'
+export { blogCollection, docsCollection, projectsCollection } from "./collections";
 
 // ── Content Layer ──
 export {
@@ -20,25 +20,25 @@ export {
   type WatchEvent,
   type WatchHandle,
   createContentLayer,
-} from './content-layer'
+} from "./content-layer";
 
 // ── Entry ──
-export { ContentEntry, type RenderedContent } from './entry'
+export { ContentEntry, type RenderedContent } from "./entry";
 
 // ── Markdown Processing ──
-export { processMarkdown } from './markdown'
-export type { MarkdownResult } from './markdown'
+export { processMarkdown } from "./markdown";
+export type { MarkdownResult } from "./markdown";
 
 // ── Frontmatter ──
-export { extractFrontmatter, validateFrontmatter } from './frontmatter'
-export type { FrontmatterResult } from './frontmatter'
+export { extractFrontmatter, validateFrontmatter } from "./frontmatter";
+export type { FrontmatterResult } from "./frontmatter";
 
 // ── TOC Extraction ──
-export { extractToc } from './toc'
+export { extractToc } from "./toc";
 
 // ── Convert API ──
-export { convert } from './convert'
-export type { ConvertOptions, ConvertResult } from './convert'
+export { convert } from "./convert";
+export type { ConvertOptions, ConvertResult } from "./convert";
 
 // ── Schemas & Types ──
 export {
@@ -52,15 +52,15 @@ export {
   MarkdownConfigSchema,
   type ProjectFrontmatter,
   ProjectFrontmatterSchema,
-} from './schemas'
-export type { CollectionDef, RawEntry } from './schemas/collection'
+} from "./schemas";
+export type { CollectionDef, RawEntry } from "./schemas/collection";
 export type {
   CollectionComputed,
   CollectionMap,
   InferCollectionData,
   InferCollectionLoaderKind,
-} from './schemas/collection'
-export type { ContentLayerConfig, ContentPlugin } from './schemas/content-config'
+} from "./schemas/collection";
+export type { ContentLayerConfig, ContentPlugin } from "./schemas/content-config";
 
 // ── Validation ──
 export type {
@@ -78,7 +78,7 @@ export type {
   ValidationIssue,
   ValidationResult,
   ValidatorContext,
-} from './validation'
+} from "./validation";
 export {
   buildFileSchemaMap,
   builtinMarkdownValidators,
@@ -94,7 +94,7 @@ export {
   runValidators,
   validateContent,
   validateImageHtml,
-} from './validation'
+} from "./validation";
 
 // ── Loaders ──
 export {
@@ -107,8 +107,18 @@ export {
   registerLoader,
   TomlLoader,
   YamlLoader,
-} from './loaders'
-export type { Loader, LoaderResult, LoaderType } from './loaders/types'
+} from "./loaders";
+export type { Loader, LoaderResult, LoaderType } from "./loaders/types";
+
+// ── Logger (server-only) ──
+export {
+  createLogger,
+  defaultLogger,
+  type CreateLoggerOptions,
+  type LogLevel,
+  type LogMethod,
+  type Logger,
+} from "./log";
 
 // ── Re-export zod for consumer convenience ──
-export { z } from 'zod'
+export { z } from "zod";

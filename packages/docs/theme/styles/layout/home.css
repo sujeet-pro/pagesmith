@@ -142,82 +142,17 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   INSTALL SNIPPET
+   INSTALL SNIPPET — visual chrome is delegated to the shared
+   `.ps-code-block[data-ps-code-frame="terminal"]` styles in
+   `@pagesmith/site/styles/code/block.css`, so it matches the
+   markdown terminal blocks across the site.
    ═══════════════════════════════════════════════════════════════ */
 .doc-home-install {
   margin-top: 2.5rem;
 }
 
-.doc-install-bar {
-  background: light-dark(#1e1e2e, #111111);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.doc-install-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border-bottom: 1px solid light-dark(rgba(255,255,255,0.06), #222222);
-}
-
-.doc-install-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.doc-install-dot-r { background: #ff5f57; }
-.doc-install-dot-y { background: #febc2e; }
-.doc-install-dot-g { background: #28c840; }
-
-.doc-install-title {
-  flex: 1;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: #8b949e;
-}
-
-.doc-install-body {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-}
-
-.doc-install-body code {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: #e5e5e5;
-  white-space: nowrap;
-}
-
-.doc-install-prompt {
-  color: #3fb950;
-  user-select: none;
-}
-
-.doc-install-copy {
-  background: none;
-  border: 1px solid #444444;
-  border-radius: var(--radius-md);
-  padding: 0.25rem 0.75rem;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: #8b949e;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-}
-
-.doc-install-copy:hover {
-  border-color: #3fb950;
-  color: #3fb950;
+.doc-home-install .ps-code-block {
+  margin: 0;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -327,7 +262,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: light-dark(#16a34a, #3fb950);
-  background: light-dark(rgba(22,163,74,0.08), rgba(63,185,80,0.1));
+  background: light-dark(rgba(22, 163, 74, 0.08), rgba(63, 185, 80, 0.1));
   padding: 0.125rem 0.625rem;
   border-radius: 999px;
 }
@@ -341,47 +276,34 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   CODE EXAMPLE (terminal chrome, always dark)
+   CODE EXAMPLE
+   Shares chrome with `.ps-code-block[data-ps-code-frame="terminal"]`.
+   This layers in the legacy syntax-highlight token colors that the
+   raw `codeExample.code` HTML uses (.kw / .fn / .str / .cm / .op).
    ═══════════════════════════════════════════════════════════════ */
-.doc-home-code {
-  background: light-dark(#1e1e2e, #111111);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.doc-home-code-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border-bottom: 1px solid light-dark(rgba(255,255,255,0.06), #222222);
-}
-
-.doc-home-code-title {
-  flex: 1;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: #8b949e;
-}
-
-.doc-home-code pre {
+.doc-home-code-pre {
   padding: 1.25rem 1.5rem;
   margin: 0;
-  overflow-x: auto;
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   line-height: 1.85;
-  color: #e5e5e5;
 }
 
-/* Syntax highlighting — works in both themes since block bg is always dark */
-.doc-home-code .kw  { color: #ff7b72; }
-.doc-home-code .fn  { color: #d2a8ff; }
-.doc-home-code .str { color: #a5d6ff; }
-.doc-home-code .cm  { color: #484f58; }
-.doc-home-code .op  { color: #8b949e; }
+.doc-home-code-pre .kw {
+  color: #ff7b72;
+}
+.doc-home-code-pre .fn {
+  color: #d2a8ff;
+}
+.doc-home-code-pre .str {
+  color: #a5d6ff;
+}
+.doc-home-code-pre .cm {
+  color: #484f58;
+}
+.doc-home-code-pre .op {
+  color: #8b949e;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    MARKDOWN CONTENT
@@ -401,7 +323,8 @@
   padding: 0 var(--doc-content-padding-inline);
 }
 
-@media (min-width: 110ch) {
+/* lg: TOC aside breakpoint — give the home content extra vertical room. */
+@media (--bp-lg) {
   .doc-home-content {
     padding-top: 3rem;
     padding-bottom: 3rem;
@@ -409,9 +332,10 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Responsive
+   Responsive (mobile-first overrides for < sm).
+   See foundations/tokens.css for the breakpoint contract.
    ═══════════════════════════════════════════════════════════════ */
-@media (max-width: 640px) {
+@media (--below-sm) {
   .doc-home-section + .doc-home-section {
     margin-top: 3.5rem;
   }
@@ -436,11 +360,6 @@
     justify-content: center;
   }
 
-  .doc-install-body {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .doc-features {
     grid-template-columns: 1fr;
   }
@@ -448,5 +367,4 @@
   .doc-packages {
     grid-template-columns: 1fr;
   }
-
 }

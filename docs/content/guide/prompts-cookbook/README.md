@@ -14,10 +14,10 @@ If you are still deciding which package to adopt, start with [Choose Your Path](
 
 ### Core-first content layer
 
-| Source | Value |
-|---|---|
-| Package path | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` |
-| Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-core.md](https://projects.sujeet.pro/pagesmith/prompts/setup-core.md) |
+| Source       | Value                                                                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Package path | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`                                        |
+| Hosted URL   | [https://projects.sujeet.pro/pagesmith/prompts/setup-core.md](https://projects.sujeet.pro/pagesmith/prompts/setup-core.md) |
 
 ```text
 Set up `@pagesmith/core` in this repository. Read `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` first and follow it exactly. Keep the work focused on collections, schemas, `createContentLayer()`, and either `entry.render()` or `pagesmithContent` for Vite. If the repo also needs the shared Pagesmith site layer, tell me before adding `@pagesmith/site`.
@@ -25,10 +25,10 @@ Set up `@pagesmith/core` in this repository. Read `node_modules/@pagesmith/core/
 
 ### Custom site on top of core
 
-| Source | Value |
-|---|---|
-| Package path | `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` |
-| Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-site.md](https://projects.sujeet.pro/pagesmith/prompts/setup-site.md) |
+| Source       | Value                                                                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Package path | `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`                                        |
+| Hosted URL   | [https://projects.sujeet.pro/pagesmith/prompts/setup-site.md](https://projects.sujeet.pro/pagesmith/prompts/setup-site.md) |
 
 ```text
 Set up `@pagesmith/site` in this repository. Read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` first and follow it exactly. Keep the app-facing integration on `@pagesmith/site` for content collections, markdown rendering, Vite wiring, and the JSX/runtime layer unless this repo explicitly wants the lower-level headless-only `@pagesmith/core` package instead.
@@ -36,10 +36,10 @@ Set up `@pagesmith/site` in this repository. Read `node_modules/@pagesmith/site/
 
 ### Docs site for a repo
 
-| Source | Value |
-|---|---|
-| Package path | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` |
-| Hosted URL | [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md) |
+| Source       | Value                                                                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Package path | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`                                        |
+| Hosted URL   | [https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md](https://projects.sujeet.pro/pagesmith/prompts/setup-docs.md) |
 
 ```text
 Set up docs for this repository using `@pagesmith/docs`. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` first and follow it exactly. Prefer `npx pagesmith-docs init --yes --ai` with explicit values when that fits the repo. Keep `pagesmith.config.json5` at the repo root, preserve useful existing docs content, and verify the docs build before finishing.

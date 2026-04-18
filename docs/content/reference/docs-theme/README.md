@@ -113,12 +113,53 @@ This is the main reason docs-theme overrides should prefer `@pagesmith/docs/comp
 
 ## Responsive Behavior
 
-The preset uses the shared character-based layout breakpoints from the standalone site shell:
+The preset uses a single, named breakpoint set defined in `@pagesmith/site/styles/foundations/tokens.css`. **Do not invent new breakpoints in custom CSS** — always reference the named `@custom-media` tokens (Lightning CSS expands them at build time).
 
-- Below `110ch`: main content only, with the TOC moved into a mobile `<details>` accordion.
-- At `110ch` and above: the right TOC column appears.
-- At `140ch` and above: the left sidebar joins the main grid.
-- At `160ch` and above: the three-column layout recenters around a capped content width.
+Breakpoints are authored in `rem` so that a user with a larger browser font-size preference automatically gets layout transitions at proportionally larger viewports.
+
+| Token     | rem | px (at 16px) | Devices                   |
+| --------- | --- | ------------ | ------------------------- |
+| `--bp-sm` | 40  | 640          | Phone landscape           |
+| `--bp-md` | 48  | 768          | Tablet portrait           |
+| `--bp-lg` | 64  | 1024         | Tablet landscape / laptop |
+| `--bp-xl` | 80  | 1280         | Desktop                   |
+
+Use them in CSS like this:
+
+```css
+@import "@pagesmith/site/css/chrome"; /* or any file that pulls in tokens.css */
+
+@media (--bp-md) {
+  .my-block {
+    padding-inline: 2rem;
+  }
+}
+
+@media (--below-sm) {
+  .my-block {
+    flex-direction: column;
+  }
+}
+```
+
+The matching `--below-sm` / `--below-md` / `--below-lg` / `--below-xl` aliases exist for the rare mobile-first override (`max-width: <token - 0.01rem>`).
+
+What changes at each step:
+
+| Region                   | < md (≤ 767px)            | md (768–1023px)              | lg (1024–1279px)  | xl (≥ 1280px)                                           |
+| ------------------------ | ------------------------- | ---------------------------- | ----------------- | ------------------------------------------------------- |
+| Header inline nav        | hidden                    | visible                      | visible           | visible                                                 |
+| Burger toggle            | visible                   | visible\*                    | visible\*         | hidden\*                                                |
+| Persistent left sidebar  | none                      | none                         | none              | visible                                                 |
+| Persistent right TOC     | none                      | none                         | visible           | visible                                                 |
+| Mobile TOC accordion     | visible                   | visible                      | hidden            | hidden                                                  |
+| Footer link grid         | 1 col (< sm), 2 cols (sm) | 4 cols (or compact override) | 4 cols            | 4 cols                                                  |
+| Doc page columns         | 1                         | 1                            | 2 (content + TOC) | 3 (sidebar + content + TOC)                             |
+| Layout max-width centred | —                         | —                            | —                 | yes (`--doc-content-max-width-bound`, equals `--bp-xl`) |
+
+`*` On non-doc pages (e.g. the home layout) the burger only appears below `md` because there is no persistent sidebar to drawer-toggle above that.
+
+> **Note on `rem` inside `@media`** — by spec, `rem` in a media query is relative to the _browser's_ default font-size (typically 16px), not the document root. So changing `data-text-size` on `<html>` does not move the media-query thresholds at runtime; that attribute only scales content sizing. The breakpoints still scale for users who change their _browser's_ font-size preference.
 
 ### Mobile Sidebar
 
@@ -167,7 +208,7 @@ For token-level theming and runtime-owned preferences, see [Runtime](../runtime/
 `theme/runtime/main.ts` is just:
 
 ```ts
-import '@pagesmith/site/runtime/standalone'
+import "@pagesmith/site/runtime/standalone";
 ```
 
 So the default docs preset inherits the full shared standalone runtime:

@@ -1,1 +1,1 @@
-export * from '@pagesmith/site/jsx-runtime'
+export * from "@pagesmith/site/jsx-runtime";

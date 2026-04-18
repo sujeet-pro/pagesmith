@@ -18,12 +18,12 @@ This diagram shows the two-step resolution process: the current route determines
 
 ## Built-in Layouts
 
-| Name | File | Used For |
-|---|---|---|
-| `home` | `DocHome.tsx` | The root `content/README.md` landing page. Renders hero, features grid, and body content |
-| `page` | `DocPage.tsx` | Every documentation page. Three-column grid with sidebar, content, and table of contents |
-| `listing` | `DocListing.tsx` | Listing-style pages that render intro content plus grouped cards for child pages |
-| `notFound` | `DocNotFound.tsx` | The 404 page shown when a route does not match any content |
+| Name       | File              | Used For                                                                                 |
+| ---------- | ----------------- | ---------------------------------------------------------------------------------------- |
+| `home`     | `DocHome.tsx`     | The root `content/README.md` landing page. Renders hero, features grid, and body content |
+| `page`     | `DocPage.tsx`     | Every documentation page. Three-column grid with sidebar, content, and table of contents |
+| `listing`  | `DocListing.tsx`  | Listing-style pages that render intro content plus grouped cards for child pages         |
+| `notFound` | `DocNotFound.tsx` | The 404 page shown when a route does not match any content                               |
 
 When no overrides are configured, these layouts are used automatically. The `page` layout is still the default for ordinary section landing pages and individual pages.
 
@@ -33,18 +33,18 @@ To replace a built-in layout, add a `theme.layouts` mapping in `pagesmith.config
 
 ```json5
 {
-  name: 'My Docs',
-  title: 'My Docs',
+  name: "My Docs",
+  title: "My Docs",
   theme: {
     layouts: {
       // Replace the home page layout
-      home: './theme/layouts/MyHome.tsx',
+      home: "./theme/layouts/MyHome.tsx",
 
       // Replace the standard page layout
-      page: './theme/layouts/MyPage.tsx',
+      page: "./theme/layouts/MyPage.tsx",
 
       // Replace the 404 layout
-      notFound: './theme/layouts/My404.tsx',
+      notFound: "./theme/layouts/My404.tsx",
     },
   },
 }
@@ -71,59 +71,59 @@ Every layout component receives the same base set of props, with the `page` layo
 
 ### Base Props (all layouts)
 
-| Prop | Type | Description |
-|---|---|---|
-| `content` | `string` | The rendered HTML from the markdown file |
-| `frontmatter` | `Record<string, any>` | All frontmatter fields from the markdown file |
-| `headings` | `Array<{ depth: number; text: string; slug: string }>` | Extracted headings from the markdown, useful for building a table of contents |
-| `slug` | `string` | The content slug (URL path segment, e.g. `"guide/getting-started"`) |
-| `site` | `object` | Site-wide configuration and navigation data |
+| Prop          | Type                                                   | Description                                                                   |
+| ------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `content`     | `string`                                               | The rendered HTML from the markdown file                                      |
+| `frontmatter` | `Record<string, any>`                                  | All frontmatter fields from the markdown file                                 |
+| `headings`    | `Array<{ depth: number; text: string; slug: string }>` | Extracted headings from the markdown, useful for building a table of contents |
+| `slug`        | `string`                                               | The content slug (URL path segment, e.g. `"guide/getting-started"`)           |
+| `site`        | `object`                                               | Site-wide configuration and navigation data                                   |
 
 ### Site Object
 
 The `site` prop is built by `getSitePayload(config, model)` and contains:
 
-| Field | Type | Description |
-|---|---|---|
-| `site.origin` | `string` | The production origin URL |
-| `site.basePath` | `string` | The URL base path (empty string if root) |
-| `site.homeLink` | `string` | Where the header logo links to (defaults to `basePath`) |
-| `site.trailingSlash` | `boolean` | Whether routes are emitted as `path/index.html` (true) or `path.html` (false) |
-| `site.name` | `string` | Site name for display |
-| `site.title` | `string` | Full site title |
-| `site.description` | `string` | Site description |
-| `site.language` | `string` | HTML lang attribute value |
-| `site.navItems` | `Array<{ label: string; path: string }>` | Header navigation items |
-| `site.footerLinks` | `Array<{ label: string; path: string }> \| Array<{ header?: string; links: Array<{ label: string; path: string }> }>` | Footer links as a flat row or grouped columns |
-| `site.footerText` | `string \| undefined` | Footer sign-off override |
-| `site.maintainer` | `{ name: string; link?: string } \| undefined` | Maintainer credit |
-| `site.copyright` | `{ projectName?: string; startYear?: number; endYear?: number \| null } \| undefined` | Copyright bar inputs |
-| `site.search` | `{ enabled: boolean; showImages: boolean; showSubResults: boolean }` | Search configuration |
-| `site.sidebar` | `{ collapsible: boolean }` | Sidebar configuration |
-| `site.analytics` | `{ googleAnalytics?: string }` | Analytics config |
-| `site.theme` | `{ lightColor?: string; darkColor?: string; defaultColorScheme: 'auto'\|'light'\|'dark'; defaultTheme: 'paper'\|'high-contrast'; defaultTextSize: 'small'\|'base'\|'large' }` | Theme defaults and meta-colors |
-| `site.socialImage` | `string \| undefined` | OG image URL |
-| `site.icon` | `string \| undefined` | Inline SVG icon (markup) |
-| `site.favicon` | `string \| undefined` | Resolved favicon URL |
-| `site.faviconFallback` | `string \| undefined` | Fallback favicon URL (for example, `.ico` when an `.svg` is the primary) |
-| `site.appleTouchIcon` | `string \| undefined` | Apple touch icon URL when `public/apple-touch-icon.png` exists |
+| Field                  | Type                                                                                                                                                                          | Description                                                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `site.origin`          | `string`                                                                                                                                                                      | The production origin URL                                                     |
+| `site.basePath`        | `string`                                                                                                                                                                      | The URL base path (empty string if root)                                      |
+| `site.homeLink`        | `string`                                                                                                                                                                      | Where the header logo links to (defaults to `basePath`)                       |
+| `site.trailingSlash`   | `boolean`                                                                                                                                                                     | Whether routes are emitted as `path/index.html` (true) or `path.html` (false) |
+| `site.name`            | `string`                                                                                                                                                                      | Site name for display                                                         |
+| `site.title`           | `string`                                                                                                                                                                      | Full site title                                                               |
+| `site.description`     | `string`                                                                                                                                                                      | Site description                                                              |
+| `site.language`        | `string`                                                                                                                                                                      | HTML lang attribute value                                                     |
+| `site.navItems`        | `Array<{ label: string; path: string }>`                                                                                                                                      | Header navigation items                                                       |
+| `site.footerLinks`     | `Array<{ label: string; path: string }> \| Array<{ header?: string; links: Array<{ label: string; path: string }> }>`                                                         | Footer links as a flat row or grouped columns                                 |
+| `site.footerText`      | `string \| undefined`                                                                                                                                                         | Footer sign-off override                                                      |
+| `site.maintainer`      | `{ name: string; link?: string } \| undefined`                                                                                                                                | Maintainer credit                                                             |
+| `site.copyright`       | `{ projectName?: string; startYear?: number; endYear?: number \| null } \| undefined`                                                                                         | Copyright bar inputs                                                          |
+| `site.search`          | `{ enabled: boolean; showImages: boolean; showSubResults: boolean }`                                                                                                          | Search configuration                                                          |
+| `site.sidebar`         | `{ collapsible: boolean }`                                                                                                                                                    | Sidebar configuration                                                         |
+| `site.analytics`       | `{ googleAnalytics?: string }`                                                                                                                                                | Analytics config                                                              |
+| `site.theme`           | `{ lightColor?: string; darkColor?: string; defaultColorScheme: 'auto'\|'light'\|'dark'; defaultTheme: 'paper'\|'high-contrast'; defaultTextSize: 'small'\|'base'\|'large' }` | Theme defaults and meta-colors                                                |
+| `site.socialImage`     | `string \| undefined`                                                                                                                                                         | OG image URL                                                                  |
+| `site.icon`            | `string \| undefined`                                                                                                                                                         | Inline SVG icon (markup)                                                      |
+| `site.favicon`         | `string \| undefined`                                                                                                                                                         | Resolved favicon URL                                                          |
+| `site.faviconFallback` | `string \| undefined`                                                                                                                                                         | Fallback favicon URL (for example, `.ico` when an `.svg` is the primary)      |
+| `site.appleTouchIcon`  | `string \| undefined`                                                                                                                                                         | Apple touch icon URL when `public/apple-touch-icon.png` exists                |
 
 ### Page Layout Additional Props
 
 Layouts used for non-home pages (`page`, `listing`, and any custom item layouts) receive these additional props on top of the base set:
 
-| Prop | Type | Description |
-|---|---|---|
-| `sidebarSections` | `SidebarSection[] \| undefined` | Sidebar navigation data for the current section |
-| `prev` | `{ title: string; path: string } \| undefined` | Previous page in sidebar order |
-| `next` | `{ title: string; path: string } \| undefined` | Next page in sidebar order |
-| `breadcrumbs` | `Array<{ label: string; href?: string }>` | Breadcrumb trail from site root to current page |
-| `editUrl` | `string \| undefined` | Computed edit-this-page URL when `editLink` is configured |
-| `editLabel` | `string \| undefined` | Edit link label from `config.editLink.label` |
-| `lastUpdated` | `string \| undefined` | ISO timestamp from `git log` when `lastUpdated: true` |
-| `listingCards` | `SiteListingCard[] \| undefined` | Cards for `listing` layouts (also available on the `home` layout when its section meta requests listing data) |
-| `listingGroups` | `SiteListingGroup[] \| undefined` | Series-grouped listing cards |
-| `listingTotal` | `number \| undefined` | Total card count for the listing |
+| Prop              | Type                                           | Description                                                                                                   |
+| ----------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `sidebarSections` | `SidebarSection[] \| undefined`                | Sidebar navigation data for the current section                                                               |
+| `prev`            | `{ title: string; path: string } \| undefined` | Previous page in sidebar order                                                                                |
+| `next`            | `{ title: string; path: string } \| undefined` | Next page in sidebar order                                                                                    |
+| `breadcrumbs`     | `Array<{ label: string; href?: string }>`      | Breadcrumb trail from site root to current page                                                               |
+| `editUrl`         | `string \| undefined`                          | Computed edit-this-page URL when `editLink` is configured                                                     |
+| `editLabel`       | `string \| undefined`                          | Edit link label from `config.editLink.label`                                                                  |
+| `lastUpdated`     | `string \| undefined`                          | ISO timestamp from `git log` when `lastUpdated: true`                                                         |
+| `listingCards`    | `SiteListingCard[] \| undefined`               | Cards for `listing` layouts (also available on the `home` layout when its section meta requests listing data) |
+| `listingGroups`   | `SiteListingGroup[] \| undefined`              | Series-grouped listing cards                                                                                  |
+| `listingTotal`    | `number \| undefined`                          | Total card count for the listing                                                                              |
 
 The `home` layout receives the base props plus `listingCards` / `listingGroups` / `listingTotal` when relevant; sidebar/prev/next/breadcrumb props are omitted because the home page has no surrounding section.
 
@@ -131,17 +131,17 @@ A `SidebarSection` has:
 
 ```ts
 type SidebarSection = {
-  title: string
-  slug: string
-  collapsed?: boolean
-  items: SidebarItem[]
-}
+  title: string;
+  slug: string;
+  collapsed?: boolean;
+  items: SidebarItem[];
+};
 
 type SidebarItem = {
-  title: string
-  path: string
-  children?: SidebarItem[]
-}
+  title: string;
+  path: string;
+  children?: SidebarItem[];
+};
 ```
 
 ## Creating a Custom Layout
@@ -149,26 +149,24 @@ type SidebarItem = {
 Custom layouts are TSX files that use `@pagesmith/docs/jsx-runtime` for server-side JSX rendering. Here is a minimal custom page layout that reuses the shared Pagesmith docs shell:
 
 ```tsx
-import { h } from '@pagesmith/docs/jsx-runtime'
-import { SiteDocument } from '@pagesmith/docs/components'
-import { PageShell } from '@pagesmith/docs/layouts'
+import { h } from "@pagesmith/docs/jsx-runtime";
+import { SiteDocument } from "@pagesmith/docs/components";
+import { PageShell } from "@pagesmith/docs/layouts";
 
 type Props = {
-  content: string
-  frontmatter: Record<string, any>
-  headings: Array<{ depth: number; text: string; slug: string }>
-  slug: string
-  site: any
-  sidebarSections?: any[]
-  prev?: { title: string; path: string }
-  next?: { title: string; path: string }
-}
+  content: string;
+  frontmatter: Record<string, any>;
+  headings: Array<{ depth: number; text: string; slug: string }>;
+  slug: string;
+  site: any;
+  sidebarSections?: any[];
+  prev?: { title: string; path: string };
+  next?: { title: string; path: string };
+};
 
 export default function MyPage(props: Props) {
-  const { content, frontmatter, headings, slug, site, sidebarSections } = props
-  const title = frontmatter.title
-    ? `${frontmatter.title} - ${site.title}`
-    : site.title
+  const { content, frontmatter, headings, slug, site, sidebarSections } = props;
+  const title = frontmatter.title ? `${frontmatter.title} - ${site.title}` : site.title;
 
   return (
     <SiteDocument title={title} site={site}>
@@ -181,7 +179,7 @@ export default function MyPage(props: Props) {
         <div class="prose" innerHTML={content} />
       </PageShell>
     </SiteDocument>
-  )
+  );
 }
 ```
 
@@ -205,9 +203,9 @@ The `layout` field controls which layout is used for the section's `README.md`:
 ```json5
 // content/blog/meta.json5
 {
-  displayName: 'Blog',
-  layout: 'blogHome',
-  itemLayout: 'blogPost',
+  displayName: "Blog",
+  layout: "blogHome",
+  itemLayout: "blogPost",
 }
 ```
 
@@ -228,9 +226,9 @@ When you reference a layout name in `meta.json5` that is not one of the built-in
 {
   theme: {
     layouts: {
-      blogHome: './theme/layouts/BlogHome.tsx',
-      blogPost: './theme/layouts/BlogPost.tsx',
-      changelog: './theme/layouts/Changelog.tsx',
+      blogHome: "./theme/layouts/BlogHome.tsx",
+      blogPost: "./theme/layouts/BlogPost.tsx",
+      changelog: "./theme/layouts/Changelog.tsx",
     },
   },
 }
@@ -239,18 +237,18 @@ When you reference a layout name in `meta.json5` that is not one of the built-in
 ```json5
 // content/blog/meta.json5
 {
-  displayName: 'Blog',
-  layout: 'blogHome',
-  itemLayout: 'blogPost',
+  displayName: "Blog",
+  layout: "blogHome",
+  itemLayout: "blogPost",
 }
 ```
 
 ```json5
 // content/changelog/meta.json5
 {
-  displayName: 'Changelog',
-  layout: 'changelog',
-  itemLayout: 'changelog',
+  displayName: "Changelog",
+  layout: "changelog",
+  itemLayout: "changelog",
 }
 ```
 
@@ -282,7 +280,7 @@ Replace the default landing page with a minimal custom design:
 {
   theme: {
     layouts: {
-      home: './theme/MyHome.tsx',
+      home: "./theme/MyHome.tsx",
     },
   },
 }
@@ -290,11 +288,11 @@ Replace the default landing page with a minimal custom design:
 
 ```tsx
 // theme/MyHome.tsx
-import { h } from '@pagesmith/docs/jsx-runtime'
+import { h } from "@pagesmith/docs/jsx-runtime";
 
 export default function MyHome({ content, frontmatter, site }: any) {
   return (
-    <html lang={site.language || 'en'}>
+    <html lang={site.language || "en"}>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -312,7 +310,7 @@ export default function MyHome({ content, frontmatter, site }: any) {
         </main>
       </body>
     </html>
-  )
+  );
 }
 ```
 
@@ -325,7 +323,7 @@ Create a specialized layout for blog-style content in a specific section:
 {
   theme: {
     layouts: {
-      article: './theme/Article.tsx',
+      article: "./theme/Article.tsx",
     },
   },
 }
@@ -334,23 +332,21 @@ Create a specialized layout for blog-style content in a specific section:
 ```json5
 // content/blog/meta.json5
 {
-  displayName: 'Blog',
-  itemLayout: 'article',
-  orderBy: 'publishedDate',
+  displayName: "Blog",
+  itemLayout: "article",
+  orderBy: "publishedDate",
 }
 ```
 
 ```tsx
 // theme/Article.tsx
-import { h } from '@pagesmith/docs/jsx-runtime'
+import { h } from "@pagesmith/docs/jsx-runtime";
 
 export default function Article({ content, frontmatter, site, prev, next }: any) {
-  const title = frontmatter.title
-    ? `${frontmatter.title} - ${site.title}`
-    : site.title
+  const title = frontmatter.title ? `${frontmatter.title} - ${site.title}` : site.title;
 
   return (
-    <html lang={site.language || 'en'}>
+    <html lang={site.language || "en"}>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -363,12 +359,8 @@ export default function Article({ content, frontmatter, site, prev, next }: any)
         </header>
         <article data-pagefind-body="">
           <h1>{frontmatter.title}</h1>
-          {frontmatter.publishedDate ? (
-            <time>{frontmatter.publishedDate}</time>
-          ) : null}
-          {frontmatter.description ? (
-            <p class="lead">{frontmatter.description}</p>
-          ) : null}
+          {frontmatter.publishedDate ? <time>{frontmatter.publishedDate}</time> : null}
+          {frontmatter.description ? <p class="lead">{frontmatter.description}</p> : null}
           <div class="prose" innerHTML={content} />
         </article>
         <nav>
@@ -377,7 +369,7 @@ export default function Article({ content, frontmatter, site, prev, next }: any)
         </nav>
       </body>
     </html>
-  )
+  );
 }
 ```
 

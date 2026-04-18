@@ -83,17 +83,17 @@ blog-site/
 `vite.config.ts` wires only the site-level SSG pieces. This example does not use `pagesmithContent()` because the SSR entry loads the content layer directly.
 
 ```ts
-import { defineConfig } from 'vite-plus'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite-plus";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
-  base: '/pagesmith/examples/blog-site',
+  base: "/pagesmith/examples/blog-site",
   plugins: [
     sharedAssetsPlugin(),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   build: {
-    outDir: '../../gh-pages/examples/blog-site',
+    outDir: "../../gh-pages/examples/blog-site",
     emptyOutDir: true,
     rolldownOptions: {
       checks: {
@@ -103,11 +103,11 @@ export default defineConfig({
   },
   oxc: {
     jsx: {
-      runtime: 'automatic',
-      importSource: '@pagesmith/site',
+      runtime: "automatic",
+      importSource: "@pagesmith/site",
     },
   },
-})
+});
 ```
 
 `sharedAssetsPlugin()` serves the bundled fonts during development, and the production build copies the packaged font assets into the final output. `pagesmithSsg()` provides the SSR contract, companion-asset publishing, Pagefind indexing, and the dev middleware used by the example.
@@ -117,19 +117,19 @@ export default defineConfig({
 `src/content.ts` owns the collections and content helpers. The example keeps collection setup separate from routing, then imports those helpers into the SSR entry.
 
 ```ts
-import { resolve } from 'path'
-import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/site'
+import { resolve } from "path";
+import { createContentLayer, defineCollection, defineConfig, z } from "@pagesmith/site";
 
 export function buildLayer(root?: string) {
-  const contentRoot = root ? resolve(root) : resolve(import.meta.dirname, '..')
+  const contentRoot = root ? resolve(root) : resolve(import.meta.dirname, "..");
 
   return createContentLayer(
     defineConfig({
       root: contentRoot,
       collections: {
         guide: defineCollection({
-          loader: 'markdown',
-          directory: resolve(contentRoot, 'content/guide'),
+          loader: "markdown",
+          directory: resolve(contentRoot, "content/guide"),
           schema: z.object({
             title: z.string(),
             description: z.string().optional(),
@@ -140,8 +140,8 @@ export function buildLayer(root?: string) {
           }),
         }),
         pages: defineCollection({
-          loader: 'markdown',
-          directory: resolve(contentRoot, 'content/pages'),
+          loader: "markdown",
+          directory: resolve(contentRoot, "content/pages"),
           schema: z.object({
             title: z.string(),
             description: z.string().optional(),
@@ -149,7 +149,7 @@ export function buildLayer(root?: string) {
         }),
       },
     }),
-  )
+  );
 }
 ```
 
@@ -160,7 +160,7 @@ This is the important difference from the framework examples: there is no separa
 `src/entry-server.tsx` implements the contract that `pagesmithSsg()` expects:
 
 ```ts
-import type { SsgRenderConfig } from '@pagesmith/site/vite'
+import type { SsgRenderConfig } from "@pagesmith/site/vite";
 
 export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
   // return every route you want emitted as static HTML
@@ -186,8 +186,8 @@ The document shell and page-body components live in `src/components.tsx`. Becaus
 The browser entry is intentionally tiny:
 
 ```js
-import './src/theme.css'
-import './src/runtime.ts'
+import "./src/theme.css";
+import "./src/runtime.ts";
 ```
 
 `src/theme.css` starts from `@pagesmith/site/css/standalone`, then layers example-specific layout and theme rules on top. `src/runtime.ts` imports `@pagesmith/site/runtime/standalone`, so the shared search, sidebar, TOC, theme, and code-block behaviors come from the package. The example only adds one tiny enhancement of its own: scrolling the active sidebar item into view.

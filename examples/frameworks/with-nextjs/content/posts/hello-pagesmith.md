@@ -18,15 +18,15 @@ This page lives in `content/posts/hello-pagesmith.md`, is loaded through `create
 ## Minimal content loader
 
 ```js title="lib/content.js"
-import { createContentLayer, defineConfig } from '@pagesmith/site'
-import collections from '../content.config.js'
+import { createContentLayer, defineConfig } from "@pagesmith/site";
+import collections from "../content.config.js";
 
 const layer = createContentLayer(
   defineConfig({
     root: process.cwd(),
     collections,
   }),
-)
+);
 ```
 
 ## Rendering inside a route

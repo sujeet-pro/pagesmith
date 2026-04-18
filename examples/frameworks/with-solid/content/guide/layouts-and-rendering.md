@@ -18,8 +18,8 @@ This example uses **`renderToString`** from `solid-js/web` at **build time** onl
 `pagesmithSsg` loads `src/entry-server.tsx` as a Node module and expects:
 
 ```ts
-export async function getRoutes(): Promise<string[]>
-export async function render(url: string, config: SsgRenderConfig): Promise<string>
+export async function getRoutes(): Promise<string[]>;
+export async function render(url: string, config: SsgRenderConfig): Promise<string>;
 ```
 
 `getRoutes()` returns `/`, `/404`, every guide URL derived from the virtual collections, plus `/about` when that page exists. `render(url, config)` returns a **full HTML document string** for one URL.

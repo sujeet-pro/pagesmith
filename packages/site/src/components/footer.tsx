@@ -1,6 +1,6 @@
-import { Fragment, h } from '../jsx-runtime/index.js'
-import { SITE_CHROME_ASSETS, withComponentAssets } from './assets.js'
-import { FooterThemeControls } from './theme.js'
+import { Fragment, h } from "../jsx-runtime/index.js";
+import { SITE_CHROME_ASSETS, withComponentAssets } from "./assets.js";
+import { FooterThemeControls } from "./theme.js";
 import type {
   SiteCopyright,
   SiteFooterLink,
@@ -9,43 +9,43 @@ import type {
   SiteMaintainer,
   SitePageLink,
   SiteThemeControls,
-} from './types.js'
-import { formatDate, formatPath, getExternalLinkProps, isExternalUrl } from './utils.js'
+} from "./types.js";
+import { formatDate, formatPath, getExternalLinkProps, isExternalUrl } from "./utils.js";
 
-const PAGESMITH_URL = 'https://projects.sujeet.pro/pagesmith/'
-const FOOTER_YEAR_ID = 'pagesmith-footer-year-end'
+const PAGESMITH_URL = "https://projects.sujeet.pro/pagesmith/";
+const FOOTER_YEAR_ID = "pagesmith-footer-year-end";
 
 function isFooterLinkGroup(
   link: SiteFooterLink | SiteFooterLinkGroup,
 ): link is SiteFooterLinkGroup {
-  return 'links' in link
+  return "links" in link;
 }
 
 function isGroupedFooterLinks(links: SiteFooterLinks): links is SiteFooterLinkGroup[] {
-  return links.length > 0 && isFooterLinkGroup(links[0]!)
+  return links.length > 0 && isFooterLinkGroup(links[0]!);
 }
 
 function getFooterGridStyle(columnCount: number): string {
-  const desktopColumns = Math.min(Math.max(columnCount, 1), 4)
-  const compactColumns = Math.min(desktopColumns, 2)
-  return `--doc-footer-columns:${desktopColumns};--doc-footer-columns-compact:${compactColumns}`
+  const desktopColumns = Math.min(Math.max(columnCount, 1), 4);
+  const compactColumns = Math.min(desktopColumns, 2);
+  return `--doc-footer-columns:${desktopColumns};--doc-footer-columns-compact:${compactColumns}`;
 }
 
 export type SiteFooterProps = {
-  links?: SiteFooterLinks
-  footerText?: string
-  maintainer?: SiteMaintainer
-  copyright?: SiteCopyright
-  editUrl?: string
-  editLabel?: string
-  lastUpdated?: string
-  prev?: SitePageLink
-  next?: SitePageLink
-  themeControls?: SiteThemeControls
-  showThemeControls?: boolean
-  trailingSlash?: boolean
-  extraContent?: unknown
-}
+  links?: SiteFooterLinks;
+  footerText?: string;
+  maintainer?: SiteMaintainer;
+  copyright?: SiteCopyright;
+  editUrl?: string;
+  editLabel?: string;
+  lastUpdated?: string;
+  prev?: SitePageLink;
+  next?: SitePageLink;
+  themeControls?: SiteThemeControls;
+  showThemeControls?: boolean;
+  trailingSlash?: boolean;
+  extraContent?: unknown;
+};
 
 function SiteFooterComponent({
   links,
@@ -62,33 +62,33 @@ function SiteFooterComponent({
   trailingSlash,
   extraContent,
 }: SiteFooterProps) {
-  const buildYear = new Date().getFullYear()
-  const hasPageMeta = !!editUrl || !!lastUpdated
-  const hasPrevNext = !!prev || !!next
-  const hasLinks = !!links && links.length > 0
+  const buildYear = new Date().getFullYear();
+  const hasPageMeta = !!editUrl || !!lastUpdated;
+  const hasPrevNext = !!prev || !!next;
+  const hasLinks = !!links && links.length > 0;
   const groupedLinks =
-    hasLinks && links ? (isGroupedFooterLinks(links) ? links : undefined) : undefined
-  const flatLinks = hasLinks && links && !groupedLinks ? (links as SiteFooterLink[]) : undefined
-  const flatLinkGridStyle = flatLinks ? getFooterGridStyle(flatLinks.length) : undefined
-  const groupedLinkGridStyle = groupedLinks ? getFooterGridStyle(groupedLinks.length) : undefined
+    hasLinks && links ? (isGroupedFooterLinks(links) ? links : undefined) : undefined;
+  const flatLinks = hasLinks && links && !groupedLinks ? (links as SiteFooterLink[]) : undefined;
+  const flatLinkGridStyle = flatLinks ? getFooterGridStyle(flatLinks.length) : undefined;
+  const groupedLinkGridStyle = groupedLinks ? getFooterGridStyle(groupedLinks.length) : undefined;
   const renderedEndYear = copyright
     ? Math.max(copyright.endYear ?? buildYear, copyright.startYear)
-    : undefined
+    : undefined;
   const showCopyrightRange =
-    copyright && renderedEndYear !== undefined ? copyright.startYear !== renderedEndYear : false
-  const autoUpdateCopyrightYear = !!copyright && copyright.endYear == null
+    copyright && renderedEndYear !== undefined ? copyright.startYear !== renderedEndYear : false;
+  const autoUpdateCopyrightYear = !!copyright && copyright.endYear == null;
   const signoff = footerText ? (
     footerText
   ) : (
     <>
-      Made with <span aria-hidden="true">&#10084;</span> using{' '}
+      Made with <span aria-hidden="true">&#10084;</span> using{" "}
       <a href={PAGESMITH_URL} target="_blank" rel="noopener noreferrer">
         Pagesmith
       </a>
       {maintainer ? (
         <span>
-          {' '}
-          and is maintained by{' '}
+          {" "}
+          and is maintained by{" "}
           {maintainer.link ? (
             <a href={maintainer.link} {...getExternalLinkProps(maintainer.link)}>
               {maintainer.name}
@@ -99,7 +99,7 @@ function SiteFooterComponent({
         </span>
       ) : null}
     </>
-  )
+  );
 
   return (
     <footer class="doc-footer">
@@ -107,7 +107,7 @@ function SiteFooterComponent({
         <div class="doc-page-meta">
           {editUrl ? (
             <a href={editUrl} class="doc-edit-link" target="_blank" rel="noopener noreferrer">
-              {editLabel || 'Edit this page'}
+              {editLabel || "Edit this page"}
             </a>
           ) : null}
           {lastUpdated ? (
@@ -191,12 +191,12 @@ function SiteFooterComponent({
       <div class="doc-footer-legal">
         {copyright && renderedEndYear !== undefined ? (
           <p class="doc-footer-copyright">
-            &copy;{' '}
+            &copy;{" "}
             <span class="doc-footer-year-range" data-current-year-range="">
               <span
                 class="doc-footer-year-start"
                 hidden={!showCopyrightRange}
-                aria-hidden={showCopyrightRange ? undefined : 'true'}
+                aria-hidden={showCopyrightRange ? undefined : "true"}
               >
                 {copyright.startYear}
               </span>
@@ -215,7 +215,7 @@ function SiteFooterComponent({
               >
                 {renderedEndYear}
               </span>
-            </span>{' '}
+            </span>{" "}
             {copyright.projectName}
           </p>
         ) : null}
@@ -229,7 +229,7 @@ function SiteFooterComponent({
         </p>
       </div>
     </footer>
-  )
+  );
 }
 
-export const SiteFooter = withComponentAssets(SiteFooterComponent, SITE_CHROME_ASSETS)
+export const SiteFooter = withComponentAssets(SiteFooterComponent, SITE_CHROME_ASSETS);

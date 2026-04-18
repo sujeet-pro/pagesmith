@@ -57,7 +57,7 @@ npm add @pagesmith/docs
 
 ## Main package exports (`@pagesmith/docs`)
 
-- From the primary entry: `build`, `defineDocsConfig`, **`loadDocsConfig`**, `preview`, **`reportConfigIssues`**, `resolveDocsConfig`, `startDev`, `validateConfig`, **`withBase`**, **`docsPreset`**, `createDocsMcpServer`, `startDocsMcpServer`, **`Html`**, **`buildSiteModel`**, **`getPrevNext`**, **`getSitePayload`**, and related types (`DocsUserConfig`, `ResolvedDocsConfig`, …).
+- From the primary entry: `build`, `rebuildContent`, `defineConfig`, `defineDocsConfig`, **`loadDocsConfig`**, `loadDocsConfigAsync`, `preview`, **`reportConfigIssues`**, `resolveDocsConfig`, `resolveDocsConfigAsync`, `startDev`, `validateConfig`, **`validateDocs`**, **`withBase`**, **`docsPreset`**, `createDocsMcpServer`, `startDocsMcpServer`, **`Html`**, **`buildSiteModel`**, **`getPrevNext`**, **`getSitePayload`**, **`getDocsListingCards`**, **`validateBuildOutput`** / **`runBuildValidation`** (also under `@pagesmith/docs/build-validator`), `createLogger` / `defaultLogger` re-exports, and related types (`DocsUserConfig`, `ResolvedDocsConfig`, `DocsValidateResult`, …).
 
 ## Project memory pointer
 

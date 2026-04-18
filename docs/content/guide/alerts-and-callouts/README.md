@@ -62,7 +62,7 @@ Alerts can contain multiple paragraphs. Continue the blockquote syntax on each l
 Alerts support the full range of Markdown formatting inside them, including bold text, inline code, links, and lists.
 
 > [!TIP]
-> Use the `mark` meta on code blocks to highlight important lines. For example, writing `` ```ts mark={3} `` highlights line 3 with a neutral background color.
+> Use the `mark` meta on code blocks to highlight important lines. For example, writing ` ```ts mark={3} ` highlights line 3 with a neutral background color.
 >
 > See the [Code Blocks](../code-blocks/README.md) guide for the full list of title, line number, diff, collapse, and tab options.
 
@@ -95,12 +95,12 @@ You can include fenced code blocks inside alerts to show configuration examples 
 > // Bad -- no validation
 > schema: z.object({
 >   title: z.any(),
-> })
+> });
 >
 > // Good -- proper validation
 > schema: z.object({
 >   title: z.string().min(1),
-> })
+> });
 > ```
 
 ## Alerts with Lists

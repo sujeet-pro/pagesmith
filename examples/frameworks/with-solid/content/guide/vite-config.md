@@ -16,21 +16,21 @@ The build is a normal Vite project: `vite.config.ts` registers shared assets, So
 ## Current config
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite-plus'
-import collections from './content.config'
-import solid from 'vite-plugin-solid'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite-plus";
+import collections from "./content.config";
+import solid from "vite-plugin-solid";
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
-  base: '/pagesmith/examples/solid',
+  base: "/pagesmith/examples/solid",
   plugins: [
     sharedAssetsPlugin(),
     solid({ ssr: true }),
     pagesmithContent({ collections }),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   build: {
-    outDir: '../../../gh-pages/examples/solid',
+    outDir: "../../../gh-pages/examples/solid",
     emptyOutDir: true,
     rolldownOptions: {
       checks: {
@@ -38,7 +38,7 @@ export default defineConfig({
       },
     },
   },
-})
+});
 ```
 
 ## Plugin roles

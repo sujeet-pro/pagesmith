@@ -18,11 +18,11 @@ Content collections are the bridge between markdown on disk and your SSG entry. 
 Collections live in `content.config.ts` using `defineCollection` and `defineCollections` from `@pagesmith/site`:
 
 ```ts title="content.config.ts"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const guide = defineCollection({
-  loader: 'markdown',
-  directory: './content/guide',
+  loader: "markdown",
+  directory: "./content/guide",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -32,18 +32,18 @@ export const guide = defineCollection({
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
   }),
-})
+});
 
 export const pages = defineCollection({
-  loader: 'markdown',
-  directory: './content/pages',
+  loader: "markdown",
+  directory: "./content/pages",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
   }),
-})
+});
 
-export default defineCollections({ guide, pages })
+export default defineCollections({ guide, pages });
 ```
 
 This example uses **`guide`** for integration docs plus the single markdown regression page (`guide/kitchen-sink.md`), and **`pages`** for standalone routes like `/about`.
@@ -62,18 +62,18 @@ Each collection `schema` validates YAML frontmatter. Mismatches fail the build w
 
 For each export key on `defineCollections`, the plugin registers `virtual:content/<key>`:
 
-| Collection key | Virtual module              |
-| -------------- | --------------------------- |
-| `guide`        | `virtual:content/guide`     |
-| `pages`        | `virtual:content/pages`    |
+| Collection key | Virtual module          |
+| -------------- | ----------------------- |
+| `guide`        | `virtual:content/guide` |
+| `pages`        | `virtual:content/pages` |
 
 Each module is an array of entries with **`contentSlug`**, **`html`**, **`headings`**, and validated **`frontmatter`**.
 
 ## Importing in the SSR entry
 
 ```ts title="src/entry-server.tsx (excerpt)"
-import guideCollection from 'virtual:content/guide'
-import pagesCollection from 'virtual:content/pages'
+import guideCollection from "virtual:content/guide";
+import pagesCollection from "virtual:content/pages";
 ```
 
 The entry sorts entries, builds nav metadata, and passes strings into `renderToStaticMarkup` / `renderDocumentShell`.

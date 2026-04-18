@@ -25,51 +25,51 @@ Zod schemas cover the **shape** of data. Content validators cover **semantic** r
 
 ```ts
 // validators/require-cover-image.ts
-import type { ContentValidator, ValidationIssue } from '@pagesmith/core'
+import type { ContentValidator, ValidationIssue } from "@pagesmith/core";
 
 export const requireCoverImage: ContentValidator = {
-  name: 'require-cover-image',
+  name: "require-cover-image",
   validate(ctx) {
-    const issues: ValidationIssue[] = []
+    const issues: ValidationIssue[] = [];
     if (!ctx.entry.data.coverImage) {
       issues.push({
-        field: 'coverImage',
-        message: 'Blog posts must declare a coverImage in frontmatter',
-        severity: 'error',
-      })
+        field: "coverImage",
+        message: "Blog posts must declare a coverImage in frontmatter",
+        severity: "error",
+      });
     }
-    return issues
+    return issues;
   },
-}
+};
 ```
 
 `ctx` gives you:
 
-| Field | Description |
-| --- | --- |
-| `ctx.entry` | The collection entry (data, slug, file path). |
-| `ctx.mdast` | Parsed markdown AST (mdast) — shared across validators for efficiency. |
-| `ctx.hast` | Rendered hast (HTML AST) when available. |
-| `ctx.html` | The final HTML string for entries that went through `render()`. |
-| `ctx.collection` | Collection name the entry belongs to. |
-| `ctx.layer` | Access to other collections for cross-entry checks. |
+| Field            | Description                                                            |
+| ---------------- | ---------------------------------------------------------------------- |
+| `ctx.entry`      | The collection entry (data, slug, file path).                          |
+| `ctx.mdast`      | Parsed markdown AST (mdast) — shared across validators for efficiency. |
+| `ctx.hast`       | Rendered hast (HTML AST) when available.                               |
+| `ctx.html`       | The final HTML string for entries that went through `render()`.        |
+| `ctx.collection` | Collection name the entry belongs to.                                  |
+| `ctx.layer`      | Access to other collections for cross-entry checks.                    |
 
 ## Attach to a collection
 
 ```ts
-import { defineCollection, z } from '@pagesmith/core'
-import { requireCoverImage } from './validators/require-cover-image'
+import { defineCollection, z } from "@pagesmith/core";
+import { requireCoverImage } from "./validators/require-cover-image";
 
 export const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     description: z.string(),
     coverImage: z.string().optional(),
   }),
   validators: [requireCoverImage],
-})
+});
 ```
 
 ## Built-in validators
@@ -87,19 +87,19 @@ Your validators run **alongside** the built-ins. To disable the built-ins for a 
 On-demand:
 
 ```ts
-import { createContentLayer, defineConfig } from '@pagesmith/core'
-import collections from './content.config'
+import { createContentLayer, defineConfig } from "@pagesmith/core";
+import collections from "./content.config";
 
-const layer = createContentLayer(defineConfig({ collections }))
+const layer = createContentLayer(defineConfig({ collections }));
 
-const results = await layer.validate()          // all collections
+const results = await layer.validate(); // all collections
 // or
-const results = await layer.validate('posts')   // one collection
+const results = await layer.validate("posts"); // one collection
 
-const errors = results.flatMap(r => r.issues.filter(i => i.severity === 'error'))
+const errors = results.flatMap((r) => r.issues.filter((i) => i.severity === "error"));
 if (errors.length) {
-  for (const e of errors) console.error(`[${e.severity}] ${e.collection}/${e.slug}: ${e.message}`)
-  process.exit(1)
+  for (const e of errors) console.error(`[${e.severity}] ${e.collection}/${e.slug}: ${e.message}`);
+  process.exit(1);
 }
 ```
 
@@ -118,65 +118,67 @@ Add a `validate-content` script to `package.json` and call it in CI:
 ### Walk the AST
 
 ```ts
-import { visit } from 'unist-util-visit'
+import { visit } from "unist-util-visit";
 
 export const noBareTodos: ContentValidator = {
-  name: 'no-bare-todos',
+  name: "no-bare-todos",
   validate(ctx) {
-    const issues: ValidationIssue[] = []
-    visit(ctx.mdast, 'text', node => {
+    const issues: ValidationIssue[] = [];
+    visit(ctx.mdast, "text", (node) => {
       if (/\b(TODO|FIXME)\b/.test(node.value)) {
         issues.push({
-          field: 'body',
+          field: "body",
           message: `Found "${node.value.trim()}" — remove before publishing`,
-          severity: 'warn',
-        })
+          severity: "warn",
+        });
       }
-    })
-    return issues
+    });
+    return issues;
   },
-}
+};
 ```
 
 ### Cross-entry checks (require an author)
 
 ```ts
 export const requireAuthor: ContentValidator = {
-  name: 'require-author',
+  name: "require-author",
   async validate(ctx) {
-    const author = await ctx.layer.getEntry('authors', ctx.entry.data.authorId)
+    const author = await ctx.layer.getEntry("authors", ctx.entry.data.authorId);
     if (!author) {
-      return [{
-        field: 'authorId',
-        message: `Author "${ctx.entry.data.authorId}" not found in authors collection`,
-        severity: 'error',
-      }]
+      return [
+        {
+          field: "authorId",
+          message: `Author "${ctx.entry.data.authorId}" not found in authors collection`,
+          severity: "error",
+        },
+      ];
     }
-    return []
+    return [];
   },
-}
+};
 ```
 
 ### Enforce code-block languages
 
 ```ts
 export const onlyApprovedLanguages: ContentValidator = {
-  name: 'only-approved-languages',
+  name: "only-approved-languages",
   validate(ctx) {
-    const ok = new Set(['ts', 'tsx', 'js', 'bash', 'json', 'json5', 'md'])
-    const issues: ValidationIssue[] = []
-    visit(ctx.mdast, 'code', node => {
+    const ok = new Set(["ts", "tsx", "js", "bash", "json", "json5", "md"]);
+    const issues: ValidationIssue[] = [];
+    visit(ctx.mdast, "code", (node) => {
       if (node.lang && !ok.has(node.lang)) {
         issues.push({
-          field: 'body',
+          field: "body",
           message: `Code block uses unapproved language "${node.lang}"`,
-          severity: 'warn',
-        })
+          severity: "warn",
+        });
       }
-    })
-    return issues
+    });
+    return issues;
   },
-}
+};
 ```
 
 ## Severity

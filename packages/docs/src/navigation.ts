@@ -1,12 +1,12 @@
-import type { Heading } from '@pagesmith/core/schemas'
-import { basename } from 'path'
+import type { Heading } from "@pagesmith/core/schemas";
+import { basename } from "path";
 import {
   toTitleCase,
   type FooterLink,
   type FooterLinkGroup,
   type FooterLinks,
   type ResolvedDocsConfig,
-} from './config.js'
+} from "./config.js";
 import type {
   DocsPage,
   DocsSectionMeta,
@@ -16,158 +16,158 @@ import type {
   SidebarItem,
   SidebarSection,
   SiteModel,
-} from './content.js'
+} from "./content.js";
 
 type SectionPageLookup = {
-  byContentSlug: Map<string, DocsPage>
-  byRelativeSlug: Map<string, DocsPage>
-  byLeafSlug: Map<string, DocsPage | null>
-}
+  byContentSlug: Map<string, DocsPage>;
+  byRelativeSlug: Map<string, DocsPage>;
+  byLeafSlug: Map<string, DocsPage | null>;
+};
 
 function getOrder(page: DocsPage): number {
-  return typeof page.frontmatter.order === 'number'
+  return typeof page.frontmatter.order === "number"
     ? page.frontmatter.order
-    : Number.MAX_SAFE_INTEGER
+    : Number.MAX_SAFE_INTEGER;
 }
 
 function comparePages(left: DocsPage, right: DocsPage): number {
-  const orderDelta = getOrder(left) - getOrder(right)
-  if (orderDelta !== 0) return orderDelta
-  return left.routePath.localeCompare(right.routePath)
+  const orderDelta = getOrder(left) - getOrder(right);
+  if (orderDelta !== 0) return orderDelta;
+  return left.routePath.localeCompare(right.routePath);
 }
 
 function sortPages(pages: DocsPage[]): DocsPage[] {
-  return [...pages].sort(comparePages)
+  return [...pages].sort(comparePages);
 }
 
 function getSectionRelativeSlug(page: DocsPage, sectionSlug: string): string {
-  if (page.contentSlug === sectionSlug) return sectionSlug
+  if (page.contentSlug === sectionSlug) return sectionSlug;
   return page.contentSlug.startsWith(`${sectionSlug}/`)
     ? page.contentSlug.slice(sectionSlug.length + 1)
-    : page.contentSlug
+    : page.contentSlug;
 }
 
 function getLeafSlug(page: DocsPage): string {
-  return page.contentSlug.split('/').at(-1) ?? page.contentSlug
+  return page.contentSlug.split("/").at(-1) ?? page.contentSlug;
 }
 
 function buildSectionPageLookup(sectionSlug: string, sectionPages: DocsPage[]): SectionPageLookup {
-  const byContentSlug = new Map<string, DocsPage>()
-  const byRelativeSlug = new Map<string, DocsPage>()
-  const byLeafSlug = new Map<string, DocsPage | null>()
+  const byContentSlug = new Map<string, DocsPage>();
+  const byRelativeSlug = new Map<string, DocsPage>();
+  const byLeafSlug = new Map<string, DocsPage | null>();
 
   for (const page of sectionPages) {
-    byContentSlug.set(page.contentSlug, page)
-    byRelativeSlug.set(getSectionRelativeSlug(page, sectionSlug), page)
+    byContentSlug.set(page.contentSlug, page);
+    byRelativeSlug.set(getSectionRelativeSlug(page, sectionSlug), page);
 
-    const leafSlug = getLeafSlug(page)
+    const leafSlug = getLeafSlug(page);
     if (!byLeafSlug.has(leafSlug)) {
-      byLeafSlug.set(leafSlug, page)
+      byLeafSlug.set(leafSlug, page);
     } else {
-      byLeafSlug.set(leafSlug, null)
+      byLeafSlug.set(leafSlug, null);
     }
   }
 
-  return { byContentSlug, byRelativeSlug, byLeafSlug }
+  return { byContentSlug, byRelativeSlug, byLeafSlug };
 }
 
 function findSectionPageBySlug(
   lookup: SectionPageLookup,
   rawSlug: string,
 ): { page?: DocsPage; ambiguous?: boolean } {
-  const slug = rawSlug.replace(/^\/+/, '').replace(/\/+$/, '')
-  if (!slug) return {}
+  const slug = rawSlug.replace(/^\/+/, "").replace(/\/+$/, "");
+  if (!slug) return {};
 
-  const direct = lookup.byRelativeSlug.get(slug) ?? lookup.byContentSlug.get(slug)
-  if (direct) return { page: direct }
+  const direct = lookup.byRelativeSlug.get(slug) ?? lookup.byContentSlug.get(slug);
+  if (direct) return { page: direct };
 
-  const byLeaf = lookup.byLeafSlug.get(slug)
-  if (byLeaf === null) return { ambiguous: true }
-  if (byLeaf) return { page: byLeaf }
+  const byLeaf = lookup.byLeafSlug.get(slug);
+  if (byLeaf === null) return { ambiguous: true };
+  if (byLeaf) return { page: byLeaf };
 
-  return {}
+  return {};
 }
 
 function toSidebarItem(page: DocsPage, basePath: string): SidebarItem {
   return {
     title: page.frontmatter.sidebarLabel ?? page.title,
     path: `${basePath}${page.routePath}`,
-  }
+  };
 }
 
 function sortSectionPages(pages: DocsPage[], meta?: DocsSectionMeta): DocsPage[] {
-  if (!meta?.orderBy) return sortPages(pages)
+  if (!meta?.orderBy) return sortPages(pages);
 
-  if (meta.orderBy === 'publishedDate') {
+  if (meta.orderBy === "publishedDate") {
     const getPublishedTime = (value: unknown): number => {
-      if (!value) return 0
+      if (!value) return 0;
       if (value instanceof Date) {
-        const t = value.getTime()
-        return Number.isNaN(t) ? 0 : t
+        const t = value.getTime();
+        return Number.isNaN(t) ? 0 : t;
       }
-      if (typeof value === 'string' || typeof value === 'number') {
-        const t = new Date(value).getTime()
-        return Number.isNaN(t) ? 0 : t
+      if (typeof value === "string" || typeof value === "number") {
+        const t = new Date(value).getTime();
+        return Number.isNaN(t) ? 0 : t;
       }
-      return 0
-    }
+      return 0;
+    };
 
     return [...pages].sort((a, b) => {
-      const dateA = getPublishedTime(a.frontmatter.publishedDate)
-      const dateB = getPublishedTime(b.frontmatter.publishedDate)
-      return dateB - dateA
-    })
+      const dateA = getPublishedTime(a.frontmatter.publishedDate);
+      const dateB = getPublishedTime(b.frontmatter.publishedDate);
+      return dateB - dateA;
+    });
   }
 
-  if (meta.orderBy === 'manual' && meta.items) {
-    const order = new Map(meta.items.map((slug, i) => [slug, i]))
+  if (meta.orderBy === "manual" && meta.items) {
+    const order = new Map(meta.items.map((slug, i) => [slug, i]));
     const getPosition = (page: DocsPage): number | undefined => {
       const candidates = [
         page.contentSlug,
         page.section ? getSectionRelativeSlug(page, page.section) : undefined,
         getLeafSlug(page),
-      ]
+      ];
 
       for (const candidate of candidates) {
-        if (!candidate) continue
-        const position = order.get(candidate)
-        if (position != null) return position
+        if (!candidate) continue;
+        const position = order.get(candidate);
+        if (position != null) return position;
       }
 
-      return undefined
-    }
+      return undefined;
+    };
 
     return [...pages].sort((a, b) => {
-      const posA = getPosition(a)
-      const posB = getPosition(b)
+      const posA = getPosition(a);
+      const posB = getPosition(b);
 
-      if (posA != null && posB != null) return posA - posB
-      if (posA != null) return -1
-      if (posB != null) return 1
+      if (posA != null && posB != null) return posA - posB;
+      if (posA != null) return -1;
+      if (posB != null) return 1;
 
-      return comparePages(a, b)
-    })
+      return comparePages(a, b);
+    });
   }
 
-  return sortPages(pages)
+  return sortPages(pages);
 }
 
 function warnSeriesReference(
   sectionSlug: string,
   seriesName: string,
   slug: string,
-  reason: 'ambiguous' | 'missing',
+  reason: "ambiguous" | "missing",
 ): void {
-  if (reason === 'ambiguous') {
+  if (reason === "ambiguous") {
     console.warn(
       `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${seriesName}" references article slug "${slug}" which matches multiple loaded pages. Use the full section-relative slug to disambiguate.`,
-    )
-    return
+    );
+    return;
   }
 
   console.warn(
     `\x1b[33m⚠ [${sectionSlug}]\x1b[0m Series "${seriesName}" references article slug "${slug}" which does not match any loaded page.`,
-  )
+  );
 }
 
 function buildSidebarWithSeries(
@@ -176,28 +176,28 @@ function buildSidebarWithSeries(
   meta: DocsSectionMeta,
   basePath: string,
 ): SidebarSection[] {
-  const sections: SidebarSection[] = []
-  const lookup = buildSectionPageLookup(sectionSlug, sectionPages)
-  const includedPages = new Set<DocsPage>()
+  const sections: SidebarSection[] = [];
+  const lookup = buildSectionPageLookup(sectionSlug, sectionPages);
+  const includedPages = new Set<DocsPage>();
 
   for (const series of meta.series!) {
-    const items: SidebarItem[] = []
+    const items: SidebarItem[] = [];
 
     for (const slug of series.articles) {
-      const { page, ambiguous } = findSectionPageBySlug(lookup, slug)
+      const { page, ambiguous } = findSectionPageBySlug(lookup, slug);
       if (ambiguous) {
-        warnSeriesReference(sectionSlug, series.displayName, slug, 'ambiguous')
-        continue
+        warnSeriesReference(sectionSlug, series.displayName, slug, "ambiguous");
+        continue;
       }
 
       if (!page) {
-        warnSeriesReference(sectionSlug, series.displayName, slug, 'missing')
-        continue
+        warnSeriesReference(sectionSlug, series.displayName, slug, "missing");
+        continue;
       }
 
-      if (includedPages.has(page)) continue
-      includedPages.add(page)
-      items.push(toSidebarItem(page, basePath))
+      if (includedPages.has(page)) continue;
+      includedPages.add(page);
+      items.push(toSidebarItem(page, basePath));
     }
 
     if (items.length > 0) {
@@ -206,25 +206,25 @@ function buildSidebarWithSeries(
         slug: series.slug,
         collapsed: meta.collapsed,
         items,
-      })
+      });
     }
   }
 
   const miscItems = sortSectionPages(
     sectionPages.filter((page) => !includedPages.has(page)),
     meta,
-  ).map((page) => toSidebarItem(page, basePath))
+  ).map((page) => toSidebarItem(page, basePath));
 
   if (miscItems.length > 0) {
     sections.push({
-      title: 'Miscellaneous',
+      title: "Miscellaneous",
       slug: `${sectionSlug}-misc`,
       collapsed: meta.collapsed,
       items: miscItems,
-    })
+    });
   }
 
-  return sections
+  return sections;
 }
 
 function buildSidebarItems(
@@ -232,7 +232,7 @@ function buildSidebarItems(
   basePath: string,
   sectionMeta?: DocsSectionMeta,
 ): SidebarItem[] {
-  return sortSectionPages(sectionPages, sectionMeta).map((page) => toSidebarItem(page, basePath))
+  return sortSectionPages(sectionPages, sectionMeta).map((page) => toSidebarItem(page, basePath));
 }
 
 /**
@@ -244,30 +244,30 @@ function findFirstSectionPage(
   sectionPages: DocsPage[],
   meta?: DocsSectionMeta,
 ): DocsPage | undefined {
-  const nonLanding = sectionPages.filter((p) => p.contentSlug !== sectionSlug)
-  if (nonLanding.length === 0) return undefined
-  const lookup = buildSectionPageLookup(sectionSlug, nonLanding)
+  const nonLanding = sectionPages.filter((p) => p.contentSlug !== sectionSlug);
+  if (nonLanding.length === 0) return undefined;
+  const lookup = buildSectionPageLookup(sectionSlug, nonLanding);
 
   // When series exist, the first referenced article of the first series wins.
   if (meta?.series && meta.series.length > 0) {
     for (const series of meta.series) {
       for (const slug of series.articles) {
-        const { page } = findSectionPageBySlug(lookup, slug)
-        if (page) return page
+        const { page } = findSectionPageBySlug(lookup, slug);
+        if (page) return page;
       }
     }
   }
 
   // For manual ordering with items array
-  if (meta?.orderBy === 'manual' && meta.items && meta.items.length > 0) {
+  if (meta?.orderBy === "manual" && meta.items && meta.items.length > 0) {
     for (const slug of meta.items) {
-      const { page } = findSectionPageBySlug(lookup, slug)
-      if (page) return page
+      const { page } = findSectionPageBySlug(lookup, slug);
+      if (page) return page;
     }
   }
 
   // Default: use sortSectionPages
-  return sortSectionPages(nonLanding, meta)[0]
+  return sortSectionPages(nonLanding, meta)[0];
 }
 
 export function buildSiteModel(
@@ -276,39 +276,39 @@ export function buildSiteModel(
   rootMeta?: DocsRootMeta,
   sectionMetas?: Map<string, DocsSectionMeta>,
 ): SiteModel {
-  const pageByPath = new Map(pages.map((page) => [page.routePath, page]))
-  const sidebarBySection = new Map<string, SidebarSection[]>()
-  const navItems: NavItem[] = []
-  const pagesBySection = new Map<string, DocsPage[]>()
-  const folderPaths = new Map<string, string>()
+  const pageByPath = new Map(pages.map((page) => [page.routePath, page]));
+  const sidebarBySection = new Map<string, SidebarSection[]>();
+  const navItems: NavItem[] = [];
+  const pagesBySection = new Map<string, DocsPage[]>();
+  const folderPaths = new Map<string, string>();
 
   for (const page of pages) {
-    if (!page.section) continue
-    if (page.frontmatter.draft) continue
+    if (!page.section) continue;
+    if (page.frontmatter.draft) continue;
     if (!pagesBySection.has(page.section)) {
-      pagesBySection.set(page.section, [])
+      pagesBySection.set(page.section, []);
     }
-    pagesBySection.get(page.section)!.push(page)
+    pagesBySection.get(page.section)!.push(page);
   }
 
   for (const [sectionSlug, sectionPages] of Array.from(pagesBySection.entries()).sort((a, b) =>
     a[0].localeCompare(b[0]),
   )) {
-    const sectionMeta = sectionMetas?.get(sectionSlug)
-    const landingPage = sectionPages.find((page) => page.contentSlug === sectionSlug)
-    const firstPage = findFirstSectionPage(sectionSlug, sectionPages, sectionMeta)
+    const sectionMeta = sectionMetas?.get(sectionSlug);
+    const landingPage = sectionPages.find((page) => page.contentSlug === sectionSlug);
+    const firstPage = findFirstSectionPage(sectionSlug, sectionPages, sectionMeta);
     const label =
       sectionMeta?.displayName ??
       config.packages?.[sectionSlug]?.label ??
       landingPage?.frontmatter.navLabel ??
       landingPage?.title ??
       firstPage?.frontmatter.navLabel ??
-      toTitleCase(sectionSlug)
-    const sectionPath = landingPage?.routePath ?? firstPage?.routePath ?? `/${sectionSlug}`
+      toTitleCase(sectionSlug);
+    const sectionPath = landingPage?.routePath ?? firstPage?.routePath ?? `/${sectionSlug}`;
 
     // Only auto-generate nav items if root meta didn't provide explicit headerLinks
     if (!rootMeta?.headerLinks || rootMeta.headerLinks.length === 0) {
-      navItems.push({ label, path: `${config.basePath}${sectionPath}` })
+      navItems.push({ label, path: `${config.basePath}${sectionPath}` });
     }
 
     // Build sidebar: use series grouping if defined, otherwise flat list
@@ -316,7 +316,7 @@ export function buildSiteModel(
       sidebarBySection.set(
         sectionSlug,
         buildSidebarWithSeries(sectionSlug, sectionPages, sectionMeta, config.basePath),
-      )
+      );
     } else {
       sidebarBySection.set(sectionSlug, [
         {
@@ -325,64 +325,64 @@ export function buildSiteModel(
           collapsed: sectionMeta?.collapsed,
           items: buildSidebarItems(sectionPages, config.basePath, sectionMeta),
         },
-      ])
+      ]);
     }
   }
 
   // If root meta provides explicit header links, resolve section paths to actual pages
   if (rootMeta?.headerLinks && rootMeta.headerLinks.length > 0) {
     for (const link of rootMeta.headerLinks) {
-      const rawPath = link.path.startsWith('/') ? link.path : `/${link.path}`
-      const sectionSlug = rawPath.replace(/^\//, '').replace(/\/.*$/, '')
-      const sectionPages = pagesBySection.get(sectionSlug)
-      let resolvedPath = rawPath
+      const rawPath = link.path.startsWith("/") ? link.path : `/${link.path}`;
+      const sectionSlug = rawPath.replace(/^\//, "").replace(/\/.*$/, "");
+      const sectionPages = pagesBySection.get(sectionSlug);
+      let resolvedPath = rawPath;
 
       if (sectionPages) {
-        const landing = sectionPages.find((p) => p.contentSlug === sectionSlug)
+        const landing = sectionPages.find((p) => p.contentSlug === sectionSlug);
         if (landing) {
-          resolvedPath = landing.routePath
+          resolvedPath = landing.routePath;
         } else {
           const first = findFirstSectionPage(
             sectionSlug,
             sectionPages,
             sectionMetas?.get(sectionSlug),
-          )
-          if (first) resolvedPath = first.routePath
+          );
+          if (first) resolvedPath = first.routePath;
         }
       }
 
       navItems.push({
         label: link.label,
         path: `${config.basePath}${resolvedPath}`,
-      })
+      });
     }
   }
 
   // Build folderPaths: map every ancestor folder slug to a resolved URL.
   // Folders with an index page point to that page; folders without one
   // point to their first child page so breadcrumbs never produce 404s.
-  const pageBySlug = new Map(pages.map((p) => [p.contentSlug, p]))
-  const folderSlugs = new Set<string>()
+  const pageBySlug = new Map(pages.map((p) => [p.contentSlug, p]));
+  const folderSlugs = new Set<string>();
   for (const page of pages) {
-    if (page.isHome) continue
-    const segments = page.contentSlug.split('/')
+    if (page.isHome) continue;
+    const segments = page.contentSlug.split("/");
     for (let i = 1; i < segments.length; i++) {
-      folderSlugs.add(segments.slice(0, i).join('/'))
+      folderSlugs.add(segments.slice(0, i).join("/"));
     }
   }
   for (const folder of folderSlugs) {
-    const indexPage = pageBySlug.get(folder)
+    const indexPage = pageBySlug.get(folder);
     if (indexPage) {
-      folderPaths.set(folder, `${config.basePath}${indexPage.routePath}`)
-      continue
+      folderPaths.set(folder, `${config.basePath}${indexPage.routePath}`);
+      continue;
     }
     const children = sortPages(
       pages.filter(
-        (p) => !p.isHome && p.contentSlug.startsWith(folder + '/') && p.contentSlug !== folder,
+        (p) => !p.isHome && p.contentSlug.startsWith(folder + "/") && p.contentSlug !== folder,
       ),
-    )
+    );
     if (children.length > 0) {
-      folderPaths.set(folder, `${config.basePath}${children[0].routePath}`)
+      folderPaths.set(folder, `${config.basePath}${children[0].routePath}`);
     }
   }
 
@@ -393,52 +393,52 @@ export function buildSiteModel(
     folderPaths,
     rootMeta,
     sectionMetas: sectionMetas ?? new Map(),
-  }
+  };
 }
 
 function flattenSidebarItems(items: SidebarItem[]): SidebarItem[] {
-  const flattened: SidebarItem[] = []
+  const flattened: SidebarItem[] = [];
 
   for (const item of items) {
-    flattened.push(item)
+    flattened.push(item);
     if (item.children) {
-      flattened.push(...flattenSidebarItems(item.children))
+      flattened.push(...flattenSidebarItems(item.children));
     }
   }
 
-  return flattened
+  return flattened;
 }
 
 export function getPrevNext(
   sidebarSections: SidebarSection[] | undefined,
   routePath: string,
 ): { prev?: PrevNextLink; next?: PrevNextLink } {
-  if (!sidebarSections?.length) return {}
-  const flat = flattenSidebarItems(sidebarSections.flatMap((section) => section.items))
-  const index = flat.findIndex((item) => item.path === routePath)
-  if (index < 0) return {}
+  if (!sidebarSections?.length) return {};
+  const flat = flattenSidebarItems(sidebarSections.flatMap((section) => section.items));
+  const index = flat.findIndex((item) => item.path === routePath);
+  if (index < 0) return {};
 
-  const prev = index > 0 ? flat[index - 1] : undefined
-  const next = index < flat.length - 1 ? flat[index + 1] : undefined
+  const prev = index > 0 ? flat[index - 1] : undefined;
+  const next = index < flat.length - 1 ? flat[index + 1] : undefined;
 
   return {
     prev: prev ? { title: prev.title, path: prev.path } : undefined,
     next: next ? { title: next.title, path: next.path } : undefined,
-  }
+  };
 }
 
 function isFooterLinkGroup(link: FooterLink | FooterLinkGroup): link is FooterLinkGroup {
-  return 'links' in link
+  return "links" in link;
 }
 
 function isGroupedFooterLinks(footerLinks: FooterLinks): footerLinks is FooterLinkGroup[] {
-  return footerLinks.length > 0 && isFooterLinkGroup(footerLinks[0]!)
+  return footerLinks.length > 0 && isFooterLinkGroup(footerLinks[0]!);
 }
 
 function prefixFooterLinkPath(path: string, basePath: string): string {
-  return path.startsWith('/') && !path.startsWith('//') && !path.startsWith(basePath)
+  return path.startsWith("/") && !path.startsWith("//") && !path.startsWith(basePath)
     ? `${basePath}${path}`
-    : path
+    : path;
 }
 
 function withResolvedFooterLinks(
@@ -447,7 +447,7 @@ function withResolvedFooterLinks(
   needsBasePrefix: boolean,
 ): FooterLinks {
   if (!needsBasePrefix || !basePath || footerLinks.length === 0) {
-    return footerLinks
+    return footerLinks;
   }
 
   if (isGroupedFooterLinks(footerLinks)) {
@@ -457,46 +457,46 @@ function withResolvedFooterLinks(
         ...link,
         path: prefixFooterLinkPath(link.path, basePath),
       })),
-    }))
+    }));
   }
 
   return footerLinks.map((link) => ({
     ...link,
     path: prefixFooterLinkPath(link.path, basePath),
-  }))
+  }));
 }
 
 export type DocsListingCard = {
-  title: string
-  path: string
-  description?: string
-  publishedDate?: string
-}
+  title: string;
+  path: string;
+  description?: string;
+  publishedDate?: string;
+};
 
 export type DocsListingGroup = {
-  slug: string
-  title: string
-  description?: string
-  cards: DocsListingCard[]
-}
+  slug: string;
+  title: string;
+  description?: string;
+  cards: DocsListingCard[];
+};
 
 export type DocsListingData = {
-  cards: DocsListingCard[]
-  groups: DocsListingGroup[]
-  headings: Heading[]
-  totalItems: number
-}
+  cards: DocsListingCard[];
+  groups: DocsListingGroup[];
+  headings: Heading[];
+  totalItems: number;
+};
 
 function toListingDate(value: unknown): string | undefined {
-  if (!value) return undefined
+  if (!value) return undefined;
   if (value instanceof Date) {
-    return Number.isNaN(value.getTime()) ? undefined : value.toISOString()
+    return Number.isNaN(value.getTime()) ? undefined : value.toISOString();
   }
-  if (typeof value === 'string' || typeof value === 'number') {
-    const parsed = new Date(value)
-    return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString()
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
   }
-  return undefined
+  return undefined;
 }
 
 function toListingCard(page: DocsPage, basePath: string): DocsListingCard {
@@ -504,9 +504,9 @@ function toListingCard(page: DocsPage, basePath: string): DocsListingCard {
     title: page.title,
     path: `${basePath}${page.routePath}`,
     description:
-      typeof page.frontmatter.description === 'string' ? page.frontmatter.description : undefined,
+      typeof page.frontmatter.description === "string" ? page.frontmatter.description : undefined,
     publishedDate: toListingDate(page.frontmatter.publishedDate),
-  }
+  };
 }
 
 export function getDocsListingData(
@@ -517,9 +517,9 @@ export function getDocsListingData(
 ): DocsListingData {
   const sectionPages = pages.filter(
     (page) => page.section === section && page.contentSlug !== section && !page.isHome,
-  )
-  const sortedPages = sortSectionPages(sectionPages, sectionMeta)
-  const flatCards = sortedPages.map((page) => toListingCard(page, basePath))
+  );
+  const sortedPages = sortSectionPages(sectionPages, sectionMeta);
+  const flatCards = sortedPages.map((page) => toListingCard(page, basePath));
 
   if (!sectionMeta?.series || sectionMeta.series.length === 0) {
     return {
@@ -527,30 +527,30 @@ export function getDocsListingData(
       groups: [],
       headings: [],
       totalItems: flatCards.length,
-    }
+    };
   }
 
-  const lookup = buildSectionPageLookup(section, sortedPages)
-  const includedPages = new Set<DocsPage>()
-  const groups: DocsListingGroup[] = []
+  const lookup = buildSectionPageLookup(section, sortedPages);
+  const includedPages = new Set<DocsPage>();
+  const groups: DocsListingGroup[] = [];
 
   for (const series of sectionMeta.series) {
-    const cards: DocsListingCard[] = []
+    const cards: DocsListingCard[] = [];
 
     for (const slug of series.articles) {
-      const { page, ambiguous } = findSectionPageBySlug(lookup, slug)
+      const { page, ambiguous } = findSectionPageBySlug(lookup, slug);
       if (ambiguous) {
-        warnSeriesReference(section, series.displayName, slug, 'ambiguous')
-        continue
+        warnSeriesReference(section, series.displayName, slug, "ambiguous");
+        continue;
       }
       if (!page) {
-        warnSeriesReference(section, series.displayName, slug, 'missing')
-        continue
+        warnSeriesReference(section, series.displayName, slug, "missing");
+        continue;
       }
-      if (includedPages.has(page)) continue
+      if (includedPages.has(page)) continue;
 
-      includedPages.add(page)
-      cards.push(toListingCard(page, basePath))
+      includedPages.add(page);
+      cards.push(toListingCard(page, basePath));
     }
 
     if (cards.length > 0) {
@@ -559,7 +559,7 @@ export function getDocsListingData(
         title: series.displayName,
         description: series.description,
         cards,
-      })
+      });
     }
   }
 
@@ -569,16 +569,16 @@ export function getDocsListingData(
       groups: [],
       headings: [],
       totalItems: flatCards.length,
-    }
+    };
   }
 
-  const otherPages = sortedPages.filter((page) => !includedPages.has(page))
+  const otherPages = sortedPages.filter((page) => !includedPages.has(page));
   if (otherPages.length > 0) {
     groups.push({
-      slug: 'other',
-      title: 'Other',
+      slug: "other",
+      title: "Other",
       cards: otherPages.map((page) => toListingCard(page, basePath)),
-    })
+    });
   }
 
   return {
@@ -590,7 +590,7 @@ export function getDocsListingData(
       slug: group.slug,
     })),
     totalItems: flatCards.length,
-  }
+  };
 }
 
 /**
@@ -603,11 +603,11 @@ export function getDocsListingCards(
   basePath: string,
   sectionMeta?: DocsSectionMeta,
 ): DocsListingCard[] {
-  return getDocsListingData(section, pages, basePath, sectionMeta).cards
+  return getDocsListingData(section, pages, basePath, sectionMeta).cards;
 }
 
 export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
-  const base = config.basePath
+  const base = config.basePath;
 
   // Root meta wins, explicit config is next, otherwise reuse the primary nav
   // so the footer always exposes the site's major destinations by default.
@@ -616,17 +616,17 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
       ? { links: model.rootMeta.footerLinks, needsBasePrefix: true }
       : config._userConfig?.footerLinks !== undefined || config.footerLinks.length > 0
         ? { links: config.footerLinks, needsBasePrefix: true }
-        : { links: model.navItems, needsBasePrefix: false }
+        : { links: model.navItems, needsBasePrefix: false };
 
   const footerLinks = withResolvedFooterLinks(
     footerLinkSource.links,
     base,
     footerLinkSource.needsBasePrefix,
-  )
+  );
   const withBasePath = (value: string): string => {
-    const cleaned = value.replace(/^\//, '')
-    return base ? `${base}/${cleaned}` : `/${cleaned}`
-  }
+    const cleaned = value.replace(/^\//, "");
+    return base ? `${base}/${cleaned}` : `/${cleaned}`;
+  };
 
   return {
     origin: config.origin,
@@ -647,7 +647,7 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
     analytics: config.analytics,
     theme: config.theme,
     socialImage: config.socialImage
-      ? config.socialImage.startsWith('http')
+      ? config.socialImage.startsWith("http")
         ? config.socialImage
         : withBasePath(config.socialImage)
       : undefined,
@@ -656,6 +656,6 @@ export function getSitePayload(config: ResolvedDocsConfig, model: SiteModel) {
     faviconFallback: config.faviconFallback
       ? withBasePath(basename(config.faviconFallback))
       : false,
-    appleTouchIcon: config.appleTouchIcon ? withBasePath('apple-touch-icon.png') : false,
-  }
+    appleTouchIcon: config.appleTouchIcon ? withBasePath("apple-touch-icon.png") : false,
+  };
 }

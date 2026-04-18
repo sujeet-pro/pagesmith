@@ -16,19 +16,19 @@ The build is standard Vite (`vite-plus` here) plus three **`@pagesmith/site/vite
 ## Full config (as in this repo)
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite-plus'
-import collections from './content.config'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite-plus";
+import collections from "./content.config";
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
-  base: '/pagesmith/examples/react',
+  base: "/pagesmith/examples/react",
   plugins: [
     sharedAssetsPlugin(),
     pagesmithContent({ collections }),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   build: {
-    outDir: '../../../gh-pages/examples/react',
+    outDir: "../../../gh-pages/examples/react",
     emptyOutDir: true,
     rolldownOptions: {
       checks: {
@@ -38,11 +38,11 @@ export default defineConfig({
   },
   oxc: {
     jsx: {
-      runtime: 'automatic',
-      importSource: 'react',
+      runtime: "automatic",
+      importSource: "react",
     },
   },
-})
+});
 ```
 
 ## Plugin breakdown

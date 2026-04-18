@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "PAGESMITH_NEXT_BASE_PATH=/pagesmith/examples/nextjs next build --webpack && node ./scripts/copy-export.mjs",
-    "preview": "next start",
-    "start": "next start",
-    "check": "next build --webpack"
+    "dev": "NEXT_IGNORE_INCORRECT_LOCKFILE=1 next dev --webpack",
+    "build": "NEXT_IGNORE_INCORRECT_LOCKFILE=1 PAGESMITH_NEXT_BASE_PATH=/pagesmith/examples/nextjs next build --webpack && node ./scripts/copy-export.mjs",
+    "preview": "NEXT_IGNORE_INCORRECT_LOCKFILE=1 next start",
+    "start": "NEXT_IGNORE_INCORRECT_LOCKFILE=1 next start",
+    "check": "NEXT_IGNORE_INCORRECT_LOCKFILE=1 next build --webpack"
   },
   "dependencies": {
     "@pagesmith/site": "*",

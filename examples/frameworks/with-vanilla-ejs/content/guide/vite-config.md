@@ -16,17 +16,17 @@ The entire build is driven by Vite with two Pagesmith plugins. No custom build s
 ## The full config
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite-plus'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite-plus";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
-  base: '/pagesmith/examples/vanilla-ejs',
+  base: "/pagesmith/examples/vanilla-ejs",
   plugins: [
     sharedAssetsPlugin(),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   build: {
-    outDir: '../../../gh-pages/examples/vanilla-ejs',
+    outDir: "../../../gh-pages/examples/vanilla-ejs",
     emptyOutDir: true,
     rolldownOptions: {
       checks: {
@@ -36,11 +36,11 @@ export default defineConfig({
   },
   oxc: {
     jsx: {
-      runtime: 'automatic',
-      importSource: '@pagesmith/site',
+      runtime: "automatic",
+      importSource: "@pagesmith/site",
     },
   },
-})
+});
 ```
 
 ## Plugin breakdown
@@ -61,6 +61,7 @@ Note that `pagesmithSsg` returns an array of plugins (hence the spread `...`), w
 **In development**, it provides middleware that calls `render()` on each request, giving you live preview with hot reload when content or templates change.
 
 **In production**, it:
+
 1. Calls `getRoutes()` to discover all URLs
 2. Calls `render()` for each URL in parallel
 3. Writes the HTML files to the output directory
@@ -79,7 +80,7 @@ This is the simpler approach when your templates do not need framework-specific 
 ## Base path
 
 ```ts
-base: '/pagesmith/examples/vanilla-ejs'
+base: "/pagesmith/examples/vanilla-ejs";
 ```
 
 The `base` option configures the public URL prefix for all assets. This is passed through to the `render()` function via `config.base`, where it is used to prefix all internal links and asset references. This makes the site deployable under a subdirectory (e.g., GitHub Pages).

@@ -36,13 +36,13 @@ Core still owns the implementation of these APIs, but site-first apps can import
 Before:
 
 ```ts
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/core/vite";
 ```
 
 After:
 
 ```ts
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 ```
 
 Before:

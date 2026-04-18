@@ -5,9 +5,9 @@ export {
   BlogFrontmatterSchema,
   type ProjectFrontmatter,
   ProjectFrontmatterSchema,
-} from './frontmatter'
-export { type Heading, HeadingSchema } from './heading'
-export { type MarkdownConfig, MarkdownConfigSchema } from './markdown-config'
+} from "./frontmatter";
+export { type Heading, HeadingSchema } from "./heading";
+export { type MarkdownConfig, MarkdownConfigSchema } from "./markdown-config";
 export type {
   CollectionComputed,
   CollectionDef,
@@ -15,5 +15,5 @@ export type {
   InferCollectionData,
   InferCollectionLoaderKind,
   RawEntry,
-} from './collection'
-export type { ContentLayerConfig, ContentPlugin } from './content-config'
+} from "./collection";
+export type { ContentLayerConfig, ContentPlugin } from "./content-config";

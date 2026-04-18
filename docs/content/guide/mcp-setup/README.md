@@ -68,6 +68,7 @@ Validate `pagesmith.config.json5` and return any warnings or errors.
 **Returns:** Array of `{ type: "error" | "warning", message, field? }` issues. Empty array means valid.
 
 **Example workflow:**
+
 > "Validate my docs config and fix any issues" -- The agent calls `docs_validate_config`, reads the issues, then edits the config file to resolve them.
 
 ### docs_resolve_config
@@ -97,6 +98,7 @@ The `section` parameter is optional. Omit it to list all pages across all sectio
 **Returns:** Array of `{ slug, title, section, sourcePath, description? }`.
 
 **Example workflow:**
+
 > "List all guide pages and check which ones need updating after the API change" -- The agent calls `docs_list_pages` with `section: "guide"`, then reads relevant pages to check accuracy.
 
 ### docs_get_page
@@ -132,20 +134,20 @@ Unlike the docs server, the core server is programmatic because it needs a live 
 One straightforward setup is a tiny wrapper script:
 
 ```js title="scripts/pagesmith-core-mcp.mjs"
-import collections from '../content.config.js'
-import { createContentLayer, defineConfig } from '@pagesmith/core'
-import { startCoreMcpServer } from '@pagesmith/core/mcp'
+import collections from "../content.config.js";
+import { createContentLayer, defineConfig } from "@pagesmith/core";
+import { startCoreMcpServer } from "@pagesmith/core/mcp";
 
 const layer = createContentLayer(
   defineConfig({
     collections,
   }),
-)
+);
 
 await startCoreMcpServer({
   layer,
   rootDir: process.cwd(),
-})
+});
 ```
 
 Then register that wrapper with your MCP client:
@@ -203,20 +205,20 @@ Each MCP server exposes versioned documentation as resources tied to the install
 
 **Docs MCP server (`pagesmith-docs mcp --stdio`):**
 
-| Resource URI | Content |
-|---|---|
+| Resource URI                    | Content                                                                           |
+| ------------------------------- | --------------------------------------------------------------------------------- |
 | `pagesmith://docs/agents/usage` | `@pagesmith/docs` usage rules (`skills/pagesmith-docs-setup/references/usage.md`) |
-| `pagesmith://docs/llms-full` | Full docs reference (`llms-full.txt`) |
-| `pagesmith://docs/reference` | `@pagesmith/docs` `REFERENCE.md` |
-| `pagesmith://core/reference` | `@pagesmith/core` `REFERENCE.md` resolved from the installed core package |
+| `pagesmith://docs/llms-full`    | Full docs reference (`llms-full.txt`)                                             |
+| `pagesmith://docs/reference`    | `@pagesmith/docs` `REFERENCE.md`                                                  |
+| `pagesmith://core/reference`    | `@pagesmith/core` `REFERENCE.md` resolved from the installed core package         |
 
 **Core MCP server (your custom wrapper around `@pagesmith/core/mcp`):**
 
-| Resource URI | Content |
-|---|---|
+| Resource URI                    | Content                                                                           |
+| ------------------------------- | --------------------------------------------------------------------------------- |
 | `pagesmith://core/agents/usage` | `@pagesmith/core` usage rules (`skills/pagesmith-core-setup/references/usage.md`) |
-| `pagesmith://core/llms-full` | Full core reference (`llms-full.txt`) |
-| `pagesmith://core/reference` | `@pagesmith/core` `REFERENCE.md` |
+| `pagesmith://core/llms-full`    | Full core reference (`llms-full.txt`)                                             |
+| `pagesmith://core/reference`    | `@pagesmith/core` `REFERENCE.md`                                                  |
 
 The docs server intentionally also exposes the core `REFERENCE.md` so docs-only setups can read the underlying content-layer reference without registering a second server.
 
@@ -248,15 +250,15 @@ The docs server intentionally also exposes the core `REFERENCE.md` so docs-only 
 
 ## When to Use MCP vs CLI vs Skills
 
-| Task | MCP | CLI | Skill |
-|---|---|---|---|
-| Validate config | `docs_validate_config` | | |
-| List/inspect pages | `docs_list_pages` | | |
-| Search content | `docs_search_pages` | | |
-| Build the site | | `pagesmith-docs build` | |
-| Start dev server | | `pagesmith-docs dev` | |
-| Initialize a project | | `pagesmith-docs init` | |
-| Update docs after code change | | | `/update-docs` |
-| Full docs refresh | | | `/ps-update-all-docs` |
+| Task                          | MCP                    | CLI                    | Skill                 |
+| ----------------------------- | ---------------------- | ---------------------- | --------------------- |
+| Validate config               | `docs_validate_config` |                        |                       |
+| List/inspect pages            | `docs_list_pages`      |                        |                       |
+| Search content                | `docs_search_pages`    |                        |                       |
+| Build the site                |                        | `pagesmith-docs build` |                       |
+| Start dev server              |                        | `pagesmith-docs dev`   |                       |
+| Initialize a project          |                        | `pagesmith-docs init`  |                       |
+| Update docs after code change |                        |                        | `/update-docs`        |
+| Full docs refresh             |                        |                        | `/ps-update-all-docs` |
 
 MCP tools are best for **reading and validating**. Skills are best for **writing and updating**. The CLI is for **building and serving**.

@@ -6,10 +6,10 @@
     Browse the guide to learn the fundamentals, or open the single markdown kitchen sink.
   </p>
   <div class="doc-hero-actions">
-    <a href="<%= basePath %>guide/<%= firstGuideSlug %>/" class="doc-hero-action doc-hero-action-brand">
+    <a href="<%= basePath %>guide/<%= firstGuideSlug %>" class="doc-hero-action doc-hero-action-brand">
       Read the Guide
     </a>
-    <a href="<%= basePath %>guide/<%= kitchenSinkSlug %>/" class="doc-hero-action doc-hero-action-alt">
+    <a href="<%= basePath %>guide/<%= kitchenSinkSlug %>" class="doc-hero-action doc-hero-action-alt">
       Open Kitchen Sink
     </a>
   </div>
@@ -22,7 +22,7 @@
     markdown smoke-test pages.
   </p>
   <p>
-    <a href="<%= basePath %>guide/<%= kitchenSinkSlug %>/">Open the kitchen sink page</a>
+    <a href="<%= basePath %>guide/<%= kitchenSinkSlug %>">Open the kitchen sink page</a>
   </p>
 </section>
 
@@ -31,7 +31,7 @@
   <ul style="display: flex; flex-direction: column; gap: 0.75rem;">
     <% for (const entry of sortedGuide) { %>
       <li>
-        <a href="<%= basePath %>guide/<%= entry.slug %>/" style="font-weight: 500;"><%= entry.title %></a>
+        <a href="<%= basePath %>guide/<%= entry.slug %>" style="font-weight: 500;"><%= entry.title %></a>
         <% if (entry.description) { %>
           <span style="color: var(--color-text-muted); font-size: var(--font-size-sm);"> &mdash; <%= entry.description %></span>
         <% } %>

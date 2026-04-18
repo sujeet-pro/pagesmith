@@ -24,22 +24,22 @@ Place a `meta.json5` file directly inside the content directory to control the s
 {
   // Explicit header navigation links (overrides auto-generated section nav)
   headerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'Reference', path: '/reference' },
+    { label: "Guide", path: "/guide" },
+    { label: "Reference", path: "/reference" },
   ],
 
   // Footer navigation links
   footerLinks: [
     {
-      header: 'Docs',
+      header: "Docs",
       links: [
-        { label: 'Guide', path: '/guide' },
-        { label: 'Reference', path: '/reference' },
+        { label: "Guide", path: "/guide" },
+        { label: "Reference", path: "/reference" },
       ],
     },
     {
-      header: 'Project',
-      links: [{ label: 'GitHub', path: 'https://github.com/example/repo' }],
+      header: "Project",
+      links: [{ label: "GitHub", path: "https://github.com/example/repo" }],
     },
   ],
 }
@@ -77,28 +77,24 @@ Each top-level content folder can contain its own `meta.json5` to configure that
 
 ```json5
 {
-  displayName: 'Guide',
-  description: 'Learn how to use the framework.',
-  orderBy: 'manual',
-  items: [
-    'getting-started',
-    'configuration',
-    'deployment',
-  ],
+  displayName: "Guide",
+  description: "Learn how to use the framework.",
+  orderBy: "manual",
+  items: ["getting-started", "configuration", "deployment"],
 }
 ```
 
 ### Section Meta Fields
 
-| Field | Type | Description |
-|---|---|---|
-| `displayName` | `string` | Section label used in the header nav and sidebar title |
-| `description` | `string` | Section description (available to layout components) |
-| `layout` | `string` | Layout name for the section landing page (the section's `README.md`). Defaults to `"page"` |
-| `itemLayout` | `string` | Layout name for all non-landing pages in the section. Defaults to `"page"` |
-| `orderBy` | `"manual"` or `"publishedDate"` | How pages in this section are sorted |
-| `items` | `string[]` | Explicit ordering of page slugs when `orderBy` is `"manual"` |
-| `series` | `array` | Group pages into named series for sidebar display |
+| Field         | Type                            | Description                                                                                |
+| ------------- | ------------------------------- | ------------------------------------------------------------------------------------------ |
+| `displayName` | `string`                        | Section label used in the header nav and sidebar title                                     |
+| `description` | `string`                        | Section description (available to layout components)                                       |
+| `layout`      | `string`                        | Layout name for the section landing page (the section's `README.md`). Defaults to `"page"` |
+| `itemLayout`  | `string`                        | Layout name for all non-landing pages in the section. Defaults to `"page"`                 |
+| `orderBy`     | `"manual"` or `"publishedDate"` | How pages in this section are sorted                                                       |
+| `items`       | `string[]`                      | Explicit ordering of page slugs when `orderBy` is `"manual"`                               |
+| `series`      | `array`                         | Group pages into named series for sidebar display                                          |
 
 ## How Ordering Works
 
@@ -130,14 +126,9 @@ Set `orderBy: "manual"` and provide an `items` array to control the exact order:
 
 ```json5
 {
-  displayName: 'Guide',
-  orderBy: 'manual',
-  items: [
-    'getting-started',
-    'installation',
-    'configuration',
-    'deployment',
-  ],
+  displayName: "Guide",
+  orderBy: "manual",
+  items: ["getting-started", "installation", "configuration", "deployment"],
 }
 ```
 
@@ -149,8 +140,8 @@ For blog-like sections, use `orderBy: "publishedDate"` to sort by a `publishedDa
 
 ```json5
 {
-  displayName: 'Blog',
-  orderBy: 'publishedDate',
+  displayName: "Blog",
+  orderBy: "publishedDate",
 }
 ```
 
@@ -175,27 +166,19 @@ Use the `series` array in a section `meta.json5`:
 
 ```json5
 {
-  displayName: 'Guide',
-  orderBy: 'manual',
+  displayName: "Guide",
+  orderBy: "manual",
   series: [
     {
-      slug: 'getting-started',
-      displayName: 'Getting Started',
-      articles: [
-        'getting-started',
-        'installation',
-        'first-project',
-      ],
+      slug: "getting-started",
+      displayName: "Getting Started",
+      articles: ["getting-started", "installation", "first-project"],
     },
     {
-      slug: 'advanced',
-      displayName: 'Advanced Topics',
-      description: 'Deep dives into advanced features.',
-      articles: [
-        'custom-loaders',
-        'plugin-system',
-        'performance',
-      ],
+      slug: "advanced",
+      displayName: "Advanced Topics",
+      description: "Deep dives into advanced features.",
+      articles: ["custom-loaders", "plugin-system", "performance"],
     },
   ],
 }
@@ -205,13 +188,13 @@ Use the `series` array in a section `meta.json5`:
 
 Each series entry has:
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `slug` | `string` | yes | Unique identifier for the series |
-| `displayName` | `string` | yes | Title shown as the sidebar group heading |
-| `shortName` | `string` | no | Abbreviated name for compact displays |
-| `description` | `string` | no | Description of the series |
-| `articles` | `string[]` | yes | Ordered list of page slugs belonging to this series |
+| Field         | Type       | Required | Description                                         |
+| ------------- | ---------- | -------- | --------------------------------------------------- |
+| `slug`        | `string`   | yes      | Unique identifier for the series                    |
+| `displayName` | `string`   | yes      | Title shown as the sidebar group heading            |
+| `shortName`   | `string`   | no       | Abbreviated name for compact displays               |
+| `description` | `string`   | no       | Description of the series                           |
+| `articles`    | `string[]` | yes      | Ordered list of page slugs belonging to this series |
 
 ### How Series Affect the Sidebar
 
@@ -286,13 +269,9 @@ This means the ordering in `items`, `series`, or the default sort directly deter
 ```json5
 // content/guide/meta.json5
 {
-  displayName: 'Guide',
-  orderBy: 'manual',
-  items: [
-    'getting-started',
-    'configuration',
-    'deployment',
-  ],
+  displayName: "Guide",
+  orderBy: "manual",
+  items: ["getting-started", "configuration", "deployment"],
 }
 ```
 
@@ -301,9 +280,9 @@ This means the ordering in `items`, `series`, or the default sort directly deter
 ```json5
 // content/blog/meta.json5
 {
-  displayName: 'Blog',
-  description: 'News and updates.',
-  orderBy: 'publishedDate',
+  displayName: "Blog",
+  description: "News and updates.",
+  orderBy: "publishedDate",
 }
 ```
 
@@ -312,23 +291,23 @@ This means the ordering in `items`, `series`, or the default sort directly deter
 ```json5
 // content/guide/meta.json5
 {
-  displayName: 'Guide',
-  orderBy: 'manual',
+  displayName: "Guide",
+  orderBy: "manual",
   series: [
     {
-      slug: 'basics',
-      displayName: 'Basics',
-      articles: ['getting-started', 'installation', 'project-structure'],
+      slug: "basics",
+      displayName: "Basics",
+      articles: ["getting-started", "installation", "project-structure"],
     },
     {
-      slug: 'features',
-      displayName: 'Features',
-      articles: ['content-layer', 'validation', 'search'],
+      slug: "features",
+      displayName: "Features",
+      articles: ["content-layer", "validation", "search"],
     },
     {
-      slug: 'deployment',
-      displayName: 'Deployment',
-      articles: ['building', 'hosting', 'ci-cd'],
+      slug: "deployment",
+      displayName: "Deployment",
+      articles: ["building", "hosting", "ci-cd"],
     },
   ],
 }
@@ -340,15 +319,15 @@ This means the ordering in `items`, `series`, or the default sort directly deter
 // content/meta.json5
 {
   headerLinks: [
-    { label: 'Docs', path: '/guide' },
-    { label: 'API', path: '/reference/api' },
-    { label: 'Blog', path: 'https://blog.example.com' },
+    { label: "Docs", path: "/guide" },
+    { label: "API", path: "/reference/api" },
+    { label: "Blog", path: "https://blog.example.com" },
   ],
   footerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'Reference', path: '/reference' },
-    { label: 'GitHub', path: 'https://github.com/example/repo' },
-    { label: 'Discord', path: 'https://discord.gg/example' },
+    { label: "Guide", path: "/guide" },
+    { label: "Reference", path: "/reference" },
+    { label: "GitHub", path: "https://github.com/example/repo" },
+    { label: "Discord", path: "https://discord.gg/example" },
   ],
 }
 ```

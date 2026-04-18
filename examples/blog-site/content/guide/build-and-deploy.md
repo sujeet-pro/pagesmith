@@ -24,14 +24,13 @@ Running `npm run build` in `examples/blog-site/` triggers the following sequence
 
 Each `render()` invocation reloads collections in this example (`loadSite` → `createContentLayer` → `entry.render()`), which keeps the implementation obvious for readers; production sites often cache the layer between routes if profiling shows it matters.
 
-
 ## The SSR entry contract
 
 The `pagesmithSsg` plugin expects the entry file to export two functions:
 
 ```ts
-export async function getRoutes(config: SsgRenderConfig): Promise<string[]>
-export async function render(url: string, config: SsgRenderConfig): Promise<string>
+export async function getRoutes(config: SsgRenderConfig): Promise<string[]>;
+export async function render(url: string, config: SsgRenderConfig): Promise<string>;
 ```
 
 **`getRoutes(config)`** returns every URL the site should generate. The config object provides `base`, `root`, and other build-time information.

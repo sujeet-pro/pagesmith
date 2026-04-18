@@ -24,10 +24,10 @@
           <a href="{{basePath}}" class="doc-sidebar-link">Home</a>
         </li>
         <li class="doc-sidebar-item{{#if (startsWith activePath '/guide')}} active{{/if}}">
-          <a href="{{basePath}}guide/{{sidebar.firstGuideSlug}}/" class="doc-sidebar-link">Guide</a>
+          <a href="{{basePath}}guide/{{sidebar.firstGuideSlug}}" class="doc-sidebar-link">Guide</a>
         </li>
         <li class="doc-sidebar-item{{#if (eq activePath '/about')}} active{{/if}}">
-          <a href="{{basePath}}about/" class="doc-sidebar-link">About</a>
+          <a href="{{basePath}}about" class="doc-sidebar-link">About</a>
         </li>
       </ul>
     </div>
@@ -41,7 +41,7 @@
             <ul class="doc-sidebar-nested">
               {{#each this.items}}
                 <li class="doc-sidebar-item{{#if (eq ../../activePath (concat '/guide/' this.slug))}} active{{/if}}">
-                  <a href="{{../../basePath}}guide/{{this.slug}}/" class="doc-sidebar-link">{{this.title}}</a>
+                  <a href="{{../../basePath}}guide/{{this.slug}}" class="doc-sidebar-link">{{this.title}}</a>
                 </li>
               {{/each}}
             </ul>
@@ -62,7 +62,7 @@
       </div>
       <nav class="doc-nav">
         <a href="{{basePath}}"{{#if (eq activePath '/')}} class="active"{{/if}}>Home</a>
-        <a href="{{basePath}}guide/{{sidebar.firstGuideSlug}}/"{{#if (startsWith activePath '/guide')}} class="active"{{/if}}>Guide</a>
+        <a href="{{basePath}}guide/{{sidebar.firstGuideSlug}}"{{#if (startsWith activePath '/guide')}} class="active"{{/if}}>Guide</a>
       </nav>
       <div class="doc-header-right">
         <pagefind-modal-trigger class="doc-search-trigger"></pagefind-modal-trigger>

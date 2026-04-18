@@ -95,11 +95,11 @@ so the roots are $x = 1$, $x = 2$, and $x = 3$.
 
 Algorithm complexity is commonly expressed using Big-O notation. Binary search runs in $O(\log n)$ time, while a naive sort might take $O(n^2)$. Merge sort guarantees $O(n \log n)$ regardless of input.
 
-| Algorithm | Best case | Average case | Worst case |
-|-----------|-----------|--------------|------------|
-| Binary search | $O(1)$ | $O(\log n)$ | $O(\log n)$ |
-| Quicksort | $O(n \log n)$ | $O(n \log n)$ | $O(n^2)$ |
-| Merge sort | $O(n \log n)$ | $O(n \log n)$ | $O(n \log n)$ |
+| Algorithm     | Best case     | Average case  | Worst case    |
+| ------------- | ------------- | ------------- | ------------- |
+| Binary search | $O(1)$        | $O(\log n)$   | $O(\log n)$   |
+| Quicksort     | $O(n \log n)$ | $O(n \log n)$ | $O(n^2)$      |
+| Merge sort    | $O(n \log n)$ | $O(n \log n)$ | $O(n \log n)$ |
 
 ### Maxwell's equations
 

@@ -1,21 +1,21 @@
-import { Fragment, h } from '../jsx-runtime/index.js'
-import { SITE_CHROME_ASSETS, withComponentAssets } from './assets.js'
-import { formatPath, getExternalLinkProps, isExternalUrl } from './utils.js'
+import { Fragment, h } from "../jsx-runtime/index.js";
+import { SITE_CHROME_ASSETS, withComponentAssets } from "./assets.js";
+import { formatPath, getExternalLinkProps, isExternalUrl } from "./utils.js";
 
 export type SiteAction = {
-  label: string
-  href: string
-  variant?: 'primary' | 'secondary'
-}
+  label: string;
+  href: string;
+  variant?: "primary" | "secondary";
+};
 
 export type HeroSectionProps = {
-  badge?: string
-  name?: string
-  tagline?: string
-  description?: string
-  actions?: SiteAction[]
-  trailingSlash?: boolean
-}
+  badge?: string;
+  name?: string;
+  tagline?: string;
+  description?: string;
+  actions?: SiteAction[];
+  trailingSlash?: boolean;
+};
 
 function HeroSectionComponent({
   badge,
@@ -35,35 +35,35 @@ function HeroSectionComponent({
         <ActionButtonsComponent actions={actions} trailingSlash={trailingSlash} />
       ) : null}
     </section>
-  )
+  );
 }
 
 export type ActionButtonsProps = {
-  actions: SiteAction[]
-  trailingSlash?: boolean
-}
+  actions: SiteAction[];
+  trailingSlash?: boolean;
+};
 
 function ActionButtonsComponent({ actions, trailingSlash }: ActionButtonsProps) {
-  if (!actions || actions.length === 0) return <Fragment />
+  if (!actions || actions.length === 0) return <Fragment />;
 
   return (
     <div class="site-actions">
       {actions.map((action) => {
         const href = isExternalUrl(action.href)
           ? action.href
-          : formatPath(action.href, trailingSlash)
+          : formatPath(action.href, trailingSlash);
         const variant =
-          action.variant === 'secondary' ? 'site-action-secondary' : 'site-action-primary'
+          action.variant === "secondary" ? "site-action-secondary" : "site-action-primary";
 
         return (
           <a href={href} class={`site-action ${variant}`} {...getExternalLinkProps(action.href)}>
             {action.label}
           </a>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
-export const HeroSection = withComponentAssets(HeroSectionComponent, SITE_CHROME_ASSETS)
-export const ActionButtons = withComponentAssets(ActionButtonsComponent, SITE_CHROME_ASSETS)
+export const HeroSection = withComponentAssets(HeroSectionComponent, SITE_CHROME_ASSETS);
+export const ActionButtons = withComponentAssets(ActionButtonsComponent, SITE_CHROME_ASSETS);

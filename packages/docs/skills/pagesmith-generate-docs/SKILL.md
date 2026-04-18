@@ -168,7 +168,7 @@ features:
 
 ### Quickstart (`docs/guide/quickstart.md`)
 
-```md
+````md
 ---
 title: Quickstart
 description: Get up and running with <Project> in under 5 minutes.
@@ -182,6 +182,7 @@ order: 1
 ```bash
 npm add <package>
 ```
+````
 
 ## Run
 
@@ -199,7 +200,8 @@ npx <command>
 
 - <link to a concept page>
 - <link to a how-to page>
-```
+
+````
 
 ### Concept page (`docs/guide/concepts/<concept>.md`)
 
@@ -224,12 +226,13 @@ order: <n>
 
 ```ts
 <real code from the source tree>
-```
+````
 
 ## Related
 
 - <link to related concept / how-to>
-```
+
+````
 
 ### How-to (`docs/guide/how-to/<task>.md`)
 
@@ -258,11 +261,11 @@ description: Step-by-step recipe for <task>.
 ## Gotchas
 
 - <non-obvious pitfall>
-```
+````
 
 ### Reference page (`docs/reference/api/<surface>.md`)
 
-```md
+````md
 ---
 title: <Public API surface>
 description: Reference for <API surface>.
@@ -275,6 +278,7 @@ description: Reference for <API surface>.
 ```ts
 import { <X> } from '<package>'
 ```
+````
 
 ## Signature
 
@@ -285,7 +289,7 @@ import { <X> } from '<package>'
 ## Parameters
 
 | Name | Type | Required | Description |
-| --- | --- | --- | --- |
+| ---- | ---- | -------- | ----------- |
 
 ## Returns
 
@@ -300,7 +304,8 @@ import { <X> } from '<package>'
 ## Errors
 
 | Error | Cause | Fix |
-| --- | --- | --- |
+| ----- | ----- | --- |
+
 ```
 
 ## Gotchas
@@ -318,3 +323,4 @@ import { <X> } from '<package>'
 - `node_modules/@pagesmith/docs/schemas/docs-page-frontmatter.schema.json`
 - `node_modules/@pagesmith/docs/schemas/docs-home-frontmatter.schema.json`
 - Sibling skills: `pagesmith-docs-add-page`, `pagesmith-docs-configure-nav`, `pagesmith-docs-add-search`, `pagesmith-docs-customize-theme`, `pagesmith-docs-deploy-gh-pages`.
+```

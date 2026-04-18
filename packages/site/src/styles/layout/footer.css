@@ -70,15 +70,19 @@
   align-items: start;
 }
 
+/* Footer link grids: mobile-first.
+   < sm  : 1 col (overridden below)
+   sm    : 2 cols (compact)
+   ≥ md  : full grid (default --doc-footer-columns = 4) */
 .doc-footer-links-flat {
   display: grid;
-  grid-template-columns: repeat(var(--doc-footer-columns, 4), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--doc-footer-columns-compact, 2), minmax(0, 1fr));
   gap: 0.5rem 1.5rem;
 }
 
 .doc-footer-links-grouped {
   display: grid;
-  grid-template-columns: repeat(var(--doc-footer-columns, 4), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--doc-footer-columns-compact, 2), minmax(0, 1fr));
   gap: 1rem 2rem;
 }
 
@@ -91,7 +95,9 @@
   padding: 0.125rem 0;
   color: var(--color-text-secondary);
   text-decoration: none;
-  transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    text-decoration-color var(--transition-fast);
 }
 
 .doc-footer-link-item:hover,
@@ -170,7 +176,16 @@
   white-space: nowrap;
 }
 
-@media (max-width: 800px) {
+/* md: tablet portrait — expand to the full 4-col footer grid. */
+@media (--bp-md) {
+  .doc-footer-links-flat,
+  .doc-footer-links-grouped {
+    grid-template-columns: repeat(var(--doc-footer-columns, 4), minmax(0, 1fr));
+  }
+}
+
+/* Below sm: stack footer link groups and stack prev/next. */
+@media (--below-sm) {
   .doc-article-nav {
     grid-template-columns: 1fr;
   }
@@ -184,13 +199,6 @@
     grid-column: 1;
   }
 
-  .doc-footer-links-flat,
-  .doc-footer-links-grouped {
-    grid-template-columns: repeat(var(--doc-footer-columns-compact, 2), minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 560px) {
   .doc-footer-links-flat,
   .doc-footer-links-grouped {
     grid-template-columns: 1fr;

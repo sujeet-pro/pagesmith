@@ -171,33 +171,34 @@ The processor is cached per `MarkdownConfig` object reference (WeakMap).
 The built-in Pagesmith code renderer handles syntax highlighting with dual themes (default: github-light/github-dark), file titles, line numbers, copy buttons, collapsible sections, line highlighting (mark/ins/del), text wrapping, and frame styles. Shared frame chrome ships in the CSS bundles, while the shared content runtime handles tabs, copy, and collapse interactions in the browser.
 
 Code block meta string syntax:
-```
+
+````
 ```js title="app.js" showLineNumbers=false collapse={1-5,12-14} mark={3} ins={4} del={5}
-```
+````
 
 ## Content layer API
 
 ```ts
-import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
+import { createContentLayer, defineCollection, defineConfig, z } from "@pagesmith/core";
 
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
     tags: z.array(z.string()).default([]),
   }),
-})
+});
 
 const config = defineConfig({
   collections: { posts },
-  markdown: { shiki: { themes: { light: 'github-light', dark: 'github-dark' } } },
-})
+  markdown: { shiki: { themes: { light: "github-light", dark: "github-dark" } } },
+});
 
-const layer = createContentLayer(config)
-const entries = await layer.getCollection('posts')
-const rendered = await entries[0]?.render()
+const layer = createContentLayer(config);
+const entries = await layer.getCollection("posts");
+const rendered = await entries[0]?.render();
 // rendered.html, rendered.headings, rendered.readTime
 ```
 
@@ -212,14 +213,14 @@ const rendered = await entries[0]?.render()
 
 Each loader implements `{ name, extensions, load(filePath) -> LoaderResult }`.
 
-| Loader type | Class            | Extensions       | Notes                                    |
-|-------------|------------------|------------------|------------------------------------------|
-| `markdown`  | `MarkdownLoader` | `.md`            | gray-matter frontmatter + body content   |
-| `json`      | `JsonLoader`     | `.json`          | JSON.parse, full object as data          |
-| `json5`     | `JsonLoader`     | `.json5`         | Same class, JSON5.parse based on extension |
-| `jsonc`     | `JsoncLoader`    | `.jsonc`         | Comment stripping + JSON.parse           |
-| `yaml`      | `YamlLoader`     | `.yml`, `.yaml`  | yaml package                             |
-| `toml`      | `TomlLoader`     | `.toml`          | smol-toml                                |
+| Loader type | Class            | Extensions      | Notes                                      |
+| ----------- | ---------------- | --------------- | ------------------------------------------ |
+| `markdown`  | `MarkdownLoader` | `.md`           | gray-matter frontmatter + body content     |
+| `json`      | `JsonLoader`     | `.json`         | JSON.parse, full object as data            |
+| `json5`     | `JsonLoader`     | `.json5`        | Same class, JSON5.parse based on extension |
+| `jsonc`     | `JsoncLoader`    | `.jsonc`        | Comment stripping + JSON.parse             |
+| `yaml`      | `YamlLoader`     | `.yml`, `.yaml` | yaml package                               |
+| `toml`      | `TomlLoader`     | `.toml`         | smol-toml                                  |
 
 Custom loaders: implement the `Loader` interface and pass an instance as `loader` in `CollectionDef`.
 
@@ -260,17 +261,17 @@ Custom validators: implement `ContentValidator { name, validate(ctx) }` and add 
 
 The package exposes multiple entry points via `exports` in package.json:
 
-| Import path              | Source                     | Purpose                              |
-|--------------------------|----------------------------|--------------------------------------|
-| `@pagesmith/core`              | `src/index.ts`             | Main API barrel                      |
-| `@pagesmith/core/markdown`     | `src/markdown/index.ts`    | processMarkdown                      |
-| `@pagesmith/core/schemas`      | `src/schemas/index.ts`     | Zod schemas and types                |
-| `@pagesmith/core/loaders`      | `src/loaders/index.ts`     | Loader classes and registry          |
-| `@pagesmith/core/assets`       | `src/assets/index.ts`      | Asset copying and hashing            |
-| `@pagesmith/core/vite`         | `src/vite/index.ts`        | Vite content plugin (`pagesmithContent`) |
-| `@pagesmith/core/create`       | `src/create/index.ts`      | Project scaffolding utilities        |
-| `@pagesmith/core/mcp`          | `src/mcp/index.ts`         | Core MCP server and helpers          |
-| `@pagesmith/core/ai`           | `src/ai/index.ts`          | AI assistant file installer          |
+| Import path                | Source                  | Purpose                                  |
+| -------------------------- | ----------------------- | ---------------------------------------- |
+| `@pagesmith/core`          | `src/index.ts`          | Main API barrel                          |
+| `@pagesmith/core/markdown` | `src/markdown/index.ts` | processMarkdown                          |
+| `@pagesmith/core/schemas`  | `src/schemas/index.ts`  | Zod schemas and types                    |
+| `@pagesmith/core/loaders`  | `src/loaders/index.ts`  | Loader classes and registry              |
+| `@pagesmith/core/assets`   | `src/assets/index.ts`   | Asset copying and hashing                |
+| `@pagesmith/core/vite`     | `src/vite/index.ts`     | Vite content plugin (`pagesmithContent`) |
+| `@pagesmith/core/create`   | `src/create/index.ts`   | Project scaffolding utilities            |
+| `@pagesmith/core/mcp`      | `src/mcp/index.ts`      | Core MCP server and helpers              |
+| `@pagesmith/core/ai`       | `src/ai/index.ts`       | AI assistant file installer              |
 
 ## Coding conventions
 
@@ -290,8 +291,8 @@ These files are part of the package contract and must be kept current when `@pag
 - `skills/pagesmith-core-setup/references/setup-core.md`
 - `skills/pagesmith-core-setup/references/core-guidelines.md`
 - `skills/pagesmith-core-setup/references/markdown-guidelines.md`
-- `skills/pagesmith-core-setup/references/llms.txt`
-- `skills/pagesmith-core-setup/references/llms-full.txt`
+- `llms.txt`
+- `llms-full.txt`
 - `skills/pagesmith-core-setup/references/usage.md`
 - `skills/pagesmith-core-setup/references/recipes.md`
 - `skills/pagesmith-core-setup/references/errors.md`

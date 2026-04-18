@@ -17,10 +17,10 @@ Follow these steps to get up and running.
 ## Example Code
 
 ```js
-import { createContentLayer } from '@pagesmith/core'
+import { createContentLayer } from "@pagesmith/core";
 
-const layer = createContentLayer(config)
-const posts = await layer.getCollection('posts')
+const layer = createContentLayer(config);
+const posts = await layer.getCollection("posts");
 ```
 
 ## Next Steps

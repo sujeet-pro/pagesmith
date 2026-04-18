@@ -6,8 +6,8 @@
 
 These files are part of the package contract and must be kept current when `@pagesmith/docs` behavior changes:
 
-- `skills/pagesmith-docs-setup/references/llms.txt`
-- `skills/pagesmith-docs-setup/references/llms-full.txt`
+- `llms.txt`
+- `llms-full.txt`
 - `skills/pagesmith-docs-setup/references/setup-docs.md`
 - `skills/pagesmith-docs-setup/references/docs-guidelines.md`
 - `skills/pagesmith-docs-setup/references/markdown-guidelines.md`

@@ -70,6 +70,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 > Set up docs using Pagesmith for this repository. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` first and follow it exactly. Ensure `pagesmith.config.json5` includes a `$schema` entry that points at the installed `node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json` file.
 
 **Files to read:**
+
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md`
 - `node_modules/@pagesmith/docs/schemas/*.schema.json`
@@ -80,6 +81,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 > Create documentation pages for this project using `@pagesmith/docs`. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md` and `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` first, then use `node_modules/@pagesmith/docs/REFERENCE.md` for exact frontmatter and layout details. Each page should be a folder with a `README.md`. Use proper frontmatter (`title`, `description`), fenced code blocks with language identifiers and built-in code renderer meta (titles, line highlighting, collapse), and GitHub Alerts for important callouts. When a flow, architecture, lifecycle, or dependency graph would be clearer visually, create a diagram asset instead of relying on raw diagram fences. Choose Mermaid for text-first flows, Excalidraw for architecture sketches, draw.io for precise infrastructure or BPMN, and Graphviz for dependency graphs. Keep the editable source plus rendered light/dark SVGs with the page, embed the rendered assets with `.only-light` / `.only-dark` when needed, and keep one `# h1` per page with sequential heading depth.
 
 **Files to read:**
+
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Frontmatter, Markdown Guidelines, Code block features sections)
@@ -89,6 +91,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 > Improve the documentation for this project by adding or refreshing diagrams where they make the page easier to understand. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md` and `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` first. Decide whether the page needs a flowchart, architecture overview, topology diagram, or dependency graph. Choose Mermaid for text-first flows, Excalidraw for architecture sketches, draw.io for precise infrastructure or BPMN, and Graphviz for dependency graphs or existing `.dot` assets. Keep the editable source file plus rendered assets in a `diagrams/` folder beside the page, render light and dark variants when needed, embed the rendered assets in the page, and do not assume raw diagram fences render inline in stock `@pagesmith/docs`.
 
 **Files to read:**
+
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Content Structure, Theming sections)
@@ -98,6 +101,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 > Restructure the documentation for this project. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md` for authoring and organization rules, `node_modules/@pagesmith/docs/REFERENCE.md` for content structure conventions, and `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/recipes.md` for section management recipes. Add new sections as top-level folders under the configured content directory, create `meta.json5` for ordering, add pages as `<slug>/README.md`, and keep any page-local `diagrams/` or asset folders with the page when moving content. Update cross-links between pages and verify the sidebar renders correctly with `npx pagesmith-docs dev`.
 
 **Files to read:**
+
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Content Structure, Section Meta sections)
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/recipes.md`
@@ -107,6 +111,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 > Upgrade the existing `@pagesmith/docs` integration in this repository. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md` first and follow it exactly. Keep the current docs structure unless a schema or config problem requires a change. Refresh package guidance pointers, review new features from `changelog-notes.md`, adopt the ones that fit this repo, and verify the docs build before finishing.
 
 **Files to read:**
+
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md`
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/changelog-notes.md`
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`
@@ -118,6 +123,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 > Organize the documentation navigation using `meta.json5` files. Read `node_modules/@pagesmith/docs/REFERENCE.md` for the `meta.json5` schema — `displayName`, `items` for manual ordering, `series` for grouping, and `collapsed` for sidebar state. Top-level folders define main nav sections. Keep getting-started pages first in `items` arrays. Use `orderBy: 'manual'` and list slugs in the intended reading order.
 
 **Files to read:**
+
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Section Meta, Navigation sections)
 
 ### Prompt: Troubleshooting build or config errors
@@ -125,6 +131,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 > Fix docs build errors in this project. Read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/errors.md` for the error catalog with patterns and fixes. Run `npx pagesmith-docs build` to see all errors. Common issues: missing config file, invalid `basePath`, missing content directory, missing asset sources, missing layout files.
 
 **Files to read:**
+
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/errors.md`
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Config Validation section)
 
@@ -137,6 +144,7 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 > Configure the docs color scheme and theme. Set `theme.defaultColorScheme` to `"auto"` (OS preference), `"light"`, or `"dark"` in `pagesmith.config.json5`. Set `theme.defaultTheme` to `"paper"` (warm, low-contrast) or `"high-contrast"` (WCAG AAA). Set `theme.defaultTextSize` to `"small"`, `"base"`, or `"large"` when the site should start with a non-default reading scale. The theme toggle in the header and footer selector use the same segmented control design and let users override these defaults. User preferences persist in `localStorage('pagesmith-theme')`. CSS classes on `<html>`: `color-scheme-auto|light|dark` + `theme-paper|high-contrast`, plus `data-text-size` when a non-base size is active. Use `.only-light`/`.only-dark` on images for scheme-aware switching. Use `.show-on-light`/`.show-on-dark` for generic visibility helpers. The footer link area supports either a flat wrapped link row or grouped columns via `footerLinks`, and falls back to the top-level nav links when `footerLinks` is omitted. Use `copyright` for the footer legal line (`projectName`, `startYear`, `endYear?: number | null`) and `footerText` to override only the Pagesmith sign-off segment; otherwise the default sign-off renders "Made with love using Pagesmith" with a heart icon, a Pagesmith link, and an optional maintainer credit from `maintainer` or `package.json` author.
 
 **Files to read:**
+
 - `node_modules/@pagesmith/docs/REFERENCE.md` (Layout Overrides, Layout Props sections)
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/recipes.md`
 
@@ -144,22 +152,22 @@ The prompts below cover follow-up workflows after the basic docs integration exi
 
 ## Package files reference
 
-| File | Purpose |
-|---|---|
-| `node_modules/@pagesmith/docs/REFERENCE.md` | Complete config, CLI, content structure, frontmatter, markdown, layout, and deployment reference |
-| `node_modules/@pagesmith/docs/README.md` | User-facing quick start and API overview |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` | Canonical bootstrap/retrofit prompt for setting up docs in an existing repo |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md` | AI-first docs writing, organization, built-in docs features, and diagram workflow |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` | Supported markdown syntax, code block features, and diagram embedding rules |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md` | This file — agent rules and prompts |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/recipes.md` | Step-by-step recipes for common tasks |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/errors.md` | Error catalog with patterns and fixes |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md` | Upgrade playbook and copy-paste prompt for existing integrations |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/changelog-notes.md` | Version highlights |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/AGENTS.md.template` | Template for consuming project AGENTS.md |
-| `node_modules/@pagesmith/docs/schemas/*.schema.json` | Version-matched schemas for config, meta.json5, and docs frontmatter |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/llms.txt` | Compact AI context index |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/llms-full.txt` | Full AI context with all file pointers |
+| File                                                                                         | Purpose                                                                                          |
+| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `node_modules/@pagesmith/docs/REFERENCE.md`                                                  | Complete config, CLI, content structure, frontmatter, markdown, layout, and deployment reference |
+| `node_modules/@pagesmith/docs/README.md`                                                     | User-facing quick start and API overview                                                         |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`          | Canonical bootstrap/retrofit prompt for setting up docs in an existing repo                      |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`     | AI-first docs writing, organization, built-in docs features, and diagram workflow                |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` | Supported markdown syntax, code block features, and diagram embedding rules                      |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`               | This file — agent rules and prompts                                                              |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/recipes.md`             | Step-by-step recipes for common tasks                                                            |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/errors.md`              | Error catalog with patterns and fixes                                                            |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md`           | Upgrade playbook and copy-paste prompt for existing integrations                                 |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/changelog-notes.md`     | Version highlights                                                                               |
+| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/AGENTS.md.template`     | Template for consuming project AGENTS.md                                                         |
+| `node_modules/@pagesmith/docs/schemas/*.schema.json`                                         | Version-matched schemas for config, meta.json5, and docs frontmatter                             |
+| `node_modules/@pagesmith/docs/llms.txt`                                                      | Compact AI context index                                                                         |
+| `node_modules/@pagesmith/docs/llms-full.txt`                                                 | Full AI context with all file pointers                                                           |
 
 ## MCP server (stdio)
 

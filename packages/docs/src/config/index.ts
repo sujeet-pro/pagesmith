@@ -9,7 +9,7 @@ export {
   resolveDocsConfig,
   resolveDocsConfigAsync,
   resolveInitOrigin,
-} from './resolve'
+} from "./resolve";
 export {
   getPackageDir,
   getThemeRoot,
@@ -18,8 +18,8 @@ export {
   readJson5File,
   toTitleCase,
   withBase,
-} from './shared'
-export { reportConfigIssues, validateConfig } from './validate'
+} from "./shared";
+export { reportConfigIssues, validateConfig } from "./validate";
 export type {
   ConfigValidationIssue,
   CopyrightConfig,
@@ -33,4 +33,4 @@ export type {
   GitOriginInfo,
   ResolvedCopyright,
   ResolvedDocsConfig,
-} from './types'
+} from "./types";

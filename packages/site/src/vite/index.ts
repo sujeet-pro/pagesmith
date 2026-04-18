@@ -7,8 +7,8 @@ import {
   type MarkdownContentModuleEntry,
   type PagesmithContentPluginOptions as CorePagesmithContentPluginOptions,
   type PagesmithVitePlugin,
-} from '@pagesmith/core/vite'
-import type { CollectionMap } from '../schemas/index.js'
+} from "@pagesmith/core/vite";
+import type { CollectionMap } from "../schemas/index.js";
 
 export type {
   BaseContentModuleEntry,
@@ -17,41 +17,41 @@ export type {
   DataContentModuleEntry,
   MarkdownContentModuleEntry,
   PagesmithVitePlugin,
-} from '@pagesmith/core/vite'
+} from "@pagesmith/core/vite";
 export type PagesmithContentPluginOptions<TCollections extends CollectionMap> = Omit<
   CorePagesmithContentPluginOptions<TCollections>,
-  'dtsImportSource'
->
+  "dtsImportSource"
+>;
 
 export function pagesmithContent<TCollections extends CollectionMap>(
   collections: TCollections,
-  options?: Omit<PagesmithContentPluginOptions<TCollections>, 'collections'>,
-): PagesmithVitePlugin
+  options?: Omit<PagesmithContentPluginOptions<TCollections>, "collections">,
+): PagesmithVitePlugin;
 export function pagesmithContent<TCollections extends CollectionMap>(
   options: PagesmithContentPluginOptions<TCollections>,
-): PagesmithVitePlugin
+): PagesmithVitePlugin;
 export function pagesmithContent<TCollections extends CollectionMap>(
   collectionsOrOptions: TCollections | PagesmithContentPluginOptions<TCollections>,
-  maybeOptions: Omit<PagesmithContentPluginOptions<TCollections>, 'collections'> = {},
+  maybeOptions: Omit<PagesmithContentPluginOptions<TCollections>, "collections"> = {},
 ): PagesmithVitePlugin {
-  if ('collections' in collectionsOrOptions) {
+  if ("collections" in collectionsOrOptions) {
     return corePagesmithContent({
       ...collectionsOrOptions,
-      dtsImportSource: '@pagesmith/site/vite',
-    } as CorePagesmithContentPluginOptions<TCollections>)
+      dtsImportSource: "@pagesmith/site/vite",
+    } as CorePagesmithContentPluginOptions<TCollections>);
   }
 
   return corePagesmithContent(collectionsOrOptions, {
     ...maybeOptions,
-    dtsImportSource: '@pagesmith/site/vite',
-  } as Omit<CorePagesmithContentPluginOptions<TCollections>, 'collections'>)
+    dtsImportSource: "@pagesmith/site/vite",
+  } as Omit<CorePagesmithContentPluginOptions<TCollections>, "collections">);
 }
 
-export { prerenderRoutes } from './ssg'
-export type { PrerenderOptions } from './ssg'
-export { sharedAssetsPlugin } from './shared-assets.js'
-export { pagesmithSsg } from './ssg-plugin.js'
-export type { SsgPluginOptions, SsgRenderConfig } from './ssg-plugin.js'
-export { pagesmithSite } from './site-plugin.js'
-export type { PagesmithSitePluginOptions } from './site-plugin.js'
-export type { ContentAssetMap } from '../assets/index.js'
+export { prerenderRoutes } from "./ssg";
+export type { PrerenderOptions } from "./ssg";
+export { sharedAssetsPlugin } from "./shared-assets.js";
+export { pagesmithSsg } from "./ssg-plugin.js";
+export type { SsgPluginOptions, SsgRenderConfig } from "./ssg-plugin.js";
+export { pagesmithSite } from "./site-plugin.js";
+export type { PagesmithSitePluginOptions } from "./site-plugin.js";
+export type { ContentAssetMap } from "../assets/index.js";

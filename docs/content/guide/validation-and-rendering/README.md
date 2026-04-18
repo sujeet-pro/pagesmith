@@ -26,10 +26,10 @@ Every entry's `data` object is validated against the collection's Zod schema usi
 
 ```ts title="ValidationIssue Type"
 type ValidationIssue = {
-  message: string
-  severity: 'error' | 'warn'
-  field?: string   // Dot-path to the invalid field (e.g., "tags.0")
-}
+  message: string;
+  severity: "error" | "warn";
+  field?: string; // Dot-path to the invalid field (e.g., "tags.0")
+};
 ```
 
 The coerced result from `safeParse` is reused as the entry data, so Zod transforms (like `z.coerce.date()`) are applied automatically.
@@ -42,13 +42,13 @@ The `ValidatorContext` provides:
 
 ```ts title="ValidatorContext Type"
 type ValidatorContext = {
-  filePath: string           // Absolute path to the source file
-  slug: string               // URL-friendly slug
-  collection: string         // Collection name
-  rawContent?: string        // Raw markdown body
-  data: Record<string, any>  // Parsed frontmatter/data
-  mdast?: Root               // Pre-parsed MDAST tree (shared)
-}
+  filePath: string; // Absolute path to the source file
+  slug: string; // URL-friendly slug
+  collection: string; // Collection name
+  rawContent?: string; // Raw markdown body
+  data: Record<string, any>; // Parsed frontmatter/data
+  mdast?: Root; // Pre-parsed MDAST tree (shared)
+};
 ```
 
 The MDAST tree is parsed once in `runValidators()` using `unified().use(remarkParse).parse(rawContent)` and set on the context before any validators execute.
@@ -58,6 +58,7 @@ The MDAST tree is parsed once in `runValidators()` using `unified().use(remarkPa
 Pagesmith provides four built-in validators for markdown content (the `builtinMarkdownValidators` array):
 
 **`linkValidator`** (configurable via `createLinkValidator(options)`) -- Checks links and images:
+
 - Warns on empty link text.
 - Errors on missing image `alt` text (toggle with `requireAltText`).
 - Errors on raw `<img>` tags outside a `<picture>` element (toggle with `forbidHtmlImgTag`).
@@ -67,12 +68,14 @@ Pagesmith provides four built-in validators for markdown content (the `builtinMa
 - Optional checks: `internalLinksMustBeMarkdown`, `requireCanonicalInternalLinks`, and an opt-in external-URL reachability fetch (`unreachableSeverity`, `fetchTimeoutMs`, `fetchConcurrency`).
 
 **`headingValidator`** -- Checks heading structure (all warnings, never aborts):
+
 - Warns when a document with content has no headings.
 - Warns on empty heading text.
 - Warns when more than one `h1` is present (one warning per extra `h1`).
 - Warns when heading levels skip (for example `h1` → `h3`).
 
 **`codeBlockValidator`** -- Checks fenced code block meta syntax:
+
 - Warns when meta is set but the code block has no language identifier.
 - Warns on unknown meta keys (anything outside `title`, `showLineNumbers`, `startLineNumber`, `wrap`, `frame`, `mark`, `ins`, `del`, `collapse`).
 - Warns on malformed line ranges in `mark`, `ins`, `del`, or `collapse`.
@@ -84,53 +87,53 @@ Pagesmith provides four built-in validators for markdown content (the `builtinMa
 Implement the `ContentValidator` interface and add to the `validators` array:
 
 ```ts title="custom-validator.ts"
-import type { ContentValidator } from '@pagesmith/core'
+import type { ContentValidator } from "@pagesmith/core";
 
 const noTodoValidator: ContentValidator = {
-  name: 'no-todo',
+  name: "no-todo",
   validate(ctx) {
-    const issues = []
-    if (ctx.rawContent?.includes('TODO')) {
+    const issues = [];
+    if (ctx.rawContent?.includes("TODO")) {
       issues.push({
-        message: 'Content contains TODO markers',
-        severity: 'warn' as const,
-      })
+        message: "Content contains TODO markers",
+        severity: "warn" as const,
+      });
     }
-    return issues
+    return issues;
   },
-}
+};
 
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({ title: z.string() }),
   validators: [noTodoValidator],
-})
+});
 ```
 
 Custom validators receive the same shared `ValidatorContext` with the pre-parsed MDAST tree. You can walk the MDAST tree for structural analysis:
 
 ```ts title="image-alt-validator.ts"
-import type { ContentValidator } from '@pagesmith/core'
-import { visit } from 'unist-util-visit'
+import type { ContentValidator } from "@pagesmith/core";
+import { visit } from "unist-util-visit";
 
 const imageAltValidator: ContentValidator = {
-  name: 'image-alt-text',
+  name: "image-alt-text",
   validate(ctx) {
-    const issues = []
+    const issues = [];
     if (ctx.mdast) {
-      visit(ctx.mdast, 'image', (node: any) => {
-        if (!node.alt || node.alt.trim() === '') {
+      visit(ctx.mdast, "image", (node: any) => {
+        if (!node.alt || node.alt.trim() === "") {
           issues.push({
             message: `Image missing alt text: ${node.url}`,
-            severity: 'warn' as const,
-          })
+            severity: "warn" as const,
+          });
         }
-      })
+      });
     }
-    return issues
+    return issues;
   },
-}
+};
 ```
 
 #### Disabling Built-in Validators
@@ -139,12 +142,12 @@ Set `disableBuiltinValidators: true` on a collection to skip the built-in link, 
 
 ```ts title="content.config.ts"
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({ title: z.string() }),
   disableBuiltinValidators: true,
   validators: [myCustomValidator],
-})
+});
 ```
 
 #### Error Handling in Validators
@@ -154,14 +157,14 @@ Validators that throw errors are caught and converted to error-severity issues, 
 ```ts title="Error Handling (from runner.ts)"
 for (const validator of validators) {
   try {
-    const result = await validator.validate(ctx)
-    issues.push(...result)
+    const result = await validator.validate(ctx);
+    issues.push(...result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
+    const message = err instanceof Error ? err.message : String(err);
     issues.push({
       message: `Validator "${validator.name}" threw: ${message}`,
-      severity: 'error',
-    })
+      severity: "error",
+    });
   }
 }
 ```
@@ -172,11 +175,11 @@ If `ContentPlugin` instances are registered in the config, their `validate()` ho
 
 ```ts title="ContentPlugin Type"
 type ContentPlugin = {
-  name: string
-  rehypePlugin?: () => (tree: any) => void
-  remarkPlugin?: () => (tree: any) => void
-  validate?: (entry: { data: Record<string, any>; content?: string }) => string[]
-}
+  name: string;
+  rehypePlugin?: () => (tree: any) => void;
+  remarkPlugin?: () => (tree: any) => void;
+  validate?: (entry: { data: Record<string, any>; content?: string }) => string[];
+};
 ```
 
 ### Collection-Level Validate Hook
@@ -185,18 +188,18 @@ The `validate` hook on `CollectionDef` provides a lightweight alternative to ful
 
 ```ts title="content.config.ts"
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
   }),
   validate(entry) {
     if (entry.data.date > new Date()) {
-      return 'Post date cannot be in the future'
+      return "Post date cannot be in the future";
     }
   },
-})
+});
 ```
 
 ## Rendering Model
@@ -223,10 +226,10 @@ When `render()` is called:
 
 ```ts title="RenderedContent Type"
 type RenderedContent = {
-  html: string        // Processed HTML
-  headings: Heading[] // Extracted headings for TOC { depth, text, slug }
-  readTime: number    // Estimated read time in minutes
-}
+  html: string; // Processed HTML
+  headings: Heading[]; // Extracted headings for TOC { depth, text, slug }
+  readTime: number; // Estimated read time in minutes
+};
 ```
 
 ### Render Caching
@@ -398,26 +401,26 @@ Content plugins can inject into the markdown pipeline at two points:
 Plugin remark and rehype plugins are collected and appended to the pipeline during rendering, so they run on every markdown entry. Plugin validators run during the loading phase, not during rendering.
 
 ```ts title="content.config.ts"
-import { defineConfig } from '@pagesmith/core'
+import { defineConfig } from "@pagesmith/core";
 
 const myPlugin = {
-  name: 'my-plugin',
+  name: "my-plugin",
   rehypePlugin: () => (tree) => {
     // Transform the HAST tree
   },
   validate: (entry) => {
-    const errors = []
+    const errors = [];
     if (!entry.data.title) {
-      errors.push('Missing required title field')
+      errors.push("Missing required title field");
     }
-    return errors
+    return errors;
   },
-}
+};
 
 const config = defineConfig({
   collections: { posts },
   plugins: [myPlugin],
-})
+});
 ```
 
 ## Direct Conversion
@@ -426,14 +429,14 @@ Use the content layer when you need collection semantics (file discovery, schema
 
 ```ts title="convert.ts"
 // Via the content layer (respects the layer's markdown config)
-const fragment = await layer.convert('# Hello\n\nWorld')
+const fragment = await layer.convert("# Hello\n\nWorld");
 // fragment.html, fragment.headings, fragment.toc, fragment.frontmatter
 
 // Via the standalone convert() function
-import { convert } from '@pagesmith/core'
-const result = await convert('# Hello\n\nWorld', {
-  markdown: { shiki: { themes: { light: 'github-light', dark: 'github-dark' } } },
-})
+import { convert } from "@pagesmith/core";
+const result = await convert("# Hello\n\nWorld", {
+  markdown: { shiki: { themes: { light: "github-light", dark: "github-dark" } } },
+});
 // result.html, result.headings, result.toc, result.frontmatter
 ```
 
@@ -441,12 +444,12 @@ The `ConvertResult` type:
 
 ```ts title="ConvertResult Type"
 type ConvertResult = {
-  html: string
-  headings: Heading[]
+  html: string;
+  headings: Heading[];
   /** @deprecated Use `headings` instead. */
-  toc: Heading[]
-  frontmatter: Record<string, any>
-}
+  toc: Heading[];
+  frontmatter: Record<string, any>;
+};
 ```
 
 `convert()` extracts headings from the rendered HTML using `extractToc()` (regex-based) and exposes them on both `headings` and the deprecated `toc` alias. `entry.render()` extracts headings from the HAST during processing (more accurate) and only returns `headings`.
@@ -456,20 +459,20 @@ type ConvertResult = {
 Use `layer.validate()` in application code when you want content validation results as structured data:
 
 ```ts title="validate.ts"
-const layer = createContentLayer(config)
+const layer = createContentLayer(config);
 
 // Validate all collections
-const results = await layer.validate()
+const results = await layer.validate();
 
 // Validate a specific collection
-const postResults = await layer.validate('posts')
+const postResults = await layer.validate("posts");
 
 // Check results
 for (const result of results) {
-  console.log(`${result.collection}: ${result.errors} errors, ${result.warnings} warnings`)
+  console.log(`${result.collection}: ${result.errors} errors, ${result.warnings} warnings`);
   for (const entry of result.entries) {
     for (const issue of entry.issues) {
-      console.log(`  [${issue.severity}] ${entry.slug}: ${issue.message}`)
+      console.log(`  [${issue.severity}] ${entry.slug}: ${issue.message}`);
     }
   }
 }
@@ -479,15 +482,15 @@ The `ValidationResult` type:
 
 ```ts title="ValidationResult Type"
 type ValidationResult = {
-  collection: string
+  collection: string;
   entries: Array<{
-    slug: string
-    filePath: string
-    issues: ValidationIssue[]
-  }>
-  errors: number
-  warnings: number
-}
+    slug: string;
+    filePath: string;
+    issues: ValidationIssue[];
+  }>;
+  errors: number;
+  warnings: number;
+};
 ```
 
 ## Validation Issue Lifecycle

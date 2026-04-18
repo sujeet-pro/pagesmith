@@ -6,26 +6,26 @@
  * sidebar modal behavior, search-trigger density, and footer year.
  */
 
-import { initFooterCopyrightYear } from './footer-year'
-import { initSearchTriggerDensity } from './search-trigger'
-import { initSidebarModal } from './sidebar'
-import { initSkipLinkFocus } from './skip-link'
-import { initTheme } from './theme'
-import { initThemedImages } from './themed-images'
-import { initTocHighlight } from './toc-highlight'
+import { initFooterCopyrightYear } from "./footer-year";
+import { initSearchTriggerDensity } from "./search-trigger";
+import { initSidebarModal } from "./sidebar";
+import { initSkipLinkFocus } from "./skip-link";
+import { initTheme } from "./theme";
+import { initThemedImages } from "./themed-images";
+import { initTocHighlight } from "./toc-highlight";
 
-export { initFooterCopyrightYear } from './footer-year'
-export { initSearchTriggerDensity } from './search-trigger'
-export { initSidebarModal } from './sidebar'
-export { initSkipLinkFocus } from './skip-link'
-export { initTheme } from './theme'
-export { initThemedImages } from './themed-images'
-export { initTocHighlight } from './toc-highlight'
+export { initFooterCopyrightYear } from "./footer-year";
+export { initSearchTriggerDensity } from "./search-trigger";
+export { initSidebarModal } from "./sidebar";
+export { initSkipLinkFocus } from "./skip-link";
+export { initTheme } from "./theme";
+export { initThemedImages } from "./themed-images";
+export { initTocHighlight } from "./toc-highlight";
 
-initFooterCopyrightYear()
-initSearchTriggerDensity()
-initSidebarModal()
-initSkipLinkFocus()
-initTheme()
-initThemedImages()
-initTocHighlight()
+initFooterCopyrightYear();
+initSearchTriggerDensity();
+initSidebarModal();
+initSkipLinkFocus();
+initTheme();
+initThemedImages();
+initTocHighlight();

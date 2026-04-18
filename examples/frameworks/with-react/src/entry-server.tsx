@@ -1,6 +1,6 @@
 // SSG entry for pagesmithSsg: virtual collections → React layout → static HTML via renderDocumentShell.
-import { renderToStaticMarkup } from 'react-dom/server'
-import type { SsgRenderConfig } from '@pagesmith/site/vite'
+import { renderToStaticMarkup } from "react-dom/server";
+import type { SsgRenderConfig } from "@pagesmith/site/vite";
 import {
   type MarkdownEntry,
   type NavEntry,
@@ -18,66 +18,66 @@ import {
   buildNavEntries,
   groupByField,
   renderDocumentShell,
-} from '@pagesmith/site/ssg-utils'
-import guideCollection from 'virtual:content/guide'
-import pagesCollection from 'virtual:content/pages'
+} from "@pagesmith/site/ssg-utils";
+import guideCollection from "virtual:content/guide";
+import pagesCollection from "virtual:content/pages";
 
 type Frontmatter = {
-  title: string
-  description?: string
-  date?: string | Date
-  tags?: string[]
-  series?: string
-  seriesOrder?: number
-}
+  title: string;
+  description?: string;
+  date?: string | Date;
+  tags?: string[];
+  series?: string;
+  seriesOrder?: number;
+};
 
-type Entry = MarkdownEntry<Frontmatter>
-type GuideGroup = NavGroup
+type Entry = MarkdownEntry<Frontmatter>;
+type GuideGroup = NavGroup;
 
 const guideEntries = [...(guideCollection as Entry[])].sort((left, right) => {
-  const orderDelta = (left.frontmatter.seriesOrder ?? 99) - (right.frontmatter.seriesOrder ?? 99)
-  if (orderDelta !== 0) return orderDelta
-  return getTime(left.frontmatter.date) - getTime(right.frontmatter.date)
-})
+  const orderDelta = (left.frontmatter.seriesOrder ?? 99) - (right.frontmatter.seriesOrder ?? 99);
+  if (orderDelta !== 0) return orderDelta;
+  return getTime(left.frontmatter.date) - getTime(right.frontmatter.date);
+});
 
-const pageEntries = [...(pagesCollection as Entry[])]
+const pageEntries = [...(pagesCollection as Entry[])];
 
 function groupBySeries(base: string): GuideGroup[] {
-  return groupByField(guideEntries, base, 'guide', 'series')
+  return groupByField(guideEntries, base, "guide", "series");
 }
 
 const themeIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>';
 
 // ── Layout components ──
 // React-specific JSX components for the site shell (sidebar, header, pages).
 // Replace these with your own framework components when porting to a new example.
 
 function SidebarNav(props: {
-  currentPath: string
-  basePath: string
-  isGuide: boolean
-  firstGuideUrl: string
-  guideGroups: GuideGroup[]
+  currentPath: string;
+  basePath: string;
+  isGuide: boolean;
+  firstGuideUrl: string;
+  guideGroups: GuideGroup[];
 }) {
-  const { currentPath, basePath, isGuide, firstGuideUrl, guideGroups } = props
+  const { currentPath, basePath, isGuide, firstGuideUrl, guideGroups } = props;
 
   return (
     <>
       <div className="doc-sidebar-section">
         <p className="doc-sidebar-heading">Navigation</p>
         <ul className="doc-sidebar-list">
-          <li className={`doc-sidebar-item${currentPath === '/' ? ' active' : ''}`}>
+          <li className={`doc-sidebar-item${currentPath === "/" ? " active" : ""}`}>
             <a href={`${basePath}/`} className="doc-sidebar-link">
               Home
             </a>
           </li>
-          <li className={`doc-sidebar-item${isGuide ? ' active' : ''}`}>
+          <li className={`doc-sidebar-item${isGuide ? " active" : ""}`}>
             <a href={firstGuideUrl} className="doc-sidebar-link">
               Guide
             </a>
           </li>
-          <li className={`doc-sidebar-item${currentPath === '/about' ? ' active' : ''}`}>
+          <li className={`doc-sidebar-item${currentPath === "/about" ? " active" : ""}`}>
             <a href={`${basePath}/about`} className="doc-sidebar-link">
               About
             </a>
@@ -92,7 +92,7 @@ function SidebarNav(props: {
             <li key={group.series} className="doc-sidebar-item expanded">
               <span
                 className="doc-sidebar-link"
-                style={{ fontWeight: 500, color: 'var(--color-text-secondary)' }}
+                style={{ fontWeight: 500, color: "var(--color-text-secondary)" }}
               >
                 {group.series}
               </span>
@@ -100,7 +100,7 @@ function SidebarNav(props: {
                 {group.items.map((entry) => (
                   <li
                     key={entry.slug}
-                    className={`doc-sidebar-item${currentPath === `/guide/${entry.slug}` ? ' active' : ''}`}
+                    className={`doc-sidebar-item${currentPath === `/guide/${entry.slug}` ? " active" : ""}`}
                   >
                     <a href={entry.url} className="doc-sidebar-link">
                       {entry.title}
@@ -113,21 +113,21 @@ function SidebarNav(props: {
         </ul>
       </div>
     </>
-  )
+  );
 }
 
 function SearchTrigger() {
-  return <pagefind-modal-trigger className="doc-search-trigger" />
+  return <pagefind-modal-trigger className="doc-search-trigger" />;
 }
 
 function SiteHeader(props: {
-  basePath: string
-  currentPath: string
-  firstGuideUrl: string
-  searchEnabled?: boolean
+  basePath: string;
+  currentPath: string;
+  firstGuideUrl: string;
+  searchEnabled?: boolean;
 }) {
-  const { basePath, currentPath, firstGuideUrl, searchEnabled } = props
-  const isGuide = currentPath.startsWith('/guide')
+  const { basePath, currentPath, firstGuideUrl, searchEnabled } = props;
+  const isGuide = currentPath.startsWith("/guide");
 
   return (
     <header className="doc-header">
@@ -148,10 +148,10 @@ function SiteHeader(props: {
           </a>
         </div>
         <nav className="doc-nav">
-          <a href={`${basePath}/`} className={currentPath === '/' ? 'active' : ''}>
+          <a href={`${basePath}/`} className={currentPath === "/" ? "active" : ""}>
             Home
           </a>
-          <a href={firstGuideUrl} className={isGuide ? 'active' : ''}>
+          <a href={firstGuideUrl} className={isGuide ? "active" : ""}>
             Guide
           </a>
         </nav>
@@ -237,17 +237,17 @@ function SiteHeader(props: {
         </div>
       </div>
     </header>
-  )
+  );
 }
 
 function HomeBody(props: {
-  basePath: string
-  firstGuideUrl: string
-  kitchenSinkUrl: string
-  searchEnabled?: boolean
-  guideEntries: NavEntry[]
+  basePath: string;
+  firstGuideUrl: string;
+  kitchenSinkUrl: string;
+  searchEnabled?: boolean;
+  guideEntries: NavEntry[];
 }) {
-  const { basePath, firstGuideUrl, kitchenSinkUrl, searchEnabled, guideEntries } = props
+  const { basePath, firstGuideUrl, kitchenSinkUrl, searchEnabled, guideEntries } = props;
 
   return (
     <>
@@ -287,7 +287,7 @@ function HomeBody(props: {
 
         <section className="doc-home-section">
           <h2>Guide</h2>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <ul style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             {guideEntries.map((entry) => (
               <li key={entry.slug}>
                 <a href={entry.url} style={{ fontWeight: 500 }}>
@@ -296,11 +296,11 @@ function HomeBody(props: {
                 {entry.description ? (
                   <span
                     style={{
-                      color: 'var(--color-text-muted)',
-                      fontSize: 'var(--font-size-sm)',
+                      color: "var(--color-text-muted)",
+                      fontSize: "var(--font-size-sm)",
                     }}
                   >
-                    {' — '}
+                    {" — "}
                     {entry.description}
                   </span>
                 ) : null}
@@ -381,30 +381,30 @@ function HomeBody(props: {
               </div>
             </div>
             <p className="doc-footer-copyright">
-              &copy; 2026 Pagesmith {' · '} Made with{' '}
+              &copy; 2026 Pagesmith {" · "} Made with{" "}
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
             </p>
           </footer>
         </div>
       </main>
     </>
-  )
+  );
 }
 
 function PageBody(props: {
-  title: string
-  content: string
-  headings: Array<{ depth: number; slug: string; text: string }>
-  currentPath: string
-  basePath: string
-  firstGuideUrl: string
-  searchEnabled?: boolean
-  sidebar: GuideGroup[]
-  date?: string
-  readTime?: number
-  prev?: { title: string; url: string }
-  next?: { title: string; url: string }
-  editUrl?: string
+  title: string;
+  content: string;
+  headings: Array<{ depth: number; slug: string; text: string }>;
+  currentPath: string;
+  basePath: string;
+  firstGuideUrl: string;
+  searchEnabled?: boolean;
+  sidebar: GuideGroup[];
+  date?: string;
+  readTime?: number;
+  prev?: { title: string; url: string };
+  next?: { title: string; url: string };
+  editUrl?: string;
 }) {
   const {
     title,
@@ -420,8 +420,8 @@ function PageBody(props: {
     prev,
     next,
     editUrl,
-  } = props
-  const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
+  } = props;
+  const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 
   return (
     <>
@@ -437,7 +437,7 @@ function PageBody(props: {
             <SidebarNav
               currentPath={currentPath}
               basePath={basePath}
-              isGuide={currentPath.startsWith('/guide')}
+              isGuide={currentPath.startsWith("/guide")}
               firstGuideUrl={firstGuideUrl}
               guideGroups={sidebar}
             />
@@ -464,16 +464,16 @@ function PageBody(props: {
             {date ? (
               <p
                 style={{
-                  color: 'var(--color-text-muted)',
-                  fontSize: 'var(--font-size-sm)',
-                  marginBottom: '1rem',
+                  color: "var(--color-text-muted)",
+                  fontSize: "var(--font-size-sm)",
+                  marginBottom: "1rem",
                 }}
               >
                 <time dateTime={date}>{formatDate(date)}</time>
                 {readTime ? (
                   <>
-                    {' '}
-                    {' · '}
+                    {" "}
+                    {" · "}
                     {readTime} min read
                   </>
                 ) : null}
@@ -591,7 +591,7 @@ function PageBody(props: {
               </div>
             </div>
             <p className="doc-footer-copyright">
-              &copy; 2026 Pagesmith {' · '} Made with{' '}
+              &copy; 2026 Pagesmith {" · "} Made with{" "}
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
             </p>
           </footer>
@@ -613,57 +613,57 @@ function PageBody(props: {
         </aside>
       </div>
     </>
-  )
+  );
 }
 
 // ── Framework-specific: React rendering ──
 // Document shell and SSG render/route functions. This is where React's
 // renderToStaticMarkup is called. Other frameworks replace this section.
 
-const renderDocument = renderDocumentShell
+const renderDocument = renderDocumentShell;
 
 function renderNotFound(config: SsgRenderConfig) {
   return renderDocument({
-    title: 'Page Not Found - Pagesmith + React',
-    description: 'The page you requested could not be found.',
+    title: "Page Not Found - Pagesmith + React",
+    description: "The page you requested could not be found.",
     basePath: config.base,
     cssPath: config.cssPath,
     jsPath: config.jsPath,
     searchEnabled: config.searchEnabled,
     bodyHtml:
       '<main class="doc-home"><section class="doc-home-section"><div class="doc-not-found-container"><p class="doc-not-found-code">404</p><h1 class="doc-not-found-title">Page Not Found</h1></div></section></main>',
-  })
+  });
 }
 
 export async function getRoutes(): Promise<string[]> {
-  const routes = ['/', '/404']
-  routes.push(...guideEntries.map((entry) => routeFor(entry, 'guide')))
+  const routes = ["/", "/404"];
+  routes.push(...guideEntries.map((entry) => routeFor(entry, "guide")));
 
-  const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, 'pages') === 'about')
+  const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, "pages") === "about");
   if (aboutPage) {
-    routes.push(routeFor(aboutPage, 'pages'))
+    routes.push(routeFor(aboutPage, "pages"));
   }
 
-  return routes
+  return routes;
 }
 
 export async function render(url: string, config: SsgRenderConfig): Promise<string> {
   const routePath = (() => {
-    const normalized = normalizeRoute(url, config.base)
-    return normalized !== '/' && normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
-  })()
+    const normalized = normalizeRoute(url, config.base);
+    return normalized !== "/" && normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+  })();
 
-  const guideNavEntries = buildNavEntries(guideEntries, config.base, 'guide')
-  const guideGroups = groupBySeries(config.base)
-  const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`
+  const guideNavEntries = buildNavEntries(guideEntries, config.base, "guide");
+  const guideGroups = groupBySeries(config.base);
+  const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`;
   const kitchenSinkEntry = guideEntries.find(
-    (entry) => leafSlug(entry.contentSlug, 'guide') === 'kitchen-sink',
-  )
+    (entry) => leafSlug(entry.contentSlug, "guide") === "kitchen-sink",
+  );
   const kitchenSinkUrl = kitchenSinkEntry
-    ? `${config.base}/guide/${leafSlug(kitchenSinkEntry.contentSlug, 'guide')}`
-    : firstGuideUrl
+    ? `${config.base}/guide/${leafSlug(kitchenSinkEntry.contentSlug, "guide")}`
+    : firstGuideUrl;
 
-  if (routePath === '/') {
+  if (routePath === "/") {
     const sidebarHtml = renderToStaticMarkup(
       <div className="doc-sidebar-section">
         <p className="doc-sidebar-heading">Navigation</p>
@@ -680,7 +680,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
           </li>
         </ul>
       </div>,
-    )
+    );
     const bodyHtml = renderToStaticMarkup(
       <HomeBody
         basePath={config.base}
@@ -689,30 +689,30 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         searchEnabled={config.searchEnabled}
         guideEntries={guideNavEntries}
       />,
-    )
+    );
 
     return renderDocument({
-      title: 'Pagesmith + React',
+      title: "Pagesmith + React",
       description:
-        'A content-driven static site rendered with React and powered by the Pagesmith Vite content plugin.',
+        "A content-driven static site rendered with React and powered by the Pagesmith Vite content plugin.",
       basePath: config.base,
       cssPath: config.cssPath,
       jsPath: config.jsPath,
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
-  if (routePath === '/404') {
-    return renderNotFound(config)
+  if (routePath === "/404") {
+    return renderNotFound(config);
   }
 
-  const guideEntry = guideEntries.find((entry) => routeFor(entry, 'guide') === routePath)
+  const guideEntry = guideEntries.find((entry) => routeFor(entry, "guide") === routePath);
   if (guideEntry) {
-    const guideIdx = guideEntries.indexOf(guideEntry)
-    const guidePrev = guideIdx > 0 ? guideEntries[guideIdx - 1] : undefined
-    const guideNext = guideIdx < guideEntries.length - 1 ? guideEntries[guideIdx + 1] : undefined
+    const guideIdx = guideEntries.indexOf(guideEntry);
+    const guidePrev = guideIdx > 0 ? guideEntries[guideIdx - 1] : undefined;
+    const guideNext = guideIdx < guideEntries.length - 1 ? guideEntries[guideIdx + 1] : undefined;
     const sidebarHtml = renderToStaticMarkup(
       <SidebarNav
         currentPath={routePath}
@@ -721,7 +721,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         firstGuideUrl={firstGuideUrl}
         guideGroups={guideGroups}
       />,
-    )
+    );
     const bodyHtml = renderToStaticMarkup(
       <PageBody
         title={guideEntry.frontmatter.title}
@@ -738,7 +738,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
           guidePrev
             ? {
                 title: guidePrev.frontmatter.title,
-                url: `${config.base}/guide/${leafSlug(guidePrev.contentSlug, 'guide')}`,
+                url: `${config.base}/guide/${leafSlug(guidePrev.contentSlug, "guide")}`,
               }
             : undefined
         }
@@ -746,13 +746,13 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
           guideNext
             ? {
                 title: guideNext.frontmatter.title,
-                url: `${config.base}/guide/${leafSlug(guideNext.contentSlug, 'guide')}`,
+                url: `${config.base}/guide/${leafSlug(guideNext.contentSlug, "guide")}`,
               }
             : undefined
         }
         editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-react/content/${guideEntry.contentSlug}.md`}
       />,
-    )
+    );
 
     return renderDocument({
       title: `${guideEntry.frontmatter.title} - Pagesmith + React`,
@@ -763,10 +763,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
-  const aboutEntry = pageEntries.find((entry) => routeFor(entry, 'pages') === routePath)
+  const aboutEntry = pageEntries.find((entry) => routeFor(entry, "pages") === routePath);
   if (aboutEntry) {
     const sidebarHtml = renderToStaticMarkup(
       <SidebarNav
@@ -776,7 +776,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         firstGuideUrl={firstGuideUrl}
         guideGroups={guideGroups}
       />,
-    )
+    );
     const bodyHtml = renderToStaticMarkup(
       <PageBody
         title={aboutEntry.frontmatter.title}
@@ -790,7 +790,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         date={toIso(aboutEntry.frontmatter.date)}
         editUrl={`https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-react/content/${aboutEntry.contentSlug}.md`}
       />,
-    )
+    );
 
     return renderDocument({
       title: `${aboutEntry.frontmatter.title} - Pagesmith + React`,
@@ -801,8 +801,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
-  return renderNotFound(config)
+  return renderNotFound(config);
 }

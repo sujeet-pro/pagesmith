@@ -16,11 +16,11 @@ Collections connect filesystem markdown to **typed, build-time** data. This exam
 ## Definition
 
 ```ts title="content.config.ts"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const guide = defineCollection({
-  loader: 'markdown',
-  directory: './content/guide',
+  loader: "markdown",
+  directory: "./content/guide",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -30,18 +30,18 @@ export const guide = defineCollection({
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
   }),
-})
+});
 
 export const pages = defineCollection({
-  loader: 'markdown',
-  directory: './content/pages',
+  loader: "markdown",
+  directory: "./content/pages",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
   }),
-})
+});
 
-export default defineCollections({ guide, pages })
+export default defineCollections({ guide, pages });
 ```
 
 `z` is re-exported from `@pagesmith/site`; you do not add Zod as a separate dependency for schemas.
@@ -50,10 +50,10 @@ export default defineCollections({ guide, pages })
 
 `pagesmithContent({ collections })` registers one module per collection key:
 
-| Key        | Import                          |
-| ---------- | ------------------------------- |
-| `guide`    | `virtual:content/guide`         |
-| `pages`    | `virtual:content/pages`         |
+| Key     | Import                  |
+| ------- | ----------------------- |
+| `guide` | `virtual:content/guide` |
+| `pages` | `virtual:content/pages` |
 
 Each export is an **array of entries** with (among other fields) `contentSlug`, **`html`** (already rendered markdown), **`headings`**, and **`frontmatter`** validated against the schema.
 

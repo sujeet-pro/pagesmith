@@ -47,7 +47,7 @@ These responsibilities originate in `@pagesmith/core` and are re-exported throug
 Split imports by responsibility:
 
 ```ts
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 ```
 
 ### Framework host / existing app
@@ -55,8 +55,8 @@ import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/s
 When another app owns routing and build tooling, keep Pagesmith limited to the shared presentation layer:
 
 ```ts
-import '@pagesmith/site/css/content'
-import '@pagesmith/site/runtime/content'
+import "@pagesmith/site/css/content";
+import "@pagesmith/site/runtime/content";
 ```
 
 In that shape, `createContentLayer()` and `entry.render()` can come from `@pagesmith/site`, while `@pagesmith/site` also provides the shipped markdown CSS/runtime.
@@ -64,8 +64,8 @@ In that shape, `createContentLayer()` and `entry.render()` can come from `@pages
 When the project wants the shared Pagesmith chrome itself, use the exported components/layouts instead of copying the docs theme:
 
 ```tsx
-import { SiteDocument, SiteHeader, SiteFooter } from '@pagesmith/site/components'
-import { PageShell } from '@pagesmith/site/layouts'
+import { SiteDocument, SiteHeader, SiteFooter } from "@pagesmith/site/components";
+import { PageShell } from "@pagesmith/site/layouts";
 ```
 
 ### JSX
@@ -111,15 +111,15 @@ The shipped CSS bundles (`css/content`, `css/standalone`) include built-in suppo
 
 Available utility classes:
 
-| Class | Purpose |
-|---|---|
-| `.ps-figure` | Wrapper on all pipeline-generated `<figure>` elements |
-| `.ps-figure-themed` | Added when a light/dark pair is auto-merged |
-| `.invert-on-dark` | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
-| `.only-light` | Show element only in light mode (manual HTML) |
-| `.only-dark` | Show element only in dark mode (manual HTML) |
-| `.show-on-light` | Show any element only in light mode |
-| `.show-on-dark` | Show any element only in dark mode |
+| Class               | Purpose                                                                  |
+| ------------------- | ------------------------------------------------------------------------ |
+| `.ps-figure`        | Wrapper on all pipeline-generated `<figure>` elements                    |
+| `.ps-figure-themed` | Added when a light/dark pair is auto-merged                              |
+| `.invert-on-dark`   | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
+| `.only-light`       | Show element only in light mode (manual HTML)                            |
+| `.only-dark`        | Show element only in dark mode (manual HTML)                             |
+| `.show-on-light`    | Show any element only in light mode                                      |
+| `.show-on-dark`     | Show any element only in dark mode                                       |
 
 Markdown images are automatically wrapped in `<figure class="ps-figure">` with `<picture>` for raster formats and intrinsic dimensions applied. Consecutive `-light`/`-dark` image pairs are auto-merged into `<figure class="ps-figure ps-figure-themed">` with `<source media="(prefers-color-scheme: dark)">`. SVG pairs use `image/svg+xml` sources directly; raster pairs use AVIF/WebP converted variants.
 
@@ -147,7 +147,7 @@ The site config supports a `trailingSlash` option (default: `false`), which prod
 Hero banner with badge, name, tagline, description, and action buttons.
 
 ```tsx
-import { HeroSection } from '@pagesmith/site/components'
+import { HeroSection } from "@pagesmith/site/components";
 ```
 
 ### ActionButtons
@@ -155,7 +155,7 @@ import { HeroSection } from '@pagesmith/site/components'
 Primary/secondary button row, typically used inside a hero or landing section.
 
 ```tsx
-import { ActionButtons } from '@pagesmith/site/components'
+import { ActionButtons } from "@pagesmith/site/components";
 ```
 
 ### ContentMeta
@@ -163,7 +163,7 @@ import { ActionButtons } from '@pagesmith/site/components'
 Displays published date, updated date, draft badge, and tags as pills.
 
 ```tsx
-import { ContentMeta } from '@pagesmith/site/components'
+import { ContentMeta } from "@pagesmith/site/components";
 ```
 
 Related CSS classes: `.site-hero-*`, `.site-action-*`, `.site-pill`, `.site-tag-list`, `.site-content-meta`.
@@ -175,7 +175,7 @@ Related CSS classes: `.site-hero-*`, `.site-action-*`, `.site-pill`, `.site-tag-
 Complete home page layout with hero section and footer.
 
 ```tsx
-import { HomeLayout } from '@pagesmith/site/layouts'
+import { HomeLayout } from "@pagesmith/site/layouts";
 ```
 
 ### ListingLayout
@@ -183,7 +183,7 @@ import { HomeLayout } from '@pagesmith/site/layouts'
 Wraps `PageShell` with `SiteDocument` for listing/index pages.
 
 ```tsx
-import { ListingLayout } from '@pagesmith/site/layouts'
+import { ListingLayout } from "@pagesmith/site/layouts";
 ```
 
 ### NotFoundLayout
@@ -191,7 +191,7 @@ import { ListingLayout } from '@pagesmith/site/layouts'
 Complete 404 page layout.
 
 ```tsx
-import { NotFoundLayout } from '@pagesmith/site/layouts'
+import { NotFoundLayout } from "@pagesmith/site/layouts";
 ```
 
 ## SEO Meta

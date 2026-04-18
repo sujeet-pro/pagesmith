@@ -13,32 +13,32 @@ Tables use pipes and hyphens. Column alignment is controlled by colons in the se
 
 ### Basic table
 
-| Feature | Status | Notes |
-|---------|--------|-------|
+| Feature             | Status    | Notes                               |
+| ------------------- | --------- | ----------------------------------- |
 | Syntax highlighting | Supported | Via the built-in Pagesmith renderer |
-| Math rendering | Supported | Via MathJax |
-| GitHub alerts | Supported | Five alert types |
-| Footnotes | Supported | Added by `remark-gfm` |
+| Math rendering      | Supported | Via MathJax                         |
+| GitHub alerts       | Supported | Five alert types                    |
+| Footnotes           | Supported | Added by `remark-gfm`               |
 
 ### Column alignment
 
 Use `:` in the separator row to control alignment: `:---` for left, `:---:` for center, `---:` for right.
 
-| Package | GFM | Code blocks |
-|:--------|:---:|------------:|
-| `@pagesmith/core` | yes | advanced |
-| `@pagesmith/docs` | yes | advanced |
-| `examples/doc-site` | yes | demo-rich |
+| Package             | GFM | Code blocks |
+| :------------------ | :-: | ----------: |
+| `@pagesmith/core`   | yes |    advanced |
+| `@pagesmith/docs`   | yes |    advanced |
+| `examples/doc-site` | yes |   demo-rich |
 
 ### Table with inline formatting
 
 Tables support inline formatting within cells.
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/users` | List all users |
-| `GET` | `/api/users/:id` | Get user by **ID** |
-| `POST` | `/api/users` | Create a *new* user |
+| Method   | Endpoint         | Description             |
+| -------- | ---------------- | ----------------------- |
+| `GET`    | `/api/users`     | List all users          |
+| `GET`    | `/api/users/:id` | Get user by **ID**      |
+| `POST`   | `/api/users`     | Create a _new_ user     |
 | `DELETE` | `/api/users/:id` | ~~Remove~~ Archive user |
 
 ## Task Lists

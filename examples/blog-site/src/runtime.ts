@@ -6,11 +6,11 @@
  * modal. Keep only the blog example's sidebar auto-scroll here.
  */
 
-import '@pagesmith/site/runtime/standalone'
+import "@pagesmith/site/runtime/standalone";
 
 {
-  const active = document.querySelector('.doc-sidebar-item.active .doc-sidebar-link')
+  const active = document.querySelector(".doc-sidebar-item.active .doc-sidebar-link");
   if (active instanceof HTMLElement) {
-    active.scrollIntoView({ block: 'center' })
+    active.scrollIntoView({ block: "center" });
   }
 }

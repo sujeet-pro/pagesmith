@@ -49,7 +49,7 @@ The `basePath` setting controls the URL prefix for your site. This is required w
 
 ```json5 title="pagesmith.config.json5"
 {
-  basePath: '/my-project',
+  basePath: "/my-project",
 }
 ```
 
@@ -80,10 +80,10 @@ GitHub Pages is the default deployment target. The build output includes everyth
 
 ```json5 title="pagesmith.config.json5"
 {
-  name: 'My Project',
-  origin: 'https://username.github.io',
-  basePath: '/my-project',
-  outDir: './gh-pages',
+  name: "My Project",
+  origin: "https://username.github.io",
+  basePath: "/my-project",
+  outDir: "./gh-pages",
 }
 ```
 
@@ -113,7 +113,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for lastUpdated timestamps
+          fetch-depth: 0 # Required for lastUpdated timestamps
 
       - uses: actions/setup-node@v4
         with:
@@ -242,8 +242,8 @@ Set the `origin` field to your production URL. This affects canonical links, Ope
 
 ```json5 title="pagesmith.config.json5"
 {
-  origin: 'https://docs.my-project.com',
-  basePath: '/',
+  origin: "https://docs.my-project.com",
+  basePath: "/",
 }
 ```
 
@@ -263,7 +263,6 @@ This file is copied to the build output automatically and tells GitHub Pages to 
 
 Point your domain to the hosting platform:
 
-
 | Platform         | Record Type | Value                   |
 | ---------------- | ----------- | ----------------------- |
 | GitHub Pages     | `CNAME`     | `username.github.io`    |
@@ -271,19 +270,16 @@ Point your domain to the hosting platform:
 | Vercel           | `CNAME`     | `cname.vercel-dns.com`  |
 | Cloudflare Pages | `CNAME`     | `your-site.pages.dev`   |
 
-
 For apex domains (no subdomain), use `A` records or `ALIAS` records as documented by each platform.
 
 ## Environment Variables
 
 These environment variables affect the build:
 
-
 | Variable   | Effect                                                       |
 | ---------- | ------------------------------------------------------------ |
 | `BASE_URL` | Overrides `basePath` in config (used by CI/CD)               |
 | `NODE_ENV` | Set to `production` for optimized builds (usually automatic) |
-
 
 Example in a CI pipeline:
 

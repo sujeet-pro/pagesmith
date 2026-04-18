@@ -53,11 +53,11 @@ These principles are the long-term guardrails for implementation and docs decisi
 
 `@pagesmith/core` is standalone with no internal workspace dependencies. `@pagesmith/site` depends on `@pagesmith/core`, and `@pagesmith/docs` depends on both packages:
 
-| Package | Depends on | Notes |
-|---|---|---|
-| `@pagesmith/core` | — | Headless content layer |
-| `@pagesmith/site` | `@pagesmith/core` | CLI, JSX, CSS/runtime bundles, Vite SSG |
-| `@pagesmith/docs` | `@pagesmith/core`, `@pagesmith/site` | Docs preset, theme, schemas, MCP |
+| Package           | Depends on                           | Notes                                   |
+| ----------------- | ------------------------------------ | --------------------------------------- |
+| `@pagesmith/core` | —                                    | Headless content layer                  |
+| `@pagesmith/site` | `@pagesmith/core`                    | CLI, JSX, CSS/runtime bundles, Vite SSG |
+| `@pagesmith/docs` | `@pagesmith/core`, `@pagesmith/site` | Docs preset, theme, schemas, MCP        |
 
 Site-driven custom sites (most of the `examples/` projects) depend on `@pagesmith/site`, which in turn depends on `@pagesmith/core` internally. Framework-hosted apps can still use `@pagesmith/core` directly and add `@pagesmith/site/css/content` plus `@pagesmith/site/runtime/content` only when they want the shared markdown presentation layer.
 
@@ -67,18 +67,18 @@ Site-driven custom sites (most of the `examples/` projects) depend on `@pagesmit
 
 The package exposes multiple entry points via the `exports` field in `package.json`:
 
-| Import path | Source | Purpose |
-|---|---|---|
-| `@pagesmith/core` | `src/index.ts` | Main barrel -- config helpers, content layer, markdown, schemas, loaders, validation |
-| `@pagesmith/core/vite` | `src/vite/index.ts` | Vite content plugin -- `pagesmithContent()` |
-| `@pagesmith/core/markdown` | `src/markdown/index.ts` | `processMarkdown()` function |
-| `@pagesmith/core/schemas` | `src/schemas/index.ts` | Zod schemas and inferred TypeScript types |
-| `@pagesmith/core/loaders` | `src/loaders/index.ts` | Loader classes and the `resolveLoader()` registry |
-| `@pagesmith/core/assets` | `src/assets/index.ts` | Static file copying, content-hash filenames, AVIF/WebP variant generation |
-| `@pagesmith/core/ai` | `src/ai/index.ts` | AI assistant artifact installer |
-| `@pagesmith/core/create` | `src/create/index.ts` | Project scaffolding utilities |
-| `@pagesmith/core/cli-kit` | `src/cli-kit/index.ts` | Shared CLI building blocks (cac wrapper, clack prompts, config loader) |
-| `@pagesmith/core/mcp` | `src/mcp/index.ts` | Programmatic MCP server (`createCoreMcpServer`, `startCoreMcpServer`) |
+| Import path                | Source                  | Purpose                                                                              |
+| -------------------------- | ----------------------- | ------------------------------------------------------------------------------------ |
+| `@pagesmith/core`          | `src/index.ts`          | Main barrel -- config helpers, content layer, markdown, schemas, loaders, validation |
+| `@pagesmith/core/vite`     | `src/vite/index.ts`     | Vite content plugin -- `pagesmithContent()`                                          |
+| `@pagesmith/core/markdown` | `src/markdown/index.ts` | `processMarkdown()` function                                                         |
+| `@pagesmith/core/schemas`  | `src/schemas/index.ts`  | Zod schemas and inferred TypeScript types                                            |
+| `@pagesmith/core/loaders`  | `src/loaders/index.ts`  | Loader classes and the `resolveLoader()` registry                                    |
+| `@pagesmith/core/assets`   | `src/assets/index.ts`   | Static file copying, content-hash filenames, AVIF/WebP variant generation            |
+| `@pagesmith/core/ai`       | `src/ai/index.ts`       | AI assistant artifact installer                                                      |
+| `@pagesmith/core/create`   | `src/create/index.ts`   | Project scaffolding utilities                                                        |
+| `@pagesmith/core/cli-kit`  | `src/cli-kit/index.ts`  | Shared CLI building blocks (cac wrapper, clack prompts, config loader)               |
+| `@pagesmith/core/mcp`      | `src/mcp/index.ts`      | Programmatic MCP server (`createCoreMcpServer`, `startCoreMcpServer`)                |
 
 ### Module Map
 
@@ -286,6 +286,7 @@ Returns two plugins:
 - **`pagesmith:ssg-build`** (`apply: 'build'`): Runs as a `closeBundle` hook after the client build. It builds a separate SSR bundle via a child process, loads the SSR module, calls `getRoutes()` to discover all route paths, renders each route to an HTML file, copies content assets and fonts to the output, and optionally runs Pagefind for search indexing.
 
 The SSR entry module must export:
+
 - `getRoutes(config: SsgRenderConfig): string[]` -- returns route paths to pre-render
 - `render(url: string, config: SsgRenderConfig): string | Promise<string>` -- renders a route to an HTML string
 
@@ -320,6 +321,7 @@ The central module that implements `build()`, `startDev()`, and `preview()`. It:
 The docs package has four built-in layout keys: `home`, `page`, `listing`, and `notFound`. Each maps to a default JSX component (`DocHome`, `DocPage`, `DocListing`, `DocNotFound`). Custom layouts can be registered in `pagesmith.config.json5` under `theme.layouts`, and section-level `meta.json5` files can assign layouts to sections or individual items via `layout` and `itemLayout` fields.
 
 When a custom layout module is loaded, the engine looks for exports in this priority order:
+
 - `default` export
 - Named export matching the layout key (e.g., `DocHome`, `Home` for the `home` layout)
 
@@ -365,12 +367,12 @@ When a custom layout module is loaded, the engine looks for exports in this prio
 
 Pagesmith uses multiple layers of caching for performance:
 
-| Cache | Location | Scope | Invalidation |
-|---|---|---|---|
-| Content entries | `ContentStore` (in-memory `Map`) | Per collection, keyed by slug | `invalidate()`, `invalidateCollection()`, `invalidateAll()` |
-| Markdown processor | `WeakMap` in `pipeline.ts` | Per `MarkdownConfig` object reference | Automatic GC when config object is unreferenced |
-| Rendered HTML | `ContentEntry._rendered` | Per entry | `entry.clearRenderCache()` or `entry.render({ force: true })` |
-| Vite virtual modules | Vite module graph | Per virtual module ID | HMR handler invalidates on content file changes |
+| Cache                | Location                         | Scope                                 | Invalidation                                                  |
+| -------------------- | -------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
+| Content entries      | `ContentStore` (in-memory `Map`) | Per collection, keyed by slug         | `invalidate()`, `invalidateCollection()`, `invalidateAll()`   |
+| Markdown processor   | `WeakMap` in `pipeline.ts`       | Per `MarkdownConfig` object reference | Automatic GC when config object is unreferenced               |
+| Rendered HTML        | `ContentEntry._rendered`         | Per entry                             | `entry.clearRenderCache()` or `entry.render({ force: true })` |
+| Vite virtual modules | Vite module graph                | Per virtual module ID                 | HMR handler invalidates on content file changes               |
 
 ## Important Design Decisions
 

@@ -1,1 +1,1 @@
-export * from '@pagesmith/core/markdown'
+export * from "@pagesmith/core/markdown";

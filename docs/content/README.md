@@ -68,11 +68,11 @@ Pagesmith is built on a few core principles:
 
 ## Three Packages
 
-| Package | Purpose | Install |
-|---|---|---|
-| `@pagesmith/core` | Headless content layer, markdown pipeline, validation, loaders, schemas | `npm add @pagesmith/core` |
+| Package           | Purpose                                                                                     | Install                   |
+| ----------------- | ------------------------------------------------------------------------------------------- | ------------------------- |
+| `@pagesmith/core` | Headless content layer, markdown pipeline, validation, loaders, schemas                     | `npm add @pagesmith/core` |
 | `@pagesmith/site` | Re-exported content APIs, JSX runtime, CSS/runtime bundles, Vite SSG helpers, Pagesmith CLI | `npm add @pagesmith/site` |
-| `@pagesmith/docs` | Convention-based docs site with theme, search, navigation | `npm add @pagesmith/docs` |
+| `@pagesmith/docs` | Convention-based docs site with theme, search, navigation                                   | `npm add @pagesmith/docs` |
 
 Use `@pagesmith/docs` when you want a complete docs site from configuration alone. Use `@pagesmith/site` when you want app-facing content APIs plus the shared CSS/runtime bundles, the JSX runtime, or Vite SSG helpers from one package. Use `@pagesmith/core` only when you want the headless content layer by itself.
 

@@ -1,64 +1,64 @@
-import type { AiInstallProfile } from './types'
-import { PAGESMITH_TITLE } from './content-shared'
+import type { AiInstallProfile } from "./types";
+import { PAGESMITH_TITLE } from "./content-shared";
 
 export function renderGeminiCommand(skillName: string, profile: AiInstallProfile): string {
   const prompt = [
     `You are helping with ${PAGESMITH_TITLE}, a file-based CMS with @pagesmith/core, @pagesmith/site, and @pagesmith/docs.`,
-    '',
-    'Focus on concrete, implementation-ready help:',
-    '- design collections with defineCollection',
-    '- configure createContentLayer and defineConfig',
-    '- prefer folder-based markdown entries when local assets sit beside content',
-    '- start with `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` for content-layer bootstrap or retrofit work',
-    '- if the project also uses `@pagesmith/site`, start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` before changing site shell, preset, or SSG behavior',
-    '- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`',
-    ...(profile === 'docs'
+    "",
+    "Focus on concrete, implementation-ready help:",
+    "- design collections with defineCollection",
+    "- configure createContentLayer and defineConfig",
+    "- prefer folder-based markdown entries when local assets sit beside content",
+    "- start with `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` for content-layer bootstrap or retrofit work",
+    "- if the project also uses `@pagesmith/site`, start with `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` before changing site shell, preset, or SSG behavior",
+    "- follow the markdown guidelines in `.pagesmith/markdown-guidelines.md`",
+    ...(profile === "docs"
       ? [
-          '- for docs bootstrap or retrofit tasks, start with `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`',
-          '- for shared site shell, preset, or runtime work inside docs projects, also read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` and `node_modules/@pagesmith/site/REFERENCE.md`',
-          '- read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md` and `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` before editing docs content or structure',
-          '- for docs sites, follow the convention-based `content/` structure',
-          '- drive top navigation from top-level folders and use frontmatter for labels/order',
-          '- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits; when the config lives at the repo root, keep `$schema` pointing at `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`',
-          '- keep Pagefind as the built-in search strategy',
+          "- for docs bootstrap or retrofit tasks, start with `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`",
+          "- for shared site shell, preset, or runtime work inside docs projects, also read `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` and `node_modules/@pagesmith/site/REFERENCE.md`",
+          "- read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md` and `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` before editing docs content or structure",
+          "- for docs sites, follow the convention-based `content/` structure",
+          "- drive top navigation from top-level folders and use frontmatter for labels/order",
+          "- use the version-matched schema files in `node_modules/@pagesmith/docs/schemas/` for config, meta.json5, and frontmatter edits; when the config lives at the repo root, keep `$schema` pointing at `./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json`",
+          "- keep Pagefind as the built-in search strategy",
         ]
       : []),
-    '',
-    'For package usage guidance and full API reference, read:',
-    ...(profile === 'docs'
+    "",
+    "For package usage guidance and full API reference, read:",
+    ...(profile === "docs"
       ? [
-          '- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`',
-          '- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`',
-          '- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md`',
-          '- `node_modules/@pagesmith/site/REFERENCE.md`',
-          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`',
-          '- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`',
-          '- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`',
-          '- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`',
-          '- `node_modules/@pagesmith/docs/REFERENCE.md`',
-          '- `node_modules/@pagesmith/docs/schemas/*.schema.json`',
-          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`',
-          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`',
-          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`',
-          '- `node_modules/@pagesmith/core/REFERENCE.md`',
+          "- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md`",
+          "- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`",
+          "- `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md`",
+          "- `node_modules/@pagesmith/site/REFERENCE.md`",
+          "- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`",
+          "- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/docs-guidelines.md`",
+          "- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`",
+          "- `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`",
+          "- `node_modules/@pagesmith/docs/REFERENCE.md`",
+          "- `node_modules/@pagesmith/docs/schemas/*.schema.json`",
+          "- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`",
+          "- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`",
+          "- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`",
+          "- `node_modules/@pagesmith/core/REFERENCE.md`",
         ]
       : [
-          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`',
-          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`',
-          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`',
-          '- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`',
-          '- `node_modules/@pagesmith/core/REFERENCE.md`',
+          "- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`",
+          "- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`",
+          "- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`",
+          "- `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`",
+          "- `node_modules/@pagesmith/core/REFERENCE.md`",
         ]),
-    '',
-    'Return code, config, or documentation-ready guidance instead of vague summaries.',
-  ].join('\n')
+    "",
+    "Return code, config, or documentation-ready guidance instead of vague summaries.",
+  ].join("\n");
 
   return [
     `description = "Pagesmith FS-CMS helper"`,
     'prompt = """',
     prompt,
     '"""',
-    '',
+    "",
     `# Installed as /${skillName}`,
-  ].join('\n')
+  ].join("\n");
 }

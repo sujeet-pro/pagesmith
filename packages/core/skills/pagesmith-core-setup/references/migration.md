@@ -31,25 +31,25 @@ Move these to `@pagesmith/site`:
 Before:
 
 ```ts
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/core/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/core/vite";
 ```
 
 After:
 
 ```ts
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 ```
 
 Before:
 
 ```tsx
-import { Fragment } from '@pagesmith/core/jsx-runtime'
+import { Fragment } from "@pagesmith/core/jsx-runtime";
 ```
 
 After:
 
 ```tsx
-import { Fragment } from '@pagesmith/site/jsx-runtime'
+import { Fragment } from "@pagesmith/site/jsx-runtime";
 ```
 
 ## Verification

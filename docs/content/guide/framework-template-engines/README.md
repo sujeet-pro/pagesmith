@@ -28,11 +28,11 @@ Both EJS and Handlebars follow the same pattern:
 ### Content Config
 
 ```js title="content.config.mjs"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const guide = defineCollection({
-  loader: 'markdown',
-  directory: './content/guide',
+  loader: "markdown",
+  directory: "./content/guide",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -42,18 +42,18 @@ export const guide = defineCollection({
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
   }),
-})
+});
 
 export const pages = defineCollection({
-  loader: 'markdown',
-  directory: './content/pages',
+  loader: "markdown",
+  directory: "./content/pages",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
   }),
-})
+});
 
-export default defineCollections({ guide, pages })
+export default defineCollections({ guide, pages });
 ```
 
 ### Vite Config
@@ -61,21 +61,21 @@ export default defineCollections({ guide, pages })
 Template engine examples use only `pagesmithSsg` and `sharedAssetsPlugin` from `@pagesmith/site/vite` (no `pagesmithContent` since content is loaded via the API):
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
   plugins: [
     sharedAssetsPlugin(),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   oxc: {
     jsx: {
-      runtime: 'automatic',
-      importSource: '@pagesmith/site',
+      runtime: "automatic",
+      importSource: "@pagesmith/site",
     },
   },
-})
+});
 ```
 
 ### Content Layer
@@ -83,19 +83,19 @@ export default defineConfig({
 The content layer is created once and reused across renders:
 
 ```ts
-import { createContentLayer } from '@pagesmith/site'
-import contentConfig from '../content.config.mjs'
+import { createContentLayer } from "@pagesmith/site";
+import contentConfig from "../content.config.mjs";
 
-const { guide, pages } = contentConfig
+const { guide, pages } = contentConfig;
 
-let layer: ReturnType<typeof createContentLayer>
-let layerRoot: string
+let layer: ReturnType<typeof createContentLayer>;
+let layerRoot: string;
 function getLayer(root: string) {
   if (!layer || layerRoot !== root) {
-    layerRoot = root
-    layer = createContentLayer({ collections: { guide, pages }, root })
+    layerRoot = root;
+    layer = createContentLayer({ collections: { guide, pages }, root });
   }
-  return layer
+  return layer;
 }
 ```
 
@@ -103,22 +103,22 @@ Content is loaded, rendered, and sorted at render time:
 
 ```ts
 async function loadContent(root: string) {
-  const l = getLayer(root)
-  const allGuide = await l.getCollection('guide')
+  const l = getLayer(root);
+  const allGuide = await l.getCollection("guide");
 
   // Render markdown to HTML
-  const rendered = []
+  const rendered = [];
   for (const entry of allGuide) {
-    const result = await entry.render()
-    rendered.push({ entry, ...result })
+    const result = await entry.render();
+    rendered.push({ entry, ...result });
   }
 
   // Sort by series order then date
   return rendered.sort((a, b) => {
-    const so = (a.entry.data.seriesOrder ?? 99) - (b.entry.data.seriesOrder ?? 99)
-    if (so !== 0) return so
-    return a.entry.data.date.getTime() - b.entry.data.date.getTime()
-  })
+    const so = (a.entry.data.seriesOrder ?? 99) - (b.entry.data.seriesOrder ?? 99);
+    if (so !== 0) return so;
+    return a.entry.data.date.getTime() - b.entry.data.date.getTime();
+  });
 }
 ```
 
@@ -164,17 +164,17 @@ with-vanilla-ejs/
 Templates are loaded from disk and rendered with `ejs.render()`. A layout wrapper composes the outer HTML shell:
 
 ```ts
-import ejs from 'ejs'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import ejs from "ejs";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 function loadTemplate(root: string, name: string) {
-  return readFileSync(join(root, 'templates', `${name}.ejs`), 'utf-8')
+  return readFileSync(join(root, "templates", `${name}.ejs`), "utf-8");
 }
 
 function renderWithLayout(root: string, body: string, vars: Record<string, any>) {
-  const layout = loadTemplate(root, 'layout')
-  return ejs.render(layout, { ...vars, body })
+  const layout = loadTemplate(root, "layout");
+  return ejs.render(layout, { ...vars, body });
 }
 ```
 
@@ -243,21 +243,21 @@ with-vanilla-hbs/
 Handlebars requires registering helpers for common operations:
 
 ```ts
-import Handlebars from 'handlebars'
+import Handlebars from "handlebars";
 
-Handlebars.registerHelper('formatDate', (value: any) => {
-  const date = new Date(value)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-})
-Handlebars.registerHelper('eq', (left: any, right: any) => left === right)
+Handlebars.registerHelper("formatDate", (value: any) => {
+  const date = new Date(value);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+});
+Handlebars.registerHelper("eq", (left: any, right: any) => left === right);
 Handlebars.registerHelper(
-  'startsWith',
-  (str: any, prefix: any) => typeof str === 'string' && str.startsWith(prefix),
-)
+  "startsWith",
+  (str: any, prefix: any) => typeof str === "string" && str.startsWith(prefix),
+);
 ```
 
 ### Rendering with Handlebars
@@ -265,14 +265,14 @@ Handlebars.registerHelper(
 The layout is registered as a partial, and child templates use partial block syntax:
 
 ```ts
-Handlebars.registerPartial('layout', loadTemplate(root, 'layout'))
+Handlebars.registerPartial("layout", loadTemplate(root, "layout"));
 
-const articleTemplate = Handlebars.compile(loadTemplate(root, 'article'))
+const articleTemplate = Handlebars.compile(loadTemplate(root, "article"));
 return articleTemplate({
   title: item.entry.data.title,
   content: item.html,
   headings: item.headings,
-})
+});
 ```
 
 ### Template Syntax
@@ -312,15 +312,15 @@ Handlebars uses triple-braces `{{{content}}}` for raw HTML and double-braces `{{
 Both examples import CSS from `@pagesmith/site`:
 
 ```css title="src/theme.css"
-@import '@pagesmith/site/css/standalone';
+@import "@pagesmith/site/css/standalone";
 ```
 
-| Import path | Contents |
-|---|---|
+| Import path                      | Contents                                              |
+| -------------------------------- | ----------------------------------------------------- |
 | `@pagesmith/site/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
-| `@pagesmith/site/css/content` | Content-only bundle (reset, prose, code, viewport) |
-| `@pagesmith/site/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
-| `@pagesmith/site/css/viewport` | Viewport / responsive base only |
+| `@pagesmith/site/css/content`    | Content-only bundle (reset, prose, code, viewport)    |
+| `@pagesmith/site/css/fonts`      | Bundled web fonts (Open Sans, JetBrains Mono)         |
+| `@pagesmith/site/css/viewport`   | Viewport / responsive base only                       |
 
 ### Development and Building
 
@@ -337,11 +337,11 @@ vp check
 
 ### Template Engine Comparison
 
-| Aspect | EJS | Handlebars |
-|---|---|---|
-| Raw HTML output | `<%- content %>` | `{{{content}}}` |
-| Escaped output | `<%= title %>` | `{{title}}` |
-| Layout composition | `ejs.render()` with layout wrapper | Partial blocks (`{{#> layout}}`) |
-| Helpers | Plain JavaScript functions | Registered via `Handlebars.registerHelper` |
-| Reusable blocks | N/A (re-render or extract functions) | Inline partials (`{{#*inline}}`) |
-| Logic in templates | Full JavaScript (`<% if/for %>`) | Block helpers (`{{#if}}`, `{{#each}}`) |
+| Aspect             | EJS                                  | Handlebars                                 |
+| ------------------ | ------------------------------------ | ------------------------------------------ |
+| Raw HTML output    | `<%- content %>`                     | `{{{content}}}`                            |
+| Escaped output     | `<%= title %>`                       | `{{title}}`                                |
+| Layout composition | `ejs.render()` with layout wrapper   | Partial blocks (`{{#> layout}}`)           |
+| Helpers            | Plain JavaScript functions           | Registered via `Handlebars.registerHelper` |
+| Reusable blocks    | N/A (re-render or extract functions) | Inline partials (`{{#*inline}}`)           |
+| Logic in templates | Full JavaScript (`<% if/for %>`)     | Block helpers (`{{#if}}`, `{{#each}}`)     |

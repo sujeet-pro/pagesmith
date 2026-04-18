@@ -16,11 +16,7 @@
     var(--ps-code-bg) 72%,
     var(--color-border-subtle, CanvasText) 14%
   );
-  --ps-code-toolbar-bg: color-mix(
-    in srgb,
-    var(--ps-code-bg) 60%,
-    var(--color-bg-alt, Canvas) 40%
-  );
+  --ps-code-toolbar-bg: color-mix(in srgb, var(--ps-code-bg) 60%, var(--color-bg-alt, Canvas) 40%);
   --ps-code-toolbar-border: color-mix(
     in srgb,
     var(--ps-code-border) 24%,
@@ -156,7 +152,7 @@
   background: color-mix(in srgb, var(--ps-code-bg) 72%, Canvas 28%);
 }
 
-.ps-code-tab[aria-selected='true'] {
+.ps-code-tab[aria-selected="true"] {
   color: var(--ps-code-toolbar-fg);
   font-weight: 600;
   background: var(--ps-code-bg);
@@ -164,8 +160,8 @@
   z-index: 1;
 }
 
-.ps-code-tab[aria-selected='true']::after {
-  content: '';
+.ps-code-tab[aria-selected="true"]::after {
+  content: "";
   position: absolute;
   inset-inline: 0;
   bottom: -1px;
@@ -213,7 +209,7 @@
   border-radius: 0;
 }
 
-.ps-code-tabs-ready .ps-code-tab-panel .ps-code-block[data-ps-code-frame='plain'] .ps-code-pre {
+.ps-code-tabs-ready .ps-code-tab-panel .ps-code-block[data-ps-code-frame="plain"] .ps-code-pre {
   padding-top: 0.75rem;
 }
 

@@ -1,6 +1,6 @@
 # Pagesmith
 
- Pagesmith is a filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope. The site-building toolchain is Vite-native, while `@pagesmith/core` can also power headless markdown rendering inside framework apps.
+Pagesmith is a filesystem-first content toolkit organized as a multi-package workspace under the `@pagesmith/` npm scope. The site-building toolchain is Vite-native, while `@pagesmith/core` can also power headless markdown rendering inside framework apps.
 
 Three main user-facing packages:
 
@@ -70,85 +70,78 @@ npx pagesmith-docs dev
 ### Vite site (site-first)
 
 ```ts
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
-import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
-import { defineConfig } from 'vite'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
+import { pagesmithContent, pagesmithSsg } from "@pagesmith/site/vite";
+import { defineConfig } from "vite";
 
 const content = defineCollections({
   posts: defineCollection({
-    loader: 'markdown',
-    directory: 'content/posts',
+    loader: "markdown",
+    directory: "content/posts",
     schema: z.object({
       title: z.string(),
       date: z.coerce.date(),
       tags: z.array(z.string()).default([]),
     }),
   }),
-})
+});
 
 export default defineConfig({
   plugins: [
     pagesmithContent({ collections: content }),
-    pagesmithSsg({ entry: './src/entry-server.tsx' }),
+    pagesmithSsg({ entry: "./src/entry-server.tsx" }),
   ],
-})
+});
 ```
 
 ### Framework host (content layer only)
 
 ```ts
-import { createContentLayer, defineConfig } from '@pagesmith/core'
-import collections from './content.config'
+import { createContentLayer, defineConfig } from "@pagesmith/core";
+import collections from "./content.config";
 
-const layer = createContentLayer(defineConfig({ collections }))
-const entry = await layer.getEntry('posts', 'hello-world')
-const rendered = await entry?.render()
+const layer = createContentLayer(defineConfig({ collections }));
+const entry = await layer.getEntry("posts", "hello-world");
+const rendered = await entry?.render();
 ```
 
 If your app already owns routing and build tooling (for example Next.js), render markdown through `createContentLayer()` and `entry.render()`. Add `@pagesmith/site/css/content` plus `@pagesmith/site/runtime/content` only when you want the shipped prose/code-block presentation layer.
 
 ## Packages
 
-
-| Package                             | Description                                                              | README                                             | AI Reference                                                   |
-| ----------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------- | -------------------------------------------------------------- |
+| Package                             | Description                                                                        | README                                             | AI Reference                                             |
+| ----------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------- |
 | `[@pagesmith/core](packages/core/)` | Headless content layer, markdown pipeline, schemas, validation, `pagesmithContent` | [packages/core/README.md](packages/core/README.md) | [packages/core/REFERENCE.md](packages/core/REFERENCE.md) |
-| `[@pagesmith/site](packages/site/)` | CLI, JSX runtime, CSS/runtime bundles, Vite SSG, shared site helpers | [packages/site/README.md](packages/site/README.md) | [packages/site/REFERENCE.md](packages/site/REFERENCE.md) |
-| `[@pagesmith/docs](packages/docs/)` | Convention-based docs preset, theme, search, navigation, schemas | [packages/docs/README.md](packages/docs/README.md) | [packages/docs/REFERENCE.md](packages/docs/REFERENCE.md) |
-
+| `[@pagesmith/site](packages/site/)` | CLI, JSX runtime, CSS/runtime bundles, Vite SSG, shared site helpers               | [packages/site/README.md](packages/site/README.md) | [packages/site/REFERENCE.md](packages/site/REFERENCE.md) |
+| `[@pagesmith/docs](packages/docs/)` | Convention-based docs preset, theme, search, navigation, schemas                   | [packages/docs/README.md](packages/docs/README.md) | [packages/docs/REFERENCE.md](packages/docs/REFERENCE.md) |
 
 ## Examples
 
-
-| Example                                        | Description                                                                          | README                                        |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------- |
-| [blog-site](examples/blog-site/)               | Custom site built on `@pagesmith/site` with Pagesmith JSX and Vite SSG | [README](examples/blog-site/README.md) |
-| [doc-site](examples/doc-site/)                 | `@pagesmith/docs` with layout overrides via `theme.layouts.*` and docs preset wiring | [README](examples/doc-site/README.md) |
-| [with-react](examples/frameworks/with-react/)             | `@pagesmith/site` + React (react-dom/server) | [README](examples/frameworks/with-react/README.md) |
-| [with-solid](examples/frameworks/with-solid/)             | `@pagesmith/site` + SolidJS | [README](examples/frameworks/with-solid/README.md) |
-| [with-svelte](examples/frameworks/with-svelte/)           | `@pagesmith/site` + Svelte 5 | [README](examples/frameworks/with-svelte/README.md) |
-| [with-nextjs](examples/frameworks/with-nextjs/)           | `@pagesmith/site` content APIs inside Next.js, with optional shared content CSS/runtime | [README](examples/frameworks/with-nextjs/README.md) |
-| [with-vanilla-ejs](examples/frameworks/with-vanilla-ejs/) | `@pagesmith/site` + EJS templates | [README](examples/frameworks/with-vanilla-ejs/README.md) |
-| [with-vanilla-hbs](examples/frameworks/with-vanilla-hbs/) | `@pagesmith/site` + Handlebars templates | [README](examples/frameworks/with-vanilla-hbs/README.md) |
-
+| Example                                                   | Description                                                                             | README                                                   |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| [blog-site](examples/blog-site/)                          | Custom site built on `@pagesmith/site` with Pagesmith JSX and Vite SSG                  | [README](examples/blog-site/README.md)                   |
+| [doc-site](examples/doc-site/)                            | `@pagesmith/docs` with layout overrides via `theme.layouts.*` and docs preset wiring    | [README](examples/doc-site/README.md)                    |
+| [with-react](examples/frameworks/with-react/)             | `@pagesmith/site` + React (react-dom/server)                                            | [README](examples/frameworks/with-react/README.md)       |
+| [with-solid](examples/frameworks/with-solid/)             | `@pagesmith/site` + SolidJS                                                             | [README](examples/frameworks/with-solid/README.md)       |
+| [with-svelte](examples/frameworks/with-svelte/)           | `@pagesmith/site` + Svelte 5                                                            | [README](examples/frameworks/with-svelte/README.md)      |
+| [with-nextjs](examples/frameworks/with-nextjs/)           | `@pagesmith/site` content APIs inside Next.js, with optional shared content CSS/runtime | [README](examples/frameworks/with-nextjs/README.md)      |
+| [with-vanilla-ejs](examples/frameworks/with-vanilla-ejs/) | `@pagesmith/site` + EJS templates                                                       | [README](examples/frameworks/with-vanilla-ejs/README.md) |
+| [with-vanilla-hbs](examples/frameworks/with-vanilla-hbs/) | `@pagesmith/site` + Handlebars templates                                                | [README](examples/frameworks/with-vanilla-hbs/README.md) |
 
 ## Framework Support
 
-
-| Framework  | Pattern                                                    | Example                      |
-| ---------- | ---------------------------------------------------------- | ---------------------------- |
-| React      | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-react/` |
-| SolidJS    | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-solid/` |
-| Svelte     | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-svelte/` |
-| Next.js    | `createContentLayer` from `@pagesmith/site` + optional `@pagesmith/site/css/content` / `@pagesmith/site/runtime/content` | `examples/frameworks/with-nextjs/` |
-| EJS        | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-vanilla-ejs/` |
-| Handlebars | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite` | `examples/frameworks/with-vanilla-hbs/` |
-| Docs       | `@pagesmith/docs` preset on the `pagesmith-docs` CLI       | `examples/doc-site/`         |
-| Custom     | `@pagesmith/site` JSX runtime + Vite SSG on top of its re-exported content APIs | `examples/blog-site/` |
-
+| Framework  | Pattern                                                                                                                  | Example                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| React      | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite`                                                          | `examples/frameworks/with-react/`       |
+| SolidJS    | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite`                                                          | `examples/frameworks/with-solid/`       |
+| Svelte     | `pagesmithContent` + `pagesmithSsg` from `@pagesmith/site/vite`                                                          | `examples/frameworks/with-svelte/`      |
+| Next.js    | `createContentLayer` from `@pagesmith/site` + optional `@pagesmith/site/css/content` / `@pagesmith/site/runtime/content` | `examples/frameworks/with-nextjs/`      |
+| EJS        | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite`                                 | `examples/frameworks/with-vanilla-ejs/` |
+| Handlebars | `createContentLayer` from `@pagesmith/site` + `pagesmithSsg` from `@pagesmith/site/vite`                                 | `examples/frameworks/with-vanilla-hbs/` |
+| Docs       | `@pagesmith/docs` preset on the `pagesmith-docs` CLI                                                                     | `examples/doc-site/`                    |
+| Custom     | `@pagesmith/site` JSX runtime + Vite SSG on top of its re-exported content APIs                                          | `examples/blog-site/`                   |
 
 ## CSS Exports
-
 
 | Import                           | Contents                           |
 | -------------------------------- | ---------------------------------- |
@@ -157,30 +150,27 @@ If your app already owns routing and build tooling (for example Next.js), render
 | `@pagesmith/site/css/viewport`   | Responsive viewport base           |
 | `@pagesmith/site/css/fonts`      | Bundled Open Sans + JetBrains Mono |
 
-
 Code block styling ships in the shared Pagesmith CSS bundles, while syntax token colors and copy/collapse runtime hooks are injected during markdown processing.
 
 ## Import Map
 
-
-| I want to... | Import from |
-| ------------------------------ | -------------------------------- |
-| Define collections and schemas in a custom site | `@pagesmith/site` |
-| Define collections and schemas in a headless-only integration | `@pagesmith/core` |
-| Use the content Vite plugin in a custom site | `@pagesmith/site/vite` |
-| Use the content Vite plugin in a core-only integration | `@pagesmith/core/vite` |
-| Use SSG / shared asset Vite helpers | `@pagesmith/site/vite` |
-| Write JSX layouts | `@pagesmith/site/jsx-runtime` |
-| Add content CSS | `@pagesmith/site/css/content` |
-| Add full layout CSS | `@pagesmith/site/css/standalone` |
-| Process markdown directly | `@pagesmith/core/markdown` |
-| Use built-in loaders | `@pagesmith/core/loaders` |
-| Access runtime CSS/JS paths | `@pagesmith/site/runtime` |
-| Use shared SSG helpers | `@pagesmith/site/ssg-utils` |
-| MCP server (core) | `@pagesmith/core/mcp` |
-| MCP server (docs) | `@pagesmith/docs/mcp` |
-| Use docs theme exports | `@pagesmith/docs/theme` |
-
+| I want to...                                                  | Import from                      |
+| ------------------------------------------------------------- | -------------------------------- |
+| Define collections and schemas in a custom site               | `@pagesmith/site`                |
+| Define collections and schemas in a headless-only integration | `@pagesmith/core`                |
+| Use the content Vite plugin in a custom site                  | `@pagesmith/site/vite`           |
+| Use the content Vite plugin in a core-only integration        | `@pagesmith/core/vite`           |
+| Use SSG / shared asset Vite helpers                           | `@pagesmith/site/vite`           |
+| Write JSX layouts                                             | `@pagesmith/site/jsx-runtime`    |
+| Add content CSS                                               | `@pagesmith/site/css/content`    |
+| Add full layout CSS                                           | `@pagesmith/site/css/standalone` |
+| Process markdown directly                                     | `@pagesmith/core/markdown`       |
+| Use built-in loaders                                          | `@pagesmith/core/loaders`        |
+| Access runtime CSS/JS paths                                   | `@pagesmith/site/runtime`        |
+| Use shared SSG helpers                                        | `@pagesmith/site/ssg-utils`      |
+| MCP server (core)                                             | `@pagesmith/core/mcp`            |
+| MCP server (docs)                                             | `@pagesmith/docs/mcp`            |
+| Use docs theme exports                                        | `@pagesmith/docs/theme`          |
 
 ## AI-Assisted Setup
 
@@ -223,6 +213,7 @@ For the full @pagesmith/core API reference, see node_modules/@pagesmith/core/REF
 ```
 
 Or copy the AGENTS.md template from the package:
+
 - `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/AGENTS.md.template`
 - `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/AGENTS.md.template`
 - `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/AGENTS.md.template`
@@ -245,17 +236,16 @@ Browse the full set in [`packages/<pkg>/skills/`](packages/) or pick the subset 
 
 Each package ships these files under `node_modules/@pagesmith/<pkg>/`:
 
-| File | Purpose |
-|---|---|
-| `REFERENCE.md` | Complete reference (config, API, markdown, layouts, deployment) |
-| `README.md` | User-facing quick start and API overview |
-| `llms.txt` | Compact, package-scoped AI context index |
-| `llms-full.txt` | Full AI context with all file pointers for this package |
-| `skills/pagesmith-<pkg>-<action>/SKILL.md` | Self-contained Agent Skill for a specific task (setup, add-loader, configure-nav, deploy-gh-pages, …) |
+| File                                            | Purpose                                                                                                      |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `REFERENCE.md`                                  | Complete reference (config, API, markdown, layouts, deployment)                                              |
+| `README.md`                                     | User-facing quick start and API overview                                                                     |
+| `llms.txt`                                      | Compact, package-scoped AI context index                                                                     |
+| `llms-full.txt`                                 | Full AI context with all file pointers for this package                                                      |
+| `skills/pagesmith-<pkg>-<action>/SKILL.md`      | Self-contained Agent Skill for a specific task (setup, add-loader, configure-nav, deploy-gh-pages, …)        |
 | `skills/pagesmith-<pkg>-<action>/references/**` | Reference files that the sibling `SKILL.md` depends on, duplicated per-skill so each skill is self-contained |
 
 The canonical home for per-package consumer guidance (setup prompts, package rules, markdown rules, usage, recipes, errors, migration, AGENTS template) is `skills/pagesmith-<pkg>-setup/references/**` inside the tarball.
-
 
 ## Docs
 

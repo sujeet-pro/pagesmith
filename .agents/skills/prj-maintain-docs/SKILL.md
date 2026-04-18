@@ -42,12 +42,12 @@ Single workflow for **documentation truth**: read the code and shipped package g
 
 ## Diagrams — delegate to diagramkit
 
-| Task | Where |
-|------|--------|
-| Choose engine | [`prj-diagramkit-auto`](../prj-diagramkit-auto/SKILL.md) → then `node_modules/diagramkit/skills/diagramkit-<engine>/SKILL.md` |
-| Author sources (per engine) | `node_modules/diagramkit/skills/diagramkit-mermaid/`, `diagramkit-excalidraw/`, `diagramkit-draw-io/`, `diagramkit-graphviz/` — version-pinned with the installed package |
-| Repo-wide audit, re-render, WCAG / SVG safety | [`prj-diagramkit-review`](../prj-diagramkit-review/SKILL.md) |
-| Bootstrap diagramkit in another repo | `node_modules/diagramkit/skills/diagramkit-setup/SKILL.md` (no duplicate under `.agents/skills/` in this repo) |
+| Task                                          | Where                                                                                                                                                                     |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Choose engine                                 | [`prj-diagramkit-auto`](../prj-diagramkit-auto/SKILL.md) → then `node_modules/diagramkit/skills/diagramkit-<engine>/SKILL.md`                                             |
+| Author sources (per engine)                   | `node_modules/diagramkit/skills/diagramkit-mermaid/`, `diagramkit-excalidraw/`, `diagramkit-draw-io/`, `diagramkit-graphviz/` — version-pinned with the installed package |
+| Repo-wide audit, re-render, WCAG / SVG safety | [`prj-diagramkit-review`](../prj-diagramkit-review/SKILL.md)                                                                                                              |
+| Bootstrap diagramkit in another repo          | `node_modules/diagramkit/skills/diagramkit-setup/SKILL.md` (no duplicate under `.agents/skills/` in this repo)                                                            |
 
 Read `node_modules/diagramkit/REFERENCE.md` before CLI use. Warm Chromium when needed: `npm run diagramkit:warmup`.
 
@@ -59,8 +59,8 @@ Pagesmith-rendered docs (`docs/content/**`, example doc pages with shared theme 
 
 ```html
 <figure>
-  <img src="./diagrams/system-overview-light.svg" class="only-light" alt="…">
-  <img src="./diagrams/system-overview-dark.svg" class="only-dark" alt="…">
+  <img src="./diagrams/system-overview-light.svg" class="only-light" alt="…" />
+  <img src="./diagrams/system-overview-dark.svg" class="only-dark" alt="…" />
   <figcaption>Docs build pipeline</figcaption>
 </figure>
 ```
@@ -69,7 +69,7 @@ Simple B/W diagrams:
 
 ```html
 <figure>
-  <img src="./diagrams/simple-flow.svg" class="invert-on-dark" alt="…">
+  <img src="./diagrams/simple-flow.svg" class="invert-on-dark" alt="…" />
   <figcaption>Build flow</figcaption>
 </figure>
 ```

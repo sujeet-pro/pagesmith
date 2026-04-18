@@ -20,11 +20,11 @@ Always invoke the CLI through `npx pagesmith-site <command>` (or via `package.js
 Import only the bundles you need:
 
 ```ts
-import '@pagesmith/site/css/chrome'
-import '@pagesmith/site/css/content'
-import '@pagesmith/site/css/code-block'
-import '@pagesmith/site/css/code-inline'
-import '@pagesmith/site/css/fonts'
+import "@pagesmith/site/css/chrome";
+import "@pagesmith/site/css/content";
+import "@pagesmith/site/css/code-block";
+import "@pagesmith/site/css/code-inline";
+import "@pagesmith/site/css/fonts";
 ```
 
 Drop the imports you don't want and ship your own CSS for those regions. Custom property overrides go in a stylesheet imported **after** the Pagesmith bundles so cascade wins:
@@ -32,10 +32,10 @@ Drop the imports you don't want and ship your own CSS for those regions. Custom 
 ```css
 :root {
   --pagesmith-color-accent: #3b82f6;
-  --pagesmith-font-sans: 'Inter', system-ui, sans-serif;
+  --pagesmith-font-sans: "Inter", system-ui, sans-serif;
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --pagesmith-color-accent: #60a5fa;
 }
 ```
@@ -48,16 +48,16 @@ If you drop `css/fonts`, provide alternatives or typography breaks everywhere pr
 
 Individual runtimes:
 
-| Runtime                   | DOM hook(s)                                                                                           |
-| ------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `runtime/theme`           | `[data-ps-theme-toggle-button]`, `[data-ps-theme-dropdown]`, `[data-ps-footer-scheme\|theme\|text-size]` |
-| `runtime/toc-highlight`   | `[data-ps-toc]`                                                                                       |
-| `runtime/code-blocks`     | `[data-ps-code-copy]`, `[data-ps-code-collapse]`, `[data-ps-code-collapse-toggle]`                    |
-| `runtime/code-tabs`       | `[data-ps-code-tabs]`                                                                                 |
-| `runtime/sidebar`         | `[data-ps-sidebar]`, `[data-ps-sidebar-modal]`                                                        |
-| `runtime/search-trigger`  | `[data-ps-search-trigger]` and `Cmd/Ctrl-K`                                                           |
-| `runtime/footer-year`     | `[data-ps-footer-year]`                                                                               |
-| `runtime/skip-link`       | `[data-ps-skip-link]`                                                                                 |
+| Runtime                  | DOM hook(s)                                                                                              |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `runtime/theme`          | `[data-ps-theme-toggle-button]`, `[data-ps-theme-dropdown]`, `[data-ps-footer-scheme\|theme\|text-size]` |
+| `runtime/toc-highlight`  | `[data-ps-toc]`                                                                                          |
+| `runtime/code-blocks`    | `[data-ps-code-copy]`, `[data-ps-code-collapse]`, `[data-ps-code-collapse-toggle]`                       |
+| `runtime/code-tabs`      | `[data-ps-code-tabs]`                                                                                    |
+| `runtime/sidebar`        | `[data-ps-sidebar]`, `[data-ps-sidebar-modal]`                                                           |
+| `runtime/search-trigger` | `[data-ps-search-trigger]` and `Cmd/Ctrl-K`                                                              |
+| `runtime/footer-year`    | `[data-ps-footer-year]`                                                                                  |
+| `runtime/skip-link`      | `[data-ps-skip-link]`                                                                                    |
 
 Bundled entry points (use these if you prefer fewer imports):
 
@@ -66,9 +66,9 @@ Bundled entry points (use these if you prefer fewer imports):
 - `runtime/standalone` — chrome + content.
 
 ```ts
-import '@pagesmith/site/runtime/theme'
-import '@pagesmith/site/runtime/toc-highlight'
-import '@pagesmith/site/runtime/code-blocks'
+import "@pagesmith/site/runtime/theme";
+import "@pagesmith/site/runtime/toc-highlight";
+import "@pagesmith/site/runtime/code-blocks";
 ```
 
 Legacy `data-theme-toggle` / `data-footer-*` attributes are still recognised as fallbacks, but prefer the `data-ps-*` form in new markup.
@@ -82,15 +82,20 @@ Legacy `data-theme-toggle` / `data-footer-*` attributes are still recognised as 
 3. **Replace** — write your own layout that renders the same `data-ps-*` hooks.
 
 ```tsx
-import { PageShell } from '@pagesmith/site/layouts'
-import { SiteHeader, SiteFooter } from '@pagesmith/site/components'
+import { PageShell } from "@pagesmith/site/layouts";
+import { SiteHeader, SiteFooter } from "@pagesmith/site/components";
 
 export function PageLayout({ children, site, currentPath, headings, sidebarSections }) {
   return (
-    <PageShell site={site} currentPath={currentPath} headings={headings} sidebarSections={sidebarSections}>
+    <PageShell
+      site={site}
+      currentPath={currentPath}
+      headings={headings}
+      sidebarSections={sidebarSections}
+    >
       <div class="prose">{children}</div>
     </PageShell>
-  )
+  );
 }
 ```
 
@@ -114,7 +119,7 @@ Available layouts: `PageShell` (aliased as `DocPageShell`), `HomeLayout`, `Listi
 Swap one, keep the rest:
 
 ```tsx
-import { SiteHeader } from '@pagesmith/site/components'
+import { SiteHeader } from "@pagesmith/site/components";
 
 export function Header(props) {
   return (
@@ -122,7 +127,7 @@ export function Header(props) {
       <img src="/logo.svg" alt="" />
       <SiteHeader {...props} />
     </header>
-  )
+  );
 }
 ```
 

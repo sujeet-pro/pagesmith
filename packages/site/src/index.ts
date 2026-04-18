@@ -1,4 +1,4 @@
-export { defineCollection, defineCollections, defineConfig } from '@pagesmith/core'
+export { defineCollection, defineCollections, defineConfig } from "@pagesmith/core";
 export {
   createContentLayer,
   ContentEntry,
@@ -34,7 +34,7 @@ export {
   TomlLoader,
   YamlLoader,
   z,
-} from '@pagesmith/core'
+} from "@pagesmith/core";
 export type {
   BaseFrontmatter,
   BlogFrontmatter,
@@ -77,7 +77,7 @@ export type {
   WatchCallback,
   WatchEvent,
   WatchHandle,
-} from '@pagesmith/core'
+} from "@pagesmith/core";
 
 export {
   SiteAnalyticsConfigSchema,
@@ -101,8 +101,8 @@ export {
   stripBasePath,
   withBasePath,
   withTrailingSlash,
-} from './config.js'
-export { formatPath, withoutTrailingSlash } from './components/utils.js'
+} from "./config.js";
+export { formatPath, withoutTrailingSlash } from "./components/utils.js";
 export type {
   RawSiteConfig,
   SiteAnalyticsConfig,
@@ -116,15 +116,15 @@ export type {
   SiteSidebarConfig,
   SiteThemeConfig,
   SiteUserConfig,
-} from './config.js'
-export type { SitePageMeta } from './components/document.js'
+} from "./config.js";
+export type { SitePageMeta } from "./components/document.js";
 export type {
   SiteBuildOptions,
   SiteDevOptions,
   SiteLogLevel,
   SitePreset,
   SiteValidateOptions,
-} from './preset.js'
+} from "./preset.js";
 
 export {
   sortByManualOrder,
@@ -132,7 +132,7 @@ export {
   buildBreadcrumbs,
   buildSidebarFromEntries,
   buildPrevNext,
-} from './content-helpers.js'
+} from "./content-helpers.js";
 
 export {
   validateBuildOutput,
@@ -140,6 +140,15 @@ export {
   type BuildValidatorOptions,
   type BuildValidationIssue,
   type BuildValidationResult,
-} from './build-validator.js'
+} from "./build-validator.js";
 
-export const SITE_PACKAGE_NAME = '@pagesmith/site'
+export {
+  createLogger,
+  defaultLogger,
+  type CreateLoggerOptions,
+  type LogLevel,
+  type LogMethod,
+  type Logger,
+} from "@pagesmith/core";
+
+export const SITE_PACKAGE_NAME = "@pagesmith/site";

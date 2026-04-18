@@ -53,7 +53,8 @@
     "validate:examples": "node --strip-types --no-warnings scripts/validate-examples.ts",
     "validate:pagesmith": "node --strip-types --no-warnings scripts/validate-pagesmith.ts",
     "validate:pagesmith:full": "node --strip-types --no-warnings scripts/validate-pagesmith.ts --full",
-    "validate": "npm run build:library && npm run build:docs && npm run validate:examples && npm run validate:pagesmith && npm run check && npm run test",
+    "validate:a11y": "node --strip-types --no-warnings scripts/validate-a11y.ts",
+    "validate": "npm run build:library && npm run build:docs && npm run validate:examples && npm run validate:pagesmith && npm run validate:a11y && npm run check && npm run test",
     "cicd": "npm run check && npm run build && npm run validate:diagrams && npm run validate:examples && npm run test && npm run e2e",
     "test": "vp test run",
     "test:watch": "vp test",
@@ -72,11 +73,15 @@
     "diagramkit": "^0.3.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.2",
     "@playwright/test": "^1.59.1",
-    "@vitest/coverage-v8": "^4.1.3",
-    "typescript": "^6.0.2",
+    "@types/jsdom": "^28.0.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "axe-core": "^4.11.3",
+    "jsdom": "^29.0.2",
+    "typescript": "^6.0.3",
     "vite": "^8.0.8",
-    "vite-plus": "^0.1.16"
+    "vite-plus": "^0.1.18"
   },
   "engines": {
     "node": ">=24"

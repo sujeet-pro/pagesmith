@@ -28,6 +28,7 @@ If `@pagesmith/docs` is already installed and you want the version-matched local
 If you want full copy-paste prompt bodies for both initial setup and upgrades, use [Agent Prompts Cookbook](../prompts-cookbook/README.md). That page includes the repo-configuration prompt plus the upgrade prompt for an existing `@pagesmith/docs` integration.
 
 Your agent will create:
+
 - `pagesmith.config.json5` -- site configuration, including a `$schema` pointer to the installed package schema
 - a chosen docs folder (`docs/` by default, or an existing docs-like folder after confirmation)
 - starter `guide/` and `reference/` sections with `meta.json5` and `README.md` pages
@@ -82,29 +83,29 @@ Add `pagesmith.config.json5` at the project root when you want to override those
 
 ```json5
 {
-  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
+  $schema: "./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json",
   // Required: site identity
-  name: 'My Docs',
-  title: 'My Docs',
-  description: 'Documentation for my project',
-  origin: 'https://docs.example.com',
+  name: "My Docs",
+  title: "My Docs",
+  description: "Documentation for my project",
+  origin: "https://docs.example.com",
 
   // Optional: content and output paths
-  contentDir: './docs',
-  outDir: './gh-pages',
+  contentDir: "./docs",
+  outDir: "./gh-pages",
 
   // Optional: deployment under a subdirectory
-  basePath: '/docs',
+  basePath: "/docs",
 
   // Optional: footer attribution
   maintainer: {
-    name: 'Sujeet Jaiswal',
-    link: 'https://sujeet.pro',
+    name: "Sujeet Jaiswal",
+    link: "https://sujeet.pro",
   },
 
   // Optional: footer copyright
   copyright: {
-    projectName: 'Acme Docs',
+    projectName: "Acme Docs",
     startYear: 2024,
     endYear: null,
   },
@@ -112,15 +113,15 @@ Add `pagesmith.config.json5` at the project root when you want to override those
   // Optional: footer navigation
   footerLinks: [
     {
-      header: 'Docs',
+      header: "Docs",
       links: [
-        { label: 'Guide', path: '/guide' },
-        { label: 'API Reference', path: '/reference' },
+        { label: "Guide", path: "/guide" },
+        { label: "API Reference", path: "/reference" },
       ],
     },
     {
-      header: 'Project',
-      links: [{ label: 'GitHub', path: 'https://github.com/example/repo' }],
+      header: "Project",
+      links: [{ label: "GitHub", path: "https://github.com/example/repo" }],
     },
   ],
 
@@ -133,27 +134,27 @@ Add `pagesmith.config.json5` at the project root when you want to override those
 
 ### Configuration Fields
 
-| Field | Type | Default | Description |
-|---|---|---|---|
-| `name` | `string` | directory name | Short site name shown in the header |
-| `title` | `string` | same as `name` | Full site title used in page titles and meta tags |
-| `description` | `string` | `"Documentation site powered by @pagesmith/docs"` | Meta description for the site |
-| `origin` | `string` | git-detected GitHub Pages host or `"https://example.com"` | Production URL origin (used for canonical links, sitemap) |
-| `language` | `string` | `"en"` | HTML `lang` attribute |
-| `contentDir` | `string` | `"docs/"` if exists, else `"content/"` | Path to the content directory, relative to the config file |
-| `outDir` | `string` | `"gh-pages"` | Build output directory, relative to the config file |
-| `publicDir` | `string` | `"./public"` | Static assets directory copied verbatim to output |
-| `basePath` | `string` | git-detected repo name or `"/"` | URL prefix for deployment under a subdirectory. Can also be set via the `BASE_URL` environment variable or the `--base-path` CLI flag. Priority: CLI flag > `BASE_URL` env > config value > git-detected repo name > default `"/"` |
-| `maintainer` | `object` | `package.json author` | Maintainer credit used by the default footer sign-off |
-| `footerLinks` | `array` | top-level nav links | Links shown in the page footer as either a flat wrapped row or grouped columns with optional headers. When omitted, Pagesmith reuses the major top-level nav links |
-| `footerText` | `string` | — | Override only the Pagesmith sign-off segment in the footer's bottom legal line |
-| `copyright` | `object` | — | Footer copyright config. `startYear` defaults to the repo's first git commit year when available, and `endYear: null` keeps the rendered year dynamic |
-| `search` | `object` | `{ enabled: true }` | Search configuration. Set `{ enabled: false }` to disable |
-| `theme` | `object` | -- | Theme overrides including `lightColor`, `darkColor`, and `layouts` |
-| `analytics` | `object` | -- | Analytics config, currently supports `googleAnalytics` tracking ID |
-| `editLink` | `object \| false` | auto-detected | "Edit this page" link configuration, or `false` to disable the default git-remote detection |
-| `lastUpdated` | `boolean` | `true` | Git-based last updated timestamps. Set `false` to opt out |
-| `markdown` | `object` | -- | Markdown pipeline config passed to `@pagesmith/core` (custom remark/rehype plugins) |
+| Field         | Type              | Default                                                   | Description                                                                                                                                                                                                                        |
+| ------------- | ----------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | `string`          | directory name                                            | Short site name shown in the header                                                                                                                                                                                                |
+| `title`       | `string`          | same as `name`                                            | Full site title used in page titles and meta tags                                                                                                                                                                                  |
+| `description` | `string`          | `"Documentation site powered by @pagesmith/docs"`         | Meta description for the site                                                                                                                                                                                                      |
+| `origin`      | `string`          | git-detected GitHub Pages host or `"https://example.com"` | Production URL origin (used for canonical links, sitemap)                                                                                                                                                                          |
+| `language`    | `string`          | `"en"`                                                    | HTML `lang` attribute                                                                                                                                                                                                              |
+| `contentDir`  | `string`          | `"docs/"` if exists, else `"content/"`                    | Path to the content directory, relative to the config file                                                                                                                                                                         |
+| `outDir`      | `string`          | `"gh-pages"`                                              | Build output directory, relative to the config file                                                                                                                                                                                |
+| `publicDir`   | `string`          | `"./public"`                                              | Static assets directory copied verbatim to output                                                                                                                                                                                  |
+| `basePath`    | `string`          | git-detected repo name or `"/"`                           | URL prefix for deployment under a subdirectory. Can also be set via the `BASE_URL` environment variable or the `--base-path` CLI flag. Priority: CLI flag > `BASE_URL` env > config value > git-detected repo name > default `"/"` |
+| `maintainer`  | `object`          | `package.json author`                                     | Maintainer credit used by the default footer sign-off                                                                                                                                                                              |
+| `footerLinks` | `array`           | top-level nav links                                       | Links shown in the page footer as either a flat wrapped row or grouped columns with optional headers. When omitted, Pagesmith reuses the major top-level nav links                                                                 |
+| `footerText`  | `string`          | —                                                         | Override only the Pagesmith sign-off segment in the footer's bottom legal line                                                                                                                                                     |
+| `copyright`   | `object`          | —                                                         | Footer copyright config. `startYear` defaults to the repo's first git commit year when available, and `endYear: null` keeps the rendered year dynamic                                                                              |
+| `search`      | `object`          | `{ enabled: true }`                                       | Search configuration. Set `{ enabled: false }` to disable                                                                                                                                                                          |
+| `theme`       | `object`          | --                                                        | Theme overrides including `lightColor`, `darkColor`, and `layouts`                                                                                                                                                                 |
+| `analytics`   | `object`          | --                                                        | Analytics config, currently supports `googleAnalytics` tracking ID                                                                                                                                                                 |
+| `editLink`    | `object \| false` | auto-detected                                             | "Edit this page" link configuration, or `false` to disable the default git-remote detection                                                                                                                                        |
+| `lastUpdated` | `boolean`         | `true`                                                    | Git-based last updated timestamps. Set `false` to opt out                                                                                                                                                                          |
+| `markdown`    | `object`          | --                                                        | Markdown pipeline config passed to `@pagesmith/core` (custom remark/rehype plugins)                                                                                                                                                |
 
 ## Content Directory Structure
 
@@ -216,15 +217,15 @@ draft: false
 ---
 ```
 
-| Field | Type | Description |
-|---|---|---|
-| `title` | `string` | Page title. Falls back to the first h1 heading, then to the slug converted to title case |
-| `description` | `string` | Page description used in meta tags and sidebar |
-| `navLabel` | `string` | Override the label shown in the top navigation bar for section landing pages |
-| `sidebarLabel` | `string` | Override the label shown in the sidebar for this page |
-| `order` | `number` | Numeric sort order within a section. Lower numbers appear first. Pages without `order` sort alphabetically after ordered pages |
-| `draft` | `boolean` | When `true`, the page is excluded from the build entirely |
-| `socialImage` | `string` | Path to a custom Open Graph image for this page |
+| Field          | Type      | Description                                                                                                                    |
+| -------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `title`        | `string`  | Page title. Falls back to the first h1 heading, then to the slug converted to title case                                       |
+| `description`  | `string`  | Page description used in meta tags and sidebar                                                                                 |
+| `navLabel`     | `string`  | Override the label shown in the top navigation bar for section landing pages                                                   |
+| `sidebarLabel` | `string`  | Override the label shown in the sidebar for this page                                                                          |
+| `order`        | `number`  | Numeric sort order within a section. Lower numbers appear first. Pages without `order` sort alphabetically after ordered pages |
+| `draft`        | `boolean` | When `true`, the page is excluded from the build entirely                                                                      |
+| `socialImage`  | `string`  | Path to a custom Open Graph image for this page                                                                                |
 
 Additional frontmatter fields are passed through to layout components, so you can define custom fields and access them in layout overrides.
 
@@ -252,7 +253,6 @@ features:
   - title: Markdown First
     details: Write in markdown, get a polished site with navigation and TOC.
 ---
-
 ## Additional Content
 
 Any markdown below the frontmatter is rendered in a content section below the hero and features.

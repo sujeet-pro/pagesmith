@@ -35,12 +35,12 @@ Lives at `<contentDir>/meta.json5`. Controls top-level nav:
 
 ```json5
 {
-  $schema: './node_modules/@pagesmith/docs/schemas/docs-root-meta.schema.json',
-  sections: ['guide', 'reference'],
+  $schema: "./node_modules/@pagesmith/docs/schemas/docs-root-meta.schema.json",
+  sections: ["guide", "reference"],
   header: [
-    { label: 'Guide',     path: '/guide' },
-    { label: 'Reference', path: '/reference' },
-    { label: 'GitHub',    href: 'https://github.com/<owner>/<repo>' },
+    { label: "Guide", path: "/guide" },
+    { label: "Reference", path: "/reference" },
+    { label: "GitHub", href: "https://github.com/<owner>/<repo>" },
   ],
 }
 ```
@@ -54,27 +54,27 @@ Lives at `<contentDir>/<section>/meta.json5`. Controls the section's sidebar gro
 
 ```json5
 {
-  $schema: '../../node_modules/@pagesmith/docs/schemas/docs-section-meta.schema.json',
-  title: 'Getting Started',
+  $schema: "../../node_modules/@pagesmith/docs/schemas/docs-section-meta.schema.json",
+  title: "Getting Started",
   order: 1,
   collapsed: false,
   pages: [
-    'install',
-    'quickstart',
-    { path: 'first-page', title: 'Your First Page' },
-    { label: 'Changelog', href: 'https://github.com/.../releases' },
+    "install",
+    "quickstart",
+    { path: "first-page", title: "Your First Page" },
+    { label: "Changelog", href: "https://github.com/.../releases" },
   ],
 }
 ```
 
 ### `pages` entry shapes
 
-| Shape | Meaning |
-| --- | --- |
-| `'install'` | Render `<section>/install.md` using its own title. |
-| `{ path: 'install' }` | Same as above; explicit form. |
-| `{ path: 'install', title: 'Installation' }` | Override the sidebar label only. |
-| `{ label: 'X', href: 'https://…' }` | External link in the sidebar. |
+| Shape                                        | Meaning                                            |
+| -------------------------------------------- | -------------------------------------------------- |
+| `'install'`                                  | Render `<section>/install.md` using its own title. |
+| `{ path: 'install' }`                        | Same as above; explicit form.                      |
+| `{ path: 'install', title: 'Installation' }` | Override the sidebar label only.                   |
+| `{ label: 'X', href: 'https://…' }`          | External link in the sidebar.                      |
 
 ### Controlling behavior
 
@@ -165,7 +165,7 @@ so the build surfaces missing slugs, invalid `pages` entries, or schema errors b
 - Nested folder slugs need a path segment: `pages: ['advanced/caching']`, not `['caching']`.
 - `path` in section/root metas is resolved against `basePath`; do not prefix it yourself.
 - Top-level `header` items do not inherit from the sidebar. Define them explicitly if you want parity.
-- Root `meta.json5` `sections` controls both order and *presence* — omit a section to hide it from the sidebar index.
+- Root `meta.json5` `sections` controls both order and _presence_ — omit a section to hide it from the sidebar index.
 
 ## Reference
 

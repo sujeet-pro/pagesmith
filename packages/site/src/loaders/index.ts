@@ -1,1 +1,1 @@
-export * from '@pagesmith/core/loaders'
+export * from "@pagesmith/core/loaders";

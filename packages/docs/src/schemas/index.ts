@@ -1,4 +1,4 @@
-export { type Heading, HeadingSchema } from './heading'
+export { type Heading, HeadingSchema } from "./heading";
 export {
   DocsAnalyticsConfigSchema,
   DocsConfigSchema,
@@ -30,7 +30,7 @@ export {
   type DocsServerConfig,
   type DocsSidebarConfig,
   type DocsThemeConfig,
-} from './docs-config'
+} from "./docs-config";
 export {
   DocsActionSchema,
   DocsChromeSchema,
@@ -56,5 +56,5 @@ export {
   type DocsRootMeta,
   type DocsSectionMeta,
   type DocsSeries,
-} from './docs-content'
-export { DOCS_JSON_SCHEMA_BASE_URL, buildDocsJsonSchemas, type DocsJsonSchemaSpec } from './json'
+} from "./docs-content";
+export { DOCS_JSON_SCHEMA_BASE_URL, buildDocsJsonSchemas, type DocsJsonSchemaSpec } from "./json";

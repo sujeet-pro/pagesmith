@@ -1,8 +1,8 @@
-import { existsSync, readdirSync } from 'fs'
-import { extname, join, relative } from 'path'
+import { existsSync, readdirSync } from "fs";
+import { extname, join, relative } from "path";
 
-export { copyPublicFiles } from './copier'
-export { hashAssets } from './hasher'
+export { copyPublicFiles } from "./copier";
+export { hashAssets } from "./hasher";
 export {
   CONVERTIBLE_IMAGE_EXTS,
   GENERATED_IMAGE_FORMATS,
@@ -15,19 +15,19 @@ export {
   resolveGeneratedImageSourcePath,
   type GeneratedImageFormat,
   type LocalImageDimensions,
-} from './images'
+} from "./images";
 
 /** File extensions recognized as content companion assets. */
 export const CONTENT_ASSET_EXTS = new Set([
-  '.svg',
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.gif',
-  '.webp',
-  '.avif',
-  '.ico',
-])
+  ".svg",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".avif",
+  ".ico",
+]);
 
 /**
  * Directory-preserving companion asset map.
@@ -38,13 +38,13 @@ export const CONTENT_ASSET_EXTS = new Set([
  */
 export type ContentAssetMap = {
   /** Relative path from content root → absolute source path */
-  byPath: Map<string, string>
+  byPath: Map<string, string>;
   /** Original basename → relative paths (for rewrite lookup) */
-  byBasename: Map<string, string[]>
-}
+  byBasename: Map<string, string[]>;
+};
 
 function normalizeAssetPathKey(path: string): string {
-  return path.replace(/\\/g, '/')
+  return path.replace(/\\/g, "/");
 }
 
 /**
@@ -52,51 +52,51 @@ function normalizeAssetPathKey(path: string): string {
  * keyed by their relative path from each content root.
  */
 export function collectContentAssets(contentDirs: string[]): ContentAssetMap {
-  const byPath = new Map<string, string>()
-  const byBasename = new Map<string, string[]>()
+  const byPath = new Map<string, string>();
+  const byBasename = new Map<string, string[]>();
 
   for (const contentDir of contentDirs) {
-    if (!existsSync(contentDir)) continue
+    if (!existsSync(contentDir)) continue;
 
     function walk(dir: string): void {
       const entries = readdirSync(dir, { withFileTypes: true }).sort((left, right) =>
         left.name.localeCompare(right.name),
-      )
+      );
 
       for (const entry of entries) {
-        if (entry.name.startsWith('.')) continue
-        const fullPath = join(dir, entry.name)
+        if (entry.name.startsWith(".")) continue;
+        const fullPath = join(dir, entry.name);
         if (entry.isDirectory()) {
-          walk(fullPath)
-          continue
+          walk(fullPath);
+          continue;
         }
-        const ext = extname(entry.name).toLowerCase()
-        if (!CONTENT_ASSET_EXTS.has(ext)) continue
+        const ext = extname(entry.name).toLowerCase();
+        if (!CONTENT_ASSET_EXTS.has(ext)) continue;
 
-        const relPath = normalizeAssetPathKey(relative(contentDir, fullPath))
+        const relPath = normalizeAssetPathKey(relative(contentDir, fullPath));
 
         if (byPath.has(relPath) && byPath.get(relPath) !== fullPath) {
           throw new Error(
             `pagesmith duplicate companion asset path "${relPath}" across content directories: ${byPath.get(relPath)} and ${fullPath}`,
-          )
+          );
         }
-        byPath.set(relPath, fullPath)
+        byPath.set(relPath, fullPath);
 
-        const existing = byBasename.get(entry.name)
+        const existing = byBasename.get(entry.name);
         if (existing) {
-          if (!existing.includes(relPath)) existing.push(relPath)
+          if (!existing.includes(relPath)) existing.push(relPath);
         } else {
-          byBasename.set(entry.name, [relPath])
+          byBasename.set(entry.name, [relPath]);
         }
       }
     }
 
-    walk(contentDir)
+    walk(contentDir);
   }
 
   for (const candidates of byBasename.values()) {
-    candidates.sort((left, right) => left.localeCompare(right))
+    candidates.sort((left, right) => left.localeCompare(right));
   }
 
-  return { byPath, byBasename }
+  return { byPath, byBasename };
 }

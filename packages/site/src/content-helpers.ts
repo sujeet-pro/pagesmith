@@ -1,10 +1,10 @@
-import { normalizeBasePath, withBasePath } from './config.js'
+import { normalizeBasePath, withBasePath } from "./config.js";
 import type {
   SiteBreadcrumb,
   SitePageLink,
   SiteSidebarItem,
   SiteSidebarSection,
-} from './components/types.js'
+} from "./components/types.js";
 
 /**
  * Sort entries by manual order, with unordered entries falling back to a comparator.
@@ -18,18 +18,18 @@ export function sortByManualOrder<T>(
   getSlug: (entry: T) => string,
   fallbackCompare?: (a: T, b: T) => number,
 ): T[] {
-  const order = new Map(orderedSlugs.map((slug, index) => [slug, index]))
-  const defaultCompare = fallbackCompare ?? (() => 0)
+  const order = new Map(orderedSlugs.map((slug, index) => [slug, index]));
+  const defaultCompare = fallbackCompare ?? (() => 0);
 
   return [...entries].sort((a, b) => {
-    const aPos = order.get(getSlug(a))
-    const bPos = order.get(getSlug(b))
+    const aPos = order.get(getSlug(a));
+    const bPos = order.get(getSlug(b));
 
-    if (aPos != null && bPos != null) return aPos - bPos
-    if (aPos != null) return -1
-    if (bPos != null) return 1
-    return defaultCompare(a, b)
-  })
+    if (aPos != null && bPos != null) return aPos - bPos;
+    if (aPos != null) return -1;
+    if (bPos != null) return 1;
+    return defaultCompare(a, b);
+  });
 }
 
 /**
@@ -40,21 +40,21 @@ export function sortByDate<T>(
   getDate: (entry: T) => string | Date | undefined,
   fallbackCompare?: (a: T, b: T) => number,
 ): T[] {
-  const defaultCompare = fallbackCompare ?? (() => 0)
+  const defaultCompare = fallbackCompare ?? (() => 0);
 
   return [...entries].sort((a, b) => {
-    const aDate = toTimestamp(getDate(a))
-    const bDate = toTimestamp(getDate(b))
-    const delta = bDate - aDate
-    if (delta !== 0) return delta
-    return defaultCompare(a, b)
-  })
+    const aDate = toTimestamp(getDate(a));
+    const bDate = toTimestamp(getDate(b));
+    const delta = bDate - aDate;
+    if (delta !== 0) return delta;
+    return defaultCompare(a, b);
+  });
 }
 
 function toTimestamp(value: string | Date | undefined): number {
-  if (!value) return 0
-  const ts = value instanceof Date ? value.getTime() : new Date(value).getTime()
-  return Number.isNaN(ts) ? 0 : ts
+  if (!value) return 0;
+  const ts = value instanceof Date ? value.getTime() : new Date(value).getTime();
+  return Number.isNaN(ts) ? 0 : ts;
 }
 
 /**
@@ -67,11 +67,11 @@ export function buildBreadcrumbs(
   basePath: string,
   crumbs: Array<{ label: string; path?: string }>,
 ): SiteBreadcrumb[] {
-  const normalized = normalizeBasePath(basePath)
+  const normalized = normalizeBasePath(basePath);
   return crumbs.map((crumb) => ({
     label: crumb.label,
     ...(crumb.path != null ? { path: withBasePath(normalized, crumb.path) } : {}),
-  }))
+  }));
 }
 
 /**
@@ -82,17 +82,17 @@ export function buildSidebarFromEntries(
   entries: Array<{ title: string; path: string }>,
   options?: { overviewPath?: string },
 ): SiteSidebarSection[] {
-  const items: SiteSidebarItem[] = []
+  const items: SiteSidebarItem[] = [];
 
   if (options?.overviewPath) {
-    items.push({ title: 'Overview', path: options.overviewPath })
+    items.push({ title: "Overview", path: options.overviewPath });
   }
 
   for (const entry of entries) {
-    items.push({ title: entry.title, path: entry.path })
+    items.push({ title: entry.title, path: entry.path });
   }
 
-  return [{ title, items }]
+  return [{ title, items }];
 }
 
 /**
@@ -109,11 +109,11 @@ export function buildPrevNext<T>(
   const prev =
     currentIndex > 0
       ? { title: getTitle(entries[currentIndex - 1]!), path: getPath(entries[currentIndex - 1]!) }
-      : undefined
+      : undefined;
   const next =
     currentIndex >= 0 && currentIndex < entries.length - 1
       ? { title: getTitle(entries[currentIndex + 1]!), path: getPath(entries[currentIndex + 1]!) }
-      : undefined
+      : undefined;
 
-  return { prev, next }
+  return { prev, next };
 }

@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════
    Left sidebar navigation
+   See foundations/tokens.css for the breakpoint contract.
 
-   < 140ch:  hidden (shown via JS modal on burger click)
-   ≥ 140ch:  sticky in-grid on doc pages
-   No JS:    sidebar + burger hidden; in-grid sidebar still works
+   < xl (1280px): hidden (drawer is the only entry point)
+   ≥ xl (1280px): sticky in-grid on doc pages
+   No JS:         in-grid sidebar still renders; burger is hidden
    ═══════════════════════════════════════════════════════════════ */
 
-/* ─── Default: hidden off-screen (< 140ch) ─── */
+/* ─── Default: hidden (drawer renders via the burger toggle). ─── */
 .doc-sidebar {
   display: none;
 }
@@ -54,7 +55,9 @@
   gap: 0.375rem;
   user-select: none;
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-sidebar-collapsible > .doc-sidebar-heading:hover {
   color: var(--color-text);
@@ -68,7 +71,7 @@
 
 /* Chevron indicator */
 .doc-sidebar-collapsible > .doc-sidebar-heading::before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 0;
   height: 0;
@@ -108,7 +111,9 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
   line-height: 1.4;
 }
 .doc-sidebar-link:hover {
@@ -164,7 +169,8 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 300px;
+  min-width: min(300px, 85vw);
+  width: max-content;
   max-width: 85vw;
   z-index: 1;
   background: var(--color-bg);
@@ -176,8 +182,12 @@
 }
 
 @keyframes sidebar-slide-in {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* ─── Close button inside modal ─── */
@@ -195,7 +205,9 @@
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-sidebar-modal-close:hover {
   color: var(--color-text);
@@ -206,19 +218,15 @@
   height: 18px;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ≥ 768px — hide sidebar on home page
-   ═══════════════════════════════════════════════════════════════ */
-@media (min-width: 768px) {
-  .doc-home .doc-sidebar {
-    display: none;
-  }
+/* The home page never shows an in-page sidebar (the drawer is enough). */
+.doc-home .doc-sidebar {
+  display: none;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ≥ 140ch — doc page sidebar in-grid, sticky
+   xl — persistent sidebar appears on doc pages
    ═══════════════════════════════════════════════════════════════ */
-@media (min-width: 140ch) {
+@media (--bp-xl) {
   .doc-layout .doc-sidebar {
     display: block;
     position: sticky;

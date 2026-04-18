@@ -21,11 +21,11 @@ The diagram below shows the shared pipeline across all three examples. Notice th
 ![Shared Vite framework pipeline from Pagesmith collections and virtual content modules through an SSR entry and framework renderer into static output](./diagrams/vite-framework-shared-flow-dark.svg)
 
 ```ts title="content.config.ts"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const guide = defineCollection({
-  loader: 'markdown',
-  directory: './content/guide',
+  loader: "markdown",
+  directory: "./content/guide",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -35,25 +35,25 @@ export const guide = defineCollection({
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
   }),
-})
+});
 
 export const pages = defineCollection({
-  loader: 'markdown',
-  directory: './content/pages',
+  loader: "markdown",
+  directory: "./content/pages",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
   }),
-})
+});
 
-export default defineCollections({ guide, pages })
+export default defineCollections({ guide, pages });
 ```
 
 All frameworks import content through virtual modules:
 
 ```ts
-import guideCollection from 'virtual:content/guide'
-import pagesCollection from 'virtual:content/pages'
+import guideCollection from "virtual:content/guide";
+import pagesCollection from "virtual:content/pages";
 ```
 
 Each entry provides `contentSlug`, `html`, `headings`, and `frontmatter` with full type safety derived from the Zod schema.
@@ -74,14 +74,14 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 
 The `SsgRenderConfig` provides:
 
-| Property | Description |
-|---|---|
-| `base` | Base path without trailing slash (e.g., `/my-site`) |
-| `root` | Absolute path to the project root |
-| `cssPath` | Path to the built CSS asset |
-| `jsPath` | Path to the built JS asset (undefined in some dev scenarios) |
-| `searchEnabled` | Whether Pagefind search is enabled (false in dev) |
-| `isDev` | Whether running in development mode |
+| Property        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| `base`          | Base path without trailing slash (e.g., `/my-site`)          |
+| `root`          | Absolute path to the project root                            |
+| `cssPath`       | Path to the built CSS asset                                  |
+| `jsPath`        | Path to the built JS asset (undefined in some dev scenarios) |
+| `searchEnabled` | Whether Pagefind search is enabled (false in dev)            |
+| `isDev`         | Whether running in development mode                          |
 
 ---
 
@@ -110,23 +110,23 @@ Source: [`examples/frameworks/with-react/`](https://github.com/sujeet-pro/pagesm
 ### Vite Config
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite'
-import collections from './content.config'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite";
+import collections from "./content.config";
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
   plugins: [
     sharedAssetsPlugin(),
     pagesmithContent(collections),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   oxc: {
     jsx: {
-      runtime: 'automatic',
-      importSource: 'react',
+      runtime: "automatic",
+      importSource: "react",
     },
   },
-})
+});
 ```
 
 ### TypeScript Config
@@ -145,15 +145,11 @@ export default defineConfig({
 React uses `renderToStaticMarkup()` from `react-dom/server`. Raw markdown HTML is injected via `dangerouslySetInnerHTML`:
 
 ```tsx
-import { renderToStaticMarkup } from 'react-dom/server'
+import { renderToStaticMarkup } from "react-dom/server";
 
 const bodyHtml = renderToStaticMarkup(
-  <PageBody
-    title={entry.frontmatter.title}
-    content={entry.html}
-    headings={entry.headings}
-  />
-)
+  <PageBody title={entry.frontmatter.title} content={entry.html} headings={entry.headings} />,
+);
 ```
 
 ```tsx
@@ -165,8 +161,8 @@ const bodyHtml = renderToStaticMarkup(
 The client entry imports theme CSS and runtime JavaScript for progressive enhancements (TOC highlight, sidebar toggle). Search is handled by Pagefind Component UI in the server-rendered HTML, not in this bundle:
 
 ```js title="client.js"
-import './src/theme.css'
-import './src/runtime.ts'
+import "./src/theme.css";
+import "./src/runtime.ts";
 ```
 
 ---
@@ -194,19 +190,19 @@ Source: [`examples/frameworks/with-solid/`](https://github.com/sujeet-pro/pagesm
 ### Vite Config
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite'
-import collections from './content.config'
-import solid from 'vite-plugin-solid'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite";
+import collections from "./content.config";
+import solid from "vite-plugin-solid";
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
   plugins: [
     sharedAssetsPlugin(),
     solid({ ssr: true }),
     pagesmithContent(collections),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
-})
+});
 ```
 
 No `oxc.jsx` configuration needed -- `vite-plugin-solid` handles the JSX transform.
@@ -227,15 +223,11 @@ No `oxc.jsx` configuration needed -- `vite-plugin-solid` handles the JSX transfo
 Solid uses `renderToString()` from `solid-js/web`. Components use `For` and `Show` primitives. Raw HTML uses `innerHTML` (not `dangerouslySetInnerHTML`), and `class` instead of `className`:
 
 ```tsx
-import { renderToString } from 'solid-js/web'
+import { renderToString } from "solid-js/web";
 
 const bodyHtml = renderToString(() => (
-  <PageBody
-    title={entry.frontmatter.title}
-    content={entry.html}
-    headings={entry.headings}
-  />
-))
+  <PageBody title={entry.frontmatter.title} content={entry.html} headings={entry.headings} />
+));
 ```
 
 ```tsx
@@ -267,19 +259,19 @@ Source: [`examples/frameworks/with-svelte/`](https://github.com/sujeet-pro/pages
 ### Vite Config
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import collections from './content.config'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import collections from "./content.config";
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
   plugins: [
     sharedAssetsPlugin(),
     svelte(),
     pagesmithContent(collections),
-    ...pagesmithSsg({ entry: './src/entry-server.ts', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.ts", contentDirs: ["./content"] }),
   ],
-})
+});
 ```
 
 Note the entry is `.ts` (not `.tsx`) since Svelte uses `.svelte` files for components.
@@ -287,11 +279,11 @@ Note the entry is `.ts` (not `.tsx`) since Svelte uses `.svelte` files for compo
 ### Svelte Config
 
 ```js title="svelte.config.js"
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 export default {
   preprocess: vitePreprocess(),
-}
+};
 ```
 
 ### Architecture
@@ -308,17 +300,17 @@ The Svelte example splits concerns across files:
 Svelte uses `render()` from `svelte/server`, which returns `{ body, head }`:
 
 ```ts
-import { render as renderSvelte } from 'svelte/server'
-import App from './App.svelte'
+import { render as renderSvelte } from "svelte/server";
+import App from "./App.svelte";
 
 const rendered = renderSvelte(App, {
   props: {
-    pageKind: 'page',
+    pageKind: "page",
     pageTitle: entry.frontmatter.title,
     pageContent: entry.html,
     pageHeadings: entry.headings,
   },
-})
+});
 ```
 
 Raw HTML in Svelte templates uses `{@html content}`:
@@ -343,12 +335,12 @@ Svelte 5 components use `$props()` runes for prop declarations:
 
 All examples can import pre-built CSS from `@pagesmith/site`:
 
-| Import path | Contents |
-|---|---|
+| Import path                      | Contents                                              |
+| -------------------------------- | ----------------------------------------------------- |
 | `@pagesmith/site/css/standalone` | Full bundle (reset, tokens, prose, code, layout, TOC) |
-| `@pagesmith/site/css/content` | Content-only bundle (reset, prose, code, viewport) |
-| `@pagesmith/site/css/fonts` | Bundled web fonts (Open Sans, JetBrains Mono) |
-| `@pagesmith/site/css/viewport` | Viewport / responsive base only |
+| `@pagesmith/site/css/content`    | Content-only bundle (reset, prose, code, viewport)    |
+| `@pagesmith/site/css/fonts`      | Bundled web fonts (Open Sans, JetBrains Mono)         |
+| `@pagesmith/site/css/viewport`   | Viewport / responsive base only                       |
 
 The `sharedAssetsPlugin()` copies font files and `fonts.css` into the build output.
 
@@ -377,11 +369,11 @@ vp build
 
 ### Framework Comparison
 
-| Aspect | React | SolidJS | Svelte |
-|---|---|---|---|
-| Vite plugin | None (OXC JSX) | `vite-plugin-solid` | `@sveltejs/vite-plugin-svelte` |
-| Render function | `renderToStaticMarkup` | `renderToString` | `render` from `svelte/server` |
-| Raw HTML injection | `dangerouslySetInnerHTML` | `innerHTML` | `{@html content}` |
-| Class attribute | `className` | `class` | `class` |
-| Component format | `.tsx` | `.tsx` | `.svelte` |
-| SSR entry extension | `.tsx` | `.tsx` | `.ts` |
+| Aspect              | React                     | SolidJS             | Svelte                         |
+| ------------------- | ------------------------- | ------------------- | ------------------------------ |
+| Vite plugin         | None (OXC JSX)            | `vite-plugin-solid` | `@sveltejs/vite-plugin-svelte` |
+| Render function     | `renderToStaticMarkup`    | `renderToString`    | `render` from `svelte/server`  |
+| Raw HTML injection  | `dangerouslySetInnerHTML` | `innerHTML`         | `{@html content}`              |
+| Class attribute     | `className`               | `class`             | `class`                        |
+| Component format    | `.tsx`                    | `.tsx`              | `.svelte`                      |
+| SSR entry extension | `.tsx`                    | `.tsx`              | `.ts`                          |

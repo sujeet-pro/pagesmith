@@ -4,4 +4,4 @@ export {
   type BuildValidatorOptions,
   type BuildValidationIssue,
   type BuildValidationResult,
-} from '@pagesmith/site/build-validator'
+} from "@pagesmith/site/build-validator";

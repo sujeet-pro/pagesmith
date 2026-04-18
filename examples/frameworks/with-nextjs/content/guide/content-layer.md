@@ -15,20 +15,20 @@ The core of this example lives in `lib/content.js`. It creates a `ContentLayer` 
 Collections are defined in `content.config.js` using Pagesmith's schema helpers from `@pagesmith/site`:
 
 ```js title="content.config.js"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const posts = defineCollection({
-  loader: 'markdown',
-  directory: './content/posts',
+  loader: "markdown",
+  directory: "./content/posts",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
     date: z.coerce.date(),
     tags: z.array(z.string()).default([]),
   }),
-})
+});
 
-export default defineCollections({ posts })
+export default defineCollections({ posts });
 ```
 
 ## Creating the Layer
@@ -36,18 +36,16 @@ export default defineCollections({ posts })
 `lib/content.js` creates the `ContentLayer` once at module scope and reuses it across lookups:
 
 ```js title="lib/content.js"
-import { createContentLayer, defineConfig } from '@pagesmith/site'
-import collections from '../content.config.js'
+import { createContentLayer, defineConfig } from "@pagesmith/site";
+import collections from "../content.config.js";
 
-let layer
+let layer;
 
 function getLayer() {
   if (!layer) {
-    layer = createContentLayer(
-      defineConfig({ root: process.cwd(), collections }),
-    )
+    layer = createContentLayer(defineConfig({ root: process.cwd(), collections }));
   }
-  return layer
+  return layer;
 }
 ```
 
@@ -65,10 +63,10 @@ Each call to `entry.render()` runs the markdown through Pagesmith's unified pipe
 The home page (`app/page.js`) calls `getAllPosts()` directly in a server component:
 
 ```js
-import { getAllPosts } from '../lib/content.js'
+import { getAllPosts } from "../lib/content.js";
 
 export default async function HomePage() {
-  const posts = await getAllPosts()
+  const posts = await getAllPosts();
   // Render post listing...
 }
 ```
@@ -76,10 +74,10 @@ export default async function HomePage() {
 The dynamic route (`app/posts/[slug]/page.js`) uses `getPostBySlug()` and injects the rendered HTML via `dangerouslySetInnerHTML`:
 
 ```js
-import { getPostBySlug, getAllPosts } from '../../../lib/content.js'
+import { getPostBySlug, getAllPosts } from "../../../lib/content.js";
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts()
-  return posts.map((post) => ({ slug: post.slug }))
+  const posts = await getAllPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 ```

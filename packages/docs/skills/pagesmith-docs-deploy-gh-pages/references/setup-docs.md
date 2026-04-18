@@ -97,4 +97,3 @@ Requirements:
 9. If AI artifacts are missing, install or refresh them so .pagesmith/markdown-guidelines.md exists.
 10. Verify the docs build, then summarize the improvements and any remaining gaps.
 ```
-

@@ -1,11 +1,19 @@
-@import '@pagesmith/site/css/content';
+@import "@pagesmith/site/css/content";
 
 /* Text size */
-html[data-text-size="small"] { font-size: 87.5%; }
-html[data-text-size="base"] { font-size: 100%; }
-html[data-text-size="large"] { font-size: 112.5%; }
+html[data-text-size="small"] {
+  font-size: 87.5%;
+}
+html[data-text-size="base"] {
+  font-size: 100%;
+}
+html[data-text-size="large"] {
+  font-size: 112.5%;
+}
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -21,21 +29,33 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-img, svg, video {
+img,
+svg,
+video {
   display: block;
   max-width: 100%;
 }
-h1, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   overflow-wrap: break-word;
 }
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 a {
   color: inherit;
   text-decoration: none;
 }
-button, input, textarea, select {
+button,
+input,
+textarea,
+select {
   font: inherit;
 }
 table {
@@ -108,8 +128,8 @@ table {
   --shadow-lg: 0 10px 25px var(--shadow-color-lg);
 
   /* Typography */
-  --font-sans: 'Open Sans', 'Open Sans Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback', 'Fira Code', Menlo, Consolas, monospace;
+  --font-sans: "Open Sans", "Open Sans Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", "Fira Code", Menlo, Consolas, monospace;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -194,7 +214,9 @@ html {
   font-size: 16px;
   color: var(--color-text);
   background: var(--color-bg);
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 body {
   min-height: 100vh;
@@ -255,10 +277,16 @@ h4 {
 .prose a:hover {
   text-decoration-color: var(--color-text);
 }
-.prose h1 a, .prose h2 a, .prose h3 a, .prose h4 a {
+.prose h1 a,
+.prose h2 a,
+.prose h3 a,
+.prose h4 a {
   text-decoration: none;
 }
-.prose h1 a:hover, .prose h2 a:hover, .prose h3 a:hover, .prose h4 a:hover {
+.prose h1 a:hover,
+.prose h2 a:hover,
+.prose h3 a:hover,
+.prose h4 a:hover {
   text-decoration: underline;
   text-decoration-color: var(--color-border);
 }
@@ -269,7 +297,8 @@ h4 {
 .prose em {
   font-style: italic;
 }
-.prose ul, .prose ol {
+.prose ul,
+.prose ol {
   padding-left: 1.5rem;
   margin-bottom: 1.25rem;
 }
@@ -335,7 +364,8 @@ h4 {
   margin-bottom: 1.25rem;
   font-size: var(--font-size-sm);
 }
-.prose th, .prose td {
+.prose th,
+.prose td {
   padding: 0.6rem 1.25rem;
   text-align: left;
   border-bottom: 1px solid var(--color-border);
@@ -378,7 +408,12 @@ h4 {
 }
 
 /* ─── Scroll margin for anchors ─── */
-.prose h1, .prose h2, .prose h3, .prose h4, h2[id], h3[id] {
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+h2[id],
+h3[id] {
   scroll-margin-top: calc(var(--header-height) + 1.5rem);
 }
 /* ─── TOC ─── */
@@ -404,7 +439,9 @@ h4 {
   display: block;
   padding: 0.2rem 0 0.2rem 0.75rem;
   color: var(--color-text-muted);
-  transition: color var(--transition-fast), border-color var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
   line-height: 1.4;
   border-left: 2px solid transparent;
   margin-left: -2px;
@@ -639,7 +676,9 @@ h4 {
   height: var(--header-height);
   background: var(--color-header-bg);
   border-bottom: 1px solid var(--color-border);
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .doc-header-inner {
@@ -673,7 +712,9 @@ h4 {
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-sidebar-toggle:hover {
   color: var(--color-text);
@@ -726,7 +767,9 @@ pagefind-modal-trigger.doc-search-trigger {
   text-transform: uppercase;
   color: var(--color-text-muted);
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
   white-space: nowrap;
 }
 .doc-nav a:hover {
@@ -796,7 +839,9 @@ pagefind-modal-trigger.doc-search-trigger {
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-theme-toggle-btn:hover {
   color: var(--color-text);
@@ -847,7 +892,9 @@ pagefind-modal-trigger.doc-search-trigger {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-theme-option:hover {
   color: var(--color-text);
@@ -873,7 +920,9 @@ pagefind-modal-trigger.doc-search-trigger {
   padding: 0.375rem 0.75rem;
   cursor: pointer;
   color: var(--color-text-muted);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-text-size-option + .doc-text-size-option {
   border-left: 1px solid var(--color-border);
@@ -946,7 +995,9 @@ pagefind-modal-trigger.doc-search-trigger {
   gap: 0.375rem;
   user-select: none;
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-sidebar-collapsible > .doc-sidebar-heading:hover {
   color: var(--color-text);
@@ -960,7 +1011,7 @@ pagefind-modal-trigger.doc-search-trigger {
 
 /* Chevron indicator */
 .doc-sidebar-collapsible > .doc-sidebar-heading::before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 0;
   height: 0;
@@ -1000,7 +1051,9 @@ pagefind-modal-trigger.doc-search-trigger {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
   line-height: 1.4;
 }
 .doc-sidebar-link:hover {
@@ -1068,8 +1121,12 @@ pagefind-modal-trigger.doc-search-trigger {
 }
 
 @keyframes sidebar-slide-in {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* ─── Close button inside modal ─── */
@@ -1087,7 +1144,9 @@ pagefind-modal-trigger.doc-search-trigger {
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-sidebar-modal-close:hover {
   color: var(--color-text);
@@ -1404,7 +1463,7 @@ pagefind-modal-trigger.doc-search-trigger {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  border-bottom: 1px solid light-dark(rgba(255,255,255,0.06), #222222);
+  border-bottom: 1px solid light-dark(rgba(255, 255, 255, 0.06), #222222);
 }
 
 .doc-install-dot {
@@ -1414,9 +1473,15 @@ pagefind-modal-trigger.doc-search-trigger {
   flex-shrink: 0;
 }
 
-.doc-install-dot-r { background: #ff5f57; }
-.doc-install-dot-y { background: #febc2e; }
-.doc-install-dot-g { background: #28c840; }
+.doc-install-dot-r {
+  background: #ff5f57;
+}
+.doc-install-dot-y {
+  background: #febc2e;
+}
+.doc-install-dot-g {
+  background: #28c840;
+}
 
 .doc-install-title {
   flex: 1;
@@ -1571,7 +1636,7 @@ pagefind-modal-trigger.doc-search-trigger {
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: light-dark(#16a34a, #3fb950);
-  background: light-dark(rgba(22,163,74,0.08), rgba(63,185,80,0.1));
+  background: light-dark(rgba(22, 163, 74, 0.08), rgba(63, 185, 80, 0.1));
   padding: 0.125rem 0.625rem;
   border-radius: 999px;
 }
@@ -1599,7 +1664,7 @@ pagefind-modal-trigger.doc-search-trigger {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  border-bottom: 1px solid light-dark(rgba(255,255,255,0.06), #222222);
+  border-bottom: 1px solid light-dark(rgba(255, 255, 255, 0.06), #222222);
 }
 
 .doc-home-code-title {
@@ -1621,11 +1686,21 @@ pagefind-modal-trigger.doc-search-trigger {
 }
 
 /* Syntax highlighting — works in both themes since block bg is always dark */
-.doc-home-code .kw  { color: #ff7b72; }
-.doc-home-code .fn  { color: #d2a8ff; }
-.doc-home-code .str { color: #a5d6ff; }
-.doc-home-code .cm  { color: #484f58; }
-.doc-home-code .op  { color: #8b949e; }
+.doc-home-code .kw {
+  color: #ff7b72;
+}
+.doc-home-code .fn {
+  color: #d2a8ff;
+}
+.doc-home-code .str {
+  color: #a5d6ff;
+}
+.doc-home-code .cm {
+  color: #484f58;
+}
+.doc-home-code .op {
+  color: #8b949e;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    MARKDOWN CONTENT
@@ -1757,7 +1832,9 @@ pagefind-modal-trigger.doc-search-trigger {
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-search-modal-close:hover {
   color: var(--color-text);
@@ -1778,7 +1855,9 @@ pagefind-modal-trigger.doc-search-trigger {
    Footer theme selector
    ═══════════════════════════════════════════════════════════════ */
 
-.no-js .no-js-hidden { display: none !important; }
+.no-js .no-js-hidden {
+  display: none !important;
+}
 
 .doc-footer-theme {
   display: flex;
@@ -1815,7 +1894,9 @@ pagefind-modal-trigger.doc-search-trigger {
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-footer-theme-options button + button {
   border-left: 1px solid var(--color-border);
@@ -1831,9 +1912,15 @@ pagefind-modal-trigger.doc-search-trigger {
 }
 
 /* Text size "A" labels */
-.doc-text-size-label[data-size="small"] { font-size: 0.75rem; }
-.doc-text-size-label[data-size="base"] { font-size: 0.9375rem; }
-.doc-text-size-label[data-size="large"] { font-size: 1.125rem; }
+.doc-text-size-label[data-size="small"] {
+  font-size: 0.75rem;
+}
+.doc-text-size-label[data-size="base"] {
+  font-size: 0.9375rem;
+}
+.doc-text-size-label[data-size="large"] {
+  font-size: 1.125rem;
+}
 .doc-text-size-label {
   font-weight: 700;
   line-height: 1;
@@ -1866,15 +1953,24 @@ pagefind-modal-trigger.doc-search-trigger {
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   text-decoration: none;
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
 }
 .doc-article-link:hover {
   border-color: var(--color-border-hover);
   background: var(--color-bg-hover);
 }
-.doc-article-prev { text-align: left; }
-.doc-article-next { text-align: right; grid-column: 2; }
-.doc-article-next:first-child { grid-column: 2; }
+.doc-article-prev {
+  text-align: left;
+}
+.doc-article-next {
+  text-align: right;
+  grid-column: 2;
+}
+.doc-article-next:first-child {
+  grid-column: 2;
+}
 .doc-article-label {
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -1888,12 +1984,21 @@ pagefind-modal-trigger.doc-search-trigger {
   color: var(--color-text);
   transition: color var(--transition-fast);
 }
-.doc-article-link:hover .doc-article-title { color: var(--color-text-secondary); }
+.doc-article-link:hover .doc-article-title {
+  color: var(--color-text-secondary);
+}
 
 @media (max-width: 800px) {
-  .doc-article-nav { grid-template-columns: 1fr; }
-  .doc-article-next { text-align: left; grid-column: 1; }
-  .doc-article-next:first-child { grid-column: 1; }
+  .doc-article-nav {
+    grid-template-columns: 1fr;
+  }
+  .doc-article-next {
+    text-align: left;
+    grid-column: 1;
+  }
+  .doc-article-next:first-child {
+    grid-column: 1;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1914,9 +2019,15 @@ pagefind-modal-trigger.doc-search-trigger {
   color: var(--color-accent);
   text-decoration: none;
 }
-.doc-edit-link:hover { text-decoration: underline; }
-.doc-last-updated { color: var(--color-text-muted); }
-.doc-last-updated time { color: var(--color-text-secondary); }
+.doc-edit-link:hover {
+  text-decoration: underline;
+}
+.doc-last-updated {
+  color: var(--color-text-muted);
+}
+.doc-last-updated time {
+  color: var(--color-text-secondary);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Pagefind Component UI theming — concrete color values for

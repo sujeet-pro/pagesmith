@@ -15,17 +15,17 @@ For first-time setup or retrofit work, start with `node_modules/@pagesmith/site/
 Minimal Vite config:
 
 ```ts
-import { defineConfig } from 'vite'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
+import collections from "./content.config";
 
 export default defineConfig({
   plugins: [
     sharedAssetsPlugin(),
     pagesmithContent({ collections }),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
-})
+});
 ```
 
 ## Recipe: Use the Pagesmith JSX runtime
@@ -40,7 +40,7 @@ export default defineConfig({
 ```
 
 ```tsx
-import { Fragment } from '@pagesmith/site/jsx-runtime'
+import { Fragment } from "@pagesmith/site/jsx-runtime";
 ```
 
 ## Recipe: Add built-in theme and font-size controls

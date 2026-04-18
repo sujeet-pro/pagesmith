@@ -90,47 +90,47 @@ The example is configured entirely through `pagesmith.config.json5`. This excerp
 
 ```json5
 {
-  $schema: '../../node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
-  preset: '@pagesmith/docs',
-  name: 'Pagesmith',
-  title: 'Example Docs',
-  description: 'Documentation site built with @pagesmith/docs',
-  origin: 'https://projects.sujeet.pro',
-  contentDir: './content',
-  outDir: '../../gh-pages/examples/doc-site',
-  basePath: '/pagesmith/examples/doc-site',
-  homeLink: '/pagesmith',
+  $schema: "../../node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json",
+  preset: "@pagesmith/docs",
+  name: "Pagesmith",
+  title: "Example Docs",
+  description: "Documentation site built with @pagesmith/docs",
+  origin: "https://projects.sujeet.pro",
+  contentDir: "./content",
+  outDir: "../../gh-pages/examples/doc-site",
+  basePath: "/pagesmith/examples/doc-site",
+  homeLink: "/pagesmith",
   maintainer: {
-    name: 'Sujeet Jaiswal',
-    link: 'https://sujeet.pro',
+    name: "Sujeet Jaiswal",
+    link: "https://sujeet.pro",
   },
   copyright: {
-    projectName: 'Example Docs',
+    projectName: "Example Docs",
     startYear: 2024,
     endYear: null,
   },
   sidebar: { collapsible: true },
   theme: {
-    defaultColorScheme: 'auto',
-    defaultTheme: 'paper',
+    defaultColorScheme: "auto",
+    defaultTheme: "paper",
     layouts: {
-      home: './theme/layouts/DocHome.tsx',
-      page: './theme/layouts/DocPage.tsx',
+      home: "./theme/layouts/DocHome.tsx",
+      page: "./theme/layouts/DocPage.tsx",
     },
   },
   footerLinks: [
     {
-      header: 'Guide',
+      header: "Guide",
       links: [
-        { label: 'Installation', path: '/guide/installation' },
-        { label: 'Configuration', path: '/guide/configuration' },
+        { label: "Installation", path: "/guide/installation" },
+        { label: "Configuration", path: "/guide/configuration" },
       ],
     },
   ],
   editLink: {
-    repo: 'https://github.com/sujeet-pro/pagesmith',
-    branch: 'main',
-    label: 'Edit this page',
+    repo: "https://github.com/sujeet-pro/pagesmith",
+    branch: "main",
+    label: "Edit this page",
   },
   lastUpdated: true,
   search: {
@@ -156,23 +156,23 @@ Top-level folders under `content/` become sections. This example keeps one prima
 
 ```json5
 {
-  displayName: 'Guide',
-  orderBy: 'manual',
+  displayName: "Guide",
+  orderBy: "manual",
   series: [
     {
-      slug: 'getting-started',
-      displayName: 'Getting Started',
-      articles: ['installation', 'project-structure', 'content-collections'],
+      slug: "getting-started",
+      displayName: "Getting Started",
+      articles: ["installation", "project-structure", "content-collections"],
     },
     {
-      slug: 'customization',
-      displayName: 'Customization',
-      articles: ['layouts-and-rendering', 'configuration', 'search-integration'],
+      slug: "customization",
+      displayName: "Customization",
+      articles: ["layouts-and-rendering", "configuration", "search-integration"],
     },
     {
-      slug: 'markdown-showcase',
-      displayName: 'Markdown Showcase',
-      articles: ['kitchen-sink'],
+      slug: "markdown-showcase",
+      displayName: "Markdown Showcase",
+      articles: ["kitchen-sink"],
     },
   ],
 }
@@ -185,8 +185,8 @@ That is the important convention to copy from the example: current docs projects
 Layout overrides stay on the docs package surface. The example uses `@pagesmith/docs/jsx-runtime` and reuses the shared docs shell pieces instead of reimplementing everything from scratch.
 
 ```tsx
-import { h } from '@pagesmith/docs/jsx-runtime'
-import { Html } from '@pagesmith/docs/theme'
+import { h } from "@pagesmith/docs/jsx-runtime";
+import { Html } from "@pagesmith/docs/theme";
 ```
 
 `theme/layouts/DocHome.tsx` maps the home page frontmatter (`hero`, `features`, `packages`, `install`, `codeExample`) onto the stock docs home structure. `theme/layouts/DocPage.tsx` keeps the expected article landmarks such as:

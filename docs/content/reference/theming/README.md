@@ -11,11 +11,11 @@ Pagesmith uses a class-based multi-theme system with two orthogonal axes: **colo
 
 The theme system sits on two independent CSS class axes applied to `<html>`:
 
-| Axis | Classes / Attribute | Controls |
-|---|---|---|
-| **Color scheme** | `color-scheme-auto`, `color-scheme-light`, `color-scheme-dark` | Which side of `light-dark()` the browser picks |
-| **Theme variant** | `theme-paper`, `theme-high-contrast` | Which set of token overrides is active |
-| **Text size** | `html[data-text-size="small\|base\|large"]` | Root font size scaling |
+| Axis              | Classes / Attribute                                            | Controls                                       |
+| ----------------- | -------------------------------------------------------------- | ---------------------------------------------- |
+| **Color scheme**  | `color-scheme-auto`, `color-scheme-light`, `color-scheme-dark` | Which side of `light-dark()` the browser picks |
+| **Theme variant** | `theme-paper`, `theme-high-contrast`                           | Which set of token overrides is active         |
+| **Text size**     | `html[data-text-size="small\|base\|large"]`                    | Root font size scaling                         |
 
 ### Theme State Flow
 
@@ -27,7 +27,7 @@ This state-flow view shows how server defaults, stored preferences, and theme co
 The server-rendered default is:
 
 ```html
-<html class="no-js color-scheme-auto theme-paper">
+<html class="no-js color-scheme-auto theme-paper"></html>
 ```
 
 ### Color Scheme Classes
@@ -36,13 +36,19 @@ The `color-scheme-*` classes control the CSS `color-scheme` property, which dete
 
 ```css
 /* Auto — follows OS preference */
-.color-scheme-auto { color-scheme: light dark; }
+.color-scheme-auto {
+  color-scheme: light dark;
+}
 
 /* Force light */
-.color-scheme-light { color-scheme: light; }
+.color-scheme-light {
+  color-scheme: light;
+}
 
 /* Force dark */
-.color-scheme-dark { color-scheme: dark; }
+.color-scheme-dark {
+  color-scheme: dark;
+}
 ```
 
 With `color-scheme-auto`, the browser reads `prefers-color-scheme` from the operating system. With `color-scheme-light` or `color-scheme-dark`, one side is forced regardless of the OS setting.
@@ -72,9 +78,15 @@ Theme variants override the design tokens to create distinct visual styles. Each
 The text size feature scales the root `font-size` via a `data-text-size` attribute on `<html>`:
 
 ```css
-html[data-text-size="small"] { font-size: 87.5%; }   /* 14px */
-html[data-text-size="base"]  { font-size: 100%; }    /* 16px */
-html[data-text-size="large"] { font-size: 112.5%; }  /* 18px */
+html[data-text-size="small"] {
+  font-size: 87.5%;
+} /* 14px */
+html[data-text-size="base"] {
+  font-size: 100%;
+} /* 16px */
+html[data-text-size="large"] {
+  font-size: 112.5%;
+} /* 18px */
 ```
 
 When `data-text-size` is not set or equals `"base"`, the default `16px` size applies. All `rem`-based sizing throughout the site scales accordingly. The attribute is set and removed by the runtime JavaScript; the `"base"` value removes the attribute entirely since it matches the default.
@@ -85,29 +97,29 @@ When `data-text-size` is not set or equals `"base"`, the default `16px` size app
 
 A warm, low-contrast theme with cream-tinted backgrounds and a red accent. Designed for comfortable long-form reading.
 
-| Token | Light | Dark |
-|---|---|---|
-| `--color-bg` | `#f5f4f0` | `#111110` |
-| `--color-bg-alt` | `#efefeb` | `#1a1a18` |
-| `--color-text` | `#111110` | `#f5f4f0` |
+| Token                    | Light     | Dark      |
+| ------------------------ | --------- | --------- |
+| `--color-bg`             | `#f5f4f0` | `#111110` |
+| `--color-bg-alt`         | `#efefeb` | `#1a1a18` |
+| `--color-text`           | `#111110` | `#f5f4f0` |
 | `--color-text-secondary` | `#333330` | `#ccccca` |
-| `--color-text-muted` | `#7a7a72` | `#888882` |
-| `--color-accent` | `#d4381e` | `#e04a2e` |
-| `--color-border` | `#d0cfc9` | `#2a2a28` |
+| `--color-text-muted`     | `#7a7a72` | `#888882` |
+| `--color-accent`         | `#d4381e` | `#e04a2e` |
+| `--color-border`         | `#d0cfc9` | `#2a2a28` |
 
 ### High Contrast
 
 Maximum contrast for accessibility. Pure white/black backgrounds, stronger borders, and a blue accent. Targets WCAG AAA color contrast ratios.
 
-| Token | Light | Dark |
-|---|---|---|
-| `--color-bg` | `#ffffff` | `#000000` |
-| `--color-bg-alt` | `#f0f0f0` | `#0a0a0a` |
-| `--color-text` | `#000000` | `#ffffff` |
+| Token                    | Light     | Dark      |
+| ------------------------ | --------- | --------- |
+| `--color-bg`             | `#ffffff` | `#000000` |
+| `--color-bg-alt`         | `#f0f0f0` | `#0a0a0a` |
+| `--color-text`           | `#000000` | `#ffffff` |
 | `--color-text-secondary` | `#1a1a1a` | `#e6e6e6` |
-| `--color-text-muted` | `#4a4a4a` | `#b0b0b0` |
-| `--color-accent` | `#0050a0` | `#60b0ff` |
-| `--color-border` | `#808080` | `#666666` |
+| `--color-text-muted`     | `#4a4a4a` | `#b0b0b0` |
+| `--color-accent`         | `#0050a0` | `#60b0ff` |
+| `--color-border`         | `#808080` | `#666666` |
 
 ## Building a Custom Theme
 
@@ -166,8 +178,8 @@ Create a CSS file with your theme class. Override all the color tokens you want 
 For custom sites built on `@pagesmith/site`, add the import after your foundations:
 
 ```css title="src/theme.css"
-@import '@pagesmith/site/css/content';
-@import './themes/ocean.css';
+@import "@pagesmith/site/css/content";
+@import "./themes/ocean.css";
 ```
 
 For `@pagesmith/docs` sites, you'll need a layout override that includes your custom CSS. See the [Layout Overrides](../../guide/layout-overrides/README.md) guide.
@@ -177,7 +189,7 @@ For `@pagesmith/docs` sites, you'll need a layout override that includes your cu
 In your HTML shell, set the theme class on `<html>`:
 
 ```html
-<html class="color-scheme-auto theme-ocean">
+<html class="color-scheme-auto theme-ocean"></html>
 ```
 
 For sites using `@pagesmith/site`'s `renderDocumentShell`, the initial classes are set in the shell function. For `@pagesmith/docs`, use the `defaultTheme` config option (see below).
@@ -188,64 +200,64 @@ These are all the CSS custom properties that a theme variant should override. To
 
 ### Color Tokens
 
-| Token | Purpose |
-|---|---|
-| `--color-bg` | Primary page background |
-| `--color-bg-alt` | Alternate/secondary background (sidebars, code) |
-| `--color-bg-elevated` | Elevated surface (cards, dropdowns, modals) |
-| `--color-bg-code` | Inline and block code background |
-| `--color-bg-hover` | Hover state background |
-| `--color-text` | Primary text |
-| `--color-text-secondary` | Secondary text (descriptions, body copy) |
-| `--color-text-muted` | Muted text (labels, timestamps, placeholders) |
-| `--color-border` | Default border |
-| `--color-border-subtle` | Subtle/lighter border (dividers, separators) |
-| `--color-border-hover` | Border on hover |
-| `--color-accent` | Primary accent (links, active states, highlights) |
-| `--color-accent-hover` | Accent hover state |
-| `--color-accent-subtle` | Subtle accent background (active nav items, tags) |
-| `--color-code-bg` | Inline code background |
-| `--color-code-text` | Inline code text |
-| `--color-blockquote-border` | Blockquote left border |
-| `--color-blockquote-bg` | Blockquote background |
-| `--color-overlay-bg` | Modal/overlay backdrop |
-| `--color-header-bg` | Translucent header background |
-| `--color-text-inverse` | Inverted text (for use on accent backgrounds) |
+| Token                       | Purpose                                           |
+| --------------------------- | ------------------------------------------------- |
+| `--color-bg`                | Primary page background                           |
+| `--color-bg-alt`            | Alternate/secondary background (sidebars, code)   |
+| `--color-bg-elevated`       | Elevated surface (cards, dropdowns, modals)       |
+| `--color-bg-code`           | Inline and block code background                  |
+| `--color-bg-hover`          | Hover state background                            |
+| `--color-text`              | Primary text                                      |
+| `--color-text-secondary`    | Secondary text (descriptions, body copy)          |
+| `--color-text-muted`        | Muted text (labels, timestamps, placeholders)     |
+| `--color-border`            | Default border                                    |
+| `--color-border-subtle`     | Subtle/lighter border (dividers, separators)      |
+| `--color-border-hover`      | Border on hover                                   |
+| `--color-accent`            | Primary accent (links, active states, highlights) |
+| `--color-accent-hover`      | Accent hover state                                |
+| `--color-accent-subtle`     | Subtle accent background (active nav items, tags) |
+| `--color-code-bg`           | Inline code background                            |
+| `--color-code-text`         | Inline code text                                  |
+| `--color-blockquote-border` | Blockquote left border                            |
+| `--color-blockquote-bg`     | Blockquote background                             |
+| `--color-overlay-bg`        | Modal/overlay backdrop                            |
+| `--color-header-bg`         | Translucent header background                     |
+| `--color-text-inverse`      | Inverted text (for use on accent backgrounds)     |
 
 ### Shadow Tokens
 
-| Token | Purpose |
-|---|---|
-| `--shadow-color` | Small shadow base color |
+| Token               | Purpose                  |
+| ------------------- | ------------------------ |
+| `--shadow-color`    | Small shadow base color  |
 | `--shadow-color-md` | Medium shadow base color |
-| `--shadow-color-lg` | Large shadow base color |
+| `--shadow-color-lg` | Large shadow base color  |
 
 ### Typography Tokens
 
 These are defined on `:root` and are shared across all themes. Override them to change fonts site-wide.
 
-| Token | Default | Purpose |
-|---|---|---|
-| `--font-sans` | `'Open Sans', system-ui, ...` | Body text font stack |
-| `--font-mono` | `'JetBrains Mono', 'Fira Code', ...` | Code font stack |
-| `--font-size-xs` | `0.75rem` | Extra small text |
-| `--font-size-sm` | `0.875rem` | Small text |
-| `--font-size-base` | `1rem` | Base body text |
-| `--font-size-lg` | `1.125rem` | Large text |
-| `--font-size-xl` | `1.25rem` | Extra large |
-| `--font-size-2xl` | `1.5rem` | Heading 2 |
-| `--font-size-3xl` | `2rem` | Heading 1 / hero |
+| Token              | Default                              | Purpose              |
+| ------------------ | ------------------------------------ | -------------------- |
+| `--font-sans`      | `'Open Sans', system-ui, ...`        | Body text font stack |
+| `--font-mono`      | `'JetBrains Mono', 'Fira Code', ...` | Code font stack      |
+| `--font-size-xs`   | `0.75rem`                            | Extra small text     |
+| `--font-size-sm`   | `0.875rem`                           | Small text           |
+| `--font-size-base` | `1rem`                               | Base body text       |
+| `--font-size-lg`   | `1.125rem`                           | Large text           |
+| `--font-size-xl`   | `1.25rem`                            | Extra large          |
+| `--font-size-2xl`  | `1.5rem`                             | Heading 2            |
+| `--font-size-3xl`  | `2rem`                               | Heading 1 / hero     |
 
 ### Spacing and Shape Tokens
 
-| Token | Default | Purpose |
-|---|---|---|
-| `--radius-sm` | `2px` | Small border radius |
-| `--radius-md` | `4px` | Medium border radius |
-| `--radius-lg` | `6px` | Large border radius |
-| `--transition-fast` | `150ms cubic-bezier(0.4, 0, 0.2, 1)` | Quick interactions |
+| Token                 | Default                              | Purpose              |
+| --------------------- | ------------------------------------ | -------------------- |
+| `--radius-sm`         | `2px`                                | Small border radius  |
+| `--radius-md`         | `4px`                                | Medium border radius |
+| `--radius-lg`         | `6px`                                | Large border radius  |
+| `--transition-fast`   | `150ms cubic-bezier(0.4, 0, 0.2, 1)` | Quick interactions   |
 | `--transition-normal` | `250ms cubic-bezier(0.4, 0, 0.2, 1)` | Standard transitions |
-| `--header-height` | `60px` | Fixed header height |
+| `--header-height`     | `60px`                               | Fixed header height  |
 
 ## Docs Theme Configuration
 
@@ -254,22 +266,22 @@ When using `@pagesmith/docs`, configure the default color scheme and theme varia
 ```json5 title="pagesmith.config.json5"
 {
   theme: {
-    defaultColorScheme: 'auto',      // 'auto' | 'light' | 'dark'
-    defaultTheme: 'paper',           // 'paper' | 'high-contrast'
-    defaultTextSize: 'base',         // 'small' | 'base' | 'large'
-    lightColor: '#f5f4f0',           // Browser chrome color (light)
-    darkColor: '#111110',            // Browser chrome color (dark)
+    defaultColorScheme: "auto", // 'auto' | 'light' | 'dark'
+    defaultTheme: "paper", // 'paper' | 'high-contrast'
+    defaultTextSize: "base", // 'small' | 'base' | 'large'
+    lightColor: "#f5f4f0", // Browser chrome color (light)
+    darkColor: "#111110", // Browser chrome color (dark)
   },
 }
 ```
 
-| Field | Type | Default | Description |
-|---|---|---|---|
-| `defaultColorScheme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Initial color scheme. `'auto'` follows the OS preference. |
-| `defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Initial theme variant applied to `<html>`. |
-| `defaultTextSize` | `'small' \| 'base' \| 'large'` | `'base'` | Initial text size applied via `data-text-size` on `<html>`. |
-| `lightColor` | `string` | `'#f8fafc'` | `<meta name="theme-color">` for light mode (browser chrome). |
-| `darkColor` | `string` | `'#020617'` | `<meta name="theme-color">` for dark mode (browser chrome). |
+| Field                | Type                           | Default     | Description                                                  |
+| -------------------- | ------------------------------ | ----------- | ------------------------------------------------------------ |
+| `defaultColorScheme` | `'auto' \| 'light' \| 'dark'`  | `'auto'`    | Initial color scheme. `'auto'` follows the OS preference.    |
+| `defaultTheme`       | `'paper' \| 'high-contrast'`   | `'paper'`   | Initial theme variant applied to `<html>`.                   |
+| `defaultTextSize`    | `'small' \| 'base' \| 'large'` | `'base'`    | Initial text size applied via `data-text-size` on `<html>`.  |
+| `lightColor`         | `string`                       | `'#f8fafc'` | `<meta name="theme-color">` for light mode (browser chrome). |
+| `darkColor`          | `string`                       | `'#020617'` | `<meta name="theme-color">` for dark mode (browser chrome).  |
 
 ## Theme Toggle UI
 
@@ -302,24 +314,18 @@ Both controls are wrapped in `.no-js-hidden`, so they are invisible when JavaScr
 To avoid a flash of unstyled content when the user has previously selected a theme, a small inline `<script>` runs before CSS paints. It reads the stored preference from `localStorage` and swaps the HTML classes:
 
 ```js
-(function() {
+(function () {
   try {
-    var p = JSON.parse(localStorage.getItem('pagesmith-theme'))
+    var p = JSON.parse(localStorage.getItem("pagesmith-theme"));
     if (p) {
-      var d = document.documentElement
+      var d = document.documentElement;
       if (p.colorScheme)
-        d.className = d.className.replace(
-          /color-scheme-\w+/, 'color-scheme-' + p.colorScheme
-        )
-      if (p.theme)
-        d.className = d.className.replace(
-          /theme-[\w-]+/, 'theme-' + p.theme
-        )
-      if (p.textSize && p.textSize !== 'base')
-        d.dataset.textSize = p.textSize
+        d.className = d.className.replace(/color-scheme-\w+/, "color-scheme-" + p.colorScheme);
+      if (p.theme) d.className = d.className.replace(/theme-[\w-]+/, "theme-" + p.theme);
+      if (p.textSize && p.textSize !== "base") d.dataset.textSize = p.textSize;
     }
-  } catch(e) {}
-})()
+  } catch (e) {}
+})();
 ```
 
 The script is inlined in the `<head>` before any stylesheet links. It is present in both `@pagesmith/site`'s `renderDocumentShell` and `@pagesmith/docs`'s `Html.tsx`. The `textSize` restoration uses `dataset.textSize` (a data attribute) rather than a CSS class, and only sets it when the value differs from the default `"base"`.
@@ -379,8 +385,8 @@ Syntax-highlighted code blocks use separate Shiki themes for light and dark mode
   markdown: {
     shiki: {
       themes: {
-        light: 'catppuccin-latte',
-        dark: 'catppuccin-mocha',
+        light: "catppuccin-latte",
+        dark: "catppuccin-mocha",
       },
     },
   },
@@ -396,7 +402,7 @@ For sites built directly on `@pagesmith/site` (not `@pagesmith/docs`), use the p
 1. **Import the CSS foundations** that include `color-scheme.css`, `tokens.css`, and `themes.css`:
 
 ```css title="src/theme.css"
-@import '@pagesmith/site/css/standalone';
+@import "@pagesmith/site/css/standalone";
 ```
 
 Or import `@pagesmith/site/css/content` for content-only styling (no layout grid).
@@ -404,44 +410,45 @@ Or import `@pagesmith/site/css/content` for content-only styling (no layout grid
 2. **Use `renderDocumentShell`** from `@pagesmith/site/ssg-utils` which sets up the correct HTML classes and FOUC script:
 
 ```ts
-import { renderDocumentShell } from '@pagesmith/site/ssg-utils'
+import { renderDocumentShell } from "@pagesmith/site/ssg-utils";
 
 const html = renderDocumentShell({
-  title: 'My Page',
-  basePath: '/my-site',
-  cssPath: '/assets/style.css',
-  jsPath: '/assets/main.js',
-  bodyHtml: '<main>...</main>',
-})
+  title: "My Page",
+  basePath: "/my-site",
+  cssPath: "/assets/style.css",
+  jsPath: "/assets/main.js",
+  bodyHtml: "<main>...</main>",
+});
 ```
 
 3. **Write your own theme toggle** using the class-based API:
 
 ```ts
-function setColorScheme(scheme: 'auto' | 'light' | 'dark') {
-  const root = document.documentElement
-  root.className = root.className.replace(
-    /color-scheme-\w+/, 'color-scheme-' + scheme
-  )
-  persist()
+function setColorScheme(scheme: "auto" | "light" | "dark") {
+  const root = document.documentElement;
+  root.className = root.className.replace(/color-scheme-\w+/, "color-scheme-" + scheme);
+  persist();
 }
 
-function setTextSize(size: 'small' | 'base' | 'large') {
-  if (size === 'base') {
-    delete document.documentElement.dataset.textSize
+function setTextSize(size: "small" | "base" | "large") {
+  if (size === "base") {
+    delete document.documentElement.dataset.textSize;
   } else {
-    document.documentElement.dataset.textSize = size
+    document.documentElement.dataset.textSize = size;
   }
-  persist()
+  persist();
 }
 
 function persist() {
-  const classes = document.documentElement.className
-  localStorage.setItem('pagesmith-theme', JSON.stringify({
-    colorScheme: classes.match(/color-scheme-(\w+)/)?.[1] || 'auto',
-    theme: classes.match(/theme-([\w-]+)/)?.[1] || 'paper',
-    textSize: document.documentElement.dataset.textSize || 'base',
-  }))
+  const classes = document.documentElement.className;
+  localStorage.setItem(
+    "pagesmith-theme",
+    JSON.stringify({
+      colorScheme: classes.match(/color-scheme-(\w+)/)?.[1] || "auto",
+      theme: classes.match(/theme-([\w-]+)/)?.[1] || "paper",
+      textSize: document.documentElement.dataset.textSize || "base",
+    }),
+  );
 }
 ```
 

@@ -44,7 +44,9 @@
   gap: 0.375rem;
   user-select: none;
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .doc-sidebar-collapsible > .doc-sidebar-heading:hover {
@@ -57,7 +59,7 @@
 }
 
 .doc-sidebar-collapsible > .doc-sidebar-heading::before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 0;
   height: 0;
@@ -96,7 +98,9 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
   line-height: 1.4;
 }
 
@@ -147,7 +151,8 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 300px;
+  min-width: min(300px, 85vw);
+  width: max-content;
   max-width: 85vw;
   z-index: 1;
   background: var(--color-bg);
@@ -182,7 +187,9 @@
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .doc-sidebar-modal-close:hover {
@@ -195,7 +202,8 @@
   height: 18px;
 }
 
-@media (min-width: 140ch) {
+/* xl: desktop — persistent left sidebar appears alongside content. */
+@media (--bp-xl) {
   .doc-layout .doc-sidebar {
     display: block;
     position: sticky;

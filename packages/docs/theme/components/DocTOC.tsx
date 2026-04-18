@@ -1,1 +1,1 @@
-export { DocTOC } from '@pagesmith/docs/components'
+export { DocTOC } from "@pagesmith/docs/components";

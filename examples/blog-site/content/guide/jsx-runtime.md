@@ -61,25 +61,25 @@ The site JSX runtime uses standard HTML attribute names:
 
 Key differences:
 
-| React | Site JSX |
-|-------|----------|
-| `className` | `class` |
-| `htmlFor` | `for` |
-| `dangerouslySetInnerHTML={{ __html }}` | `innerHTML` |
-| `style={{ color: 'red' }}` (object) | `style="color: red"` (string) |
+| React                                  | Site JSX                      |
+| -------------------------------------- | ----------------------------- |
+| `className`                            | `class`                       |
+| `htmlFor`                              | `for`                         |
+| `dangerouslySetInnerHTML={{ __html }}` | `innerHTML`                   |
+| `style={{ color: 'red' }}` (object)    | `style="color: red"` (string) |
 
 ## Rendering to string
 
 Components render by calling `h()` which returns an `HtmlString`. Converting to a string is implicit:
 
 ```tsx
-import { h, Fragment } from '@pagesmith/site/jsx-runtime'
+import { h, Fragment } from "@pagesmith/site/jsx-runtime";
 
 function Greeting({ name }: { name: string }) {
-  return <p>Hello, {name}!</p>
+  return <p>Hello, {name}!</p>;
 }
 
-const html = String(<Greeting name="World" />)
+const html = String(<Greeting name="World" />);
 // => '<p>Hello, World!</p>'
 ```
 

@@ -26,11 +26,11 @@ The diagram highlights the boundary: the App Router stays in charge of the shell
 
 ## Package Split
 
-| Package | Used for |
-|---|---|
+| Package           | Used for                                                                                                             |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `@pagesmith/site` | Collections, schemas, `createContentLayer()`, `entry.render()`, headings, read time, and shared markdown CSS/runtime |
-| `@pagesmith/core` | Lower-level implementation and headless fallback when you intentionally do not want the site package surface |
-| `next` | Routing, layouts, metadata, static export, and app shell |
+| `@pagesmith/core` | Lower-level implementation and headless fallback when you intentionally do not want the site package surface         |
+| `next`            | Routing, layouts, metadata, static export, and app shell                                                             |
 
 If you own all markdown styling and browser behavior yourself, you can use `@pagesmith/core` on its own.
 
@@ -52,20 +52,20 @@ If you own all markdown styling and browser behavior yourself, you can use `@pag
 Define collections exactly as you would in any other Pagesmith content integration:
 
 ```js title="content.config.js"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const posts = defineCollection({
-  loader: 'markdown',
-  directory: './content/posts',
+  loader: "markdown",
+  directory: "./content/posts",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
     date: z.coerce.date(),
     tags: z.array(z.string()).default([]),
   }),
-})
+});
 
-export default defineCollections({ posts })
+export default defineCollections({ posts });
 ```
 
 ## Server-Side Content Helpers
@@ -73,10 +73,10 @@ export default defineCollections({ posts })
 Keep the content layer in normal server-side app code. The Next.js example creates the layer once at module scope and reuses it across lookups:
 
 ```js title="lib/content.js"
-import { createContentLayer, defineConfig } from '@pagesmith/site'
-import collections from '../content.config.js'
+import { createContentLayer, defineConfig } from "@pagesmith/site";
+import collections from "../content.config.js";
 
-let layer
+let layer;
 
 function getLayer() {
   if (!layer) {
@@ -85,23 +85,23 @@ function getLayer() {
         root: process.cwd(),
         collections,
       }),
-    )
+    );
   }
-  return layer
+  return layer;
 }
 
 export async function getPostBySlug(slug) {
-  const entry = await getLayer().getEntry('posts', slug)
-  if (!entry) return null
+  const entry = await getLayer().getEntry("posts", slug);
+  if (!entry) return null;
 
-  const rendered = await entry.render()
+  const rendered = await entry.render();
   return {
     slug: entry.slug,
     title: entry.data.title,
     html: rendered.html,
     headings: rendered.headings,
     readTime: rendered.readTime,
-  }
+  };
 }
 ```
 
@@ -109,19 +109,19 @@ The same helper can power `getAllPosts()` from the cached layer:
 
 ```js title="lib/content.js"
 export async function getAllPosts() {
-  const entries = await getLayer().getCollection('posts')
+  const entries = await getLayer().getCollection("posts");
   return Promise.all(
     entries.map(async (entry) => {
-      const rendered = await entry.render()
+      const rendered = await entry.render();
       return {
         slug: entry.slug,
         title: entry.data.title,
         html: rendered.html,
         headings: rendered.headings,
         readTime: rendered.readTime,
-      }
+      };
     }),
-  )
+  );
 }
 ```
 
@@ -132,19 +132,19 @@ This is the heart of the integration: Next.js receives rendered HTML and metadat
 When you want the shipped Pagesmith prose and code-block UI, import the shared CSS once in the app layout:
 
 ```js title="app/layout.js"
-import '@pagesmith/site/css/content'
-import './globals.css'
+import "@pagesmith/site/css/content";
+import "./globals.css";
 ```
 
 Mount the browser runtime once through a tiny client component:
 
 ```js title="components/pagesmith-content-runtime.js"
-'use client'
+"use client";
 
-import '@pagesmith/site/runtime/content'
+import "@pagesmith/site/runtime/content";
 
 export function PagesmithContentRuntime() {
-  return null
+  return null;
 }
 ```
 
@@ -155,21 +155,21 @@ That runtime wires copy buttons, code tabs, and collapse toggles for the HTML pr
 The App Router keeps all of the routing and metadata logic:
 
 ```js title="app/posts/[slug]/page.js"
-import { notFound } from 'next/navigation'
-import { getAllPosts, getPostBySlug } from '../../../lib/content'
+import { notFound } from "next/navigation";
+import { getAllPosts, getPostBySlug } from "../../../lib/content";
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts()
-  return posts.map((post) => ({ slug: post.slug }))
+  const posts = await getAllPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export default async function PostPage({ params }) {
-  const { slug } = await params
-  const post = await getPostBySlug(slug)
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
 
-  if (!post) notFound()
+  if (!post) notFound();
 
-  return <div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} />
+  return <div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} />;
 }
 ```
 

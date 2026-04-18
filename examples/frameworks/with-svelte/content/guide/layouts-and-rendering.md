@@ -18,8 +18,8 @@ This example is **static-first**: `svelte/server` turns `.svelte` files into HTM
 `src/entry-server.ts` exports:
 
 ```ts
-export async function getRoutes(): Promise<string[]>
-export async function render(url: string, config: SsgRenderConfig): Promise<string>
+export async function getRoutes(): Promise<string[]>;
+export async function render(url: string, config: SsgRenderConfig): Promise<string>;
 ```
 
 `pagesmithSsg` imports that module, collects routes, and calls `render()` per URL.
@@ -46,20 +46,20 @@ So: **Svelte owns the primary layout markup** that becomes `bodyHtml`, while **c
 
 ## Component roles
 
-| File | Role |
-|------|------|
-| `App.svelte` | `pageKind` router: `HomeBody`, `PageBody`, or `NotFoundBody`; mobile sidebar `<dialog>`. |
-| `PageBody.svelte` | Sidebar + article + TOC + footer; `{@html content}` for markdown. |
-| `HomeBody.svelte` | Landing sections and listings. |
-| `SiteHeader.svelte` | Nav + optional `pagefind-modal-trigger`. |
+| File                | Role                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| `App.svelte`        | `pageKind` router: `HomeBody`, `PageBody`, or `NotFoundBody`; mobile sidebar `<dialog>`. |
+| `PageBody.svelte`   | Sidebar + article + TOC + footer; `{@html content}` for markdown.                        |
+| `HomeBody.svelte`   | Landing sections and listings.                                                           |
+| `SiteHeader.svelte` | Nav + optional `pagefind-modal-trigger`.                                                 |
 
 ## Client vs server split
 
-| Surface | Responsibility |
-|---------|------------------|
-| `entry-server.ts` + `.svelte` | All HTML strings for each URL. |
-| `client.js` | Vite browser entry: CSS import order, `@pagesmith/site/runtime/content`, then `runtime.ts`. |
-| `src/runtime.ts` | Vanilla progressive enhancement: TOC active state, sidebar `<dialog>`, theme controls, compact search trigger. |
+| Surface                       | Responsibility                                                                                                 |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `entry-server.ts` + `.svelte` | All HTML strings for each URL.                                                                                 |
+| `client.js`                   | Vite browser entry: CSS import order, `@pagesmith/site/runtime/content`, then `runtime.ts`.                    |
+| `src/runtime.ts`              | Vanilla progressive enhancement: TOC active state, sidebar `<dialog>`, theme controls, compact search trigger. |
 
 ## Build output path
 

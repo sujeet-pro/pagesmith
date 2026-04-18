@@ -8,40 +8,40 @@
  * help-on-no-command, top-level error formatting, and exit codes.
  */
 
-import cac from 'cac'
-import type { CAC, Command } from 'cac'
-import { exitCodeFor, formatCliError } from './errors.js'
+import cac from "cac";
+import type { CAC, Command } from "cac";
+import { exitCodeFor, formatCliError } from "./errors.js";
 
 export type DefineCliOptions = {
   /** Binary name shown in help (e.g. `"pagesmith-docs"`). */
-  name: string
+  name: string;
   /** Package version printed by `--version`. */
-  version: string
+  version: string;
   /**
    * Optional descriptive line appended before help. Most CLIs leave this
    * blank because cac's auto-generated help is already verbose.
    */
-  description?: string
-}
+  description?: string;
+};
 
 export type RunCliOptions = {
   /** argv slice to parse. Defaults to `process.argv.slice(2)`. */
-  argv?: string[]
+  argv?: string[];
   /**
    * When `true`, do not call `process.exit`; instead let any thrown error
    * bubble out so callers can handle it (used by tests).
    */
-  rethrow?: boolean
-}
+  rethrow?: boolean;
+};
 
 export type CliInstance = {
-  cli: CAC
+  cli: CAC;
   /** Register `--config <path>` and the standard interactivity flags on a command. */
-  withInteractivityFlags(command: Command): Command
-  withConfigFlag(command: Command): Command
+  withInteractivityFlags(command: Command): Command;
+  withConfigFlag(command: Command): Command;
   /** Parse argv and dispatch to the registered handlers. */
-  run(options?: RunCliOptions): Promise<number>
-}
+  run(options?: RunCliOptions): Promise<number>;
+};
 
 /**
  * Adds the standard `--yes`, `--non-interactive`/`--no-interactive`, and
@@ -51,51 +51,51 @@ export type CliInstance = {
  */
 export function withInteractivityFlags(command: Command): Command {
   return command
-    .option('-y, --yes', 'Skip prompts and accept detected defaults')
-    .option('--non-interactive', 'Force non-interactive mode (alias of --yes for CI)')
-    .option('--interactive', 'Force interactive prompts even when env looks non-TTY')
+    .option("-y, --yes", "Skip prompts and accept detected defaults")
+    .option("--non-interactive", "Force non-interactive mode (alias of --yes for CI)")
+    .option("--interactive", "Force interactive prompts even when env looks non-TTY");
 }
 
 export function withConfigFlag(command: Command): Command {
   return command.option(
-    '--config <path>',
-    'Config file path (default: pagesmith.config.{ts,mts,js,mjs,json5,json})',
-  )
+    "--config <path>",
+    "Config file path (default: pagesmith.config.{ts,mts,js,mjs,json5,json})",
+  );
 }
 
 export function defineCli(options: DefineCliOptions): CliInstance {
-  const cli = cac(options.name)
-  cli.help()
-  cli.version(options.version)
+  const cli = cac(options.name);
+  cli.help();
+  cli.version(options.version);
 
   const run = async (runOptions: RunCliOptions = {}): Promise<number> => {
-    const argv = runOptions.argv ?? process.argv.slice(2)
+    const argv = runOptions.argv ?? process.argv.slice(2);
 
     try {
-      const parsed = cli.parse([process.execPath, options.name, ...argv], { run: false })
+      const parsed = cli.parse([process.execPath, options.name, ...argv], { run: false });
 
       // cac already prints --help / --version output before returning. Only
       // dispatch when a command actually matched (`matchedCommandName` is set).
-      if (parsed.options['help'] || parsed.options['version']) return 0
+      if (parsed.options["help"] || parsed.options["version"]) return 0;
 
       if (!cli.matchedCommandName) {
-        cli.outputHelp()
-        return 0
+        cli.outputHelp();
+        return 0;
       }
 
-      await cli.runMatchedCommand()
-      return 0
+      await cli.runMatchedCommand();
+      return 0;
     } catch (error) {
-      if (runOptions.rethrow) throw error
-      console.error(formatCliError(error))
-      return exitCodeFor(error)
+      if (runOptions.rethrow) throw error;
+      console.error(formatCliError(error));
+      return exitCodeFor(error);
     }
-  }
+  };
 
   return {
     cli,
     withInteractivityFlags,
     withConfigFlag,
     run,
-  }
+  };
 }

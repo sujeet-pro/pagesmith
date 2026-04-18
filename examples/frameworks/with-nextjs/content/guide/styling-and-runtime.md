@@ -15,7 +15,7 @@ This example reuses Pagesmith's shared presentation layer for markdown content w
 The root layout imports Pagesmith's content CSS bundle, which provides styling for prose typography, code blocks, alerts, and tables:
 
 ```js title="app/layout.js"
-import '@pagesmith/site/css/content'
+import "@pagesmith/site/css/content";
 ```
 
 This single import gives you the same code-block frames, syntax highlighting styles, alert callouts, and scrollable tables that the Vite-based examples get.
@@ -25,7 +25,7 @@ This single import gives you the same code-block frames, syntax highlighting sty
 The content runtime wires browser-side behavior for copy buttons, code tabs, and collapsible code sections. It is imported once in the root layout so it runs on every page:
 
 ```js title="app/layout.js"
-import '@pagesmith/site/runtime/content'
+import "@pagesmith/site/runtime/content";
 ```
 
 ## No Chrome Layer

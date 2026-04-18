@@ -12,11 +12,11 @@ Pagesmith ships versioned AI guidance inside each npm package and can also insta
 
 Before you ask an agent to scaffold anything, hand it the package-owned setup prompt that matches your goal:
 
-| Goal | Read first |
-|---|---|
+| Goal                                   | Read first                                                                          |
+| -------------------------------------- | ----------------------------------------------------------------------------------- |
 | Typed content layer in an existing app | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` |
-| Custom site on top of core | `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` |
-| Convention-based docs site | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` |
+| Custom site on top of core             | `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` |
+| Convention-based docs site             | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/setup-docs.md` |
 
 Hosted copies for copy-paste are available under `/prompts/` on this docs site:
 
@@ -53,12 +53,12 @@ This scaffolds `pagesmith.config.json5`, content, and the same AI artifacts in o
 
 ## What Gets Installed
 
-| Artifact | Purpose |
-|---|---|
-| `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` | Project memory files that point future sessions at the right package docs |
-| Assistant-specific skills/commands | Reusable package-aware commands such as `/pagesmith`, `/update-docs`, and `/ps-update-all-docs` |
-| `.pagesmith/markdown-guidelines.md` | Shared markdown authoring rules for Pagesmith content |
-| `llms.txt` / `llms-full.txt` | Compact and expanded LLM context files |
+| Artifact                              | Purpose                                                                                         |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` | Project memory files that point future sessions at the right package docs                       |
+| Assistant-specific skills/commands    | Reusable package-aware commands such as `/pagesmith`, `/update-docs`, and `/ps-update-all-docs` |
+| `.pagesmith/markdown-guidelines.md`   | Shared markdown authoring rules for Pagesmith content                                           |
+| `llms.txt` / `llms-full.txt`          | Compact and expanded LLM context files                                                          |
 
 ## Install Consumer Agent Skills With `pagesmith-core skills`
 
@@ -82,11 +82,11 @@ Useful flags:
 
 Available skills (all live inside the package they document):
 
-| Package | Skills |
-|---|---|
+| Package           | Skills                                                                                                                                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@pagesmith/docs` | `pagesmith-docs-setup`, `pagesmith-docs-add-page`, `pagesmith-docs-configure-nav`, `pagesmith-docs-add-search`, `pagesmith-docs-customize-theme`, `pagesmith-docs-deploy-gh-pages`, `pagesmith-generate-docs` |
-| `@pagesmith/site` | `pagesmith-site-setup`, `pagesmith-site-use-preset`, `pagesmith-site-customize-theme` |
-| `@pagesmith/core` | `pagesmith-core-setup`, `pagesmith-core-add-collection`, `pagesmith-core-add-loader`, `pagesmith-core-customize-markdown`, `pagesmith-core-write-validator` |
+| `@pagesmith/site` | `pagesmith-site-setup`, `pagesmith-site-use-preset`, `pagesmith-site-customize-theme`                                                                                                                         |
+| `@pagesmith/core` | `pagesmith-core-setup`, `pagesmith-core-add-collection`, `pagesmith-core-add-loader`, `pagesmith-core-customize-markdown`, `pagesmith-core-write-validator`                                                   |
 
 Each skill always reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the agent uses the CLI flags and config schema that match the version actually installed in the project, instead of relying on globally cached or generic guidance.
 
@@ -105,29 +105,29 @@ Use the docs site when you want the latest main-branch guidance. Use `node_modul
 
 ## Recommended Read Order
 
-| Task | Read first |
-|---|---|
-| Core bootstrap / retrofit | `setup-core.md`, then `usage.md`, then `REFERENCE.md` |
-| Site bootstrap / retrofit | `setup-site.md`, then `usage.md`, then `REFERENCE.md` |
-| Docs bootstrap / retrofit | `setup-docs.md`, then `usage.md`, then `REFERENCE.md` |
+| Task                             | Read first                                                   |
+| -------------------------------- | ------------------------------------------------------------ |
+| Core bootstrap / retrofit        | `setup-core.md`, then `usage.md`, then `REFERENCE.md`        |
+| Site bootstrap / retrofit        | `setup-site.md`, then `usage.md`, then `REFERENCE.md`        |
+| Docs bootstrap / retrofit        | `setup-docs.md`, then `usage.md`, then `REFERENCE.md`        |
 | Docs config or frontmatter edits | `setup-docs.md`, `REFERENCE.md`, and `schemas/*.schema.json` |
-| Markdown authoring | `.pagesmith/markdown-guidelines.md` |
-| Large code or docs audit | `llms-full.txt` |
+| Markdown authoring               | `.pagesmith/markdown-guidelines.md`                          |
+| Large code or docs audit         | `llms-full.txt`                                              |
 
 ## Profiles
 
-| Profile | Used for | Generated context |
-|---|---|---|
-| `default` | `@pagesmith/core` or `@pagesmith/site` projects | Core content-layer guidance plus site references when relevant |
-| `docs` | `@pagesmith/docs` projects | Default profile plus docs config, navigation, layout, and schema guidance |
+| Profile   | Used for                                        | Generated context                                                         |
+| --------- | ----------------------------------------------- | ------------------------------------------------------------------------- |
+| `default` | `@pagesmith/core` or `@pagesmith/site` projects | Core content-layer guidance plus site references when relevant            |
+| `docs`    | `@pagesmith/docs` projects                      | Default profile plus docs config, navigation, layout, and schema guidance |
 
 ## Docs Maintenance Skills
 
 Project-level Claude installs also generate docs-maintenance skills for docs-profile projects:
 
-| Skill | Use for |
-|---|---|
-| `/update-docs` | Focused docs refresh after a code change |
+| Skill                 | Use for                                          |
+| --------------------- | ------------------------------------------------ |
+| `/update-docs`        | Focused docs refresh after a code change         |
 | `/ps-update-all-docs` | Full docs and AI-context refresh across the repo |
 
 These skills read `pagesmith.config.json5`, `meta.json5`, package guidance, and `.pagesmith/markdown-guidelines.md` before editing docs content.

@@ -1,11 +1,61 @@
 /* -- Design Tokens -- */
 
 /* Text size: percentages are relative to browser default (typically 16px) */
-html[data-text-size="small"] { font-size: 87.5%; }
-html[data-text-size="base"] { font-size: 100%; }
-html[data-text-size="large"] { font-size: 112.5%; }
+html[data-text-size="small"] {
+  font-size: 87.5%;
+}
+html[data-text-size="base"] {
+  font-size: 100%;
+}
+html[data-text-size="large"] {
+  font-size: 112.5%;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive breakpoints — single source of truth.
+
+   Authored in `rem` (relative to the user's browser font-size
+   preference) so that users with larger default text get layouts
+   that adapt at proportionally larger viewports. Note that `rem`
+   inside @media is relative to the BROWSER initial font-size, not
+   the document root, so changing `data-text-size` on <html> does
+   not move breakpoints at runtime — it only scales content.
+
+   Token | rem | px (at 16px) | Devices                  | Transition
+   ──────────────────────────────────────────────────────────────────
+   sm    |  40 |  640         | Phone landscape          | Footer 1 → 2 cols
+   md    |  48 |  768         | Tablet portrait          | Header inline nav,
+         |     |              |                          | hide burger on non-doc
+         |     |              |                          | pages, footer 2 → 4 cols
+   lg    |  64 | 1024         | Tablet landscape/laptop  | TOC aside (2-col)
+   xl    |  80 | 1280         | Desktop                  | Persistent sidebar
+         |     |              |                          | (3-col), max-width
+
+   Use the @custom-media tokens declared just below — never write
+   raw `min-width:` values. Lightning CSS expands @custom-media at
+   build time (see packages/site/src/css/builder.ts).
+   See docs/content/reference/docs-theme/README.md for the full
+   responsive contract.
+   ───────────────────────────────────────────────────────────── */
+@custom-media --bp-sm (min-width: 40rem);
+@custom-media --bp-md (min-width: 48rem);
+@custom-media --bp-lg (min-width: 64rem);
+@custom-media --bp-xl (min-width: 80rem);
+
+/* Below-token aliases for the rare mobile-first override case. */
+@custom-media --below-sm (max-width: 39.99rem);
+@custom-media --below-md (max-width: 47.99rem);
+@custom-media --below-lg (max-width: 63.99rem);
+@custom-media --below-xl (max-width: 79.99rem);
 
 :root {
+  /* Breakpoint values exposed as CSS variables for the rare cases
+     where JS or container queries need to consume them. */
+  --bp-sm: 40rem;
+  --bp-md: 48rem;
+  --bp-lg: 64rem;
+  --bp-xl: 80rem;
+
   /* Colors */
   --color-bg: light-dark(#f5f4f0, #111110);
   --color-bg-alt: light-dark(#eeeee8, #1a1a18);
@@ -15,7 +65,11 @@ html[data-text-size="large"] { font-size: 112.5%; }
 
   --color-text: light-dark(#111110, #f5f4f0);
   --color-text-secondary: light-dark(#333330, #ccccca);
-  --color-text-muted: light-dark(#7a7a72, #888882);
+  /* Muted color must stay above 4.5:1 contrast on `--color-bg` and
+     `--color-bg-alt` for WCAG 2.2 AA normal-text contrast. The previous
+     #7a7a72 / #888882 pair only hit ~3.8–4.1:1 — bumped to #5a5a52 /
+     #a8a8a0 which clear the threshold on every supported background. */
+  --color-text-muted: light-dark(#5a5a52, #a8a8a0);
 
   --color-border: light-dark(#d0cfc9, #2a2a28);
   --color-border-subtle: light-dark(#e0dfd9, #222220);
@@ -43,8 +97,8 @@ html[data-text-size="large"] { font-size: 112.5%; }
   --shadow-lg: 0 10px 25px var(--shadow-color-lg);
 
   /* Typography */
-  --font-sans: 'Open Sans', 'Open Sans Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback', 'Fira Code', Menlo, Consolas, monospace;
+  --font-sans: "Open Sans", "Open Sans Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", "Fira Code", Menlo, Consolas, monospace;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -65,4 +119,5 @@ html[data-text-size="large"] { font-size: 112.5%; }
 
   /* Layout */
   --header-height: 60px;
+  --doc-content-max-width-bound: var(--bp-xl);
 }

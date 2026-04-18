@@ -1,6 +1,6 @@
-import { Fragment, h } from '../jsx-runtime/index.js'
-import { SITE_CHROME_ASSETS, withComponentAssets } from '../components/assets.js'
-import { SiteFooter } from '../components/footer.js'
+import { Fragment, h } from "../jsx-runtime/index.js";
+import { SITE_CHROME_ASSETS, withComponentAssets } from "../components/assets.js";
+import { SiteFooter } from "../components/footer.js";
 import {
   AccordionTableOfContents,
   Breadcrumbs,
@@ -8,7 +8,7 @@ import {
   SiteSidebar,
   SiteSidebarModal,
   TableOfContents,
-} from '../components/navigation.js'
+} from "../components/navigation.js";
 import type {
   Heading,
   SiteBreadcrumb,
@@ -16,34 +16,34 @@ import type {
   SitePageLink,
   SiteSidebarSection,
   SiteThemeControls,
-} from '../components/types.js'
+} from "../components/types.js";
 
 export type PageShellProps = {
-  site: SiteDocumentData
-  currentPath: string
-  headings?: Heading[]
-  breadcrumbs?: SiteBreadcrumb[]
-  sidebarSections?: SiteSidebarSection[]
-  sidebarNavLabel?: string
-  mobileNavLabel?: string
-  showHeader?: boolean
-  showSidebar?: boolean
-  showSidebarModal?: boolean
-  showToc?: boolean
-  showMobileToc?: boolean
-  showFooter?: boolean
-  tocTitle?: string
-  tocSummaryLabel?: string
-  mainId?: string
-  articleClass?: string
-  editUrl?: string
-  editLabel?: string
-  lastUpdated?: string
-  prev?: SitePageLink
-  next?: SitePageLink
-  themeControls?: SiteThemeControls
-  children?: unknown
-}
+  site: SiteDocumentData;
+  currentPath: string;
+  headings?: Heading[];
+  breadcrumbs?: SiteBreadcrumb[];
+  sidebarSections?: SiteSidebarSection[];
+  sidebarNavLabel?: string;
+  mobileNavLabel?: string;
+  showHeader?: boolean;
+  showSidebar?: boolean;
+  showSidebarModal?: boolean;
+  showToc?: boolean;
+  showMobileToc?: boolean;
+  showFooter?: boolean;
+  tocTitle?: string;
+  tocSummaryLabel?: string;
+  mainId?: string;
+  articleClass?: string;
+  editUrl?: string;
+  editLabel?: string;
+  lastUpdated?: string;
+  prev?: SitePageLink;
+  next?: SitePageLink;
+  themeControls?: SiteThemeControls;
+  children?: unknown;
+};
 
 function PageShellComponent({
   site,
@@ -51,17 +51,17 @@ function PageShellComponent({
   headings = [],
   breadcrumbs,
   sidebarSections,
-  sidebarNavLabel = 'Documentation navigation',
-  mobileNavLabel = 'Navigation',
+  sidebarNavLabel = "Documentation navigation",
+  mobileNavLabel = "Navigation",
   showHeader = true,
   showSidebar = true,
   showSidebarModal = true,
   showToc = true,
   showMobileToc = true,
   showFooter = true,
-  tocTitle = 'On this page',
-  tocSummaryLabel = 'On this page',
-  mainId = 'doc-main-content',
+  tocTitle = "On this page",
+  tocSummaryLabel = "On this page",
+  mainId = "doc-main-content",
   articleClass,
   editUrl,
   editLabel,
@@ -71,12 +71,12 @@ function PageShellComponent({
   themeControls,
   children,
 }: PageShellProps) {
-  const trailingSlash = site.trailingSlash
-  const hasSidebarContent = !!sidebarSections?.length
-  const hasNavItems = !!site.navItems?.length
-  const hasToc = showToc && headings.some((heading) => heading.depth >= 2 && heading.depth <= 3)
+  const trailingSlash = site.trailingSlash;
+  const hasSidebarContent = !!sidebarSections?.length;
+  const hasNavItems = !!site.navItems?.length;
+  const hasToc = showToc && headings.some((heading) => heading.depth >= 2 && heading.depth <= 3);
   const shouldShowSidebarToggle =
-    (hasSidebarContent || hasNavItems) && (showSidebar || showSidebarModal)
+    (hasSidebarContent || hasNavItems) && (showSidebar || showSidebarModal);
 
   return (
     <>
@@ -151,7 +151,7 @@ function PageShellComponent({
         />
       ) : null}
     </>
-  )
+  );
 }
 
-export const PageShell = withComponentAssets(PageShellComponent, SITE_CHROME_ASSETS)
+export const PageShell = withComponentAssets(PageShellComponent, SITE_CHROME_ASSETS);

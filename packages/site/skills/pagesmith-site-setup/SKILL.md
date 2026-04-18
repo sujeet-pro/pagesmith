@@ -35,14 +35,14 @@ npm add @pagesmith/site pagefind
 
 ```json5
 {
-  $schema: './node_modules/@pagesmith/site/schemas/pagesmith-site.schema.json',
-  name: 'my-site',
-  title: 'My Site',
-  description: 'A custom Pagesmith site.',
-  origin: 'https://example.com',
-  basePath: '/',
-  contentDir: './content',
-  outDir: './dist',
+  $schema: "./node_modules/@pagesmith/site/schemas/pagesmith-site.schema.json",
+  name: "my-site",
+  title: "My Site",
+  description: "A custom Pagesmith site.",
+  origin: "https://example.com",
+  basePath: "/",
+  contentDir: "./content",
+  outDir: "./dist",
 }
 ```
 
@@ -57,11 +57,11 @@ Notes:
 Create `content.config.ts` at the project root:
 
 ```ts
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from "@pagesmith/core";
 
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -69,19 +69,19 @@ const posts = defineCollection({
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
-})
+});
 
 const authors = defineCollection({
-  loader: 'json5',
-  directory: 'content/authors',
+  loader: "json5",
+  directory: "content/authors",
   schema: z.object({
     name: z.string(),
     bio: z.string(),
     links: z.record(z.string()).default({}),
   }),
-})
+});
 
-export default defineCollections({ posts, authors })
+export default defineCollections({ posts, authors });
 ```
 
 Always import `z` from `@pagesmith/core` (re-exported from `@pagesmith/site`). Do **not** `import { z } from 'zod'` — Pagesmith pins its own Zod version.
@@ -94,30 +94,30 @@ Prefer the convenience plugin — it composes content, SSG, and shared assets:
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import { pagesmithSite } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithSite } from "@pagesmith/site/vite";
+import collections from "./content.config";
 
 export default defineConfig({
   plugins: [pagesmithSite({ collections })],
-})
+});
 ```
 
 For fine-grained control, compose the underlying plugins yourself:
 
 ```ts
-import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithContent } from "@pagesmith/core/vite";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
+import collections from "./content.config";
 
 export default defineConfig({
   plugins: [
     pagesmithContent({ collections }),
-    pagesmithSsg({ routes: ['/', '/about', '/blog'] }),
+    pagesmithSsg({ routes: ["/", "/about", "/blog"] }),
     sharedAssetsPlugin(),
   ],
-})
+});
 ```
 
 ## CSS bundles
@@ -125,11 +125,11 @@ export default defineConfig({
 `@pagesmith/site` ships CSS modules. Import only what you need:
 
 ```ts
-import '@pagesmith/site/css/chrome'      // header/footer/shell
-import '@pagesmith/site/css/content'     // prose typography
-import '@pagesmith/site/css/code-block'  // fenced code blocks
-import '@pagesmith/site/css/code-inline' // inline code
-import '@pagesmith/site/css/fonts'       // default typography stack
+import "@pagesmith/site/css/chrome"; // header/footer/shell
+import "@pagesmith/site/css/content"; // prose typography
+import "@pagesmith/site/css/code-block"; // fenced code blocks
+import "@pagesmith/site/css/code-inline"; // inline code
+import "@pagesmith/site/css/fonts"; // default typography stack
 ```
 
 If you drop `fonts`, provide alternatives or typography breaks.
@@ -139,14 +139,14 @@ If you drop `fonts`, provide alternatives or typography breaks.
 Opt into the runtimes you actually want. Each is a tiny browser module that no-ops when its `data-ps-*` hook is absent:
 
 ```ts
-import '@pagesmith/site/runtime/theme'            // color scheme / theme / text-size controls
-import '@pagesmith/site/runtime/toc-highlight'    // active-heading highlighting in the TOC
-import '@pagesmith/site/runtime/code-blocks'      // copy buttons + collapsible regions in code fences
-import '@pagesmith/site/runtime/code-tabs'        // tab switching for grouped fences
-import '@pagesmith/site/runtime/sidebar'          // collapsible sidebar + mobile sidebar modal
-import '@pagesmith/site/runtime/search-trigger'   // Cmd/Ctrl-K + `[data-ps-search-trigger]`
-import '@pagesmith/site/runtime/footer-year'      // auto-advance copyright year
-import '@pagesmith/site/runtime/skip-link'        // focus management for the skip link
+import "@pagesmith/site/runtime/theme"; // color scheme / theme / text-size controls
+import "@pagesmith/site/runtime/toc-highlight"; // active-heading highlighting in the TOC
+import "@pagesmith/site/runtime/code-blocks"; // copy buttons + collapsible regions in code fences
+import "@pagesmith/site/runtime/code-tabs"; // tab switching for grouped fences
+import "@pagesmith/site/runtime/sidebar"; // collapsible sidebar + mobile sidebar modal
+import "@pagesmith/site/runtime/search-trigger"; // Cmd/Ctrl-K + `[data-ps-search-trigger]`
+import "@pagesmith/site/runtime/footer-year"; // auto-advance copyright year
+import "@pagesmith/site/runtime/skip-link"; // focus management for the skip link
 ```
 
 Convenience bundles:
@@ -160,9 +160,9 @@ The hook attributes are on the `data-ps-*` prefix (legacy `data-theme-*`/`data-f
 ## Layouts and components
 
 ```tsx
-import { PageShell, HomeLayout, ListingLayout, NotFoundLayout } from '@pagesmith/site/layouts'
+import { PageShell, HomeLayout, ListingLayout, NotFoundLayout } from "@pagesmith/site/layouts";
 import {
-  SiteDocument,      // also exported as Html
+  SiteDocument, // also exported as Html
   SiteHeader,
   SiteSidebar,
   SiteSidebarModal,
@@ -176,7 +176,7 @@ import {
   HeroSection,
   ActionButtons,
   ContentMeta,
-} from '@pagesmith/site/components'
+} from "@pagesmith/site/components";
 ```
 
 Compose your own layout or use `PageShell` as a starting point. Keep `data-ps-*` attributes on the elements your runtimes target.

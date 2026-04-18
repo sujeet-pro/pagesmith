@@ -1,44 +1,44 @@
 {
   // Site-wide navigation overrides
   headerLinks: [
-    { label: 'Guide', path: '/guide' },
-    { label: 'Reference', path: '/reference' },
+    { label: "Guide", path: "/guide" },
+    { label: "Reference", path: "/reference" },
   ],
   footerLinks: [
     {
-      header: 'Pagesmith',
+      header: "Pagesmith",
       links: [
-        { label: 'Overview', path: '/' },
-        { label: 'Philosophy', path: '/guide/philosophy' },
-        { label: 'Architecture', path: '/reference/architecture' },
-        { label: 'Choose Your Path', path: '/guide/choose-your-path' },
+        { label: "Overview", path: "/" },
+        { label: "Philosophy", path: "/guide/philosophy" },
+        { label: "Architecture", path: "/reference/architecture" },
+        { label: "Choose Your Path", path: "/guide/choose-your-path" },
       ],
     },
     {
-      header: 'Core',
+      header: "Core",
       links: [
-        { label: 'Getting Started', path: '/guide/getting-started' },
-        { label: 'Collections & Loaders', path: '/guide/collections-and-loaders' },
-        { label: 'Validation & Rendering', path: '/guide/validation-and-rendering' },
-        { label: 'API Reference', path: '/reference/api' },
+        { label: "Getting Started", path: "/guide/getting-started" },
+        { label: "Collections & Loaders", path: "/guide/collections-and-loaders" },
+        { label: "Validation & Rendering", path: "/guide/validation-and-rendering" },
+        { label: "API Reference", path: "/reference/api" },
       ],
     },
     {
-      header: 'Docs',
+      header: "Docs",
       links: [
-        { label: 'Docs Getting Started', path: '/guide/docs-getting-started' },
-        { label: 'Docs Config', path: '/reference/docs-config' },
-        { label: 'Docs Theme', path: '/reference/docs-theme' },
-        { label: 'Docs CLI', path: '/reference/docs-cli' },
+        { label: "Docs Getting Started", path: "/guide/docs-getting-started" },
+        { label: "Docs Config", path: "/reference/docs-config" },
+        { label: "Docs Theme", path: "/reference/docs-theme" },
+        { label: "Docs CLI", path: "/reference/docs-cli" },
       ],
     },
     {
-      header: 'Author',
+      header: "Author",
       links: [
-        { label: 'Profile', path: 'https://sujeet.pro' },
-        { label: 'Articles', path: 'https://sujeet.pro/articles.html' },
-        { label: 'GitHub', path: 'https://github.com/sujeet-pro' },
-        { label: 'Repository', path: 'https://github.com/sujeet-pro/pagesmith' },
+        { label: "Profile", path: "https://sujeet.pro" },
+        { label: "Articles", path: "https://sujeet.pro/articles.html" },
+        { label: "GitHub", path: "https://github.com/sujeet-pro" },
+        { label: "Repository", path: "https://github.com/sujeet-pro/pagesmith" },
       ],
     },
   ],

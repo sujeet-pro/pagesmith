@@ -49,7 +49,9 @@
   background: var(--ps-color-surface-raised, color-mix(in srgb, currentColor 4%, transparent));
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .doc-listing-card:hover {

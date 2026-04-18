@@ -4,7 +4,7 @@
  * Generalized from packages/core/src/content/collector.ts.
  */
 
-import { extname, relative } from 'path'
+import { extname, relative } from "path";
 
 /**
  * Convert a content file path to a URL-friendly slug.
@@ -17,18 +17,18 @@ import { extname, relative } from 'path'
  *   content/posts/nested/deep/post.md    ->  'nested/deep/post'
  */
 export function toSlug(filePath: string, directory: string): string {
-  const ext = extname(filePath)
-  let slug = relative(directory, filePath).replace(/\\/g, '/')
+  const ext = extname(filePath);
+  let slug = relative(directory, filePath).replace(/\\/g, "/");
 
   // Remove file extension
   if (ext) {
-    slug = slug.slice(0, -ext.length)
+    slug = slug.slice(0, -ext.length);
   }
 
   // Strip README / index suffixes
-  if (slug === 'README' || slug === 'index') return '/'
-  if (slug.endsWith('/README')) slug = slug.slice(0, -7)
-  if (slug.endsWith('/index')) slug = slug.slice(0, -6)
+  if (slug === "README" || slug === "index") return "/";
+  if (slug.endsWith("/README")) slug = slug.slice(0, -7);
+  if (slug.endsWith("/index")) slug = slug.slice(0, -6);
 
-  return slug
+  return slug;
 }

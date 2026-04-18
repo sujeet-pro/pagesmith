@@ -15,80 +15,80 @@
  * pipeline all share the same logic.
  */
 
-import { existsSync, statSync } from 'fs'
-import { dirname, resolve } from 'path'
+import { existsSync, statSync } from "fs";
+import { dirname, resolve } from "path";
 import {
   formatContentValidationReport,
   loadContentSchemaMap,
   validateContent,
   type FileSchemaEntry,
   type ValidateContentSummary,
-} from '@pagesmith/core'
+} from "@pagesmith/core";
 import {
   runBuildValidation,
   validateBuildOutput,
   type BuildValidationResult,
-} from '@pagesmith/site/build-validator'
-import { resolveDocsConfigAsync, type ResolvedDocsConfig } from './config'
+} from "@pagesmith/site/build-validator";
+import { resolveDocsConfigAsync, type ResolvedDocsConfig } from "./config";
 
 export type DocsValidateOptions = {
   /** Explicit config path (defaults to pagesmith.config.json5 in cwd). */
-  configPath?: string
+  configPath?: string;
   /** Content dir override. */
-  contentDir?: string
+  contentDir?: string;
   /** Build output dir override. */
-  outDir?: string
+  outDir?: string;
   /** Base path override. */
-  basePath?: string
+  basePath?: string;
   /** Trailing-slash override. */
-  trailingSlash?: boolean
+  trailingSlash?: boolean;
   /** Skip content validation entirely. */
-  skipContent?: boolean
+  skipContent?: boolean;
   /** Skip build-output validation entirely. */
-  skipBuild?: boolean
+  skipBuild?: boolean;
   /** Fetch external URLs to verify reachability. */
-  checkExternal?: boolean
+  checkExternal?: boolean;
   /** Fetch timeout (ms). Default 10000. */
-  timeoutMs?: number
+  timeoutMs?: number;
   /** Fetch concurrency. Default 8. */
-  concurrency?: number
+  concurrency?: number;
   /** Print files with no issues to the content report. */
-  showClean?: boolean
+  showClean?: boolean;
   /**
    * Whether to enforce that themed `<picture>` elements expose both a light
    * and a dark variant. Default: true (the docs preset renders themed
    * diagrams this way).
    */
-  requireThemeVariants?: boolean
+  requireThemeVariants?: boolean;
   /**
    * Whether to enforce raster `<picture>` fallbacks have webp+avif siblings.
    * Default: false (the docs content site largely uses SVG diagrams).
    */
-  requireRasterModernFormats?: boolean
+  requireRasterModernFormats?: boolean;
   /**
    * Directory names to exclude from build-output validation. Useful when the
    * docs output bundles sub-sites (e.g. `examples/`) with their own build
    * configuration. Default: `['examples']`.
    */
-  excludeBuildDirs?: string[]
+  excludeBuildDirs?: string[];
   /**
    * Filenames the build output must contain. Defaults to the standard docs
    * deliverables (`favicon.svg|favicon.ico`, `sitemap.xml`, `robots.txt`,
    * `llms.txt`, `llms-full.txt`). Pass `[]` to skip the check entirely.
    */
-  requiredOutputFiles?: Array<string | string[]>
+  requiredOutputFiles?: Array<string | string[]>;
   /**
    * When true, enforce that every page is reachable both at `path.html` and
    * `path/index.html` so links survive either trailing-slash routing mode.
    * Default: false.
    */
-  requireBothTrailingSlashForms?: boolean
+  requireBothTrailingSlashForms?: boolean;
   /**
    * When true, non-image internal markdown links must resolve to another
    * markdown file (rather than an arbitrary asset). Default: false — most
    * docs sites intentionally link into passthrough assets.
    */
-  internalLinksMustBeMarkdown?: boolean
+  internalLinksMustBeMarkdown?: boolean;
   /**
    * When true, every internal page link must be authored as a relative
    * path ending in `.md` / `.mdx` (for example `./relative/README.md`).
@@ -96,40 +96,40 @@ export type DocsValidateOptions = {
    * `./foo` / `./foo/` become errors. Default: true under the docs preset
    * so the source form is always a real, grep-able file path.
    */
-  requireCanonicalInternalLinks?: boolean
+  requireCanonicalInternalLinks?: boolean;
   /**
    * When true, every image must carry non-empty alt text. Default: true.
    */
-  requireAltText?: boolean
+  requireAltText?: boolean;
   /**
    * When true, fail if the markdown contains a raw `<img>` HTML tag.
    * Default: true.
    */
-  forbidHtmlImgTag?: boolean
+  forbidHtmlImgTag?: boolean;
   /**
    * When true, `-light`/`-dark` image references must appear as an adjacent
    * pair. Default: true.
    */
-  requireThemeVariantPairs?: boolean
+  requireThemeVariantPairs?: boolean;
   /**
    * Path to a `content.config.{ts,mts,mjs,js}` file declaring typed
    * collections. When omitted, `validateDocs` looks for one in the project
    * root (the directory of the resolved pagesmith config) and then in the
    * current working directory. Pass `false` to disable auto-loading.
    */
-  contentConfig?: string | false
+  contentConfig?: string | false;
   /** Stream console output while validating. Default true. */
-  verbose?: boolean
-}
+  verbose?: boolean;
+};
 
 export type DocsValidateResult = {
-  config: ResolvedDocsConfig
-  content?: ValidateContentSummary
-  build?: BuildValidationResult
-  errors: number
-  warnings: number
-  passed: boolean
-}
+  config: ResolvedDocsConfig;
+  content?: ValidateContentSummary;
+  build?: BuildValidationResult;
+  errors: number;
+  warnings: number;
+  passed: boolean;
+};
 
 /**
  * Run docs validation against a `pagesmith.config.json5`.
@@ -147,113 +147,113 @@ export type DocsValidateResult = {
  * directory so that the prefix still maps to a filesystem root.
  */
 function buildAssetRoots(assets: Map<string, string[]>): Array<{ prefix: string; dir: string }> {
-  const roots: Array<{ prefix: string; dir: string }> = []
+  const roots: Array<{ prefix: string; dir: string }> = [];
   for (const [prefix, sources] of assets) {
     // Group entries by their filesystem parent so we do not add duplicate
     // roots for the same directory.
-    const dirs = new Set<string>()
+    const dirs = new Set<string>();
     for (const source of sources) {
       try {
-        const stat = statSync(source)
+        const stat = statSync(source);
         if (stat.isDirectory()) {
-          dirs.add(source)
+          dirs.add(source);
         } else {
-          dirs.add(dirname(source))
+          dirs.add(dirname(source));
         }
       } catch {
         // Missing asset source; skip it.
       }
     }
     for (const dir of dirs) {
-      roots.push({ prefix, dir })
+      roots.push({ prefix, dir });
     }
   }
-  return roots
+  return roots;
 }
 
 export async function validateDocs(options: DocsValidateOptions = {}): Promise<DocsValidateResult> {
   const config = await resolveDocsConfigAsync(options.configPath, {
     outDir: options.outDir,
     basePath: options.basePath,
-  })
+  });
 
-  const contentDir = options.contentDir ? resolve(options.contentDir) : config.contentDir
-  const outDir = options.outDir ? resolve(options.outDir) : config.outDir
-  const basePath = options.basePath ?? config.basePath
-  const trailingSlash = options.trailingSlash ?? config.trailingSlash
-  const excludeBuildDirs = options.excludeBuildDirs ?? ['examples']
+  const contentDir = options.contentDir ? resolve(options.contentDir) : config.contentDir;
+  const outDir = options.outDir ? resolve(options.outDir) : config.outDir;
+  const basePath = options.basePath ?? config.basePath;
+  const trailingSlash = options.trailingSlash ?? config.trailingSlash;
+  const excludeBuildDirs = options.excludeBuildDirs ?? ["examples"];
 
-  const verbose = options.verbose ?? true
+  const verbose = options.verbose ?? true;
 
-  let errors = 0
-  let warnings = 0
-  let content: ValidateContentSummary | undefined
-  let build: BuildValidationResult | undefined
+  let errors = 0;
+  let warnings = 0;
+  let content: ValidateContentSummary | undefined;
+  let build: BuildValidationResult | undefined;
 
   if (!options.skipContent) {
     if (!existsSync(contentDir)) {
-      throw new Error(`Content directory not found: ${contentDir}`)
+      throw new Error(`Content directory not found: ${contentDir}`);
     }
-    if (verbose) console.log(`Validating content: ${contentDir}`)
+    if (verbose) console.info(`Validating content: ${contentDir}`);
     // Build additional resolution roots so links like /favicon.svg resolve
     // against publicDir, `/prompts/setup-core.md` resolves against the
     // configured assets mapping source dirs, and any link referring to a
     // docs-generated asset (sitemap.xml, favicon, etc.) resolves against
     // the existing build output when it is available.
-    const additionalRoots: Array<{ prefix: string; dir: string }> = []
+    const additionalRoots: Array<{ prefix: string; dir: string }> = [];
     if (existsSync(config.publicDir)) {
-      additionalRoots.push({ prefix: '/', dir: config.publicDir })
+      additionalRoots.push({ prefix: "/", dir: config.publicDir });
     }
-    additionalRoots.push(...buildAssetRoots(config.assets))
+    additionalRoots.push(...buildAssetRoots(config.assets));
     if (existsSync(outDir)) {
       // Content URLs are authored without the site base path (e.g.
       // `/favicon.svg`) but get prefixed with `basePath` at build time, so
       // their resolved location is `<outDir>/favicon.svg`. Add outDir both
       // with the bare prefix and the `basePath` prefix so either form in
       // source markdown resolves correctly.
-      additionalRoots.push({ prefix: '/', dir: outDir })
+      additionalRoots.push({ prefix: "/", dir: outDir });
       if (basePath) {
-        additionalRoots.push({ prefix: basePath, dir: outDir })
+        additionalRoots.push({ prefix: basePath, dir: outDir });
       }
     }
 
     // Auto-load content.config.* when the user hasn't opted out, so each
     // collection's Zod schema applies to the markdown files it owns.
-    let schemaByFile: Map<string, FileSchemaEntry> | undefined
+    let schemaByFile: Map<string, FileSchemaEntry> | undefined;
     if (options.contentConfig !== false) {
-      const searchDirs: string[] = []
-      if (typeof options.contentConfig === 'string') {
+      const searchDirs: string[] = [];
+      if (typeof options.contentConfig === "string") {
         // Caller-provided path: treat its directory as the project root.
-        const explicit = resolve(options.contentConfig)
-        searchDirs.push(dirname(explicit))
+        const explicit = resolve(options.contentConfig);
+        searchDirs.push(dirname(explicit));
       } else {
         // Default: look next to the resolved pagesmith config, then in cwd.
-        searchDirs.push(config.rootDir, process.cwd())
+        searchDirs.push(config.rootDir, process.cwd());
       }
       try {
-        const loaded = await loadContentSchemaMap(searchDirs)
+        const loaded = await loadContentSchemaMap(searchDirs);
         if (loaded) {
-          schemaByFile = loaded.schemaByFile
+          schemaByFile = loaded.schemaByFile;
           if (verbose) {
-            const collectionCount = Object.keys(loaded.collections).length
-            console.log(
-              `Loaded content.config from ${loaded.configPath} (${loaded.schemaByFile.size} markdown files mapped across ${collectionCount} collection${collectionCount === 1 ? '' : 's'})`,
-            )
+            const collectionCount = Object.keys(loaded.collections).length;
+            console.info(
+              `Loaded content.config from ${loaded.configPath} (${loaded.schemaByFile.size} markdown files mapped across ${collectionCount} collection${collectionCount === 1 ? "" : "s"})`,
+            );
           }
         }
       } catch (err) {
         if (verbose) {
-          const message = err instanceof Error ? err.message : String(err)
+          const message = err instanceof Error ? err.message : String(err);
           console.warn(
             `Failed to load content.config — continuing without per-file schemas: ${message}`,
-          )
+          );
         }
       }
     }
 
     content = await validateContent({
       contentDir,
-      collectionName: 'docs',
+      collectionName: "docs",
       resolveFrontmatterSchema: schemaByFile
         ? (filePath: string) => schemaByFile.get(filePath)?.schema
         : undefined,
@@ -270,32 +270,32 @@ export async function validateDocs(options: DocsValidateOptions = {}): Promise<D
         fetchTimeoutMs: options.timeoutMs,
         fetchConcurrency: options.concurrency,
       },
-    })
+    });
     if (verbose) {
-      console.log(formatContentValidationReport(content, { showClean: options.showClean }))
+      console.info(formatContentValidationReport(content, { showClean: options.showClean }));
     }
-    errors += content.errors
-    warnings += content.warnings
+    errors += content.errors;
+    warnings += content.warnings;
   }
 
   if (!options.skipBuild) {
     if (!existsSync(outDir)) {
       if (verbose) {
-        console.log(
+        console.info(
           `Skipping build validation — output directory does not exist: ${outDir}\n` +
             `  Run 'pagesmith-docs build' first or pass --skip-build.`,
-        )
+        );
       }
     } else {
       const requiredOutputFiles =
         options.requiredOutputFiles ??
         ([
-          ['favicon.svg', 'favicon.ico'],
-          'sitemap.xml',
-          'robots.txt',
-          'llms.txt',
-          'llms-full.txt',
-        ] satisfies Array<string | string[]>)
+          ["favicon.svg", "favicon.ico"],
+          "sitemap.xml",
+          "robots.txt",
+          "llms.txt",
+          "llms-full.txt",
+        ] satisfies Array<string | string[]>);
 
       const buildOpts = {
         outDir,
@@ -307,13 +307,13 @@ export async function validateDocs(options: DocsValidateOptions = {}): Promise<D
         checkInPageAnchors: true,
         requiredFiles: requiredOutputFiles,
         requireBothTrailingSlashForms: options.requireBothTrailingSlashForms ?? false,
-      }
+      };
       if (verbose) {
-        runBuildValidation(buildOpts)
+        runBuildValidation(buildOpts);
       }
-      build = validateBuildOutput(buildOpts)
-      errors += build.errors.length
-      warnings += build.warnings.length
+      build = validateBuildOutput(buildOpts);
+      errors += build.errors.length;
+      warnings += build.warnings.length;
     }
   }
 
@@ -324,5 +324,5 @@ export async function validateDocs(options: DocsValidateOptions = {}): Promise<D
     errors,
     warnings,
     passed: errors === 0,
-  }
+  };
 }

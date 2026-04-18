@@ -18,11 +18,11 @@ Content collections are the bridge between your markdown files and your template
 Collections are defined in `content.config.mjs` using `defineCollection` and `defineCollections` from `@pagesmith/site`:
 
 ```js title="content.config.mjs"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const guide = defineCollection({
-  loader: 'markdown',
-  directory: './content/guide',
+  loader: "markdown",
+  directory: "./content/guide",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -32,18 +32,18 @@ export const guide = defineCollection({
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
   }),
-})
+});
 
 export const pages = defineCollection({
-  loader: 'markdown',
-  directory: './content/pages',
+  loader: "markdown",
+  directory: "./content/pages",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
   }),
-})
+});
 
-export default defineCollections({ guide, pages })
+export default defineCollections({ guide, pages });
 ```
 
 ## Why `.mjs`?
@@ -52,7 +52,7 @@ This example uses `content.config.mjs` instead of the `.ts` variant used by fram
 
 ```ts title="src/entry-server.tsx (excerpt)"
 // @ts-expect-error -- the example intentionally keeps the content config as .mjs
-import contentConfig from '../content.config.mjs'
+import contentConfig from "../content.config.mjs";
 ```
 
 The `@ts-expect-error` comment suppresses the TypeScript error from importing a `.mjs` file in a `.tsx` context -- this is intentional and harmless.
@@ -74,18 +74,18 @@ The `z` import is re-exported from `@pagesmith/site`, so you do not need to inst
 Unlike the React, Solid, or Svelte examples that use virtual modules via `pagesmithContent`, the EJS example uses `createContentLayer` directly from `@pagesmith/site` to load content at build time:
 
 ```ts title="src/entry-server.tsx (excerpt)"
-import { createContentLayer } from '@pagesmith/site'
+import { createContentLayer } from "@pagesmith/site";
 
-const { guide, pages } = contentConfig as Record<string, any>
+const { guide, pages } = contentConfig as Record<string, any>;
 
-let layer: ReturnType<typeof createContentLayer>
-let layerRoot: string
+let layer: ReturnType<typeof createContentLayer>;
+let layerRoot: string;
 function getLayer(root: string) {
   if (!layer || layerRoot !== root) {
-    layerRoot = root
-    layer = createContentLayer({ collections: { guide, pages }, root })
+    layerRoot = root;
+    layer = createContentLayer({ collections: { guide, pages }, root });
   }
-  return layer
+  return layer;
 }
 ```
 

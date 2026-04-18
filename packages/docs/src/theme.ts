@@ -1,10 +1,11 @@
-export { DocFooter } from '../theme/components/DocFooter'
-export { DocHeader } from '../theme/components/DocHeader'
-export { DocSidebar } from '../theme/components/DocSidebar'
-export { DocTOC } from '../theme/components/DocTOC'
-export { Html } from '../theme/components/Html'
-export { default as DocHome } from '../theme/layouts/DocHome'
-export { default as DocListing } from '../theme/layouts/DocListing'
-export { default as DocNotFound } from '../theme/layouts/DocNotFound'
-export { default as DocPage } from '../theme/layouts/DocPage'
-export { resolveChrome, type ResolvedChrome } from '../theme/utils/chrome'
+export { DocFooter } from "../theme/components/DocFooter";
+export { DocHeader } from "../theme/components/DocHeader";
+export { DocSidebar } from "../theme/components/DocSidebar";
+export { DocTOC } from "../theme/components/DocTOC";
+export { Html } from "../theme/components/Html";
+export { InstallSnippet } from "../theme/components/InstallSnippet";
+export { default as DocHome } from "../theme/layouts/DocHome";
+export { default as DocListing } from "../theme/layouts/DocListing";
+export { default as DocNotFound } from "../theme/layouts/DocNotFound";
+export { default as DocPage } from "../theme/layouts/DocPage";
+export { resolveChrome, type ResolvedChrome } from "../theme/utils/chrome";

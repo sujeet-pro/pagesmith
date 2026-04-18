@@ -16,17 +16,17 @@ Vite is the only build driver: `vite dev` for local preview and `vite build` for
 ## Full config
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite-plus'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite-plus";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
-  base: '/pagesmith/examples/vanilla-hbs',
+  base: "/pagesmith/examples/vanilla-hbs",
   plugins: [
     sharedAssetsPlugin(),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   build: {
-    outDir: '../../../gh-pages/examples/vanilla-hbs',
+    outDir: "../../../gh-pages/examples/vanilla-hbs",
     emptyOutDir: true,
     rolldownOptions: {
       checks: {
@@ -36,11 +36,11 @@ export default defineConfig({
   },
   oxc: {
     jsx: {
-      runtime: 'automatic',
-      importSource: '@pagesmith/site',
+      runtime: "automatic",
+      importSource: "@pagesmith/site",
     },
   },
-})
+});
 ```
 
 ## Plugins

@@ -1,17 +1,17 @@
-import { h } from '../jsx-runtime/index.js'
-import { SITE_CHROME_ASSETS, withComponentAssets } from '../components/assets.js'
-import { SiteDocument, type SitePageMeta } from '../components/document.js'
-import type { SiteDocumentData, SiteThemeControls } from '../components/types.js'
-import { PageShell } from './page-shell.js'
-import type { PageShellProps } from './page-shell.js'
+import { h } from "../jsx-runtime/index.js";
+import { SITE_CHROME_ASSETS, withComponentAssets } from "../components/assets.js";
+import { SiteDocument, type SitePageMeta } from "../components/document.js";
+import type { SiteDocumentData, SiteThemeControls } from "../components/types.js";
+import { PageShell } from "./page-shell.js";
+import type { PageShellProps } from "./page-shell.js";
 
-export type ListingLayoutProps = Omit<PageShellProps, 'children'> & {
-  title?: string
-  description?: string
-  socialImage?: string
-  meta?: SitePageMeta
-  children?: unknown
-}
+export type ListingLayoutProps = Omit<PageShellProps, "children"> & {
+  title?: string;
+  description?: string;
+  socialImage?: string;
+  meta?: SitePageMeta;
+  children?: unknown;
+};
 
 function ListingLayoutComponent({
   title,
@@ -21,8 +21,8 @@ function ListingLayoutComponent({
   site,
   ...shellProps
 }: ListingLayoutProps) {
-  const pageTitle = title ?? site.title ?? site.name
-  const pageDescription = description ?? site.description
+  const pageTitle = title ?? site.title ?? site.name;
+  const pageDescription = description ?? site.description;
 
   return (
     <SiteDocument
@@ -35,7 +35,7 @@ function ListingLayoutComponent({
     >
       <PageShell site={site} {...shellProps} />
     </SiteDocument>
-  )
+  );
 }
 
-export const ListingLayout = withComponentAssets(ListingLayoutComponent, SITE_CHROME_ASSETS)
+export const ListingLayout = withComponentAssets(ListingLayoutComponent, SITE_CHROME_ASSETS);

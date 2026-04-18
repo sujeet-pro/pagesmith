@@ -1,49 +1,49 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs'
-import JSON5 from 'json5'
-import { dirname, relative, resolve } from 'path'
-import { isDeepStrictEqual } from 'util'
-import type { DocsUserConfig } from '../config.js'
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import JSON5 from "json5";
+import { dirname, relative, resolve } from "path";
+import { isDeepStrictEqual } from "util";
+import type { DocsUserConfig } from "../config.js";
 
 export type InitAnswers = {
-  name: string
-  title: string
-  origin: string
-  basePath: string
-  contentDir: string
-  copyrightStartYear: number
-  search: boolean
-  ai: boolean
-  starterContent: boolean
-}
+  name: string;
+  title: string;
+  origin: string;
+  basePath: string;
+  contentDir: string;
+  copyrightStartYear: number;
+  search: boolean;
+  ai: boolean;
+  starterContent: boolean;
+};
 
 export type DocsConfigDocument = DocsUserConfig & {
-  $schema?: string
-}
+  $schema?: string;
+};
 
 export type UpdateInitConfigResult = {
-  changed: boolean
-  created: boolean
-  updated: boolean
-  config: DocsConfigDocument
-}
+  changed: boolean;
+  created: boolean;
+  updated: boolean;
+  config: DocsConfigDocument;
+};
 
-const DEFAULT_OUT_DIR = 'gh-pages'
+const DEFAULT_OUT_DIR = "gh-pages";
 const DOCS_CONFIG_SCHEMA_PATH = [
-  'node_modules',
-  '@pagesmith',
-  'docs',
-  'schemas',
-  'pagesmith-config.schema.json',
-] as const
+  "node_modules",
+  "@pagesmith",
+  "docs",
+  "schemas",
+  "pagesmith-config.schema.json",
+] as const;
 
 function hasOwn(value: unknown, key: string): boolean {
   return (
-    typeof value === 'object' && value !== null && Object.prototype.hasOwnProperty.call(value, key)
-  )
+    typeof value === "object" && value !== null && Object.prototype.hasOwnProperty.call(value, key)
+  );
 }
 
 function normalizePath(value: string): string {
-  return value.replaceAll('\\', '/')
+  return value.replaceAll("\\", "/");
 }
 
 function omitKnownInitKeys(config: DocsConfigDocument): DocsConfigDocument {
@@ -58,54 +58,54 @@ function omitKnownInitKeys(config: DocsConfigDocument): DocsConfigDocument {
     copyright: _copyright,
     search: _search,
     ...rest
-  } = config
+  } = config;
 
-  return rest
+  return rest;
 }
 
 function buildCopyrightConfig(
   existingConfig: DocsConfigDocument | undefined,
   answers: InitAnswers,
-): NonNullable<DocsUserConfig['copyright']> {
-  const existingCopyright = existingConfig?.copyright
+): NonNullable<DocsUserConfig["copyright"]> {
+  const existingCopyright = existingConfig?.copyright;
   const shouldRefreshProjectName =
     existingCopyright?.projectName == null ||
     existingCopyright.projectName === existingConfig?.title ||
-    existingCopyright.projectName === existingConfig?.name
+    existingCopyright.projectName === existingConfig?.name;
 
   return {
     projectName: shouldRefreshProjectName ? answers.title : existingCopyright.projectName,
     startYear: existingCopyright?.startYear ?? answers.copyrightStartYear,
-    endYear: hasOwn(existingCopyright ?? {}, 'endYear')
+    endYear: hasOwn(existingCopyright ?? {}, "endYear")
       ? (existingCopyright?.endYear ?? null)
       : null,
-  }
+  };
 }
 
 function buildSearchConfig(
   existingConfig: DocsConfigDocument | undefined,
   answers: InitAnswers,
-): NonNullable<DocsUserConfig['search']> {
+): NonNullable<DocsUserConfig["search"]> {
   return existingConfig?.search
     ? {
         ...existingConfig.search,
         enabled: answers.search,
       }
-    : { enabled: answers.search }
+    : { enabled: answers.search };
 }
 
 export function parseInitConfigFile(configPath: string): DocsConfigDocument | undefined {
-  if (!existsSync(configPath)) return undefined
+  if (!existsSync(configPath)) return undefined;
 
   try {
-    return JSON5.parse(readFileSync(configPath, 'utf-8')) as DocsConfigDocument
+    return JSON5.parse(readFileSync(configPath, "utf-8")) as DocsConfigDocument;
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
+    const message = err instanceof Error ? err.message : String(err);
     throw new Error(
       `Failed to parse init config file: ${configPath}\n` +
         `  ${message}\n` +
         `  Check that the file contains valid JSON5 syntax before rerunning 'pagesmith init'.`,
-    )
+    );
   }
 }
 
@@ -113,7 +113,7 @@ export function applyExistingConfigDefaults(
   defaults: InitAnswers,
   existingConfig: DocsConfigDocument | undefined,
 ): InitAnswers {
-  if (!existingConfig) return defaults
+  if (!existingConfig) return defaults;
 
   return {
     ...defaults,
@@ -124,23 +124,23 @@ export function applyExistingConfigDefaults(
     contentDir: existingConfig.contentDir ?? defaults.contentDir,
     copyrightStartYear: existingConfig.copyright?.startYear ?? defaults.copyrightStartYear,
     search: existingConfig.search?.enabled ?? defaults.search,
-  }
+  };
 }
 
 export function getDocsConfigSchemaRef(projectDir: string, configPath: string): string {
-  const absoluteSchemaPath = resolve(projectDir, ...DOCS_CONFIG_SCHEMA_PATH)
-  const relativeSchemaPath = normalizePath(relative(dirname(configPath), absoluteSchemaPath))
-  return relativeSchemaPath.startsWith('.') ? relativeSchemaPath : `./${relativeSchemaPath}`
+  const absoluteSchemaPath = resolve(projectDir, ...DOCS_CONFIG_SCHEMA_PATH);
+  const relativeSchemaPath = normalizePath(relative(dirname(configPath), absoluteSchemaPath));
+  return relativeSchemaPath.startsWith(".") ? relativeSchemaPath : `./${relativeSchemaPath}`;
 }
 
 export function buildInitConfigDocument(options: {
-  projectDir: string
-  configPath: string
-  answers: InitAnswers
-  existingConfig?: DocsConfigDocument
+  projectDir: string;
+  configPath: string;
+  answers: InitAnswers;
+  existingConfig?: DocsConfigDocument;
 }): DocsConfigDocument {
-  const { projectDir, configPath, answers, existingConfig } = options
-  const extraConfig = existingConfig ? omitKnownInitKeys(existingConfig) : {}
+  const { projectDir, configPath, answers, existingConfig } = options;
+  const extraConfig = existingConfig ? omitKnownInitKeys(existingConfig) : {};
 
   return {
     $schema: getDocsConfigSchemaRef(projectDir, configPath),
@@ -153,23 +153,23 @@ export function buildInitConfigDocument(options: {
     copyright: buildCopyrightConfig(existingConfig, answers),
     search: buildSearchConfig(existingConfig, answers),
     ...extraConfig,
-  }
+  };
 }
 
 export function stringifyInitConfig(config: DocsConfigDocument): string {
-  return `${JSON5.stringify(config, null, 2)}\n`
+  return `${JSON5.stringify(config, null, 2)}\n`;
 }
 
 export function updateInitConfigFile(options: {
-  projectDir: string
-  configPath: string
-  answers: InitAnswers
+  projectDir: string;
+  configPath: string;
+  answers: InitAnswers;
 }): UpdateInitConfigResult {
-  const existingConfig = parseInitConfigFile(options.configPath)
+  const existingConfig = parseInitConfigFile(options.configPath);
   const nextConfig = buildInitConfigDocument({
     ...options,
     existingConfig,
-  })
+  });
 
   if (existingConfig && isDeepStrictEqual(existingConfig, nextConfig)) {
     return {
@@ -177,15 +177,15 @@ export function updateInitConfigFile(options: {
       created: false,
       updated: false,
       config: nextConfig,
-    }
+    };
   }
 
-  writeFileSync(options.configPath, stringifyInitConfig(nextConfig))
+  writeFileSync(options.configPath, stringifyInitConfig(nextConfig));
 
   return {
     changed: true,
     created: !existingConfig,
     updated: Boolean(existingConfig),
     config: nextConfig,
-  }
+  };
 }

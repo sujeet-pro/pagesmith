@@ -7,7 +7,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 1. Run `npx pagesmith-docs init --ai` for docs projects, or `npx pagesmith-core ai --profile default` for core/site projects, to scaffold assistant context and markdown guidelines.
 2. For docs workflows, read `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/usage.md`.
 3. For core/custom-site workflows, read `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`.
-4. Use `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/llms.txt` or `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
+4. Use `node_modules/@pagesmith/docs/llms.txt` or `node_modules/@pagesmith/core/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
 5. If MCP is enabled, use `pagesmith-docs mcp --stdio` for docs projects and `@pagesmith/core/mcp` for collection-aware inspection and validation in custom core/site integrations.
 6. For upgrades across pre-1.0 versions, review `MIGRATING.md` before proposing refactors.
 
@@ -86,7 +86,7 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - `z` re-exported from Zod for convenience
 
 ### Validation
-- `builtinMarkdownValidators` — linkValidator, headingValidator, codeBlockValidator
+- `builtinMarkdownValidators` — linkValidator, headingValidator, codeBlockValidator, imageStructureValidator
 - `runValidators(ctx, validators)` — execute validators against content
 - Custom validators: implement `ContentValidator { name, validate(ctx) }` with access to `ValidatorContext.mdast`
 - Disable built-ins: `disableBuiltinValidators: true` on collection definition
@@ -110,7 +110,7 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - `slugify` — custom slug generation
 - `transform` — pre-validation transform
 - `validators` — custom content validators
-- `disableBuiltinValidators` — disable link, heading, code-block validators
+- `disableBuiltinValidators` — disable link, heading, code-block, image-structure validators
 
 ### Site JSX And CSS
 - JSX runtime lives in `@pagesmith/site/jsx-runtime`
@@ -151,6 +151,8 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - `pagesmith-docs dev [--port] [--open] [--config] [--out-dir] [--base-path]`
 - `pagesmith-docs build [--out-dir] [--base-path] [--config]`
 - `pagesmith-docs preview [--port] [--config]`
+- `pagesmith-docs validate [--content] [--build] [--full] [--config]`
+- `pagesmith-docs mcp` — start the docs MCP server
 
 ### Docs Config (pagesmith.config.json5)
 - Site: `name`, `title`, `description`, `origin`, `language`

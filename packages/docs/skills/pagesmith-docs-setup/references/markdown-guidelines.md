@@ -27,7 +27,7 @@ GFM adds tables, strikethrough, task lists, autolinks, and footnotes.
 
 ```md
 | Left | Center | Right |
-|:-----|:------:|------:|
+| :--- | :----: | ----: |
 | L    |   C    |     R |
 | data |  data  |  data |
 ```
@@ -64,6 +64,7 @@ Visit https://pagesmith.dev for more info.
 Content with a footnote[^1] and another[^note].
 
 [^1]: This is the footnote content.
+
 [^note]: Footnotes can use any identifier.
 ```
 
@@ -110,7 +111,6 @@ Note: The `$` delimiters must not have spaces immediately inside them for inline
 
 ASCII typography is automatically converted to proper typographic characters. Code blocks and inline code are not affected.
 
-
 | Input     | Output            | Description                                   |
 | --------- | ----------------- | --------------------------------------------- |
 | `"hello"` | \u201chello\u201d | Straight double quotes to curly double quotes |
@@ -119,7 +119,6 @@ ASCII typography is automatically converted to proper typographic characters. Co
 | `---`     | \u2014            | Three hyphens to em dash                      |
 | `...`     | \u2026            | Three dots to ellipsis                        |
 
-
 ## External Links (rehype-external-links)
 
 Only absolute URLs starting with `http://` or `https://` get the external link treatment: `target="_blank"` and `rel="noopener noreferrer"` are added automatically.
@@ -127,9 +126,9 @@ Only absolute URLs starting with `http://` or `https://` get the external link t
 Relative links (`/guide/getting-started`, `../about`, `#section`) stay in the same tab and are not modified.
 
 ```md
-[GitHub](https://github.com)           <!-- opens in new tab -->
+[GitHub](https://github.com) <!-- opens in new tab -->
 [Internal page](/guide/getting-started) <!-- stays in same tab -->
-[Anchor link](#section)                 <!-- stays in same tab -->
+[Anchor link](#section) <!-- stays in same tab -->
 ```
 
 ## Accessible Emojis (rehype-accessible-emojis)
@@ -186,14 +185,12 @@ Slug generation algorithm:
 
 Examples:
 
-
 | Heading                 | Generated slug     |
 | ----------------------- | ------------------ |
 | `## Getting Started`    | `getting-started`  |
 | `## What's New in v2?`  | `whats-new-in-v2`  |
 | `## API Reference (v3)` | `api-reference-v3` |
 | `## CSS & JavaScript`   | `css--javascript`  |
-
 
 Rendered HTML:
 
@@ -242,7 +239,6 @@ markdown: {
 
 All features are enabled via meta strings after the language identifier:
 
-
 | Meta                | Example                                   | Description                                      |
 | ------------------- | ----------------------------------------- | ------------------------------------------------ |
 | `title="..."`       | ````js title="app.js"`                    | File title above the code block                  |
@@ -255,22 +251,22 @@ All features are enabled via meta strings after the language identifier:
 | `wrap`              | ````js wrap`                              | Enable text wrapping                             |
 | `frame="..."`       | ````js frame="none"`                      | Frame style: `none`, `code`, `terminal`, `lines` |
 
-
 ### Combined Example
 
-```md
+````md
 ```ts title="server.ts" showLineNumbers mark={3} ins={7-8} collapse={1-2}
-import express from 'express'
-import cors from 'cors'
-const app = express()  // highlighted
-app.use(cors())
+import express from "express";
+import cors from "cors";
+const app = express(); // highlighted
+app.use(cors());
 
 // New routes added
-app.get('/api', handler)
-app.post('/api', handler)
+app.get("/api", handler);
+app.post("/api", handler);
 ```
+````
 
-```
+`````
 
 ### Automatic Features (no meta needed)
 
@@ -285,12 +281,13 @@ Consecutive titled code blocks are grouped into tabs automatically.
 ````md
 ```ts title="TypeScript"
 const greeting: string = 'hello'
-```
+`````
 
 ```js title="JavaScript"
-const greeting = 'hello'
+const greeting = "hello";
 ```
-````
+
+`````
 
 Tabs are created by `rehype-code-tabs` after the built-in code renderer, so each block keeps its own highlighting and chrome while rendering as a single tabbed group.
 
@@ -518,3 +515,4 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 | Accessible emoji | Unicode emoji auto-wrapped                                                    | rehype-accessible-emojis               |
 
 
+`````

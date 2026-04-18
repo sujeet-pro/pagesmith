@@ -50,21 +50,21 @@ Use this file as the primary instruction source for `@pagesmith/core`.
 
 ## Package Files Reference
 
-| File | Purpose |
-| --- | --- |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md` | Canonical bootstrap/retrofit prompt for `@pagesmith/core` |
-| `node_modules/@pagesmith/core/REFERENCE.md` | Complete content-layer reference |
-| `node_modules/@pagesmith/core/README.md` | Quick start and package overview |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md` | Package responsibilities and rules |
+| File                                                                                         | Purpose                                                     |
+| -------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md`          | Canonical bootstrap/retrofit prompt for `@pagesmith/core`   |
+| `node_modules/@pagesmith/core/REFERENCE.md`                                                  | Complete content-layer reference                            |
+| `node_modules/@pagesmith/core/README.md`                                                     | Quick start and package overview                            |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/core-guidelines.md`     | Package responsibilities and rules                          |
 | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/markdown-guidelines.md` | Markdown pipeline, code-block features, and authoring rules |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md` | This file |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/recipes.md` | Common content-layer recipes |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/errors.md` | Error catalog |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/migration.md` | Upgrade notes |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/changelog-notes.md` | Version highlights |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/AGENTS.md.template` | Template for project-level AGENTS.md memory |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/llms.txt` | Compact AI context index |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/llms-full.txt` | Full AI context |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md`               | This file                                                   |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/recipes.md`             | Common content-layer recipes                                |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/errors.md`              | Error catalog                                               |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/migration.md`           | Upgrade notes                                               |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/changelog-notes.md`     | Version highlights                                          |
+| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/AGENTS.md.template`     | Template for project-level AGENTS.md memory                 |
+| `node_modules/@pagesmith/core/llms.txt`                                                      | Compact AI context index                                    |
+| `node_modules/@pagesmith/core/llms-full.txt`                                                 | Full AI context                                             |
 
 ## Non-negotiable Rules
 

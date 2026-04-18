@@ -1,45 +1,45 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { getAllPosts, getPostBySlug } from '../../../lib/content'
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getAllPosts, getPostBySlug } from "../../../lib/content";
 
-export const dynamicParams = false
+export const dynamicParams = false;
 
 function formatDate(isoDate) {
-  return new Date(isoDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  return new Date(isoDate).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts()
-  return posts.map((post) => ({ slug: post.slug }))
+  const posts = await getAllPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params
-  const post = await getPostBySlug(slug)
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
 
   if (!post) {
-    return { title: 'Not Found' }
+    return { title: "Not Found" };
   }
 
   return {
     title: post.title,
     description: post.description,
-  }
+  };
 }
 
 export default async function PostPage({ params }) {
-  const { slug } = await params
-  const post = await getPostBySlug(slug)
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
 
   if (!post) {
-    notFound()
+    notFound();
   }
 
-  const headings = post.headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
+  const headings = post.headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 
   return (
     <article className="article-shell">
@@ -70,7 +70,7 @@ export default async function PostPage({ params }) {
         ) : null}
       </header>
 
-      <div className={`article-layout${headings.length > 0 ? ' article-layout--with-toc' : ''}`}>
+      <div className={`article-layout${headings.length > 0 ? " article-layout--with-toc" : ""}`}>
         <div className="article-panel">
           <div className="prose article-prose" dangerouslySetInnerHTML={{ __html: post.html }} />
         </div>
@@ -91,5 +91,5 @@ export default async function PostPage({ params }) {
         ) : null}
       </div>
     </article>
-  )
+  );
 }

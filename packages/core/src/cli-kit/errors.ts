@@ -7,68 +7,68 @@
  */
 
 export class CliError extends Error {
-  readonly exitCode: number
-  readonly hint?: string
+  readonly exitCode: number;
+  readonly hint?: string;
 
   constructor(
     message: string,
     options: { exitCode?: number; hint?: string; cause?: unknown } = {},
   ) {
-    super(message, options.cause !== undefined ? { cause: options.cause } : undefined)
-    this.name = 'CliError'
-    this.exitCode = options.exitCode ?? 1
-    this.hint = options.hint
+    super(message, options.cause !== undefined ? { cause: options.cause } : undefined);
+    this.name = "CliError";
+    this.exitCode = options.exitCode ?? 1;
+    this.hint = options.hint;
   }
 }
 
 function formatUnknownCause(value: unknown): string {
-  if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
-    return String(value)
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+    return String(value);
   }
-  if (typeof value === 'symbol') return value.toString()
+  if (typeof value === "symbol") return value.toString();
 
   try {
-    const json = JSON.stringify(value)
-    if (json) return json
+    const json = JSON.stringify(value);
+    if (json) return json;
   } catch {
     // Fall through to the generic object tag below.
   }
 
-  return Object.prototype.toString.call(value)
+  return Object.prototype.toString.call(value);
 }
 
 export function formatCliError(error: unknown): string {
-  if (!(error instanceof Error)) return String(error)
+  if (!(error instanceof Error)) return String(error);
 
-  const lines: string[] = []
-  let current: unknown = error
-  let depth = 0
+  const lines: string[] = [];
+  let current: unknown = error;
+  let depth = 0;
 
   while (current instanceof Error) {
-    const prefix = depth === 0 ? '' : 'Caused by: '
-    const message = current.message || current.name
-    const line = `${prefix}${message}`
+    const prefix = depth === 0 ? "" : "Caused by: ";
+    const message = current.message || current.name;
+    const line = `${prefix}${message}`;
     if (line !== lines.at(-1)) {
-      lines.push(line)
+      lines.push(line);
     }
-    current = (current as { cause?: unknown }).cause
-    depth += 1
+    current = (current as { cause?: unknown }).cause;
+    depth += 1;
   }
 
   if (current != null) {
-    lines.push(`Caused by: ${formatUnknownCause(current)}`)
+    lines.push(`Caused by: ${formatUnknownCause(current)}`);
   }
 
   if (error instanceof CliError && error.hint) {
-    lines.push('')
-    lines.push(`Hint: ${error.hint}`)
+    lines.push("");
+    lines.push(`Hint: ${error.hint}`);
   }
 
-  return lines.join('\n')
+  return lines.join("\n");
 }
 
 export function exitCodeFor(error: unknown): number {
-  if (error instanceof CliError) return error.exitCode
-  return 1
+  if (error instanceof CliError) return error.exitCode;
+  return 1;
 }

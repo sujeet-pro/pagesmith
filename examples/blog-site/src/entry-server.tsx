@@ -3,8 +3,8 @@
  *
  * Content layer setup lives in content.ts, JSX components in components.tsx.
  */
-import { h } from '@pagesmith/site/jsx-runtime'
-import type { SsgRenderConfig } from '@pagesmith/site/vite'
+import { h } from "@pagesmith/site/jsx-runtime";
+import type { SsgRenderConfig } from "@pagesmith/site/vite";
 
 import {
   buildLayer,
@@ -16,61 +16,61 @@ import {
   routeFor,
   toIso,
   type RenderedEntry,
-} from './content'
-import { ExampleFooter, HomeBody, PageBody, SidebarNav, renderDocument } from './components'
+} from "./content";
+import { ExampleFooter, HomeBody, PageBody, SidebarNav, renderDocument } from "./components";
 
 // ── Data loading ──
 
 async function loadSite(config: SsgRenderConfig) {
-  const layer = buildLayer(config.root)
+  const layer = buildLayer(config.root);
 
-  const guideRaw = await layer.getCollection('guide')
-  const pagesRaw = await layer.getCollection('pages')
+  const guideRaw = await layer.getCollection("guide");
+  const pagesRaw = await layer.getCollection("pages");
 
-  const guideEntries = (await renderEntries(guideRaw, 'guide')).sort((left, right) => {
-    const orderDelta = (left.data.seriesOrder ?? 99) - (right.data.seriesOrder ?? 99)
-    if (orderDelta !== 0) return orderDelta
-    return getTime(left.data.date) - getTime(right.data.date)
-  })
+  const guideEntries = (await renderEntries(guideRaw, "guide")).sort((left, right) => {
+    const orderDelta = (left.data.seriesOrder ?? 99) - (right.data.seriesOrder ?? 99);
+    if (orderDelta !== 0) return orderDelta;
+    return getTime(left.data.date) - getTime(right.data.date);
+  });
 
-  const pageEntries = await renderEntries(pagesRaw, 'pages')
+  const pageEntries = await renderEntries(pagesRaw, "pages");
 
-  return { guideEntries, pageEntries }
+  return { guideEntries, pageEntries };
 }
 
 // ── Exports (pagesmithSsg contract) ──
 
 export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
-  const { guideEntries, pageEntries } = await loadSite(config)
+  const { guideEntries, pageEntries } = await loadSite(config);
 
-  const routes = ['/', '/404']
-  routes.push(...guideEntries.map((entry) => routeFor(entry)))
+  const routes = ["/", "/404"];
+  routes.push(...guideEntries.map((entry) => routeFor(entry)));
 
-  const aboutPage = pageEntries.find((entry) => entry.slug === 'about')
+  const aboutPage = pageEntries.find((entry) => entry.slug === "about");
   if (aboutPage) {
-    routes.push(routeFor(aboutPage))
+    routes.push(routeFor(aboutPage));
   }
 
-  return routes
+  return routes;
 }
 
 export async function render(url: string, config: SsgRenderConfig): Promise<string> {
   const routePath = (() => {
-    const normalized = normalizeRoute(url, config.base)
-    return normalized !== '/' && normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
-  })()
+    const normalized = normalizeRoute(url, config.base);
+    return normalized !== "/" && normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+  })();
 
-  const { guideEntries, pageEntries } = await loadSite(config)
+  const { guideEntries, pageEntries } = await loadSite(config);
 
-  const guideNavEntries = buildNavEntries(guideEntries, config.base)
-  const guideGroups = groupBySeries(guideEntries, config.base)
-  const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`
-  const kitchenSinkEntry = guideEntries.find((entry) => entry.slug === 'kitchen-sink')
+  const guideNavEntries = buildNavEntries(guideEntries, config.base);
+  const guideGroups = groupBySeries(guideEntries, config.base);
+  const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`;
+  const kitchenSinkEntry = guideEntries.find((entry) => entry.slug === "kitchen-sink");
   const kitchenSinkUrl = kitchenSinkEntry
     ? `${config.base}/guide/${kitchenSinkEntry.slug}`
-    : firstGuideUrl
+    : firstGuideUrl;
 
-  if (routePath === '/') {
+  if (routePath === "/") {
     const sidebarHtml = String(
       <div class="doc-sidebar-section">
         <p class="doc-sidebar-heading">Navigation</p>
@@ -87,7 +87,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
           </li>
         </ul>
       </div>,
-    )
+    );
     const bodyHtml = String(
       <HomeBody
         basePath={config.base}
@@ -96,35 +96,35 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         searchEnabled={config.searchEnabled}
         guideEntries={guideNavEntries}
       />,
-    )
+    );
 
     return renderDocument({
-      title: 'Pagesmith + Site JSX',
+      title: "Pagesmith + Site JSX",
       description:
-        'A content-driven static site using @pagesmith/site -- no framework, no virtual modules.',
+        "A content-driven static site using @pagesmith/site -- no framework, no virtual modules.",
       basePath: config.base,
       cssPath: config.cssPath,
       jsPath: config.jsPath,
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
-  if (routePath === '/404') {
+  if (routePath === "/404") {
     return renderDocument({
-      title: 'Page Not Found - Pagesmith + Site JSX',
-      description: 'The page you requested could not be found.',
+      title: "Page Not Found - Pagesmith + Site JSX",
+      description: "The page you requested could not be found.",
       basePath: config.base,
       cssPath: config.cssPath,
       jsPath: config.jsPath,
       searchEnabled: config.searchEnabled,
       bodyHtml:
         '<main class="doc-home"><section class="doc-home-section"><div class="doc-not-found-container"><p class="doc-not-found-code">404</p><h1 class="doc-not-found-title">Page Not Found</h1></div></section></main>',
-    })
+    });
   }
 
-  const guideEntry = guideEntries.find((entry) => routeFor(entry) === routePath)
+  const guideEntry = guideEntries.find((entry) => routeFor(entry) === routePath);
   if (guideEntry) {
     const sidebarHtml = String(
       <SidebarNav
@@ -134,7 +134,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         firstGuideUrl={firstGuideUrl}
         guideGroups={guideGroups}
       />,
-    )
+    );
     const bodyHtml = String(
       <PageBody
         title={guideEntry.data.title}
@@ -148,7 +148,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         date={toIso(guideEntry.data.date)}
         readTime={guideEntry.readTime}
       />,
-    )
+    );
 
     return renderDocument({
       title: `${guideEntry.data.title} - Pagesmith + Site JSX`,
@@ -159,10 +159,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
-  const pageEntry = pageEntries.find((entry) => routeFor(entry) === routePath)
+  const pageEntry = pageEntries.find((entry) => routeFor(entry) === routePath);
   if (pageEntry) {
     const sidebarHtml = String(
       <SidebarNav
@@ -172,7 +172,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         firstGuideUrl={firstGuideUrl}
         guideGroups={guideGroups}
       />,
-    )
+    );
     const bodyHtml = String(
       <PageBody
         title={pageEntry.data.title}
@@ -184,7 +184,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         searchEnabled={config.searchEnabled}
         sidebar={guideGroups}
       />,
-    )
+    );
 
     return renderDocument({
       title: `${pageEntry.data.title} - Pagesmith + Site JSX`,
@@ -195,17 +195,17 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
   return renderDocument({
-    title: 'Page Not Found - Pagesmith + Site JSX',
-    description: 'The page you requested could not be found.',
+    title: "Page Not Found - Pagesmith + Site JSX",
+    description: "The page you requested could not be found.",
     basePath: config.base,
     cssPath: config.cssPath,
     jsPath: config.jsPath,
     searchEnabled: config.searchEnabled,
     bodyHtml:
       '<main class="doc-home"><section class="doc-home-section"><div class="doc-not-found-container"><p class="doc-not-found-code">404</p><h1 class="doc-not-found-title">Page Not Found</h1></div></section></main>',
-  })
+  });
 }

@@ -36,45 +36,45 @@ npm add @pagesmith/core
 ## `content.config.ts` (Vite shape)
 
 ```ts
-import { defineCollections, z } from '@pagesmith/core'
+import { defineCollections, z } from "@pagesmith/core";
 
 export default defineCollections({
   docs: {
-    directory: 'content/docs',
+    directory: "content/docs",
     schema: z.object({
       title: z.string(),
       description: z.string().optional(),
     }),
   },
-})
+});
 ```
 
 Wire the plugin in `vite.config.ts`:
 
 ```ts
-import { defineConfig } from 'vite'
-import pagesmithContent from '@pagesmith/core/vite'
+import { defineConfig } from "vite";
+import pagesmithContent from "@pagesmith/core/vite";
 
 export default defineConfig({
   plugins: [pagesmithContent()],
-})
+});
 ```
 
 Import collections as virtual modules:
 
 ```ts
-import { docs } from 'virtual:pagesmith/collections'
+import { docs } from "virtual:pagesmith/collections";
 ```
 
 ## `ContentLayer` shape (framework / Next.js)
 
 ```ts
-import { createContentLayer } from '@pagesmith/core'
-import config from './content.config.ts'
+import { createContentLayer } from "@pagesmith/core";
+import config from "./content.config.ts";
 
-const content = await createContentLayer(config)
-const entry = await content.getEntry('docs', 'getting-started')
-const html = await entry.render()
+const content = await createContentLayer(config);
+const entry = await content.getEntry("docs", "getting-started");
+const html = await entry.render();
 ```
 
 Keep routing, layouts, and CSS in the host app. Do not re-export JSX runtime or shared CSS from `@pagesmith/core` — those live in `@pagesmith/site`.

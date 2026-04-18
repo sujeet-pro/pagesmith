@@ -34,11 +34,11 @@ Reference for the Pagesmith site toolkit.
 
 `@pagesmith/site` ships self-contained Agent Skills inside the npm tarball at `node_modules/@pagesmith/site/skills/`. They are version-matched to the installed package — the bundle in `node_modules` is always the one your agent should read.
 
-| Skill                              | Triggers when the user asks to                                                           |
-| ---------------------------------- | ---------------------------------------------------------------------------------------- |
-| `pagesmith-site-setup`             | Bootstrap a custom Pagesmith site (`@pagesmith/site`) without the docs preset.           |
-| `pagesmith-site-use-preset`        | Consume a preset (`@pagesmith/docs`, a custom preset) through the `pagesmith-site` CLI.  |
-| `pagesmith-site-customize-theme`   | Swap CSS bundles, runtime JS, layouts, or components shipped by `@pagesmith/site`.       |
+| Skill                            | Triggers when the user asks to                                                          |
+| -------------------------------- | --------------------------------------------------------------------------------------- |
+| `pagesmith-site-setup`           | Bootstrap a custom Pagesmith site (`@pagesmith/site`) without the docs preset.          |
+| `pagesmith-site-use-preset`      | Consume a preset (`@pagesmith/docs`, a custom preset) through the `pagesmith-site` CLI. |
+| `pagesmith-site-customize-theme` | Swap CSS bundles, runtime JS, layouts, or components shipped by `@pagesmith/site`.      |
 
 ### Installing the skills into a consumer project
 
@@ -88,7 +88,7 @@ For agent-driven setup in an existing repository, start with:
 The same prompt is exposed as a subpath export for agents that prefer to resolve it through Node:
 
 ```ts
-import setupSite from '@pagesmith/site/agents/setup-site'
+import setupSite from "@pagesmith/site/agents/setup-site";
 ```
 
 ## Config API
@@ -107,42 +107,44 @@ Validates a custom-site config object with the shared site schema:
 
 ```ts
 type SiteUserConfig = {
-  preset?: string
-  presets?: string[]
-  name?: string
-  title?: string
-  description?: string
-  origin?: string
-  language?: string
-  contentDir?: string
-  outDir?: string
-  publicDir?: string
-  basePath?: string
-  homeLink?: string
-  maintainer?: { name: string; link?: string }
-  footerLinks?: Array<{ label: string; path: string }> | Array<{ header?: string; links: Array<{ label: string; path: string }> }>
-  footerText?: string
-  copyright?: { projectName: string; startYear: number; endYear?: number | null }
-  sidebar?: { collapsible?: boolean }
-  search?: { enabled?: boolean; showImages?: boolean; showSubResults?: boolean }
+  preset?: string;
+  presets?: string[];
+  name?: string;
+  title?: string;
+  description?: string;
+  origin?: string;
+  language?: string;
+  contentDir?: string;
+  outDir?: string;
+  publicDir?: string;
+  basePath?: string;
+  homeLink?: string;
+  maintainer?: { name: string; link?: string };
+  footerLinks?:
+    | Array<{ label: string; path: string }>
+    | Array<{ header?: string; links: Array<{ label: string; path: string }> }>;
+  footerText?: string;
+  copyright?: { projectName: string; startYear: number; endYear?: number | null };
+  sidebar?: { collapsible?: boolean };
+  search?: { enabled?: boolean; showImages?: boolean; showSubResults?: boolean };
   theme?: {
-    lightColor?: string
-    darkColor?: string
-    defaultColorScheme?: 'auto' | 'light' | 'dark'
-    defaultTheme?: string
-    defaultTextSize?: string
-    layouts?: Record<string, string>
-    socialImage?: string
-  }
-  seo?: { locale?: string; twitterHandle?: string; defaultOgType?: string }
-  analytics?: { googleAnalytics?: string }
-  socialImage?: string
-  favicon?: string | false
-  faviconFallback?: string | false
-  appleTouchIcon?: string | false
-  server?: { host?: string; devPort?: number; previewPort?: number; strictPort?: boolean }
-  [key: string]: unknown
-}
+    lightColor?: string;
+    darkColor?: string;
+    defaultColorScheme?: "auto" | "light" | "dark";
+    defaultTheme?: string;
+    defaultTextSize?: string;
+    layouts?: Record<string, string>;
+    socialImage?: string;
+  };
+  seo?: { locale?: string; twitterHandle?: string; defaultOgType?: string };
+  analytics?: { googleAnalytics?: string };
+  socialImage?: string;
+  favicon?: string | false;
+  faviconFallback?: string | false;
+  appleTouchIcon?: string | false;
+  server?: { host?: string; devPort?: number; previewPort?: number; strictPort?: boolean };
+  [key: string]: unknown;
+};
 ```
 
 The schema is also exported from `@pagesmith/site/schemas` as `SiteUserConfigSchema`.
@@ -195,7 +197,7 @@ Preset resolution order:
 Default fallback:
 
 ```ts
-process.env.PAGESMITH_PRESET ?? '@pagesmith/site/preset'
+process.env.PAGESMITH_PRESET ?? "@pagesmith/site/preset";
 ```
 
 ## Content Helpers
@@ -207,14 +209,14 @@ Shared utilities for building navigation structures from content entry lists. Im
 Sort entries by manual order. Items matching `orderedSlugs` come first (in that order); remaining items are appended, sorted by the optional `fallbackCompare` (defaults to stable order).
 
 ```ts
-import { sortByManualOrder } from '@pagesmith/site'
+import { sortByManualOrder } from "@pagesmith/site";
 
 const sorted = sortByManualOrder(
   projects,
   meta.items ?? [],
   (p) => p.slug,
   (a, b) => a.title.localeCompare(b.title),
-)
+);
 ```
 
 ### `sortByDate(entries, getDate, fallbackCompare?)`
@@ -222,9 +224,9 @@ const sorted = sortByManualOrder(
 Sort entries newest-first by a date accessor. Entries without dates sort last.
 
 ```ts
-import { sortByDate } from '@pagesmith/site'
+import { sortByDate } from "@pagesmith/site";
 
-const sorted = sortByDate(articles, (a) => a.publishedDate)
+const sorted = sortByDate(articles, (a) => a.publishedDate);
 ```
 
 ### `buildBreadcrumbs(basePath, crumbs)`
@@ -232,12 +234,12 @@ const sorted = sortByDate(articles, (a) => a.publishedDate)
 Build a `SiteBreadcrumb[]` from a list of label/path pairs. Paths are prefixed with `basePath`.
 
 ```ts
-import { buildBreadcrumbs } from '@pagesmith/site'
+import { buildBreadcrumbs } from "@pagesmith/site";
 
 const crumbs = buildBreadcrumbs(basePath, [
-  { label: 'Articles', path: '/articles' },
+  { label: "Articles", path: "/articles" },
   { label: article.title },
-])
+]);
 ```
 
 ### `buildSidebarFromEntries(title, entries, options?)`
@@ -245,11 +247,15 @@ const crumbs = buildBreadcrumbs(basePath, [
 Build a `SiteSidebarSection[]` from an array of `{ title, path }` entries. Pass `options.overviewPath` to prepend an "Overview" link.
 
 ```ts
-import { buildSidebarFromEntries } from '@pagesmith/site'
+import { buildSidebarFromEntries } from "@pagesmith/site";
 
-const sidebar = buildSidebarFromEntries('Projects', projects.map((p) => ({ title: p.title, path: p.path })), {
-  overviewPath: withBasePath(basePath, '/projects'),
-})
+const sidebar = buildSidebarFromEntries(
+  "Projects",
+  projects.map((p) => ({ title: p.title, path: p.path })),
+  {
+    overviewPath: withBasePath(basePath, "/projects"),
+  },
+);
 ```
 
 ### `buildPrevNext(entries, currentIndex, getTitle, getPath)`
@@ -257,10 +263,15 @@ const sidebar = buildSidebarFromEntries('Projects', projects.map((p) => ({ title
 Build prev/next `SitePageLink` objects from an ordered entry list and the current entry's index.
 
 ```ts
-import { buildPrevNext } from '@pagesmith/site'
+import { buildPrevNext } from "@pagesmith/site";
 
-const index = articles.findIndex((a) => a.slug === currentSlug)
-const { prev, next } = buildPrevNext(articles, index, (a) => a.title, (a) => a.path)
+const index = articles.findIndex((a) => a.slug === currentSlug);
+const { prev, next } = buildPrevNext(
+  articles,
+  index,
+  (a) => a.title,
+  (a) => a.path,
+);
 ```
 
 ## Preset Contract
@@ -268,26 +279,26 @@ const { prev, next } = buildPrevNext(articles, index, (a) => a.title, (a) => a.p
 Available from `@pagesmith/site/preset`:
 
 ```ts
-type SiteLogLevel = 'silent' | 'error' | 'warn' | 'info' | 'verbose'
+type SiteLogLevel = "silent" | "error" | "warn" | "info" | "verbose";
 
 type SiteBuildOptions = {
-  configPath?: string
-  outDir?: string
-  basePath?: string
-}
+  configPath?: string;
+  outDir?: string;
+  basePath?: string;
+};
 
 type SiteDevOptions = SiteBuildOptions & {
-  port?: number
-  open?: boolean
-  logLevel?: SiteLogLevel
-}
+  port?: number;
+  open?: boolean;
+  logLevel?: SiteLogLevel;
+};
 
 interface SitePreset {
-  build?(options?: SiteBuildOptions): Promise<void>
-  dev?(options?: SiteDevOptions): Promise<void>
-  preview?(options?: SiteDevOptions): Promise<void>
-  init?(argv: string[]): Promise<void>
-  mcp?(argv: string[]): Promise<void>
+  build?(options?: SiteBuildOptions): Promise<void>;
+  dev?(options?: SiteDevOptions): Promise<void>;
+  preview?(options?: SiteDevOptions): Promise<void>;
+  init?(argv: string[]): Promise<void>;
+  mcp?(argv: string[]): Promise<void>;
 }
 ```
 
@@ -330,21 +341,21 @@ Shared flags:
 
 The preset implements validation when available; when absent, the CLI runs generic content + build-output checks. Flags:
 
-| Flag | Purpose |
-|---|---|
-| `--content-dir <path>` | Content directory override |
-| `--out-dir <path>` | Build output directory override |
-| `--base-path <path>` | Site base path override |
-| `--content` | Only run content validation |
-| `--build` | Only run build-output validation |
-| `--check-external` | Fetch external URLs and report non-2xx |
-| `--require-raster-modern-formats` | Enforce webp+avif siblings for `<picture>` raster fallbacks |
-| `--require-theme-variants` | Enforce light+dark `<picture>` sources |
-| `--require-canonical-internal-links` / `--no-require-canonical-internal-links` | Require `./relative/path.md` authoring form |
-| `--trailing-slash` / `--no-trailing-slash` | Override trailing-slash routing mode |
-| `--timeout-ms <number>` | External fetch timeout (default: 10000) |
-| `--concurrency <number>` | External fetch concurrency (default: 8) |
-| `--show-clean` | Also list files that pass content validation |
+| Flag                                                                           | Purpose                                                     |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `--content-dir <path>`                                                         | Content directory override                                  |
+| `--out-dir <path>`                                                             | Build output directory override                             |
+| `--base-path <path>`                                                           | Site base path override                                     |
+| `--content`                                                                    | Only run content validation                                 |
+| `--build`                                                                      | Only run build-output validation                            |
+| `--check-external`                                                             | Fetch external URLs and report non-2xx                      |
+| `--require-raster-modern-formats`                                              | Enforce webp+avif siblings for `<picture>` raster fallbacks |
+| `--require-theme-variants`                                                     | Enforce light+dark `<picture>` sources                      |
+| `--require-canonical-internal-links` / `--no-require-canonical-internal-links` | Require `./relative/path.md` authoring form                 |
+| `--trailing-slash` / `--no-trailing-slash`                                     | Override trailing-slash routing mode                        |
+| `--timeout-ms <number>`                                                        | External fetch timeout (default: 10000)                     |
+| `--concurrency <number>`                                                       | External fetch concurrency (default: 8)                     |
+| `--show-clean`                                                                 | Also list files that pass content validation                |
 
 Important behavior:
 
@@ -367,12 +378,12 @@ Available from `@pagesmith/site/vite`:
 
 ```ts
 type SsgPluginOptions = {
-  entry: string
-  pagefind?: boolean
-  contentDirs?: string[]
-  cssEntry?: string
-  trailingSlash?: boolean
-}
+  entry: string;
+  pagefind?: boolean;
+  contentDirs?: string[];
+  cssEntry?: string;
+  trailingSlash?: boolean;
+};
 ```
 
 Responsibilities:
@@ -388,23 +399,23 @@ The `trailingSlash` option controls the output file format: `false` (default) em
 The SSR entry module must export:
 
 ```ts
-import type { SsgRenderConfig } from '@pagesmith/site/vite'
+import type { SsgRenderConfig } from "@pagesmith/site/vite";
 
-export function getRoutes(config: SsgRenderConfig): string[] | Promise<string[]>
-export function render(url: string, config: SsgRenderConfig): string | Promise<string>
+export function getRoutes(config: SsgRenderConfig): string[] | Promise<string[]>;
+export function render(url: string, config: SsgRenderConfig): string | Promise<string>;
 ```
 
 `SsgRenderConfig`:
 
 ```ts
 type SsgRenderConfig = {
-  base: string
-  root: string
-  cssPath: string
-  jsPath?: string
-  searchEnabled: boolean
-  isDev: boolean
-}
+  base: string;
+  root: string;
+  cssPath: string;
+  jsPath?: string;
+  searchEnabled: boolean;
+  isDev: boolean;
+};
 ```
 
 Behavior notes:
@@ -456,7 +467,7 @@ Use:
 Programmatic CSS builder:
 
 ```ts
-import { buildCss } from '@pagesmith/site/css'
+import { buildCss } from "@pagesmith/site/css";
 ```
 
 ### Static CSS subpaths
@@ -570,27 +581,28 @@ Includes:
 
 ## Export Map
 
-| Import Path | Purpose |
-| --- | --- |
-| `@pagesmith/site` | Core content-layer re-exports plus site config helpers and preset types |
-| `@pagesmith/site/markdown` | Pass-through markdown helpers from core |
-| `@pagesmith/site/schemas` | Core schemas plus site config schemas such as `SiteUserConfigSchema` |
-| `@pagesmith/site/loaders` | Pass-through loader registry and loader classes from core |
-| `@pagesmith/site/assets` | Pass-through asset helpers from core |
-| `@pagesmith/site/config` | Config helpers, schema-backed parsing, and base-path utilities |
-| `@pagesmith/site/preset` | Preset contract plus the default `sitePreset()` fallback |
-| `@pagesmith/site/jsx-runtime` | Server-side JSX runtime |
-| `@pagesmith/site/jsx-dev-runtime` | JSX dev runtime |
-| `@pagesmith/site/components` | Reusable site/document chrome components |
-| `@pagesmith/site/layouts` | Reusable site layout wrappers |
-| `@pagesmith/site/theme` | Theme-control defaults and helpers |
-| `@pagesmith/site/css` | Programmatic CSS builder |
-| `@pagesmith/site/css/*` | Static CSS bundles |
-| `@pagesmith/site/runtime` | Runtime CSS/JS helpers and asset paths |
-| `@pagesmith/site/runtime/*` | Browser runtime entry points |
-| `@pagesmith/site/vite` | SSG, prerender, shared asset Vite helpers |
-| `@pagesmith/site/ssg-utils` | Shared SSG helpers |
-| `@pagesmith/site/skills/pagesmith-site-setup/references/*` | Package AI guidance |
+| Import Path                                                | Purpose                                                                 |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `@pagesmith/site`                                          | Core content-layer re-exports plus site config helpers and preset types |
+| `@pagesmith/site/markdown`                                 | Pass-through markdown helpers from core                                 |
+| `@pagesmith/site/schemas`                                  | Core schemas plus site config schemas such as `SiteUserConfigSchema`    |
+| `@pagesmith/site/loaders`                                  | Pass-through loader registry and loader classes from core               |
+| `@pagesmith/site/assets`                                   | Pass-through asset helpers from core                                    |
+| `@pagesmith/site/config`                                   | Config helpers, schema-backed parsing, and base-path utilities          |
+| `@pagesmith/site/preset`                                   | Preset contract plus the default `sitePreset()` fallback                |
+| `@pagesmith/site/jsx-runtime`                              | Server-side JSX runtime                                                 |
+| `@pagesmith/site/jsx-dev-runtime`                          | JSX dev runtime                                                         |
+| `@pagesmith/site/components`                               | Reusable site/document chrome components                                |
+| `@pagesmith/site/layouts`                                  | Reusable site layout wrappers                                           |
+| `@pagesmith/site/theme`                                    | Theme-control defaults and helpers                                      |
+| `@pagesmith/site/css`                                      | Programmatic CSS builder                                                |
+| `@pagesmith/site/css/*`                                    | Static CSS bundles                                                      |
+| `@pagesmith/site/runtime`                                  | Runtime CSS/JS helpers and asset paths                                  |
+| `@pagesmith/site/runtime/*`                                | Browser runtime entry points                                            |
+| `@pagesmith/site/vite`                                     | SSG, prerender, shared asset Vite helpers                               |
+| `@pagesmith/site/ssg-utils`                                | Shared SSG helpers                                                      |
+| `@pagesmith/site/build-validator`                          | `validateBuildOutput`, `runBuildValidation`, validator types            |
+| `@pagesmith/site/skills/pagesmith-site-setup/references/*` | Package AI guidance                                                     |
 
 ## Related Docs
 

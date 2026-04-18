@@ -58,10 +58,7 @@
       "types": "./dist/schemas/index.d.mts",
       "import": "./dist/schemas/index.mjs"
     },
-    "./schemas/*": {
-      "types": "./dist/schemas/*.d.mts",
-      "import": "./dist/schemas/*.mjs"
-    },
+    "./schemas/*.schema.json": "./schemas/*.schema.json",
     "./preset": {
       "types": "./dist/preset.d.mts",
       "import": "./dist/preset.mjs"

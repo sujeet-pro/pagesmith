@@ -1,1 +1,1 @@
-export * from '@pagesmith/site/layouts'
+export * from "@pagesmith/site/layouts";

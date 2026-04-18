@@ -18,23 +18,23 @@ This example uses **`renderToStaticMarkup`** from `react-dom/server` at **build 
 `pagesmithSsg` loads `./src/entry-server.tsx` and expects:
 
 ```ts
-export async function getRoutes(): Promise<string[]>
-export async function render(url: string, config: SsgRenderConfig): Promise<string>
+export async function getRoutes(): Promise<string[]>;
+export async function render(url: string, config: SsgRenderConfig): Promise<string>;
 ```
 
 **`getRoutes()`** lists every URL to emit. This example derives routes from the guide collection plus `/`, `/404`, and `pages` (e.g. `/about`):
 
 ```ts title="src/entry-server.tsx (excerpt)"
 export async function getRoutes(): Promise<string[]> {
-  const routes = ['/', '/404']
-  routes.push(...guideEntries.map((entry) => routeFor(entry, 'guide')))
+  const routes = ["/", "/404"];
+  routes.push(...guideEntries.map((entry) => routeFor(entry, "guide")));
 
-  const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, 'pages') === 'about')
+  const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, "pages") === "about");
   if (aboutPage) {
-    routes.push(routeFor(aboutPage, 'pages'))
+    routes.push(routeFor(aboutPage, "pages"));
   }
 
-  return routes
+  return routes;
 }
 ```
 

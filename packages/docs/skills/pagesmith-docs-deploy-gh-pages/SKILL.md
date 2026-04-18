@@ -15,19 +15,19 @@ Always invoke the CLI through `npx pagesmith-docs <command>` (or via `package.js
 
 Set the right origin and basePath in `pagesmith.config.json5`:
 
-| Hosting | `origin` | `basePath` |
-| --- | --- | --- |
-| `https://<owner>.github.io/<repo>` (repo page) | `https://<owner>.github.io` | `/<repo>` |
-| `https://<owner>.github.io` (user/org page) | `https://<owner>.github.io` | `/` |
-| `https://docs.example.com` (custom domain root) | `https://docs.example.com` | `/` |
-| `https://example.com/docs` (custom domain subpath) | `https://example.com` | `/docs` |
+| Hosting                                            | `origin`                    | `basePath` |
+| -------------------------------------------------- | --------------------------- | ---------- |
+| `https://<owner>.github.io/<repo>` (repo page)     | `https://<owner>.github.io` | `/<repo>`  |
+| `https://<owner>.github.io` (user/org page)        | `https://<owner>.github.io` | `/`        |
+| `https://docs.example.com` (custom domain root)    | `https://docs.example.com`  | `/`        |
+| `https://example.com/docs` (custom domain subpath) | `https://example.com`       | `/docs`    |
 
 ```json5
 // pagesmith.config.json5
 {
-  origin: 'https://acme.github.io',
-  basePath: '/my-docs',
-  outDir: './gh-pages',
+  origin: "https://acme.github.io",
+  basePath: "/my-docs",
+  outDir: "./gh-pages",
 }
 ```
 
@@ -110,7 +110,7 @@ Requirements on the repo:
 ```json5
 {
   assets: {
-    passthrough: ['public/CNAME'],
+    passthrough: ["public/CNAME"],
   },
 }
 ```
@@ -131,10 +131,10 @@ Files the docs site should ship untouched (`llms.txt`, `robots.txt`, schema JSON
 {
   assets: {
     passthrough: [
-      'llms.txt',
-      'llms-full.txt',
-      'public/prompts/**/*.md',
-      'public/schemas/**/*.json',
+      "llms.txt",
+      "llms-full.txt",
+      "public/prompts/**/*.md",
+      "public/schemas/**/*.json",
     ],
   },
 }

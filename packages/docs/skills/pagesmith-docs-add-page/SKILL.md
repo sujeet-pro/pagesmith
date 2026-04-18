@@ -17,13 +17,13 @@ Always invoke the CLI through `npx pagesmith-docs <command>` (or via `package.js
 
 Pagesmith reads `contentDir` from `pagesmith.config.json5`. Typical layouts:
 
-| Page | File | URL |
-| --- | --- | --- |
-| Home | `<contentDir>/README.md` or `home.md` | `/` |
-| Top-level guide | `<contentDir>/guide/<slug>.md` | `/guide/<slug>` |
-| Top-level reference | `<contentDir>/reference/<slug>.md` | `/reference/<slug>` |
-| Series page | `<contentDir>/guide/<series>/<slug>.md` | `/guide/<series>/<slug>` |
-| Section landing | `<contentDir>/guide/<series>/README.md` | `/guide/<series>` |
+| Page                | File                                    | URL                      |
+| ------------------- | --------------------------------------- | ------------------------ |
+| Home                | `<contentDir>/README.md` or `home.md`   | `/`                      |
+| Top-level guide     | `<contentDir>/guide/<slug>.md`          | `/guide/<slug>`          |
+| Top-level reference | `<contentDir>/reference/<slug>.md`      | `/reference/<slug>`      |
+| Series page         | `<contentDir>/guide/<series>/<slug>.md` | `/guide/<series>/<slug>` |
+| Section landing     | `<contentDir>/guide/<series>/README.md` | `/guide/<series>`        |
 
 The URL is always slashless — both `/guide/install` and `/guide/install/` resolve. Do not hand-append `.html` or trailing slashes to links.
 

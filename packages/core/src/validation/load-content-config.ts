@@ -13,25 +13,25 @@
  *    step or runtime loader.
  */
 
-import { existsSync } from 'fs'
-import { dirname, isAbsolute, resolve } from 'path'
-import { pathToFileURL } from 'url'
-import fg from 'fast-glob'
-import type { ZodType } from 'zod'
+import { existsSync } from "fs";
+import { dirname, isAbsolute, resolve } from "path";
+import { pathToFileURL } from "url";
+import fg from "fast-glob";
+import type { ZodType } from "zod";
 
 const DEFAULT_CONFIG_BASENAMES = [
-  'content.config.ts',
-  'content.config.mts',
-  'content.config.mjs',
-  'content.config.js',
-]
+  "content.config.ts",
+  "content.config.mts",
+  "content.config.mjs",
+  "content.config.js",
+];
 
 export type DiscoveredContentConfig = {
   /** Absolute path of the resolved config module. */
-  filePath: string
+  filePath: string;
   /** Project root the config lives under (used to resolve `directory` paths). */
-  projectRoot: string
-}
+  projectRoot: string;
+};
 
 /**
  * Walk the candidate directories looking for the first `content.config.*`
@@ -42,15 +42,15 @@ export function discoverContentConfig(
   basenames: readonly string[] = DEFAULT_CONFIG_BASENAMES,
 ): DiscoveredContentConfig | null {
   for (const dir of searchDirs) {
-    const projectRoot = resolve(dir)
+    const projectRoot = resolve(dir);
     for (const name of basenames) {
-      const candidate = resolve(projectRoot, name)
+      const candidate = resolve(projectRoot, name);
       if (existsSync(candidate)) {
-        return { filePath: candidate, projectRoot }
+        return { filePath: candidate, projectRoot };
       }
     }
   }
-  return null
+  return null;
 }
 
 /**
@@ -60,43 +60,43 @@ export function discoverContentConfig(
  */
 export type LoadedCollection = {
   /** Loader identifier — `'markdown'` is the only kind that participates in markdown validation. */
-  loader: string | { kind?: string }
+  loader: string | { kind?: string };
   /** Directory relative to the project root. */
-  directory: string
+  directory: string;
   /** Include glob patterns relative to `directory`. */
-  include?: string[]
+  include?: string[];
   /** Exclude glob patterns relative to `directory`. */
-  exclude?: string[]
+  exclude?: string[];
   /** Optional Zod schema applied to each entry in this collection. */
-  schema?: ZodType
-}
+  schema?: ZodType;
+};
 
-export type LoadedCollections = Record<string, LoadedCollection>
+export type LoadedCollections = Record<string, LoadedCollection>;
 
 /** Pull the `collections` map from a loaded module. */
 function pickCollections(mod: Record<string, unknown>): LoadedCollections | null {
-  const candidates = [mod.default, mod.collections, mod.config]
+  const candidates = [mod.default, mod.collections, mod.config];
   for (const candidate of candidates) {
-    if (candidate && typeof candidate === 'object') {
-      const obj = candidate as Record<string, unknown>
+    if (candidate && typeof candidate === "object") {
+      const obj = candidate as Record<string, unknown>;
       // Heuristic: must look like a map of collections, not the wrapped
       // `{ root, collections }` returned by `defineConfig`.
-      if ('collections' in obj && typeof obj.collections === 'object') {
-        return obj.collections as LoadedCollections
+      if ("collections" in obj && typeof obj.collections === "object") {
+        return obj.collections as LoadedCollections;
       }
       // Treat plain objects whose values look like collection defs as the map.
-      const values = Object.values(obj)
+      const values = Object.values(obj);
       if (
         values.length > 0 &&
         values.every(
-          (value) => value && typeof value === 'object' && 'directory' in (value as object),
+          (value) => value && typeof value === "object" && "directory" in (value as object),
         )
       ) {
-        return obj as LoadedCollections
+        return obj as LoadedCollections;
       }
     }
   }
-  return null
+  return null;
 }
 
 /**
@@ -109,16 +109,19 @@ function pickCollections(mod: Record<string, unknown>): LoadedCollections | null
 export async function loadContentCollections(
   configPath: string,
 ): Promise<LoadedCollections | null> {
-  const url = pathToFileURL(isAbsolute(configPath) ? configPath : resolve(configPath)).href
-  const mod = (await import(url)) as Record<string, unknown>
-  return pickCollections(mod)
+  const url = pathToFileURL(isAbsolute(configPath) ? configPath : resolve(configPath)).href;
+  const mod = (await import(/* @vite-ignore */ /* webpackIgnore: true */ url)) as Record<
+    string,
+    unknown
+  >;
+  return pickCollections(mod);
 }
 
 export type FileSchemaEntry = {
-  collectionName: string
-  schema?: ZodType
-  loaderKind: string
-}
+  collectionName: string;
+  schema?: ZodType;
+  loaderKind: string;
+};
 
 /**
  * Walk every collection's `directory + include` patterns and build a lookup
@@ -132,37 +135,37 @@ export async function buildFileSchemaMap(
   collections: LoadedCollections,
   projectRoot: string,
 ): Promise<Map<string, FileSchemaEntry>> {
-  const map = new Map<string, FileSchemaEntry>()
+  const map = new Map<string, FileSchemaEntry>();
   for (const [collectionName, definition] of Object.entries(collections)) {
     const loaderKind =
-      typeof definition.loader === 'string'
+      typeof definition.loader === "string"
         ? definition.loader
-        : (definition.loader?.kind ?? 'data')
-    if (loaderKind !== 'markdown') continue
+        : (definition.loader?.kind ?? "data");
+    if (loaderKind !== "markdown") continue;
 
-    const baseDir = resolve(projectRoot, definition.directory)
-    if (!existsSync(baseDir)) continue
+    const baseDir = resolve(projectRoot, definition.directory);
+    if (!existsSync(baseDir)) continue;
 
-    const include = definition.include ?? ['**/*.md', '**/*.mdx']
-    const exclude = definition.exclude ?? []
+    const include = definition.include ?? ["**/*.md", "**/*.mdx"];
+    const exclude = definition.exclude ?? [];
     const matched = await fg(include, {
       cwd: baseDir,
       absolute: true,
       ignore: exclude,
       onlyFiles: true,
       dot: false,
-    })
+    });
 
     for (const filePath of matched) {
-      if (map.has(filePath)) continue
+      if (map.has(filePath)) continue;
       map.set(filePath, {
         collectionName,
         schema: definition.schema,
         loaderKind,
-      })
+      });
     }
   }
-  return map
+  return map;
 }
 
 /**
@@ -171,20 +174,20 @@ export async function buildFileSchemaMap(
  * back to schema-less structural validation).
  */
 export async function loadContentSchemaMap(searchDirs: readonly string[]): Promise<{
-  configPath: string
-  projectRoot: string
-  collections: LoadedCollections
-  schemaByFile: Map<string, FileSchemaEntry>
+  configPath: string;
+  projectRoot: string;
+  collections: LoadedCollections;
+  schemaByFile: Map<string, FileSchemaEntry>;
 } | null> {
-  const discovered = discoverContentConfig(searchDirs)
-  if (!discovered) return null
-  const collections = await loadContentCollections(discovered.filePath)
-  if (!collections) return null
-  const schemaByFile = await buildFileSchemaMap(collections, dirname(discovered.filePath))
+  const discovered = discoverContentConfig(searchDirs);
+  if (!discovered) return null;
+  const collections = await loadContentCollections(discovered.filePath);
+  if (!collections) return null;
+  const schemaByFile = await buildFileSchemaMap(collections, dirname(discovered.filePath));
   return {
     configPath: discovered.filePath,
     projectRoot: dirname(discovered.filePath),
     collections,
     schemaByFile,
-  }
+  };
 }

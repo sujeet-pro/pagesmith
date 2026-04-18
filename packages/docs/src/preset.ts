@@ -1,12 +1,12 @@
-import type { SiteValidateOptions } from '@pagesmith/site'
-import { build, preview, startDev, type DocsBuildOptions, type DocsDevOptions } from './site'
-import { validateDocs } from './validate'
+import type { SiteValidateOptions } from "@pagesmith/site";
+import { build, preview, startDev, type DocsBuildOptions, type DocsDevOptions } from "./site";
+import { validateDocs } from "./validate";
 
 export interface DocsPreset {
-  build(options?: DocsBuildOptions): Promise<void>
-  dev(options?: DocsDevOptions): Promise<void>
-  preview(options?: DocsDevOptions): Promise<void>
-  validate(options?: SiteValidateOptions): Promise<number>
+  build(options?: DocsBuildOptions): Promise<void>;
+  dev(options?: DocsDevOptions): Promise<void>;
+  preview(options?: DocsDevOptions): Promise<void>;
+  validate(options?: SiteValidateOptions): Promise<number>;
 }
 
 export function docsPreset(): DocsPreset {
@@ -29,11 +29,11 @@ export function docsPreset(): DocsPreset {
         timeoutMs: options?.timeoutMs,
         concurrency: options?.concurrency,
         showClean: options?.showClean,
-      })
-      console.log(
-        `\nSummary: ${result.errors} error(s), ${result.warnings} warning(s) — ${result.passed ? 'PASSED' : 'FAILED'}`,
-      )
-      return result.passed ? 0 : 1
+      });
+      console.info(
+        `\nSummary: ${result.errors} error(s), ${result.warnings} warning(s) — ${result.passed ? "PASSED" : "FAILED"}`,
+      );
+      return result.passed ? 0 : 1;
     },
-  }
+  };
 }

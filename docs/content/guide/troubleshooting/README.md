@@ -22,7 +22,7 @@ This page covers common issues you may encounter when working with Pagesmith and
 
    ```json5 title="pagesmith.config.json5"
    {
-     contentDir: './content',  // Files must be under this path
+     contentDir: "./content", // Files must be under this path
    }
    ```
 
@@ -66,19 +66,19 @@ Error: Cannot find module 'virtual:content/posts'
 
    ```ts title="content.config.ts"
    const posts = defineCollection({
-     loader: 'markdown',
-     directory: 'content/posts',
-   })
+     loader: "markdown",
+     directory: "content/posts",
+   });
 
    export default defineConfig({
-     collections: { posts },  // This name must match the import
-   })
+     collections: { posts }, // This name must match the import
+   });
    ```
 
    ```ts title="app.ts"
    // Must match the key in collections
-   import posts from 'virtual:content/posts'    // Correct
-   import blog from 'virtual:content/blog'      // Wrong -- no collection named 'blog'
+   import posts from "virtual:content/posts"; // Correct
+   import blog from "virtual:content/blog"; // Wrong -- no collection named 'blog'
    ```
 
 2. **Missing `content.config.ts`.** The Vite plugin `pagesmithContent` looks for this file at the project root. Ensure it exists and exports a valid config.
@@ -86,12 +86,12 @@ Error: Cannot find module 'virtual:content/posts'
 3. **Plugin not registered.** Ensure the `pagesmithContent` Vite plugin is in your `vite.config.ts`:
 
    ```ts title="vite.config.ts"
-   import { pagesmithContent } from '@pagesmith/site/vite'
-   import { defineConfig } from 'vite'
+   import { pagesmithContent } from "@pagesmith/site/vite";
+   import { defineConfig } from "vite";
 
    export default defineConfig({
      plugins: [pagesmithContent()],
-   })
+   });
    ```
 
 ### Build fails with validation errors
@@ -115,9 +115,9 @@ Error: Cannot find module 'virtual:content/posts'
    const posts = defineCollection({
      schema: z.object({
        title: z.string(),
-       description: z.string().optional(),  // Now optional
+       description: z.string().optional(), // Now optional
      }),
-   })
+   });
    ```
 
 2. **Type mismatch.** A field value does not match the expected type. Common cases:
@@ -157,7 +157,7 @@ Error: Cannot find module 'virtual:content/posts'
    ```json5 title="pagesmith.config.json5"
    {
      search: {
-       enabled: true,  // Default is true
+       enabled: true, // Default is true
      },
    }
    ```
@@ -178,8 +178,8 @@ Error: Cannot find module 'virtual:content/posts'
    {
      theme: {
        layouts: {
-         home: './theme/layouts/CustomHome.tsx',
-         page: './theme/layouts/CustomPage.tsx',
+         home: "./theme/layouts/CustomHome.tsx",
+         page: "./theme/layouts/CustomPage.tsx",
        },
      },
    }
@@ -187,10 +187,10 @@ Error: Cannot find module 'virtual:content/posts'
 
 2. **Export name mismatch.** The layout module must export the component as `default` or one of the recognized named exports:
 
-   | Layout Key | Accepted Exports |
-   |---|---|
-   | `home` | `default`, `DocHome`, `Home` |
-   | `page` | `default`, `DocPage`, `Page` |
+   | Layout Key | Accepted Exports                     |
+   | ---------- | ------------------------------------ |
+   | `home`     | `default`, `DocHome`, `Home`         |
+   | `page`     | `default`, `DocPage`, `Page`         |
    | `notFound` | `default`, `DocNotFound`, `NotFound` |
 
    ```tsx title="theme/layouts/CustomPage.tsx"
@@ -204,7 +204,7 @@ Error: Cannot find module 'virtual:content/posts'
    ```json5 title="content/blog/meta.json5"
    {
      displayName: "Blog",
-     itemLayout: "blog-post",  // Must exist in theme.layouts
+     itemLayout: "blog-post", // Must exist in theme.layouts
    }
    ```
 
@@ -276,10 +276,10 @@ Error: Cannot find module 'virtual:content/posts'
 
    ```ts title="Strict vs. passthrough"
    // Strict -- extra fields rejected
-   const schema = z.object({ title: z.string() })
+   const schema = z.object({ title: z.string() });
 
    // Passthrough -- extra fields preserved
-   const schema = z.object({ title: z.string() }).passthrough()
+   const schema = z.object({ title: z.string() }).passthrough();
    ```
 
 ## Git-Based Features
@@ -297,7 +297,7 @@ Error: Cannot find module 'virtual:content/posts'
    ```yaml title="GitHub Actions"
    - uses: actions/checkout@v4
      with:
-       fetch-depth: 0  # Full history for accurate timestamps
+       fetch-depth: 0 # Full history for accurate timestamps
    ```
 
 3. **Feature not enabled.** Ensure `lastUpdated` is enabled in your config:

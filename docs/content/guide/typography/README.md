@@ -29,11 +29,11 @@ Use double asterisks for **bold text**. Bold is useful for **key terms**, **impo
 
 ### Italic
 
-Use single asterisks for *italic text*. Italics work well for *emphasis*, *technical terms on first use*, or *publication titles*.
+Use single asterisks for _italic text_. Italics work well for _emphasis_, _technical terms on first use_, or _publication titles_.
 
 ### Bold and Italic
 
-Combine both for ***bold and italic text*** when you need maximum emphasis. Use this sparingly -- if everything is emphasized, nothing is.
+Combine both for **_bold and italic text_** when you need maximum emphasis. Use this sparingly -- if everything is emphasized, nothing is.
 
 ### Inline Code
 
@@ -111,7 +111,7 @@ Images can also be wrapped in links:
 > Even code blocks work:
 >
 > ```ts
-> const message = 'Hello from inside a blockquote'
+> const message = "Hello from inside a blockquote";
 > ```
 
 ## Horizontal Rules

@@ -1,5 +1,5 @@
-import { Fragment, h } from '@pagesmith/docs/jsx-runtime'
-import { Html } from '@pagesmith/docs/theme'
+import { Fragment, h } from "@pagesmith/docs/jsx-runtime";
+import { Html } from "@pagesmith/docs/theme";
 import {
   DocFooter,
   DocHeader,
@@ -8,7 +8,7 @@ import {
   resolveSocialImage,
   toHtmlSite,
   type ExampleSite,
-} from './shared'
+} from "./shared";
 
 /**
  * Inner-page layout override — keeps docs article landmarks (breadcrumbs, TOC,
@@ -17,26 +17,26 @@ import {
  */
 
 type Breadcrumb = {
-  label: string
-  path: string
-}
+  label: string;
+  path: string;
+};
 
 type Props = {
-  content: string
-  frontmatter: Record<string, any>
-  headings: Array<{ depth: number; text: string; slug: string }>
-  slug: string
-  site: ExampleSite
-  pages?: any[]
-  sidebarSections?: any[]
-  prev?: { title: string; path: string }
-  next?: { title: string; path: string }
-  breadcrumbs?: Breadcrumb[]
-  editUrl?: string
-  editLabel?: string
-  lastUpdated?: string
-  [key: string]: any
-}
+  content: string;
+  frontmatter: Record<string, any>;
+  headings: Array<{ depth: number; text: string; slug: string }>;
+  slug: string;
+  site: ExampleSite;
+  pages?: any[];
+  sidebarSections?: any[];
+  prev?: { title: string; path: string };
+  next?: { title: string; path: string };
+  breadcrumbs?: Breadcrumb[];
+  editUrl?: string;
+  editLabel?: string;
+  lastUpdated?: string;
+  [key: string]: any;
+};
 
 export default function DocPage(props: Props) {
   const {
@@ -52,11 +52,11 @@ export default function DocPage(props: Props) {
     editUrl,
     editLabel,
     lastUpdated,
-  } = props
+  } = props;
 
-  const pageTitle = frontmatter.title ? `${frontmatter.title} — ${site.title}` : site.title
-  const socialImage = resolveSocialImage(site, frontmatter.socialImage)
-  const htmlSite = toHtmlSite(site)
+  const pageTitle = frontmatter.title ? `${frontmatter.title} — ${site.title}` : site.title;
+  const socialImage = resolveSocialImage(site, frontmatter.socialImage);
+  const htmlSite = toHtmlSite(site);
 
   return (
     <Html
@@ -92,7 +92,7 @@ export default function DocPage(props: Props) {
                         /
                       </span>
                     ) : null}
-                    <a href={`${crumb.path}/`}>{crumb.label}</a>
+                    <a href={crumb.path}>{crumb.label}</a>
                   </Fragment>
                 ) : (
                   <Fragment>
@@ -138,5 +138,5 @@ export default function DocPage(props: Props) {
         </aside>
       </div>
     </Html>
-  )
+  );
 }

@@ -6,4 +6,4 @@
  * site chrome runtime plus the content/code-block enhancements.
  */
 
-import '@pagesmith/site/runtime/standalone'
+import "@pagesmith/site/runtime/standalone";

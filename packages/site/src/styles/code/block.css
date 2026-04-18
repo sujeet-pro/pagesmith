@@ -16,18 +16,17 @@
     var(--ps-code-bg) 72%,
     var(--color-border-subtle, CanvasText) 14%
   );
-  --ps-code-toolbar-bg: color-mix(
-    in srgb,
-    var(--ps-code-bg) 60%,
-    var(--color-bg-alt, Canvas) 40%
-  );
+  --ps-code-toolbar-bg: color-mix(in srgb, var(--ps-code-bg) 60%, var(--color-bg-alt, Canvas) 40%);
   --ps-code-toolbar-border: color-mix(
     in srgb,
     var(--ps-code-border) 24%,
     var(--color-border, CanvasText) 76%
   );
   --ps-code-toolbar-fg: color-mix(in srgb, var(--ps-code-fg) 94%, Canvas 6%);
-  --ps-code-gutter-fg: color-mix(in srgb, var(--ps-code-fg) 42%, Canvas 58%);
+  /* WCAG 2.2 AA: gutter must clear 4.5:1 against the code background. The
+     prior 42/58 mix landed around ~3.5:1 in light mode — 70/30 keeps the
+     line numbers visually de-emphasized while clearing the threshold. */
+  --ps-code-gutter-fg: color-mix(in srgb, var(--ps-code-fg) 70%, Canvas 30%);
   position: relative;
   margin-block: 1.5rem;
   border: 1px solid var(--ps-code-border);
@@ -37,7 +36,7 @@
   color: var(--ps-code-fg);
 }
 
-.ps-code-block[data-ps-code-frame='plain'] {
+.ps-code-block[data-ps-code-frame="plain"] {
   border: none;
   background: transparent;
 }
@@ -193,21 +192,21 @@
   display: none;
 }
 
-.ps-code-copy[data-copy-state='copied'] .ps-code-copy-icon:not(.ps-code-copy-icon--copied) {
+.ps-code-copy[data-copy-state="copied"] .ps-code-copy-icon:not(.ps-code-copy-icon--copied) {
   display: none;
 }
 
-.ps-code-copy[data-copy-state='copied'] .ps-code-copy-icon--copied {
+.ps-code-copy[data-copy-state="copied"] .ps-code-copy-icon--copied {
   display: block;
   color: #10b981;
 }
 
-.ps-code-copy[data-copy-state='copied'] {
+.ps-code-copy[data-copy-state="copied"] {
   border-color: color-mix(in srgb, #10b981 44%, transparent);
   background: color-mix(in srgb, #10b981 18%, var(--ps-code-bg) 82%);
 }
 
-.ps-code-copy[data-copy-state='error'] {
+.ps-code-copy[data-copy-state="error"] {
   border-color: color-mix(in srgb, #ef4444 44%, transparent);
   background: color-mix(in srgb, #ef4444 14%, var(--ps-code-bg) 86%);
 }
@@ -230,7 +229,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.ps-code-block[data-ps-code-frame='plain'] .ps-code-pre {
+.ps-code-block[data-ps-code-frame="plain"] .ps-code-pre {
   padding-top: 2.75rem;
   border-radius: var(--ps-code-radius);
 }
@@ -257,7 +256,7 @@
   min-width: max-content;
 }
 
-.ps-code-block[data-ps-code-line-numbers='false'] .ps-code-line {
+.ps-code-block[data-ps-code-line-numbers="false"] .ps-code-line {
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -275,26 +274,26 @@
   white-space: pre;
 }
 
-.ps-code-block[data-ps-code-line-numbers='false'] .ps-code-line-content {
+.ps-code-block[data-ps-code-line-numbers="false"] .ps-code-line-content {
   padding-left: 1rem;
 }
 
-.ps-code-block[data-ps-code-wrap='true'] .ps-code-code {
+.ps-code-block[data-ps-code-wrap="true"] .ps-code-code {
   min-width: 100%;
 }
 
-.ps-code-block[data-ps-code-wrap='true'] .ps-code-line {
+.ps-code-block[data-ps-code-wrap="true"] .ps-code-line {
   min-width: 0;
 }
 
-.ps-code-block[data-ps-code-wrap='true'] .ps-code-line-content {
+.ps-code-block[data-ps-code-wrap="true"] .ps-code-line-content {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
 .ps-code-line-content:empty::after {
-  content: ' ';
+  content: " ";
   white-space: pre;
 }
 
@@ -350,7 +349,7 @@
   color: var(--shiki-dark) !important;
 }
 
-.color-scheme-dark .ps-code-pre span[style*='--shiki-dark:'] {
+.color-scheme-dark .ps-code-pre span[style*="--shiki-dark:"] {
   color: var(--shiki-dark) !important;
 }
 
@@ -365,7 +364,31 @@
     color: var(--shiki-dark) !important;
   }
 
-  .color-scheme-auto .ps-code-pre span[style*='--shiki-dark:'] {
+  .color-scheme-auto .ps-code-pre span[style*="--shiki-dark:"] {
     color: var(--shiki-dark) !important;
+  }
+}
+
+/* WCAG 2.2 AA contrast override: the default Shiki `github-light` /
+   `github-dark` themes both use #6A737D for code comments. That hits ~4.4:1
+   on `#fff` (light) and ~3.7:1 on `#24292e` (dark) — failing 4.5:1 normal
+   text contrast. Promote the comment color to a token Pagesmith can tune
+   without forking Shiki theme JSON. The first light/dark pair below clears
+   ≥4.5:1 against the default github backgrounds; sites can override the
+   tokens via `:root { --ps-code-comment-light: …; --ps-code-comment-dark: …; }`. */
+.ps-code-pre span[style*="#6A737D"],
+.ps-code-pre span[style*="#6a737d"] {
+  color: var(--ps-code-comment-light, #5e6770) !important;
+}
+
+.color-scheme-dark .ps-code-pre span[style*="#6A737D"],
+.color-scheme-dark .ps-code-pre span[style*="#6a737d"] {
+  color: var(--ps-code-comment-dark, #9aa3ab) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .color-scheme-auto .ps-code-pre span[style*="#6A737D"],
+  .color-scheme-auto .ps-code-pre span[style*="#6a737d"] {
+    color: var(--ps-code-comment-dark, #9aa3ab) !important;
   }
 }

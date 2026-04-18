@@ -1,21 +1,21 @@
 {
-  displayName: 'Guide',
-  orderBy: 'manual',
+  displayName: "Guide",
+  orderBy: "manual",
   series: [
     {
-      slug: 'getting-started',
-      displayName: 'Getting Started',
-      articles: ['installation', 'project-structure', 'content-collections'],
+      slug: "getting-started",
+      displayName: "Getting Started",
+      articles: ["installation", "project-structure", "content-collections"],
     },
     {
-      slug: 'customization',
-      displayName: 'Customization',
-      articles: ['layouts-and-rendering', 'configuration', 'search-integration'],
+      slug: "customization",
+      displayName: "Customization",
+      articles: ["layouts-and-rendering", "configuration", "search-integration"],
     },
     {
-      slug: 'markdown-showcase',
-      displayName: 'Markdown Showcase',
-      articles: ['kitchen-sink'],
+      slug: "markdown-showcase",
+      displayName: "Markdown Showcase",
+      articles: ["kitchen-sink"],
     },
   ],
 }

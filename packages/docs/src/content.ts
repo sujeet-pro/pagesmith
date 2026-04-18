@@ -1,114 +1,114 @@
-import { extractFrontmatter } from '@pagesmith/core'
-import { processMarkdown, type MarkdownConfig } from '@pagesmith/core/markdown'
-import type { Heading } from '@pagesmith/core/schemas'
+import { extractFrontmatter } from "@pagesmith/core";
+import { processMarkdown, type MarkdownConfig } from "@pagesmith/core/markdown";
+import type { Heading } from "@pagesmith/core/schemas";
 import type {
   SiteNavItem as NavItem,
   SitePageLink as PrevNextLink,
   SiteSidebarItem as SidebarItem,
   SiteSidebarSection as SidebarSection,
-} from '@pagesmith/site/components'
-import { execFileSync } from 'child_process'
-import { existsSync, readFileSync, readdirSync } from 'fs'
-import { availableParallelism } from 'os'
-import { extname, join, relative, resolve } from 'path'
-import { collectContentAssets as collectAssets, CONTENT_ASSET_EXTS } from '@pagesmith/core/assets'
-import { readJson5File, toTitleCase, type ResolvedDocsConfig } from './config.js'
-import { runWithDocsTransformContext } from './markdown/plugins/context.js'
-import { rehypeAssetTransform, rehypeLinkTransform } from './markdown/plugins/index.js'
+} from "@pagesmith/site/components";
+import { execFileSync } from "child_process";
+import { existsSync, readFileSync, readdirSync } from "fs";
+import { availableParallelism } from "os";
+import { extname, join, relative, resolve } from "path";
+import { collectContentAssets as collectAssets, CONTENT_ASSET_EXTS } from "@pagesmith/core/assets";
+import { readJson5File, toTitleCase, type ResolvedDocsConfig } from "./config.js";
+import { runWithDocsTransformContext } from "./markdown/plugins/context.js";
+import { rehypeAssetTransform, rehypeLinkTransform } from "./markdown/plugins/index.js";
 import {
   DocsFrontmatterSchema,
   type DocsFrontmatter,
   type DocsRootMeta,
   type DocsSectionMeta,
-} from './schemas/docs-content.js'
+} from "./schemas/docs-content.js";
 
-export { CONTENT_ASSET_EXTS }
-export { DocsFrontmatterSchema } from './schemas/docs-content.js'
-export type { DocsFrontmatter, DocsRootMeta, DocsSectionMeta } from './schemas/docs-content.js'
-export type { NavItem, SidebarItem, SidebarSection, PrevNextLink }
+export { CONTENT_ASSET_EXTS };
+export { DocsFrontmatterSchema } from "./schemas/docs-content.js";
+export type { DocsFrontmatter, DocsRootMeta, DocsSectionMeta } from "./schemas/docs-content.js";
+export type { NavItem, SidebarItem, SidebarSection, PrevNextLink };
 
 export type DocsPage = {
-  title: string
-  routePath: string
-  contentSlug: string
-  section?: string
-  frontmatter: DocsFrontmatter
-  html: string
-  headings: Heading[]
-  sourcePath: string
-  isHome: boolean
-  layoutName: string
-  lastUpdated?: string
-}
+  title: string;
+  routePath: string;
+  contentSlug: string;
+  section?: string;
+  frontmatter: DocsFrontmatter;
+  html: string;
+  headings: Heading[];
+  sourcePath: string;
+  isHome: boolean;
+  layoutName: string;
+  lastUpdated?: string;
+};
 
 export type SiteModel = {
-  navItems: NavItem[]
-  sidebarBySection: Map<string, SidebarSection[]>
-  pageByPath: Map<string, DocsPage>
+  navItems: NavItem[];
+  sidebarBySection: Map<string, SidebarSection[]>;
+  pageByPath: Map<string, DocsPage>;
   /** Maps folder slugs to resolved URL paths (with basePath). Folders without an index page resolve to their first child page. */
-  folderPaths: Map<string, string>
-  rootMeta?: DocsRootMeta
-  sectionMetas: Map<string, DocsSectionMeta>
-}
+  folderPaths: Map<string, string>;
+  rootMeta?: DocsRootMeta;
+  sectionMetas: Map<string, DocsSectionMeta>;
+};
 
 function shouldIgnoreContentEntry(name: string): boolean {
-  return name.startsWith('.') || name.startsWith('_')
+  return name.startsWith(".") || name.startsWith("_");
 }
 
 export function toContentSlug(filePath: string, contentDir: string): string {
-  const ext = extname(filePath)
-  let slug = relative(contentDir, filePath).replace(/\\/g, '/')
+  const ext = extname(filePath);
+  let slug = relative(contentDir, filePath).replace(/\\/g, "/");
 
   if (ext) {
-    slug = slug.slice(0, -ext.length)
+    slug = slug.slice(0, -ext.length);
   }
 
-  if (slug === 'README' || slug === 'index') return '/'
-  if (slug.endsWith('/README')) slug = slug.slice(0, -7)
-  if (slug.endsWith('/index')) slug = slug.slice(0, -6)
+  if (slug === "README" || slug === "index") return "/";
+  if (slug.endsWith("/README")) slug = slug.slice(0, -7);
+  if (slug.endsWith("/index")) slug = slug.slice(0, -6);
 
-  return slug
+  return slug;
 }
 
 export function loadRootMeta(contentDir: string): DocsRootMeta | undefined {
-  return readJson5File<DocsRootMeta>(join(contentDir, 'meta.json5'))
+  return readJson5File<DocsRootMeta>(join(contentDir, "meta.json5"));
 }
 
 export function loadSectionMetas(contentDir: string): Map<string, DocsSectionMeta> {
-  const metas = new Map<string, DocsSectionMeta>()
-  if (!existsSync(contentDir)) return metas
+  const metas = new Map<string, DocsSectionMeta>();
+  if (!existsSync(contentDir)) return metas;
   for (const entry of readdirSync(contentDir, { withFileTypes: true })) {
-    if (!entry.isDirectory() || shouldIgnoreContentEntry(entry.name)) continue
-    const meta = readJson5File<DocsSectionMeta>(join(contentDir, entry.name, 'meta.json5'))
-    if (meta) metas.set(entry.name, meta)
+    if (!entry.isDirectory() || shouldIgnoreContentEntry(entry.name)) continue;
+    const meta = readJson5File<DocsSectionMeta>(join(contentDir, entry.name, "meta.json5"));
+    if (meta) metas.set(entry.name, meta);
   }
-  return metas
+  return metas;
 }
 
 function collectMarkdownFiles(contentDir: string): string[] {
-  const files: string[] = []
+  const files: string[] = [];
 
   function walk(currentDir: string): void {
     for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
-      if (shouldIgnoreContentEntry(entry.name)) continue
-      const fullPath = join(currentDir, entry.name)
+      if (shouldIgnoreContentEntry(entry.name)) continue;
+      const fullPath = join(currentDir, entry.name);
 
       if (entry.isDirectory()) {
-        walk(fullPath)
-        continue
+        walk(fullPath);
+        continue;
       }
 
-      if (entry.name.endsWith('.md')) {
-        files.push(fullPath)
+      if (entry.name.endsWith(".md")) {
+        files.push(fullPath);
       }
     }
   }
 
   if (existsSync(contentDir)) {
-    walk(contentDir)
+    walk(contentDir);
   }
 
-  return files.sort()
+  return files.sort();
 }
 
 function resolvePageSection(
@@ -116,55 +116,55 @@ function resolvePageSection(
   contentDir: string,
   isHome: boolean,
 ): string | undefined {
-  if (isHome) return undefined
+  if (isHome) return undefined;
 
-  const relativePath = relative(contentDir, filePath).replace(/\\/g, '/')
-  const segments = relativePath.split('/')
+  const relativePath = relative(contentDir, filePath).replace(/\\/g, "/");
+  const segments = relativePath.split("/");
 
   // Top-level folders define docs categories. Root-level markdown files are still
   // valid pages, but they do not become top-level navigation categories.
-  return segments.length > 1 ? segments[0] : undefined
+  return segments.length > 1 ? segments[0] : undefined;
 }
 
-const GIT_LOG_MARKER = '__PAGESMITH_COMMIT__'
+const GIT_LOG_MARKER = "__PAGESMITH_COMMIT__";
 
 function getGitLastUpdatedMap(rootDir: string, contentDir: string): Map<string, string> {
-  const updated = new Map<string, string>()
+  const updated = new Map<string, string>();
 
   try {
-    const target = relative(rootDir, contentDir) || '.'
+    const target = relative(rootDir, contentDir) || ".";
     const output = execFileSync(
-      'git',
-      ['log', `--format=${GIT_LOG_MARKER}%n%cI`, '--name-only', '--', target],
+      "git",
+      ["log", `--format=${GIT_LOG_MARKER}%n%cI`, "--name-only", "--", target],
       {
         cwd: rootDir,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
+        encoding: "utf-8",
+        stdio: ["pipe", "pipe", "pipe"],
       },
-    )
+    );
 
-    let currentDate: string | undefined
-    let expectingDate = false
+    let currentDate: string | undefined;
+    let expectingDate = false;
 
     for (const rawLine of output.split(/\r?\n/)) {
-      const line = rawLine.trim()
-      if (!line) continue
+      const line = rawLine.trim();
+      if (!line) continue;
 
       if (line === GIT_LOG_MARKER) {
-        expectingDate = true
-        continue
+        expectingDate = true;
+        continue;
       }
 
       if (expectingDate) {
-        currentDate = line
-        expectingDate = false
-        continue
+        currentDate = line;
+        expectingDate = false;
+        continue;
       }
 
-      if (!currentDate) continue
-      const filePath = resolve(rootDir, rawLine)
+      if (!currentDate) continue;
+      const filePath = resolve(rootDir, rawLine);
       if (!updated.has(filePath)) {
-        updated.set(filePath, currentDate)
+        updated.set(filePath, currentDate);
       }
     }
   } catch {
@@ -172,12 +172,12 @@ function getGitLastUpdatedMap(rootDir: string, contentDir: string): Map<string, 
     // target path has no tracked history.
   }
 
-  return updated
+  return updated;
 }
 
 function toDisplaySourcePath(filePath: string, rootDir: string): string {
-  const displayPath = relative(rootDir, filePath).replace(/\\/g, '/')
-  return displayPath || filePath.replace(/\\/g, '/')
+  const displayPath = relative(rootDir, filePath).replace(/\\/g, "/");
+  return displayPath || filePath.replace(/\\/g, "/");
 }
 
 function wrapMarkdownFileError(
@@ -186,19 +186,19 @@ function wrapMarkdownFileError(
   action: string,
   error: unknown,
 ): Error {
-  const displayPath = toDisplaySourcePath(filePath, rootDir)
+  const displayPath = toDisplaySourcePath(filePath, rootDir);
   if (error instanceof Error && error.message.includes(displayPath)) {
-    return error
+    return error;
   }
 
   const message =
     error instanceof Error
       ? `${action} in ${displayPath}`
-      : `${action} in ${displayPath}: ${String(error)}`
+      : `${action} in ${displayPath}: ${String(error)}`;
 
   return new Error(message, {
     cause: error instanceof Error ? error : undefined,
-  })
+  });
 }
 
 /**
@@ -210,19 +210,19 @@ async function mapWithConcurrency<T, R>(
   concurrency: number,
   fn: (item: T) => Promise<R>,
 ): Promise<R[]> {
-  const results: R[] = Array.from({ length: items.length })
-  let index = 0
+  const results: R[] = Array.from({ length: items.length });
+  let index = 0;
 
   async function worker(): Promise<void> {
     while (index < items.length) {
-      const i = index++
-      results[i] = await fn(items[i])
+      const i = index++;
+      results[i] = await fn(items[i]);
     }
   }
 
-  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker())
-  await Promise.all(workers)
-  return results
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
 }
 
 /**
@@ -239,22 +239,22 @@ export function buildBreadcrumbs(
   basePath: string,
   folderPaths?: Map<string, string>,
 ): Array<{ label: string; path: string }> {
-  if (contentSlug === '/') return []
+  if (contentSlug === "/") return [];
 
-  const segments = contentSlug.split('/')
-  const crumbs: Array<{ label: string; path: string }> = []
+  const segments = contentSlug.split("/");
+  const crumbs: Array<{ label: string; path: string }> = [];
 
   for (let i = 0; i < segments.length - 1; i++) {
-    const slug = segments.slice(0, i + 1).join('/')
+    const slug = segments.slice(0, i + 1).join("/");
     crumbs.push({
       label: toTitleCase(segments[i]),
       path: folderPaths?.get(slug) ?? `${basePath}/${slug}`,
-    })
+    });
   }
 
   // Current page (no link)
-  crumbs.push({ label: title, path: '' })
-  return crumbs
+  crumbs.push({ label: title, path: "" });
+  return crumbs;
 }
 
 export async function loadDocsPages(
@@ -263,13 +263,13 @@ export async function loadDocsPages(
 ): Promise<DocsPage[]> {
   const homeConfig = config.homeConfigFile
     ? readJson5File<Record<string, unknown>>(config.homeConfigFile)
-    : undefined
+    : undefined;
 
-  const files = collectMarkdownFiles(config.contentDir)
-  const concurrency = Math.max(1, availableParallelism() * 2)
+  const files = collectMarkdownFiles(config.contentDir);
+  const concurrency = Math.max(1, availableParallelism() * 2);
   const lastUpdatedByFile = config.lastUpdated
     ? getGitLastUpdatedMap(config.rootDir, config.contentDir)
-    : undefined
+    : undefined;
 
   // Build a single shared config — same object reference enables the processor
   // WeakMap cache so the expensive markdown processor and Shiki setup run only once.
@@ -277,46 +277,46 @@ export async function loadDocsPages(
     ...(config.markdown ?? {}),
     shiki: {
       themes: config.markdown?.shiki?.themes ?? {
-        light: 'github-light',
-        dark: 'github-dark',
+        light: "github-light",
+        dark: "github-dark",
       },
       defaultShowLineNumbers: config.markdown?.shiki?.defaultShowLineNumbers,
       langAlias: config.markdown?.shiki?.langAlias,
     },
     rehypePlugins: [rehypeLinkTransform, rehypeAssetTransform],
-  }
+  };
 
   // Process markdown files with bounded concurrency to manage memory at scale
   const results = await mapWithConcurrency(files, concurrency, async (filePath) => {
-    let raw: string
+    let raw: string;
     try {
-      raw = readFileSync(filePath, 'utf-8')
+      raw = readFileSync(filePath, "utf-8");
     } catch (error) {
-      throw wrapMarkdownFileError(filePath, config.rootDir, 'Failed to read markdown file', error)
+      throw wrapMarkdownFileError(filePath, config.rootDir, "Failed to read markdown file", error);
     }
 
     // Extract frontmatter early to skip expensive markdown processing for drafts
-    let extracted: ReturnType<typeof extractFrontmatter>
+    let extracted: ReturnType<typeof extractFrontmatter>;
     try {
-      extracted = extractFrontmatter(raw)
+      extracted = extractFrontmatter(raw);
     } catch (error) {
-      throw wrapMarkdownFileError(filePath, config.rootDir, 'Failed to parse frontmatter', error)
+      throw wrapMarkdownFileError(filePath, config.rootDir, "Failed to parse frontmatter", error);
     }
 
-    let earlyFrontmatter: DocsFrontmatter
+    let earlyFrontmatter: DocsFrontmatter;
     try {
-      earlyFrontmatter = DocsFrontmatterSchema.parse(extracted.frontmatter ?? {})
+      earlyFrontmatter = DocsFrontmatterSchema.parse(extracted.frontmatter ?? {});
     } catch (error) {
-      throw wrapMarkdownFileError(filePath, config.rootDir, 'Invalid frontmatter', error)
+      throw wrapMarkdownFileError(filePath, config.rootDir, "Invalid frontmatter", error);
     }
-    const contentSlug = toContentSlug(filePath, config.contentDir)
-    const isHome = contentSlug === '/'
+    const contentSlug = toContentSlug(filePath, config.contentDir);
+    const isHome = contentSlug === "/";
 
     const frontmatter =
-      isHome && homeConfig ? { ...homeConfig, ...earlyFrontmatter } : earlyFrontmatter
-    if (frontmatter.draft) return null
+      isHome && homeConfig ? { ...homeConfig, ...earlyFrontmatter } : earlyFrontmatter;
+    if (frontmatter.draft) return null;
 
-    let result: Awaited<ReturnType<typeof processMarkdown>>
+    let result: Awaited<ReturnType<typeof processMarkdown>>;
     try {
       result = await runWithDocsTransformContext(
         {
@@ -334,38 +334,38 @@ export async function loadDocsPages(
               pagesmithAssetRoot: config.contentDir,
             },
           }),
-      )
+      );
     } catch (error) {
-      throw wrapMarkdownFileError(filePath, config.rootDir, 'Failed to render markdown', error)
+      throw wrapMarkdownFileError(filePath, config.rootDir, "Failed to render markdown", error);
     }
-    const html = result.html
+    const html = result.html;
 
-    const routePath = isHome ? '/' : `/${contentSlug}`
-    const section = resolvePageSection(filePath, config.contentDir, isHome)
+    const routePath = isHome ? "/" : `/${contentSlug}`;
+    const section = resolvePageSection(filePath, config.contentDir, isHome);
     const title =
       frontmatter.title ??
-      (isHome ? config.title : toTitleCase(contentSlug.split('/').at(-1) ?? section ?? 'Home'))
+      (isHome ? config.title : toTitleCase(contentSlug.split("/").at(-1) ?? section ?? "Home"));
 
     // Resolve layout name: page frontmatter wins, then section meta defaults.
-    const sectionMeta = section ? sectionMetas?.get(section) : undefined
-    const isLanding = section != null && contentSlug === section
+    const sectionMeta = section ? sectionMetas?.get(section) : undefined;
+    const isLanding = section != null && contentSlug === section;
     const fmLayout =
-      typeof frontmatter.layout === 'string' && frontmatter.layout ? frontmatter.layout : undefined
-    let layoutName: string
+      typeof frontmatter.layout === "string" && frontmatter.layout ? frontmatter.layout : undefined;
+    let layoutName: string;
     if (isHome) {
-      layoutName = fmLayout ?? 'home'
+      layoutName = fmLayout ?? "home";
     } else if (fmLayout) {
-      layoutName = fmLayout
+      layoutName = fmLayout;
     } else if (isLanding && sectionMeta?.layout) {
-      layoutName = sectionMeta.layout
+      layoutName = sectionMeta.layout;
     } else if (!isLanding && sectionMeta?.itemLayout) {
-      layoutName = sectionMeta.itemLayout
+      layoutName = sectionMeta.itemLayout;
     } else {
-      layoutName = 'page'
+      layoutName = "page";
     }
 
     // Git last-updated timestamp (only when enabled)
-    const lastUpdated = config.lastUpdated ? lastUpdatedByFile?.get(filePath) : undefined
+    const lastUpdated = config.lastUpdated ? lastUpdatedByFile?.get(filePath) : undefined;
 
     return {
       title,
@@ -379,16 +379,16 @@ export async function loadDocsPages(
       isHome,
       layoutName,
       lastUpdated,
-    } as DocsPage
-  })
+    } as DocsPage;
+  });
 
-  const pages: DocsPage[] = []
+  const pages: DocsPage[] = [];
   for (const result of results) {
-    if (result != null) pages.push(result)
+    if (result != null) pages.push(result);
   }
-  return pages.sort((left, right) => left.routePath.localeCompare(right.routePath))
+  return pages.sort((left, right) => left.routePath.localeCompare(right.routePath));
 }
 
 export function collectContentAssets(contentDir: string) {
-  return collectAssets([contentDir])
+  return collectAssets([contentDir]);
 }

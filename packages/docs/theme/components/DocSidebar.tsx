@@ -1,1 +1,1 @@
-export { DocSidebar } from '@pagesmith/docs/components'
+export { DocSidebar } from "@pagesmith/docs/components";

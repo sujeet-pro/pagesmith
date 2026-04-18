@@ -1,1 +1,1 @@
-export { Html } from '@pagesmith/docs/components'
+export { Html } from "@pagesmith/docs/components";

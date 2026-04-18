@@ -1,16 +1,16 @@
-import '@pagesmith/site/css/content'
-import './globals.css'
-import Link from 'next/link'
-import { PagesmithContentRuntime } from '../components/pagesmith-content-runtime'
+import "@pagesmith/site/css/content";
+import "./globals.css";
+import Link from "next/link";
+import { PagesmithContentRuntime } from "../components/pagesmith-content-runtime";
 
 export const metadata = {
   title: {
-    default: 'Pagesmith + Next.js',
-    template: '%s | Pagesmith + Next.js',
+    default: "Pagesmith + Next.js",
+    template: "%s | Pagesmith + Next.js",
   },
   description:
-    'Render local markdown in a Next.js App Router project with @pagesmith/site plus the shared Pagesmith content runtime helpers.',
-}
+    "Render local markdown in a Next.js App Router project with @pagesmith/site plus the shared Pagesmith content runtime helpers.",
+};
 
 export default function RootLayout({ children }) {
   return (
@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
         <main className="site-main">{children}</main>
         <footer className="site-footer">
           <p>
-            Shared markdown CSS, code-block runtime, and content loading all come from{' '}
+            Shared markdown CSS, code-block runtime, and content loading all come from{" "}
             <code>@pagesmith/site</code>, while routing, layout, and page chrome stay native to
             Next.js.
           </p>
@@ -37,5 +37,5 @@ export default function RootLayout({ children }) {
         <PagesmithContentRuntime />
       </body>
     </html>
-  )
+  );
 }

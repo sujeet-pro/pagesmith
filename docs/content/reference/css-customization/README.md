@@ -77,8 +77,8 @@ Colors use the `light-dark()` function, so they automatically adapt to the user'
 ```css title="Typography tokens"
 :root {
   /* Font families */
-  --font-sans: 'Open Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+  --font-sans: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
 
   /* Font sizes */
   --font-size-xs: 0.75rem;
@@ -108,25 +108,25 @@ Colors use the `light-dark()` function, so they automatically adapt to the user'
 
 `@pagesmith/site` exposes several CSS entry points through its package `exports` map. These are used directly by `@pagesmith/docs` but can also be imported in custom sites built on `@pagesmith/site`'s app-facing surface.
 
-| Import Path | Contents |
-|---|---|
-| `@pagesmith/site/css/content` | Prose typography, inline code, viewport base, reset |
+| Import Path                      | Contents                                                    |
+| -------------------------------- | ----------------------------------------------------------- |
+| `@pagesmith/site/css/content`    | Prose typography, inline code, viewport base, reset         |
 | `@pagesmith/site/css/standalone` | Full standalone bundle: reset + prose + code + layout + TOC |
-| `@pagesmith/site/css/viewport` | Responsive viewport base only |
-| `@pagesmith/site/css/fonts` | Bundled Open Sans and JetBrains Mono font-face declarations |
+| `@pagesmith/site/css/viewport`   | Responsive viewport base only                               |
+| `@pagesmith/site/css/fonts`      | Bundled Open Sans and JetBrains Mono font-face declarations |
 
 In a Vite-based project, import these directly in your CSS:
 
 ```css title="styles/main.css"
-@import '@pagesmith/site/css/content';
-@import '@pagesmith/site/css/fonts';
+@import "@pagesmith/site/css/content";
+@import "@pagesmith/site/css/fonts";
 ```
 
 Or in JavaScript/TypeScript:
 
 ```ts title="main.ts"
-import '@pagesmith/site/css/content'
-import '@pagesmith/site/css/fonts'
+import "@pagesmith/site/css/content";
+import "@pagesmith/site/css/fonts";
 ```
 
 ## Overriding Theme Styles
@@ -138,7 +138,7 @@ For `@pagesmith/docs` sites, the recommended approach is to create a custom CSS 
 For sites built on `@pagesmith/site`, add your overrides after the Pagesmith imports:
 
 ```css title="styles/custom.css"
-@import '@pagesmith/site/css/content';
+@import "@pagesmith/site/css/content";
 
 /* Override accent color */
 :root {
@@ -174,8 +174,8 @@ The `theme.lightColor` and `theme.darkColor` config fields control the `<meta na
 ```json5 title="pagesmith.config.json5"
 {
   theme: {
-    lightColor: '#ffffff',
-    darkColor: '#0a0a0a',
+    lightColor: "#ffffff",
+    darkColor: "#0a0a0a",
   },
 }
 ```
@@ -243,8 +243,8 @@ Configure different themes in your config:
   markdown: {
     shiki: {
       themes: {
-        light: 'github-light',
-        dark: 'github-dark-dimmed',
+        light: "github-light",
+        dark: "github-dark-dimmed",
       },
     },
   },
@@ -266,19 +266,19 @@ The built-in renderer and shared code block styles read CSS custom properties fo
 
 The default code block chrome uses these variables:
 
-| CSS Variable | Used For |
-|---|---|
-| `--ps-font-sans` | Toolbar labels, line numbers, copy/collapse controls |
-| `--ps-font-mono` | Code text |
-| `--ps-font-size-sm` | Code text and toolbar sizing |
-| `--ps-radius-lg` | Code block border radius |
-| `--ps-color-border-subtle` | Borders and subtle chrome accents |
+| CSS Variable               | Used For                                             |
+| -------------------------- | ---------------------------------------------------- |
+| `--ps-font-sans`           | Toolbar labels, line numbers, copy/collapse controls |
+| `--ps-font-mono`           | Code text                                            |
+| `--ps-font-size-sm`        | Code text and toolbar sizing                         |
+| `--ps-radius-lg`           | Code block border radius                             |
+| `--ps-color-border-subtle` | Borders and subtle chrome accents                    |
 
 To adjust code block appearance, define the `--ps-*` custom properties:
 
 ```css
 :root {
-  --ps-font-mono: 'Fira Code', monospace;
+  --ps-font-mono: "Fira Code", monospace;
   --ps-font-size-sm: 0.8rem;
   --ps-radius-lg: 8px;
 }
@@ -302,10 +302,10 @@ Inline code (backtick-delimited) is styled by the core CSS, not the code block r
 Override `--font-sans` to change the body text font. If using a custom font, load it via `@font-face` or a CSS import:
 
 ```css title="styles/custom-fonts.css"
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
 }
 ```
 
@@ -315,7 +315,7 @@ Override `--font-mono` for both inline code and code blocks (via the `--ps-font-
 
 ```css
 :root {
-  --font-mono: 'Fira Code', 'Cascadia Code', monospace;
+  --font-mono: "Fira Code", "Cascadia Code", monospace;
   --ps-font-mono: var(--font-mono);
 }
 ```
@@ -326,9 +326,9 @@ The type scale uses `rem` units anchored to the browser's base font size (typica
 
 ```css
 :root {
-  --font-size-base: 1.0625rem;  /* 17px */
-  --font-size-sm: 0.9375rem;    /* 15px */
-  --font-size-lg: 1.1875rem;    /* 19px */
+  --font-size-base: 1.0625rem; /* 17px */
+  --font-size-sm: 0.9375rem; /* 15px */
+  --font-size-lg: 1.1875rem; /* 19px */
 }
 ```
 

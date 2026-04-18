@@ -1,1 +1,1 @@
-export * from '@pagesmith/core/assets'
+export * from "@pagesmith/core/assets";

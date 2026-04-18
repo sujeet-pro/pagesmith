@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 // ── Base frontmatter (required for all content items) ──
 
@@ -11,9 +11,9 @@ export const BaseFrontmatterSchema = z
     tags: z.array(z.string()).default([]),
     draft: z.boolean().optional().default(false),
   })
-  .passthrough()
+  .passthrough();
 
-export type BaseFrontmatter = z.infer<typeof BaseFrontmatterSchema>
+export type BaseFrontmatter = z.infer<typeof BaseFrontmatterSchema>;
 
 // ── Project frontmatter (extends base with project-specific fields) ──
 
@@ -27,9 +27,9 @@ export const ProjectFrontmatterSchema = BaseFrontmatterSchema.extend({
       }),
     )
     .optional(),
-})
+});
 
-export type ProjectFrontmatter = z.infer<typeof ProjectFrontmatterSchema>
+export type ProjectFrontmatter = z.infer<typeof ProjectFrontmatterSchema>;
 
 // ── Blog frontmatter (extends base with blog-specific fields) ──
 
@@ -37,6 +37,6 @@ export const BlogFrontmatterSchema = BaseFrontmatterSchema.extend({
   category: z.string().optional(),
   featured: z.boolean().optional(),
   coverImage: z.string().optional(),
-})
+});
 
-export type BlogFrontmatter = z.infer<typeof BlogFrontmatterSchema>
+export type BlogFrontmatter = z.infer<typeof BlogFrontmatterSchema>;

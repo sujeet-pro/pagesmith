@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite-plus'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { defineConfig } from "vite-plus";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 // Vite is the single build runner: client assets + post-build SSG from
 // `src/entry-server.tsx`. `sharedAssetsPlugin` copies core font/CSS assets;
@@ -7,13 +7,13 @@ import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 // then runs Pagefind (see `SsgRenderConfig.searchEnabled` in the SSR entry).
 
 export default defineConfig({
-  base: '/pagesmith/examples/vanilla-ejs',
+  base: "/pagesmith/examples/vanilla-ejs",
   plugins: [
     sharedAssetsPlugin(),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   build: {
-    outDir: '../../../gh-pages/examples/vanilla-ejs',
+    outDir: "../../../gh-pages/examples/vanilla-ejs",
     emptyOutDir: true,
     rolldownOptions: {
       checks: {
@@ -23,8 +23,8 @@ export default defineConfig({
   },
   oxc: {
     jsx: {
-      runtime: 'automatic',
-      importSource: '@pagesmith/site',
+      runtime: "automatic",
+      importSource: "@pagesmith/site",
     },
   },
-})
+});

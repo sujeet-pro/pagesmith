@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import '@pagesmith/site/runtime/content'
+import "@pagesmith/site/runtime/content";
 
 export function PagesmithContentRuntime() {
-  return null
+  return null;
 }

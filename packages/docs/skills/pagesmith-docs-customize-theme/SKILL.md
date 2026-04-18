@@ -28,27 +28,27 @@ Use this for everything that fits in declarative config (all keys validated by `
 // pagesmith.config.json5
 {
   // Header logo — inline SVG string OR public-relative path (auto-detected from public/favicon.* otherwise)
-  icon: './public/logo.svg',
+  icon: "./public/logo.svg",
   // Flat grid or grouped columns (up to 4 columns on wide screens)
   footerLinks: [
-    { label: 'GitHub', path: 'https://github.com/<owner>/<repo>' },
-    { label: 'Twitter', path: 'https://twitter.com/acme' },
+    { label: "GitHub", path: "https://github.com/<owner>/<repo>" },
+    { label: "Twitter", path: "https://twitter.com/acme" },
   ],
   // Copyright is a struct, not a string. Leave endYear as null to auto-advance via browser.
-  copyright: { projectName: 'Acme', startYear: 2024, endYear: null },
+  copyright: { projectName: "Acme", startYear: 2024, endYear: null },
   // Edit-link schema: { repo, branch?, label? }
   editLink: {
-    repo: 'https://github.com/<owner>/<repo>',
-    branch: 'main',
-    label: 'Edit this page',
+    repo: "https://github.com/<owner>/<repo>",
+    branch: "main",
+    label: "Edit this page",
   },
-  maintainer: { name: 'Acme Docs Team', link: 'https://acme.example.com' },
+  maintainer: { name: "Acme Docs Team", link: "https://acme.example.com" },
   theme: {
-    lightColor: '#f8fafc',
-    darkColor: '#0f172a',
-    defaultColorScheme: 'auto',
-    defaultTheme: 'paper',
-    defaultTextSize: 'base',
+    lightColor: "#f8fafc",
+    darkColor: "#0f172a",
+    defaultColorScheme: "auto",
+    defaultTheme: "paper",
+    defaultTextSize: "base",
   },
 }
 ```
@@ -64,11 +64,11 @@ Override `--pagesmith-*` variables in a stylesheet that your layout imports:
 :root {
   --pagesmith-color-accent: #6d28d9;
   --pagesmith-color-accent-contrast: #ffffff;
-  --pagesmith-font-sans: 'Inter', system-ui, sans-serif;
+  --pagesmith-font-sans: "Inter", system-ui, sans-serif;
   --pagesmith-sidebar-width: 280px;
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --pagesmith-color-accent: #a78bfa;
 }
 ```
@@ -77,8 +77,8 @@ Wire it up through a custom layout (there is no top-level `css:` key — `@pages
 
 ```tsx
 // theme/layouts/DocPage.tsx
-import '../../styles/docs-overrides.css'
-import { PageShell, SiteDocument } from '@pagesmith/docs'
+import "../../styles/docs-overrides.css";
+import { PageShell, SiteDocument } from "@pagesmith/docs";
 
 export default function DocPage(props) {
   /* render PageShell ... */
@@ -93,11 +93,11 @@ For a page rewrite, replace the whole layout via `theme.layouts`:
 
 ```tsx
 // theme/layouts/DocPage.tsx
-import { SiteDocument } from '@pagesmith/docs/components'
-import { PageShell } from '@pagesmith/docs/layouts'
+import { SiteDocument } from "@pagesmith/docs/components";
+import { PageShell } from "@pagesmith/docs/layouts";
 
 export default function DocPage(props) {
-  const { content, frontmatter, headings, slug, site, sidebarSections, prev, next } = props
+  const { content, frontmatter, headings, slug, site, sidebarSections, prev, next } = props;
   return (
     <SiteDocument title={`${frontmatter.title} — ${site.title}`} site={site}>
       <PageShell
@@ -111,7 +111,7 @@ export default function DocPage(props) {
         </article>
       </PageShell>
     </SiteDocument>
-  )
+  );
 }
 ```
 
@@ -120,10 +120,10 @@ export default function DocPage(props) {
 {
   theme: {
     layouts: {
-      page: './theme/layouts/DocPage.tsx',
-      home: './theme/layouts/DocHome.tsx',
-      listing: './theme/layouts/DocListing.tsx',
-      notFound: './theme/layouts/DocNotFound.tsx',
+      page: "./theme/layouts/DocPage.tsx",
+      home: "./theme/layouts/DocHome.tsx",
+      listing: "./theme/layouts/DocListing.tsx",
+      notFound: "./theme/layouts/DocNotFound.tsx",
     },
   },
 }
@@ -135,18 +135,18 @@ Only the layouts you specify are overridden — everything else keeps the preset
 
 `@pagesmith/docs/components` re-exports everything under `@pagesmith/site/components`, so inside a custom layout you can compose:
 
-| Component                                              | Purpose                                    |
-| ------------------------------------------------------ | ------------------------------------------ |
-| `SiteDocument` (aliased as `Html`)                     | `<html>` shell, `<head>`, security defaults |
-| `SiteHeader` / `DocHeader`                             | Top bar with logo, nav, theme, search       |
-| `SiteSidebar` / `DocSidebar` / `SiteSidebarModal`      | Section navigation (desktop + modal)        |
-| `SiteFooter` / `DocFooter`                             | Bottom bar, links, copyright                |
+| Component                                                | Purpose                                     |
+| -------------------------------------------------------- | ------------------------------------------- |
+| `SiteDocument` (aliased as `Html`)                       | `<html>` shell, `<head>`, security defaults |
+| `SiteHeader` / `DocHeader`                               | Top bar with logo, nav, theme, search       |
+| `SiteSidebar` / `DocSidebar` / `SiteSidebarModal`        | Section navigation (desktop + modal)        |
+| `SiteFooter` / `DocFooter`                               | Bottom bar, links, copyright                |
 | `TableOfContents` (`DocTOC`), `AccordionTableOfContents` | Right-side / accordion TOC                  |
-| `Breadcrumbs`                                          | Auto-generated breadcrumbs                  |
-| `ListingCards` (`DocListingCards`)                     | Home / listing page cards                   |
-| `ThemeDropdownControls`, `FooterThemeControls`         | Theme / color-scheme / text-size controls   |
-| `HeroSection`, `ActionButtons`                         | Home page hero + CTAs                       |
-| `ContentMeta`                                          | "Last updated", "Edit this page" links      |
+| `Breadcrumbs`                                            | Auto-generated breadcrumbs                  |
+| `ListingCards` (`DocListingCards`)                       | Home / listing page cards                   |
+| `ThemeDropdownControls`, `FooterThemeControls`           | Theme / color-scheme / text-size controls   |
+| `HeroSection`, `ActionButtons`                           | Home page hero + CTAs                       |
+| `ContentMeta`                                            | "Last updated", "Edit this page" links      |
 
 Layout wrappers from `@pagesmith/docs/layouts` (re-exported from `@pagesmith/site/layouts`): `PageShell` (aliased as `DocPageShell`), `HomeLayout`, `ListingLayout`, `NotFoundLayout`. Pair them with the runtime hooks in the next section.
 

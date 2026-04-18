@@ -16,12 +16,12 @@ Notice standalone is a superset of the content tier (same markdown and code chro
 
 Pagesmith provides four CSS export paths that can be imported directly in Vite projects or any framework/bundler that supports package exports:
 
-| Import Path | Contents | Use Case |
-|---|---|---|
-| `@pagesmith/site/css/content` | Reset + tokens + prose typography + inline code + viewport | Embedding rendered markdown in an existing app |
-| `@pagesmith/site/css/standalone` | Reset + tokens + prose + inline code + TOC + page grid + sidebar | Full documentation site layout |
-| `@pagesmith/site/css/viewport` | Viewport overflow protection and responsive base | Minimal responsive shell |
-| `@pagesmith/site/css/fonts` | Font face declarations for Open Sans and JetBrains Mono (variable woff2) | Self-hosted fonts matching the design tokens |
+| Import Path                      | Contents                                                                 | Use Case                                       |
+| -------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------- |
+| `@pagesmith/site/css/content`    | Reset + tokens + prose typography + inline code + viewport               | Embedding rendered markdown in an existing app |
+| `@pagesmith/site/css/standalone` | Reset + tokens + prose + inline code + TOC + page grid + sidebar         | Full documentation site layout                 |
+| `@pagesmith/site/css/viewport`   | Viewport overflow protection and responsive base                         | Minimal responsive shell                       |
+| `@pagesmith/site/css/fonts`      | Font face declarations for Open Sans and JetBrains Mono (variable woff2) | Self-hosted fonts matching the design tokens   |
 
 ### Importing CSS in App Code
 
@@ -35,19 +35,19 @@ Import CSS directly in your entry file, theme stylesheet, or framework app layou
 Or import from JavaScript/TypeScript:
 
 ```ts title="src/main.ts"
-import '@pagesmith/site/css/fonts'
-import '@pagesmith/site/css/content'
+import "@pagesmith/site/css/fonts";
+import "@pagesmith/site/css/content";
 ```
 
 In a Next.js App Router project, the equivalent is a global import from `app/layout.js` plus a tiny client component for the runtime:
 
 ```js title="components/pagesmith-content-runtime.js"
-'use client'
+"use client";
 
-import '@pagesmith/site/runtime/content'
+import "@pagesmith/site/runtime/content";
 
 export function PagesmithContentRuntime() {
-  return null
+  return null;
 }
 ```
 
@@ -123,40 +123,40 @@ The `@pagesmith/site/runtime` module provides functions that read pre-built CSS 
 
 For projects that want the reusable site chrome without the full standalone shell helpers:
 
-| Function | Returns |
-|---|---|
-| `getChromeCSS()` | Shared header/sidebar/footer/TOC CSS as a string |
+| Function             | Returns                                          |
+| -------------------- | ------------------------------------------------ |
+| `getChromeCSS()`     | Shared header/sidebar/footer/TOC CSS as a string |
 | `getChromeCSSPath()` | Absolute file path to the shared chrome CSS file |
-| `getChromeJS()` | Shared chrome runtime JS as a string |
-| `getChromeJSPath()` | Absolute file path to the shared chrome JS file |
+| `getChromeJS()`      | Shared chrome runtime JS as a string             |
+| `getChromeJSPath()`  | Absolute file path to the shared chrome JS file  |
 
 ### Standalone Tier (Full Site)
 
 For projects that want a complete page layout with navigation, table of contents, and interactive features:
 
-| Function | Returns |
-|---|---|
-| `getRuntimeCSS()` | Full standalone CSS as a string |
-| `getRuntimeCSSPath()` | Absolute file path to the standalone CSS file |
-| `getRuntimeJS()` | Standalone runtime JS as a string (chrome runtime + content runtime) |
-| `getRuntimeJSPath()` | Absolute file path to the standalone JS file |
+| Function              | Returns                                                              |
+| --------------------- | -------------------------------------------------------------------- |
+| `getRuntimeCSS()`     | Full standalone CSS as a string                                      |
+| `getRuntimeCSSPath()` | Absolute file path to the standalone CSS file                        |
+| `getRuntimeJS()`      | Standalone runtime JS as a string (chrome runtime + content runtime) |
+| `getRuntimeJSPath()`  | Absolute file path to the standalone JS file                         |
 
 ### Content Tier (Markdown Rendering Only)
 
 For projects that already have their own layout but want consistent styling for rendered markdown:
 
-| Function | Returns |
-|---|---|
-| `getContentCSS()` | Content-only CSS as a string |
+| Function              | Returns                                    |
+| --------------------- | ------------------------------------------ |
+| `getContentCSS()`     | Content-only CSS as a string               |
 | `getContentCSSPath()` | Absolute file path to the content CSS file |
-| `getContentJS()` | Content-only runtime JS as a string |
-| `getContentJSPath()` | Absolute file path to the content JS file |
+| `getContentJS()`      | Content-only runtime JS as a string        |
+| `getContentJSPath()`  | Absolute file path to the content JS file  |
 
 ### Individual CSS Files
 
-| Function | Returns |
-|---|---|
-| `getViewportCSS()` | Viewport/responsive base CSS as a string |
+| Function               | Returns                                     |
+| ---------------------- | ------------------------------------------- |
+| `getViewportCSS()`     | Viewport/responsive base CSS as a string    |
 | `getViewportCSSPath()` | Absolute file path to the viewport CSS file |
 
 All accessor functions read from the `@pagesmith/site` package directory, checking `src/` first (for development with linked packages) and falling back to `dist/` (for published builds).
@@ -192,16 +192,16 @@ It intentionally does **not** own your app shell, navigation, TOC implementation
 
 For advanced integrations, `@pagesmith/site` also exposes narrower browser entries that map to specific behaviors:
 
-| Import Path | Purpose |
-|---|---|
-| `@pagesmith/site/runtime/code-blocks` | Copy buttons and collapse toggles for code blocks |
-| `@pagesmith/site/runtime/code-tabs` | Tab switching for grouped code blocks |
-| `@pagesmith/site/runtime/footer-year` | Footer year synchronization |
-| `@pagesmith/site/runtime/search-trigger` | Responsive search-trigger density |
-| `@pagesmith/site/runtime/sidebar` | Mobile sidebar dialog behavior |
-| `@pagesmith/site/runtime/skip-link` | Skip-link focus handling |
-| `@pagesmith/site/runtime/toc-highlight` | Active-heading tracking for TOC links |
-| `@pagesmith/site/runtime/theme` | Theme and text-size persistence |
+| Import Path                              | Purpose                                           |
+| ---------------------------------------- | ------------------------------------------------- |
+| `@pagesmith/site/runtime/code-blocks`    | Copy buttons and collapse toggles for code blocks |
+| `@pagesmith/site/runtime/code-tabs`      | Tab switching for grouped code blocks             |
+| `@pagesmith/site/runtime/footer-year`    | Footer year synchronization                       |
+| `@pagesmith/site/runtime/search-trigger` | Responsive search-trigger density                 |
+| `@pagesmith/site/runtime/sidebar`        | Mobile sidebar dialog behavior                    |
+| `@pagesmith/site/runtime/skip-link`      | Skip-link focus handling                          |
+| `@pagesmith/site/runtime/toc-highlight`  | Active-heading tracking for TOC links             |
+| `@pagesmith/site/runtime/theme`          | Theme and text-size persistence                   |
 
 Use these when you want to assemble your own browser runtime instead of taking the full `content`, `chrome`, or `standalone` bundle. The themed-image switcher is not exposed as a standalone entry — it ships as part of the `chrome`, `content`, and `standalone` bundles.
 
@@ -218,73 +218,73 @@ All visual properties in Pagesmith CSS are defined as CSS custom properties in `
 
 ### Color Tokens
 
-| Token | Light | Dark | Purpose |
-|---|---|---|---|
-| `--color-bg` | `#f5f4f0` | `#111110` | Primary background |
-| `--color-bg-alt` | `#efefeb` | `#1a1a18` | Alternate/secondary background |
-| `--color-bg-elevated` | `#f5f4f0` | `#1e1e1c` | Elevated surface (cards, modals) |
-| `--color-bg-code` | `#efefeb` | `#1a1a18` | Code block background |
-| `--color-bg-hover` | `#efefeb` | `#222220` | Hover state background |
-| `--color-text` | `#111110` | `#f5f4f0` | Primary text |
-| `--color-text-secondary` | `#333330` | `#ccccca` | Secondary text |
-| `--color-text-muted` | `#7a7a72` | `#888882` | Muted/tertiary text |
-| `--color-border` | `#d0cfc9` | `#2a2a28` | Default border |
-| `--color-border-subtle` | `#e5e4de` | `#222220` | Subtle/lighter border |
-| `--color-border-hover` | `#c0bfb9` | `#3a3a38` | Border on hover |
-| `--color-accent` | `#d4381e` | `#e04a2e` | Accent color (active states, links) |
-| `--color-accent-hover` | `#b82e16` | `#f05a3e` | Accent hover |
-| `--color-accent-subtle` | `rgba(212,56,30,0.06)` | `rgba(224,74,46,0.08)` | Subtle accent background |
-| `--color-code-bg` | `#efefeb` | `#1a1a18` | Inline code background |
-| `--color-code-text` | `#333330` | `#ccccca` | Inline code text |
-| `--color-blockquote-border` | `#d0cfc9` | `#333330` | Blockquote left border |
-| `--color-blockquote-bg` | `#efefeb` | `#1a1a18` | Blockquote background |
-| `--color-overlay-bg` | `rgba(0,0,0,0.3)` | `rgba(0,0,0,0.5)` | Modal/overlay backdrop |
-| `--color-header-bg` | `rgba(245,244,240,0.85)` | `rgba(17,17,16,0.85)` | Header background (translucent) |
-| `--color-text-inverse` | `#f5f4f0` | `#111110` | Inverted text color |
+| Token                       | Light                    | Dark                   | Purpose                             |
+| --------------------------- | ------------------------ | ---------------------- | ----------------------------------- |
+| `--color-bg`                | `#f5f4f0`                | `#111110`              | Primary background                  |
+| `--color-bg-alt`            | `#efefeb`                | `#1a1a18`              | Alternate/secondary background      |
+| `--color-bg-elevated`       | `#f5f4f0`                | `#1e1e1c`              | Elevated surface (cards, modals)    |
+| `--color-bg-code`           | `#efefeb`                | `#1a1a18`              | Code block background               |
+| `--color-bg-hover`          | `#efefeb`                | `#222220`              | Hover state background              |
+| `--color-text`              | `#111110`                | `#f5f4f0`              | Primary text                        |
+| `--color-text-secondary`    | `#333330`                | `#ccccca`              | Secondary text                      |
+| `--color-text-muted`        | `#7a7a72`                | `#888882`              | Muted/tertiary text                 |
+| `--color-border`            | `#d0cfc9`                | `#2a2a28`              | Default border                      |
+| `--color-border-subtle`     | `#e5e4de`                | `#222220`              | Subtle/lighter border               |
+| `--color-border-hover`      | `#c0bfb9`                | `#3a3a38`              | Border on hover                     |
+| `--color-accent`            | `#d4381e`                | `#e04a2e`              | Accent color (active states, links) |
+| `--color-accent-hover`      | `#b82e16`                | `#f05a3e`              | Accent hover                        |
+| `--color-accent-subtle`     | `rgba(212,56,30,0.06)`   | `rgba(224,74,46,0.08)` | Subtle accent background            |
+| `--color-code-bg`           | `#efefeb`                | `#1a1a18`              | Inline code background              |
+| `--color-code-text`         | `#333330`                | `#ccccca`              | Inline code text                    |
+| `--color-blockquote-border` | `#d0cfc9`                | `#333330`              | Blockquote left border              |
+| `--color-blockquote-bg`     | `#efefeb`                | `#1a1a18`              | Blockquote background               |
+| `--color-overlay-bg`        | `rgba(0,0,0,0.3)`        | `rgba(0,0,0,0.5)`      | Modal/overlay backdrop              |
+| `--color-header-bg`         | `rgba(245,244,240,0.85)` | `rgba(17,17,16,0.85)`  | Header background (translucent)     |
+| `--color-text-inverse`      | `#f5f4f0`                | `#111110`              | Inverted text color                 |
 
 ### Shadow Tokens
 
-| Token | Description |
-|---|---|
+| Token         | Description                       |
+| ------------- | --------------------------------- |
 | `--shadow-sm` | Subtle small shadow (`0 1px 2px`) |
-| `--shadow-md` | Medium shadow (`0 4px 6px`) |
-| `--shadow-lg` | Large shadow (`0 10px 25px`) |
+| `--shadow-md` | Medium shadow (`0 4px 6px`)       |
+| `--shadow-lg` | Large shadow (`0 10px 25px`)      |
 
 Shadow colors use dedicated shadow-color tokens with `light-dark()` for appropriate opacity in each scheme.
 
 ### Typography Tokens
 
-| Token | Value | Purpose |
-|---|---|---|
-| `--font-sans` | `'Open Sans', system-ui, -apple-system, 'Segoe UI', sans-serif` | Body text font stack |
-| `--font-mono` | `'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace` | Code font stack |
-| `--font-size-xs` | `0.75rem` | Extra small text |
-| `--font-size-sm` | `0.875rem` | Small text (sidebar, TOC, footer) |
-| `--font-size-base` | `1rem` | Base body text |
-| `--font-size-lg` | `1.125rem` | Large text |
-| `--font-size-xl` | `1.25rem` | Extra large text |
-| `--font-size-2xl` | `1.5rem` | Heading 2 size |
-| `--font-size-3xl` | `2rem` | Heading 1 / hero size |
+| Token              | Value                                                           | Purpose                           |
+| ------------------ | --------------------------------------------------------------- | --------------------------------- |
+| `--font-sans`      | `'Open Sans', system-ui, -apple-system, 'Segoe UI', sans-serif` | Body text font stack              |
+| `--font-mono`      | `'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace`     | Code font stack                   |
+| `--font-size-xs`   | `0.75rem`                                                       | Extra small text                  |
+| `--font-size-sm`   | `0.875rem`                                                      | Small text (sidebar, TOC, footer) |
+| `--font-size-base` | `1rem`                                                          | Base body text                    |
+| `--font-size-lg`   | `1.125rem`                                                      | Large text                        |
+| `--font-size-xl`   | `1.25rem`                                                       | Extra large text                  |
+| `--font-size-2xl`  | `1.5rem`                                                        | Heading 2 size                    |
+| `--font-size-3xl`  | `2rem`                                                          | Heading 1 / hero size             |
 
 ### Spacing and Shape Tokens
 
-| Token | Value | Purpose |
-|---|---|---|
+| Token         | Value | Purpose                               |
+| ------------- | ----- | ------------------------------------- |
 | `--radius-sm` | `2px` | Small border radius (buttons, badges) |
-| `--radius-md` | `4px` | Medium border radius (inputs, cards) |
-| `--radius-lg` | `6px` | Large border radius (code blocks) |
+| `--radius-md` | `4px` | Medium border radius (inputs, cards)  |
+| `--radius-lg` | `6px` | Large border radius (code blocks)     |
 
 ### Transition Tokens
 
-| Token | Value | Purpose |
-|---|---|---|
-| `--transition-fast` | `150ms cubic-bezier(0.4, 0, 0.2, 1)` | Quick interactions (hover, focus) |
+| Token                 | Value                                | Purpose                                   |
+| --------------------- | ------------------------------------ | ----------------------------------------- |
+| `--transition-fast`   | `150ms cubic-bezier(0.4, 0, 0.2, 1)` | Quick interactions (hover, focus)         |
 | `--transition-normal` | `250ms cubic-bezier(0.4, 0, 0.2, 1)` | Standard transitions (sidebar, accordion) |
 
 ### Layout Token
 
-| Token | Value | Purpose |
-|---|---|---|
+| Token             | Value  | Purpose                                                 |
+| ----------------- | ------ | ------------------------------------------------------- |
 | `--header-height` | `60px` | Fixed header height used for spacing and sticky offsets |
 
 ## Customizing Design Tokens
@@ -313,27 +313,27 @@ For code-block styling and renderer chrome, override the `--ps-*` prefixed varia
 
 ## When to Use Each Tier
 
-| Scenario | CSS Import | JS |
-|---|---|---|
-| Full documentation site with sidebar, TOC, navigation | `@pagesmith/site/css/standalone` | Standalone runtime |
-| Blog or custom site with its own layout | `@pagesmith/site/css/content` | Content runtime |
-| Embedding rendered markdown in an existing app | `@pagesmith/site/css/content` | Content runtime |
-| Only need viewport protection | `@pagesmith/site/css/viewport` | None |
-| Already own the entire presentation layer | None | None -- use `@pagesmith/core` for loading, validating, and rendering only |
+| Scenario                                              | CSS Import                       | JS                                                                        |
+| ----------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------- |
+| Full documentation site with sidebar, TOC, navigation | `@pagesmith/site/css/standalone` | Standalone runtime                                                        |
+| Blog or custom site with its own layout               | `@pagesmith/site/css/content`    | Content runtime                                                           |
+| Embedding rendered markdown in an existing app        | `@pagesmith/site/css/content`    | Content runtime                                                           |
+| Only need viewport protection                         | `@pagesmith/site/css/viewport`   | None                                                                      |
+| Already own the entire presentation layer             | None                             | None -- use `@pagesmith/core` for loading, validating, and rendering only |
 
 When using the runtime programmatically (e.g., for SSR), use the accessor functions from `@pagesmith/site/runtime`:
 
 ```ts title="ssr-example.ts"
-import { getContentCSS, getContentJS } from '@pagesmith/site/runtime'
+import { getContentCSS, getContentJS } from "@pagesmith/site/runtime";
 
-const css = getContentCSS()
-const js = getContentJS()
+const css = getContentCSS();
+const js = getContentJS();
 
 // Inject into your HTML template
 const html = `
   <style>${css}</style>
   <script>${js}</script>
-`
+`;
 ```
 
 For Vite projects, prefer direct CSS imports over the accessor functions:

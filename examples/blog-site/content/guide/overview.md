@@ -30,8 +30,8 @@ The React example wires three plugins:
 plugins: [
   sharedAssetsPlugin(),
   pagesmithContent({ collections }),
-  ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
-]
+  ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
+];
 ```
 
 This example uses two — no `pagesmithContent`:
@@ -39,15 +39,15 @@ This example uses two — no `pagesmithContent`:
 ```ts title="blog-site/vite.config.ts"
 plugins: [
   sharedAssetsPlugin(),
-  ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
-]
+  ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
+];
 ```
 
-| Framework-style (`pagesmithContent`) | Direct API (this example) |
-|--------------------------------------|---------------------------|
+| Framework-style (`pagesmithContent`)                                           | Direct API (this example)                                                  |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
 | Collections often live in `content.config.ts` and load through virtual modules | Collections are defined in `src/content.ts` alongside `createContentLayer` |
-| Bundler imports typed collection modules | Node-side `getCollection` + `entry.render()` at SSG time |
-| Same markdown pipeline once content is loaded | Same pipeline via `entry.render()` |
+| Bundler imports typed collection modules                                       | Node-side `getCollection` + `entry.render()` at SSG time                   |
+| Same markdown pipeline once content is loaded                                  | Same pipeline via `entry.render()`                                         |
 
 ## Why use this approach?
 

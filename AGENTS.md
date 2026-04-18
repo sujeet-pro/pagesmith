@@ -8,12 +8,10 @@ Single source of truth for AI agents working **inside** the Pagesmith monorepo. 
 
 This repo has **two audiences** for AI guidance. Do not mix them up.
 
-
 | Audience                                 | Where guidance lives                                                                                                                                                             | Who reads it                                           |
 | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| **Contributors** (maintaining Pagesmith) | `AGENTS.md`, `CLAUDE.md`, `.agents/skills/` (canonical `prj-*` skills), `.claude/skills/` + `.cursor/skills/` (wrappers only — must mirror `.agents/skills/`) | Agents working in the monorepo itself                  |
-| **Consumers** (using `@pagesmith/*`)      | Each package's `packages/<pkg>/skills/pagesmith-<pkg>-<action>/`, each `packages/<pkg>/REFERENCE.md`, each package's root `llms.txt` / `llms-full.txt`, `packages/docs/schemas/` | Agents working in a project that installed the package |
-
+| **Contributors** (maintaining Pagesmith) | `AGENTS.md`, `CLAUDE.md`, `.agents/skills/` (canonical `prj-*` skills), `.claude/skills/` + `.cursor/skills/` (wrappers only — must mirror `.agents/skills/`)                    | Agents working in the monorepo itself                  |
+| **Consumers** (using `@pagesmith/*`)     | Each package's `packages/<pkg>/skills/pagesmith-<pkg>-<action>/`, each `packages/<pkg>/REFERENCE.md`, each package's root `llms.txt` / `llms-full.txt`, `packages/docs/schemas/` | Agents working in a project that installed the package |
 
 Published consumer surface ships inside the npm tarballs:
 
@@ -192,24 +190,22 @@ Only two repo-local contributor skills wrap diagramkit here:
 
 ### Repo-local diagramkit skills
 
-| Skill                   | Purpose                                                                                                                                 |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Skill                   | Purpose                                                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `prj-diagramkit-auto`   | Choose engine (Mermaid / Excalidraw / Draw.io / Graphviz); then follow `node_modules/diagramkit/skills/diagramkit-<engine>/SKILL.md`. |
-| `prj-diagramkit-review` | Repo-wide audit + repair; delegates per-engine fixes via `node_modules/diagramkit/skills/diagramkit-<engine>/SKILL.md`.                  |
+| `prj-diagramkit-review` | Repo-wide audit + repair; delegates per-engine fixes via `node_modules/diagramkit/skills/diagramkit-<engine>/SKILL.md`.               |
 
 Read `node_modules/diagramkit/REFERENCE.md` before running any `diagramkit` command — it's version-pinned to the installed package.
 
 ## Contributor Skills
 
-
-| Skill                   | Purpose                                                                                                                                                    |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Skill                   | Purpose                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `prj-maintain-docs`     | Align `docs/content/`, package `skills/` / `llms*.txt` / schemas, consumer `skills/pagesmith-*`, diagrams, and `packages/core/src/ai/**` with the code. |
-| `prj-maintain-examples` | Update every example for behavior changes or scaffold a new `examples/` workspace with validation and guide cross-links.                                   |
-| `prj-review-repo`       | Review changes with repo context: boundaries, tests, docs/examples/diagram parity, validation, release readiness.                                          |
-| `prj-release`           | Publish a coordinated `@pagesmith/core` + `@pagesmith/site` + `@pagesmith/docs` release.                                                                   |
-| `prj-extend-packages`   | Add a content loader, markdown pipeline plugin, or site preset (`@pagesmith/core` / `@pagesmith/site`).                                                      |
-
+| `prj-maintain-examples` | Update every example for behavior changes or scaffold a new `examples/` workspace with validation and guide cross-links.                                |
+| `prj-review-repo`       | Review changes with repo context: boundaries, tests, docs/examples/diagram parity, validation, release readiness.                                       |
+| `prj-release`           | Publish a coordinated `@pagesmith/core` + `@pagesmith/site` + `@pagesmith/docs` release.                                                                |
+| `prj-extend-packages`   | Add a content loader, markdown pipeline plugin, or site preset (`@pagesmith/core` / `@pagesmith/site`).                                                 |
 
 ## Keeping AI Guidance Current
 
@@ -271,8 +267,8 @@ Embed pattern for Pagesmith-rendered docs (`docs/content/**`, `examples/**/docs/
 
 ```html
 <figure>
-  <img src="./diagrams/system-overview-light.svg" class="only-light" alt="...">
-  <img src="./diagrams/system-overview-dark.svg" class="only-dark" alt="...">
+  <img src="./diagrams/system-overview-light.svg" class="only-light" alt="..." />
+  <img src="./diagrams/system-overview-dark.svg" class="only-dark" alt="..." />
   <figcaption>Docs build pipeline</figcaption>
 </figure>
 ```
@@ -308,4 +304,3 @@ npm run validate
 ```
 
 `npm run validate:diagrams` is wired into `build:docs`, so any docs build fails fast on broken or low-contrast diagram SVGs. It scopes to project-owned `**/diagrams/**/*-{light,dark}.svg` files (skipping `gh-pages/`, `node_modules/`, and other generated/vendored locations). Fatal classes: any `severity: error`, plus `LOW_CONTRAST_TEXT`, `CONTAINS_FOREIGN_OBJECT`, `CONTAINS_SCRIPT`, and `EXTERNAL_RESOURCE` warnings — because the docs site embeds SVGs via `<img>` / `<figure>` / `<picture>`, all four silently degrade in those embeds.
-

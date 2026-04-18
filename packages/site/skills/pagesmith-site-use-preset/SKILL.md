@@ -44,12 +44,12 @@ Preferred: pin the preset in config so every contributor and CI run sees the sam
 ```json5
 // pagesmith.config.json5
 {
-  preset: '@pagesmith/docs',
-  name: 'My Docs',
-  title: 'My Docs',
-  origin: 'https://example.com',
-  basePath: '/',
-  contentDir: './docs',
+  preset: "@pagesmith/docs",
+  name: "My Docs",
+  title: "My Docs",
+  origin: "https://example.com",
+  basePath: "/",
+  contentDir: "./docs",
 }
 ```
 
@@ -57,7 +57,7 @@ For multiple presets (rare), use `presets`:
 
 ```json5
 {
-  presets: ['@pagesmith/docs', '@your-scope/pagesmith-preset-analytics'],
+  presets: ["@pagesmith/docs", "@your-scope/pagesmith-preset-analytics"],
 }
 ```
 
@@ -89,16 +89,26 @@ If the user wants to write their own:
 
 ```ts
 // packages/my-preset/src/preset.ts
-import type { Preset } from '@pagesmith/site/preset'
+import type { Preset } from "@pagesmith/site/preset";
 
 export default {
-  name: '@your-scope/pagesmith-preset-x',
-  async init(ctx) { /* scaffold files, write config defaults */ },
-  async dev(ctx)  { /* return Vite plugins */ return [] },
-  async build(ctx){ /* return SSG routes */ return [] },
-  async preview(ctx){ /* return a request handler */ },
-  async mcp(ctx)  { /* register MCP tools */ },
-} satisfies Preset
+  name: "@your-scope/pagesmith-preset-x",
+  async init(ctx) {
+    /* scaffold files, write config defaults */
+  },
+  async dev(ctx) {
+    /* return Vite plugins */ return [];
+  },
+  async build(ctx) {
+    /* return SSG routes */ return [];
+  },
+  async preview(ctx) {
+    /* return a request handler */
+  },
+  async mcp(ctx) {
+    /* register MCP tools */
+  },
+} satisfies Preset;
 ```
 
 Export both a module entry (so `preset: '@your-scope/pagesmith-preset-x'` resolves) and a `bin/` wrapper (so `your-preset-name init` works like `pagesmith-site init --preset <x>`).

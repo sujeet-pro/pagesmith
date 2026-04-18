@@ -1,36 +1,36 @@
-import { h } from '../jsx-runtime/index.js'
-import { SITE_CHROME_ASSETS, withComponentAssets } from '../components/assets.js'
-import { SiteDocument } from '../components/document.js'
+import { h } from "../jsx-runtime/index.js";
+import { SITE_CHROME_ASSETS, withComponentAssets } from "../components/assets.js";
+import { SiteDocument } from "../components/document.js";
 import {
   SiteHeader,
   SiteSidebarModal,
   buildSidebarModalSections,
-} from '../components/navigation.js'
-import type { SiteAction } from '../components/hero.js'
-import { ActionButtons } from '../components/hero.js'
-import type { SiteDocumentData } from '../components/types.js'
+} from "../components/navigation.js";
+import type { SiteAction } from "../components/hero.js";
+import { ActionButtons } from "../components/hero.js";
+import type { SiteDocumentData } from "../components/types.js";
 
 export type NotFoundLayoutProps = {
-  slug: string
-  site: SiteDocumentData
-  code?: string
-  title?: string
-  message?: string
-  actions?: SiteAction[]
-}
+  slug: string;
+  site: SiteDocumentData;
+  code?: string;
+  title?: string;
+  message?: string;
+  actions?: SiteAction[];
+};
 
 function NotFoundLayoutComponent({
   slug,
   site,
-  code = '404',
-  title = 'Page Not Found',
-  message = 'The page you are looking for might have been moved or no longer exists.',
+  code = "404",
+  title = "Page Not Found",
+  message = "The page you are looking for might have been moved or no longer exists.",
   actions,
 }: NotFoundLayoutProps) {
-  const modalSections = buildSidebarModalSections(site.navItems)
+  const modalSections = buildSidebarModalSections(site.navItems);
   const defaultActions: SiteAction[] = actions ?? [
-    { label: 'Go Home', href: site.homeLink || site.basePath || '/', variant: 'primary' },
-  ]
+    { label: "Go Home", href: site.homeLink || site.basePath || "/", variant: "primary" },
+  ];
 
   return (
     <SiteDocument
@@ -65,7 +65,7 @@ function NotFoundLayoutComponent({
         />
       ) : null}
     </SiteDocument>
-  )
+  );
 }
 
-export const NotFoundLayout = withComponentAssets(NotFoundLayoutComponent, SITE_CHROME_ASSETS)
+export const NotFoundLayout = withComponentAssets(NotFoundLayoutComponent, SITE_CHROME_ASSETS);

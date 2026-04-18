@@ -1,4 +1,4 @@
 {
-  displayName: 'Deployment',
-  description: 'Deploy your Pagesmith site to various hosting platforms.',
+  displayName: "Deployment",
+  description: "Deploy your Pagesmith site to various hosting platforms.",
 }

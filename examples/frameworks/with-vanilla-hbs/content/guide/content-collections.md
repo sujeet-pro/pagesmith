@@ -18,11 +18,11 @@ Collections connect markdown files on disk to typed frontmatter and `entry.rende
 `content.config.mjs` uses the app-facing exports from `@pagesmith/site`:
 
 ```js title="content.config.mjs"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const guide = defineCollection({
-  loader: 'markdown',
-  directory: './content/guide',
+  loader: "markdown",
+  directory: "./content/guide",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -32,18 +32,18 @@ export const guide = defineCollection({
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
   }),
-})
+});
 
 export const pages = defineCollection({
-  loader: 'markdown',
-  directory: './content/pages',
+  loader: "markdown",
+  directory: "./content/pages",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
   }),
-})
+});
 
-export default defineCollections({ guide, pages })
+export default defineCollections({ guide, pages });
 ```
 
 ## Why `.mjs`
@@ -52,7 +52,7 @@ The SSR entry imports this file directly. Using `.mjs` avoids needing the config
 
 ```ts title="src/entry-server.tsx (excerpt)"
 // @ts-expect-error -- the example intentionally keeps the content config as .mjs
-import contentConfig from '../content.config.mjs'
+import contentConfig from "../content.config.mjs";
 ```
 
 ## Schemas and validation
@@ -64,15 +64,15 @@ Zod validates frontmatter when entries load. Typical patterns: `z.coerce.date()`
 The layer is memoized **per project root** so dev re-renders do not reconstruct it unnecessarily when only templates change:
 
 ```ts title="src/entry-server.tsx (excerpt)"
-let layer: ReturnType<typeof createContentLayer>
-let layerRoot: string
+let layer: ReturnType<typeof createContentLayer>;
+let layerRoot: string;
 
 function getLayer(root: string) {
   if (!layer || layerRoot !== root) {
-    layerRoot = root
-    layer = createContentLayer({ collections: { guide, pages }, root })
+    layerRoot = root;
+    layer = createContentLayer({ collections: { guide, pages }, root });
   }
-  return layer
+  return layer;
 }
 ```
 

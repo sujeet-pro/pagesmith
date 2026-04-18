@@ -28,7 +28,7 @@ GFM adds tables, strikethrough, task lists, autolinks, and footnotes.
 
 ```md
 | Left | Center | Right |
-|:-----|:------:|------:|
+| :--- | :----: | ----: |
 | L    |   C    |     R |
 | data |  data  |  data |
 ```
@@ -63,6 +63,7 @@ Visit https://pagesmith.dev for more info.
 Content with a footnote[^1] and another[^note].
 
 [^1]: This is the footnote content.
+
 [^note]: Footnotes can use any identifier.
 ```
 
@@ -109,7 +110,6 @@ Note: The `$` delimiters must not have spaces immediately inside them for inline
 
 ASCII typography is automatically converted to proper typographic characters. Code blocks and inline code are not affected.
 
-
 | Input     | Output            | Description                                   |
 | --------- | ----------------- | --------------------------------------------- |
 | `"hello"` | \u201chello\u201d | Straight double quotes to curly double quotes |
@@ -118,7 +118,6 @@ ASCII typography is automatically converted to proper typographic characters. Co
 | `---`     | \u2014            | Three hyphens to em dash                      |
 | `...`     | \u2026            | Three dots to ellipsis                        |
 
-
 ## External Links (rehype-external-links)
 
 Only absolute URLs starting with `http://` or `https://` get the external link treatment: `target="_blank"` and `rel="noopener noreferrer"` are added automatically.
@@ -126,9 +125,9 @@ Only absolute URLs starting with `http://` or `https://` get the external link t
 Relative links (`/guide/getting-started`, `../about`, `#section`) stay in the same tab and are not modified.
 
 ```md
-[GitHub](https://github.com)           <!-- opens in new tab -->
+[GitHub](https://github.com) <!-- opens in new tab -->
 [Internal page](/guide/getting-started) <!-- stays in same tab -->
-[Anchor link](#section)                 <!-- stays in same tab -->
+[Anchor link](#section) <!-- stays in same tab -->
 ```
 
 ## Accessible Emojis (rehype-accessible-emojis)
@@ -163,9 +162,15 @@ The first example produces:
 ```html
 <figure class="ps-figure">
   <picture>
-    <source srcset="./hero.avif" type="image/avif">
-    <source srcset="./hero.webp" type="image/webp">
-    <img src="./hero.webp" alt="Hero" width="1200" height="800" style="max-width:min(1200px,100%)">
+    <source srcset="./hero.avif" type="image/avif" />
+    <source srcset="./hero.webp" type="image/webp" />
+    <img
+      src="./hero.webp"
+      alt="Hero"
+      width="1200"
+      height="800"
+      style="max-width:min(1200px,100%)"
+    />
   </picture>
 </figure>
 ```
@@ -193,9 +198,19 @@ Produces (for SVG pairs):
 ```html
 <figure class="ps-figure ps-figure-themed">
   <picture>
-    <source srcset="./diagrams/arch-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
-    <source srcset="./diagrams/arch-light.svg" type="image/svg+xml">
-    <img src="./diagrams/arch-light.svg" alt="Architecture overview" width="879" height="771" style="max-width:min(879px,100%)">
+    <source
+      srcset="./diagrams/arch-dark.svg"
+      type="image/svg+xml"
+      media="(prefers-color-scheme: dark)"
+    />
+    <source srcset="./diagrams/arch-light.svg" type="image/svg+xml" />
+    <img
+      src="./diagrams/arch-light.svg"
+      alt="Architecture overview"
+      width="879"
+      height="771"
+      style="max-width:min(879px,100%)"
+    />
   </picture>
   <figcaption>Build pipeline architecture</figcaption>
 </figure>
@@ -232,15 +247,15 @@ For light/dark pairs, place the light and dark variants consecutively:
 
 ### CSS classes
 
-| Class | Purpose |
-|---|---|
-| `.ps-figure` | Wrapper class on all pipeline-generated `<figure>` elements |
-| `.ps-figure-themed` | Added when a light/dark pair is auto-merged |
-| `.invert-on-dark` | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
-| `.only-light` | Show element only in light mode (manual HTML) |
-| `.only-dark` | Show element only in dark mode (manual HTML) |
-| `.show-on-light` | Show any element only in light mode |
-| `.show-on-dark` | Show any element only in dark mode |
+| Class               | Purpose                                                                  |
+| ------------------- | ------------------------------------------------------------------------ |
+| `.ps-figure`        | Wrapper class on all pipeline-generated `<figure>` elements              |
+| `.ps-figure-themed` | Added when a light/dark pair is auto-merged                              |
+| `.invert-on-dark`   | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
+| `.only-light`       | Show element only in light mode (manual HTML)                            |
+| `.only-dark`        | Show element only in dark mode (manual HTML)                             |
+| `.show-on-light`    | Show any element only in light mode                                      |
+| `.show-on-dark`     | Show any element only in dark mode                                       |
 
 ### Generic show/hide helpers
 
@@ -267,14 +282,12 @@ Slug generation algorithm:
 
 Examples:
 
-
 | Heading                 | Generated slug     |
 | ----------------------- | ------------------ |
 | `## Getting Started`    | `getting-started`  |
 | `## What's New in v2?`  | `whats-new-in-v2`  |
 | `## API Reference (v3)` | `api-reference-v3` |
 | `## CSS & JavaScript`   | `css--javascript`  |
-
 
 Rendered HTML:
 
@@ -304,7 +317,6 @@ markdown: {
 
 All features are enabled via meta strings after the language identifier:
 
-
 | Meta                | Example                                   | Description                                      |
 | ------------------- | ----------------------------------------- | ------------------------------------------------ |
 | `title="..."`       | ````js title="app.js"`                    | File title above the code block                  |
@@ -317,22 +329,22 @@ All features are enabled via meta strings after the language identifier:
 | `wrap`              | ````js wrap`                              | Enable text wrapping                             |
 | `frame="..."`       | ````js frame="none"`                      | Frame style: `none`, `code`, `terminal`, `lines` |
 
-
 ### Combined Example
 
-```md
+````md
 ```ts title="server.ts" showLineNumbers mark={3} ins={7-8} collapse={1-2}
-import express from 'express'
-import cors from 'cors'
-const app = express()  // highlighted
-app.use(cors())
+import express from "express";
+import cors from "cors";
+const app = express(); // highlighted
+app.use(cors());
 
 // New routes added
-app.get('/api', handler)
-app.post('/api', handler)
+app.get("/api", handler);
+app.post("/api", handler);
 ```
+````
 
-```
+````
 
 ### Automatic Features (no meta needed)
 
@@ -350,7 +362,7 @@ markdown: {
     langAlias: { 'my-lang': 'typescript' },
   },
 }
-```
+````
 
 ### Global Line Numbers
 
@@ -383,18 +395,15 @@ Raw HTML is preserved by default (`allowDangerousHtml: true`). Disable it when r
 
 Core provides base schemas. Use them or define your own with Zod:
 
-
 | Schema                     | Fields                                                        |
 | -------------------------- | ------------------------------------------------------------- |
 | `BaseFrontmatterSchema`    | title, description, publishedDate, lastUpdatedOn, tags, draft |
 | `BlogFrontmatterSchema`    | extends base + category, featured, coverImage                 |
 | `ProjectFrontmatterSchema` | extends base + gitRepo, links                                 |
 
-
 ## Frontmatter -- @pagesmith/docs (additional)
 
 Docs pages support these additional frontmatter fields beyond what your schema defines:
-
 
 | Field          | Type      | Description                        |
 | -------------- | --------- | ---------------------------------- |
@@ -405,9 +414,7 @@ Docs pages support these additional frontmatter fields beyond what your schema d
 | `order`        | `number`  | Manual sort order within section   |
 | `draft`        | `boolean` | Exclude from build                 |
 
-
 ### Home Page Frontmatter (docs only)
-
 
 | Field         | Type     | Description                                        |
 | ------------- | -------- | -------------------------------------------------- |
@@ -418,7 +425,6 @@ Docs pages support these additional frontmatter fields beyond what your schema d
 | `features`    | `array`  | Feature cards (`{ icon, title, details }`)         |
 | `packages`    | `array`  | Package cards (`{ name, description, href, tag }`) |
 | `codeExample` | `object` | Code example (`{ label, title, code }`)            |
-
 
 ## Built-in Content Validators
 
@@ -441,10 +447,9 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 
 ## Quick Reference Card
 
-
 | Feature          | Syntax                                                                        | Plugin                                 |
-| ---------------- | ----------------------------------------------------------------------------- | -------------------------------------- |
-| Bold             | `**bold`**                                                                    | built-in                               |
+| ---------------- | ----------------------------------------------------------------------------- | -------------------------------------- | --- | ------ | --- | --- | ----------- | ---------- |
+| Bold             | `**bold`\*\*                                                                  | built-in                               |
 | Italic           | `*italic*`                                                                    | built-in                               |
 | Inline code      | `code`                                                                        | built-in                               |
 | Link             | `[text](url)`                                                                 | built-in                               |
@@ -454,7 +459,7 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 | Ordered list     | `1. item`                                                                     | built-in                               |
 | Unordered list   | `- item`                                                                      | built-in                               |
 | Horizontal rule  | `---`                                                                         | built-in                               |
-| Table            | `| col | col |` with `| --- | --- |` separator                                | remark-gfm                             |
+| Table            | `                                                                             | col                                    | col | `with` | --- | --- | ` separator | remark-gfm |
 | Strikethrough    | `~~text~~`                                                                    | remark-gfm                             |
 | Task list        | `- [x] done` / `- [ ] todo`                                                   | remark-gfm                             |
 | Autolink         | bare URL                                                                      | remark-gfm                             |
@@ -477,5 +482,3 @@ Known valid meta properties: `title`, `showLineNumbers`, `startLineNumber`, `wra
 | External link    | `[text](https://...)` auto new-tab                                            | rehype-external-links                  |
 | Heading anchor   | auto `id` + wrap link                                                         | rehype-slug + rehype-autolink-headings |
 | Accessible emoji | Unicode emoji auto-wrapped                                                    | rehype-accessible-emojis               |
-
-

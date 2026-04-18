@@ -412,6 +412,26 @@ jobs:
           path: gh-pages
       - run: npm run validate:pagesmith
 
+  validate-a11y:
+    name: Static a11y scan (jsdom + axe-core)
+    needs: build-docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifests
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: library-dist
+          path: packages
+      - uses: actions/download-artifact@v4
+        with:
+          name: gh-pages-docs
+          path: gh-pages
+      - run: npm run validate:a11y
+
   # -------------------------------------------------------------------------
   # Publish — needs every quality gate to succeed AND the built library.
   # `id-token: write` is granted at the workflow level for npm provenance.
@@ -426,6 +446,7 @@ jobs:
       - unit
       - validate-examples
       - validate-pagesmith
+      - validate-a11y
       - validate-diagrams
     runs-on: ubuntu-latest
     outputs:

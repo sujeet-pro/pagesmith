@@ -29,7 +29,7 @@ The `@pagesmith/docs` build uses `@pagesmith/core`'s markdown stack. A simplifie
 
 ```ts title="pipeline sketch" collapse={1-4} mark={6,10}
 // Pseudocode shape - not a file you edit in this example.
-import { unified } from 'unified'
+import { unified } from "unified";
 
 export function createPipeline(options: Options) {
   return unified()
@@ -38,21 +38,21 @@ export function createPipeline(options: Options) {
     .use(remarkMath)
     .use(...options.remarkPlugins)
     .use(remarkRehype)
-    .use(...options.rehypePlugins)
+    .use(...options.rehypePlugins);
 }
 ```
 
 ## Multi-language schema snippets
 
 ```ts title="TypeScript"
-import { z } from 'zod'
+import { z } from "zod";
 
 const PostSchema = z.object({
   title: z.string(),
   date: z.coerce.date(),
   draft: z.boolean().default(false),
   tags: z.array(z.string()).default([]),
-})
+});
 ```
 
 ```python title="Python (Pydantic)"
@@ -77,11 +77,11 @@ $$
 
 ## GFM mix
 
-| Check            | State |
-| ---------------- | ----- |
-| Tables           | On    |
-| MathJax          | On    |
-| GitHub alerts    | On    |
+| Check         | State |
+| ------------- | ----- |
+| Tables        | On    |
+| MathJax       | On    |
+| GitHub alerts | On    |
 
 - [x] remark pipeline
 - [x] Built-in code renderer
@@ -100,14 +100,14 @@ pnpm add @pagesmith/docs
 ```
 
 ```ts title="widget.ts" collapse={2-4} mark={6}
-export type Widget = { id: string }
+export type Widget = { id: string };
 
-const cache = new Map<string, Widget>()
-const stats = { hits: 0, misses: 0 }
+const cache = new Map<string, Widget>();
+const stats = { hits: 0, misses: 0 };
 
 export function getWidget(id: string): Widget | undefined {
-  stats.hits++
-  return cache.get(id)
+  stats.hits++;
+  return cache.get(id);
 }
 ```
 
@@ -172,4 +172,4 @@ jobs:
 
 ---
 
-*This is the only markdown showcase page in this example. The rest of the guide explains the docs workflow itself.*
+_This is the only markdown showcase page in this example. The rest of the guide explains the docs workflow itself._

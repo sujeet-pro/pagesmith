@@ -78,10 +78,10 @@ If your repository already follows those conventions, `npx pagesmith-docs dev`, 
 
 ```json5
 {
-  $schema: './node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json',
+  $schema: "./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json",
   // origin: 'https://my-user.github.io',
   // basePath: '/my-project',  // uncomment if hosting under a subdirectory
-  contentDir: 'docs',
+  contentDir: "docs",
 }
 ```
 
@@ -135,17 +135,17 @@ The content directory defaults to `docs/` if it exists, otherwise `content/`.
 
 All pages support these frontmatter fields:
 
-| Field | Type | Description |
-|---|---|---|
-| `title` | `string` | Page title (also used in sidebar and browser tab) |
-| `description` | `string` | Meta description for SEO |
-| `layout` | `string` | Per-page layout override |
-| `navLabel` | `string` | Override the label shown in top navigation |
-| `sidebarLabel` | `string` | Override the label shown in sidebar |
-| `order` | `number` | Manual sort order within a section |
-| `draft` | `boolean` | Exclude page from build when `true` |
-| `chrome` | `object` | Per-page shell toggles (`header`, `sidebar`, `toc`, `footer`) |
-| `socialImage` | `string` | Open Graph image path for social sharing (per-page override) |
+| Field          | Type      | Description                                                   |
+| -------------- | --------- | ------------------------------------------------------------- |
+| `title`        | `string`  | Page title (also used in sidebar and browser tab)             |
+| `description`  | `string`  | Meta description for SEO                                      |
+| `layout`       | `string`  | Per-page layout override                                      |
+| `navLabel`     | `string`  | Override the label shown in top navigation                    |
+| `sidebarLabel` | `string`  | Override the label shown in sidebar                           |
+| `order`        | `number`  | Manual sort order within a section                            |
+| `draft`        | `boolean` | Exclude page from build when `true`                           |
+| `chrome`       | `object`  | Per-page shell toggles (`header`, `sidebar`, `toc`, `footer`) |
+| `socialImage`  | `string`  | Open Graph image path for social sharing (per-page override)  |
 
 All fields are optional. Additional custom fields are passed through to layouts.
 
@@ -153,7 +153,7 @@ All fields are optional. Additional custom fields are passed through to layouts.
 
 The home page (`<contentDir>/README.md`, usually `docs/README.md`) supports additional frontmatter for the default `DocHome` layout:
 
-```yaml
+````yaml
 ---
 layout: DocHome
 title: My Project
@@ -168,7 +168,7 @@ actions:
     link: /reference/api
     theme: alt
 features:
-  - icon: '<svg>...</svg>'
+  - icon: "<svg>...</svg>"
     title: Feature Name
     details: Feature description text.
 packages:
@@ -184,22 +184,21 @@ codeExample:
     import { something } from 'my-package'
     ```
 ---
-
 Markdown content below frontmatter is rendered after the structured sections.
-```
+````
 
 The default `DocHome` layout accepts either a structured `hero` object or the flatter top-level fields shown above (`title`, `tagline`, `description`, `badge`, `actions`). The layout normalizes both shapes into the same hero UI.
 
-| Field | Type | Description |
-|---|---|---|
-| `hero` | `object` | Hero section with `name`, `text`, `tagline`, `badge`, `actions` |
-| `tagline` | `string` | Flat hero subtitle; normalized into the default hero when `hero` is omitted |
-| `badge` | `string` | Flat hero badge; normalized into the default hero when `hero` is omitted |
-| `install` | `string` | Installation command snippet shown below hero |
-| `features` | `array` | Feature cards with `icon` (SVG string), `title`, `details` |
-| `packages` | `array` | Package cards with `name`, `description`, `href`, `tag`, `version` |
-| `codeExample` | `object` | Code example section with `label`, `title`, `code` |
-| `actions` | `array` | Call-to-action buttons with `text`, `link`, `theme` (`brand` or `alt`) either at the top level or inside `hero` |
+| Field         | Type     | Description                                                                                                     |
+| ------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
+| `hero`        | `object` | Hero section with `name`, `text`, `tagline`, `badge`, `actions`                                                 |
+| `tagline`     | `string` | Flat hero subtitle; normalized into the default hero when `hero` is omitted                                     |
+| `badge`       | `string` | Flat hero badge; normalized into the default hero when `hero` is omitted                                        |
+| `install`     | `string` | Installation command snippet shown below hero                                                                   |
+| `features`    | `array`  | Feature cards with `icon` (SVG string), `title`, `details`                                                      |
+| `packages`    | `array`  | Package cards with `name`, `description`, `href`, `tag`, `version`                                              |
+| `codeExample` | `object` | Code example section with `label`, `title`, `code`                                                              |
+| `actions`     | `array`  | Call-to-action buttons with `text`, `link`, `theme` (`brand` or `alt`) either at the top level or inside `hero` |
 
 ### Section Meta (`meta.json5`)
 
@@ -207,19 +206,15 @@ Each section can have a `meta.json5` file to control page ordering and section m
 
 ```json5
 {
-  displayName: 'Guide',
-  description: 'Getting started guides',
-  items: [
-    'getting-started',
-    'configuration',
-    'layouts',
-  ],
+  displayName: "Guide",
+  description: "Getting started guides",
+  items: ["getting-started", "configuration", "layouts"],
   // Optional: group pages into series
   series: [
     {
-      slug: 'basics',
-      displayName: 'The Basics',
-      articles: ['getting-started', 'configuration'],
+      slug: "basics",
+      displayName: "The Basics",
+      articles: ["getting-started", "configuration"],
     },
   ],
   // Optional: start this sidebar section collapsed
@@ -227,71 +222,71 @@ Each section can have a `meta.json5` file to control page ordering and section m
 }
 ```
 
-| Field | Type | Description |
-|---|---|---|
-| `displayName` | `string` | Section label in sidebar and navigation |
-| `description` | `string` | Section description |
-| `layout` | `string` | Layout for section index page |
-| `itemLayout` | `string` | Layout for pages in this section |
-| `orderBy` | `'manual' \| 'publishedDate'` | Page sort order |
-| `items` | `string[]` | Manual page order (slugs) |
-| `series` | `array` | Group pages into named series |
-| `collapsed` | `boolean` | Start sidebar section collapsed |
+| Field         | Type                          | Description                             |
+| ------------- | ----------------------------- | --------------------------------------- |
+| `displayName` | `string`                      | Section label in sidebar and navigation |
+| `description` | `string`                      | Section description                     |
+| `layout`      | `string`                      | Layout for section index page           |
+| `itemLayout`  | `string`                      | Layout for pages in this section        |
+| `orderBy`     | `'manual' \| 'publishedDate'` | Page sort order                         |
+| `items`       | `string[]`                    | Manual page order (slugs)               |
+| `series`      | `array`                       | Group pages into named series           |
+| `collapsed`   | `boolean`                     | Start sidebar section collapsed         |
 
 Pages not listed in `items` appear after listed pages. When `series` is present, any section pages not referenced by a series are collected into an automatic `Miscellaneous` group. When `orderBy` is `'publishedDate'`, pages are sorted by their `publishedDate` frontmatter field.
 
 ## Configuration (`pagesmith.config.json5`)
 
-| Field | Type | Default | Description |
-|---|---|---|---|
-| `preset` | `string` | — | Explicit preset for the `pagesmith-site` CLI. Set this to `@pagesmith/docs` only when you are driving docs through `pagesmith-site`; `pagesmith-docs` already selects the docs preset. |
-| `presets` | `string[]` | — | Preset list; the first item is used when `preset` is absent |
-| `name` | `string` | `pkg name` | Site name (header). Falls back to package.json name. |
-| `title` | `string` | `pkg name` | Browser tab title |
-| `description` | `string` | `pkg desc` | Default meta description |
-| `origin` | `string` | `git GitHub Pages host` / `pkg homepage` | Production URL for canonical links |
-| `language` | `string` | `'en'` | HTML lang attribute |
-| `contentDir` | `string` | `'docs/' or 'content/'` | Path to content directory |
-| `outDir` | `string` | `'gh-pages'` | Build output directory |
-| `publicDir` | `string` | `'public'` | Static assets directory |
-| `basePath` | `string` | `git repo name` or `'/'` | URL base path (CLI `--base-path` wins; `BASE_URL` only overrides when it is set to a non-root value) |
-| `homeLink` | `string` | `basePath` | Header logo link destination |
-| `maintainer` | `object` | `package.json author` | Maintainer credit used by the default footer sign-off (`{ name, link? }`) |
-| `footerLinks` | `array` | top-level nav links | Footer links rendered either as a flat link grid (`[{ label, path }]`) or grouped columns (`[{ header?, links: [...] }]`). On wide screens, the footer uses up to 4 evenly spaced columns. When omitted, the major section links from the top nav are reused. |
-| `footerText` | `string` | — | Override only the Pagesmith sign-off segment in the footer's bottom legal line |
-| `copyright` | `object` | — | Footer copyright config (`{ projectName?, startYear?, endYear?: number \| null }`). `endYear: null` keeps the rendered year dynamic. |
-| `sidebar.collapsible` | `boolean` | `true` | Enable collapsible sidebar sections |
-| `search.enabled` | `boolean` | `true` | Enable Pagefind search |
-| `search.showImages` | `boolean` | `false` | Show images in search results |
-| `search.showSubResults` | `boolean` | `true` | Show section-level results |
-| `search.pagefindFlags` | `string[]` | `[]` | Extra CLI flags for pagefind |
-| `theme.lightColor` | `string` | — | Light theme meta color |
-| `theme.darkColor` | `string` | — | Dark theme meta color |
-| `theme.defaultColorScheme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Default color scheme for the site shell |
-| `theme.defaultTheme` | `'paper' \| 'high-contrast'` | `'paper'` | Default theme variant |
-| `theme.defaultTextSize` | `'small' \| 'base' \| 'large'` | `'base'` | Default text size before user overrides are applied |
-| `theme.layouts` | `Record<string, string>` | — | Layout override file paths |
-| `analytics.googleAnalytics` | `string` | — | Google Analytics tracking ID |
-| `editLink` | `object \| false` | auto-detected | Edit link config (`{ repo, branch?, label? }`) or `false` to disable the default git-remote detection |
-| `lastUpdated` | `boolean` | `true` | Show git-based last updated timestamp on pages |
-| `sitemap` | `boolean` | `true` | Generate sitemap.xml (when origin is set) |
-| `theme.socialImage` | `string` | auto-detect | Default OG image for social sharing |
-| `markdown` | `MarkdownConfig` | — | JSON-safe markdown config (`allowDangerousHtml`, `math`, and `shiki`) |
-| `server.host` | `string` | `'127.0.0.1'` | Interface for dev/preview binding. Use `0.0.0.0` only when you intentionally want LAN exposure. |
-| `packages` | `Record<string, { label }>` | — | Multi-package section labels |
+| Field                       | Type                           | Default                                  | Description                                                                                                                                                                                                                                                   |
+| --------------------------- | ------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `preset`                    | `string`                       | —                                        | Explicit preset for the `pagesmith-site` CLI. Set this to `@pagesmith/docs` only when you are driving docs through `pagesmith-site`; `pagesmith-docs` already selects the docs preset.                                                                        |
+| `presets`                   | `string[]`                     | —                                        | Preset list; the first item is used when `preset` is absent                                                                                                                                                                                                   |
+| `name`                      | `string`                       | `pkg name`                               | Site name (header). Falls back to package.json name.                                                                                                                                                                                                          |
+| `title`                     | `string`                       | `pkg name`                               | Browser tab title                                                                                                                                                                                                                                             |
+| `description`               | `string`                       | `pkg desc`                               | Default meta description                                                                                                                                                                                                                                      |
+| `origin`                    | `string`                       | `git GitHub Pages host` / `pkg homepage` | Production URL for canonical links                                                                                                                                                                                                                            |
+| `language`                  | `string`                       | `'en'`                                   | HTML lang attribute                                                                                                                                                                                                                                           |
+| `contentDir`                | `string`                       | `'docs/' or 'content/'`                  | Path to content directory                                                                                                                                                                                                                                     |
+| `outDir`                    | `string`                       | `'gh-pages'`                             | Build output directory                                                                                                                                                                                                                                        |
+| `publicDir`                 | `string`                       | `'public'`                               | Static assets directory                                                                                                                                                                                                                                       |
+| `basePath`                  | `string`                       | `git repo name` or `'/'`                 | URL base path (CLI `--base-path` wins; `BASE_URL` only overrides when it is set to a non-root value)                                                                                                                                                          |
+| `homeLink`                  | `string`                       | `basePath`                               | Header logo link destination                                                                                                                                                                                                                                  |
+| `maintainer`                | `object`                       | `package.json author`                    | Maintainer credit used by the default footer sign-off (`{ name, link? }`)                                                                                                                                                                                     |
+| `footerLinks`               | `array`                        | top-level nav links                      | Footer links rendered either as a flat link grid (`[{ label, path }]`) or grouped columns (`[{ header?, links: [...] }]`). On wide screens, the footer uses up to 4 evenly spaced columns. When omitted, the major section links from the top nav are reused. |
+| `footerText`                | `string`                       | —                                        | Override only the Pagesmith sign-off segment in the footer's bottom legal line                                                                                                                                                                                |
+| `copyright`                 | `object`                       | —                                        | Footer copyright config (`{ projectName?, startYear?, endYear?: number \| null }`). `endYear: null` keeps the rendered year dynamic.                                                                                                                          |
+| `sidebar.collapsible`       | `boolean`                      | `true`                                   | Enable collapsible sidebar sections                                                                                                                                                                                                                           |
+| `search.enabled`            | `boolean`                      | `true`                                   | Enable Pagefind search                                                                                                                                                                                                                                        |
+| `search.showImages`         | `boolean`                      | `false`                                  | Show images in search results                                                                                                                                                                                                                                 |
+| `search.showSubResults`     | `boolean`                      | `true`                                   | Show section-level results                                                                                                                                                                                                                                    |
+| `search.pagefindFlags`      | `string[]`                     | `[]`                                     | Extra CLI flags for pagefind                                                                                                                                                                                                                                  |
+| `theme.lightColor`          | `string`                       | —                                        | Light theme meta color                                                                                                                                                                                                                                        |
+| `theme.darkColor`           | `string`                       | —                                        | Dark theme meta color                                                                                                                                                                                                                                         |
+| `theme.defaultColorScheme`  | `'auto' \| 'light' \| 'dark'`  | `'auto'`                                 | Default color scheme for the site shell                                                                                                                                                                                                                       |
+| `theme.defaultTheme`        | `'paper' \| 'high-contrast'`   | `'paper'`                                | Default theme variant                                                                                                                                                                                                                                         |
+| `theme.defaultTextSize`     | `'small' \| 'base' \| 'large'` | `'base'`                                 | Default text size before user overrides are applied                                                                                                                                                                                                           |
+| `theme.layouts`             | `Record<string, string>`       | —                                        | Layout override file paths                                                                                                                                                                                                                                    |
+| `analytics.googleAnalytics` | `string`                       | —                                        | Google Analytics tracking ID                                                                                                                                                                                                                                  |
+| `editLink`                  | `object \| false`              | auto-detected                            | Edit link config (`{ repo, branch?, label? }`) or `false` to disable the default git-remote detection                                                                                                                                                         |
+| `lastUpdated`               | `boolean`                      | `true`                                   | Show git-based last updated timestamp on pages                                                                                                                                                                                                                |
+| `sitemap`                   | `boolean`                      | `true`                                   | Generate sitemap.xml (when origin is set)                                                                                                                                                                                                                     |
+| `theme.socialImage`         | `string`                       | auto-detect                              | Default OG image for social sharing                                                                                                                                                                                                                           |
+| `markdown`                  | `MarkdownConfig`               | —                                        | JSON-safe markdown config (`allowDangerousHtml`, `math`, and `shiki`)                                                                                                                                                                                         |
+| `server.host`               | `string`                       | `'127.0.0.1'`                            | Interface for dev/preview binding. Use `0.0.0.0` only when you intentionally want LAN exposure.                                                                                                                                                               |
+| `packages`                  | `Record<string, { label }>`    | —                                        | Multi-package section labels                                                                                                                                                                                                                                  |
 
 ### Example Configuration
 
 ```json5
 {
-  origin: 'https://docs.example.com',
-  basePath: '/docs',
+  origin: "https://docs.example.com",
+  basePath: "/docs",
   maintainer: {
-    name: 'Sujeet Jaiswal',
-    link: 'https://sujeet.pro',
+    name: "Sujeet Jaiswal",
+    link: "https://sujeet.pro",
   },
   copyright: {
-    projectName: 'Example Docs',
+    projectName: "Example Docs",
     startYear: 2024,
     endYear: null,
   },
@@ -300,15 +295,15 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
   },
   footerLinks: [
     {
-      header: 'Docs',
+      header: "Docs",
       links: [
-        { label: 'Guide', path: '/guide' },
-        { label: 'API', path: '/api' },
+        { label: "Guide", path: "/guide" },
+        { label: "API", path: "/api" },
       ],
     },
     {
-      header: 'Project',
-      links: [{ label: 'GitHub', path: 'https://github.com/example/repo' }],
+      header: "Project",
+      links: [{ label: "GitHub", path: "https://github.com/example/repo" }],
     },
   ],
   search: {
@@ -316,7 +311,7 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
     showSubResults: true,
   },
   editLink: {
-    repo: 'https://github.com/example/repo',
+    repo: "https://github.com/example/repo",
   },
   lastUpdated: true,
 }
@@ -377,10 +372,10 @@ Override the default layouts by specifying file paths in `theme.layouts`:
 {
   theme: {
     layouts: {
-      home: './theme/layouts/DocHome.tsx',
-      page: './theme/layouts/DocPage.tsx',
-      listing: './theme/layouts/DocListing.tsx',
-      notFound: './theme/layouts/DocNotFound.tsx',
+      home: "./theme/layouts/DocHome.tsx",
+      page: "./theme/layouts/DocPage.tsx",
+      listing: "./theme/layouts/DocListing.tsx",
+      notFound: "./theme/layouts/DocNotFound.tsx",
     },
   },
 }
@@ -392,11 +387,11 @@ Layout components are TSX files using `@pagesmith/docs/jsx-runtime`:
 
 ```tsx
 // theme/layouts/DocPage.tsx
-import { SiteDocument } from '@pagesmith/docs/components'
-import { PageShell } from '@pagesmith/docs/layouts'
+import { SiteDocument } from "@pagesmith/docs/components";
+import { PageShell } from "@pagesmith/docs/layouts";
 
 export default function DocPage(props) {
-  const { content, frontmatter, headings, slug, site, sidebarSections } = props
+  const { content, frontmatter, headings, slug, site, sidebarSections } = props;
   return (
     <SiteDocument title={`${frontmatter.title} — ${site.title}`} site={site}>
       <PageShell
@@ -408,7 +403,7 @@ export default function DocPage(props) {
         <div class="prose" innerHTML={content} />
       </PageShell>
     </SiteDocument>
-  )
+  );
 }
 ```
 
@@ -416,38 +411,38 @@ export default function DocPage(props) {
 
 **All layouts** receive:
 
-| Prop | Type | Description |
-|---|---|---|
-| `content` | `string` | Rendered HTML content |
-| `frontmatter` | `Record<string, any>` | Page frontmatter |
-| `headings` | `Heading[]` | Extracted headings (`{ depth, text, slug }`) |
-| `slug` | `string` | Page slug |
-| `site` | `ResolvedDocsConfig` | Full resolved site configuration |
+| Prop          | Type                  | Description                                  |
+| ------------- | --------------------- | -------------------------------------------- |
+| `content`     | `string`              | Rendered HTML content                        |
+| `frontmatter` | `Record<string, any>` | Page frontmatter                             |
+| `headings`    | `Heading[]`           | Extracted headings (`{ depth, text, slug }`) |
+| `slug`        | `string`              | Page slug                                    |
+| `site`        | `ResolvedDocsConfig`  | Full resolved site configuration             |
 
 **Page layout** additionally receives:
 
-| Prop | Type | Description |
-|---|---|---|
-| `sidebarSections` | `SidebarSection[]` | Sidebar navigation structure |
-| `prev` | `{ title, path } \| undefined` | Previous page link |
-| `next` | `{ title, path } \| undefined` | Next page link |
+| Prop              | Type                           | Description                  |
+| ----------------- | ------------------------------ | ---------------------------- |
+| `sidebarSections` | `SidebarSection[]`             | Sidebar navigation structure |
+| `prev`            | `{ title, path } \| undefined` | Previous page link           |
+| `next`            | `{ title, path } \| undefined` | Next page link               |
 
 **Listing layout** additionally receives:
 
-| Prop | Type | Description |
-|---|---|---|
-| `listingCards` | `array` | Generated section cards for the current folder |
-| `listingGroups` | `array` | Optional grouped listing sections synthesized from `meta.json5` series definitions |
-| `listingTotal` | `number` | Total number of generated child pages in the current section |
+| Prop            | Type     | Description                                                                        |
+| --------------- | -------- | ---------------------------------------------------------------------------------- |
+| `listingCards`  | `array`  | Generated section cards for the current folder                                     |
+| `listingGroups` | `array`  | Optional grouped listing sections synthesized from `meta.json5` series definitions |
+| `listingTotal`  | `number` | Total number of generated child pages in the current section                       |
 
 **Home layout** additionally receives:
 
-| Prop | Type | Description |
-|---|---|---|
-| `frontmatter.hero` | `object` | Hero section data |
-| `frontmatter.features` | `array` | Feature cards |
-| `frontmatter.packages` | `array` | Package cards |
-| `frontmatter.install` | `string` | Install command |
+| Prop                   | Type     | Description       |
+| ---------------------- | -------- | ----------------- |
+| `frontmatter.hero`     | `object` | Hero section data |
+| `frontmatter.features` | `array`  | Feature cards     |
+| `frontmatter.packages` | `array`  | Package cards     |
+| `frontmatter.install`  | `string` | Install command   |
 
 ### Export Resolution
 
@@ -501,39 +496,39 @@ import {
   buildSiteModel,
   getPrevNext,
   getSitePayload,
-} from '@pagesmith/docs'
+} from "@pagesmith/docs";
 
 defineDocsConfig({
-  name: 'My Docs',
-  title: 'My Docs',
+  name: "My Docs",
+  title: "My Docs",
   search: { enabled: true },
-})
+});
 
-await build({ configPath: './pagesmith.config.json5' })
-await startDev({ port: 3000 })
-await preview({ port: 4000 })
+await build({ configPath: "./pagesmith.config.json5" });
+await startDev({ port: 3000 });
+await preview({ port: 4000 });
 
-const config = resolveDocsConfig('./pagesmith.config.json5')
-const issues = validateConfig(config)
-reportConfigIssues(issues)
+const config = resolveDocsConfig("./pagesmith.config.json5");
+const issues = validateConfig(config);
+reportConfigIssues(issues);
 
-const userConfig = loadDocsConfig('./pagesmith.config.json5')
-const url = withBase('/guide/getting-started', config.basePath)
+const userConfig = loadDocsConfig("./pagesmith.config.json5");
+const url = withBase("/guide/getting-started", config.basePath);
 ```
 
 ## Export Map
 
-| Import Path | Purpose |
-|---|---|
-| `@pagesmith/docs` | Main API (`build`, `startDev`, `preview`, `defineDocsConfig`, `validateConfig`, `resolveDocsConfig`, `loadDocsConfig`, `reportConfigIssues`, `withBase`, `docsPreset`, `Html`, `buildSiteModel`, `getPrevNext`, `getSitePayload`) |
-| `@pagesmith/docs/components` | Re-exported shared chrome components for docs overrides |
-| `@pagesmith/docs/layouts` | Re-exported shared layout wrappers for docs overrides |
-| `@pagesmith/docs/jsx-runtime` | JSX runtime for docs layout overrides |
-| `@pagesmith/docs/jsx-dev-runtime` | JSX dev runtime for docs layout overrides |
-| `@pagesmith/docs/schemas` | Zod schemas for config, layout props, page data |
-| `@pagesmith/docs/preset` | Docs preset for integration |
-| `@pagesmith/docs/theme` | Theme/runtime export surface |
-| `@pagesmith/docs/mcp` | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`) |
+| Import Path                       | Purpose                                                                                                                                                                                                                           |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@pagesmith/docs`                 | Main API (`build`, `startDev`, `preview`, `defineDocsConfig`, `validateConfig`, `resolveDocsConfig`, `loadDocsConfig`, `reportConfigIssues`, `withBase`, `docsPreset`, `Html`, `buildSiteModel`, `getPrevNext`, `getSitePayload`) |
+| `@pagesmith/docs/components`      | Re-exported shared chrome components for docs overrides                                                                                                                                                                           |
+| `@pagesmith/docs/layouts`         | Re-exported shared layout wrappers for docs overrides                                                                                                                                                                             |
+| `@pagesmith/docs/jsx-runtime`     | JSX runtime for docs layout overrides                                                                                                                                                                                             |
+| `@pagesmith/docs/jsx-dev-runtime` | JSX dev runtime for docs layout overrides                                                                                                                                                                                         |
+| `@pagesmith/docs/schemas`         | Zod schemas for config, layout props, page data                                                                                                                                                                                   |
+| `@pagesmith/docs/preset`          | Docs preset for integration                                                                                                                                                                                                       |
+| `@pagesmith/docs/theme`           | Theme/runtime export surface                                                                                                                                                                                                      |
+| `@pagesmith/docs/mcp`             | Stdio MCP server entry (`createDocsMcpServer`, `startDocsMcpServer`)                                                                                                                                                              |
 
 ## Further Reading
 
@@ -545,19 +540,19 @@ const url = withBase('/guide/getting-started', config.basePath)
 
 These files are available at `node_modules/@pagesmith/docs/` after installation:
 
-| File | Purpose |
-|---|---|
-| `REFERENCE.md` | Full reference for config, CLI, content, markdown, layouts, deployment |
-| `skills/pagesmith-docs-setup/references/setup-docs.md` | Bootstrap/retrofit prompt for setting up docs in an existing repo |
-| `skills/pagesmith-docs-setup/references/docs-guidelines.md` | Docs-specific structure, navigation, and ownership rules |
-| `skills/pagesmith-docs-setup/references/markdown-guidelines.md` | Markdown authoring and pipeline guidance for docs projects |
-| `skills/pagesmith-docs-setup/references/usage.md` | Agent rules, integration shape, copy-paste prompts |
-| `skills/pagesmith-docs-setup/references/recipes.md` | Step-by-step recipes for common tasks |
-| `skills/pagesmith-docs-setup/references/errors.md` | Error catalog with patterns and fixes |
-| `skills/pagesmith-docs-setup/references/migration.md` | Upgrade playbook and prompt for existing integrations |
-| `schemas/*.schema.json` | Version-matched schemas for config, meta.json5, and docs frontmatter |
-| `skills/pagesmith-docs-setup/references/llms.txt` | Compact AI context index |
-| `skills/pagesmith-docs-setup/references/llms-full.txt` | Full AI context with all file pointers |
+| File                                                            | Purpose                                                                |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `REFERENCE.md`                                                  | Full reference for config, CLI, content, markdown, layouts, deployment |
+| `skills/pagesmith-docs-setup/references/setup-docs.md`          | Bootstrap/retrofit prompt for setting up docs in an existing repo      |
+| `skills/pagesmith-docs-setup/references/docs-guidelines.md`     | Docs-specific structure, navigation, and ownership rules               |
+| `skills/pagesmith-docs-setup/references/markdown-guidelines.md` | Markdown authoring and pipeline guidance for docs projects             |
+| `skills/pagesmith-docs-setup/references/usage.md`               | Agent rules, integration shape, copy-paste prompts                     |
+| `skills/pagesmith-docs-setup/references/recipes.md`             | Step-by-step recipes for common tasks                                  |
+| `skills/pagesmith-docs-setup/references/errors.md`              | Error catalog with patterns and fixes                                  |
+| `skills/pagesmith-docs-setup/references/migration.md`           | Upgrade playbook and prompt for existing integrations                  |
+| `schemas/*.schema.json`                                         | Version-matched schemas for config, meta.json5, and docs frontmatter   |
+| `llms.txt`                                                      | Compact AI context index                                               |
+| `llms-full.txt`                                                 | Full AI context with all file pointers                                 |
 
 ## License
 

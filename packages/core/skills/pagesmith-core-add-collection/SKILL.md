@@ -20,14 +20,14 @@ Run any verification commands (`npx vite build`, `npx vite dev`) through `npx` o
 
 ## Decide loader + directory
 
-| Loader | File type | Best for |
-| --- | --- | --- |
-| `markdown` | `.md` | Pages, posts, guides, anything with prose |
-| `json` | `.json` | Strict data (CI-friendly) |
-| `json5` | `.json5` | Config-like content with comments |
-| `jsonc` | `.jsonc` | VS Code-style JSON with comments |
-| `yaml` | `.yml`, `.yaml` | Lists, records, human-edited data |
-| `toml` | `.toml` | Tabular config where JSON is noisy |
+| Loader     | File type       | Best for                                  |
+| ---------- | --------------- | ----------------------------------------- |
+| `markdown` | `.md`           | Pages, posts, guides, anything with prose |
+| `json`     | `.json`         | Strict data (CI-friendly)                 |
+| `json5`    | `.json5`        | Config-like content with comments         |
+| `jsonc`    | `.jsonc`        | VS Code-style JSON with comments          |
+| `yaml`     | `.yml`, `.yaml` | Lists, records, human-edited data         |
+| `toml`     | `.toml`         | Tabular config where JSON is noisy        |
 
 Pick one loader per collection. You cannot mix file types in the same collection.
 
@@ -35,11 +35,11 @@ Pick one loader per collection. You cannot mix file types in the same collection
 
 ```ts
 // content.config.ts
-import { defineCollection, defineCollections, z } from '@pagesmith/core'
+import { defineCollection, defineCollections, z } from "@pagesmith/core";
 
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -48,20 +48,20 @@ const posts = defineCollection({
     draft: z.boolean().default(false),
     coverImage: z.string().optional(),
   }),
-})
+});
 
 const authors = defineCollection({
-  loader: 'json5',
-  directory: 'content/authors',
+  loader: "json5",
+  directory: "content/authors",
   schema: z.object({
     id: z.string(),
     name: z.string(),
     bio: z.string(),
     links: z.record(z.string()).default({}),
   }),
-})
+});
 
-export default defineCollections({ posts, authors })
+export default defineCollections({ posts, authors });
 ```
 
 Always import `z` from `@pagesmith/core`. Do **not** `import { z } from 'zod'` — Pagesmith pins its own Zod version and dual copies break schema identity checks.
@@ -70,13 +70,13 @@ Always import `z` from `@pagesmith/core`. Do **not** `import { z } from 'zod'` �
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithContent } from "@pagesmith/core/vite";
+import collections from "./content.config";
 
 export default defineConfig({
   plugins: [pagesmithContent({ collections })],
-})
+});
 ```
 
 If you also use `@pagesmith/site`, prefer `pagesmithSite({ collections })` instead of wiring `pagesmithContent` directly — it composes content, SSG, and shared assets.
@@ -86,24 +86,24 @@ If you also use `@pagesmith/site`, prefer `pagesmithSite({ collections })` inste
 From virtual modules (fastest, cache-friendly):
 
 ```ts
-import posts from 'virtual:content/posts'
+import posts from "virtual:content/posts";
 
 for (const entry of posts) {
-  console.log(entry.data.title, entry.slug)
+  console.log(entry.data.title, entry.slug);
 }
 ```
 
 Through the content layer (full control, async):
 
 ```ts
-import { createContentLayer, defineConfig } from '@pagesmith/core'
-import collections from './content.config'
+import { createContentLayer, defineConfig } from "@pagesmith/core";
+import collections from "./content.config";
 
-const layer = createContentLayer(defineConfig({ collections }))
+const layer = createContentLayer(defineConfig({ collections }));
 
-const all = await layer.getCollection('posts')
-const one = await layer.getEntry('posts', 'hello-world')
-const rendered = await one?.render()
+const all = await layer.getCollection("posts");
+const one = await layer.getEntry("posts", "hello-world");
+const rendered = await one?.render();
 ```
 
 `render()` returns `{ html, headings, links, frontmatter, readingTime }` for markdown entries. For non-markdown loaders it just returns the parsed data.
@@ -113,11 +113,11 @@ const rendered = await one?.render()
 `@pagesmith/core` ships pre-configured factories with sensible schemas:
 
 ```ts
-import { blogCollection, projectsCollection, docsCollection } from '@pagesmith/core'
+import { blogCollection, projectsCollection, docsCollection } from "@pagesmith/core";
 
-const posts    = blogCollection({ directory: 'content/posts' })
-const projects = projectsCollection()                        // directory defaults to 'content/projects'
-const docs     = docsCollection({ directory: 'docs' })       // used by @pagesmith/docs under the hood
+const posts = blogCollection({ directory: "content/posts" });
+const projects = projectsCollection(); // directory defaults to 'content/projects'
+const docs = docsCollection({ directory: "docs" }); // used by @pagesmith/docs under the hood
 ```
 
 Each factory accepts a `schema:` override when you need to extend the defaults:
@@ -125,7 +125,7 @@ Each factory accepts a `schema:` override when you need to extend the defaults:
 ```ts
 const posts = blogCollection({
   schema: (base) => base.extend({ newsletterBoost: z.boolean().default(false) }),
-})
+});
 ```
 
 ## Validation
@@ -135,9 +135,9 @@ const posts = blogCollection({
 - For CI or pre-deploy checks, run the validator explicitly:
 
 ```ts
-const results = await layer.validate('posts')
-if (results.some(r => r.issues.some(i => i.severity === 'error'))) {
-  process.exit(1)
+const results = await layer.validate("posts");
+if (results.some((r) => r.issues.some((i) => i.severity === "error"))) {
+  process.exit(1);
 }
 ```
 

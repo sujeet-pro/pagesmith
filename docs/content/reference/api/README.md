@@ -9,40 +9,40 @@ Complete API reference for the public Pagesmith package surfaces.
 
 ## Export Paths
 
-| Import Path | Purpose |
-|---|---|
-| `@pagesmith/core` | Main content-layer barrel -- config helpers, content layer, markdown, schemas, loaders, validation, AI, `z` re-export |
-| `@pagesmith/core/vite` | Lower-level content-plugin export -- `pagesmithContent()` for core-only integrations |
-| `@pagesmith/core/markdown` | `processMarkdown()` function |
-| `@pagesmith/core/schemas` | Zod schemas and inferred TypeScript types |
-| `@pagesmith/core/loaders` | Loader classes and the `resolveLoader()` registry |
-| `@pagesmith/core/assets` | Static file copying and content-hash filenames |
-| `@pagesmith/core/ai` | AI assistant artifact installer |
-| `@pagesmith/core/create` | Project scaffolding utilities |
-| `@pagesmith/core/cli-kit` | Shared CLI building blocks (cac wrapper, clack prompts, config loader) reused by `pagesmith-core`, `pagesmith-site`, `pagesmith-docs` |
-| `@pagesmith/core/mcp` | Programmatic MCP server entry (`createCoreMcpServer`, `startCoreMcpServer`) — wrap a live `ContentLayer` to expose core tools over stdio |
-| `@pagesmith/site` | App-facing site/content barrel -- re-exported content APIs, site config helpers, and preset types |
-| `@pagesmith/site/vite` | App-facing Vite barrel -- `pagesmithSite()`, `pagesmithContent()`, `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()` |
-| `@pagesmith/site/preset` | Fallback `sitePreset()` factory for the `pagesmith-site` CLI when no real preset is selected |
-| `@pagesmith/site/jsx-runtime` | Server-side JSX: `h()`, `Fragment()`, `HtmlString` |
-| `@pagesmith/site/runtime` | Pre-built CSS/JS asset accessors |
-| `@pagesmith/site/runtime/*` | Granular browser entry modules (`code-blocks`, `code-tabs`, `chrome`, `content`, `standalone`, `footer-year`, `search-trigger`, `sidebar`, `skip-link`, `theme`, `toc-highlight`) |
-| `@pagesmith/site/components` | Reusable JSX/HTML components (`SiteDocument`, `SiteHeader`, `SiteSidebar`, `SiteFooter`, `TableOfContents`, `Breadcrumbs`, `ListingCards`, `HeroSection`, `ContentMeta`, theme controls) |
-| `@pagesmith/site/layouts` | Reusable site layouts (`PageShell`, `HomeLayout`, `ListingLayout`, `NotFoundLayout`) |
-| `@pagesmith/site/theme` | Theme defaults + `resolveThemeControls()` |
-| `@pagesmith/site/css` | `buildCss()` via LightningCSS |
-| `@pagesmith/site/css/*` | Shared CSS bundles (`chrome`, `standalone`, `content`, `code-block`, `code-inline`, `tabs`, `viewport`, `fonts`) |
-| `@pagesmith/site/ssg-utils` | Shared SSG utility helpers (`runPagefindIndexing`, route/date helpers, `renderDocumentShell`) |
-| `@pagesmith/site/build-validator` | `validateBuildOutput`, `runBuildValidation` and types for post-build checks |
-| `@pagesmith/docs` | Main docs barrel -- config helpers, build/dev/preview APIs, navigation helpers, theme exports, and MCP entrypoints |
-| `@pagesmith/docs/preset` | `docsPreset()` -- docs-package preset entry |
-| `@pagesmith/docs/components` | Reusable docs chrome components for layout overrides |
-| `@pagesmith/docs/layouts` | Reusable docs layout helpers for custom themes |
-| `@pagesmith/docs/jsx-runtime` | JSX runtime for docs layout overrides |
-| `@pagesmith/docs/jsx-dev-runtime` | Dev JSX runtime for docs layout overrides |
-| `@pagesmith/docs/theme` | Stock docs theme exports |
-| `@pagesmith/docs/mcp` | Docs MCP server entry |
-| `@pagesmith/docs/schemas` | Docs config Zod schemas |
+| Import Path                       | Purpose                                                                                                                                                                                  |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@pagesmith/core`                 | Main content-layer barrel -- config helpers, content layer, markdown, schemas, loaders, validation, AI, `z` re-export                                                                    |
+| `@pagesmith/core/vite`            | Lower-level content-plugin export -- `pagesmithContent()` for core-only integrations                                                                                                     |
+| `@pagesmith/core/markdown`        | `processMarkdown()` function                                                                                                                                                             |
+| `@pagesmith/core/schemas`         | Zod schemas and inferred TypeScript types                                                                                                                                                |
+| `@pagesmith/core/loaders`         | Loader classes and the `resolveLoader()` registry                                                                                                                                        |
+| `@pagesmith/core/assets`          | Static file copying and content-hash filenames                                                                                                                                           |
+| `@pagesmith/core/ai`              | AI assistant artifact installer                                                                                                                                                          |
+| `@pagesmith/core/create`          | Project scaffolding utilities                                                                                                                                                            |
+| `@pagesmith/core/cli-kit`         | Shared CLI building blocks (cac wrapper, clack prompts, config loader) reused by `pagesmith-core`, `pagesmith-site`, `pagesmith-docs`                                                    |
+| `@pagesmith/core/mcp`             | Programmatic MCP server entry (`createCoreMcpServer`, `startCoreMcpServer`) — wrap a live `ContentLayer` to expose core tools over stdio                                                 |
+| `@pagesmith/site`                 | App-facing site/content barrel -- re-exported content APIs, site config helpers, and preset types                                                                                        |
+| `@pagesmith/site/vite`            | App-facing Vite barrel -- `pagesmithSite()`, `pagesmithContent()`, `pagesmithSsg()`, `sharedAssetsPlugin()`, `prerenderRoutes()`                                                         |
+| `@pagesmith/site/preset`          | Fallback `sitePreset()` factory for the `pagesmith-site` CLI when no real preset is selected                                                                                             |
+| `@pagesmith/site/jsx-runtime`     | Server-side JSX: `h()`, `Fragment()`, `HtmlString`                                                                                                                                       |
+| `@pagesmith/site/runtime`         | Pre-built CSS/JS asset accessors                                                                                                                                                         |
+| `@pagesmith/site/runtime/*`       | Granular browser entry modules (`code-blocks`, `code-tabs`, `chrome`, `content`, `standalone`, `footer-year`, `search-trigger`, `sidebar`, `skip-link`, `theme`, `toc-highlight`)        |
+| `@pagesmith/site/components`      | Reusable JSX/HTML components (`SiteDocument`, `SiteHeader`, `SiteSidebar`, `SiteFooter`, `TableOfContents`, `Breadcrumbs`, `ListingCards`, `HeroSection`, `ContentMeta`, theme controls) |
+| `@pagesmith/site/layouts`         | Reusable site layouts (`PageShell`, `HomeLayout`, `ListingLayout`, `NotFoundLayout`)                                                                                                     |
+| `@pagesmith/site/theme`           | Theme defaults + `resolveThemeControls()`                                                                                                                                                |
+| `@pagesmith/site/css`             | `buildCss()` via LightningCSS                                                                                                                                                            |
+| `@pagesmith/site/css/*`           | Shared CSS bundles (`chrome`, `standalone`, `content`, `code-block`, `code-inline`, `tabs`, `viewport`, `fonts`)                                                                         |
+| `@pagesmith/site/ssg-utils`       | Shared SSG utility helpers (`runPagefindIndexing`, route/date helpers, `renderDocumentShell`)                                                                                            |
+| `@pagesmith/site/build-validator` | `validateBuildOutput`, `runBuildValidation` and types for post-build checks                                                                                                              |
+| `@pagesmith/docs`                 | Main docs barrel -- config helpers, build/dev/preview APIs, navigation helpers, theme exports, and MCP entrypoints                                                                       |
+| `@pagesmith/docs/preset`          | `docsPreset()` -- docs-package preset entry                                                                                                                                              |
+| `@pagesmith/docs/components`      | Reusable docs chrome components for layout overrides                                                                                                                                     |
+| `@pagesmith/docs/layouts`         | Reusable docs layout helpers for custom themes                                                                                                                                           |
+| `@pagesmith/docs/jsx-runtime`     | JSX runtime for docs layout overrides                                                                                                                                                    |
+| `@pagesmith/docs/jsx-dev-runtime` | Dev JSX runtime for docs layout overrides                                                                                                                                                |
+| `@pagesmith/docs/theme`           | Stock docs theme exports                                                                                                                                                                 |
+| `@pagesmith/docs/mcp`             | Docs MCP server entry                                                                                                                                                                    |
+| `@pagesmith/docs/schemas`         | Docs config Zod schemas                                                                                                                                                                  |
 
 ---
 
@@ -55,16 +55,16 @@ Complete API reference for the public Pagesmith package surfaces.
 Type-safe identity function for creating a `CollectionDef<S>`. Provides full TypeScript inference from the Zod schema.
 
 ```ts
-import { defineCollection, z } from '@pagesmith/core'
+import { defineCollection, z } from "@pagesmith/core";
 
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
   }),
-})
+});
 ```
 
 #### `defineCollections(map)`
@@ -85,14 +85,14 @@ const collections = defineCollections({
 Type-safe identity function for creating a `ContentLayerConfig`.
 
 ```ts
-import { defineConfig } from '@pagesmith/core'
+import { defineConfig } from "@pagesmith/core";
 
 const config = defineConfig({
   collections: { posts, authors },
   root: process.cwd(),
-  markdown: { shiki: { themes: { light: 'github-light', dark: 'github-dark' } } },
+  markdown: { shiki: { themes: { light: "github-light", dark: "github-dark" } } },
   plugins: [],
-})
+});
 ```
 
 ### `createContentLayer(config)`
@@ -100,28 +100,28 @@ const config = defineConfig({
 Creates a `ContentLayer` instance from a `ContentLayerConfig`. The content layer is the main API for working with collections.
 
 ```ts
-import { createContentLayer } from '@pagesmith/core'
+import { createContentLayer } from "@pagesmith/core";
 
-const layer = createContentLayer(config)
+const layer = createContentLayer(config);
 ```
 
 ### ContentLayer Interface
 
-| Method | Signature | Description |
-|---|---|---|
-| `getCollection` | `(name: string) => Promise<ContentEntry<any>[]>` | Load and return all entries in a collection |
-| `getEntry` | `(collection: string, slug: string) => Promise<ContentEntry<any> \| undefined>` | Get a single entry by slug |
-| `convert` | `(markdown: string, options?: LayerConvertOptions) => Promise<ConvertResult>` | Convert raw markdown to HTML (no collection, no validation); pass `sourcePath` and optional `assetRoot` for local image enhancements |
-| `invalidate` | `(collection: string, slug: string) => Promise<void>` | Invalidate a single entry's cache |
-| `invalidateCollection` | `(collection: string) => Promise<void>` | Invalidate an entire collection's cache |
-| `invalidateAll` | `() => void` | Invalidate all cached data |
-| `invalidateWhere` | `(collection: string, predicate: (entry: ContentEntry) => boolean) => Promise<number>` | Invalidate entries matching a predicate; returns count of invalidated entries |
-| `validate` | `(collection?: string) => Promise<ValidationResult[]>` | Validate all entries in one or all collections |
-| `getCollectionNames` | `() => string[]` | Get the names of all configured collections |
-| `getCollectionDef` | `(name: string) => CollectionDef \| undefined` | Get the definition of a collection |
-| `getCollections` | `() => Record<string, CollectionDef>` | Get all collection definitions |
-| `watch` | `(callback: WatchCallback) => WatchHandle` | Watch collection directories for changes; returns a handle to stop watching |
-| `getCacheStats` | `() => { collections: number; entries: Record<string, number>; totalEntries: number }` | Get cache statistics for debugging and monitoring |
+| Method                 | Signature                                                                              | Description                                                                                                                          |
+| ---------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `getCollection`        | `(name: string) => Promise<ContentEntry<any>[]>`                                       | Load and return all entries in a collection                                                                                          |
+| `getEntry`             | `(collection: string, slug: string) => Promise<ContentEntry<any> \| undefined>`        | Get a single entry by slug                                                                                                           |
+| `convert`              | `(markdown: string, options?: LayerConvertOptions) => Promise<ConvertResult>`          | Convert raw markdown to HTML (no collection, no validation); pass `sourcePath` and optional `assetRoot` for local image enhancements |
+| `invalidate`           | `(collection: string, slug: string) => Promise<void>`                                  | Invalidate a single entry's cache                                                                                                    |
+| `invalidateCollection` | `(collection: string) => Promise<void>`                                                | Invalidate an entire collection's cache                                                                                              |
+| `invalidateAll`        | `() => void`                                                                           | Invalidate all cached data                                                                                                           |
+| `invalidateWhere`      | `(collection: string, predicate: (entry: ContentEntry) => boolean) => Promise<number>` | Invalidate entries matching a predicate; returns count of invalidated entries                                                        |
+| `validate`             | `(collection?: string) => Promise<ValidationResult[]>`                                 | Validate all entries in one or all collections                                                                                       |
+| `getCollectionNames`   | `() => string[]`                                                                       | Get the names of all configured collections                                                                                          |
+| `getCollectionDef`     | `(name: string) => CollectionDef \| undefined`                                         | Get the definition of a collection                                                                                                   |
+| `getCollections`       | `() => Record<string, CollectionDef>`                                                  | Get all collection definitions                                                                                                       |
+| `watch`                | `(callback: WatchCallback) => WatchHandle`                                             | Watch collection directories for changes; returns a handle to stop watching                                                          |
+| `getCacheStats`        | `() => { collections: number; entries: Record<string, number>; totalEntries: number }` | Get cache statistics for debugging and monitoring                                                                                    |
 
 When `convert()` is rendering markdown that references local images, pass `sourcePath` in `LayerConvertOptions` so Pagesmith can resolve intrinsic dimensions and JPEG picture fallbacks. By default `convert()` keeps relative refs inside the markdown file's own directory; add `assetRoot` when the safe root should be broader, such as the collection directory that `entry.render()` uses automatically.
 
@@ -129,24 +129,24 @@ When `convert()` is rendering markdown that references local images, pass `sourc
 
 Represents a single loaded content entry. Properties and methods:
 
-| Property/Method | Type | Description |
-|---|---|---|
-| `slug` | `string` (readonly) | URL-friendly identifier |
-| `collection` | `string` (readonly) | Collection name |
-| `filePath` | `string` (readonly) | Absolute path to source file |
-| `data` | `T` (readonly) | Validated data (typed by the Zod schema) |
-| `rawContent` | `string \| undefined` (readonly) | Raw markdown body (only for markdown loaders) |
-| `render(options?)` | `(options?: { force?: boolean }) => Promise<RenderedContent>` | Render markdown to HTML. Cached after first call. Pass `{ force: true }` to re-render. |
-| `clearRenderCache()` | `() => void` | Clear cached render result |
+| Property/Method      | Type                                                          | Description                                                                            |
+| -------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `slug`               | `string` (readonly)                                           | URL-friendly identifier                                                                |
+| `collection`         | `string` (readonly)                                           | Collection name                                                                        |
+| `filePath`           | `string` (readonly)                                           | Absolute path to source file                                                           |
+| `data`               | `T` (readonly)                                                | Validated data (typed by the Zod schema)                                               |
+| `rawContent`         | `string \| undefined` (readonly)                              | Raw markdown body (only for markdown loaders)                                          |
+| `render(options?)`   | `(options?: { force?: boolean }) => Promise<RenderedContent>` | Render markdown to HTML. Cached after first call. Pass `{ force: true }` to re-render. |
+| `clearRenderCache()` | `() => void`                                                  | Clear cached render result                                                             |
 
 ### RenderedContent
 
 ```ts
 type RenderedContent = {
-  html: string        // Processed HTML
-  headings: Heading[] // Extracted headings for TOC
-  readTime: number    // Estimated read time in minutes
-}
+  html: string; // Processed HTML
+  headings: Heading[]; // Extracted headings for TOC
+  readTime: number; // Estimated read time in minutes
+};
 ```
 
 ### `convert(markdown, options?)`
@@ -154,11 +154,11 @@ type RenderedContent = {
 Standalone markdown-to-HTML conversion without collections or validation:
 
 ```ts
-import { convert } from '@pagesmith/core'
+import { convert } from "@pagesmith/core";
 
-const result = await convert('# Hello\n\nWorld', {
-  markdown: { shiki: { themes: { light: 'github-light', dark: 'github-dark' } } },
-})
+const result = await convert("# Hello\n\nWorld", {
+  markdown: { shiki: { themes: { light: "github-light", dark: "github-dark" } } },
+});
 // result.html, result.headings, result.toc, result.frontmatter
 ```
 
@@ -166,12 +166,12 @@ const result = await convert('# Hello\n\nWorld', {
 
 ```ts
 type ConvertResult = {
-  html: string
-  headings: Heading[]
+  html: string;
+  headings: Heading[];
   /** @deprecated Use `headings` instead. */
-  toc: Heading[]
-  frontmatter: Record<string, any>
-}
+  toc: Heading[];
+  frontmatter: Record<string, any>;
+};
 ```
 
 ### Frontmatter Utilities
@@ -196,77 +196,77 @@ Regex-based heading extraction from rendered HTML. Returns `Heading[]`.
 
 ```ts
 type Heading = {
-  depth: number  // 1-6
-  text: string   // Heading text content
-  slug: string   // URL-safe id
-}
+  depth: number; // 1-6
+  text: string; // Heading text content
+  slug: string; // URL-safe id
+};
 ```
 
 #### Frontmatter Schemas
 
-| Schema | Fields |
-|---|---|
-| `BaseFrontmatterSchema` | `title`, `description`, `publishedDate`, `lastUpdatedOn`, `tags`, `draft` |
-| `BlogFrontmatterSchema` | Extends base with `category`, `featured`, `coverImage` |
-| `ProjectFrontmatterSchema` | Extends base with `gitRepo`, `links` |
+| Schema                     | Fields                                                                    |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `BaseFrontmatterSchema`    | `title`, `description`, `publishedDate`, `lastUpdatedOn`, `tags`, `draft` |
+| `BlogFrontmatterSchema`    | Extends base with `category`, `featured`, `coverImage`                    |
+| `ProjectFrontmatterSchema` | Extends base with `gitRepo`, `links`                                      |
 
 #### MarkdownConfig
 
 ```ts
 type MarkdownConfig = {
-  remarkPlugins?: any[]
-  rehypePlugins?: any[]
-  allowDangerousHtml?: boolean
-  math?: boolean | 'auto'
+  remarkPlugins?: any[];
+  rehypePlugins?: any[];
+  allowDangerousHtml?: boolean;
+  math?: boolean | "auto";
   shiki?: {
-    themes: { light: string; dark: string }
-    langAlias?: Record<string, string>
-    defaultShowLineNumbers?: boolean
-  }
-}
+    themes: { light: string; dark: string };
+    langAlias?: Record<string, string>;
+    defaultShowLineNumbers?: boolean;
+  };
+};
 ```
 
 #### ContentLayerConfig
 
 ```ts
 type ContentLayerConfig = {
-  collections: CollectionMap
-  root?: string
-  markdown?: MarkdownConfig
-  assets?: { hashFilenames?: boolean; outputDir?: string }
-  plugins?: ContentPlugin[]
-  strict?: boolean
-}
+  collections: CollectionMap;
+  root?: string;
+  markdown?: MarkdownConfig;
+  assets?: { hashFilenames?: boolean; outputDir?: string };
+  plugins?: ContentPlugin[];
+  strict?: boolean;
+};
 ```
 
 #### CollectionDef\<S\>
 
 ```ts
 type CollectionDef<S> = {
-  loader: LoaderType | Loader
-  directory: string
-  schema: S
-  include?: string[]
-  exclude?: string[]
-  computed?: Record<string, (entry: any) => any>
-  transform?: (entry: RawEntry) => RawEntry | Promise<RawEntry>
-  filter?: (entry: any) => boolean
-  slugify?: (filePath: string, directory: string) => string
-  validate?: (entry: any) => string | undefined
-  validators?: ContentValidator[]
-  disableBuiltinValidators?: boolean
-}
+  loader: LoaderType | Loader;
+  directory: string;
+  schema: S;
+  include?: string[];
+  exclude?: string[];
+  computed?: Record<string, (entry: any) => any>;
+  transform?: (entry: RawEntry) => RawEntry | Promise<RawEntry>;
+  filter?: (entry: any) => boolean;
+  slugify?: (filePath: string, directory: string) => string;
+  validate?: (entry: any) => string | undefined;
+  validators?: ContentValidator[];
+  disableBuiltinValidators?: boolean;
+};
 ```
 
 #### ContentPlugin
 
 ```ts
 type ContentPlugin = {
-  name: string
-  rehypePlugin?: () => (tree: any) => void
-  remarkPlugin?: () => (tree: any) => void
-  validate?: (entry: { data: Record<string, any>; content?: string }) => string[]
-}
+  name: string;
+  rehypePlugin?: () => (tree: any) => void;
+  remarkPlugin?: () => (tree: any) => void;
+  validate?: (entry: { data: Record<string, any>; content?: string }) => string[];
+};
 ```
 
 ### Validation Types
@@ -275,85 +275,85 @@ type ContentPlugin = {
 
 ```ts
 type ValidationIssue = {
-  message: string
-  severity: 'error' | 'warn'
-  field?: string
-}
+  message: string;
+  severity: "error" | "warn";
+  field?: string;
+};
 ```
 
 #### ValidationResult
 
 ```ts
 type ValidationResult = {
-  collection: string
+  collection: string;
   entries: Array<{
-    slug: string
-    filePath: string
-    issues: ValidationIssue[]
-  }>
-  errors: number
-  warnings: number
-}
+    slug: string;
+    filePath: string;
+    issues: ValidationIssue[];
+  }>;
+  errors: number;
+  warnings: number;
+};
 ```
 
 #### ContentValidator
 
 ```ts
 type ContentValidator = {
-  name: string
-  validate(ctx: ValidatorContext): ValidationIssue[] | Promise<ValidationIssue[]>
-}
+  name: string;
+  validate(ctx: ValidatorContext): ValidationIssue[] | Promise<ValidationIssue[]>;
+};
 ```
 
 #### ValidatorContext
 
 ```ts
 type ValidatorContext = {
-  filePath: string
-  slug: string
-  collection: string
-  rawContent?: string
-  data: Record<string, any>
-  mdast?: Root
-}
+  filePath: string;
+  slug: string;
+  collection: string;
+  rawContent?: string;
+  data: Record<string, any>;
+  mdast?: Root;
+};
 ```
 
 ### Built-in Validators
 
-| Export | Description |
-|---|---|
-| `linkValidator` | Default-configured link/image validator. Warns on empty link text and malformed external URLs; errors on missing alt text, raw `<img>` outside `<picture>`, mismatched light/dark image pairs, and broken internal links. Configurable via `createLinkValidator(options)`. |
-| `createLinkValidator(options)` | Factory for a customised `linkValidator` with overrides for alt-text, theme-variant pair enforcement, internal-link rules, additional roots, and optional external-URL reachability fetch. |
-| `headingValidator` | Warns when a content-bearing document has no headings, on empty heading text, on multiple `h1`s, and on skipped heading levels. |
-| `codeBlockValidator` | Warns when meta is set without a language, on unknown meta keys, and on malformed line ranges in `mark`/`ins`/`del`/`collapse`. |
-| `imageStructureValidator` | Enforces `<figure><picture>...<img></picture><figcaption?></figure>` (or `<figure><img></figure>` for SVG/GIF). Errors on nested `<figure>`/`<picture>`, missing or duplicate `<img>` inside `<picture>`, unbalanced `<picture>` tags, and foreign tags inside `<picture>`. |
-| `builtinMarkdownValidators` | Array containing all four built-in validators. |
-| `runValidators(ctx, validators)` | Execute validators against a shared MDAST parse and collect issues. |
-| `validateContent(options)` / `formatContentValidationReport(summary)` | Walk a directory, validate every markdown file, and pretty-print the report. Used by `pagesmith-core validate` and `pagesmith-docs validate`. |
+| Export                                                                | Description                                                                                                                                                                                                                                                                 |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `linkValidator`                                                       | Default-configured link/image validator. Warns on empty link text and malformed external URLs; errors on missing alt text, raw `<img>` outside `<picture>`, mismatched light/dark image pairs, and broken internal links. Configurable via `createLinkValidator(options)`.  |
+| `createLinkValidator(options)`                                        | Factory for a customised `linkValidator` with overrides for alt-text, theme-variant pair enforcement, internal-link rules, additional roots, and optional external-URL reachability fetch.                                                                                  |
+| `headingValidator`                                                    | Warns when a content-bearing document has no headings, on empty heading text, on multiple `h1`s, and on skipped heading levels.                                                                                                                                             |
+| `codeBlockValidator`                                                  | Warns when meta is set without a language, on unknown meta keys, and on malformed line ranges in `mark`/`ins`/`del`/`collapse`.                                                                                                                                             |
+| `imageStructureValidator`                                             | Enforces `<figure><picture>...<img></picture><figcaption?></figure>` (or `<figure><img></figure>` for SVG/GIF). Errors on nested `<figure>`/`<picture>`, missing or duplicate `<img>` inside `<picture>`, unbalanced `<picture>` tags, and foreign tags inside `<picture>`. |
+| `builtinMarkdownValidators`                                           | Array containing all four built-in validators.                                                                                                                                                                                                                              |
+| `runValidators(ctx, validators)`                                      | Execute validators against a shared MDAST parse and collect issues.                                                                                                                                                                                                         |
+| `validateContent(options)` / `formatContentValidationReport(summary)` | Walk a directory, validate every markdown file, and pretty-print the report. Used by `pagesmith-core validate` and `pagesmith-docs validate`.                                                                                                                               |
 
 ### Loaders
 
-| Export | Description |
-|---|---|
-| `MarkdownLoader` | Loads `.md` files via `gray-matter` |
-| `JsonLoader` | Loads `.json` files via `JSON.parse` and `.json5` files via `json5` |
-| `JsoncLoader` | Loads `.jsonc` files (strips `//` and `/* */` comments and trailing commas, then `JSON.parse`) |
-| `YamlLoader` | Loads `.yml` / `.yaml` files via the `yaml` package |
-| `TomlLoader` | Loads `.toml` files via `smol-toml` |
-| `resolveLoader(name)` | Resolve a built-in loader by `LoaderType` string or pass through a custom `Loader` instance |
-| `registerLoader(name, loader)` | Register an additional loader so it can be referenced by string |
-| `defaultIncludePatterns(loader)` | Compute the default `**/*<ext>` include globs from a loader's `extensions` |
-| `LoaderError` | Error subclass with `filePath`, `format`, optional `line`/`column` for better diagnostics |
+| Export                           | Description                                                                                    |
+| -------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `MarkdownLoader`                 | Loads `.md` files via `gray-matter`                                                            |
+| `JsonLoader`                     | Loads `.json` files via `JSON.parse` and `.json5` files via `json5`                            |
+| `JsoncLoader`                    | Loads `.jsonc` files (strips `//` and `/* */` comments and trailing commas, then `JSON.parse`) |
+| `YamlLoader`                     | Loads `.yml` / `.yaml` files via the `yaml` package                                            |
+| `TomlLoader`                     | Loads `.toml` files via `smol-toml`                                                            |
+| `resolveLoader(name)`            | Resolve a built-in loader by `LoaderType` string or pass through a custom `Loader` instance    |
+| `registerLoader(name, loader)`   | Register an additional loader so it can be referenced by string                                |
+| `defaultIncludePatterns(loader)` | Compute the default `**/*<ext>` include globs from a loader's `extensions`                     |
+| `LoaderError`                    | Error subclass with `filePath`, `format`, optional `line`/`column` for better diagnostics      |
 
 ### JSX Runtime
 
 Exported from `@pagesmith/site/jsx-runtime`:
 
-| Export | Description |
-|---|---|
-| `h(tag, props, ...children)` | Creates `HtmlString`. Supports intrinsic elements and function components. |
-| `Fragment({ children, innerHTML })` | Renders children or raw innerHTML. |
-| `HtmlString` | Wrapper class that prevents double-escaping of already-rendered HTML. |
+| Export                              | Description                                                                |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| `h(tag, props, ...children)`        | Creates `HtmlString`. Supports intrinsic elements and function components. |
+| `Fragment({ children, innerHTML })` | Renders children or raw innerHTML.                                         |
+| `HtmlString`                        | Wrapper class that prevents double-escaping of already-rendered HTML.      |
 
 Configure in `tsconfig.json` for automatic JSX transformation:
 
@@ -376,10 +376,10 @@ Process a raw markdown string through the unified pipeline. Returns `MarkdownRes
 
 ```ts
 type MarkdownResult = {
-  html: string
-  headings: Heading[]
-  frontmatter: Record<string, any>
-}
+  html: string;
+  headings: Heading[];
+  frontmatter: Record<string, any>;
+};
 ```
 
 ### CSS Builder
@@ -389,9 +389,9 @@ type MarkdownResult = {
 Bundle a CSS file using LightningCSS. Targets Chrome 100+, Firefox 100+, Safari 16+.
 
 ```ts
-import { buildCss } from '@pagesmith/site/css'
+import { buildCss } from "@pagesmith/site/css";
 
-const css = buildCss('./styles/main.css', { minify: true })
+const css = buildCss("./styles/main.css", { minify: true });
 ```
 
 ### `z` (Zod Re-export)
@@ -399,12 +399,12 @@ const css = buildCss('./styles/main.css', { minify: true })
 `@pagesmith/core` re-exports `z` from Zod for consumer convenience, so you do not need to install Zod separately:
 
 ```ts
-import { z } from '@pagesmith/core'
+import { z } from "@pagesmith/core";
 
 const schema = z.object({
   title: z.string(),
   date: z.coerce.date(),
-})
+});
 ```
 
 ---
@@ -416,35 +416,37 @@ const schema = z.object({
 Vite plugin that exposes content collections as virtual modules. Uses `enforce: 'pre'`.
 
 ```ts title="vite.config.ts"
-import { pagesmithContent } from '@pagesmith/core/vite'
-import collections from './content.config'
+import { pagesmithContent } from "@pagesmith/core/vite";
+import collections from "./content.config";
 
 export default defineConfig({
   plugins: [pagesmithContent(collections)],
-})
+});
 ```
 
 **Options** (via `PagesmithContentPluginOptions`):
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `collections` | `CollectionMap` | Required | The collection definitions |
-| `root` | `string` | `"."` | Root directory for resolving collection paths |
-| `markdown` | `MarkdownConfig` | `undefined` | Markdown pipeline configuration |
-| `contentRoot` | `string` | Auto-detected | Shared content root for computing `id` and `contentSlug` |
-| `moduleId` | `string` | `"virtual:content"` | Root virtual module ID |
-| `configPath` | `string` | `"content.config.ts"` | Path to the content config module (for generated typings) |
-| `dts` | `boolean \| string \| { path?: string }` | Auto | Generate module declarations. Defaults to `src/pagesmith-content.d.ts` when `src/` exists. |
-| `plugins` | `ContentPlugin[]` | `[]` | Content plugins |
+| Option        | Type                                     | Default               | Description                                                                                |
+| ------------- | ---------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------ |
+| `collections` | `CollectionMap`                          | Required              | The collection definitions                                                                 |
+| `root`        | `string`                                 | `"."`                 | Root directory for resolving collection paths                                              |
+| `markdown`    | `MarkdownConfig`                         | `undefined`           | Markdown pipeline configuration                                                            |
+| `contentRoot` | `string`                                 | Auto-detected         | Shared content root for computing `id` and `contentSlug`                                   |
+| `moduleId`    | `string`                                 | `"virtual:content"`   | Root virtual module ID                                                                     |
+| `configPath`  | `string`                                 | `"content.config.ts"` | Path to the content config module (for generated typings)                                  |
+| `dts`         | `boolean \| string \| { path?: string }` | Auto                  | Generate module declarations. Defaults to `src/pagesmith-content.d.ts` when `src/` exists. |
+| `plugins`     | `ContentPlugin[]`                        | `[]`                  | Content plugins                                                                            |
 
 **Virtual Module Types:**
 
 For markdown collections, each entry has:
+
 ```ts
 { id: string, contentSlug: string, html: string, headings: Heading[], frontmatter: InferCollectionData<T> }
 ```
 
 For data collections, each entry has:
+
 ```ts
 { id: string, contentSlug: string, data: InferCollectionData<T> }
 ```
@@ -456,38 +458,40 @@ For data collections, each entry has:
 Convenience super-plugin that composes `pagesmithContent`, `pagesmithSsg`, and `sharedAssetsPlugin` in one call. Returns a `Plugin[]`:
 
 ```ts title="vite.config.ts"
-import { pagesmithSite } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { pagesmithSite } from "@pagesmith/site/vite";
+import collections from "./content.config";
 
 export default defineConfig({
   plugins: [
     pagesmithSite({
       collections,
-      content: { /* PagesmithContentPluginOptions, minus `collections` */ },
-      ssg: { entry: './src/entry-server.tsx' }, // pass `false` to skip SSG (e.g. Next.js)
+      content: {
+        /* PagesmithContentPluginOptions, minus `collections` */
+      },
+      ssg: { entry: "./src/entry-server.tsx" }, // pass `false` to skip SSG (e.g. Next.js)
     }),
   ],
-})
+});
 ```
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `collections` | `CollectionMap` | Required | Forwarded to `pagesmithContent` |
-| `content` | `Omit<PagesmithContentPluginOptions, 'collections'>` | `undefined` | Extra `pagesmithContent` options (e.g. `markdown`, `dts`) |
-| `ssg` | `SsgPluginOptions \| false` | `{ entry: './src/entry-server.tsx' }` | SSG plugin options. Pass `false` to skip SSG entirely (when an outer framework owns rendering) |
-| `disableSharedAssets` | `boolean` | `false` | Skip the dev-only fonts middleware |
+| Option                | Type                                                 | Default                               | Description                                                                                    |
+| --------------------- | ---------------------------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `collections`         | `CollectionMap`                                      | Required                              | Forwarded to `pagesmithContent`                                                                |
+| `content`             | `Omit<PagesmithContentPluginOptions, 'collections'>` | `undefined`                           | Extra `pagesmithContent` options (e.g. `markdown`, `dts`)                                      |
+| `ssg`                 | `SsgPluginOptions \| false`                          | `{ entry: './src/entry-server.tsx' }` | SSG plugin options. Pass `false` to skip SSG entirely (when an outer framework owns rendering) |
+| `disableSharedAssets` | `boolean`                                            | `false`                               | Skip the dev-only fonts middleware                                                             |
 
 ### `pagesmithContent(collections, options?)`
 
 `@pagesmith/site/vite` re-exports the content plugin so site consumers can keep both content and SSG Vite imports on one package:
 
 ```ts title="vite.config.ts"
-import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { pagesmithContent, pagesmithSsg } from "@pagesmith/site/vite";
+import collections from "./content.config";
 
 export default defineConfig({
-  plugins: [pagesmithContent(collections), pagesmithSsg({ entry: './src/entry-server.tsx' })],
-})
+  plugins: [pagesmithContent(collections), pagesmithSsg({ entry: "./src/entry-server.tsx" })],
+});
 ```
 
 ### `pagesmithSsg(options)`
@@ -498,47 +502,47 @@ Vite plugin for static site generation. Returns two plugins:
 - **`pagesmith:ssg-build`** (`apply: 'build'`) -- Post-build SSG: builds SSR bundle, renders routes, copies assets, runs Pagefind
 
 ```ts title="vite.config.ts"
-import { pagesmithSsg } from '@pagesmith/site/vite'
+import { pagesmithSsg } from "@pagesmith/site/vite";
 
 export default defineConfig({
   plugins: [
     pagesmithSsg({
-      entry: './src/entry-server.tsx',
+      entry: "./src/entry-server.tsx",
       pagefind: true,
-      contentDirs: ['content'],
+      contentDirs: ["content"],
     }),
   ],
-})
+});
 ```
 
 **Options** (`SsgPluginOptions`):
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `entry` | `string` | Required | Path to the SSR entry module |
-| `pagefind` | `boolean` | `true` | Run Pagefind indexer after build |
-| `contentDirs` | `string[]` | `[]` | Content directories whose companion assets should be served in dev and copied at build time |
-| `cssEntry` | `string` | `'./src/theme.css'` | Dev-only CSS entry injected into rendered HTML |
-| `trailingSlash` | `boolean` | `false` | When `true`, dev server resolves clean URLs to `path/index.html`; otherwise to `path.html` |
+| Option          | Type       | Default             | Description                                                                                 |
+| --------------- | ---------- | ------------------- | ------------------------------------------------------------------------------------------- |
+| `entry`         | `string`   | Required            | Path to the SSR entry module                                                                |
+| `pagefind`      | `boolean`  | `true`              | Run Pagefind indexer after build                                                            |
+| `contentDirs`   | `string[]` | `[]`                | Content directories whose companion assets should be served in dev and copied at build time |
+| `cssEntry`      | `string`   | `'./src/theme.css'` | Dev-only CSS entry injected into rendered HTML                                              |
+| `trailingSlash` | `boolean`  | `false`             | When `true`, dev server resolves clean URLs to `path/index.html`; otherwise to `path.html`  |
 
 **SSR Entry Module** must export:
 
-| Export | Signature | Description |
-|---|---|---|
-| `getRoutes` | `(config: SsgRenderConfig) => string[]` | Return all route paths to pre-render |
-| `render` | `(url: string, config: SsgRenderConfig) => string \| Promise<string>` | Render a route to an HTML string |
+| Export      | Signature                                                             | Description                          |
+| ----------- | --------------------------------------------------------------------- | ------------------------------------ |
+| `getRoutes` | `(config: SsgRenderConfig) => string[]`                               | Return all route paths to pre-render |
+| `render`    | `(url: string, config: SsgRenderConfig) => string \| Promise<string>` | Render a route to an HTML string     |
 
 **SsgRenderConfig:**
 
 ```ts
 type SsgRenderConfig = {
-  base: string          // Base path (e.g., '/my-site')
-  root: string          // Absolute project root
-  cssPath: string       // Path to the built CSS asset
-  jsPath?: string       // Path to the built JS asset
-  searchEnabled: boolean
-  isDev: boolean
-}
+  base: string; // Base path (e.g., '/my-site')
+  root: string; // Absolute project root
+  cssPath: string; // Path to the built CSS asset
+  jsPath?: string; // Path to the built JS asset
+  searchEnabled: boolean;
+  isDev: boolean;
+};
 ```
 
 ### `sharedAssetsPlugin()`
@@ -554,16 +558,16 @@ The SSR entry must export a `render(url: string): string` function.
 ```ts
 type PrerenderOptions = {
   /** Absolute path to the client build output directory (e.g., `dist/`) */
-  outDir: string
+  outDir: string;
   /** Absolute path to the built SSR entry module (e.g., `dist/.server/entry-server.js`) */
-  serverEntry: string
+  serverEntry: string;
   /** Routes to pre-render (e.g., `['/', '/about', '/posts/hello-world']`) */
-  routes: string[]
+  routes: string[];
   /** HTML placeholder to replace with rendered content (default: `'<!--ssr-outlet-->'`) */
-  placeholder?: string
+  placeholder?: string;
   /** Remove the server build directory after pre-rendering (default: true) */
-  cleanup?: boolean
-}
+  cleanup?: boolean;
+};
 ```
 
 Returns `Promise<{ pages: number }>` with the count of rendered pages.
@@ -571,21 +575,21 @@ Returns `Promise<{ pages: number }>` with the count of rendered pages.
 **Usage:**
 
 ```ts
-import { build } from 'vite'
-import { prerenderRoutes } from '@pagesmith/site/vite'
+import { build } from "vite";
+import { prerenderRoutes } from "@pagesmith/site/vite";
 
 // 1. Client build
-await build({ build: { outDir: 'dist' } })
+await build({ build: { outDir: "dist" } });
 
 // 2. SSR build
-await build({ build: { ssr: 'src/entry-server.tsx', outDir: 'dist/.server' } })
+await build({ build: { ssr: "src/entry-server.tsx", outDir: "dist/.server" } });
 
 // 3. Pre-render
 await prerenderRoutes({
-  outDir: resolve('dist'),
-  serverEntry: resolve('dist/.server/entry-server.js'),
-  routes: ['/', '/about', '/posts/hello-world'],
-})
+  outDir: resolve("dist"),
+  serverEntry: resolve("dist/.server/entry-server.js"),
+  routes: ["/", "/about", "/posts/hello-world"],
+});
 ```
 
 ---
@@ -594,18 +598,18 @@ await prerenderRoutes({
 
 CSS and JS asset accessors for pre-built runtime bundles. See the [Runtime Reference](../runtime/README.md) for full details.
 
-| Function | Returns |
-|---|---|
-| `getRuntimeCSS()` | Standalone CSS as a string |
-| `getRuntimeJS()` | Standalone runtime JS as a string |
-| `getRuntimeCSSPath()` | Absolute file path to standalone CSS |
-| `getRuntimeJSPath()` | Absolute file path to standalone JS |
-| `getContentCSS()` | Content-only CSS as a string |
-| `getContentJS()` | Content-only runtime JS as a string |
-| `getContentCSSPath()` | Absolute file path to content CSS |
-| `getContentJSPath()` | Absolute file path to content JS |
-| `getViewportCSS()` | Viewport CSS as a string |
-| `getViewportCSSPath()` | Absolute file path to viewport CSS |
+| Function               | Returns                              |
+| ---------------------- | ------------------------------------ |
+| `getRuntimeCSS()`      | Standalone CSS as a string           |
+| `getRuntimeJS()`       | Standalone runtime JS as a string    |
+| `getRuntimeCSSPath()`  | Absolute file path to standalone CSS |
+| `getRuntimeJSPath()`   | Absolute file path to standalone JS  |
+| `getContentCSS()`      | Content-only CSS as a string         |
+| `getContentJS()`       | Content-only runtime JS as a string  |
+| `getContentCSSPath()`  | Absolute file path to content CSS    |
+| `getContentJSPath()`   | Absolute file path to content JS     |
+| `getViewportCSS()`     | Viewport CSS as a string             |
+| `getViewportCSSPath()` | Absolute file path to viewport CSS   |
 
 ---
 
@@ -613,47 +617,47 @@ CSS and JS asset accessors for pre-built runtime bundles. See the [Runtime Refer
 
 Programmatic project scaffolding. Supports local templates (bundled) and remote templates (downloaded from GitHub examples). Import `createProject` and `listTemplates` from this module when building tooling; there is no separate `pagesmith create` CLI command.
 
-| Export | Description |
-|---|---|
+| Export                                     | Description                                                                                                                              |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `createProject(projectName, templateName)` | Scaffold a new project from a template. Creates the directory, copies files, adapts paths for standalone use, and writes `package.json`. |
-| `templates` | Array of available `Template` definitions |
-| `listTemplates()` | Returns a formatted string listing all available templates with descriptions |
+| `templates`                                | Array of available `Template` definitions                                                                                                |
+| `listTemplates()`                          | Returns a formatted string listing all available templates with descriptions                                                             |
 
 **Template type:**
 
 ```ts
 type Template = {
-  name: string
-  description: string
-  source: 'local' | 'github'
-  path: string
-  dependency: '@pagesmith/core' | '@pagesmith/site' | '@pagesmith/docs'
-  scripts: Record<string, string>
-}
+  name: string;
+  description: string;
+  source: "local" | "github";
+  path: string;
+  dependency: "@pagesmith/core" | "@pagesmith/site" | "@pagesmith/docs";
+  scripts: Record<string, string>;
+};
 ```
 
 **Available templates:**
 
-| Name | Description | Package |
-|---|---|---|
-| `docs` | Documentation site with @pagesmith/docs | `@pagesmith/docs` |
-| `blog` | Blog with custom layouts using @pagesmith/site | `@pagesmith/site` |
-| `react` | React SSG site with react-router | `@pagesmith/site` |
-| `solid` | SolidJS SSG site | `@pagesmith/site` |
-| `svelte` | Svelte SSG site | `@pagesmith/site` |
-| `ejs` | Vanilla Node.js + EJS templates | `@pagesmith/site` |
-| `hbs` | Vanilla Node.js + Handlebars templates | `@pagesmith/site` |
+| Name     | Description                                    | Package           |
+| -------- | ---------------------------------------------- | ----------------- |
+| `docs`   | Documentation site with @pagesmith/docs        | `@pagesmith/docs` |
+| `blog`   | Blog with custom layouts using @pagesmith/site | `@pagesmith/site` |
+| `react`  | React SSG site with react-router               | `@pagesmith/site` |
+| `solid`  | SolidJS SSG site                               | `@pagesmith/site` |
+| `svelte` | Svelte SSG site                                | `@pagesmith/site` |
+| `ejs`    | Vanilla Node.js + EJS templates                | `@pagesmith/site` |
+| `hbs`    | Vanilla Node.js + Handlebars templates         | `@pagesmith/site` |
 
 **Usage:**
 
 ```ts
-import { createProject, listTemplates } from '@pagesmith/core/create'
+import { createProject, listTemplates } from "@pagesmith/core/create";
 
 // List available templates
-console.log(listTemplates())
+console.log(listTemplates());
 
 // Scaffold a new project
-await createProject('my-docs', 'docs')
+await createProject("my-docs", "docs");
 ```
 
 ---
@@ -662,22 +666,22 @@ await createProject('my-docs', 'docs')
 
 AI assistant artifact installer for generating memory, skill, and llms files.
 
-| Export | Description |
-|---|---|
-| `getAiArtifacts()` | List all available AI artifacts |
-| `getAiArtifactContent(kind)` | Get the content of a specific artifact |
+| Export                        | Description                                                |
+| ----------------------------- | ---------------------------------------------------------- |
+| `getAiArtifacts()`            | List all available AI artifacts                            |
+| `getAiArtifactContent(kind)`  | Get the content of a specific artifact                     |
 | `installAiArtifacts(options)` | Install artifacts for an assistant (Claude, Codex, Gemini) |
 
 **Types:**
 
-| Type | Description |
-|---|---|
-| `AiAssistant` | `'claude' \| 'codex' \| 'gemini'` |
-| `AiArtifact` | An individual artifact definition |
-| `AiArtifactKind` | Kind of artifact |
+| Type               | Description                        |
+| ------------------ | ---------------------------------- |
+| `AiAssistant`      | `'claude' \| 'codex' \| 'gemini'`  |
+| `AiArtifact`       | An individual artifact definition  |
+| `AiArtifactKind`   | Kind of artifact                   |
 | `AiInstallOptions` | Options for `installAiArtifacts()` |
-| `AiInstallResult` | Result of an install operation |
-| `AiInstallScope` | `'project' \| 'user'` |
+| `AiInstallResult`  | Result of an install operation     |
+| `AiInstallScope`   | `'project' \| 'user'`              |
 
 ---
 
@@ -685,25 +689,25 @@ AI assistant artifact installer for generating memory, skill, and llms files.
 
 ### Export Paths
 
-| Import Path | Purpose |
-|---|---|
-| `@pagesmith/docs` | Main barrel -- `build()`, `startDev()`, `preview()`, `defineDocsConfig()`, `loadDocsConfig()`, `resolveDocsConfig()`, `validateConfig()`, `reportConfigIssues()`, `withBase()`, navigation helpers, MCP, types |
-| `@pagesmith/docs/preset` | `docsPreset()` -- programmatic access to build/dev/preview |
-| `@pagesmith/docs/components` | Reusable docs chrome components for layout overrides |
-| `@pagesmith/docs/layouts` | Reusable docs layout helpers for custom themes |
-| `@pagesmith/docs/jsx-runtime` | JSX runtime for docs layout overrides |
-| `@pagesmith/docs/jsx-dev-runtime` | Dev JSX runtime for docs layout overrides |
-| `@pagesmith/docs/schemas` | Docs config Zod schemas |
-| `@pagesmith/docs/theme` | Stock docs theme exports |
-| `@pagesmith/docs/mcp` | Docs MCP server entry |
+| Import Path                       | Purpose                                                                                                                                                                                                        |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@pagesmith/docs`                 | Main barrel -- `build()`, `startDev()`, `preview()`, `defineDocsConfig()`, `loadDocsConfig()`, `resolveDocsConfig()`, `validateConfig()`, `reportConfigIssues()`, `withBase()`, navigation helpers, MCP, types |
+| `@pagesmith/docs/preset`          | `docsPreset()` -- programmatic access to build/dev/preview                                                                                                                                                     |
+| `@pagesmith/docs/components`      | Reusable docs chrome components for layout overrides                                                                                                                                                           |
+| `@pagesmith/docs/layouts`         | Reusable docs layout helpers for custom themes                                                                                                                                                                 |
+| `@pagesmith/docs/jsx-runtime`     | JSX runtime for docs layout overrides                                                                                                                                                                          |
+| `@pagesmith/docs/jsx-dev-runtime` | Dev JSX runtime for docs layout overrides                                                                                                                                                                      |
+| `@pagesmith/docs/schemas`         | Docs config Zod schemas                                                                                                                                                                                        |
+| `@pagesmith/docs/theme`           | Stock docs theme exports                                                                                                                                                                                       |
+| `@pagesmith/docs/mcp`             | Docs MCP server entry                                                                                                                                                                                          |
 
 ### Config resolution and validation
 
-| Export | Description |
-|---|---|
+| Export                                     | Description                                                                                                                                                                                                 |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `resolveDocsConfig(configPath?, options?)` | Load `pagesmith.config.json5`, apply defaults and absolute paths, resolve `basePath`, and return a `ResolvedDocsConfig`. Optional `options` can override CLI-equivalent values (e.g. `basePath`, `outDir`). |
-| `validateConfig(config)` | Validate a `ResolvedDocsConfig` and return `ConfigValidationIssue[]` (errors and warnings). |
-| `reportConfigIssues(issues)` | Print issues to the console; returns `true` if any error-severity issues are present. |
+| `validateConfig(config)`                   | Validate a `ResolvedDocsConfig` and return `ConfigValidationIssue[]` (errors and warnings).                                                                                                                 |
+| `reportConfigIssues(issues)`               | Print issues to the console; returns `true` if any error-severity issues are present.                                                                                                                       |
 
 ### `docsPreset()`
 
@@ -712,37 +716,37 @@ Import: `@pagesmith/docs/preset`
 Returns a `SitePreset`-shaped object that the `pagesmith-site` CLI can also drive. Useful for tooling integrations or custom build scripts that want to invoke the docs pipeline without going through the `pagesmith-docs` CLI.
 
 ```ts
-import { docsPreset } from '@pagesmith/docs/preset'
+import { docsPreset } from "@pagesmith/docs/preset";
 
-const docs = docsPreset()
+const docs = docsPreset();
 
 // Build the docs site
-await docs.build({ configPath: './pagesmith.config.json5' })
+await docs.build({ configPath: "./pagesmith.config.json5" });
 
 // Start dev server
-await docs.dev({ configPath: './pagesmith.config.json5', port: 3000 })
+await docs.dev({ configPath: "./pagesmith.config.json5", port: 3000 });
 
 // Preview built output
-await docs.preview({ configPath: './pagesmith.config.json5', port: 4000 })
+await docs.preview({ configPath: "./pagesmith.config.json5", port: 4000 });
 
 // Run validate; returns the process exit code (0 = pass)
-const code = await docs.validate({ configPath: './pagesmith.config.json5' })
+const code = await docs.validate({ configPath: "./pagesmith.config.json5" });
 
 // init / mcp accept argv-style strings and forward to the matching CLI command
-await docs.init(['--ai', '--yes'])
-await docs.mcp(['--stdio'])
+await docs.init(["--ai", "--yes"]);
+await docs.mcp(["--stdio"]);
 ```
 
 **Methods:**
 
-| Method | Signature | Description |
-|---|---|---|
-| `build` | `(options?: SiteBuildOptions) => Promise<void>` | Run a full production build |
-| `dev` | `(options?: SiteDevOptions) => Promise<void>` | Start the dev server with live reload |
-| `preview` | `(options?: SiteDevOptions) => Promise<void>` | Serve the built output for local verification |
+| Method     | Signature                                            | Description                                                          |
+| ---------- | ---------------------------------------------------- | -------------------------------------------------------------------- |
+| `build`    | `(options?: SiteBuildOptions) => Promise<void>`      | Run a full production build                                          |
+| `dev`      | `(options?: SiteDevOptions) => Promise<void>`        | Start the dev server with live reload                                |
+| `preview`  | `(options?: SiteDevOptions) => Promise<void>`        | Serve the built output for local verification                        |
 | `validate` | `(options?: SiteValidateOptions) => Promise<number>` | Run content + build-output validation; returns the process exit code |
-| `init` | `(argv: string[]) => Promise<void>` | Forward to `pagesmith-docs init` argv |
-| `mcp` | `(argv: string[]) => Promise<void>` | Start the docs MCP server (`--stdio`) |
+| `init`     | `(argv: string[]) => Promise<void>`                  | Forward to `pagesmith-docs init` argv                                |
+| `mcp`      | `(argv: string[]) => Promise<void>`                  | Start the docs MCP server (`--stdio`)                                |
 
 `SiteBuildOptions`, `SiteDevOptions`, and `SiteValidateOptions` are the same option types the `pagesmith-site` CLI passes to a preset (see `@pagesmith/site/preset`). `SiteBuildOptions` carries `configPath`, `outDir`, and `basePath`; `SiteDevOptions` adds `port`, `open`, and `logLevel`; `SiteValidateOptions` adds the same flag set the `pagesmith-docs validate` CLI exposes.
 
@@ -753,18 +757,18 @@ await docs.mcp(['--stdio'])
 Programmatic MCP server entry. Import after wiring up your own `ContentLayer`:
 
 ```ts title="scripts/pagesmith-core-mcp.mjs"
-import collections from '../content.config.js'
-import { createContentLayer, defineConfig } from '@pagesmith/core'
-import { startCoreMcpServer } from '@pagesmith/core/mcp'
+import collections from "../content.config.js";
+import { createContentLayer, defineConfig } from "@pagesmith/core";
+import { startCoreMcpServer } from "@pagesmith/core/mcp";
 
-const layer = createContentLayer(defineConfig({ collections }))
-await startCoreMcpServer({ layer, rootDir: process.cwd() })
+const layer = createContentLayer(defineConfig({ collections }));
+await startCoreMcpServer({ layer, rootDir: process.cwd() });
 ```
 
-| Export | Description |
-|---|---|
+| Export                                     | Description                                                           |
+| ------------------------------------------ | --------------------------------------------------------------------- |
 | `createCoreMcpServer({ layer, rootDir? })` | Build (but do not connect) an `McpServer` named `@pagesmith/core-mcp` |
-| `startCoreMcpServer({ layer, rootDir? })` | Build and connect via `StdioServerTransport` |
+| `startCoreMcpServer({ layer, rootDir? })`  | Build and connect via `StdioServerTransport`                          |
 
 Tools registered: `core_list_collections`, `core_list_entries`, `core_get_entry`, `core_validate`, `core_search_entries`. Resources: `pagesmith://core/agents/usage`, `pagesmith://core/llms-full`, `pagesmith://core/reference`.
 
@@ -776,12 +780,12 @@ There is no standalone `pagesmith-core mcp` CLI because the server needs a live 
 
 Shared CLI building blocks reused by `pagesmith-core`, `pagesmith-site`, and `pagesmith-docs`. Use this when you build your own CLI on top of Pagesmith conventions.
 
-| Export | Description |
-|---|---|
-| `defineCli({ name, version, description })` | Wraps `cac` and returns `{ cli, run }`; honors `--yes`, `--non-interactive`, `--interactive`, `--config`, `CI=1`, `PAGESMITH_NON_INTERACTIVE=1` |
-| `withInteractivityFlags(command)` / `withConfigFlag(command)` | Add the standard interactivity / `--config` flags to an individual `cac` command |
-| `CliError`, `formatCliError`, `exitCodeFor` | Structured CLI errors with `hint` support and predictable exit codes |
-| `assertValue`, `resolveInteractive`, `isInteractive`, `isNonInteractiveEnv` | Interactivity helpers used inside command implementations |
-| `promptText` / `promptConfirm` / `promptSelect` / `promptMultiselect`, `intro`, `outro`, `note`, `log`, `spinner`, `tasks`, `group`, `cancel`, `isCancel` | `@clack/prompts` re-exports for consistent UX |
-| `findPagesmithConfig`, `loadPagesmithConfig`, `readPagesmithConfig`, `PAGESMITH_CONFIG_BASENAMES` | Locate and load `pagesmith.config.{ts,mts,mjs,js,json5,json}` (TS/JS via `jiti`, JSON5/JSON via `JSON5.parse`) |
-| `readPackageVersion(metaDirname)` | Read the `version` from the nearest `package.json` (used by CLI bins) |
+| Export                                                                                                                                                    | Description                                                                                                                                     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `defineCli({ name, version, description })`                                                                                                               | Wraps `cac` and returns `{ cli, run }`; honors `--yes`, `--non-interactive`, `--interactive`, `--config`, `CI=1`, `PAGESMITH_NON_INTERACTIVE=1` |
+| `withInteractivityFlags(command)` / `withConfigFlag(command)`                                                                                             | Add the standard interactivity / `--config` flags to an individual `cac` command                                                                |
+| `CliError`, `formatCliError`, `exitCodeFor`                                                                                                               | Structured CLI errors with `hint` support and predictable exit codes                                                                            |
+| `assertValue`, `resolveInteractive`, `isInteractive`, `isNonInteractiveEnv`                                                                               | Interactivity helpers used inside command implementations                                                                                       |
+| `promptText` / `promptConfirm` / `promptSelect` / `promptMultiselect`, `intro`, `outro`, `note`, `log`, `spinner`, `tasks`, `group`, `cancel`, `isCancel` | `@clack/prompts` re-exports for consistent UX                                                                                                   |
+| `findPagesmithConfig`, `loadPagesmithConfig`, `readPagesmithConfig`, `PAGESMITH_CONFIG_BASENAMES`                                                         | Locate and load `pagesmith.config.{ts,mts,mjs,js,json5,json}` (TS/JS via `jiti`, JSON5/JSON via `JSON5.parse`)                                  |
+| `readPackageVersion(metaDirname)`                                                                                                                         | Read the `version` from the nearest `package.json` (used by CLI bins)                                                                           |

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches: ["**"]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -20,9 +20,11 @@ concurrency:
 #   │                                                                 │
 #   ├──── build-library ──┬── lint ────────────────────────────────┐  │
 #   │                     ├── unit ────────────────────────────────┤  │
-#   │                     ├── build-docs ──── e2e ─────────────────┤  ├── ci-success
-#   │                     └── build-examples [matrix x8, fail-fast: │  │            │
-#   │                                          false, inline       │  │            │ (only on main + push)
+#   │                     ├── build-docs ──┬── e2e ────────────────┤  ├── ci-success
+#   │                     │                ├── e2e-a11y ───────────┤  │            │
+#   │                     │                └── validate-a11y ──────┤  │            │
+#   │                     └── build-examples [matrix x8, fail-fast: │  │            │ (only on main + push)
+#   │                                          false, inline       │  │            │
 #   │                                          validation] ────────┘  │            ├── assemble-pages ── deploy-pages
 #   └─────────────────────────────────────────────────────────────────┘
 #
@@ -36,7 +38,11 @@ concurrency:
 #     the standalone job rebuilt every example a second time.
 #   - `e2e` caches `~/.cache/ms-playwright` keyed on package-lock.json so
 #     the chromium download (~150 MB) only happens when the lockfile
-#     changes.
+#     changes. `e2e-a11y` reuses the same cache.
+#   - `validate-a11y` runs the static (jsdom + axe-core) scan over every
+#     generated HTML page; `e2e-a11y` runs the runtime (Chromium + axe)
+#     scan over a representative slice with computed-style/contrast
+#     coverage. Together they enforce the WCAG 2.2 AA contract.
 # ---------------------------------------------------------------------------
 
 jobs:
@@ -195,7 +201,57 @@ jobs:
       - name: Install Playwright OS deps
         if: steps.pw-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
-      - run: npm run e2e
+      # Skip the a11y suite here so this job stays focused on functional
+      # e2e coverage. `e2e-a11y` runs it as a separate job with the same
+      # artifact + browser cache.
+      - run: npx playwright test --grep-invert "WCAG 2.2 AA"
+
+  e2e-a11y:
+    name: Accessibility (Playwright + axe-core)
+    needs: build-docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: gh-pages-docs
+          path: gh-pages
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Install Playwright OS deps
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      # Runtime axe-core scan — covers color-contrast, focus order, and
+      # other layout/computed-style checks the static scan can't see.
+      - run: npx playwright test --grep "WCAG 2.2 AA"
+
+  validate-a11y:
+    name: Static a11y scan (jsdom + axe-core)
+    needs: [build-docs, build-examples]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: gh-pages-docs
+          path: gh-pages
+      # Pull every example artifact so the static scan covers every page
+      # the deploy job would publish, not just the docs site.
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gh-pages-example-*
+          merge-multiple: true
+          path: gh-pages
+      - run: npm run validate:a11y
 
   # -------------------------------------------------------------------------
   # Single aggregator gate. `if: always()` so it runs even when a sibling
@@ -214,6 +270,8 @@ jobs:
       - build-docs
       - build-examples
       - e2e
+      - e2e-a11y
+      - validate-a11y
     runs-on: ubuntu-latest
     steps:
       - name: Verify all required jobs succeeded

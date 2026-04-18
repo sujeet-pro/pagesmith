@@ -5,13 +5,13 @@
  * reusable site chrome plus the full content runtime.
  */
 
-import './chrome'
-import { initCodeBlocks } from './code-blocks'
-import { initCodeTabs } from './code-tabs'
+import "./chrome";
+import { initCodeBlocks } from "./code-blocks";
+import { initCodeTabs } from "./code-tabs";
 
-export * from './chrome'
-export { initCodeBlocks } from './code-blocks'
-export { initCodeTabs } from './code-tabs'
+export * from "./chrome";
+export { initCodeBlocks } from "./code-blocks";
+export { initCodeTabs } from "./code-tabs";
 
-initCodeBlocks()
-initCodeTabs()
+initCodeBlocks();
+initCodeTabs();

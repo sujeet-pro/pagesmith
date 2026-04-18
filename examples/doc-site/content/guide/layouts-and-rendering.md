@@ -24,8 +24,8 @@ Override any layout by adding a JSX file and mapping it in the config (this exam
 {
   theme: {
     layouts: {
-      home: './theme/layouts/DocHome.tsx',
-      page: './theme/layouts/DocPage.tsx',
+      home: "./theme/layouts/DocHome.tsx",
+      page: "./theme/layouts/DocPage.tsx",
     },
   },
 }

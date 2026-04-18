@@ -8,7 +8,7 @@ pagefind-modal {
   --pf-font: var(--font-sans);
   --pf-text: #111110;
   --pf-text-secondary: #333330;
-  --pf-text-muted: #7a7a72;
+  --pf-text-muted: #5a5a52;
   --pf-background: #f5f4f0;
   --pf-border: #e0dfd9;
   --pf-border-focus: #c0bfb9;
@@ -33,7 +33,7 @@ pagefind-modal {
 .color-scheme-dark pagefind-modal {
   --pf-text: #f5f4f0;
   --pf-text-secondary: #ccccca;
-  --pf-text-muted: #888882;
+  --pf-text-muted: #a8a8a0;
   --pf-background: #111110;
   --pf-border: #222220;
   --pf-border-focus: #3a3a38;
@@ -50,7 +50,7 @@ pagefind-modal {
   .color-scheme-auto pagefind-modal {
     --pf-text: #f5f4f0;
     --pf-text-secondary: #ccccca;
-    --pf-text-muted: #888882;
+    --pf-text-muted: #a8a8a0;
     --pf-background: #111110;
     --pf-border: #222220;
     --pf-border-focus: #3a3a38;

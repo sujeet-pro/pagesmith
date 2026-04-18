@@ -1,159 +1,159 @@
-import { afterEach, describe, expect, it } from 'vite-plus/test'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs'
-import { tmpdir } from 'os'
-import { join } from 'path'
-import { hashAssets } from '../assets'
+import { afterEach, describe, expect, it } from "vite-plus/test";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
+import { hashAssets } from "../assets";
 
-describe('hashAssets', () => {
-  let rootDir = ''
+describe("hashAssets", () => {
+  let rootDir = "";
 
   afterEach(() => {
     if (rootDir && existsSync(rootDir)) {
-      rmSync(rootDir, { recursive: true, force: true })
+      rmSync(rootDir, { recursive: true, force: true });
     }
-  })
+  });
 
-  it('flattens content asset paths to /assets/name.hash.ext and avoids basename collisions', () => {
-    rootDir = mkdtempSync(join(tmpdir(), 'ps-hash-assets-'))
-    const contentDir = join(rootDir, 'content')
-    const outDir = join(rootDir, 'dist')
+  it("flattens content asset paths to /assets/name.hash.ext and avoids basename collisions", () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-hash-assets-"));
+    const contentDir = join(rootDir, "content");
+    const outDir = join(rootDir, "dist");
 
-    mkdirSync(join(contentDir, 'guide', 'alpha'), { recursive: true })
-    mkdirSync(join(contentDir, 'guide', 'beta'), { recursive: true })
-    mkdirSync(join(outDir, 'assets', 'guide', 'alpha'), { recursive: true })
-    mkdirSync(join(outDir, 'assets', 'guide', 'beta'), { recursive: true })
+    mkdirSync(join(contentDir, "guide", "alpha"), { recursive: true });
+    mkdirSync(join(contentDir, "guide", "beta"), { recursive: true });
+    mkdirSync(join(outDir, "assets", "guide", "alpha"), { recursive: true });
+    mkdirSync(join(outDir, "assets", "guide", "beta"), { recursive: true });
 
-    writeFileSync(join(contentDir, 'guide', 'alpha', 'diagram.svg'), '<svg>alpha</svg>', 'utf-8')
-    writeFileSync(join(contentDir, 'guide', 'beta', 'diagram.svg'), '<svg>beta</svg>', 'utf-8')
+    writeFileSync(join(contentDir, "guide", "alpha", "diagram.svg"), "<svg>alpha</svg>", "utf-8");
+    writeFileSync(join(contentDir, "guide", "beta", "diagram.svg"), "<svg>beta</svg>", "utf-8");
     writeFileSync(
-      join(outDir, 'assets', 'guide', 'alpha', 'diagram.svg'),
-      '<svg>alpha</svg>',
-      'utf-8',
-    )
+      join(outDir, "assets", "guide", "alpha", "diagram.svg"),
+      "<svg>alpha</svg>",
+      "utf-8",
+    );
     writeFileSync(
-      join(outDir, 'assets', 'guide', 'beta', 'diagram.svg'),
-      '<svg>beta</svg>',
-      'utf-8',
-    )
+      join(outDir, "assets", "guide", "beta", "diagram.svg"),
+      "<svg>beta</svg>",
+      "utf-8",
+    );
     writeFileSync(
-      join(outDir, 'index.html'),
+      join(outDir, "index.html"),
       [
-        '<!doctype html>',
+        "<!doctype html>",
         '<img src="/docs/assets/guide/alpha/diagram.svg" alt="alpha">',
         '<img src="/docs/assets/guide/beta/diagram.svg" alt="beta">',
-      ].join('\n'),
-      'utf-8',
-    )
+      ].join("\n"),
+      "utf-8",
+    );
 
-    hashAssets(outDir, contentDir)
+    hashAssets(outDir, contentDir);
 
-    const html = readFileSync(join(outDir, 'index.html'), 'utf-8')
+    const html = readFileSync(join(outDir, "index.html"), "utf-8");
 
     // Both assets should be flattened to /docs/assets/diagram.HASH.svg
-    const alphaMatch = html.match(/\/docs\/assets\/(diagram\.[a-f0-9]{8}\.svg).*?alt="alpha"/)
-    const betaMatch = html.match(/\/docs\/assets\/(diagram\.[a-f0-9]{8}\.svg).*?alt="beta"/)
+    const alphaMatch = html.match(/\/docs\/assets\/(diagram\.[a-f0-9]{8}\.svg).*?alt="alpha"/);
+    const betaMatch = html.match(/\/docs\/assets\/(diagram\.[a-f0-9]{8}\.svg).*?alt="beta"/);
 
-    expect(alphaMatch).toBeTruthy()
-    expect(betaMatch).toBeTruthy()
+    expect(alphaMatch).toBeTruthy();
+    expect(betaMatch).toBeTruthy();
 
     // Different content produces different hashes — no collision
-    expect(alphaMatch?.[1]).not.toBe(betaMatch?.[1])
+    expect(alphaMatch?.[1]).not.toBe(betaMatch?.[1]);
 
-    const alphaAsset = alphaMatch![1]
-    const betaAsset = betaMatch![1]
+    const alphaAsset = alphaMatch![1];
+    const betaAsset = betaMatch![1];
 
     // Flat hashed files exist in assets root
-    expect(existsSync(join(outDir, 'assets', alphaAsset))).toBe(true)
-    expect(existsSync(join(outDir, 'assets', betaAsset))).toBe(true)
+    expect(existsSync(join(outDir, "assets", alphaAsset))).toBe(true);
+    expect(existsSync(join(outDir, "assets", betaAsset))).toBe(true);
 
     // Original nested files are cleaned up
-    expect(existsSync(join(outDir, 'assets', 'guide'))).toBe(false)
+    expect(existsSync(join(outDir, "assets", "guide"))).toBe(false);
 
     // Content is preserved
-    expect(readFileSync(join(outDir, 'assets', alphaAsset), 'utf-8')).toContain('alpha')
-    expect(readFileSync(join(outDir, 'assets', betaAsset), 'utf-8')).toContain('beta')
-  })
+    expect(readFileSync(join(outDir, "assets", alphaAsset), "utf-8")).toContain("alpha");
+    expect(readFileSync(join(outDir, "assets", betaAsset), "utf-8")).toContain("beta");
+  });
 
-  it('throws when HTML references a content asset that does not exist', () => {
-    rootDir = mkdtempSync(join(tmpdir(), 'ps-hash-missing-'))
-    const contentDir = join(rootDir, 'content')
-    const outDir = join(rootDir, 'dist')
+  it("throws when HTML references a content asset that does not exist", () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-hash-missing-"));
+    const contentDir = join(rootDir, "content");
+    const outDir = join(rootDir, "dist");
 
-    mkdirSync(contentDir, { recursive: true })
-    mkdirSync(join(outDir, 'assets'), { recursive: true })
+    mkdirSync(contentDir, { recursive: true });
+    mkdirSync(join(outDir, "assets"), { recursive: true });
 
     writeFileSync(
-      join(outDir, 'index.html'),
+      join(outDir, "index.html"),
       '<img src="/assets/missing-image.svg" alt="missing">',
-      'utf-8',
-    )
+      "utf-8",
+    );
 
-    expect(() => hashAssets(outDir, contentDir)).toThrow('referenced content asset(s) not found')
-  })
+    expect(() => hashAssets(outDir, contentDir)).toThrow("referenced content asset(s) not found");
+  });
 
-  it('cleans SVG metadata in processed output', () => {
-    rootDir = mkdtempSync(join(tmpdir(), 'ps-hash-svg-'))
-    const contentDir = join(rootDir, 'content')
-    const outDir = join(rootDir, 'dist')
+  it("cleans SVG metadata in processed output", () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-hash-svg-"));
+    const contentDir = join(rootDir, "content");
+    const outDir = join(rootDir, "dist");
 
-    mkdirSync(contentDir, { recursive: true })
-    mkdirSync(join(outDir, 'assets'), { recursive: true })
+    mkdirSync(contentDir, { recursive: true });
+    mkdirSync(join(outDir, "assets"), { recursive: true });
 
     const svgWithMeta = [
       '<?xml version="1.0" encoding="UTF-8"?>',
-      '<!-- Generated by some tool -->',
+      "<!-- Generated by some tool -->",
       '<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">',
-      '<metadata><rdf:RDF></rdf:RDF></metadata>',
-      '<defs></defs>',
+      "<metadata><rdf:RDF></rdf:RDF></metadata>",
+      "<defs></defs>",
       '<rect width="100" height="100"/>',
-      '</svg>',
-    ].join('\n')
+      "</svg>",
+    ].join("\n");
 
-    writeFileSync(join(contentDir, 'icon.svg'), svgWithMeta, 'utf-8')
-    writeFileSync(join(outDir, 'assets', 'icon.svg'), svgWithMeta, 'utf-8')
-    writeFileSync(join(outDir, 'index.html'), '<img src="/assets/icon.svg" alt="icon">', 'utf-8')
+    writeFileSync(join(contentDir, "icon.svg"), svgWithMeta, "utf-8");
+    writeFileSync(join(outDir, "assets", "icon.svg"), svgWithMeta, "utf-8");
+    writeFileSync(join(outDir, "index.html"), '<img src="/assets/icon.svg" alt="icon">', "utf-8");
 
-    hashAssets(outDir, contentDir)
+    hashAssets(outDir, contentDir);
 
     // Find the hashed SVG file
-    const { readdirSync } = require('fs')
-    const files = readdirSync(join(outDir, 'assets')).filter((f: string) => f.endsWith('.svg'))
-    expect(files).toHaveLength(1)
+    const { readdirSync } = require("fs");
+    const files = readdirSync(join(outDir, "assets")).filter((f: string) => f.endsWith(".svg"));
+    expect(files).toHaveLength(1);
 
-    const processed = readFileSync(join(outDir, 'assets', files[0]), 'utf-8')
-    expect(processed).not.toContain('<?xml')
-    expect(processed).not.toContain('<!-- Generated')
-    expect(processed).not.toContain('<metadata>')
-    expect(processed).not.toContain('xmlns:inkscape')
-    expect(processed).not.toContain('<defs></defs>')
-    expect(processed).toContain('<rect width="100" height="100"/>')
-  })
+    const processed = readFileSync(join(outDir, "assets", files[0]), "utf-8");
+    expect(processed).not.toContain("<?xml");
+    expect(processed).not.toContain("<!-- Generated");
+    expect(processed).not.toContain("<metadata>");
+    expect(processed).not.toContain("xmlns:inkscape");
+    expect(processed).not.toContain("<defs></defs>");
+    expect(processed).toContain('<rect width="100" height="100"/>');
+  });
 
-  it('accepts multiple content directories', () => {
-    rootDir = mkdtempSync(join(tmpdir(), 'ps-hash-multi-'))
-    const contentDir1 = join(rootDir, 'content1')
-    const contentDir2 = join(rootDir, 'content2')
-    const outDir = join(rootDir, 'dist')
+  it("accepts multiple content directories", () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-hash-multi-"));
+    const contentDir1 = join(rootDir, "content1");
+    const contentDir2 = join(rootDir, "content2");
+    const outDir = join(rootDir, "dist");
 
-    mkdirSync(contentDir1, { recursive: true })
-    mkdirSync(contentDir2, { recursive: true })
-    mkdirSync(join(outDir, 'assets'), { recursive: true })
+    mkdirSync(contentDir1, { recursive: true });
+    mkdirSync(contentDir2, { recursive: true });
+    mkdirSync(join(outDir, "assets"), { recursive: true });
 
-    writeFileSync(join(contentDir1, 'a.svg'), '<svg>a</svg>', 'utf-8')
-    writeFileSync(join(contentDir2, 'b.svg'), '<svg>b</svg>', 'utf-8')
-    writeFileSync(join(outDir, 'assets', 'a.svg'), '<svg>a</svg>', 'utf-8')
-    writeFileSync(join(outDir, 'assets', 'b.svg'), '<svg>b</svg>', 'utf-8')
+    writeFileSync(join(contentDir1, "a.svg"), "<svg>a</svg>", "utf-8");
+    writeFileSync(join(contentDir2, "b.svg"), "<svg>b</svg>", "utf-8");
+    writeFileSync(join(outDir, "assets", "a.svg"), "<svg>a</svg>", "utf-8");
+    writeFileSync(join(outDir, "assets", "b.svg"), "<svg>b</svg>", "utf-8");
     writeFileSync(
-      join(outDir, 'index.html'),
+      join(outDir, "index.html"),
       '<img src="/assets/a.svg"><img src="/assets/b.svg">',
-      'utf-8',
-    )
+      "utf-8",
+    );
 
-    hashAssets(outDir, [contentDir1, contentDir2])
+    hashAssets(outDir, [contentDir1, contentDir2]);
 
-    const html = readFileSync(join(outDir, 'index.html'), 'utf-8')
+    const html = readFileSync(join(outDir, "index.html"), "utf-8");
     // Both refs should be rewritten to hashed paths
-    expect(html).toMatch(/a\.[a-f0-9]{8}\.svg/)
-    expect(html).toMatch(/b\.[a-f0-9]{8}\.svg/)
-  })
-})
+    expect(html).toMatch(/a\.[a-f0-9]{8}\.svg/);
+    expect(html).toMatch(/b\.[a-f0-9]{8}\.svg/);
+  });
+});

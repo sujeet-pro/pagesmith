@@ -2,43 +2,43 @@
  * Collection configuration schema.
  */
 
-import { z } from 'zod'
-import type { Loader, LoaderType } from '../loaders/types'
-import type { ContentValidator } from '../validation/types'
+import { z } from "zod";
+import type { Loader, LoaderType } from "../loaders/types";
+import type { ContentValidator } from "../validation/types";
 
 /** Raw entry before validation — what a loader returns plus file metadata. */
 export type RawEntry = {
-  data: Record<string, any>
-  content?: string
-  filePath: string
-  slug: string
-}
+  data: Record<string, any>;
+  content?: string;
+  filePath: string;
+  slug: string;
+};
 
-export type CollectionComputed = Record<string, (entry: RawEntry) => any>
+export type CollectionComputed = Record<string, (entry: RawEntry) => any>;
 
-type Simplify<T> = { [K in keyof T]: T[K] } & {}
+type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
 export type InferComputedFields<TComputed extends CollectionComputed | undefined> =
   TComputed extends CollectionComputed
     ? {
-        [K in keyof TComputed]: Awaited<ReturnType<TComputed[K]>>
+        [K in keyof TComputed]: Awaited<ReturnType<TComputed[K]>>;
       }
-    : {}
+    : {};
 
 export type InferCollectionData<TCollection extends CollectionDef<any, any, any>> = Simplify<
-  z.output<TCollection['schema']> & InferComputedFields<TCollection['computed']>
->
+  z.output<TCollection["schema"]> & InferComputedFields<TCollection["computed"]>
+>;
 
-export type CollectionMap = Record<string, CollectionDef<any, any, any>>
+export type CollectionMap = Record<string, CollectionDef<any, any, any>>;
 
-type InferLoaderKind<TLoader extends LoaderType | Loader> = TLoader extends 'markdown'
-  ? 'markdown'
+type InferLoaderKind<TLoader extends LoaderType | Loader> = TLoader extends "markdown"
+  ? "markdown"
   : TLoader extends Loader
-    ? TLoader['kind']
-    : 'data'
+    ? TLoader["kind"]
+    : "data";
 
 export type InferCollectionLoaderKind<TCollection extends CollectionDef<any, any, any>> =
-  InferLoaderKind<TCollection['loader']>
+  InferLoaderKind<TCollection["loader"]>;
 
 /** Collection definition — passed to defineCollection(). */
 export type CollectionDef<
@@ -47,27 +47,27 @@ export type CollectionDef<
   TLoader extends LoaderType | Loader = LoaderType | Loader,
 > = {
   /** Loader type or custom Loader instance */
-  loader: TLoader
+  loader: TLoader;
   /** Directory containing collection files (relative to rootDir) */
-  directory: string
+  directory: string;
   /** Zod schema for validating entry data */
-  schema: S
+  schema: S;
   /** Glob patterns to include (defaults based on loader type) */
-  include?: string[]
+  include?: string[];
   /** Glob patterns to exclude */
-  exclude?: string[]
+  exclude?: string[];
   /** Computed fields derived from entry data/content */
-  computed?: TComputed
+  computed?: TComputed;
   /** Custom validation hook (return string for error, undefined for pass) */
-  validate?: (entry: RawEntry) => string | undefined
+  validate?: (entry: RawEntry) => string | undefined;
   /** Filter entries (return false to exclude) */
-  filter?: (entry: RawEntry) => boolean
+  filter?: (entry: RawEntry) => boolean;
   /** Custom slug generation */
-  slugify?: (filePath: string, directory: string) => string
+  slugify?: (filePath: string, directory: string) => string;
   /** Pre-validation transform */
-  transform?: (entry: RawEntry) => RawEntry | Promise<RawEntry>
+  transform?: (entry: RawEntry) => RawEntry | Promise<RawEntry>;
   /** Custom content validators (appended to built-in markdown validators) */
-  validators?: ContentValidator[]
+  validators?: ContentValidator[];
   /** Disable built-in markdown validators (link, code-block, heading) */
-  disableBuiltinValidators?: boolean
-}
+  disableBuiltinValidators?: boolean;
+};

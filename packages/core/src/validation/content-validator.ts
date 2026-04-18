@@ -12,37 +12,37 @@
  * gate CI pipelines on the `errors` count.
  */
 
-import { readFile } from 'fs/promises'
-import { basename, extname, relative } from 'path'
-import matter from 'gray-matter'
-import { parse as parseYaml } from 'yaml'
-import fg from 'fast-glob'
-import remarkParse from 'remark-parse'
-import { unified } from 'unified'
-import type { ZodType } from 'zod'
-import { codeBlockValidator } from './code-block-validator'
-import { headingValidator } from './heading-validator'
-import { imageStructureValidator } from './image-structure-validator'
-import { createLinkValidator, type LinkValidatorOptions } from './link-validator'
-import { runValidators } from './runner'
-import { validateSchema, type ValidationIssue } from './schema-validator'
-import type { ContentValidator } from './types'
+import { readFile } from "fs/promises";
+import { basename, extname, relative } from "path";
+import matter from "gray-matter";
+import { parse as parseYaml } from "yaml";
+import fg from "fast-glob";
+import remarkParse from "remark-parse";
+import { unified } from "unified";
+import type { ZodType } from "zod";
+import { codeBlockValidator } from "./code-block-validator";
+import { headingValidator } from "./heading-validator";
+import { imageStructureValidator } from "./image-structure-validator";
+import { createLinkValidator, type LinkValidatorOptions } from "./link-validator";
+import { runValidators } from "./runner";
+import { validateSchema, type ValidationIssue } from "./schema-validator";
+import type { ContentValidator } from "./types";
 
 export type ValidateContentOptions = {
   /**
    * Absolute path to the content directory. All markdown files below this
    * directory will be walked.
    */
-  contentDir: string
+  contentDir: string;
 
   /**
    * Glob patterns (relative to `contentDir`) used to locate markdown files.
    * Default: `['**\/*.md', '**\/*.mdx']`.
    */
-  include?: string[]
+  include?: string[];
 
   /** Glob patterns to exclude. Default: `['**\/node_modules/**']`. */
-  exclude?: string[]
+  exclude?: string[];
 
   /**
    * Optional Zod schema to validate the frontmatter of every file. Applies
@@ -52,7 +52,7 @@ export type ValidateContentOptions = {
    * When omitted, only structural validators (links, images, headings, code
    * blocks) run and frontmatter is accepted as-is.
    */
-  frontmatterSchema?: ZodType
+  frontmatterSchema?: ZodType;
 
   /**
    * Per-file frontmatter schema lookup. Invoked once per markdown file with
@@ -63,63 +63,63 @@ export type ValidateContentOptions = {
    * Typical use: pair with `loadContentSchemaMap` to validate each file
    * against the schema declared in the project's `content.config.ts`.
    */
-  resolveFrontmatterSchema?: (filePath: string) => ZodType | undefined
+  resolveFrontmatterSchema?: (filePath: string) => ZodType | undefined;
 
   /**
    * Forwarded to {@link createLinkValidator}. Useful for site-absolute links
    * (set `rootDir` + `basePath`), restricting allowed internal targets, and
    * opting into external URL reachability checks.
    */
-  linkValidator?: LinkValidatorOptions
+  linkValidator?: LinkValidatorOptions;
 
   /**
    * Additional custom validators to run on every entry. They receive the
    * parsed MDAST alongside the raw content and frontmatter.
    */
-  extraValidators?: ContentValidator[]
+  extraValidators?: ContentValidator[];
 
   /**
    * Whether to include the built-in heading / code-block validators.
    * Default: `true`.
    */
-  includeStructuralValidators?: boolean
+  includeStructuralValidators?: boolean;
 
   /**
    * Collection name recorded on results. Default: `'content'`.
    */
-  collectionName?: string
-}
+  collectionName?: string;
+};
 
 export type ContentFileResult = {
   /** Absolute source file path. */
-  filePath: string
+  filePath: string;
   /** Path relative to `contentDir`. */
-  relativePath: string
+  relativePath: string;
   /** Human-readable slug derived from the file path. */
-  slug: string
+  slug: string;
   /** Issues produced by schema + structural validators. */
-  issues: ValidationIssue[]
-}
+  issues: ValidationIssue[];
+};
 
 export type ValidateContentSummary = {
-  collection: string
-  contentDir: string
-  fileCount: number
-  errors: number
-  warnings: number
-  results: ContentFileResult[]
-}
+  collection: string;
+  contentDir: string;
+  fileCount: number;
+  errors: number;
+  warnings: number;
+  results: ContentFileResult[];
+};
 
 /** Convert a relative markdown path into a slug. */
 function toSlug(relativePath: string): string {
-  const ext = extname(relativePath)
-  const withoutExt = ext ? relativePath.slice(0, -ext.length) : relativePath
-  const normalized = withoutExt.replace(/\\/g, '/')
-  if (basename(normalized) === 'README') {
-    const dir = normalized.replace(/\/README$/, '')
-    return dir === '' ? '/' : `/${dir}`
+  const ext = extname(relativePath);
+  const withoutExt = ext ? relativePath.slice(0, -ext.length) : relativePath;
+  const normalized = withoutExt.replace(/\\/g, "/");
+  if (basename(normalized) === "README") {
+    const dir = normalized.replace(/\/README$/, "");
+    return dir === "" ? "/" : `/${dir}`;
   }
-  return `/${normalized}`
+  return `/${normalized}`;
 }
 
 /**
@@ -133,15 +133,15 @@ export async function validateContent(
 ): Promise<ValidateContentSummary> {
   const {
     contentDir,
-    include = ['**/*.md', '**/*.mdx'],
-    exclude = ['**/node_modules/**'],
+    include = ["**/*.md", "**/*.mdx"],
+    exclude = ["**/node_modules/**"],
     frontmatterSchema,
     resolveFrontmatterSchema,
     linkValidator,
     extraValidators = [],
     includeStructuralValidators = true,
-    collectionName = 'content',
-  } = options
+    collectionName = "content",
+  } = options;
 
   const files = await fg(include, {
     cwd: contentDir,
@@ -149,55 +149,55 @@ export async function validateContent(
     ignore: exclude,
     dot: false,
     onlyFiles: true,
-  })
-  files.sort()
+  });
+  files.sort();
 
-  const validators: ContentValidator[] = []
-  validators.push(createLinkValidator(linkValidator))
+  const validators: ContentValidator[] = [];
+  validators.push(createLinkValidator(linkValidator));
   if (includeStructuralValidators) {
-    validators.push(codeBlockValidator)
-    validators.push(headingValidator)
-    validators.push(imageStructureValidator)
+    validators.push(codeBlockValidator);
+    validators.push(headingValidator);
+    validators.push(imageStructureValidator);
   }
-  validators.push(...extraValidators)
+  validators.push(...extraValidators);
 
-  const results: ContentFileResult[] = []
-  let errors = 0
-  let warnings = 0
+  const results: ContentFileResult[] = [];
+  let errors = 0;
+  let warnings = 0;
 
   for (const filePath of files) {
-    const rel = relative(contentDir, filePath)
-    const slug = toSlug(rel)
-    const issues: ValidationIssue[] = []
+    const rel = relative(contentDir, filePath);
+    const slug = toSlug(rel);
+    const issues: ValidationIssue[] = [];
 
-    let data: Record<string, unknown> = {}
-    let body = ''
+    let data: Record<string, unknown> = {};
+    let body = "";
     try {
-      const raw = await readFile(filePath, 'utf-8')
-      const parsed = matter(raw, { engines: { yaml: parseYaml } })
-      data = (parsed.data as Record<string, unknown>) ?? {}
-      body = parsed.content
+      const raw = await readFile(filePath, "utf-8");
+      const parsed = matter(raw, { engines: { yaml: parseYaml } });
+      data = (parsed.data as Record<string, unknown>) ?? {};
+      body = parsed.content;
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
+      const message = err instanceof Error ? err.message : String(err);
       issues.push({
         message: `Failed to parse markdown: ${message}`,
-        severity: 'error',
-        source: 'content',
-      })
-      results.push({ filePath, relativePath: rel, slug, issues })
-      errors += 1
-      continue
+        severity: "error",
+        source: "content",
+      });
+      results.push({ filePath, relativePath: rel, slug, issues });
+      errors += 1;
+      continue;
     }
 
-    const schema = resolveFrontmatterSchema?.(filePath) ?? frontmatterSchema
+    const schema = resolveFrontmatterSchema?.(filePath) ?? frontmatterSchema;
     if (schema) {
-      const { issues: schemaIssues, validatedData } = validateSchema(data, schema)
-      issues.push(...schemaIssues)
-      data = validatedData as Record<string, unknown>
+      const { issues: schemaIssues, validatedData } = validateSchema(data, schema);
+      issues.push(...schemaIssues);
+      data = validatedData as Record<string, unknown>;
     }
 
     try {
-      const mdast = unified().use(remarkParse).parse(body)
+      const mdast = unified().use(remarkParse).parse(body);
       const contentIssues = await runValidators(
         {
           filePath,
@@ -208,22 +208,22 @@ export async function validateContent(
           mdast,
         },
         validators,
-      )
-      issues.push(...contentIssues)
+      );
+      issues.push(...contentIssues);
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
+      const message = err instanceof Error ? err.message : String(err);
       issues.push({
         message: `Validator pipeline threw: ${message}`,
-        severity: 'error',
-        source: 'content',
-      })
+        severity: "error",
+        source: "content",
+      });
     }
 
     for (const issue of issues) {
-      if (issue.severity === 'error') errors += 1
-      else warnings += 1
+      if (issue.severity === "error") errors += 1;
+      else warnings += 1;
     }
-    results.push({ filePath, relativePath: rel, slug, issues })
+    results.push({ filePath, relativePath: rel, slug, issues });
   }
 
   return {
@@ -233,7 +233,7 @@ export async function validateContent(
     errors,
     warnings,
     results,
-  }
+  };
 }
 
 /**
@@ -246,23 +246,23 @@ export function formatContentValidationReport(
   summary: ValidateContentSummary,
   options?: { showClean?: boolean },
 ): string {
-  const showClean = options?.showClean ?? false
-  const lines: string[] = []
+  const showClean = options?.showClean ?? false;
+  const lines: string[] = [];
   for (const result of summary.results) {
     if (result.issues.length === 0) {
-      if (showClean) lines.push(`OK ${result.relativePath}`)
-      continue
+      if (showClean) lines.push(`OK ${result.relativePath}`);
+      continue;
     }
-    lines.push(`${result.relativePath}`)
+    lines.push(`${result.relativePath}`);
     for (const issue of result.issues) {
-      const prefix = issue.severity === 'error' ? '  \u2717' : '  \u26A0'
-      const field = issue.field ? ` [${issue.field}]` : ''
-      lines.push(`${prefix}${field} ${issue.message}`)
+      const prefix = issue.severity === "error" ? "  \u2717" : "  \u26A0";
+      const field = issue.field ? ` [${issue.field}]` : "";
+      lines.push(`${prefix}${field} ${issue.message}`);
     }
   }
-  lines.push('')
+  lines.push("");
   lines.push(
     `${summary.fileCount} files validated — ${summary.errors} error(s), ${summary.warnings} warning(s)`,
-  )
-  return lines.join('\n')
+  );
+  return lines.join("\n");
 }

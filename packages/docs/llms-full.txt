@@ -55,8 +55,8 @@ All paths below are under `node_modules/@pagesmith/docs/`:
 | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/changelog-notes.md` | Version highlights |
 | `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/AGENTS.md.template` | Template for project AGENTS.md with task-specific file pointers |
 | `node_modules/@pagesmith/docs/schemas/*.schema.json` | Version-matched schemas for config, meta.json5, and docs frontmatter |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/llms.txt` | Compact AI context index |
-| `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/llms-full.txt` | This file — full AI context |
+| `node_modules/@pagesmith/docs/llms.txt` | Compact AI context index (also exposed via `@pagesmith/docs/llms`) |
+| `node_modules/@pagesmith/docs/llms-full.txt` | This file — full AI context (also exposed via `@pagesmith/docs/llms-full`) |
 
 ## Agent prompts by use case
 

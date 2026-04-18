@@ -1,42 +1,42 @@
-import { Fragment, h } from '@pagesmith/site/jsx-runtime'
+import { Fragment, h } from "@pagesmith/site/jsx-runtime";
 import {
   AccordionTableOfContents,
   SiteFooter as SharedSiteFooter,
   SiteHeader as SharedSiteHeader,
   TableOfContents,
-} from '@pagesmith/site/components'
+} from "@pagesmith/site/components";
 
-import type { GuideGroup, NavEntry } from './content'
-import { escapeHtml, formatDate } from './content'
+import type { GuideGroup, NavEntry } from "./content";
+import { escapeHtml, formatDate } from "./content";
 
 const closeIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>'
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="m5 5 10 10M15 5 5 15"/></svg>';
 
 export function SidebarNav(props: {
-  currentPath: string
-  basePath: string
-  isGuide: boolean
-  firstGuideUrl: string
-  guideGroups: GuideGroup[]
+  currentPath: string;
+  basePath: string;
+  isGuide: boolean;
+  firstGuideUrl: string;
+  guideGroups: GuideGroup[];
 }) {
-  const { currentPath, basePath, isGuide, firstGuideUrl, guideGroups } = props
+  const { currentPath, basePath, isGuide, firstGuideUrl, guideGroups } = props;
 
   return (
     <Fragment>
       <div class="doc-sidebar-section">
         <p class="doc-sidebar-heading">Navigation</p>
         <ul class="doc-sidebar-list">
-          <li class={`doc-sidebar-item${currentPath === '/' ? ' active' : ''}`}>
+          <li class={`doc-sidebar-item${currentPath === "/" ? " active" : ""}`}>
             <a href={`${basePath}/`} class="doc-sidebar-link">
               Home
             </a>
           </li>
-          <li class={`doc-sidebar-item${isGuide ? ' active' : ''}`}>
+          <li class={`doc-sidebar-item${isGuide ? " active" : ""}`}>
             <a href={firstGuideUrl} class="doc-sidebar-link">
               Guide
             </a>
           </li>
-          <li class={`doc-sidebar-item${currentPath === '/about' ? ' active' : ''}`}>
+          <li class={`doc-sidebar-item${currentPath === "/about" ? " active" : ""}`}>
             <a href={`${basePath}/about`} class="doc-sidebar-link">
               About
             </a>
@@ -58,7 +58,7 @@ export function SidebarNav(props: {
               <ul class="doc-sidebar-nested">
                 {group.items.map((entry) => (
                   <li
-                    class={`doc-sidebar-item${currentPath === `/guide/${entry.slug}` ? ' active' : ''}`}
+                    class={`doc-sidebar-item${currentPath === `/guide/${entry.slug}` ? " active" : ""}`}
                   >
                     <a href={entry.url} class="doc-sidebar-link">
                       {entry.title}
@@ -71,7 +71,7 @@ export function SidebarNav(props: {
         </ul>
       </div>
     </Fragment>
-  )
+  );
 }
 
 export function ExampleFooter() {
@@ -79,49 +79,49 @@ export function ExampleFooter() {
     <SharedSiteFooter
       links={[
         {
-          label: 'GitHub',
-          path: 'https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site',
+          label: "GitHub",
+          path: "https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site",
         },
         {
-          label: 'Pagesmith',
-          path: 'https://github.com/sujeet-pro/pagesmith',
+          label: "Pagesmith",
+          path: "https://github.com/sujeet-pro/pagesmith",
         },
       ]}
-      copyright={{ projectName: 'Pagesmith', startYear: 2026, endYear: 2026 }}
+      copyright={{ projectName: "Pagesmith", startYear: 2026, endYear: 2026 }}
     />
-  )
+  );
 }
 
 export function SiteHeader(props: {
-  basePath: string
-  currentPath: string
-  firstGuideUrl: string
-  searchEnabled?: boolean
+  basePath: string;
+  currentPath: string;
+  firstGuideUrl: string;
+  searchEnabled?: boolean;
 }) {
-  const { basePath, currentPath, firstGuideUrl, searchEnabled } = props
+  const { basePath, currentPath, firstGuideUrl, searchEnabled } = props;
   return (
     <SharedSiteHeader
       siteName="Pagesmith"
       basePath={basePath}
       homeLink={`${basePath}/`}
       navItems={[
-        { label: 'Home', path: `${basePath}/` },
-        { label: 'Guide', path: firstGuideUrl },
+        { label: "Home", path: `${basePath}/` },
+        { label: "Guide", path: firstGuideUrl },
       ]}
       currentPath={currentPath}
       searchEnabled={searchEnabled}
     />
-  )
+  );
 }
 
 export function HomeBody(props: {
-  basePath: string
-  firstGuideUrl: string
-  kitchenSinkUrl: string
-  searchEnabled?: boolean
-  guideEntries: NavEntry[]
+  basePath: string;
+  firstGuideUrl: string;
+  kitchenSinkUrl: string;
+  searchEnabled?: boolean;
+  guideEntries: NavEntry[];
 }) {
-  const { basePath, firstGuideUrl, kitchenSinkUrl, searchEnabled, guideEntries } = props
+  const { basePath, firstGuideUrl, kitchenSinkUrl, searchEnabled, guideEntries } = props;
 
   return (
     <Fragment>
@@ -169,7 +169,7 @@ export function HomeBody(props: {
                 </a>
                 {entry.description ? (
                   <span style="color: var(--color-text-muted); font-size: var(--font-size-sm)">
-                    {' \u2014 '}
+                    {" \u2014 "}
                     {entry.description}
                   </span>
                 ) : null}
@@ -183,20 +183,20 @@ export function HomeBody(props: {
         </div>
       </main>
     </Fragment>
-  )
+  );
 }
 
 export function PageBody(props: {
-  title: string
-  content: string
-  headings: Array<{ depth: number; slug: string; text: string }>
-  currentPath: string
-  basePath: string
-  firstGuideUrl: string
-  searchEnabled?: boolean
-  sidebar: GuideGroup[]
-  date?: string
-  readTime?: number
+  title: string;
+  content: string;
+  headings: Array<{ depth: number; slug: string; text: string }>;
+  currentPath: string;
+  basePath: string;
+  firstGuideUrl: string;
+  searchEnabled?: boolean;
+  sidebar: GuideGroup[];
+  date?: string;
+  readTime?: number;
 }) {
   const {
     content,
@@ -208,8 +208,8 @@ export function PageBody(props: {
     sidebar,
     date,
     readTime,
-  } = props
-  const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
+  } = props;
+  const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 
   return (
     <Fragment>
@@ -225,7 +225,7 @@ export function PageBody(props: {
             <SidebarNav
               currentPath={currentPath}
               basePath={basePath}
-              isGuide={currentPath.startsWith('/guide')}
+              isGuide={currentPath.startsWith("/guide")}
               firstGuideUrl={firstGuideUrl}
               guideGroups={sidebar}
             />
@@ -243,7 +243,7 @@ export function PageBody(props: {
                 <time dateTime={date}>{formatDate(date)}</time>
                 {readTime ? (
                   <Fragment>
-                    {' \u00b7 '}
+                    {" \u00b7 "}
                     {readTime} min read
                   </Fragment>
                 ) : null}
@@ -263,24 +263,24 @@ export function PageBody(props: {
         </aside>
       </div>
     </Fragment>
-  )
+  );
 }
 
 export function renderDocument(props: {
-  title: string
-  description?: string
-  basePath: string
-  cssPath: string
-  jsPath?: string
-  searchEnabled?: boolean
-  bodyHtml: string
-  sidebarHtml?: string
+  title: string;
+  description?: string;
+  basePath: string;
+  cssPath: string;
+  jsPath?: string;
+  searchEnabled?: boolean;
+  bodyHtml: string;
+  sidebarHtml?: string;
 }) {
   const { title, description, basePath, cssPath, jsPath, searchEnabled, bodyHtml, sidebarHtml } =
-    props
-  const base = basePath.replace(/\/+$/, '')
+    props;
+  const base = basePath.replace(/\/+$/, "");
 
-  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})()`
+  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})()`;
 
   return `<html lang="en" class="no-js color-scheme-auto theme-paper">
   <head>
@@ -289,16 +289,16 @@ export function renderDocument(props: {
     <meta name="color-scheme" content="light dark" />
     <script>${foucScript}</script>
     <title>${escapeHtml(title)}</title>
-    ${description ? `<meta name="description" content="${escapeHtml(description)}" />` : ''}
+    ${description ? `<meta name="description" content="${escapeHtml(description)}" />` : ""}
     <meta property="og:type" content="website" />
     <meta property="og:title" content="${escapeHtml(title)}" />
-    ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ''}
+    ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ""}
     <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="${base}/assets/fonts.css" />
-    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ''}
+    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ""}
     <link rel="stylesheet" href="${cssPath}" />
     <script>document.documentElement.classList.remove('no-js')</script>
-    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ''}
+    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ""}
   </head>
   <body>
     ${bodyHtml}
@@ -311,7 +311,7 @@ export function renderDocument(props: {
               <nav class="doc-sidebar-nav" aria-label="Sidebar navigation">${sidebarHtml}</nav>
             </div>
           </dialog>`
-        : ''
+        : ""
     }
     ${
       searchEnabled
@@ -323,9 +323,9 @@ export function renderDocument(props: {
             </pagefind-modal-body>
             <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
           </pagefind-modal>`
-        : ''
+        : ""
     }
-    ${jsPath ? `<script src="${jsPath}" defer></script>` : ''}
+    ${jsPath ? `<script src="${jsPath}" defer></script>` : ""}
   </body>
-</html>`
+</html>`;
 }

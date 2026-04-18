@@ -1,6 +1,7 @@
 ---
 
 ## name: prj-review-repo
+
 description: Review Pagesmith monorepo changes with full repo context — behavior, boundaries, tests, docs/examples/diagram parity, and release readiness. Use when reviewing diffs or branches, before merge, or when preparing a release.
 
 # Project Review Repo
@@ -9,10 +10,9 @@ Use this skill for **code review** in this repository. It assumes you have read 
 
 ## Repo context (what to hold in mind)
 
-
 | Area                                     | Location                                          |
 | ---------------------------------------- | ------------------------------------------------- |
-| Core markdown, validation, loaders       | `packages/core/src/`**                            |
+| Core markdown, validation, loaders       | `packages/core/src/`\*\*                          |
 | Site preset, Vite, runtime CSS/layout    | `packages/site/src/**`                            |
 | Docs tooling, validators, schemas        | `packages/docs/src/**`, `packages/docs/schemas/`  |
 | Root docs site content                   | `docs/content/`, `pagesmith.config.json5`         |
@@ -20,7 +20,6 @@ Use this skill for **code review** in this repository. It assumes you have read 
 | Consumer npm guidance (ships in tarball) | `packages/*/skills/pagesmith-*-setup/references/` |
 | Root consumer skills (post-install copy) | `skills/pagesmith-*/`                             |
 | Contributor workflows                    | `.agents/skills/prj-*/SKILL.md`                   |
-
 
 **Boundaries:** watch for accidental coupling from `packages/docs` into app runtime, or bypassing shared markdown validation. Public behavior changes should touch implementation, package references, root docs, examples, and diagrams in the **same branch** when applicable.
 

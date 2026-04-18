@@ -1,14 +1,14 @@
-import { h } from '../jsx-runtime/index.js'
-import { SITE_CHROME_ASSETS, withComponentAssets } from './assets.js'
-import type { SiteThemeControls, SiteThemeOption } from './types.js'
-import { resolveThemeControls } from '../theme/index.js'
+import { h } from "../jsx-runtime/index.js";
+import { SITE_CHROME_ASSETS, withComponentAssets } from "./assets.js";
+import type { SiteThemeControls, SiteThemeOption } from "./types.js";
+import { resolveThemeControls } from "../theme/index.js";
 
 const themeIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>';
 
 function renderRadioOptions(name: string, options: SiteThemeOption[], checkedValue: string) {
   return options.map((option) => (
-    <label class="doc-theme-option" data-theme={name === 'theme' ? option.value : undefined}>
+    <label class="doc-theme-option" data-theme={name === "theme" ? option.value : undefined}>
       <input
         type="radio"
         name={name}
@@ -17,7 +17,7 @@ function renderRadioOptions(name: string, options: SiteThemeOption[], checkedVal
       />
       {option.label}
     </label>
-  ))
+  ));
 }
 
 function renderColorSchemeOptions(options: SiteThemeOption[]) {
@@ -27,15 +27,15 @@ function renderColorSchemeOptions(options: SiteThemeOption[]) {
         type="radio"
         name="colorScheme"
         value={option.value}
-        checked={option.value === 'auto'}
+        checked={option.value === "auto"}
       />
       {option.label}
     </label>
-  ))
+  ));
 }
 
-function isPresetTextSize(value: string): value is 'small' | 'base' | 'large' {
-  return value === 'small' || value === 'base' || value === 'large'
+function isPresetTextSize(value: string): value is "small" | "base" | "large" {
+  return value === "small" || value === "base" || value === "large";
 }
 
 function renderTextSizeLabel(option: SiteThemeOption) {
@@ -44,14 +44,14 @@ function renderTextSizeLabel(option: SiteThemeOption) {
       <span class="doc-text-size-label" data-size={option.value} aria-hidden="true">
         A
       </span>
-    )
+    );
   }
 
   return (
     <span class="doc-text-size-label" data-size="base" aria-hidden="true">
       {option.label}
     </span>
-  )
+  );
 }
 
 function renderTextSizeOptions(options: SiteThemeOption[]) {
@@ -62,26 +62,26 @@ function renderTextSizeOptions(options: SiteThemeOption[]) {
         type="radio"
         name="textSize"
         value={option.value}
-        checked={option.value === 'base'}
+        checked={option.value === "base"}
       />
       {renderTextSizeLabel(option)}
       <span class="sr-only">{option.label} text size</span>
     </label>
-  ))
+  ));
 }
 
 type ThemeDropdownControlsProps = {
-  controls?: SiteThemeControls
-  id?: string
-  buttonIcon?: string
-}
+  controls?: SiteThemeControls;
+  id?: string;
+  buttonIcon?: string;
+};
 
 function ThemeDropdownControlsComponent({
   controls,
-  id = 'doc-theme-dropdown',
+  id = "doc-theme-dropdown",
   buttonIcon = themeIcon,
 }: ThemeDropdownControlsProps) {
-  const resolved = resolveThemeControls(controls)
+  const resolved = resolveThemeControls(controls);
 
   return (
     <div class="doc-theme-toggle no-js-hidden" data-theme-toggle="" data-ps-theme-controls="">
@@ -109,7 +109,7 @@ function ThemeDropdownControlsComponent({
         </fieldset>
         <fieldset class="doc-theme-group">
           <legend>{resolved.themeLabel}</legend>
-          {renderRadioOptions('theme', resolved.themeOptions, 'paper')}
+          {renderRadioOptions("theme", resolved.themeOptions, "paper")}
         </fieldset>
         <fieldset class="doc-theme-group">
           <legend>{resolved.textSizeLabel}</legend>
@@ -117,15 +117,15 @@ function ThemeDropdownControlsComponent({
         </fieldset>
       </div>
     </div>
-  )
+  );
 }
 
 type FooterThemeControlsProps = {
-  controls?: SiteThemeControls
-}
+  controls?: SiteThemeControls;
+};
 
 function FooterThemeControlsComponent({ controls }: FooterThemeControlsProps) {
-  const resolved = resolveThemeControls(controls)
+  const resolved = resolveThemeControls(controls);
 
   return (
     <div class="doc-footer-theme no-js-hidden" data-footer-theme="">
@@ -136,8 +136,8 @@ function FooterThemeControlsComponent({ controls }: FooterThemeControlsProps) {
             <button
               type="button"
               data-scheme={option.value}
-              class={option.value === 'auto' ? 'active' : undefined}
-              aria-pressed={option.value === 'auto' ? 'true' : 'false'}
+              class={option.value === "auto" ? "active" : undefined}
+              aria-pressed={option.value === "auto" ? "true" : "false"}
             >
               {option.label}
             </button>
@@ -151,8 +151,8 @@ function FooterThemeControlsComponent({ controls }: FooterThemeControlsProps) {
             <button
               type="button"
               data-theme={option.value}
-              class={option.value === 'paper' ? 'active' : undefined}
-              aria-pressed={option.value === 'paper' ? 'true' : 'false'}
+              class={option.value === "paper" ? "active" : undefined}
+              aria-pressed={option.value === "paper" ? "true" : "false"}
             >
               {option.label}
             </button>
@@ -166,8 +166,8 @@ function FooterThemeControlsComponent({ controls }: FooterThemeControlsProps) {
             <button
               type="button"
               data-size={option.value}
-              class={option.value === 'base' ? 'active' : undefined}
-              aria-pressed={option.value === 'base' ? 'true' : 'false'}
+              class={option.value === "base" ? "active" : undefined}
+              aria-pressed={option.value === "base" ? "true" : "false"}
               aria-label={`${option.label} text`}
             >
               {renderTextSizeLabel(option)}
@@ -176,14 +176,14 @@ function FooterThemeControlsComponent({ controls }: FooterThemeControlsProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export const ThemeDropdownControls = withComponentAssets(
   ThemeDropdownControlsComponent,
   SITE_CHROME_ASSETS,
-)
+);
 export const FooterThemeControls = withComponentAssets(
   FooterThemeControlsComponent,
   SITE_CHROME_ASSETS,
-)
+);

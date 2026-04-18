@@ -55,16 +55,11 @@ npm add @pagesmith/site
 A content config defines your collections, schemas, and markdown settings. Use `defineCollection`, `defineConfig`, and `z` (a re-export of Zod) from `@pagesmith/core`:
 
 ```ts title="content.config.ts"
-import {
-  createContentLayer,
-  defineCollection,
-  defineConfig,
-  z,
-} from '@pagesmith/core'
+import { createContentLayer, defineCollection, defineConfig, z } from "@pagesmith/core";
 
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -72,28 +67,28 @@ const posts = defineCollection({
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
-})
+});
 
 const authors = defineCollection({
-  loader: 'json',
-  directory: 'content/authors',
+  loader: "json",
+  directory: "content/authors",
   schema: z.object({
     name: z.string(),
     bio: z.string().optional(),
   }),
-})
+});
 
 const contentConfig = defineConfig({
   collections: { posts, authors },
   markdown: {
     shiki: {
-      themes: { light: 'github-light', dark: 'github-dark' },
+      themes: { light: "github-light", dark: "github-dark" },
     },
   },
-})
+});
 
-export default contentConfig.collections
-export const layer = createContentLayer(contentConfig)
+export default contentConfig.collections;
+export const layer = createContentLayer(contentConfig);
 ```
 
 `defineCollection()` is a type-safe identity function. It does not transform the definition, but it provides full TypeScript inference from the Zod schema so that `entry.data` is fully typed.
@@ -114,24 +109,24 @@ content/
 
 Folder-based entries (a directory with a `README.md` inside) are the safest default whenever a markdown entry references sibling assets like images. Pagesmith generates slugs from relative file paths, stripping `README` and file extensions:
 
-| File Path | Generated Slug |
-|---|---|
-| `hello-world/README.md` | `hello-world` |
-| `getting-started.md` | `getting-started` |
-| `2024/my-post.md` | `2024/my-post` |
+| File Path               | Generated Slug    |
+| ----------------------- | ----------------- |
+| `hello-world/README.md` | `hello-world`     |
+| `getting-started.md`    | `getting-started` |
+| `2024/my-post.md`       | `2024/my-post`    |
 
 ## Load and Render
 
 ```ts title="build.ts" mark={1,6}
-const posts = await layer.getCollection('posts')
+const posts = await layer.getCollection("posts");
 
 for (const post of posts) {
-  console.log(post.slug, post.data.title)
+  console.log(post.slug, post.data.title);
 
-  const rendered = await post.render()
-  console.log(rendered.html)      // Processed HTML
-  console.log(rendered.headings)  // Heading[] for TOC
-  console.log(rendered.readTime)  // Minutes (200 wpm)
+  const rendered = await post.render();
+  console.log(rendered.html); // Processed HTML
+  console.log(rendered.headings); // Heading[] for TOC
+  console.log(rendered.readTime); // Minutes (200 wpm)
 }
 ```
 
@@ -156,17 +151,14 @@ For Vite-based projects, split Pagesmith by layer when you are intentionally sta
 - **`pagesmithSsg`** from `@pagesmith/site/vite` handles dev-time SSR middleware and build-time static site generation.
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite'
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithContent } from "@pagesmith/core/vite";
+import { pagesmithSsg } from "@pagesmith/site/vite";
+import collections from "./content.config";
 
 export default defineConfig({
-  plugins: [
-    pagesmithContent(collections),
-    pagesmithSsg({ entry: './src/entry-server.tsx' }),
-  ],
-})
+  plugins: [pagesmithContent(collections), pagesmithSsg({ entry: "./src/entry-server.tsx" })],
+});
 ```
 
 If the project adopts `@pagesmith/site` as the app-facing package, you can instead keep the Vite imports on `@pagesmith/site/vite`.
@@ -174,11 +166,11 @@ If the project adopts `@pagesmith/site` as the app-facing package, you can inste
 Then import collection data in your application code:
 
 ```ts title="src/entry-server.tsx"
-import posts from 'virtual:content/posts'
+import posts from "virtual:content/posts";
 
 // Markdown collections: { id, contentSlug, html, headings, frontmatter }
 for (const post of posts) {
-  console.log(post.frontmatter.title, post.html)
+  console.log(post.frontmatter.title, post.html);
 }
 ```
 
@@ -189,12 +181,12 @@ The SSR entry module must export two functions:
 ```ts title="src/entry-server.tsx"
 export function getRoutes(config: SsgRenderConfig): string[] {
   // Return all route paths to pre-render
-  return ['/', '/posts/hello-world', '/404']
+  return ["/", "/posts/hello-world", "/404"];
 }
 
 export function render(url: string, config: SsgRenderConfig): string {
   // Return the full HTML string for a given route
-  return '<html>...</html>'
+  return "<html>...</html>";
 }
 ```
 
@@ -214,19 +206,19 @@ When you are working with an installed project, these are the first files to han
 
 ## Import Map
 
-| I want to... | Import from |
-|---|---|
-| Define collections and schemas | `@pagesmith/core` |
-| Use the content Vite plugin in a core-only integration | `@pagesmith/core/vite` |
-| Use the app-facing Vite plugin and SSG helpers | `@pagesmith/site/vite` |
-| Write site JSX layouts | `@pagesmith/site/jsx-runtime` |
-| Write docs layout overrides | `@pagesmith/docs/jsx-runtime` |
-| Add content CSS | `@pagesmith/site/css/content` |
-| Add full layout CSS | `@pagesmith/site/css/standalone` |
-| Process markdown directly | `@pagesmith/core/markdown` |
-| Use Zod schemas | `@pagesmith/core/schemas` |
-| Use built-in loaders | `@pagesmith/core/loaders` |
-| Access runtime CSS/JS paths | `@pagesmith/site/runtime` |
+| I want to...                                           | Import from                      |
+| ------------------------------------------------------ | -------------------------------- |
+| Define collections and schemas                         | `@pagesmith/core`                |
+| Use the content Vite plugin in a core-only integration | `@pagesmith/core/vite`           |
+| Use the app-facing Vite plugin and SSG helpers         | `@pagesmith/site/vite`           |
+| Write site JSX layouts                                 | `@pagesmith/site/jsx-runtime`    |
+| Write docs layout overrides                            | `@pagesmith/docs/jsx-runtime`    |
+| Add content CSS                                        | `@pagesmith/site/css/content`    |
+| Add full layout CSS                                    | `@pagesmith/site/css/standalone` |
+| Process markdown directly                              | `@pagesmith/core/markdown`       |
+| Use Zod schemas                                        | `@pagesmith/core/schemas`        |
+| Use built-in loaders                                   | `@pagesmith/core/loaders`        |
+| Access runtime CSS/JS paths                            | `@pagesmith/site/runtime`        |
 
 ## What to Read Next
 

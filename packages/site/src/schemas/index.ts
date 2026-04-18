@@ -4,7 +4,7 @@ export {
   HeadingSchema,
   MarkdownConfigSchema,
   ProjectFrontmatterSchema,
-} from '@pagesmith/core/schemas'
+} from "@pagesmith/core/schemas";
 export type {
   BaseFrontmatter,
   BlogFrontmatter,
@@ -19,7 +19,7 @@ export type {
   MarkdownConfig,
   ProjectFrontmatter,
   RawEntry,
-} from '@pagesmith/core/schemas'
+} from "@pagesmith/core/schemas";
 export {
   SiteAnalyticsConfigSchema,
   SiteCopyrightSchema,
@@ -32,4 +32,4 @@ export {
   SiteSidebarConfigSchema,
   SiteThemeConfigSchema,
   SiteUserConfigSchema,
-} from '../config.js'
+} from "../config.js";

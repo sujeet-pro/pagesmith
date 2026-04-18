@@ -21,17 +21,17 @@ When you use stock `@pagesmith/docs`, the `pagesmith.config.json5` `markdown` fi
 
 ## Built In By Default
 
-| Feature | Plugin or stage | Where to explore it |
-|---|---|---|
-| Alerts | `remark-github-alerts` | [Alerts & Callouts](../alerts-and-callouts/README.md) |
-| GitHub Flavored Markdown | `remark-gfm` | [GFM Extensions](../gfm-extensions/README.md) |
-| Smart typography | `remark-smartypants` | [Typography](../typography/README.md) |
-| Math | `remark-math`, `rehype-mathjax` | [Math & LaTeX](../math-and-latex/README.md) |
-| Code blocks | built-in Pagesmith renderer on top of Shiki | [Code Blocks](../code-blocks/README.md) |
-| External link handling | `rehype-external-links` | Overview below |
-| Heading anchors | `rehype-slug`, `rehype-autolink-headings` | Overview below |
-| Accessible emojis | `rehype-accessible-emojis` | Overview below |
-| Local images | `rehype-local-images` | Overview below |
+| Feature                  | Plugin or stage                             | Where to explore it                                   |
+| ------------------------ | ------------------------------------------- | ----------------------------------------------------- |
+| Alerts                   | `remark-github-alerts`                      | [Alerts & Callouts](../alerts-and-callouts/README.md) |
+| GitHub Flavored Markdown | `remark-gfm`                                | [GFM Extensions](../gfm-extensions/README.md)         |
+| Smart typography         | `remark-smartypants`                        | [Typography](../typography/README.md)                 |
+| Math                     | `remark-math`, `rehype-mathjax`             | [Math & LaTeX](../math-and-latex/README.md)           |
+| Code blocks              | built-in Pagesmith renderer on top of Shiki | [Code Blocks](../code-blocks/README.md)               |
+| External link handling   | `rehype-external-links`                     | Overview below                                        |
+| Heading anchors          | `rehype-slug`, `rehype-autolink-headings`   | Overview below                                        |
+| Accessible emojis        | `rehype-accessible-emojis`                  | Overview below                                        |
+| Local images             | `rehype-local-images`                       | Overview below                                        |
 
 ## External Links
 
@@ -99,8 +99,8 @@ This renders to HTML like:
 If you wire markdown through `@pagesmith/core` APIs such as `defineConfig()`, you can extend the built-in pipeline with your own remark and rehype plugins:
 
 ```ts
-import remarkToc from 'remark-toc'
-import rehypeFigure from 'rehype-figure'
+import remarkToc from "remark-toc";
+import rehypeFigure from "rehype-figure";
 
 const config = defineConfig({
   collections: { posts },
@@ -108,7 +108,7 @@ const config = defineConfig({
     remarkPlugins: [remarkToc],
     rehypePlugins: [rehypeFigure],
   },
-})
+});
 ```
 
 Custom remark plugins run after the built-in remark plugins but before `remark-rehype`. Custom rehype plugins run after the built-in rehype plugins but before `rehype-stringify`.

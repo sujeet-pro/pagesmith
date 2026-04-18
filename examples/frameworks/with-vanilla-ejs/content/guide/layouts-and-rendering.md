@@ -18,8 +18,8 @@ EJS runs **only** inside `src/entry-server.tsx` at SSG (and during dev SSR). The
 The SSG plugin loads the entry module and calls:
 
 ```ts
-export async function getRoutes(config: SsgRenderConfig): Promise<string[]>
-export async function render(url: string, config: SsgRenderConfig): Promise<string>
+export async function getRoutes(config: SsgRenderConfig): Promise<string[]>;
+export async function render(url: string, config: SsgRenderConfig): Promise<string>;
 ```
 
 `SsgRenderConfig` includes `base`, `root`, `cssPath`, `jsPath`, **`searchEnabled`**, and **`isDev`**. This example forwards `searchEnabled` (and `isDev`) into `layout.ejs` so Pagefind assets match the environment.
@@ -28,11 +28,11 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
 
 ```ts title="src/entry-server.tsx (excerpt)"
 export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
-  const { sortedGuide, renderedPages } = await loadContent(config.root)
-  const routes = ['/']
-  for (const item of sortedGuide) routes.push(`/guide/${item.entry.slug}`)
-  if (renderedPages.find((p) => p.entry.slug === 'about')) routes.push('/about')
-  return routes
+  const { sortedGuide, renderedPages } = await loadContent(config.root);
+  const routes = ["/"];
+  for (const item of sortedGuide) routes.push(`/guide/${item.entry.slug}`);
+  if (renderedPages.find((p) => p.entry.slug === "about")) routes.push("/about");
+  return routes;
 }
 ```
 
@@ -42,12 +42,12 @@ export async function getRoutes(config: SsgRenderConfig): Promise<string[]> {
 
 ```ts title="src/entry-server.tsx (excerpt)"
 function loadTemplate(root: string, name: string) {
-  return readFileSync(join(root, 'templates', `${name}.ejs`), 'utf-8')
+  return readFileSync(join(root, "templates", `${name}.ejs`), "utf-8");
 }
 
 function renderWithLayout(root: string, body: string, vars: Record<string, any>) {
-  const layout = loadTemplate(root, 'layout')
-  return ejs.render(layout, { ...vars, body })
+  const layout = loadTemplate(root, "layout");
+  return ejs.render(layout, { ...vars, body });
 }
 ```
 

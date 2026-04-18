@@ -19,72 +19,72 @@
  * theme palette) are a single classList check with no DOM mutations.
  */
 
-const THEMED_SELECTOR = '.ps-figure-themed'
-const SCHEME_DARK = 'color-scheme-dark'
-const SCHEME_LIGHT = 'color-scheme-light'
-const DARK_MEDIA = '(prefers-color-scheme: dark)'
-const BLOCKED_MEDIA = 'not all'
+const THEMED_SELECTOR = ".ps-figure-themed";
+const SCHEME_DARK = "color-scheme-dark";
+const SCHEME_LIGHT = "color-scheme-light";
+const DARK_MEDIA = "(prefers-color-scheme: dark)";
+const BLOCKED_MEDIA = "not all";
 
-let lastScheme: 'light' | 'dark' | 'auto' | undefined
-let teardown: (() => void) | undefined
+let lastScheme: "light" | "dark" | "auto" | undefined;
+let teardown: (() => void) | undefined;
 
-function getEffectiveScheme(): 'light' | 'dark' | 'auto' {
-  const cl = document.documentElement.classList
-  if (cl.contains(SCHEME_DARK)) return 'dark'
-  if (cl.contains(SCHEME_LIGHT)) return 'light'
-  return 'auto'
+function getEffectiveScheme(): "light" | "dark" | "auto" {
+  const cl = document.documentElement.classList;
+  if (cl.contains(SCHEME_DARK)) return "dark";
+  if (cl.contains(SCHEME_LIGHT)) return "light";
+  return "auto";
 }
 
-function applyScheme(figure: HTMLElement, scheme: 'light' | 'dark' | 'auto'): void {
-  for (const source of figure.querySelectorAll<HTMLElement>('source[data-scheme]')) {
-    const sourceScheme = source.dataset.scheme
+function applyScheme(figure: HTMLElement, scheme: "light" | "dark" | "auto"): void {
+  for (const source of figure.querySelectorAll<HTMLElement>("source[data-scheme]")) {
+    const sourceScheme = source.dataset.scheme;
 
-    if (scheme === 'auto') {
+    if (scheme === "auto") {
       // Restore native media-query behavior
-      if (sourceScheme === 'dark') {
-        source.setAttribute('media', DARK_MEDIA)
+      if (sourceScheme === "dark") {
+        source.setAttribute("media", DARK_MEDIA);
       } else {
-        source.removeAttribute('media')
+        source.removeAttribute("media");
       }
     } else if (sourceScheme === scheme) {
       // Matching scheme: remove media so it matches unconditionally
-      source.removeAttribute('media')
+      source.removeAttribute("media");
     } else {
       // Non-matching scheme: block with "not all"
-      source.setAttribute('media', BLOCKED_MEDIA)
+      source.setAttribute("media", BLOCKED_MEDIA);
     }
   }
 }
 
 function updateAllThemedImages(): void {
-  const scheme = getEffectiveScheme()
-  if (scheme === lastScheme) return
-  lastScheme = scheme
+  const scheme = getEffectiveScheme();
+  if (scheme === lastScheme) return;
+  lastScheme = scheme;
 
   for (const figure of document.querySelectorAll<HTMLElement>(THEMED_SELECTOR)) {
-    applyScheme(figure, scheme)
+    applyScheme(figure, scheme);
   }
 }
 
 export function initThemedImages(): void {
-  if (typeof document === 'undefined') return
+  if (typeof document === "undefined") return;
 
-  teardown?.()
-  lastScheme = undefined
+  teardown?.();
+  lastScheme = undefined;
 
-  updateAllThemedImages()
+  updateAllThemedImages();
 
   // Only fires on class attribute changes — not data attributes, style, etc.
   // The lastScheme guard ensures unrelated class changes (text-size, theme
   // palette) never cause DOM mutations — just a single classList check.
-  const observer = new MutationObserver(() => updateAllThemedImages())
+  const observer = new MutationObserver(() => updateAllThemedImages());
   observer.observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ['class'],
-  })
+    attributeFilter: ["class"],
+  });
 
   teardown = () => {
-    observer.disconnect()
-    teardown = undefined
-  }
+    observer.disconnect();
+    teardown = undefined;
+  };
 }

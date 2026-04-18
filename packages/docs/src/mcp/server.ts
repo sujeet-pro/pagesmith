@@ -1,74 +1,74 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import { asTextResource, getPackageVersion, resolvePackageDocPath } from '@pagesmith/core/mcp'
-import { existsSync, readFileSync } from 'fs'
-import { basename, isAbsolute, relative, resolve } from 'path'
-import { z } from 'zod'
-import { loadDocsPages, loadSectionMetas } from '../content.js'
-import { resolveDocsConfigAsync, validateConfig, type ResolvedDocsConfig } from '../config.js'
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { asTextResource, getPackageVersion, resolvePackageDocPath } from "@pagesmith/core/mcp";
+import { existsSync, readFileSync } from "fs";
+import { basename, isAbsolute, relative, resolve } from "path";
+import { z } from "zod";
+import { loadDocsPages, loadSectionMetas } from "../content.js";
+import { resolveDocsConfigAsync, validateConfig, type ResolvedDocsConfig } from "../config.js";
 
 export type DocsMcpServerOptions = {
-  rootDir?: string
-  configPath?: string
-}
+  rootDir?: string;
+  configPath?: string;
+};
 
 function ensurePathWithinRoot(baseRoot: string, candidatePath: string): string {
-  const resolvedRoot = resolve(baseRoot)
+  const resolvedRoot = resolve(baseRoot);
   const resolvedPath = isAbsolute(candidatePath)
     ? resolve(candidatePath)
-    : resolve(resolvedRoot, candidatePath)
-  const rel = relative(resolvedRoot, resolvedPath)
-  if (rel && rel.startsWith('..')) {
+    : resolve(resolvedRoot, candidatePath);
+  const rel = relative(resolvedRoot, resolvedPath);
+  if (rel && rel.startsWith("..")) {
     throw new Error(
       `Config path must stay within the docs root directory: ${resolvedRoot}. Received: ${candidatePath}`,
-    )
+    );
   }
-  return resolvedPath
+  return resolvedPath;
 }
 
 function withConfigPath(baseRoot: string, configPath?: string): string {
-  const candidate = configPath ?? 'pagesmith.config.json5'
-  return ensurePathWithinRoot(baseRoot, candidate)
+  const candidate = configPath ?? "pagesmith.config.json5";
+  return ensurePathWithinRoot(baseRoot, candidate);
 }
 
 function resolveConfig(baseRoot: string, configPath?: string): Promise<ResolvedDocsConfig> {
-  const absolutePath = withConfigPath(baseRoot, configPath)
-  return resolveDocsConfigAsync(absolutePath)
+  const absolutePath = withConfigPath(baseRoot, configPath);
+  return resolveDocsConfigAsync(absolutePath);
 }
 
 export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServer {
-  const baseRoot = resolve(options.rootDir ?? process.cwd())
-  const defaultConfigPath = withConfigPath(baseRoot, options.configPath)
+  const baseRoot = resolve(options.rootDir ?? process.cwd());
+  const defaultConfigPath = withConfigPath(baseRoot, options.configPath);
 
   const server = new McpServer(
     {
-      name: '@pagesmith/docs-mcp',
+      name: "@pagesmith/docs-mcp",
       version: getPackageVersion(import.meta.dirname),
     },
     {
       instructions: [
-        'Use docs_* tools to inspect @pagesmith/docs projects.',
+        "Use docs_* tools to inspect @pagesmith/docs projects.",
         `Default config path: ${defaultConfigPath}`,
-      ].join('\n'),
+      ].join("\n"),
     },
-  )
+  );
 
   server.registerTool(
-    'docs_validate_config',
+    "docs_validate_config",
     {
-      description: 'Validate pagesmith.config.json5 and return warnings/errors.',
+      description: "Validate pagesmith.config.json5 and return warnings/errors.",
       inputSchema: {
         configPath: z.string().optional(),
       },
     },
     async ({ configPath }: { configPath?: string }) => {
-      const config = await resolveConfig(baseRoot, configPath)
-      const issues = validateConfig(config)
-      const hasErrors = issues.some((issue) => issue.severity === 'error')
+      const config = await resolveConfig(baseRoot, configPath);
+      const issues = validateConfig(config);
+      const hasErrors = issues.some((issue) => issue.severity === "error");
       return {
         content: [
           {
-            type: 'text',
+            type: "text",
             text: JSON.stringify(
               {
                 configPath: withConfigPath(baseRoot, configPath),
@@ -80,24 +80,24 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
             ),
           },
         ],
-      }
+      };
     },
-  )
+  );
 
   server.registerTool(
-    'docs_resolve_config',
+    "docs_resolve_config",
     {
-      description: 'Resolve effective docs config including defaults and inferred values.',
+      description: "Resolve effective docs config including defaults and inferred values.",
       inputSchema: {
         configPath: z.string().optional(),
       },
     },
     async ({ configPath }: { configPath?: string }) => {
-      const config = await resolveConfig(baseRoot, configPath)
+      const config = await resolveConfig(baseRoot, configPath);
       return {
         content: [
           {
-            type: 'text',
+            type: "text",
             text: JSON.stringify(
               {
                 rootDir: config.rootDir,
@@ -116,29 +116,29 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
             ),
           },
         ],
-      }
+      };
     },
-  )
+  );
 
   server.registerTool(
-    'docs_list_pages',
+    "docs_list_pages",
     {
-      description: 'List resolved docs pages with route paths and source files.',
+      description: "List resolved docs pages with route paths and source files.",
       inputSchema: {
         configPath: z.string().optional(),
         section: z.string().optional(),
       },
     },
     async ({ configPath, section }: { configPath?: string; section?: string }) => {
-      const config = await resolveConfig(baseRoot, configPath)
-      const sectionMetas = loadSectionMetas(config.contentDir)
-      const pages = await loadDocsPages(config, sectionMetas)
-      const filtered = section ? pages.filter((page) => page.section === section) : pages
+      const config = await resolveConfig(baseRoot, configPath);
+      const sectionMetas = loadSectionMetas(config.contentDir);
+      const pages = await loadDocsPages(config, sectionMetas);
+      const filtered = section ? pages.filter((page) => page.section === section) : pages;
 
       return {
         content: [
           {
-            type: 'text',
+            type: "text",
             text: JSON.stringify(
               {
                 count: filtered.length,
@@ -157,14 +157,14 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
             ),
           },
         ],
-      }
+      };
     },
-  )
+  );
 
   server.registerTool(
-    'docs_get_page',
+    "docs_get_page",
     {
-      description: 'Get one docs page by slug or route and return metadata plus markdown source.',
+      description: "Get one docs page by slug or route and return metadata plus markdown source.",
       inputSchema: {
         slug: z.string(),
         configPath: z.string().optional(),
@@ -172,32 +172,32 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
     },
     async ({ slug, configPath }: { slug: string; configPath?: string }) => {
       const normalized =
-        slug === '/' ? '/' : `/${slug}`.replace(/\/+/g, '/').replace(/\/$/, '').replace(/^\//, '')
-      const config = await resolveConfig(baseRoot, configPath)
-      const sectionMetas = loadSectionMetas(config.contentDir)
-      const pages = await loadDocsPages(config, sectionMetas)
+        slug === "/" ? "/" : `/${slug}`.replace(/\/+/g, "/").replace(/\/$/, "").replace(/^\//, "");
+      const config = await resolveConfig(baseRoot, configPath);
+      const sectionMetas = loadSectionMetas(config.contentDir);
+      const pages = await loadDocsPages(config, sectionMetas);
 
       const page = pages.find((entry) => {
-        if (slug === '/') return entry.contentSlug === '/'
+        if (slug === "/") return entry.contentSlug === "/";
         return (
           entry.contentSlug === normalized ||
           entry.routePath === `/${normalized}` ||
           entry.routePath === `/${normalized}/`
-        )
-      })
+        );
+      });
 
       if (!page) {
-        throw new Error(`Page not found for slug "${slug}"`)
+        throw new Error(`Page not found for slug "${slug}"`);
       }
 
       const sourceMarkdown = existsSync(page.sourcePath)
-        ? readFileSync(page.sourcePath, 'utf-8')
-        : ''
+        ? readFileSync(page.sourcePath, "utf-8")
+        : "";
 
       return {
         content: [
           {
-            type: 'text',
+            type: "text",
             text: JSON.stringify(
               {
                 title: page.title,
@@ -213,19 +213,19 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
             ),
           },
         ],
-      }
+      };
     },
-  )
+  );
 
   server.registerTool(
-    'docs_search_pages',
+    "docs_search_pages",
     {
       description:
-        'Search docs pages by matching a query string against titles, descriptions, and raw markdown content. Returns up to 20 matching pages with a content snippet. Case-insensitive.',
+        "Search docs pages by matching a query string against titles, descriptions, and raw markdown content. Returns up to 20 matching pages with a content snippet. Case-insensitive.",
       inputSchema: {
-        query: z.string().describe('Search query string'),
-        section: z.string().optional().describe('Filter results to a specific section'),
-        configPath: z.string().optional().describe('Path to pagesmith.config.json5'),
+        query: z.string().describe("Search query string"),
+        section: z.string().optional().describe("Filter results to a specific section"),
+        configPath: z.string().optional().describe("Path to pagesmith.config.json5"),
       },
     },
     async ({
@@ -233,68 +233,68 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
       section,
       configPath,
     }: {
-      query: string
-      section?: string
-      configPath?: string
+      query: string;
+      section?: string;
+      configPath?: string;
     }) => {
       if (!query.trim()) {
         return {
           content: [
             {
-              type: 'text',
+              type: "text",
               text: JSON.stringify({ query, matches: [], count: 0 }, null, 2),
             },
           ],
-        }
+        };
       }
 
-      const config = await resolveConfig(baseRoot, configPath)
-      const sectionMetas = loadSectionMetas(config.contentDir)
-      const pages = await loadDocsPages(config, sectionMetas)
-      const filtered = section ? pages.filter((page) => page.section === section) : pages
+      const config = await resolveConfig(baseRoot, configPath);
+      const sectionMetas = loadSectionMetas(config.contentDir);
+      const pages = await loadDocsPages(config, sectionMetas);
+      const filtered = section ? pages.filter((page) => page.section === section) : pages;
 
-      const queryLower = query.toLowerCase()
-      const maxResults = 20
-      const snippetRadius = 120
+      const queryLower = query.toLowerCase();
+      const maxResults = 20;
+      const snippetRadius = 120;
 
       type SearchMatch = {
-        slug: string
-        title: string
-        section: string | undefined
-        snippet: string
-      }
+        slug: string;
+        title: string;
+        section: string | undefined;
+        snippet: string;
+      };
 
-      const matches: SearchMatch[] = []
+      const matches: SearchMatch[] = [];
 
       for (const page of filtered) {
-        if (matches.length >= maxResults) break
+        if (matches.length >= maxResults) break;
 
-        const titleMatch = page.title.toLowerCase().includes(queryLower)
+        const titleMatch = page.title.toLowerCase().includes(queryLower);
         const descriptionText =
-          typeof page.frontmatter.description === 'string' ? page.frontmatter.description : ''
-        const descriptionMatch = descriptionText.toLowerCase().includes(queryLower)
+          typeof page.frontmatter.description === "string" ? page.frontmatter.description : "";
+        const descriptionMatch = descriptionText.toLowerCase().includes(queryLower);
 
         // Read raw markdown for content search
         const rawMarkdown = existsSync(page.sourcePath)
-          ? readFileSync(page.sourcePath, 'utf-8')
-          : ''
-        const contentMatch = rawMarkdown.toLowerCase().includes(queryLower)
+          ? readFileSync(page.sourcePath, "utf-8")
+          : "";
+        const contentMatch = rawMarkdown.toLowerCase().includes(queryLower);
 
-        if (!titleMatch && !descriptionMatch && !contentMatch) continue
+        if (!titleMatch && !descriptionMatch && !contentMatch) continue;
 
         // Build a snippet from the first match location
-        let snippet: string
+        let snippet: string;
         if (titleMatch) {
-          snippet = `[title] ${page.title}`
+          snippet = `[title] ${page.title}`;
         } else if (descriptionMatch) {
-          snippet = `[description] ${descriptionText}`
+          snippet = `[description] ${descriptionText}`;
         } else {
           // Extract a snippet around the first content match
-          const matchIndex = rawMarkdown.toLowerCase().indexOf(queryLower)
-          const start = Math.max(0, matchIndex - snippetRadius)
-          const end = Math.min(rawMarkdown.length, matchIndex + query.length + snippetRadius)
-          const raw = rawMarkdown.slice(start, end).replace(/\n+/g, ' ').trim()
-          snippet = (start > 0 ? '...' : '') + raw + (end < rawMarkdown.length ? '...' : '')
+          const matchIndex = rawMarkdown.toLowerCase().indexOf(queryLower);
+          const start = Math.max(0, matchIndex - snippetRadius);
+          const end = Math.min(rawMarkdown.length, matchIndex + query.length + snippetRadius);
+          const raw = rawMarkdown.slice(start, end).replace(/\n+/g, " ").trim();
+          snippet = (start > 0 ? "..." : "") + raw + (end < rawMarkdown.length ? "..." : "");
         }
 
         matches.push({
@@ -302,13 +302,13 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
           title: page.title,
           section: page.section,
           snippet,
-        })
+        });
       }
 
       return {
         content: [
           {
-            type: 'text',
+            type: "text",
             text: JSON.stringify(
               {
                 query,
@@ -321,84 +321,84 @@ export function createDocsMcpServer(options: DocsMcpServerOptions = {}): McpServ
             ),
           },
         ],
-      }
+      };
     },
-  )
+  );
 
   server.registerResource(
-    'docs-agent-usage',
-    'pagesmith://docs/agents/usage',
+    "docs-agent-usage",
+    "pagesmith://docs/agents/usage",
     {
-      title: '@pagesmith/docs agent usage',
-      description: 'Version-matched AI usage guide for @pagesmith/docs.',
-      mimeType: 'text/markdown',
+      title: "@pagesmith/docs agent usage",
+      description: "Version-matched AI usage guide for @pagesmith/docs.",
+      mimeType: "text/markdown",
     },
     async () =>
       asTextResource(
-        'pagesmith://docs/agents/usage',
+        "pagesmith://docs/agents/usage",
         resolvePackageDocPath(
           import.meta.dirname,
-          'skills/pagesmith-docs-setup/references/usage.md',
+          "skills/pagesmith-docs-setup/references/usage.md",
         ),
       ),
-  )
+  );
 
   server.registerResource(
-    'docs-llms-full',
-    'pagesmith://docs/llms-full',
+    "docs-llms-full",
+    "pagesmith://docs/llms-full",
     {
-      title: '@pagesmith/docs llms-full',
-      description: 'Version-matched full AI reference for @pagesmith/docs.',
-      mimeType: 'text/markdown',
+      title: "@pagesmith/docs llms-full",
+      description: "Version-matched full AI reference for @pagesmith/docs.",
+      mimeType: "text/markdown",
     },
     async () =>
       asTextResource(
-        'pagesmith://docs/llms-full',
-        resolvePackageDocPath(import.meta.dirname, 'llms-full.txt'),
+        "pagesmith://docs/llms-full",
+        resolvePackageDocPath(import.meta.dirname, "llms-full.txt"),
       ),
-  )
+  );
 
   server.registerResource(
-    'docs-reference',
-    'pagesmith://docs/reference',
+    "docs-reference",
+    "pagesmith://docs/reference",
     {
-      title: '@pagesmith/docs reference',
-      description: 'Full package reference for docs configuration, CLI, and layouts.',
-      mimeType: 'text/markdown',
+      title: "@pagesmith/docs reference",
+      description: "Full package reference for docs configuration, CLI, and layouts.",
+      mimeType: "text/markdown",
     },
     async () =>
       asTextResource(
-        'pagesmith://docs/reference',
-        resolvePackageDocPath(import.meta.dirname, 'REFERENCE.md'),
+        "pagesmith://docs/reference",
+        resolvePackageDocPath(import.meta.dirname, "REFERENCE.md"),
       ),
-  )
+  );
 
   server.registerResource(
-    'core-reference',
-    'pagesmith://core/reference',
+    "core-reference",
+    "pagesmith://core/reference",
     {
-      title: '@pagesmith/core reference',
-      description: 'Core package reference for content layer and markdown pipeline.',
-      mimeType: 'text/markdown',
+      title: "@pagesmith/core reference",
+      description: "Core package reference for content layer and markdown pipeline.",
+      mimeType: "text/markdown",
     },
     async () => {
-      const { fileURLToPath } = await import('url')
-      const { dirname, join } = await import('path')
-      const corePkgPath = fileURLToPath(import.meta.resolve('@pagesmith/core/package.json'))
-      const coreRefPath = join(dirname(corePkgPath), 'REFERENCE.md')
-      return asTextResource('pagesmith://core/reference', coreRefPath)
+      const { fileURLToPath } = await import("url");
+      const { dirname, join } = await import("path");
+      const corePkgPath = fileURLToPath(import.meta.resolve("@pagesmith/core/package.json"));
+      const coreRefPath = join(dirname(corePkgPath), "REFERENCE.md");
+      return asTextResource("pagesmith://core/reference", coreRefPath);
     },
-  )
+  );
 
-  return server
+  return server;
 }
 
 export async function startDocsMcpServer(options: DocsMcpServerOptions = {}): Promise<void> {
-  const server = createDocsMcpServer(options)
-  const transport = new StdioServerTransport()
-  await server.connect(transport)
+  const server = createDocsMcpServer(options);
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
   // Keep logs on stderr; stdout is reserved for MCP protocol messages.
   console.error(
     `[pagesmith:mcp] @pagesmith/docs MCP server started (root=${basename(resolve(options.rootDir ?? process.cwd()))})`,
-  )
+  );
 }

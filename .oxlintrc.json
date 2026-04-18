@@ -1,0 +1,77 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "react",
+    "import",
+    "jsx-a11y",
+    "node",
+    "promise",
+    "vitest"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-console": ["error", { "allow": ["info", "warn", "error"] }],
+    "no-debugger": "error",
+    "no-unused-vars": "off",
+    "eqeqeq": ["error", "smart"],
+    "unicorn/no-useless-fallback-in-spread": "off",
+    "unicorn/no-array-sort": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "import/no-unassigned-import": "off",
+    "import/no-named-as-default": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-key": "off",
+    "react/style-prop-object": "off",
+    "typescript/no-unsafe-type-assertion": "off",
+    "typescript/no-unnecessary-type-assertion": "off",
+    "typescript/no-unnecessary-type-parameters": "off",
+    "typescript/no-unnecessary-template-expression": "off",
+    "typescript/no-unnecessary-boolean-literal-compare": "off",
+    "typescript/no-unnecessary-type-conversion": "off",
+    "typescript/consistent-return": "off",
+    "vitest/require-mock-type-parameters": "off",
+    "promise/always-return": "off",
+    "no-shadow": "off",
+    "no-new": "off",
+    "no-useless-concat": "off",
+    "preserve-caught-error": "off",
+    "no-await-in-loop": "off",
+    "jsx-a11y/no-noninteractive-tabindex": ["error", { "tags": [], "roles": ["region"] }],
+    "oxc/no-map-spread": "off"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "dev/",
+    "gh-pages/",
+    "coverage/",
+    "**/.next/",
+    "**/out/",
+    "**/_next/"
+  ],
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/__tests__/**", "tests/**", "**/*.spec.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["packages/core/src/mcp/server.ts", "packages/docs/src/mcp/server.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

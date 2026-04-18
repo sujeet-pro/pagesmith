@@ -13,16 +13,16 @@ Use standard fenced code blocks with a language identifier:
 
 ````markdown
 ```js
-const greeting = 'Hello, world!'
-console.log(greeting)
+const greeting = "Hello, world!";
+console.log(greeting);
 ```
 ````
 
 Rendered sample:
 
 ```js
-const greeting = 'Hello, world!'
-console.log(greeting)
+const greeting = "Hello, world!";
+console.log(greeting);
 ```
 
 The built-in renderer supports 100+ languages through Shiki (the same syntax highlighting engine used by VS Code).
@@ -39,12 +39,12 @@ const config = defineConfig({
   markdown: {
     shiki: {
       themes: {
-        light: 'github-light',
-        dark: 'github-dark',
+        light: "github-light",
+        dark: "github-dark",
       },
     },
   },
-})
+});
 ```
 
 Or in `pagesmith.config.json5` for `@pagesmith/docs`:
@@ -54,8 +54,8 @@ Or in `pagesmith.config.json5` for `@pagesmith/docs`:
   markdown: {
     shiki: {
       themes: {
-        light: 'catppuccin-latte',
-        dark: 'catppuccin-mocha',
+        light: "catppuccin-latte",
+        dark: "catppuccin-mocha",
       },
     },
   },
@@ -68,16 +68,16 @@ Add a title to show a filename or label above the code block:
 
 ````markdown
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite'
-export default defineConfig({})
+import { defineConfig } from "vite";
+export default defineConfig({});
 ```
 ````
 
 Rendered sample:
 
 ```ts title="vite.config.ts"
-import { defineConfig } from 'vite'
-export default defineConfig({})
+import { defineConfig } from "vite";
+export default defineConfig({});
 ```
 
 ## Line Numbers
@@ -100,14 +100,14 @@ Or start line numbers from a specific number:
 
 ````markdown
 ```ts startLineNumber=42
-const answer = getAnswer()
+const answer = getAnswer();
 ```
 ````
 
 Rendered sample:
 
 ```ts startLineNumber=42
-const answer = getAnswer()
+const answer = getAnswer();
 ```
 
 To change the default for your entire site, set `defaultShowLineNumbers` in the markdown config:
@@ -120,7 +120,7 @@ const config = defineConfig({
       defaultShowLineNumbers: false,
     },
   },
-})
+});
 ```
 
 ## Line Highlighting
@@ -129,18 +129,18 @@ Mark specific lines to draw attention:
 
 ````markdown
 ```ts mark={3}
-const name = 'Pagesmith'
-const version = '0.8.0'
-const highlighted = true  // this line is highlighted
+const name = "Pagesmith";
+const version = "0.8.0";
+const highlighted = true; // this line is highlighted
 ```
 ````
 
 Rendered sample:
 
 ```ts mark={3}
-const name = 'Pagesmith'
-const version = '0.8.0'
-const highlighted = true  // this line is highlighted
+const name = "Pagesmith";
+const version = "0.8.0";
+const highlighted = true; // this line is highlighted
 ```
 
 ### Diff-Style Highlighting
@@ -149,16 +149,16 @@ Show inserted and deleted lines:
 
 ````markdown
 ```ts ins={2} del={1}
-const old = 'before'
-const updated = 'after'
+const old = "before";
+const updated = "after";
 ```
 ````
 
 Rendered sample:
 
 ```ts ins={2} del={1}
-const old = 'before'
-const updated = 'after'
+const old = "before";
+const updated = "after";
 ```
 
 ### Range Syntax
@@ -167,22 +167,22 @@ Highlight multiple lines or ranges:
 
 ````markdown
 ```ts mark={1, 3-5}
-const a = 1
-const b = 2
-const c = 3
-const d = 4
-const e = 5
+const a = 1;
+const b = 2;
+const c = 3;
+const d = 4;
+const e = 5;
 ```
 ````
 
 Rendered sample:
 
 ```ts mark={1, 3-5}
-const a = 1
-const b = 2
-const c = 3
-const d = 4
-const e = 5
+const a = 1;
+const b = 2;
+const c = 3;
+const d = 4;
+const e = 5;
 ```
 
 ## Collapsible Sections
@@ -192,13 +192,13 @@ Collapse long sections of code that are not the focus:
 ````markdown
 ```ts collapse={1-5}
 // These lines are collapsed by default
-import { defineConfig } from 'vite'
-import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithContent, pagesmithSsg } from "@pagesmith/site/vite";
+import collections from "./content.config";
 // This line is visible
 export default defineConfig({
   plugins: [pagesmithContent(collections), pagesmithSsg()],
-})
+});
 ```
 ````
 
@@ -206,13 +206,13 @@ Rendered sample:
 
 ```ts collapse={1-5}
 // These lines are collapsed by default
-import { defineConfig } from 'vite'
-import { pagesmithContent, pagesmithSsg } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithContent, pagesmithSsg } from "@pagesmith/site/vite";
+import collections from "./content.config";
 // This line is visible
 export default defineConfig({
   plugins: [pagesmithContent(collections), pagesmithSsg()],
-})
+});
 ```
 
 Users can click to expand the collapsed section.
@@ -223,14 +223,22 @@ Enable word wrapping for long lines:
 
 ````markdown
 ```json wrap
-{"name": "@pagesmith/core", "description": "Headless content layer — schema-validated collections, lazy markdown rendering, and the Vite content plugin", "version": "0.8.0"}
+{
+  "name": "@pagesmith/core",
+  "description": "Headless content layer — schema-validated collections, lazy markdown rendering, and the Vite content plugin",
+  "version": "0.8.0"
+}
 ```
 ````
 
 Rendered sample:
 
 ```json wrap
-{"name": "@pagesmith/core", "description": "Headless content layer — schema-validated collections, lazy markdown rendering, loaders, and the Vite content plugin", "version": "0.8.0"}
+{
+  "name": "@pagesmith/core",
+  "description": "Headless content layer — schema-validated collections, lazy markdown rendering, loaders, and the Vite content plugin",
+  "version": "0.8.0"
+}
 ```
 
 ## Frame Styles
@@ -280,9 +288,11 @@ Rendered sample:
 ```bash title="npm"
 npm install @pagesmith/core
 ```
+
 ```bash title="pnpm"
 pnpm add @pagesmith/core
 ```
+
 ```bash title="yarn"
 yarn add @pagesmith/core
 ```
@@ -294,8 +304,8 @@ You can also use code tabs to show the same logic in different languages:
 ````markdown
 ```ts title="TypeScript"
 interface Config {
-  host: string
-  port: number
+  host: string;
+  port: number;
 }
 ```
 
@@ -318,16 +328,18 @@ Rendered sample:
 
 ```ts title="TypeScript"
 interface Config {
-  host: string
-  port: number
+  host: string;
+  port: number;
 }
 ```
+
 ```python title="Python"
 @dataclass
 class Config:
     host: str = "localhost"
     port: int = 3000
 ```
+
 ```rust title="Rust"
 struct Config {
     host: String,
@@ -358,40 +370,40 @@ Shared code-block styling ships in the Pagesmith CSS bundles published from `@pa
 
 All meta properties are added after the language identifier in the opening fence:
 
-| Property | Syntax | Description |
-|---|---|---|
-| `title` | `title="filename.ts"` | Show a file name or label |
-| `showLineNumbers` | `showLineNumbers` / `showLineNumbers=false` | Show or hide line numbers |
-| `startLineNumber` | `startLineNumber=42` | Start line numbers from a specific number |
-| `mark` | `mark={3}` or `mark={1,3-5}` | Highlight lines |
-| `ins` | `ins={2-3}` | Mark lines as inserted (green) |
-| `del` | `del={1}` | Mark lines as deleted (red) |
-| `collapse` | `collapse={1-5}` | Collapse a range of lines |
-| `wrap` | `wrap` | Enable word wrapping |
-| `frame` | `frame="terminal"` | Override the frame style |
+| Property          | Syntax                                      | Description                               |
+| ----------------- | ------------------------------------------- | ----------------------------------------- |
+| `title`           | `title="filename.ts"`                       | Show a file name or label                 |
+| `showLineNumbers` | `showLineNumbers` / `showLineNumbers=false` | Show or hide line numbers                 |
+| `startLineNumber` | `startLineNumber=42`                        | Start line numbers from a specific number |
+| `mark`            | `mark={3}` or `mark={1,3-5}`                | Highlight lines                           |
+| `ins`             | `ins={2-3}`                                 | Mark lines as inserted (green)            |
+| `del`             | `del={1}`                                   | Mark lines as deleted (red)               |
+| `collapse`        | `collapse={1-5}`                            | Collapse a range of lines                 |
+| `wrap`            | `wrap`                                      | Enable word wrapping                      |
+| `frame`           | `frame="terminal"`                          | Override the frame style                  |
 
 Multiple properties can be combined:
 
 ````markdown
 ```ts title="example.ts" mark={3} ins={5} collapse={1-2}
-import { z } from 'zod'
-import { defineCollection } from '@pagesmith/core'
+import { z } from "zod";
+import { defineCollection } from "@pagesmith/core";
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({ title: z.string() }),
-})
+});
 ```
 ````
 
 Rendered sample:
 
 ```ts title="example.ts" mark={3} ins={5} collapse={1-2}
-import { z } from 'zod'
-import { defineCollection } from '@pagesmith/core'
+import { z } from "zod";
+import { defineCollection } from "@pagesmith/core";
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({ title: z.string() }),
-})
+});
 ```

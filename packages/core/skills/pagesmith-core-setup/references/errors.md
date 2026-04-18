@@ -12,8 +12,8 @@ Machine-readable error solutions for AI agents. Each section maps a common error
 
 ```yaml
 ---
-title: My Page          # ← required by BaseFrontmatterSchema
-description: A summary  # ← required by BaseFrontmatterSchema
+title: My Page # ← required by BaseFrontmatterSchema
+description: A summary # ← required by BaseFrontmatterSchema
 ---
 ```
 
@@ -145,4 +145,3 @@ When encountering an error:
 2. **Match the pattern** — find the error pattern above
 3. **Apply the fix** — follow the specific fix instructions
 4. **Re-validate** — use `core_validate` MCP tool or rebuild to confirm the fix
-

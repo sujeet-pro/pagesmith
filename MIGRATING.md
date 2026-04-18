@@ -4,7 +4,7 @@ Pagesmith is still pre-1.0, so breaking changes are expected between minor relea
 
 This guide covers the current split into `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs`.
 
-## 0.9.6 (patch)
+## 0.9.7 (patch)
 
 Additive updates, no breaking changes. Highlights:
 
@@ -63,19 +63,19 @@ node_modules/@pagesmith/<pkg>/
 
 Canonical "equivalent" path mapping:
 
-| Old path | New path |
-| --- | --- |
-| `@pagesmith/<pkg>/ai-guidelines/llms.txt` | `@pagesmith/<pkg>/llms.txt` |
-| `@pagesmith/<pkg>/ai-guidelines/llms-full.txt` | `@pagesmith/<pkg>/llms-full.txt` |
-| `@pagesmith/<pkg>/ai-guidelines/setup-<pkg>.md` | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/setup-<pkg>.md` |
-| `@pagesmith/<pkg>/ai-guidelines/<pkg>-guidelines.md` | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/<pkg>-guidelines.md` |
+| Old path                                                | New path                                                                                                                                                                                      |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@pagesmith/<pkg>/ai-guidelines/llms.txt`               | `@pagesmith/<pkg>/llms.txt`                                                                                                                                                                   |
+| `@pagesmith/<pkg>/ai-guidelines/llms-full.txt`          | `@pagesmith/<pkg>/llms-full.txt`                                                                                                                                                              |
+| `@pagesmith/<pkg>/ai-guidelines/setup-<pkg>.md`         | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/setup-<pkg>.md`                                                                                                                     |
+| `@pagesmith/<pkg>/ai-guidelines/<pkg>-guidelines.md`    | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/<pkg>-guidelines.md`                                                                                                                |
 | `@pagesmith/<pkg>/ai-guidelines/markdown-guidelines.md` | `@pagesmith/core/skills/pagesmith-core-customize-markdown/references/markdown-guidelines.md` (core) or `@pagesmith/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md` (docs) |
-| `@pagesmith/<pkg>/ai-guidelines/usage.md` | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/usage.md` |
-| `@pagesmith/<pkg>/ai-guidelines/recipes.md` | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/recipes.md` |
-| `@pagesmith/<pkg>/ai-guidelines/errors.md` | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/errors.md` |
-| `@pagesmith/<pkg>/ai-guidelines/migration.md` | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/migration.md` |
-| `@pagesmith/<pkg>/ai-guidelines/changelog-notes.md` | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/changelog-notes.md` |
-| `@pagesmith/<pkg>/ai-guidelines/AGENTS.md.template` | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/AGENTS.md.template` |
+| `@pagesmith/<pkg>/ai-guidelines/usage.md`               | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/usage.md`                                                                                                                           |
+| `@pagesmith/<pkg>/ai-guidelines/recipes.md`             | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/recipes.md`                                                                                                                         |
+| `@pagesmith/<pkg>/ai-guidelines/errors.md`              | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/errors.md`                                                                                                                          |
+| `@pagesmith/<pkg>/ai-guidelines/migration.md`           | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/migration.md`                                                                                                                       |
+| `@pagesmith/<pkg>/ai-guidelines/changelog-notes.md`     | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/changelog-notes.md`                                                                                                                 |
+| `@pagesmith/<pkg>/ai-guidelines/AGENTS.md.template`     | `@pagesmith/<pkg>/skills/pagesmith-<pkg>-setup/references/AGENTS.md.template`                                                                                                                 |
 
 Subpath exports in `package.json` followed the same rename:
 
@@ -121,15 +121,15 @@ Move these imports to `@pagesmith/site`:
 Typical migration:
 
 ```ts
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 ```
 
 ```tsx
-import { Fragment } from '@pagesmith/site/jsx-runtime'
+import { Fragment } from "@pagesmith/site/jsx-runtime";
 ```
 
 ```css
-@import '@pagesmith/site/css/content';
+@import "@pagesmith/site/css/content";
 ```
 
 ### Docs preset and CLI
@@ -177,8 +177,8 @@ A new `defineConfig` export is available from `@pagesmith/docs` (alias of `defin
 
 ```ts
 // pagesmith.config.ts
-import { defineConfig } from '@pagesmith/docs'
-export default defineConfig({ name: 'my-docs', basePath: '/my-docs' })
+import { defineConfig } from "@pagesmith/docs";
+export default defineConfig({ name: "my-docs", basePath: "/my-docs" });
 ```
 
 `init` continues to write JSON5; when a TypeScript config is detected it reads the values for prompt defaults but leaves the file untouched (the user owns code-shaped configs).

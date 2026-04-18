@@ -2,61 +2,61 @@
  * Loader registry — resolves loader type strings to Loader instances.
  */
 
-export { JsonLoader } from './json'
-export { JsoncLoader } from './jsonc'
-export { LoaderError } from './errors'
-export { MarkdownLoader } from './markdown'
-export { TomlLoader } from './toml'
-export type { Loader, LoaderResult, LoaderType } from './types'
-export { YamlLoader } from './yaml'
+export { JsonLoader } from "./json";
+export { JsoncLoader } from "./jsonc";
+export { LoaderError } from "./errors";
+export { MarkdownLoader } from "./markdown";
+export { TomlLoader } from "./toml";
+export type { Loader, LoaderResult, LoaderType } from "./types";
+export { YamlLoader } from "./yaml";
 
-import { JsonLoader } from './json'
-import { JsoncLoader } from './jsonc'
-import { MarkdownLoader } from './markdown'
-import { TomlLoader } from './toml'
-import type { Loader, LoaderType } from './types'
-import { YamlLoader } from './yaml'
+import { JsonLoader } from "./json";
+import { JsoncLoader } from "./jsonc";
+import { MarkdownLoader } from "./markdown";
+import { TomlLoader } from "./toml";
+import type { Loader, LoaderType } from "./types";
+import { YamlLoader } from "./yaml";
 
 /** Singleton loader instances (loaders are stateless). */
-const markdownLoader = new MarkdownLoader()
-const jsonLoader = new JsonLoader()
-const jsoncLoader = new JsoncLoader()
-const yamlLoader = new YamlLoader()
-const tomlLoader = new TomlLoader()
+const markdownLoader = new MarkdownLoader();
+const jsonLoader = new JsonLoader();
+const jsoncLoader = new JsoncLoader();
+const yamlLoader = new YamlLoader();
+const tomlLoader = new TomlLoader();
 
 /** Custom loader registry for user-registered loaders. */
-const customLoaders = new Map<string, Loader>()
+const customLoaders = new Map<string, Loader>();
 
 /** Register a custom loader by name. */
 export function registerLoader(name: string, loader: Loader): void {
-  customLoaders.set(name, loader)
+  customLoaders.set(name, loader);
 }
 
 /** Resolve a loader type string or custom Loader instance. */
 export function resolveLoader(loaderOrType: LoaderType | Loader): Loader {
-  if (typeof loaderOrType === 'object') return loaderOrType
+  if (typeof loaderOrType === "object") return loaderOrType;
 
-  const custom = customLoaders.get(loaderOrType)
-  if (custom) return custom
+  const custom = customLoaders.get(loaderOrType);
+  if (custom) return custom;
 
   switch (loaderOrType) {
-    case 'markdown':
-      return markdownLoader
-    case 'json':
-    case 'json5':
-      return jsonLoader
-    case 'jsonc':
-      return jsoncLoader
-    case 'yaml':
-      return yamlLoader
-    case 'toml':
-      return tomlLoader
+    case "markdown":
+      return markdownLoader;
+    case "json":
+    case "json5":
+      return jsonLoader;
+    case "jsonc":
+      return jsoncLoader;
+    case "yaml":
+      return yamlLoader;
+    case "toml":
+      return tomlLoader;
     default:
-      throw new Error(`Unknown loader type: ${loaderOrType as string}`)
+      throw new Error(`Unknown loader type: ${loaderOrType as string}`);
   }
 }
 
 /** Get default include glob patterns for a loader. */
 export function defaultIncludePatterns(loader: Loader): string[] {
-  return loader.extensions.map((ext) => `**/*${ext}`)
+  return loader.extensions.map((ext) => `**/*${ext}`);
 }

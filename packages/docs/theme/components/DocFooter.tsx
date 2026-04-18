@@ -1,1 +1,1 @@
-export { DocFooter } from '@pagesmith/docs/components'
+export { DocFooter } from "@pagesmith/docs/components";

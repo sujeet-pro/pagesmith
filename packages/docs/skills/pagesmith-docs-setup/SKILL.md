@@ -40,15 +40,15 @@ npx pagesmith-docs init
 
 The interactive init asks for:
 
-| Prompt | Source of good default | Notes |
-| --- | --- | --- |
-| Project name | `package.json` `name` | Becomes `name` in `pagesmith.config.json5`. |
-| Title | Project name, title-cased | Used in `<title>` and header. |
-| Origin | Probed from `git remote` | For GitHub repos tries `https://<owner>.github.io`. |
-| Base path | `/<repo-name>` | Leave `/` only if hosting at a custom domain root. |
-| Content dir | `./docs` | Falls back to `./content` if `docs/` is not desired. |
-| Search | `true` | Enables Pagefind. Adds ~300KB to first build. |
-| AI integrations | `true` | Writes `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` memory files. |
+| Prompt          | Source of good default    | Notes                                                      |
+| --------------- | ------------------------- | ---------------------------------------------------------- |
+| Project name    | `package.json` `name`     | Becomes `name` in `pagesmith.config.json5`.                |
+| Title           | Project name, title-cased | Used in `<title>` and header.                              |
+| Origin          | Probed from `git remote`  | For GitHub repos tries `https://<owner>.github.io`.        |
+| Base path       | `/<repo-name>`            | Leave `/` only if hosting at a custom domain root.         |
+| Content dir     | `./docs`                  | Falls back to `./content` if `docs/` is not desired.       |
+| Search          | `true`                    | Enables Pagefind. Adds ~300KB to first build.              |
+| AI integrations | `true`                    | Writes `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` memory files. |
 
 ## Non-interactive init (CI / scripts / agents)
 

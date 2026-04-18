@@ -4,6 +4,7 @@ Link this file from your project's CLAUDE.md or AGENTS.md to give AI assistants 
 
 ```markdown
 <!-- In your CLAUDE.md or AGENTS.md -->
+
 For the full @pagesmith/core API reference, see: node_modules/@pagesmith/core/REFERENCE.md
 For @pagesmith/core setup and follow-up prompts, read: node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/setup-core.md and node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/usage.md
 ```
@@ -47,11 +48,11 @@ ESM only (`"type": "module"`). Node 24+.
 ## Content Layer API
 
 ```ts
-import { createContentLayer, defineCollection, defineConfig, z } from '@pagesmith/core'
+import { createContentLayer, defineCollection, defineConfig, z } from "@pagesmith/core";
 
 const posts = defineCollection({
-  loader: 'markdown',
-  directory: 'content/posts',
+  loader: "markdown",
+  directory: "content/posts",
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -59,37 +60,34 @@ const posts = defineCollection({
     tags: z.array(z.string()).default([]),
     draft: z.boolean().optional().default(false),
   }),
-})
+});
 
-const layer = createContentLayer(defineConfig({ collections: { posts } }))
-const entries = await layer.getCollection('posts')
-const rendered = await entries[0]?.render()
+const layer = createContentLayer(defineConfig({ collections: { posts } }));
+const entries = await layer.getCollection("posts");
+const rendered = await entries[0]?.render();
 // rendered.html, rendered.headings, rendered.readTime
 ```
 
 ### ContentLayer methods
 
-
-| Method                                          | Description                                          |
-| ----------------------------------------------- | ---------------------------------------------------- |
-| `createContentLayer(config)`                    | Create a content layer from a config object          |
-| `layer.getCollection(name)`                     | Load all entries in a collection (cached)            |
-| `layer.getEntry(collection, slug)`              | Get a single entry by slug                           |
-| `layer.convert(markdown, options?)`             | Convert raw markdown to HTML outside collections; pass `sourcePath` and optional `assetRoot` for local image enhancements |
-| `layer.validate(collection?)`                   | Run all validators and return results                |
-| `layer.invalidate(collection, slug)`            | Cache-bust a single entry                            |
-| `layer.invalidateCollection(name)`              | Cache-bust an entire collection                      |
-| `layer.invalidateAll()`                         | Cache-bust all collections                           |
-| `layer.getCollectionNames()`                    | Get names of all configured collections              |
-| `layer.getCollectionDef(name)`                  | Get the definition of a collection                   |
-| `layer.getCollections()`                        | Get all collection definitions                       |
-| `layer.invalidateWhere(collection, predicate)`  | Cache-bust entries matching a predicate              |
-| `layer.watch(callback)`                         | Watch collection directories for changes             |
-| `layer.getCacheStats()`                         | Get cache statistics for debugging                   |
-
+| Method                                         | Description                                                                                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `createContentLayer(config)`                   | Create a content layer from a config object                                                                               |
+| `layer.getCollection(name)`                    | Load all entries in a collection (cached)                                                                                 |
+| `layer.getEntry(collection, slug)`             | Get a single entry by slug                                                                                                |
+| `layer.convert(markdown, options?)`            | Convert raw markdown to HTML outside collections; pass `sourcePath` and optional `assetRoot` for local image enhancements |
+| `layer.validate(collection?)`                  | Run all validators and return results                                                                                     |
+| `layer.invalidate(collection, slug)`           | Cache-bust a single entry                                                                                                 |
+| `layer.invalidateCollection(name)`             | Cache-bust an entire collection                                                                                           |
+| `layer.invalidateAll()`                        | Cache-bust all collections                                                                                                |
+| `layer.getCollectionNames()`                   | Get names of all configured collections                                                                                   |
+| `layer.getCollectionDef(name)`                 | Get the definition of a collection                                                                                        |
+| `layer.getCollections()`                       | Get all collection definitions                                                                                            |
+| `layer.invalidateWhere(collection, predicate)` | Cache-bust entries matching a predicate                                                                                   |
+| `layer.watch(callback)`                        | Watch collection directories for changes                                                                                  |
+| `layer.getCacheStats()`                        | Get cache statistics for debugging                                                                                        |
 
 ### ContentEntry properties
-
 
 | Property             | Type                       | Description                               |
 | -------------------- | -------------------------- | ----------------------------------------- |
@@ -101,9 +99,7 @@ const rendered = await entries[0]?.render()
 | `render(options?)`   | `Promise<RenderedContent>` | Lazy markdown-to-HTML (cached)            |
 | `clearRenderCache()` | `void`                     | Force re-render on next call              |
 
-
 ### RenderedContent
-
 
 | Property   | Type        | Description             |
 | ---------- | ----------- | ----------------------- |
@@ -111,38 +107,33 @@ const rendered = await entries[0]?.render()
 | `headings` | `Heading[]` | `{ depth, text, slug }` |
 | `readTime` | `number`    | Estimated minutes       |
 
-
 ## Collection Options
 
-
-| Option                     | Type                 | Description                                                                 |
-| -------------------------- | -------------------- | --------------------------------------------------------------------------- |
-| `loader`                   | `string | Loader`    | `'markdown'`, `'json'`, `'json5'`, `'jsonc'`, `'yaml'`, `'toml'`, or custom |
-| `directory`                | `string`             | Directory containing collection files                                       |
-| `schema`                   | `z.ZodType`          | Zod schema for validating entry data                                        |
-| `include`                  | `string[]`           | Glob include patterns                                                       |
-| `exclude`                  | `string[]`           | Glob exclude patterns                                                       |
-| `computed`                 | `Record<string, fn>` | Computed fields derived from entry data                                     |
-| `validate`                 | `fn`                 | Custom validation hook (return string for error)                            |
-| `filter`                   | `fn`                 | Filter entries (return false to exclude)                                    |
-| `slugify`                  | `fn`                 | Custom slug generation                                                      |
-| `transform`                | `fn`                 | Pre-validation transform                                                    |
-| `validators`               | `ContentValidator[]` | Custom content validators                                                   |
-| `disableBuiltinValidators` | `boolean`            | Disable built-in markdown validators                                        |
-
+| Option                     | Type                 | Description                                      |
+| -------------------------- | -------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- |
+| `loader`                   | `string              | Loader`                                          | `'markdown'`, `'json'`, `'json5'`, `'jsonc'`, `'yaml'`, `'toml'`, or custom |
+| `directory`                | `string`             | Directory containing collection files            |
+| `schema`                   | `z.ZodType`          | Zod schema for validating entry data             |
+| `include`                  | `string[]`           | Glob include patterns                            |
+| `exclude`                  | `string[]`           | Glob exclude patterns                            |
+| `computed`                 | `Record<string, fn>` | Computed fields derived from entry data          |
+| `validate`                 | `fn`                 | Custom validation hook (return string for error) |
+| `filter`                   | `fn`                 | Filter entries (return false to exclude)         |
+| `slugify`                  | `fn`                 | Custom slug generation                           |
+| `transform`                | `fn`                 | Pre-validation transform                         |
+| `validators`               | `ContentValidator[]` | Custom content validators                        |
+| `disableBuiltinValidators` | `boolean`            | Disable built-in markdown validators             |
 
 ## Loaders
 
-
-| Type       | Extensions        | Description                                 |
-| ---------- | ----------------- | ------------------------------------------- |
-| `markdown` | `.md`             | gray-matter frontmatter + markdown body     |
-| `json`     | `.json`           | JSON.parse                                  |
-| `json5`    | `.json5`          | JSON5.parse (comments, trailing commas)     |
-| `jsonc`    | `.jsonc`          | Comment-stripped JSON parsed with `JSON.parse` |
-| `yaml`     | `.yml`, `.yaml`   | YAML                                        |
-| `toml`     | `.toml`           | TOML                                        |
-
+| Type       | Extensions      | Description                                    |
+| ---------- | --------------- | ---------------------------------------------- |
+| `markdown` | `.md`           | gray-matter frontmatter + markdown body        |
+| `json`     | `.json`         | JSON.parse                                     |
+| `json5`    | `.json5`        | JSON5.parse (comments, trailing commas)        |
+| `jsonc`    | `.jsonc`        | Comment-stripped JSON parsed with `JSON.parse` |
+| `yaml`     | `.yml`, `.yaml` | YAML                                           |
+| `toml`     | `.toml`         | TOML                                           |
 
 Custom loaders: implement `Loader { name, kind, extensions, load(filePath) }`.
 
@@ -150,28 +141,34 @@ Custom loaders: implement `Loader { name, kind, extensions, load(filePath) }`.
 
 Top-level config passed to `defineConfig()` or `createContentLayer()`:
 
-
-| Field         | Type              | Default   | Description                                              |
-| ------------- | ----------------- | --------- | -------------------------------------------------------- |
-| `collections` | `CollectionMap`   | —         | Named collections keyed by collection name               |
-| `root`        | `string`          | `cwd()`   | Root directory for resolving relative collection paths    |
-| `markdown`    | `MarkdownConfig`  | —         | Markdown processing config shared across all collections |
-| `assets`      | `object`          | —         | `{ hashFilenames?, outputDir? }` for cache-busted assets |
-| `plugins`     | `ContentPlugin[]` | —         | Content plugins for extending processing and validation  |
-| `strict`      | `boolean`         | `false`   | Throw on file load errors instead of creating dummy entries |
-
+| Field         | Type              | Default | Description                                                 |
+| ------------- | ----------------- | ------- | ----------------------------------------------------------- |
+| `collections` | `CollectionMap`   | —       | Named collections keyed by collection name                  |
+| `root`        | `string`          | `cwd()` | Root directory for resolving relative collection paths      |
+| `markdown`    | `MarkdownConfig`  | —       | Markdown processing config shared across all collections    |
+| `assets`      | `object`          | —       | `{ hashFilenames?, outputDir? }` for cache-busted assets    |
+| `plugins`     | `ContentPlugin[]` | —       | Content plugins for extending processing and validation     |
+| `strict`      | `boolean`         | `false` | Throw on file load errors instead of creating dummy entries |
 
 ### defineCollections
 
 Helper for defining multiple collections with type inference:
 
 ```ts
-import { defineCollections, z } from '@pagesmith/core'
+import { defineCollections, z } from "@pagesmith/core";
 
 const collections = defineCollections({
-  posts: { loader: 'markdown', directory: 'content/posts', schema: z.object({ title: z.string() }) },
-  pages: { loader: 'markdown', directory: 'content/pages', schema: z.object({ title: z.string() }) },
-})
+  posts: {
+    loader: "markdown",
+    directory: "content/posts",
+    schema: z.object({ title: z.string() }),
+  },
+  pages: {
+    loader: "markdown",
+    directory: "content/pages",
+    schema: z.object({ title: z.string() }),
+  },
+});
 ```
 
 ## Vite Plugins
@@ -181,33 +178,29 @@ const collections = defineCollections({
 Virtual module plugin that exposes collections as importable modules:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import collections from './content.config'
+import { pagesmithContent } from "@pagesmith/core/vite";
+import collections from "./content.config";
 
 export default defineConfig({
-  plugins: [
-    pagesmithContent({ collections }),
-  ],
-})
+  plugins: [pagesmithContent({ collections })],
+});
 ```
 
 Options:
 
-
-| Option        | Type               | Default                 | Description                 |
-| ------------- | ------------------ | ----------------------- | --------------------------- |
-| `collections` | `Collections`      | —                       | Collection definitions      |
-| `moduleId`    | `string`           | `'virtual:content'`     | Virtual module prefix       |
-| `configPath`  | `string`           | `'./content.config.ts'` | Config file path            |
-| `dts`         | `boolean | string` | `true`                  | Generate .d.ts              |
-| `contentRoot` | `string`           | deepest common parent of collection directories | Shared root for `id` and `contentSlug` |
-| `markdown`    | `MarkdownConfig`   | —                       | Markdown pipeline config    |
-
+| Option        | Type             | Default                                         | Description                            |
+| ------------- | ---------------- | ----------------------------------------------- | -------------------------------------- | -------------- |
+| `collections` | `Collections`    | —                                               | Collection definitions                 |
+| `moduleId`    | `string`         | `'virtual:content'`                             | Virtual module prefix                  |
+| `configPath`  | `string`         | `'./content.config.ts'`                         | Config file path                       |
+| `dts`         | `boolean         | string`                                         | `true`                                 | Generate .d.ts |
+| `contentRoot` | `string`         | deepest common parent of collection directories | Shared root for `id` and `contentSlug` |
+| `markdown`    | `MarkdownConfig` | —                                               | Markdown pipeline config               |
 
 Import in your code:
 
 ```ts
-import posts from 'virtual:content/posts'
+import posts from "virtual:content/posts";
 // Markdown entries: { id, contentSlug, html, headings, frontmatter }[]
 // Data loaders: { id, contentSlug, data }[]
 ```
@@ -240,16 +233,16 @@ remark-parse → remark-gfm → remark-frontmatter
 
 ```ts
 type MarkdownConfig = {
-  remarkPlugins?: any[]
-  rehypePlugins?: any[]
-  allowDangerousHtml?: boolean
-  math?: boolean | 'auto'
+  remarkPlugins?: any[];
+  rehypePlugins?: any[];
+  allowDangerousHtml?: boolean;
+  math?: boolean | "auto";
   shiki?: {
-    themes: { light: string; dark: string }
-    langAlias?: Record<string, string>
-    defaultShowLineNumbers?: boolean
-  }
-}
+    themes: { light: string; dark: string };
+    langAlias?: Record<string, string>;
+    defaultShowLineNumbers?: boolean;
+  };
+};
 ```
 
 - `allowDangerousHtml` defaults to `true`. Disable it when rendering untrusted markdown content.
@@ -257,7 +250,6 @@ type MarkdownConfig = {
 - When Pagesmith knows the markdown source path, relative local images inherit intrinsic dimensions and relative JPEGs can emit `<picture>` fallbacks. `entry.render()` wires this automatically and keeps resolution inside the collection directory. `convert()` / `layer.convert()` can do the same when you pass `sourcePath`; by default refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
 
 ### Code Block Meta Syntax (Built-in Renderer)
-
 
 | Meta               | Example                  | Description            |
 | ------------------ | ------------------------ | ---------------------- |
@@ -269,7 +261,6 @@ type MarkdownConfig = {
 | `collapse={lines}` | ````js collapse={1-5}`   | Collapsible section    |
 | `wrap`             | ````js wrap`             | Text wrapping          |
 | `frame="..."`      | ````js frame="terminal"` | Frame style            |
-
 
 ### Built-in Validators
 
@@ -297,12 +288,11 @@ For framework-hosted apps that already own the shell, `@pagesmith/site` can stay
 Typical split:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent } from "@pagesmith/core/vite";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 ```
 
 ## Frontmatter Schemas
-
 
 | Schema                     | Fields                                                        |
 | -------------------------- | ------------------------------------------------------------- |
@@ -310,31 +300,31 @@ import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
 | `BlogFrontmatterSchema`    | extends base + category, featured, coverImage                 |
 | `ProjectFrontmatterSchema` | extends base + gitRepo, links                                 |
 
-
 ## Export Map
 
-
-| Import Path                      | Purpose                                                  |
-| -------------------------------- | -------------------------------------------------------- |
-| `@pagesmith/core`         | Main API (defineCollection, createContentLayer, z, etc.) |
-| `@pagesmith/core/markdown` | `processMarkdown` |
-| `@pagesmith/core/schemas` | Zod schemas and types |
-| `@pagesmith/core/loaders` | Loader classes and registry |
-| `@pagesmith/core/assets`  | Asset copying and hashing |
-| `@pagesmith/core/vite`    | Vite content plugin (`pagesmithContent`) |
-| `@pagesmith/core/ai`      | AI assistant artifact generator |
-| `@pagesmith/core/create`  | Project scaffolding |
-| `@pagesmith/core/mcp`     | Core MCP server and helper utilities |
-| `@pagesmith/core/llms` | Compact AI context index |
-| `@pagesmith/core/llms-full` | Full AI context reference |
-| `@pagesmith/core/skills/pagesmith-core-setup/references/*` | Package-shipped AI guidance files |
-| `@pagesmith/core/agents/setup-core` | Bootstrap prompt for project agents |
-| `@pagesmith/core/agents/usage` | Agent operating rules and prompts |
-| `@pagesmith/core/agents/recipes` | Task-specific recipes |
-| `@pagesmith/core/agents/changelog-notes` | Version highlights for agents |
-| `@pagesmith/core/agents/errors` | Error catalog for agent workflows |
-| `@pagesmith/core/agents/migration` | Upgrade playbook for existing integrations |
-| `@pagesmith/core/agents/template` | Project memory template |
+| Import Path                                                | Purpose                                                   |
+| ---------------------------------------------------------- | --------------------------------------------------------- |
+| `@pagesmith/core`                                          | Main API (defineCollection, createContentLayer, z, etc.)  |
+| `@pagesmith/core/markdown`                                 | `processMarkdown`                                         |
+| `@pagesmith/core/schemas`                                  | Zod schemas and types                                     |
+| `@pagesmith/core/loaders`                                  | Loader classes and registry                               |
+| `@pagesmith/core/assets`                                   | Asset copying and hashing                                 |
+| `@pagesmith/core/vite`                                     | Vite content plugin (`pagesmithContent`)                  |
+| `@pagesmith/core/ai`                                       | AI assistant artifact generator                           |
+| `@pagesmith/core/create`                                   | Project scaffolding                                       |
+| `@pagesmith/core/mcp`                                      | Core MCP server and helper utilities                      |
+| `@pagesmith/core/log`                                      | Logger factory (`createLogger`, `defaultLogger`)          |
+| `@pagesmith/core/cli-kit`                                  | Shared CLI helpers (`loadPagesmithConfig`, prompts, etc.) |
+| `@pagesmith/core/llms`                                     | Compact AI context index                                  |
+| `@pagesmith/core/llms-full`                                | Full AI context reference                                 |
+| `@pagesmith/core/skills/pagesmith-core-setup/references/*` | Package-shipped AI guidance files                         |
+| `@pagesmith/core/agents/setup-core`                        | Bootstrap prompt for project agents                       |
+| `@pagesmith/core/agents/usage`                             | Agent operating rules and prompts                         |
+| `@pagesmith/core/agents/recipes`                           | Task-specific recipes                                     |
+| `@pagesmith/core/agents/changelog-notes`                   | Version highlights for agents                             |
+| `@pagesmith/core/agents/errors`                            | Error catalog for agent workflows                         |
+| `@pagesmith/core/agents/migration`                         | Upgrade playbook for existing integrations                |
+| `@pagesmith/core/agents/template`                          | Project memory template                                   |
 
 ## MCP Server
 
@@ -377,4 +367,3 @@ Version-matched MCP resources:
 - **Site toolkit README:** `node_modules/@pagesmith/site/README.md`
 - **Docs package reference:** `node_modules/@pagesmith/docs/REFERENCE.md`
 - **Docs package README:** `node_modules/@pagesmith/docs/README.md`
-

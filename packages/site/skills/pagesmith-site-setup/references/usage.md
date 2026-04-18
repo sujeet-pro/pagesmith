@@ -75,15 +75,15 @@ Use this file as the primary instruction source for `@pagesmith/site`.
 
 ## Package Files Reference
 
-| File | Purpose |
-| --- | --- |
-| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md` | Canonical bootstrap/retrofit prompt for `@pagesmith/site` |
-| `node_modules/@pagesmith/site/REFERENCE.md` | Complete CLI, preset, JSX, CSS, runtime, and SSG reference |
-| `node_modules/@pagesmith/site/README.md` | Quick start and package overview |
-| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/site-guidelines.md` | Package-specific rules and responsibilities |
-| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md` | This file |
-| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/recipes.md` | Common integration recipes |
-| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/migration.md` | Upgrade notes for sites moving from older Pagesmith layouts |
+| File                                                                                     | Purpose                                                     |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/setup-site.md`      | Canonical bootstrap/retrofit prompt for `@pagesmith/site`   |
+| `node_modules/@pagesmith/site/REFERENCE.md`                                              | Complete CLI, preset, JSX, CSS, runtime, and SSG reference  |
+| `node_modules/@pagesmith/site/README.md`                                                 | Quick start and package overview                            |
+| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/site-guidelines.md` | Package-specific rules and responsibilities                 |
+| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/usage.md`           | This file                                                   |
+| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/recipes.md`         | Common integration recipes                                  |
+| `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/migration.md`       | Upgrade notes for sites moving from older Pagesmith layouts |
 
 ## Related Package Docs
 

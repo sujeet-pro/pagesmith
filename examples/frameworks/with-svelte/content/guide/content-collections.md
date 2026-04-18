@@ -18,11 +18,11 @@ Content collections are the bridge between your markdown files and your renderin
 Collections are defined in `content.config.ts` using `defineCollection` and `defineCollections` from `@pagesmith/site`:
 
 ```ts title="content.config.ts"
-import { defineCollection, defineCollections, z } from '@pagesmith/site'
+import { defineCollection, defineCollections, z } from "@pagesmith/site";
 
 export const guide = defineCollection({
-  loader: 'markdown',
-  directory: './content/guide',
+  loader: "markdown",
+  directory: "./content/guide",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -32,18 +32,18 @@ export const guide = defineCollection({
     series: z.string().optional(),
     seriesOrder: z.number().optional(),
   }),
-})
+});
 
 export const pages = defineCollection({
-  loader: 'markdown',
-  directory: './content/pages',
+  loader: "markdown",
+  directory: "./content/pages",
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
   }),
-})
+});
 
-export default defineCollections({ guide, pages })
+export default defineCollections({ guide, pages });
 ```
 
 ## How schemas work
@@ -62,10 +62,10 @@ The `z` import is re-exported from `@pagesmith/site`, so you do not need to inst
 
 When the `pagesmithContent` Vite plugin processes these collections, it creates virtual modules named after each collection key:
 
-| Collection key | Virtual module             |
-| -------------- | -------------------------- |
-| `guide`        | `virtual:content/guide`    |
-| `pages`        | `virtual:content/pages`    |
+| Collection key | Virtual module          |
+| -------------- | ----------------------- |
+| `guide`        | `virtual:content/guide` |
+| `pages`        | `virtual:content/pages` |
 
 Each virtual module exports an array of entry objects. Every entry contains:
 
@@ -79,8 +79,8 @@ Each virtual module exports an array of entry objects. Every entry contains:
 The Svelte example centralizes virtual module imports in `src/site.ts` rather than in the entry server directly:
 
 ```ts title="src/site.ts (excerpt)"
-import guideCollection from 'virtual:content/guide'
-import pagesCollection from 'virtual:content/pages'
+import guideCollection from "virtual:content/guide";
+import pagesCollection from "virtual:content/pages";
 ```
 
 This module sorts, groups, and exports the entries so that both the entry server and Svelte components can share the same data without duplicating import logic.

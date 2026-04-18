@@ -3,57 +3,57 @@
  * same section folder (see `getDocsListingCards` in navigation).
  */
 
-import { Fragment, h } from '@pagesmith/docs/jsx-runtime'
-import { ListingCards, Html } from '@pagesmith/docs/components'
-import { PageShell } from '@pagesmith/docs/layouts'
-import { resolveChrome } from '../utils/chrome'
+import { Fragment, h } from "@pagesmith/docs/jsx-runtime";
+import { ListingCards, Html } from "@pagesmith/docs/components";
+import { PageShell } from "@pagesmith/docs/layouts";
+import { resolveChrome } from "../utils/chrome";
 
 type ListingCard = {
-  title: string
-  path: string
-  description?: string
-  publishedDate?: string
-}
+  title: string;
+  path: string;
+  description?: string;
+  publishedDate?: string;
+};
 
 type ListingGroup = {
-  slug: string
-  title: string
-  description?: string
-  cards: ListingCard[]
-}
+  slug: string;
+  title: string;
+  description?: string;
+  cards: ListingCard[];
+};
 
 type Breadcrumb = {
-  label: string
-  path: string
-}
+  label: string;
+  path: string;
+};
 
 type Props = {
-  content: string
-  frontmatter: Record<string, any>
-  headings: Array<{ depth: number; text: string; slug: string }>
-  slug: string
-  site: any
-  listingCards?: ListingCard[]
-  listingGroups?: ListingGroup[]
-  listingTotal?: number
-  sidebarSections?: any[]
-  prev?: { title: string; path: string }
-  next?: { title: string; path: string }
-  breadcrumbs?: Breadcrumb[]
-  editUrl?: string
-  editLabel?: string
-  lastUpdated?: string
-  [key: string]: any
-}
+  content: string;
+  frontmatter: Record<string, any>;
+  headings: Array<{ depth: number; text: string; slug: string }>;
+  slug: string;
+  site: any;
+  listingCards?: ListingCard[];
+  listingGroups?: ListingGroup[];
+  listingTotal?: number;
+  sidebarSections?: any[];
+  prev?: { title: string; path: string };
+  next?: { title: string; path: string };
+  breadcrumbs?: Breadcrumb[];
+  editUrl?: string;
+  editLabel?: string;
+  lastUpdated?: string;
+  [key: string]: any;
+};
 
 function formatDate(isoDate: string): string {
-  const date = new Date(isoDate)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC',
-  })
+  const date = new Date(isoDate);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 export default function DocListing(props: Props) {
@@ -73,19 +73,19 @@ export default function DocListing(props: Props) {
     editUrl,
     editLabel,
     lastUpdated,
-  } = props
+  } = props;
 
-  const chrome = resolveChrome(frontmatter)
-  const pageTitle = frontmatter.title ? `${frontmatter.title} \u2014 ${site.title}` : site.title
+  const chrome = resolveChrome(frontmatter);
+  const pageTitle = frontmatter.title ? `${frontmatter.title} \u2014 ${site.title}` : site.title;
   const ogImage = frontmatter.socialImage
-    ? frontmatter.socialImage.startsWith('http')
+    ? frontmatter.socialImage.startsWith("http")
       ? frontmatter.socialImage
-      : `${site.basePath || ''}/${frontmatter.socialImage.replace(/^\//, '')}`
-    : undefined
-  const hasGroupedListing = listingGroups.length > 0
-  const visibleGroupCount = listingGroups.length
-  const totalLabel = listingTotal === 1 ? 'page' : 'pages'
-  const groupLabel = visibleGroupCount === 1 ? 'group' : 'groups'
+      : `${site.basePath || ""}/${frontmatter.socialImage.replace(/^\//, "")}`
+    : undefined;
+  const hasGroupedListing = listingGroups.length > 0;
+  const visibleGroupCount = listingGroups.length;
+  const totalLabel = listingTotal === 1 ? "page" : "pages";
+  const groupLabel = visibleGroupCount === 1 ? "group" : "groups";
   const groupedCards = listingGroups.map((group) => ({
     slug: group.slug,
     title: group.title,
@@ -98,7 +98,7 @@ export default function DocListing(props: Props) {
         ? [{ value: formatDate(card.publishedDate), datetime: card.publishedDate }]
         : undefined,
     })),
-  }))
+  }));
   const flatCards = listingCards.map((card) => ({
     title: card.title,
     path: card.path,
@@ -106,7 +106,7 @@ export default function DocListing(props: Props) {
     meta: card.publishedDate
       ? [{ value: formatDate(card.publishedDate), datetime: card.publishedDate }]
       : undefined,
-  }))
+  }));
 
   return (
     <Html
@@ -149,5 +149,5 @@ export default function DocListing(props: Props) {
         )}
       </PageShell>
     </Html>
-  )
+  );
 }

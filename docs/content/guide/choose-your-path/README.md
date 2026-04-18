@@ -98,7 +98,6 @@ Manual guide: [Docs Getting Started](../docs-getting-started/README.md)
 
 ## Decision Matrix
 
-
 | Question                                        | `@pagesmith/core` | `@pagesmith/site` | `@pagesmith/docs` |
 | ----------------------------------------------- | ----------------- | ----------------- | ----------------- |
 | Do I already have my own router/build?          | Yes               | Maybe             | Usually no        |
@@ -107,7 +106,6 @@ Manual guide: [Docs Getting Started](../docs-getting-started/README.md)
 | Do I want shared Pagesmith CSS/runtime and JSX? | Optional via site | Yes               | Included          |
 | Canonical CLI                                   | `pagesmith-core`  | `pagesmith-site`  | `pagesmith-docs`  |
 | Fastest AI entrypoint                           | `setup-core.md`   | `setup-site.md`   | `setup-docs.md`   |
-
 
 Start with `@pagesmith/docs` when the project is truly docs-first. Start with `@pagesmith/core` when the host app already owns the shell and only needs the headless content layer. Start with `@pagesmith/site` when the app should stay on one Pagesmith package for content plus site behavior.
 

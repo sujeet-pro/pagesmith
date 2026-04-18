@@ -12,7 +12,7 @@ Common recipes for the headless content layer.
 ## Recipe: Add Vite virtual content modules
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
+import { pagesmithContent } from "@pagesmith/core/vite";
 ```
 
 Keep `pagesmithContent` on the core package. If the project also needs SSG, import that from `@pagesmith/site/vite`.
@@ -20,10 +20,10 @@ Keep `pagesmithContent` on the core package. If the project also needs SSG, impo
 ## Recipe: Use the content layer without Vite
 
 ```ts
-import { createContentLayer, defineConfig } from '@pagesmith/core'
-import collections from './content.config'
+import { createContentLayer, defineConfig } from "@pagesmith/core";
+import collections from "./content.config";
 
-const layer = createContentLayer(defineConfig({ collections }))
+const layer = createContentLayer(defineConfig({ collections }));
 ```
 
 This is the right starting point for apps that already own routing and build tooling, such as Next.js or custom SSR servers.
@@ -46,8 +46,8 @@ If the app also wants Pagesmith's shipped markdown presentation layer, pair it w
 Split imports by responsibility:
 
 ```ts
-import { pagesmithContent } from '@pagesmith/core/vite'
-import { pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent } from "@pagesmith/core/vite";
+import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 ```
 
 Do not move collection logic into `@pagesmith/site`.

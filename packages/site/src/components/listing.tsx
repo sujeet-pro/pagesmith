@@ -1,15 +1,15 @@
-import { Fragment, h } from '../jsx-runtime/index.js'
-import { SITE_CHROME_ASSETS, withComponentAssets } from './assets.js'
-import type { SiteListingCard, SiteListingGroup } from './types.js'
-import { formatPath } from './utils.js'
+import { Fragment, h } from "../jsx-runtime/index.js";
+import { SITE_CHROME_ASSETS, withComponentAssets } from "./assets.js";
+import type { SiteListingCard, SiteListingGroup } from "./types.js";
+import { formatPath } from "./utils.js";
 
 export type ListingCardsProps = {
-  cards?: SiteListingCard[]
-  groups?: SiteListingGroup[]
-  emptyMessage?: string
-  showStats?: boolean
-  trailingSlash?: boolean
-}
+  cards?: SiteListingCard[];
+  groups?: SiteListingGroup[];
+  emptyMessage?: string;
+  showStats?: boolean;
+  trailingSlash?: boolean;
+};
 
 function renderCard(card: SiteListingCard, trailingSlash?: boolean) {
   return (
@@ -36,25 +36,25 @@ function renderCard(card: SiteListingCard, trailingSlash?: boolean) {
         {card.content ? <div class="doc-listing-card-content">{card.content}</div> : null}
       </a>
     </li>
-  )
+  );
 }
 
 function ListingCardsComponent({
   cards = [],
   groups = [],
-  emptyMessage = 'No items yet.',
+  emptyMessage = "No items yet.",
   showStats = true,
   trailingSlash,
 }: ListingCardsProps) {
-  const hasGroupedListing = groups.length > 0
+  const hasGroupedListing = groups.length > 0;
   const listingTotal = hasGroupedListing
     ? groups.reduce((total, group) => total + group.cards.length, 0)
-    : cards.length
-  const totalLabel = listingTotal === 1 ? 'item' : 'items'
-  const groupLabel = groups.length === 1 ? 'group' : 'groups'
+    : cards.length;
+  const totalLabel = listingTotal === 1 ? "item" : "items";
+  const groupLabel = groups.length === 1 ? "group" : "groups";
 
   if (!hasGroupedListing && cards.length === 0) {
-    return <p class="doc-listing-empty">{emptyMessage}</p>
+    return <p class="doc-listing-empty">{emptyMessage}</p>;
   }
 
   return hasGroupedListing ? (
@@ -84,7 +84,7 @@ function ListingCardsComponent({
     </Fragment>
   ) : (
     <ul class="doc-listing-grid">{cards.map((card) => renderCard(card, trailingSlash))}</ul>
-  )
+  );
 }
 
-export const ListingCards = withComponentAssets(ListingCardsComponent, SITE_CHROME_ASSETS)
+export const ListingCards = withComponentAssets(ListingCardsComponent, SITE_CHROME_ASSETS);

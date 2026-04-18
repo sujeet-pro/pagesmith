@@ -1,27 +1,27 @@
-import { resolve } from 'path'
-import { defineConfig } from 'vite-plus'
+import { resolve } from "path";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   resolve: {
     alias: {
-      'vite-plus/test': 'vitest',
-      '@pagesmith/core': resolve(import.meta.dirname, '../../packages/core/src/index.ts'),
-      '@pagesmith/core/markdown': resolve(
+      "vite-plus/test": "vitest",
+      "@pagesmith/core": resolve(import.meta.dirname, "../../packages/core/src/index.ts"),
+      "@pagesmith/core/markdown": resolve(
         import.meta.dirname,
-        '../../packages/core/src/markdown/index.ts',
+        "../../packages/core/src/markdown/index.ts",
       ),
-      '@pagesmith/core/loaders': resolve(
+      "@pagesmith/core/loaders": resolve(
         import.meta.dirname,
-        '../../packages/core/src/loaders/index.ts',
+        "../../packages/core/src/loaders/index.ts",
       ),
-      '@pagesmith/core/schemas': resolve(
+      "@pagesmith/core/schemas": resolve(
         import.meta.dirname,
-        '../../packages/core/src/schemas/index.ts',
+        "../../packages/core/src/schemas/index.ts",
       ),
     },
   },
   test: {
-    include: ['*.test.ts'],
+    include: ["*.test.ts"],
     testTimeout: 30_000,
   },
-})
+});

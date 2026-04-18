@@ -1,1 +1,1 @@
-export { runPagefindIndexing } from '../ssg-utils/pagefind.js'
+export { runPagefindIndexing } from "../ssg-utils/pagefind.js";

@@ -5,32 +5,32 @@
  * left sidebar (navigation) | content | right TOC
  */
 
-import { h } from '@pagesmith/docs/jsx-runtime'
-import { Html } from '@pagesmith/docs/components'
-import { PageShell } from '@pagesmith/docs/layouts'
-import { resolveChrome } from '../utils/chrome'
+import { h } from "@pagesmith/docs/jsx-runtime";
+import { Html } from "@pagesmith/docs/components";
+import { PageShell } from "@pagesmith/docs/layouts";
+import { resolveChrome } from "../utils/chrome";
 
 type Breadcrumb = {
-  label: string
-  path: string
-}
+  label: string;
+  path: string;
+};
 
 type Props = {
-  content: string
-  frontmatter: Record<string, any>
-  headings: Array<{ depth: number; text: string; slug: string }>
-  slug: string
-  site: any
-  pages?: any[]
-  sidebarSections?: any[]
-  prev?: { title: string; path: string }
-  next?: { title: string; path: string }
-  breadcrumbs?: Breadcrumb[]
-  editUrl?: string
-  editLabel?: string
-  lastUpdated?: string
-  [key: string]: any
-}
+  content: string;
+  frontmatter: Record<string, any>;
+  headings: Array<{ depth: number; text: string; slug: string }>;
+  slug: string;
+  site: any;
+  pages?: any[];
+  sidebarSections?: any[];
+  prev?: { title: string; path: string };
+  next?: { title: string; path: string };
+  breadcrumbs?: Breadcrumb[];
+  editUrl?: string;
+  editLabel?: string;
+  lastUpdated?: string;
+  [key: string]: any;
+};
 
 export default function DocPage(props: Props) {
   const {
@@ -46,15 +46,15 @@ export default function DocPage(props: Props) {
     editUrl,
     editLabel,
     lastUpdated,
-  } = props
+  } = props;
 
-  const chrome = resolveChrome(frontmatter)
-  const pageTitle = frontmatter.title ? `${frontmatter.title} \u2014 ${site.title}` : site.title
+  const chrome = resolveChrome(frontmatter);
+  const pageTitle = frontmatter.title ? `${frontmatter.title} \u2014 ${site.title}` : site.title;
   const ogImage = frontmatter.socialImage
-    ? frontmatter.socialImage.startsWith('http')
+    ? frontmatter.socialImage.startsWith("http")
       ? frontmatter.socialImage
-      : `${site.basePath || ''}/${frontmatter.socialImage.replace(/^\//, '')}`
-    : undefined
+      : `${site.basePath || ""}/${frontmatter.socialImage.replace(/^\//, "")}`
+    : undefined;
 
   return (
     <Html
@@ -64,12 +64,12 @@ export default function DocPage(props: Props) {
       socialImage={ogImage}
       site={site}
       meta={{
-        ogType: 'article',
+        ogType: "article",
         publishedTime:
-          typeof frontmatter.publishedDate === 'string' ? frontmatter.publishedDate : undefined,
+          typeof frontmatter.publishedDate === "string" ? frontmatter.publishedDate : undefined,
         modifiedTime: lastUpdated || undefined,
         tags: Array.isArray(frontmatter.tags)
-          ? frontmatter.tags.filter((t: unknown): t is string => typeof t === 'string')
+          ? frontmatter.tags.filter((t: unknown): t is string => typeof t === "string")
           : undefined,
       }}
     >
@@ -94,5 +94,5 @@ export default function DocPage(props: Props) {
         <div class="prose" innerHTML={content} />
       </PageShell>
     </Html>
-  )
+  );
 }

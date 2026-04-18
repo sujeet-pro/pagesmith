@@ -70,8 +70,8 @@ All paths below are under `node_modules/@pagesmith/core/`:
 | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/errors.md` | Error catalog with patterns and fixes |
 | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/changelog-notes.md` | Version highlights |
 | `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/AGENTS.md.template` | Template for project AGENTS.md with task-specific file pointers |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/llms.txt` | Compact AI context index |
-| `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/llms-full.txt` | This file — full AI context |
+| `node_modules/@pagesmith/core/llms.txt` | Compact AI context index (also exposed via `@pagesmith/core/llms`) |
+| `node_modules/@pagesmith/core/llms-full.txt` | This file — full AI context (also exposed via `@pagesmith/core/llms-full`) |
 
 ## Agent prompts by use case
 

@@ -18,8 +18,8 @@ Handlebars turns each request into a **complete HTML document** at SSR time. The
 `pagesmithSsg` loads `src/entry-server.tsx` and uses:
 
 ```ts
-export async function getRoutes(config: SsgRenderConfig): Promise<string[]>
-export async function render(url: string, config: SsgRenderConfig): Promise<string>
+export async function getRoutes(config: SsgRenderConfig): Promise<string[]>;
+export async function render(url: string, config: SsgRenderConfig): Promise<string>;
 ```
 
 `getRoutes()` returns every path to generate. `render(url, config)` returns one HTML string per path. `config` includes `base`, `root`, asset paths, and flags such as `searchEnabled`.

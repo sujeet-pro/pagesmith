@@ -3,11 +3,11 @@
   sameFolder: true,
 
   // Prefer SVG for docs surfaces in this repo.
-  defaultFormats: ['svg'],
+  defaultFormats: ["svg"],
 
   // Always generate both light and dark variants for docs embedding.
-  defaultTheme: 'both',
+  defaultTheme: "both",
 
   // Keep the incremental-build manifest hidden when rendering in-place.
-  manifestFile: '.diagramkit-manifest.json',
+  manifestFile: ".diagramkit-manifest.json",
 }

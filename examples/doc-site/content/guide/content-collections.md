@@ -13,9 +13,9 @@ Unlike the other examples in this repo, which keep an explicit `content.config.t
 
 Each top-level folder becomes a section with its own header/sidebar navigation:
 
-| Folder | Route | Navigation |
-|--------|-------|------------|
-| `content/guide/` | `/guide/*` | Guide section |
+| Folder                          | Route                 | Navigation                                       |
+| ------------------------------- | --------------------- | ------------------------------------------------ |
+| `content/guide/`                | `/guide/*`            | Guide section                                    |
 | `content/guide/kitchen-sink.md` | `/guide/kitchen-sink` | Single markdown regression page inside the Guide |
 
 Nested markdown files stay in the same top-level section even when their URLs are deeper, and the section sidebar stays flat from the reader's perspective. Files or folders starting with `.` or `_` are ignored during discovery.
@@ -54,10 +54,14 @@ Each section can include a `meta.json5` file for ordering and series grouping:
 
 ```json5
 {
-  displayName: 'Guide',
-  orderBy: 'manual',
+  displayName: "Guide",
+  orderBy: "manual",
   series: [
-    { slug: 'getting-started', displayName: 'Getting Started', articles: ['installation', 'project-structure'] },
+    {
+      slug: "getting-started",
+      displayName: "Getting Started",
+      articles: ["installation", "project-structure"],
+    },
   ],
 }
 ```

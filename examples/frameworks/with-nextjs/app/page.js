@@ -1,17 +1,17 @@
-import Link from 'next/link'
-import { getAllPosts } from '../lib/content'
+import Link from "next/link";
+import { getAllPosts } from "../lib/content";
 
 function formatDate(isoDate) {
-  return new Date(isoDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+  return new Date(isoDate).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export default async function HomePage() {
-  const posts = await getAllPosts()
-  const featured = posts.find((post) => post.slug === 'kitchen-sink') ?? posts[0]
+  const posts = await getAllPosts();
+  const featured = posts.find((post) => post.slug === "kitchen-sink") ?? posts[0];
 
   return (
     <div className="home-grid">
@@ -74,5 +74,5 @@ export default async function HomePage() {
         </ul>
       </section>
     </div>
-  )
+  );
 }

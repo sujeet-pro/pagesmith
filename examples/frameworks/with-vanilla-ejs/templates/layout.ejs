@@ -32,10 +32,10 @@
           <a href="<%= basePath %>" class="doc-sidebar-link">Home</a>
         </li>
         <li class="doc-sidebar-item<%= activePath.startsWith('/guide') ? ' active' : '' %>">
-          <a href="<%= basePath %>guide/<%= sidebar.firstGuideSlug %>/" class="doc-sidebar-link">Guide</a>
+          <a href="<%= basePath %>guide/<%= sidebar.firstGuideSlug %>" class="doc-sidebar-link">Guide</a>
         </li>
         <li class="doc-sidebar-item<%= activePath === '/about' ? ' active' : '' %>">
-          <a href="<%= basePath %>about/" class="doc-sidebar-link">About</a>
+          <a href="<%= basePath %>about" class="doc-sidebar-link">About</a>
         </li>
       </ul>
     </div>
@@ -49,7 +49,7 @@
             <ul class="doc-sidebar-nested">
               <% for (const item of group.items) { %>
                 <li class="doc-sidebar-item<%= activePath === '/guide/' + item.slug ? ' active' : '' %>">
-                  <a href="<%= basePath %>guide/<%= item.slug %>/" class="doc-sidebar-link"><%= item.title %></a>
+                  <a href="<%= basePath %>guide/<%= item.slug %>" class="doc-sidebar-link"><%= item.title %></a>
                 </li>
               <% } %>
             </ul>
@@ -70,7 +70,7 @@
       </div>
       <nav class="doc-nav">
         <a href="<%= basePath %>"<%= activePath === '/' ? ' class="active"' : '' %>>Home</a>
-        <a href="<%= basePath %>guide/<%= sidebar.firstGuideSlug %>/"<%= activePath.startsWith('/guide') ? ' class="active"' : '' %>>Guide</a>
+        <a href="<%= basePath %>guide/<%= sidebar.firstGuideSlug %>"<%= activePath.startsWith('/guide') ? ' class="active"' : '' %>>Guide</a>
       </nav>
       <div class="doc-header-right">
         <% if (searchOn) { %>

@@ -39,14 +39,14 @@ pagesmith-docs mcp --stdio [options]
 7. `pagesmith.config.json`
 
 ```ts title="pagesmith.config.ts"
-import { defineConfig } from '@pagesmith/docs'
+import { defineConfig } from "@pagesmith/docs";
 
 export default defineConfig({
-  name: 'my-docs',
-  title: 'My Docs',
-  origin: 'https://example.com',
-  basePath: '/my-docs',
-})
+  name: "my-docs",
+  title: "My Docs",
+  origin: "https://example.com",
+  basePath: "/my-docs",
+});
 ```
 
 `init` writes a JSON5 file. When you already have a `.ts`/`.js` config, init reads it for prompt defaults but does not overwrite the file — the user owns code-shaped configs.
@@ -72,21 +72,21 @@ What it does:
 
 Common flags:
 
-| Flag | Purpose |
-|---|---|
-| `-y`, `--yes` | Accept detected defaults without prompting |
-| `--non-interactive` | Same as `--yes`, named for CI/CD pipelines |
-| `--interactive` | Force prompts even when the environment looks non-TTY |
-| `--ai` | Install AI memory files, skills, Markdown guidance, and `llms*.txt` |
-| `--no-llms` | Skip `llms.txt` and `llms-full.txt` generation |
-| `--config <path>` | Write the config to a non-default path |
-| `--name <value>` | Override detected project name |
-| `--title <value>` | Override detected site title |
-| `--content-dir <path>` | Choose a specific docs directory |
-| `--base-path <path>` | Override the detected GitHub Pages-style base path |
-| `--origin <url>` | Override the detected site origin |
-| `--search` / `--no-search` | Enable or disable built-in search |
-| `--starter-content` / `--no-starter-content` | Create or skip starter docs pages |
+| Flag                                         | Purpose                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------- |
+| `-y`, `--yes`                                | Accept detected defaults without prompting                          |
+| `--non-interactive`                          | Same as `--yes`, named for CI/CD pipelines                          |
+| `--interactive`                              | Force prompts even when the environment looks non-TTY               |
+| `--ai`                                       | Install AI memory files, skills, Markdown guidance, and `llms*.txt` |
+| `--no-llms`                                  | Skip `llms.txt` and `llms-full.txt` generation                      |
+| `--config <path>`                            | Write the config to a non-default path                              |
+| `--name <value>`                             | Override detected project name                                      |
+| `--title <value>`                            | Override detected site title                                        |
+| `--content-dir <path>`                       | Choose a specific docs directory                                    |
+| `--base-path <path>`                         | Override the detected GitHub Pages-style base path                  |
+| `--origin <url>`                             | Override the detected site origin                                   |
+| `--search` / `--no-search`                   | Enable or disable built-in search                                   |
+| `--starter-content` / `--no-starter-content` | Create or skip starter docs pages                                   |
 
 `init` runs as an interactive prompt by default when stdout and stdin are both
 TTYs. It auto-falls back to non-interactive mode (using the detected defaults)
@@ -121,13 +121,13 @@ npx pagesmith-docs dev
 
 Common flags:
 
-| Flag | Purpose |
-|---|---|
-| `--port <number>` | Change the dev port |
-| `--open` | Open the browser automatically |
-| `--config <path>` | Use a non-default config file |
-| `--out-dir <path>` | Override the output directory |
-| `--base-path <path>` | Override the configured base path |
+| Flag                  | Purpose                                             |
+| --------------------- | --------------------------------------------------- |
+| `--port <number>`     | Change the dev port                                 |
+| `--open`              | Open the browser automatically                      |
+| `--config <path>`     | Use a non-default config file                       |
+| `--out-dir <path>`    | Override the output directory                       |
+| `--base-path <path>`  | Override the configured base path                   |
 | `--log-level <level>` | Set `silent`, `error`, `warn`, `info`, or `verbose` |
 
 Use `dev` for content editing, layout work, navigation checks, and local theme iteration.
@@ -181,30 +181,30 @@ npx pagesmith-docs validate --full          # enable every opt-in offline check
 
 Common flags:
 
-| Flag | Purpose |
-|---|---|
-| `--content` | Only run content validation |
-| `--build` | Only run build-output validation |
-| `--full` | Enable every opt-in offline check (raster fallbacks, both trailing-slash forms, internal-links-must-be-markdown, canonical internal links) |
-| `--content-dir <path>` | Content directory override |
-| `--out-dir <path>` | Build output directory override |
-| `--base-path <path>` | Site base path override |
-| `--trailing-slash` / `--no-trailing-slash` | Force trailing-slash routing mode |
-| `--check-external` | Fetch external URLs and report non-2xx as warnings |
-| `--require-raster-modern-formats` | Require webp+avif siblings for `<picture>` raster fallbacks |
-| `--require-theme-variants` / `--no-theme-variants` | Enforce light + dark `<picture>` sources (default: on) |
-| `--require-both-trailing-slash-forms` | Warn when pages lack a redirect sibling |
-| `--internal-links-must-be-markdown` | Fail if a non-image internal link resolves to a non-markdown file |
-| `--require-canonical-internal-links` / `--no-require-canonical-internal-links` | Require `./relative/path.md` authoring form (default: on under docs preset) |
-| `--no-require-alt-text` | Downgrade missing image alt text from error to warning |
-| `--allow-html-img-tag` | Allow raw `<img>` tags in markdown |
-| `--no-theme-variant-pairs` | Do not enforce adjacent `-light`/`-dark` image pairing |
-| `--required-file <name>` | Require `<name>` in the build output (repeatable) |
-| `--no-required-files` | Skip the default required-output-files check |
-| `--content-config <path>` / `--no-content-config` | Explicit or disabled `content.config.*` auto-load |
-| `--timeout-ms <number>` | External fetch timeout (default: 10000) |
-| `--concurrency <number>` | External fetch concurrency (default: 8) |
-| `--show-clean` | Also list files that pass content validation |
+| Flag                                                                           | Purpose                                                                                                                                    |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--content`                                                                    | Only run content validation                                                                                                                |
+| `--build`                                                                      | Only run build-output validation                                                                                                           |
+| `--full`                                                                       | Enable every opt-in offline check (raster fallbacks, both trailing-slash forms, internal-links-must-be-markdown, canonical internal links) |
+| `--content-dir <path>`                                                         | Content directory override                                                                                                                 |
+| `--out-dir <path>`                                                             | Build output directory override                                                                                                            |
+| `--base-path <path>`                                                           | Site base path override                                                                                                                    |
+| `--trailing-slash` / `--no-trailing-slash`                                     | Force trailing-slash routing mode                                                                                                          |
+| `--check-external`                                                             | Fetch external URLs and report non-2xx as warnings                                                                                         |
+| `--require-raster-modern-formats`                                              | Require webp+avif siblings for `<picture>` raster fallbacks                                                                                |
+| `--require-theme-variants` / `--no-theme-variants`                             | Enforce light + dark `<picture>` sources (default: on)                                                                                     |
+| `--require-both-trailing-slash-forms`                                          | Warn when pages lack a redirect sibling                                                                                                    |
+| `--internal-links-must-be-markdown`                                            | Fail if a non-image internal link resolves to a non-markdown file                                                                          |
+| `--require-canonical-internal-links` / `--no-require-canonical-internal-links` | Require `./relative/path.md` authoring form (default: on under docs preset)                                                                |
+| `--no-require-alt-text`                                                        | Downgrade missing image alt text from error to warning                                                                                     |
+| `--allow-html-img-tag`                                                         | Allow raw `<img>` tags in markdown                                                                                                         |
+| `--no-theme-variant-pairs`                                                     | Do not enforce adjacent `-light`/`-dark` image pairing                                                                                     |
+| `--required-file <name>`                                                       | Require `<name>` in the build output (repeatable)                                                                                          |
+| `--no-required-files`                                                          | Skip the default required-output-files check                                                                                               |
+| `--content-config <path>` / `--no-content-config`                              | Explicit or disabled `content.config.*` auto-load                                                                                          |
+| `--timeout-ms <number>`                                                        | External fetch timeout (default: 10000)                                                                                                    |
+| `--concurrency <number>`                                                       | External fetch concurrency (default: 8)                                                                                                    |
+| `--show-clean`                                                                 | Also list files that pass content validation                                                                                               |
 
 Validate exits non-zero on the first error so it works as a CI gate.
 
@@ -218,10 +218,10 @@ npx pagesmith-docs mcp --stdio
 
 Common flags:
 
-| Flag | Purpose |
-|---|---|
-| `--config <path>` | Config used by the docs MCP tools |
-| `--root <path>` | Project root for resolving config and content |
+| Flag              | Purpose                                       |
+| ----------------- | --------------------------------------------- |
+| `--config <path>` | Config used by the docs MCP tools             |
+| `--root <path>`   | Project root for resolving config and content |
 
 The server exposes tools such as:
 

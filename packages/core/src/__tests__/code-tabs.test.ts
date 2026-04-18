@@ -1,244 +1,244 @@
-import { describe, expect, it } from 'vite-plus/test'
-import { processMarkdown } from '../markdown/pipeline'
+import { describe, expect, it } from "vite-plus/test";
+import { processMarkdown } from "../markdown/pipeline";
 
-describe('code tabs', () => {
-  it('groups consecutive titled code blocks into a tab container', async () => {
+describe("code tabs", () => {
+  it("groups consecutive titled code blocks into a tab container", async () => {
     const md = [
       '```js title="npm"',
-      'npm install foo',
-      '```',
-      '',
+      "npm install foo",
+      "```",
+      "",
       '```js title="pnpm"',
-      'pnpm add foo',
-      '```',
-    ].join('\n')
+      "pnpm add foo",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).toContain('ps-code-tabs')
-    expect(result.html).toContain('ps-code-tabs-nav')
-    expect(result.html).toContain('role="tablist"')
-    expect(result.html).toContain('role="tab"')
-    expect(result.html).toContain('ps-code-tab-panel')
-  })
+    const result = await processMarkdown(md);
+    expect(result.html).toContain("ps-code-tabs");
+    expect(result.html).toContain("ps-code-tabs-nav");
+    expect(result.html).toContain('role="tablist"');
+    expect(result.html).toContain('role="tab"');
+    expect(result.html).toContain("ps-code-tab-panel");
+  });
 
-  it('adds a dedicated header action area for the active tab copy button', async () => {
+  it("adds a dedicated header action area for the active tab copy button", async () => {
     const md = [
       '```js title="npm"',
-      'npm install foo',
-      '```',
-      '',
+      "npm install foo",
+      "```",
+      "",
       '```js title="pnpm"',
-      'pnpm add foo',
-      '```',
-    ].join('\n')
+      "pnpm add foo",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).toContain('ps-code-tabs-header')
-    expect(result.html).toContain('ps-code-tabs-actions')
-    expect(result.html).toMatch(/ps-code-tabs-actions[\s\S]*data-ps-code-copy="true"/)
-  })
+    const result = await processMarkdown(md);
+    expect(result.html).toContain("ps-code-tabs-header");
+    expect(result.html).toContain("ps-code-tabs-actions");
+    expect(result.html).toMatch(/ps-code-tabs-actions[\s\S]*data-ps-code-copy="true"/);
+  });
 
-  it('inherits the code theme variables onto the tab container', async () => {
+  it("inherits the code theme variables onto the tab container", async () => {
     const md = [
       '```ts title="TypeScript"',
-      'const a = 1',
-      '```',
-      '',
+      "const a = 1",
+      "```",
+      "",
       '```python title="Python"',
       'print("hello")',
-      '```',
-    ].join('\n')
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).toMatch(/class="ps-code-tabs" style="[^"]*--ps-code-light-bg:/)
-    expect(result.html).toMatch(/class="ps-code-tabs" style="[^"]*--ps-code-dark-bg:/)
-  })
+    const result = await processMarkdown(md);
+    expect(result.html).toMatch(/class="ps-code-tabs" style="[^"]*--ps-code-light-bg:/);
+    expect(result.html).toMatch(/class="ps-code-tabs" style="[^"]*--ps-code-dark-bg:/);
+  });
 
-  it('uses titles as tab button labels', async () => {
+  it("uses titles as tab button labels", async () => {
     const md = [
       '```bash title="npm"',
-      'npm install',
-      '```',
-      '',
+      "npm install",
+      "```",
+      "",
       '```bash title="yarn"',
-      'yarn install',
-      '```',
-    ].join('\n')
+      "yarn install",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).toContain('>npm<')
-    expect(result.html).toContain('>yarn<')
-  })
+    const result = await processMarkdown(md);
+    expect(result.html).toContain(">npm<");
+    expect(result.html).toContain(">yarn<");
+  });
 
-  it('marks the first tab as active by default', async () => {
+  it("marks the first tab as active by default", async () => {
     const md = [
       '```ts title="First"',
-      'const a = 1',
-      '```',
-      '',
+      "const a = 1",
+      "```",
+      "",
       '```ts title="Second"',
-      'const b = 2',
-      '```',
-    ].join('\n')
+      "const b = 2",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).toContain('aria-selected="true"')
-    expect(result.html).toContain('aria-selected="false"')
-  })
+    const result = await processMarkdown(md);
+    expect(result.html).toContain('aria-selected="true"');
+    expect(result.html).toContain('aria-selected="false"');
+  });
 
-  it('does not pre-hide panels before JS activation', async () => {
+  it("does not pre-hide panels before JS activation", async () => {
     const md = [
       '```ts title="A"',
-      'const a = 1',
-      '```',
-      '',
+      "const a = 1",
+      "```",
+      "",
       '```ts title="B"',
-      'const b = 2',
-      '```',
-    ].join('\n')
+      "const b = 2",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    const panels = result.html.match(/role="tabpanel"[^>]*>/g) || []
-    expect(panels.length).toBe(2)
-    expect(panels[0]).not.toContain('hidden')
-    expect(panels[1]).not.toContain('hidden')
-  })
+    const result = await processMarkdown(md);
+    const panels = result.html.match(/role="tabpanel"[^>]*>/g) || [];
+    expect(panels.length).toBe(2);
+    expect(panels[0]).not.toContain("hidden");
+    expect(panels[1]).not.toContain("hidden");
+  });
 
-  it('does not group a single titled block', async () => {
-    const md = ['```ts title="Only One"', 'const x = 1', '```'].join('\n')
+  it("does not group a single titled block", async () => {
+    const md = ['```ts title="Only One"', "const x = 1", "```"].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).not.toContain('ps-code-tabs')
-    expect(result.html).toContain('ps-code-block')
-    expect(result.html).toContain('data-ps-code-title="Only One"')
-  })
+    const result = await processMarkdown(md);
+    expect(result.html).not.toContain("ps-code-tabs");
+    expect(result.html).toContain("ps-code-block");
+    expect(result.html).toContain('data-ps-code-title="Only One"');
+  });
 
-  it('does not group when an untitled block breaks the run', async () => {
+  it("does not group when an untitled block breaks the run", async () => {
     const md = [
       '```ts title="First"',
-      'const a = 1',
-      '```',
-      '',
-      '```ts',
-      'const untitled = true',
-      '```',
-      '',
+      "const a = 1",
+      "```",
+      "",
+      "```ts",
+      "const untitled = true",
+      "```",
+      "",
       '```ts title="Third"',
-      'const c = 3',
-      '```',
-    ].join('\n')
+      "const c = 3",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
+    const result = await processMarkdown(md);
     // None of these should be grouped since the untitled block breaks the run
-    expect(result.html).not.toContain('ps-code-tabs')
-  })
+    expect(result.html).not.toContain("ps-code-tabs");
+  });
 
-  it('does not group when a paragraph separates titled blocks', async () => {
+  it("does not group when a paragraph separates titled blocks", async () => {
     const md = [
       '```ts title="Before"',
-      'const a = 1',
-      '```',
-      '',
-      'Some paragraph text between blocks.',
-      '',
+      "const a = 1",
+      "```",
+      "",
+      "Some paragraph text between blocks.",
+      "",
       '```ts title="After"',
-      'const b = 2',
-      '```',
-    ].join('\n')
+      "const b = 2",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).not.toContain('ps-code-tabs')
-  })
+    const result = await processMarkdown(md);
+    expect(result.html).not.toContain("ps-code-tabs");
+  });
 
-  it('groups three or more consecutive titled blocks', async () => {
+  it("groups three or more consecutive titled blocks", async () => {
     const md = [
       '```bash title="npm"',
-      'npm install foo',
-      '```',
-      '',
+      "npm install foo",
+      "```",
+      "",
       '```bash title="pnpm"',
-      'pnpm add foo',
-      '```',
-      '',
+      "pnpm add foo",
+      "```",
+      "",
       '```bash title="yarn"',
-      'yarn add foo',
-      '```',
-      '',
+      "yarn add foo",
+      "```",
+      "",
       '```bash title="bun"',
-      'bun add foo',
-      '```',
-    ].join('\n')
+      "bun add foo",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    const tabButtons = result.html.match(/role="tab"/g) || []
-    const tabPanels = result.html.match(/ps-code-tab-panel/g) || []
-    expect(tabButtons.length).toBe(4)
-    expect(tabPanels.length).toBe(4)
-  })
+    const result = await processMarkdown(md);
+    const tabButtons = result.html.match(/role="tab"/g) || [];
+    const tabPanels = result.html.match(/ps-code-tab-panel/g) || [];
+    expect(tabButtons.length).toBe(4);
+    expect(tabPanels.length).toBe(4);
+  });
 
-  it('creates aria-controls/aria-labelledby pairs', async () => {
+  it("creates aria-controls/aria-labelledby pairs", async () => {
     const md = [
       '```ts title="A"',
-      'const a = 1',
-      '```',
-      '',
+      "const a = 1",
+      "```",
+      "",
       '```ts title="B"',
-      'const b = 2',
-      '```',
-    ].join('\n')
+      "const b = 2",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).toContain('aria-controls="ct-0-p0"')
-    expect(result.html).toContain('id="ct-0-p0"')
-    expect(result.html).toContain('id="ct-0-t0"')
-    expect(result.html).toContain('aria-labelledby="ct-0-t0"')
-  })
+    const result = await processMarkdown(md);
+    expect(result.html).toContain('aria-controls="ct-0-p0"');
+    expect(result.html).toContain('id="ct-0-p0"');
+    expect(result.html).toContain('id="ct-0-t0"');
+    expect(result.html).toContain('aria-labelledby="ct-0-t0"');
+  });
 
-  it('handles multiple separate tab groups on the same page', async () => {
+  it("handles multiple separate tab groups on the same page", async () => {
     const md = [
       '```ts title="Group1-A"',
-      'const a = 1',
-      '```',
-      '',
+      "const a = 1",
+      "```",
+      "",
       '```ts title="Group1-B"',
-      'const b = 2',
-      '```',
-      '',
-      'Paragraph separating the groups.',
-      '',
+      "const b = 2",
+      "```",
+      "",
+      "Paragraph separating the groups.",
+      "",
       '```ts title="Group2-A"',
-      'const c = 3',
-      '```',
-      '',
+      "const c = 3",
+      "```",
+      "",
       '```ts title="Group2-B"',
-      'const d = 4',
-      '```',
-    ].join('\n')
+      "const d = 4",
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
+    const result = await processMarkdown(md);
     // Both groups should have tab containers
-    const tabGroups = result.html.match(/ps-code-tabs"/g) || []
-    expect(tabGroups.length).toBe(2)
+    const tabGroups = result.html.match(/ps-code-tabs"/g) || [];
+    expect(tabGroups.length).toBe(2);
     // Different group IDs
-    expect(result.html).toContain('ct-0-t0')
-    expect(result.html).toContain('ct-1-t0')
-  })
+    expect(result.html).toContain("ct-0-t0");
+    expect(result.html).toContain("ct-1-t0");
+  });
 
-  it('preserves rendered code content within tab panels', async () => {
+  it("preserves rendered code content within tab panels", async () => {
     const md = [
       '```js title="JavaScript"',
       'console.log("hello")',
-      '```',
-      '',
+      "```",
+      "",
       '```python title="Python"',
       'print("hello")',
-      '```',
-    ].join('\n')
+      "```",
+    ].join("\n");
 
-    const result = await processMarkdown(md)
-    expect(result.html).toContain('console')
-    expect(result.html).toContain('hello')
-    expect(result.html).toContain('print')
-    expect(result.html).toContain('ps-code-block')
-  })
-})
+    const result = await processMarkdown(md);
+    expect(result.html).toContain("console");
+    expect(result.html).toContain("hello");
+    expect(result.html).toContain("print");
+    expect(result.html).toContain("ps-code-block");
+  });
+});

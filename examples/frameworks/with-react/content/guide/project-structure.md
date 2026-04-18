@@ -41,23 +41,23 @@ examples/frameworks/with-react/
 Registers **`sharedAssetsPlugin`**, **`pagesmithContent({ collections })`**, and the spread return of **`pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] })`**. Sets `base` and `build.outDir` for the hosted demo path.
 
 ```ts title="vite.config.ts (excerpt)"
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 export default defineConfig({
-  base: '/pagesmith/examples/react',
+  base: "/pagesmith/examples/react",
   plugins: [
     sharedAssetsPlugin(),
     pagesmithContent({ collections }),
-    ...pagesmithSsg({ entry: './src/entry-server.tsx', contentDirs: ['./content'] }),
+    ...pagesmithSsg({ entry: "./src/entry-server.tsx", contentDirs: ["./content"] }),
   ],
   build: {
-    outDir: '../../../gh-pages/examples/react',
+    outDir: "../../../gh-pages/examples/react",
     emptyOutDir: true,
     rolldownOptions: {
       checks: { pluginTimings: false },
     },
   },
-})
+});
 ```
 
 ### `content.config.ts`
@@ -81,9 +81,9 @@ Progressive enhancement: TOC active state, mobile sidebar dialog, header/footer 
 Vite’s browser bundle entry:
 
 ```js title="client.js"
-import './src/theme.css'
-import '@pagesmith/site/runtime/content'
-import './src/runtime.ts'
+import "./src/theme.css";
+import "@pagesmith/site/runtime/content";
+import "./src/runtime.ts";
 ```
 
 `theme.css` is site chrome; **`@pagesmith/site/runtime/content`** ships the shared prose/code styles for rendered markdown; **`runtime.ts`** is your site-specific JS.

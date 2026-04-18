@@ -1,82 +1,82 @@
 #!/usr/bin/env -S node --strip-types --no-warnings
 
-import { exec } from 'child_process'
-import { existsSync, readdirSync } from 'fs'
-import { join } from 'path'
-import { promisify } from 'util'
+import { exec } from "child_process";
+import { existsSync, readdirSync } from "fs";
+import { join } from "path";
+import { promisify } from "util";
 
-const execAsync = promisify(exec)
+const execAsync = promisify(exec);
 
 interface Example {
-  name: string
-  path: string
-  buildCmd: string
-  outDir: string
+  name: string;
+  path: string;
+  buildCmd: string;
+  outDir: string;
 }
 
 interface Result {
-  name: string
-  passed: boolean
-  error?: string
+  name: string;
+  passed: boolean;
+  error?: string;
 }
 
-const root: string = process.cwd()
+const root: string = process.cwd();
 
 const examples: Example[] = [
   {
-    name: 'blog-site',
-    path: 'examples/blog-site',
-    buildCmd: 'npm run build',
-    outDir: 'gh-pages/examples/blog-site',
+    name: "blog-site",
+    path: "examples/blog-site",
+    buildCmd: "npm run build",
+    outDir: "gh-pages/examples/blog-site",
   },
   {
-    name: 'doc-site',
-    path: 'examples/doc-site',
-    buildCmd: 'npm run build',
-    outDir: 'gh-pages/examples/doc-site',
+    name: "doc-site",
+    path: "examples/doc-site",
+    buildCmd: "npm run build",
+    outDir: "gh-pages/examples/doc-site",
   },
   {
-    name: 'with-nextjs',
-    path: 'examples/frameworks/with-nextjs',
-    buildCmd: 'npm run build',
-    outDir: 'gh-pages/examples/nextjs',
+    name: "with-nextjs",
+    path: "examples/frameworks/with-nextjs",
+    buildCmd: "npm run build",
+    outDir: "gh-pages/examples/nextjs",
   },
   {
-    name: 'with-vanilla-ejs',
-    path: 'examples/frameworks/with-vanilla-ejs',
-    buildCmd: 'npm run build',
-    outDir: 'gh-pages/examples/vanilla-ejs',
+    name: "with-vanilla-ejs",
+    path: "examples/frameworks/with-vanilla-ejs",
+    buildCmd: "npm run build",
+    outDir: "gh-pages/examples/vanilla-ejs",
   },
   {
-    name: 'with-vanilla-hbs',
-    path: 'examples/frameworks/with-vanilla-hbs',
-    buildCmd: 'npm run build',
-    outDir: 'gh-pages/examples/vanilla-hbs',
+    name: "with-vanilla-hbs",
+    path: "examples/frameworks/with-vanilla-hbs",
+    buildCmd: "npm run build",
+    outDir: "gh-pages/examples/vanilla-hbs",
   },
   {
-    name: 'with-react',
-    path: 'examples/frameworks/with-react',
-    buildCmd: 'npm run build',
-    outDir: 'gh-pages/examples/react',
+    name: "with-react",
+    path: "examples/frameworks/with-react",
+    buildCmd: "npm run build",
+    outDir: "gh-pages/examples/react",
   },
   {
-    name: 'with-solid',
-    path: 'examples/frameworks/with-solid',
-    buildCmd: 'npm run build',
-    outDir: 'gh-pages/examples/solid',
+    name: "with-solid",
+    path: "examples/frameworks/with-solid",
+    buildCmd: "npm run build",
+    outDir: "gh-pages/examples/solid",
   },
   {
-    name: 'with-svelte',
-    path: 'examples/frameworks/with-svelte',
-    buildCmd: 'npm run build',
-    outDir: 'gh-pages/examples/svelte',
+    name: "with-svelte",
+    path: "examples/frameworks/with-svelte",
+    buildCmd: "npm run build",
+    outDir: "gh-pages/examples/svelte",
   },
-]
+];
 
 async function validateExample(example: Example): Promise<Result> {
-  const dir: string = join(root, example.path)
-  const outDir: string = join(root, example.outDir)
-  const requiredSourceFiles = ['README.md', 'llms.txt', 'llms-full.txt']
+  const dir: string = join(root, example.path);
+  const outDir: string = join(root, example.outDir);
+  const requiredSourceFiles = ["README.md", "llms.txt", "llms-full.txt"];
 
   try {
     for (const relativePath of requiredSourceFiles) {
@@ -85,7 +85,7 @@ async function validateExample(example: Example): Promise<Result> {
           name: example.name,
           passed: false,
           error: `required source file not found: ${join(example.path, relativePath)}`,
-        }
+        };
       }
     }
 
@@ -93,55 +93,60 @@ async function validateExample(example: Example): Promise<Result> {
       cwd: dir,
       env: {
         ...process.env,
-        PATH: `${join(root, 'node_modules/.bin')}:${process.env.PATH}`,
+        PATH: `${join(root, "node_modules/.bin")}:${process.env.PATH}`,
       },
-    })
+    });
 
     if (!existsSync(outDir)) {
-      return { name: example.name, passed: false, error: `output dir not found: ${outDir}` }
+      return { name: example.name, passed: false, error: `output dir not found: ${outDir}` };
     }
 
-    const files = readdirSync(outDir, { recursive: true }) as string[]
+    const files = readdirSync(outDir, { recursive: true }) as string[];
     const hasIndex: boolean = files.some(
-      (file: string) => file === 'index.html' || file.endsWith('/index.html'),
-    )
+      (file: string) => file === "index.html" || file.endsWith("/index.html"),
+    );
 
     if (!hasIndex) {
-      return { name: example.name, passed: false, error: 'no index.html found in output' }
+      return { name: example.name, passed: false, error: "no index.html found in output" };
     }
 
-    for (const llmsFile of ['llms.txt', 'llms-full.txt']) {
+    for (const llmsFile of ["llms.txt", "llms-full.txt"]) {
       if (!existsSync(join(outDir, llmsFile))) {
-        return { name: example.name, passed: false, error: `${llmsFile} not found in build output` }
+        return {
+          name: example.name,
+          passed: false,
+          error: `${llmsFile} not found in build output`,
+        };
       }
     }
 
-    return { name: example.name, passed: true }
+    return { name: example.name, passed: true };
   } catch (error: unknown) {
-    const message: string = error instanceof Error ? error.message : String(error)
-    return { name: example.name, passed: false, error: message }
+    const message: string = error instanceof Error ? error.message : String(error);
+    return { name: example.name, passed: false, error: message };
   }
 }
 
-console.log(`\nValidating ${examples.length} examples in parallel...\n`)
+console.info(`\nValidating ${examples.length} examples in parallel...\n`);
 
-const results: Result[] = await Promise.all(examples.map(validateExample))
+const results: Result[] = await Promise.all(examples.map(validateExample));
 
 for (const result of results) {
-  const status = result.passed ? 'PASS' : `FAIL (${result.error})`
-  console.log(`  ${result.name} ... ${status}`)
+  const status = result.passed ? "PASS" : `FAIL (${result.error})`;
+  if (result.passed) console.info(`  ${result.name} ... ${status}`);
+  else console.error(`  ${result.name} ... ${status}`);
 }
 
-console.log('\n--- Summary ---')
-const passed: Result[] = results.filter((result: Result) => result.passed)
-const failed: Result[] = results.filter((result: Result) => !result.passed)
+console.info("\n--- Summary ---");
+const passed: Result[] = results.filter((result: Result) => result.passed);
+const failed: Result[] = results.filter((result: Result) => !result.passed);
 
-console.log(`Passed: ${passed.length}/${results.length}`)
+console.info(`Passed: ${passed.length}/${results.length}`);
 
 if (failed.length > 0) {
-  console.log('\nFailed:')
+  console.error("\nFailed:");
   for (const failure of failed) {
-    console.log(`  - ${failure.name}: ${failure.error}`)
+    console.error(`  - ${failure.name}: ${failure.error}`);
   }
-  process.exit(1)
+  process.exit(1);
 }

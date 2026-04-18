@@ -36,12 +36,12 @@ That alone gives you:
 
 The `search` object is validated against `packages/docs/schemas/pagesmith-config.schema.json`. Supported keys (everything else is rejected at build time):
 
-| Key               | Type       | Default | Purpose                                                                   |
-| ----------------- | ---------- | ------- | ------------------------------------------------------------------------- |
-| `enabled`         | `boolean`  | `true`  | Toggle the whole search integration (index + trigger + UI).               |
-| `showImages`      | `boolean`  | `false` | Show images inside result tiles.                                          |
-| `showSubResults`  | `boolean`  | `true`  | Show per-heading sub-results for long pages.                              |
-| `pagefindFlags`   | `string[]` | `[]`    | Extra CLI flags forwarded to `pagefind` during `pagesmith-docs build`.    |
+| Key              | Type       | Default | Purpose                                                                |
+| ---------------- | ---------- | ------- | ---------------------------------------------------------------------- |
+| `enabled`        | `boolean`  | `true`  | Toggle the whole search integration (index + trigger + UI).            |
+| `showImages`     | `boolean`  | `false` | Show images inside result tiles.                                       |
+| `showSubResults` | `boolean`  | `true`  | Show per-heading sub-results for long pages.                           |
+| `pagefindFlags`  | `string[]` | `[]`    | Extra CLI flags forwarded to `pagefind` during `pagesmith-docs build`. |
 
 ```json5
 {
@@ -49,7 +49,7 @@ The `search` object is validated against `packages/docs/schemas/pagesmith-config
     enabled: true,
     showImages: false,
     showSubResults: true,
-    pagefindFlags: ['--exclude-selectors', '.no-index'],
+    pagefindFlags: ["--exclude-selectors", ".no-index"],
   },
 }
 ```
@@ -106,13 +106,13 @@ After a `build`, verify:
 
 ## Common problems
 
-| Symptom | Fix |
-| --- | --- |
-| Search icon missing in header | Confirm `search.enabled: true` in `pagesmith.config.json5`. Restart `dev`. |
-| "No results" for content that clearly exists | Check the page frontmatter: `draft: true` excludes it from the index. |
-| Results point at wrong URLs on deploy | `basePath` drift — make sure the built host matches `basePath`. Do not hand-edit URLs. |
-| Heavy first-load | Wrap noisy regions with `data-pagefind-ignore`, or drop huge reference tables into non-indexed pages via frontmatter `draft: true`. |
-| Custom trigger not opening search | The trigger button must have `data-ps-search-trigger` and the page must ship `@pagesmith/site/runtime/search-trigger` (already included in `runtime/chrome` / `runtime/standalone`). |
+| Symptom                                      | Fix                                                                                                                                                                                  |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Search icon missing in header                | Confirm `search.enabled: true` in `pagesmith.config.json5`. Restart `dev`.                                                                                                           |
+| "No results" for content that clearly exists | Check the page frontmatter: `draft: true` excludes it from the index.                                                                                                                |
+| Results point at wrong URLs on deploy        | `basePath` drift — make sure the built host matches `basePath`. Do not hand-edit URLs.                                                                                               |
+| Heavy first-load                             | Wrap noisy regions with `data-pagefind-ignore`, or drop huge reference tables into non-indexed pages via frontmatter `draft: true`.                                                  |
+| Custom trigger not opening search            | The trigger button must have `data-ps-search-trigger` and the page must ship `@pagesmith/site/runtime/search-trigger` (already included in `runtime/chrome` / `runtime/standalone`). |
 
 ## Gotchas
 

@@ -46,20 +46,20 @@ For agent-driven setup in an existing repository, start with the dedicated promp
 Define collections with `@pagesmith/site`, then add the site-building plugins from the same package:
 
 ```ts
-import { defineConfig } from 'vite'
-import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from '@pagesmith/site/vite'
-import collections from './content.config'
+import { defineConfig } from "vite";
+import { pagesmithContent, pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
+import collections from "./content.config";
 
 export default defineConfig({
   plugins: [
     sharedAssetsPlugin(),
     pagesmithContent({ collections }),
     ...pagesmithSsg({
-      entry: './src/entry-server.tsx',
-      contentDirs: ['./content'],
+      entry: "./src/entry-server.tsx",
+      contentDirs: ["./content"],
     }),
   ],
-})
+});
 ```
 
 `@pagesmith/site` re-exports the content-layer APIs from `@pagesmith/core`, so a site-based app can keep collection, schema, loader, and Vite-plugin imports on `@pagesmith/site` unless it intentionally wants the lower-level core package.
@@ -67,14 +67,14 @@ export default defineConfig({
 Your SSR entry should export:
 
 ```ts
-import type { SsgRenderConfig } from '@pagesmith/site/vite'
+import type { SsgRenderConfig } from "@pagesmith/site/vite";
 
 export function getRoutes(config: SsgRenderConfig): string[] {
-  return ['/']
+  return ["/"];
 }
 
 export function render(url: string, config: SsgRenderConfig): string | Promise<string> {
-  return '<!DOCTYPE html><html><body>Hello</body></html>'
+  return "<!DOCTYPE html><html><body>Hello</body></html>";
 }
 ```
 
@@ -92,7 +92,7 @@ For Pagesmith's server-side JSX runtime:
 ```
 
 ```tsx
-import { Fragment } from '@pagesmith/site/jsx-runtime'
+import { Fragment } from "@pagesmith/site/jsx-runtime";
 
 export function Page({ title, content }: { title: string; content: string }) {
   return (
@@ -104,7 +104,7 @@ export function Page({ title, content }: { title: string; content: string }) {
         <Fragment innerHTML={content} />
       </body>
     </html>
-  )
+  );
 }
 ```
 
@@ -113,8 +113,8 @@ export function Page({ title, content }: { title: string; content: string }) {
 `@pagesmith/site` now owns the reusable chrome that the default docs theme consumes: document shell, header, sidebar, TOC variants, footer controls, listing cards, and the 3-column page shell.
 
 ```tsx
-import { SiteDocument, ListingCards } from '@pagesmith/site/components'
-import { PageShell } from '@pagesmith/site/layouts'
+import { SiteDocument, ListingCards } from "@pagesmith/site/components";
+import { PageShell } from "@pagesmith/site/layouts";
 
 export function DocsPage({ site, slug, headings, sidebarSections, content }) {
   return (
@@ -129,16 +129,16 @@ export function DocsPage({ site, slug, headings, sidebarSections, content }) {
         <ListingCards
           cards={[
             {
-              title: 'Release Notes',
-              path: '/guide/releases',
-              description: 'Recent changes and migration notes.',
-              meta: [{ label: 'Updated', value: 'Apr 2026' }],
+              title: "Release Notes",
+              path: "/guide/releases",
+              description: "Recent changes and migration notes.",
+              meta: [{ label: "Updated", value: "Apr 2026" }],
             },
           ]}
         />
       </PageShell>
     </SiteDocument>
-  )
+  );
 }
 ```
 
@@ -147,9 +147,9 @@ export function DocsPage({ site, slug, headings, sidebarSections, content }) {
 Import static CSS bundles from the `css/*` subpaths:
 
 ```css
-@import '@pagesmith/site/css/chrome';
-@import '@pagesmith/site/css/content';
-@import '@pagesmith/site/css/fonts';
+@import "@pagesmith/site/css/chrome";
+@import "@pagesmith/site/css/content";
+@import "@pagesmith/site/css/fonts";
 ```
 
 Bundle CSS/runtime by scope:
@@ -161,8 +161,8 @@ Bundle CSS/runtime by scope:
 Use the browser runtime entry points when you want built-in code-block behavior, TOC highlighting, sidebar toggles, or theme/font-size persistence:
 
 ```ts
-import '@pagesmith/site/runtime/chrome'
-import '@pagesmith/site/runtime/content'
+import "@pagesmith/site/runtime/chrome";
+import "@pagesmith/site/runtime/content";
 ```
 
 For Vite-based TSX apps, this is the recommended pairing: render with `@pagesmith/site/components` / `@pagesmith/site/layouts`, then import the matching `css/*` and `runtime/*` entries from the same package so the shared chrome keeps its behavior with minimal app-local glue.

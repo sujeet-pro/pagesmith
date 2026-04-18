@@ -1,1 +1,1 @@
-export { type Heading, HeadingSchema } from '@pagesmith/core/schemas'
+export { type Heading, HeadingSchema } from "@pagesmith/core/schemas";

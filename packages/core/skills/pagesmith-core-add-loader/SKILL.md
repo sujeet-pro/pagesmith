@@ -25,49 +25,49 @@ If you only need to massage markdown (add a frontmatter field, run a preprocesso
 
 ```ts
 // loaders/mdx-loader.ts
-import type { Loader, LoaderResult } from '@pagesmith/core/loaders'
-import { readFile } from 'node:fs/promises'
-import matter from 'gray-matter'
+import type { Loader, LoaderResult } from "@pagesmith/core/loaders";
+import { readFile } from "node:fs/promises";
+import matter from "gray-matter";
 
 export class MdxLoader implements Loader {
-  readonly name = 'mdx'
-  readonly extensions = ['.mdx'] as const
+  readonly name = "mdx";
+  readonly extensions = [".mdx"] as const;
 
   async load(filePath: string): Promise<LoaderResult> {
-    const raw = await readFile(filePath, 'utf-8')
-    const parsed = matter(raw)
+    const raw = await readFile(filePath, "utf-8");
+    const parsed = matter(raw);
     return {
       data: parsed.data,
       rawContent: parsed.content,
-    }
+    };
   }
 }
 ```
 
 The `Loader` contract is small:
 
-| Field | Purpose |
-| --- | --- |
-| `name` | Unique string identifier — used in logs and errors. |
-| `extensions` | Tuple of file extensions, with leading dot. Used for file discovery. |
-| `load(filePath)` | Async function returning `{ data, rawContent? }`. |
+| Field            | Purpose                                                              |
+| ---------------- | -------------------------------------------------------------------- |
+| `name`           | Unique string identifier — used in logs and errors.                  |
+| `extensions`     | Tuple of file extensions, with leading dot. Used for file discovery. |
+| `load(filePath)` | Async function returning `{ data, rawContent? }`.                    |
 
 `rawContent` is optional and only meaningful for entries that will go through `entry.render()` later (markdown-style pipeline). For pure data loaders, return `{ data }` and skip `rawContent`.
 
 ## Attach to a collection
 
 ```ts
-import { defineCollection, z } from '@pagesmith/core'
-import { MdxLoader } from './loaders/mdx-loader'
+import { defineCollection, z } from "@pagesmith/core";
+import { MdxLoader } from "./loaders/mdx-loader";
 
 export const pages = defineCollection({
   loader: new MdxLoader(),
-  directory: 'content/pages',
+  directory: "content/pages",
   schema: z.object({
     title: z.string(),
     description: z.string(),
   }),
-})
+});
 ```
 
 If the loader's extensions don't match the collection's default glob, widen it:
@@ -75,10 +75,10 @@ If the loader's extensions don't match the collection's default glob, widen it:
 ```ts
 defineCollection({
   loader: new MdxLoader(),
-  directory: 'content/pages',
-  include: ['**/*.mdx'],
+  directory: "content/pages",
+  include: ["**/*.mdx"],
   schema,
-})
+});
 ```
 
 ## Remote / virtual loaders
@@ -87,20 +87,20 @@ A loader can skip the filesystem entirely. Example for a REST-backed collection:
 
 ```ts
 // loaders/cms-loader.ts
-import type { Loader, LoaderResult } from '@pagesmith/core/loaders'
+import type { Loader, LoaderResult } from "@pagesmith/core/loaders";
 
 export class CmsLoader implements Loader {
-  readonly name = 'cms'
-  readonly extensions = ['.json'] as const   // filesystem marker file
+  readonly name = "cms";
+  readonly extensions = [".json"] as const; // filesystem marker file
 
   constructor(private readonly endpoint: string) {}
 
   async load(filePath: string): Promise<LoaderResult> {
-    const slug = path.basename(filePath, '.json')
-    const resp = await fetch(`${this.endpoint}/${slug}`)
-    if (!resp.ok) throw new LoaderError(`CMS fetch failed for ${slug}: ${resp.status}`)
-    const data = await resp.json()
-    return { data, rawContent: data.body }
+    const slug = path.basename(filePath, ".json");
+    const resp = await fetch(`${this.endpoint}/${slug}`);
+    if (!resp.ok) throw new LoaderError(`CMS fetch failed for ${slug}: ${resp.status}`);
+    const data = await resp.json();
+    return { data, rawContent: data.body };
   }
 }
 ```
@@ -112,9 +112,9 @@ Marker files under `content/cms/*.json` act as a manifest that Pagesmith can sti
 Throw `LoaderError` for parse failures with context the agent can act on:
 
 ```ts
-import { LoaderError } from '@pagesmith/core/loaders'
+import { LoaderError } from "@pagesmith/core/loaders";
 
-throw new LoaderError(`Unexpected token near line ${line}`, { cause: err })
+throw new LoaderError(`Unexpected token near line ${line}`, { cause: err });
 ```
 
 The content store catches `LoaderError` and surfaces the file path and message without crashing the whole build.
@@ -125,17 +125,17 @@ Loaders are pure functions of a file path, so they are easy to test:
 
 ```ts
 // tests/mdx-loader.test.ts
-import { describe, expect, it } from 'vitest'
-import { MdxLoader } from '../src/loaders/mdx-loader'
+import { describe, expect, it } from "vitest";
+import { MdxLoader } from "../src/loaders/mdx-loader";
 
-describe('MdxLoader', () => {
-  it('parses frontmatter and body', async () => {
-    const loader = new MdxLoader()
-    const result = await loader.load('fixtures/hello.mdx')
-    expect(result.data.title).toBe('Hello')
-    expect(result.rawContent).toContain('<Sidebar')
-  })
-})
+describe("MdxLoader", () => {
+  it("parses frontmatter and body", async () => {
+    const loader = new MdxLoader();
+    const result = await loader.load("fixtures/hello.mdx");
+    expect(result.data.title).toBe("Hello");
+    expect(result.rawContent).toContain("<Sidebar");
+  });
+});
 ```
 
 ## Verify end-to-end

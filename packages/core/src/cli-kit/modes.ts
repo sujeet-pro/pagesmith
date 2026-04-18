@@ -12,64 +12,64 @@
  * pipelines have one knob to flip.
  */
 
-import { CliError } from './errors.js'
+import { CliError } from "./errors.js";
 
 export type InteractivityFlags = {
-  yes?: boolean
-  nonInteractive?: boolean
-  interactive?: boolean
-}
+  yes?: boolean;
+  nonInteractive?: boolean;
+  interactive?: boolean;
+};
 
 export type InteractivityResolution = {
-  interactive: boolean
+  interactive: boolean;
   /** Human-readable reason to print/log when running non-interactively. */
-  reason: string
-}
+  reason: string;
+};
 
 export function isNonInteractiveEnv(): boolean {
-  if (process.env.CI) return true
-  if (process.env.PAGESMITH_NON_INTERACTIVE) return true
-  return !(process.stdout.isTTY && process.stdin.isTTY)
+  if (process.env.CI) return true;
+  if (process.env.PAGESMITH_NON_INTERACTIVE) return true;
+  return !(process.stdout.isTTY && process.stdin.isTTY);
 }
 
 export function isInteractive(): boolean {
-  return !isNonInteractiveEnv()
+  return !isNonInteractiveEnv();
 }
 
 export function resolveInteractive(flags: InteractivityFlags = {}): InteractivityResolution {
-  if (flags.yes) return { interactive: false, reason: '--yes' }
-  if (flags.nonInteractive) return { interactive: false, reason: '--non-interactive' }
+  if (flags.yes) return { interactive: false, reason: "--yes" };
+  if (flags.nonInteractive) return { interactive: false, reason: "--non-interactive" };
   if (flags.interactive) {
     if (!process.stdout.isTTY || !process.stdin.isTTY) {
-      throw new CliError('--interactive requires a TTY for stdin and stdout.', {
+      throw new CliError("--interactive requires a TTY for stdin and stdout.", {
         hint:
-          'Remove the flag, attach a TTY, or pass --non-interactive / --yes for ' +
-          'CI/CD pipelines.',
-      })
+          "Remove the flag, attach a TTY, or pass --non-interactive / --yes for " +
+          "CI/CD pipelines.",
+      });
     }
-    return { interactive: true, reason: '--interactive' }
+    return { interactive: true, reason: "--interactive" };
   }
 
-  if (process.env.CI) return { interactive: false, reason: 'CI=1' }
+  if (process.env.CI) return { interactive: false, reason: "CI=1" };
   if (process.env.PAGESMITH_NON_INTERACTIVE) {
-    return { interactive: false, reason: 'PAGESMITH_NON_INTERACTIVE=1' }
+    return { interactive: false, reason: "PAGESMITH_NON_INTERACTIVE=1" };
   }
   if (!process.stdout.isTTY || !process.stdin.isTTY) {
-    return { interactive: false, reason: 'no TTY detected' }
+    return { interactive: false, reason: "no TTY detected" };
   }
-  return { interactive: true, reason: 'TTY' }
+  return { interactive: true, reason: "TTY" };
 }
 
 export type AssertValueOptions = {
   /** Human label for the value (e.g. `"project name"`). */
-  label: string
+  label: string;
   /** Flag the user can pass on the CLI to satisfy this requirement. */
-  flag: string
+  flag: string;
   /** Optional config key the user can set (e.g. `"name"` or `"cli.core.template"`). */
-  configKey?: string
+  configKey?: string;
   /** Optional environment variable that can also satisfy the requirement. */
-  envVar?: string
-}
+  envVar?: string;
+};
 
 /**
  * Throws a `CliError` when a required value is missing in non-interactive mode.
@@ -77,13 +77,13 @@ export type AssertValueOptions = {
  * inline: `const name = assertValue(args.name, { ... })`.
  */
 export function assertValue<T>(value: T | undefined | null, opts: AssertValueOptions): T {
-  if (value !== undefined && value !== null && value !== '') return value
+  if (value !== undefined && value !== null && value !== "") return value;
 
-  const sources = [opts.flag]
-  if (opts.envVar) sources.push(`$${opts.envVar}`)
-  if (opts.configKey) sources.push(`${opts.configKey} in pagesmith.config.{ts,json5,...}`)
+  const sources = [opts.flag];
+  if (opts.envVar) sources.push(`$${opts.envVar}`);
+  if (opts.configKey) sources.push(`${opts.configKey} in pagesmith.config.{ts,json5,...}`);
 
   throw new CliError(`${opts.label} is required in non-interactive mode.`, {
-    hint: `Pass ${sources.join(' or ')}, or rerun without --non-interactive / --yes.`,
-  })
+    hint: `Pass ${sources.join(" or ")}, or rerun without --non-interactive / --yes.`,
+  });
 }

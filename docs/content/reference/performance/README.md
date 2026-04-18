@@ -20,16 +20,16 @@ The unified markdown processor is the most expensive object to create -- it init
 
 ```ts title="How processor caching works"
 // Internal: pipeline.ts
-const processorCache = new WeakMap<MarkdownConfig, Processor>()
+const processorCache = new WeakMap<MarkdownConfig, Processor>();
 
 export async function processMarkdown(raw: string, config?: MarkdownConfig) {
-  const resolvedConfig = config ?? DEFAULT_MARKDOWN_CONFIG
-  let processor = processorCache.get(resolvedConfig)
+  const resolvedConfig = config ?? DEFAULT_MARKDOWN_CONFIG;
+  let processor = processorCache.get(resolvedConfig);
   if (!processor) {
-    processor = createProcessor(resolvedConfig)
-    processorCache.set(resolvedConfig, processor)
+    processor = createProcessor(resolvedConfig);
+    processorCache.set(resolvedConfig, processor);
   }
-  return processor.process(content)
+  return processor.process(content);
 }
 ```
 
@@ -48,29 +48,26 @@ Processor creation takes 200-500ms depending on the number of themes and plugins
 `@pagesmith/docs` processes markdown files with bounded concurrency using a worker pool pattern:
 
 ```ts title="Bounded concurrency"
-const concurrency = Math.max(1, availableParallelism() * 2)
+const concurrency = Math.max(1, availableParallelism() * 2);
 
 async function mapWithConcurrency<T, R>(
   items: T[],
   concurrency: number,
   fn: (item: T) => Promise<R>,
 ): Promise<R[]> {
-  const results: R[] = new Array(items.length)
-  let index = 0
+  const results: R[] = new Array(items.length);
+  let index = 0;
 
   async function worker(): Promise<void> {
     while (index < items.length) {
-      const i = index++
-      results[i] = await fn(items[i])
+      const i = index++;
+      results[i] = await fn(items[i]);
     }
   }
 
-  const workers = Array.from(
-    { length: Math.min(concurrency, items.length) },
-    () => worker(),
-  )
-  await Promise.all(workers)
-  return results
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
 }
 ```
 
@@ -90,10 +87,10 @@ The bounded approach keeps memory usage proportional to the concurrency limit, n
 
 The dev server distinguishes between two types of changes:
 
-| Change Type | Trigger | What Rebuilds |
-|---|---|---|
+| Change Type | Trigger                                 | What Rebuilds                                     |
+| ----------- | --------------------------------------- | ------------------------------------------------- |
 | **Content** | Markdown file edited, added, or deleted | Pages only (markdown processing + HTML rendering) |
-| **Full** | Config file changed, theme file changed | CSS bundling + JS bundling + pages + Pagefind |
+| **Full**    | Config file changed, theme file changed | CSS bundling + JS bundling + pages + Pagefind     |
 
 Content-only rebuilds skip:
 
@@ -103,22 +100,22 @@ Content-only rebuilds skip:
 
 This makes content-only rebuilds significantly faster. On a typical site:
 
-| Operation | Full Build | Content Rebuild |
-|---|---|---|
-| CSS bundle (LightningCSS) | ~50ms | Skipped |
-| JS bundle (Rolldown) | ~100ms | Skipped |
-| Pagefind indexing | ~200-500ms | Skipped |
-| Page rendering | ~varies | ~varies |
+| Operation                 | Full Build | Content Rebuild |
+| ------------------------- | ---------- | --------------- |
+| CSS bundle (LightningCSS) | ~50ms      | Skipped         |
+| JS bundle (Rolldown)      | ~100ms     | Skipped         |
+| Pagefind indexing         | ~200-500ms | Skipped         |
+| Page rendering            | ~varies    | ~varies         |
 
 The dev server also coalesces rapid changes. If multiple files change in quick succession (e.g. a git checkout), only one rebuild runs. Pending changes escalate to a full rebuild if any change requires it.
 
 ### Change detection logic
 
 ```ts title="Change type detection"
-function getChangeType(changedPath: string): 'full' | 'content' {
-  if (changedPath === configPath) return 'full'
-  if (changedPath.startsWith(themeRoot)) return 'full'
-  return 'content'
+function getChangeType(changedPath: string): "full" | "content" {
+  if (changedPath === configPath) return "full";
+  if (changedPath.startsWith(themeRoot)) return "full";
+  return "content";
 }
 ```
 
@@ -129,17 +126,17 @@ Changes to `pagesmith.config.json5` or any file inside the theme directory trigg
 When using `@pagesmith/core` directly, `ContentEntry.render()` is lazy and cached:
 
 ```ts title="Lazy render with caching"
-const entries = await layer.getCollection('posts')
+const entries = await layer.getCollection("posts");
 
 // First call: processes markdown, caches result
-const rendered = await entries[0].render()
+const rendered = await entries[0].render();
 
 // Second call: returns cached result instantly
-const same = await entries[0].render()
+const same = await entries[0].render();
 
 // Force re-render (e.g. after config change)
-entries[0].clearRenderCache()
-const fresh = await entries[0].render()
+entries[0].clearRenderCache();
+const fresh = await entries[0].render();
 ```
 
 This pattern is useful in framework integrations where the same entry might be referenced multiple times (e.g. in a list page and a detail page). The markdown pipeline runs only once per entry per application lifecycle.
@@ -154,14 +151,14 @@ Call `clearRenderCache()` when:
 
 ```ts
 // Invalidate a specific entry
-layer.invalidate('posts', 'my-post')
+layer.invalidate("posts", "my-post");
 
 // Or invalidate the entire collection
-layer.invalidateCollection('posts')
+layer.invalidateCollection("posts");
 
 // Then re-fetch and render
-const entries = await layer.getCollection('posts')
-const rendered = await entries[0].render()
+const entries = await layer.getCollection("posts");
+const rendered = await entries[0].render();
 ```
 
 Invalidation clears the store cache, so `getCollection` re-discovers and re-loads files. The render cache on each `ContentEntry` is separate -- new entries from a fresh `getCollection` call start with no render cache.
@@ -173,7 +170,7 @@ Invalidation clears the store cache, so `getCollection` re-discovers and re-load
 The theme CSS is bundled by LightningCSS with minification enabled:
 
 ```ts title="CSS build step"
-const css = buildCss(themeStylesEntry, { minify: true })
+const css = buildCss(themeStylesEntry, { minify: true });
 ```
 
 LightningCSS performs:
@@ -193,12 +190,12 @@ await build({
   input: themeRuntimeEntry,
   output: {
     dir: assetsDir,
-    entryFileNames: 'main.js',
-    format: 'esm',
+    entryFileNames: "main.js",
+    format: "esm",
     minify: true,
   },
-  platform: 'browser',
-})
+  platform: "browser",
+});
 ```
 
 The runtime JS is small -- it handles TOC heading highlighting, search modal initialization, and sidebar interaction. Typical output is under 10KB minified.
@@ -254,11 +251,11 @@ For a 500-page site with average 5KB per markdown file, the total in-memory foot
 Rough guidelines for build times on a modern machine (M-series Mac or comparable):
 
 | Page Count | Content Build | Full Build (with Pagefind) |
-|---|---|---|
-| 50 pages | ~1s | ~2s |
-| 200 pages | ~3s | ~5s |
-| 500 pages | ~7s | ~10s |
-| 1000 pages | ~15s | ~20s |
+| ---------- | ------------- | -------------------------- |
+| 50 pages   | ~1s           | ~2s                        |
+| 200 pages  | ~3s           | ~5s                        |
+| 500 pages  | ~7s           | ~10s                       |
+| 1000 pages | ~15s          | ~20s                       |
 
 These estimates assume average-complexity markdown with code blocks. Pages heavy in syntax highlighting (many large code blocks) will be slower due to Shiki processing.
 
@@ -272,7 +269,7 @@ The biggest time savings in CI comes from caching `node_modules`. The Shiki gram
 - uses: actions/setup-node@v4
   with:
     node-version: 24
-    cache: 'npm'
+    cache: "npm"
 ```
 
 ### Parallel steps

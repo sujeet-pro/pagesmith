@@ -46,23 +46,23 @@ Titled frame + line highlight:
 
 ```ts title="sample.ts" mark={2}
 export function one() {
-  return 2
+  return 2;
 }
 ```
 
 Collapsed boilerplate:
 
 ```ts title="collapsed.ts" collapse={1-3}
-keep()
-hidden()
-hidden()
-tail()
+keep();
+hidden();
+hidden();
+tail();
 ```
 
 Tabs (consecutive titled fences):
 
 ```ts title="TypeScript"
-export type Box = { v: number }
+export type Box = { v: number };
 ```
 
 ```py title="Python"
@@ -96,13 +96,13 @@ Big-O line in prose: sorting is often $O(n \log n)$ for $n$ keys.
 
 ## Quick reference
 
-| Feature       | Syntax hint |
-| ------------- | ----------- |
-| Bold          | `**x**` |
-| Inline math   | `$x$` |
-| Alert         | `> [!NOTE]` |
-| Code title    | fenced block with `title="..."` meta |
-| Collapse      | fenced block with `collapse={...}` meta |
+| Feature     | Syntax hint                             |
+| ----------- | --------------------------------------- |
+| Bold        | `**x**`                                 |
+| Inline math | `$x$`                                   |
+| Alert       | `> [!NOTE]`                             |
+| Code title  | fenced block with `title="..."` meta    |
+| Collapse    | fenced block with `collapse={...}` meta |
 
 ## Footnotes
 
@@ -112,4 +112,4 @@ Pagesmith keeps footnotes working across the example builds[^kitchen-sink].
 
 ---
 
-*This is the only markdown showcase page in this example. The rest of the guide explains the implementation.*
+_This is the only markdown showcase page in this example. The rest of the guide explains the implementation._

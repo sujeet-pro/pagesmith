@@ -40,7 +40,7 @@ The `theme.css` file in `src/` keeps the same shared shell, then adjusts it for 
 The `@pagesmith/site/css/standalone` import is a real CSS file that Vite resolves and bundles. The theme CSS imports it at the top:
 
 ```css title="src/theme.css"
-@import '@pagesmith/site/css/standalone';
+@import "@pagesmith/site/css/standalone";
 
 /* Custom layout styles follow... */
 ```

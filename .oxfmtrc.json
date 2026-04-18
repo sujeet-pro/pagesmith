@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "arrowParens": "always",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "insertFinalNewline": true,
+  "quoteProps": "as-needed",
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "dev/",
+    "gh-pages/",
+    "coverage/",
+    "test-results/",
+    ".temp/",
+    ".next/",
+    "out/",
+    "examples/frameworks/with-vanilla-hbs/templates/",
+    "examples/frameworks/with-vanilla-ejs/templates/"
+  ]
+}

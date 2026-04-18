@@ -38,7 +38,9 @@
   padding-bottom: 3rem;
 }
 
-@media (min-width: 110ch) {
+/* lg: tablet landscape / small laptop — TOC aside appears (2-col layout),
+   the inline mobile-TOC accordion above content disappears. */
+@media (--bp-lg) {
   :root {
     --doc-content-padding-inline: 2.5rem;
   }
@@ -68,15 +70,12 @@
   }
 }
 
-@media (min-width: 140ch) {
-  .doc-layout {
-    grid-template-columns: 30ch minmax(0, 1fr) 30ch;
-  }
-}
-
-@media (min-width: 160ch) {
+/* xl: desktop — persistent sidebar appears (3-col layout), and the entire
+   shell is centered & capped at the global max-width. */
+@media (--bp-xl) {
   .doc-layout {
     grid-template-columns: 30ch minmax(0, var(--doc-content-max-width)) 30ch;
-    justify-content: center;
+    max-width: var(--doc-content-max-width-bound);
+    margin-inline: auto;
   }
 }

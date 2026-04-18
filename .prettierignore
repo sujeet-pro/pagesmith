@@ -1,0 +1,24 @@
+# Mirror of .oxfmtrc.json `ignorePatterns`. oxfmt 0.45.0 enumerates files
+# slightly differently than earlier versions, and the `.prettierignore`
+# fallback gives us deterministic exclusion across every entry-point
+# (CLI, vp check, IDE LSP) without depending on which oxfmt version is
+# loaded. Entries here MUST stay in lockstep with the `ignorePatterns`
+# block of `.oxfmtrc.json`.
+node_modules/
+dist/
+dev/
+gh-pages/
+coverage/
+test-results/
+.temp/
+.next/
+out/
+
+# Handlebars/EJS templates use Prettier features (partial blocks,
+# decorator blocks) that oxfmt's bundled glimmer parser does not support.
+# We render them via the runtime template engines — there is no
+# value in formatting them through oxfmt.
+examples/frameworks/with-vanilla-hbs/templates/
+examples/frameworks/with-vanilla-ejs/templates/
+*.hbs
+*.ejs

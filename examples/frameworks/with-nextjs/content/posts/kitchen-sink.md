@@ -14,11 +14,11 @@ This page intentionally stacks multiple markdown features in one place so you ca
 
 ## GFM mix
 
-| Feature | Example |
-| --- | --- |
+| Feature       | Example     |
+| ------------- | ----------- |
 | Strikethrough | ~~old~~ new |
-| Task list | See below |
-| Table | This one |
+| Task list     | See below   |
+| Table         | This one    |
 
 - [x] Task done
 - [ ] Task open
@@ -42,24 +42,24 @@ This page intentionally stacks multiple markdown features in one place so you ca
 Highlighted line and collapsed boilerplate:
 
 ```ts title="server.ts" showLineNumbers mark={3} collapse={1-2}
-import { createContentLayer } from '@pagesmith/site'
-import collections from '../content.config.js'
+import { createContentLayer } from "@pagesmith/site";
+import collections from "../content.config.js";
 
-const layer = createContentLayer({ collections })
-const post = await layer.getEntry('posts', 'hello-pagesmith')
+const layer = createContentLayer({ collections });
+const post = await layer.getEntry("posts", "hello-pagesmith");
 ```
 
 Tabs from consecutive titled fences:
 
 ```ts title="content-loader.ts"
 export async function getAllPosts() {
-  return layer.getCollection('posts')
+  return layer.getCollection("posts");
 }
 ```
 
 ```tsx title="page.tsx"
 export default function Page({ html }) {
-  return <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+  return <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 ```
 
@@ -88,12 +88,12 @@ $$
 
 ## Quick reference
 
-| Feature | Syntax hint |
-| --- | --- |
-| Alert | `> [!NOTE]` |
-| Code title | fenced block with `title="..."` meta |
-| Collapse | fenced block with `collapse={...}` meta |
-| Tabs | consecutive titled fenced code blocks |
+| Feature    | Syntax hint                             |
+| ---------- | --------------------------------------- |
+| Alert      | `> [!NOTE]`                             |
+| Code title | fenced block with `title="..."` meta    |
+| Collapse   | fenced block with `collapse={...}` meta |
+| Tabs       | consecutive titled fenced code blocks   |
 
 ## Footnotes
 

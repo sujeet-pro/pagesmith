@@ -1,6 +1,6 @@
-import type { Command } from 'cac'
-import { CliError } from '@pagesmith/core/cli-kit'
-import { loadSitePreset } from '../load-preset.js'
+import type { Command } from "cac";
+import { CliError } from "@pagesmith/core/cli-kit";
+import { loadSitePreset } from "../load-preset.js";
 
 /**
  * `pagesmith-site mcp` delegates fully to the loaded preset's `mcp` (e.g.
@@ -13,13 +13,13 @@ export function registerMcpCommand(
   getRawArgv: () => string[],
 ): Command {
   return command.allowUnknownOptions().action(async () => {
-    const specifier = getPresetSpecifier()
-    const preset = await loadSitePreset(specifier)
+    const specifier = getPresetSpecifier();
+    const preset = await loadSitePreset(specifier);
     if (!preset.mcp) {
       throw new CliError(`Preset "${specifier}" does not implement mcp().`, {
-        hint: 'Use a preset that defines mcp, or use pagesmith-docs for the built-in docs workflow.',
-      })
+        hint: "Use a preset that defines mcp, or use pagesmith-docs for the built-in docs workflow.",
+      });
     }
-    await preset.mcp(getRawArgv())
-  })
+    await preset.mcp(getRawArgv());
+  });
 }

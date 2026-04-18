@@ -1,6 +1,6 @@
-import type { Command } from 'cac'
-import { CliError } from '@pagesmith/core/cli-kit'
-import { loadSitePreset } from '../load-preset.js'
+import type { Command } from "cac";
+import { CliError } from "@pagesmith/core/cli-kit";
+import { loadSitePreset } from "../load-preset.js";
 
 /**
  * `pagesmith-site init` is a thin pass-through to the loaded preset's `init`.
@@ -15,13 +15,13 @@ export function registerInitCommand(
   getRawArgv: () => string[],
 ): Command {
   return command.allowUnknownOptions().action(async () => {
-    const specifier = getPresetSpecifier()
-    const preset = await loadSitePreset(specifier)
+    const specifier = getPresetSpecifier();
+    const preset = await loadSitePreset(specifier);
     if (!preset.init) {
       throw new CliError(`Preset "${specifier}" does not implement init().`, {
-        hint: 'Use a preset that defines init, or use pagesmith-docs for the built-in docs workflow.',
-      })
+        hint: "Use a preset that defines init, or use pagesmith-docs for the built-in docs workflow.",
+      });
     }
-    await preset.init(getRawArgv())
-  })
+    await preset.init(getRawArgv());
+  });
 }

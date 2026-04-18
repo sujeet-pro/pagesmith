@@ -1,6 +1,6 @@
-import { For, Show } from 'solid-js'
-import { renderToString } from 'solid-js/web'
-import type { SsgRenderConfig } from '@pagesmith/site/vite'
+import { For, Show } from "solid-js";
+import { renderToString } from "solid-js/web";
+import type { SsgRenderConfig } from "@pagesmith/site/vite";
 import {
   type MarkdownEntry,
   type NavEntry,
@@ -17,63 +17,63 @@ import {
   menuIcon,
   closeIcon,
   searchIcon,
-} from '@pagesmith/site/ssg-utils'
-import guideCollection from 'virtual:content/guide'
-import pagesCollection from 'virtual:content/pages'
+} from "@pagesmith/site/ssg-utils";
+import guideCollection from "virtual:content/guide";
+import pagesCollection from "virtual:content/pages";
 
 type Frontmatter = {
-  title: string
-  description?: string
-  date?: string | Date
-  tags?: string[]
-  series?: string
-  seriesOrder?: number
-}
+  title: string;
+  description?: string;
+  date?: string | Date;
+  tags?: string[];
+  series?: string;
+  seriesOrder?: number;
+};
 
-type Entry = MarkdownEntry<Frontmatter>
+type Entry = MarkdownEntry<Frontmatter>;
 
-type GuideGroup = NavGroup
+type GuideGroup = NavGroup;
 
 const themeIcon =
-  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>'
+  '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>';
 
 const guideEntries = [...(guideCollection as Entry[])].sort((left, right) => {
-  const orderDelta = (left.frontmatter.seriesOrder ?? 99) - (right.frontmatter.seriesOrder ?? 99)
-  if (orderDelta !== 0) return orderDelta
-  return getTime(left.frontmatter.date) - getTime(right.frontmatter.date)
-})
+  const orderDelta = (left.frontmatter.seriesOrder ?? 99) - (right.frontmatter.seriesOrder ?? 99);
+  if (orderDelta !== 0) return orderDelta;
+  return getTime(left.frontmatter.date) - getTime(right.frontmatter.date);
+});
 
-const pageEntries = [...(pagesCollection as Entry[])]
+const pageEntries = [...(pagesCollection as Entry[])];
 
 function contentEditUrl(contentSlug: string): string {
-  return `https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-solid/content/${contentSlug}.md`
+  return `https://github.com/sujeet-pro/pagesmith/edit/main/examples/frameworks/with-solid/content/${contentSlug}.md`;
 }
 
 function escapeHtml(value: string): string {
   return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function groupBySeries(base: string): GuideGroup[] {
-  return groupByField(guideEntries, base, 'guide', 'series')
+  return groupByField(guideEntries, base, "guide", "series");
 }
 
 function SearchTrigger() {
-  return <pagefind-modal-trigger class="doc-search-trigger" />
+  return <pagefind-modal-trigger class="doc-search-trigger" />;
 }
 
 function SiteHeader(props: {
-  basePath: string
-  currentPath: string
-  firstGuideUrl: string
-  searchEnabled?: boolean
+  basePath: string;
+  currentPath: string;
+  firstGuideUrl: string;
+  searchEnabled?: boolean;
 }) {
-  const { basePath, currentPath, firstGuideUrl, searchEnabled } = props
-  const isGuide = currentPath.startsWith('/guide')
+  const { basePath, currentPath, firstGuideUrl, searchEnabled } = props;
+  const isGuide = currentPath.startsWith("/guide");
 
   return (
     <header class="doc-header">
@@ -94,10 +94,10 @@ function SiteHeader(props: {
           </a>
         </div>
         <nav class="doc-nav">
-          <a href={`${basePath}/`} class={currentPath === '/' ? 'active' : ''}>
+          <a href={`${basePath}/`} class={currentPath === "/" ? "active" : ""}>
             Home
           </a>
-          <a href={firstGuideUrl} class={isGuide ? 'active' : ''}>
+          <a href={firstGuideUrl} class={isGuide ? "active" : ""}>
             Guide
           </a>
         </nav>
@@ -174,34 +174,34 @@ function SiteHeader(props: {
         </div>
       </div>
     </header>
-  )
+  );
 }
 
 function SidebarNav(props: {
-  currentPath: string
-  basePath: string
-  isGuide: boolean
-  firstGuideUrl: string
-  guideGroups: GuideGroup[]
+  currentPath: string;
+  basePath: string;
+  isGuide: boolean;
+  firstGuideUrl: string;
+  guideGroups: GuideGroup[];
 }) {
-  const { currentPath, basePath, isGuide, firstGuideUrl, guideGroups } = props
+  const { currentPath, basePath, isGuide, firstGuideUrl, guideGroups } = props;
 
   return (
     <>
       <div class="doc-sidebar-section">
         <p class="doc-sidebar-heading">Navigation</p>
         <ul class="doc-sidebar-list">
-          <li class={`doc-sidebar-item${currentPath === '/' ? ' active' : ''}`}>
+          <li class={`doc-sidebar-item${currentPath === "/" ? " active" : ""}`}>
             <a href={`${basePath}/`} class="doc-sidebar-link">
               Home
             </a>
           </li>
-          <li class={`doc-sidebar-item${isGuide ? ' active' : ''}`}>
+          <li class={`doc-sidebar-item${isGuide ? " active" : ""}`}>
             <a href={firstGuideUrl} class="doc-sidebar-link">
               Guide
             </a>
           </li>
-          <li class={`doc-sidebar-item${currentPath === '/about' ? ' active' : ''}`}>
+          <li class={`doc-sidebar-item${currentPath === "/about" ? " active" : ""}`}>
             <a href={`${basePath}/about`} class="doc-sidebar-link">
               About
             </a>
@@ -225,7 +225,7 @@ function SidebarNav(props: {
                   <For each={group.items}>
                     {(entry) => (
                       <li
-                        class={`doc-sidebar-item${currentPath === `/guide/${entry.slug}` ? ' active' : ''}`}
+                        class={`doc-sidebar-item${currentPath === `/guide/${entry.slug}` ? " active" : ""}`}
                       >
                         <a href={entry.url} class="doc-sidebar-link">
                           {entry.title}
@@ -240,17 +240,17 @@ function SidebarNav(props: {
         </ul>
       </div>
     </>
-  )
+  );
 }
 
 function HomeBody(props: {
-  basePath: string
-  firstGuideUrl: string
-  kitchenSinkUrl: string
-  searchEnabled?: boolean
-  guideEntries: NavEntry[]
+  basePath: string;
+  firstGuideUrl: string;
+  kitchenSinkUrl: string;
+  searchEnabled?: boolean;
+  guideEntries: NavEntry[];
 }) {
-  const { basePath, firstGuideUrl, kitchenSinkUrl, searchEnabled, guideEntries } = props
+  const { basePath, firstGuideUrl, kitchenSinkUrl, searchEnabled, guideEntries } = props;
 
   return (
     <>
@@ -300,7 +300,7 @@ function HomeBody(props: {
                   </a>
                   <Show when={entry.description}>
                     <span style="color:var(--color-text-muted);font-size:var(--font-size-sm)">
-                      {' — '}
+                      {" — "}
                       {entry.description}
                     </span>
                   </Show>
@@ -382,30 +382,30 @@ function HomeBody(props: {
               </div>
             </div>
             <p class="doc-footer-copyright">
-              &copy; 2026 Pagesmith {' · '} Made with{' '}
+              &copy; 2026 Pagesmith {" · "} Made with{" "}
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
             </p>
           </footer>
         </div>
       </main>
     </>
-  )
+  );
 }
 
 function PageBody(props: {
-  title: string
-  content: string
-  headings: Array<{ depth: number; slug: string; text: string }>
-  currentPath: string
-  basePath: string
-  firstGuideUrl: string
-  searchEnabled?: boolean
-  sidebar: GuideGroup[]
-  date?: string
-  readTime?: number
-  prev?: { title: string; url: string }
-  next?: { title: string; url: string }
-  editUrl?: string
+  title: string;
+  content: string;
+  headings: Array<{ depth: number; slug: string; text: string }>;
+  currentPath: string;
+  basePath: string;
+  firstGuideUrl: string;
+  searchEnabled?: boolean;
+  sidebar: GuideGroup[];
+  date?: string;
+  readTime?: number;
+  prev?: { title: string; url: string };
+  next?: { title: string; url: string };
+  editUrl?: string;
 }) {
   const {
     title,
@@ -421,8 +421,8 @@ function PageBody(props: {
     prev,
     next,
     editUrl,
-  } = props
-  const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
+  } = props;
+  const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 
   return (
     <>
@@ -438,7 +438,7 @@ function PageBody(props: {
             <SidebarNav
               currentPath={currentPath}
               basePath={basePath}
-              isGuide={currentPath.startsWith('/guide')}
+              isGuide={currentPath.startsWith("/guide")}
               firstGuideUrl={firstGuideUrl}
               guideGroups={sidebar}
             />
@@ -470,8 +470,8 @@ function PageBody(props: {
                 <time dateTime={date}>{formatDate(date!)}</time>
                 <Show when={readTime}>
                   <>
-                    {' '}
-                    {' · '}
+                    {" "}
+                    {" · "}
                     {readTime} min read
                   </>
                 </Show>
@@ -585,7 +585,7 @@ function PageBody(props: {
               </div>
             </div>
             <p class="doc-footer-copyright">
-              &copy; 2026 Pagesmith {' · '} Made with{' '}
+              &copy; 2026 Pagesmith {" · "} Made with{" "}
               <a href="https://github.com/sujeet-pro/pagesmith">Pagesmith</a>
             </p>
           </footer>
@@ -609,26 +609,26 @@ function PageBody(props: {
         </aside>
       </div>
     </>
-  )
+  );
 }
 
 // Full HTML document as a string so the SSG plugin can write files without a second Vite
 // SSR pass for the shell. Solid JSX is only used for the inner layout fragments (`bodyHtml`).
 function renderDocument(props: {
-  title: string
-  description?: string
-  basePath: string
-  cssPath: string
-  jsPath?: string
-  searchEnabled?: boolean
-  bodyHtml: string
-  sidebarHtml?: string
+  title: string;
+  description?: string;
+  basePath: string;
+  cssPath: string;
+  jsPath?: string;
+  searchEnabled?: boolean;
+  bodyHtml: string;
+  sidebarHtml?: string;
 }) {
   const { title, description, basePath, cssPath, jsPath, searchEnabled, bodyHtml, sidebarHtml } =
-    props
-  const base = basePath.replace(/\/+$/, '')
+    props;
+  const base = basePath.replace(/\/+$/, "");
 
-  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})()`
+  const foucScript = `(function(){try{var p=JSON.parse(localStorage.getItem('pagesmith-theme'));if(p){var d=document.documentElement;if(p.colorScheme)d.className=d.className.replace(/color-scheme-\\w+/,'color-scheme-'+p.colorScheme);if(p.theme)d.className=d.className.replace(/theme-[\\w-]+/,'theme-'+p.theme);if(p.textSize&&p.textSize!=='base')d.dataset.textSize=p.textSize}}catch(e){}})()`;
 
   return `<html lang="en" class="no-js color-scheme-auto theme-paper">
   <head>
@@ -637,16 +637,16 @@ function renderDocument(props: {
     <meta name="color-scheme" content="light dark" />
     <script>${foucScript}</script>
     <title>${escapeHtml(title)}</title>
-    ${description ? `<meta name="description" content="${escapeHtml(description)}" />` : ''}
+    ${description ? `<meta name="description" content="${escapeHtml(description)}" />` : ""}
     <meta property="og:type" content="website" />
     <meta property="og:title" content="${escapeHtml(title)}" />
-    ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ''}
+    ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ""}
     <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="${base}/assets/fonts.css" />
-    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ''}
+    ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ""}
     <link rel="stylesheet" href="${cssPath}" />
     <script>document.documentElement.classList.remove('no-js')</script>
-    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ''}
+    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ""}
   </head>
   <body>
     ${bodyHtml}
@@ -659,7 +659,7 @@ function renderDocument(props: {
               <nav class="doc-sidebar-nav" aria-label="Sidebar navigation">${sidebarHtml}</nav>
             </div>
           </dialog>`
-        : ''
+        : ""
     }
     ${
       searchEnabled
@@ -671,58 +671,58 @@ function renderDocument(props: {
             </pagefind-modal-body>
             <pagefind-modal-footer><pagefind-keyboard-hints></pagefind-keyboard-hints></pagefind-modal-footer>
           </pagefind-modal>`
-        : ''
+        : ""
     }
-    ${jsPath ? `<script src="${jsPath}" defer></script>` : ''}
+    ${jsPath ? `<script src="${jsPath}" defer></script>` : ""}
   </body>
-</html>`
+</html>`;
 }
 
 function renderNotFound(config: SsgRenderConfig) {
   return renderDocument({
-    title: 'Page Not Found - Pagesmith + Solid',
-    description: 'The page you requested could not be found.',
+    title: "Page Not Found - Pagesmith + Solid",
+    description: "The page you requested could not be found.",
     basePath: config.base,
     cssPath: config.cssPath,
     jsPath: config.jsPath,
     searchEnabled: config.searchEnabled,
     bodyHtml:
       '<main class="doc-home"><section class="doc-home-section"><div class="doc-not-found-container"><p class="doc-not-found-code">404</p><h1 class="doc-not-found-title">Page Not Found</h1></div></section></main>',
-  })
+  });
 }
 
 // `pagesmithSsg` imports this module in Node to enumerate URLs, then calls `render` per URL.
 export async function getRoutes(): Promise<string[]> {
-  const routes = ['/', '/404']
-  routes.push(...guideEntries.map((entry) => routeFor(entry, 'guide')))
+  const routes = ["/", "/404"];
+  routes.push(...guideEntries.map((entry) => routeFor(entry, "guide")));
 
-  const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, 'pages') === 'about')
+  const aboutPage = pageEntries.find((entry) => leafSlug(entry.contentSlug, "pages") === "about");
   if (aboutPage) {
-    routes.push(routeFor(aboutPage, 'pages'))
+    routes.push(routeFor(aboutPage, "pages"));
   }
 
-  return routes
+  return routes;
 }
 
 // `config` carries `base`, hashed asset paths, and `searchEnabled` (true on production build,
 // false in dev middleware) so the same entry can branch on environment without custom env reads.
 export async function render(url: string, config: SsgRenderConfig): Promise<string> {
   const routePath = (() => {
-    const normalized = normalizeRoute(url, config.base)
-    return normalized !== '/' && normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
-  })()
+    const normalized = normalizeRoute(url, config.base);
+    return normalized !== "/" && normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+  })();
 
-  const guideNavEntries = buildNavEntries(guideEntries, config.base, 'guide')
-  const guideGroups = groupBySeries(config.base)
-  const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`
+  const guideNavEntries = buildNavEntries(guideEntries, config.base, "guide");
+  const guideGroups = groupBySeries(config.base);
+  const firstGuideUrl = guideNavEntries[0]?.url ?? `${config.base}/guide`;
   const kitchenSinkEntry = guideEntries.find(
-    (entry) => leafSlug(entry.contentSlug, 'guide') === 'kitchen-sink',
-  )
+    (entry) => leafSlug(entry.contentSlug, "guide") === "kitchen-sink",
+  );
   const kitchenSinkUrl = kitchenSinkEntry
-    ? `${config.base}/guide/${leafSlug(kitchenSinkEntry.contentSlug, 'guide')}`
-    : firstGuideUrl
+    ? `${config.base}/guide/${leafSlug(kitchenSinkEntry.contentSlug, "guide")}`
+    : firstGuideUrl;
 
-  if (routePath === '/') {
+  if (routePath === "/") {
     const sidebarHtml = renderToString(() => (
       <div class="doc-sidebar-section">
         <p class="doc-sidebar-heading">Navigation</p>
@@ -739,7 +739,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
           </li>
         </ul>
       </div>
-    ))
+    ));
     const bodyHtml = renderToString(() => (
       <HomeBody
         basePath={config.base}
@@ -748,46 +748,46 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         searchEnabled={config.searchEnabled}
         guideEntries={guideNavEntries}
       />
-    ))
+    ));
 
     return renderDocument({
-      title: 'Pagesmith + Solid',
+      title: "Pagesmith + Solid",
       description:
-        'A content-driven static site rendered with Solid and powered by the Pagesmith Vite content plugin.',
+        "A content-driven static site rendered with Solid and powered by the Pagesmith Vite content plugin.",
       basePath: config.base,
       cssPath: config.cssPath,
       jsPath: config.jsPath,
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
-  if (routePath === '/404') {
-    return renderNotFound(config)
+  if (routePath === "/404") {
+    return renderNotFound(config);
   }
 
-  const guideEntry = guideEntries.find((entry) => routeFor(entry, 'guide') === routePath)
+  const guideEntry = guideEntries.find((entry) => routeFor(entry, "guide") === routePath);
   if (guideEntry) {
-    const base = config.base.replace(/\/+$/, '')
-    const guideIndex = guideEntries.indexOf(guideEntry)
-    const prevGuide = guideIndex > 0 ? guideEntries[guideIndex - 1] : undefined
+    const base = config.base.replace(/\/+$/, "");
+    const guideIndex = guideEntries.indexOf(guideEntry);
+    const prevGuide = guideIndex > 0 ? guideEntries[guideIndex - 1] : undefined;
     const nextGuide =
       guideIndex >= 0 && guideIndex < guideEntries.length - 1
         ? guideEntries[guideIndex + 1]
-        : undefined
+        : undefined;
     const prevNav = prevGuide
       ? {
           title: prevGuide.frontmatter.title,
-          url: `${base}${routeFor(prevGuide, 'guide')}`,
+          url: `${base}${routeFor(prevGuide, "guide")}`,
         }
-      : undefined
+      : undefined;
     const nextNav = nextGuide
       ? {
           title: nextGuide.frontmatter.title,
-          url: `${base}${routeFor(nextGuide, 'guide')}`,
+          url: `${base}${routeFor(nextGuide, "guide")}`,
         }
-      : undefined
+      : undefined;
 
     const sidebarHtml = renderToString(() => (
       <SidebarNav
@@ -797,7 +797,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         firstGuideUrl={firstGuideUrl}
         guideGroups={guideGroups}
       />
-    ))
+    ));
     const bodyHtml = renderToString(() => (
       <PageBody
         title={guideEntry.frontmatter.title}
@@ -814,7 +814,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         next={nextNav}
         editUrl={contentEditUrl(guideEntry.contentSlug)}
       />
-    ))
+    ));
 
     return renderDocument({
       title: `${guideEntry.frontmatter.title} - Pagesmith + Solid`,
@@ -825,10 +825,10 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
-  const aboutEntry = pageEntries.find((entry) => routeFor(entry, 'pages') === routePath)
+  const aboutEntry = pageEntries.find((entry) => routeFor(entry, "pages") === routePath);
   if (aboutEntry) {
     const sidebarHtml = renderToString(() => (
       <SidebarNav
@@ -838,7 +838,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         firstGuideUrl={firstGuideUrl}
         guideGroups={guideGroups}
       />
-    ))
+    ));
     const bodyHtml = renderToString(() => (
       <PageBody
         title={aboutEntry.frontmatter.title}
@@ -852,7 +852,7 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
         date={toIso(aboutEntry.frontmatter.date)}
         editUrl={contentEditUrl(aboutEntry.contentSlug)}
       />
-    ))
+    ));
 
     return renderDocument({
       title: `${aboutEntry.frontmatter.title} - Pagesmith + Solid`,
@@ -863,8 +863,8 @@ export async function render(url: string, config: SsgRenderConfig): Promise<stri
       searchEnabled: config.searchEnabled,
       bodyHtml,
       sidebarHtml,
-    })
+    });
   }
 
-  return renderNotFound(config)
+  return renderNotFound(config);
 }

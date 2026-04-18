@@ -1,14 +1,15 @@
-import { h } from '@pagesmith/docs/jsx-runtime'
-import { Html } from '@pagesmith/docs/theme'
+import { h } from "@pagesmith/docs/jsx-runtime";
+import { Html, InstallSnippet } from "@pagesmith/docs/theme";
 import {
   buildHomeSidebarSections,
   DocFooter,
   DocHeader,
   DocSidebar,
+  DocSidebarModal,
   resolveSocialImage,
   toHtmlSite,
   type ExampleSite,
-} from './shared'
+} from "./shared";
 
 /**
  * Home layout override — maps `content/README.md` frontmatter (hero, features,
@@ -17,16 +18,16 @@ import {
  */
 
 type Props = {
-  content: string
-  frontmatter: Record<string, any>
-  headings: Array<{ depth: number; text: string; slug: string }>
-  slug: string
-  site: ExampleSite
-  [key: string]: any
-}
+  content: string;
+  frontmatter: Record<string, any>;
+  headings: Array<{ depth: number; text: string; slug: string }>;
+  slug: string;
+  site: ExampleSite;
+  [key: string]: any;
+};
 
 export default function DocHome(props: Props) {
-  const { content, frontmatter, slug, site } = props
+  const { content, frontmatter, slug, site } = props;
 
   const hero =
     frontmatter.hero ??
@@ -38,14 +39,14 @@ export default function DocHome(props: Props) {
           badge: frontmatter.badge,
           actions: frontmatter.actions,
         }
-      : undefined)
+      : undefined);
 
-  const features = frontmatter.features
-  const install = frontmatter.install
-  const packages = frontmatter.packages
-  const codeExample = frontmatter.codeExample
-  const sidebarSections = buildHomeSidebarSections(site.navItems)
-  const htmlSite = toHtmlSite(site)
+  const features = frontmatter.features;
+  const install = frontmatter.install;
+  const packages = frontmatter.packages;
+  const codeExample = frontmatter.codeExample;
+  const sidebarSections = buildHomeSidebarSections(site.navItems);
+  const htmlSite = toHtmlSite(site);
 
   return (
     <Html
@@ -84,7 +85,7 @@ export default function DocHome(props: Props) {
                   {hero.actions.map((action: any) => (
                     <a
                       href={action.link}
-                      class={`doc-hero-action doc-hero-action-${action.theme || 'brand'}`}
+                      class={`doc-hero-action doc-hero-action-${action.theme || "brand"}`}
                     >
                       {action.icon ? (
                         <span class="doc-hero-action-icon" innerHTML={action.icon} />
@@ -99,29 +100,7 @@ export default function DocHome(props: Props) {
 
           {install ? (
             <div class="doc-home-section doc-home-install">
-              <div class="doc-install-bar">
-                <div class="doc-install-header">
-                  <span class="doc-install-dot doc-install-dot-r" />
-                  <span class="doc-install-dot doc-install-dot-y" />
-                  <span class="doc-install-dot doc-install-dot-g" />
-                  <span class="doc-install-title">Terminal</span>
-                  <span style="width:36px" />
-                </div>
-                <div class="doc-install-body">
-                  <code>
-                    <span class="doc-install-prompt">$ </span>
-                    {install}
-                  </code>
-                  <button
-                    type="button"
-                    class="doc-install-copy"
-                    data-copy-text={install}
-                    onclick={`navigator.clipboard.writeText(this.dataset.copyText);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)`}
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
+              <InstallSnippet command={install} />
             </div>
           ) : null}
 
@@ -147,7 +126,7 @@ export default function DocHome(props: Props) {
               <p class="doc-home-section-label">Packages</p>
               <div class="doc-packages">
                 {packages.map((pkg: any) => {
-                  const Tag = pkg.href ? 'a' : 'div'
+                  const Tag = pkg.href ? "a" : "div";
                   return (
                     <Tag class="doc-package-card" href={pkg.href || undefined}>
                       <div class="doc-package-name">{pkg.name}</div>
@@ -161,7 +140,7 @@ export default function DocHome(props: Props) {
                         </div>
                       ) : null}
                     </Tag>
-                  )
+                  );
                 })}
               </div>
             </section>
@@ -169,17 +148,38 @@ export default function DocHome(props: Props) {
 
           {codeExample ? (
             <section class="doc-home-section">
-              <p class="doc-home-section-label">{codeExample.label || 'Quick Start'}</p>
-              <div class="doc-home-code">
-                <div class="doc-home-code-header">
-                  <span class="doc-install-dot doc-install-dot-r" />
-                  <span class="doc-install-dot doc-install-dot-y" />
-                  <span class="doc-install-dot doc-install-dot-g" />
-                  <span class="doc-home-code-title">{codeExample.title || ''}</span>
-                  <span style="width:36px" />
+              <p class="doc-home-section-label">{codeExample.label || "Quick Start"}</p>
+              <figure
+                class="ps-code-block"
+                data-ps-code-frame="terminal"
+                data-ps-code-renderer="pagesmith"
+                data-ps-code-title={codeExample.title || ""}
+                style="--ps-code-light-bg:#fff;--ps-code-dark-bg:#24292e;--ps-code-light-fg:#24292e;--ps-code-dark-fg:#e1e4e8"
+              >
+                <div class="ps-code-toolbar ps-code-toolbar--terminal">
+                  <div class="ps-code-toolbar-main ps-code-toolbar-main--terminal">
+                    <span class="ps-code-traffic-lights" aria-hidden="true">
+                      <span class="ps-code-traffic-light" />
+                      <span class="ps-code-traffic-light" />
+                      <span class="ps-code-traffic-light" />
+                    </span>
+                    {codeExample.title ? (
+                      <span class="ps-code-toolbar-chip">
+                        <span class="ps-code-toolbar-label">{codeExample.title}</span>
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
-                <pre innerHTML={codeExample.code} />
-              </div>
+                <div class="ps-code-body">
+                  <pre
+                    class="ps-code-pre doc-home-code-pre"
+                    tabindex="0"
+                    role="region"
+                    aria-label={codeExample.title || "Code example"}
+                    innerHTML={codeExample.code}
+                  />
+                </div>
+              </figure>
             </section>
           ) : null}
 
@@ -199,6 +199,15 @@ export default function DocHome(props: Props) {
           />
         </div>
       </main>
+      {site.navItems && site.navItems.length > 0 ? (
+        <DocSidebarModal
+          navItems={site.navItems}
+          currentPath={slug}
+          collapsible={site.sidebar?.collapsible}
+          navLabel="Navigation"
+          trailingSlash={site.trailingSlash}
+        />
+      ) : null}
     </Html>
-  )
+  );
 }
