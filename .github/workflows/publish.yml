@@ -31,6 +31,13 @@ concurrency:
   group: publish
   cancel-in-progress: false
 
+# Opt every job into the Node.js 24 runtime for JavaScript-based actions so
+# any third-party action that has not yet shipped a Node 24 build still runs
+# on Node 24 instead of the deprecated Node 20 runtime. All first-party
+# `actions/*` used here are already pinned to Node-24-default majors.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # ---------------------------------------------------------------------------
 # Dependency graph (mirrors `ci.yml` so quality gates stay in lockstep with
 # release validation, and runs them in parallel instead of as one giant
@@ -66,7 +73,7 @@ jobs:
       publish_site: ${{ steps.published.outputs.publish_site }}
       publish_docs: ${{ steps.published.outputs.publish_docs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
 
       # Resolve the release version from the current package line or an explicit override.
@@ -268,7 +275,7 @@ jobs:
           npm install --package-lock-only --ignore-scripts
 
       - name: Upload synced manifests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-manifests
           path: |
@@ -287,8 +294,8 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
@@ -299,14 +306,14 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
       - run: npm run build:library
       - name: Upload library dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: library-dist
           path: packages/*/dist
@@ -322,12 +329,12 @@ jobs:
     needs: build-library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
@@ -338,12 +345,12 @@ jobs:
     needs: build-library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
@@ -354,12 +361,12 @@ jobs:
     needs: build-library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
@@ -370,18 +377,18 @@ jobs:
     needs: build-library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
       - run: npm run build:docs
       - name: Upload docs gh-pages output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gh-pages-docs
           path: gh-pages
@@ -397,16 +404,16 @@ jobs:
     needs: build-docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: gh-pages-docs
           path: gh-pages
@@ -417,16 +424,16 @@ jobs:
     needs: build-docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: gh-pages-docs
           path: gh-pages
@@ -452,14 +459,14 @@ jobs:
     outputs:
       all_published: ${{ steps.final.outputs.all_published }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - uses: ./.github/actions/setup
         with:
           registry-url: https://registry.npmjs.org
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
@@ -530,10 +537,10 @@ jobs:
     if: needs.publish.outputs.all_published == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: release-manifests
       - name: Commit and tag

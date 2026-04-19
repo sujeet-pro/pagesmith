@@ -11,6 +11,13 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Opt every job into the Node.js 24 runtime for JavaScript-based actions so
+# any third-party action that has not yet shipped a Node 24 build still runs
+# on Node 24 instead of the deprecated Node 20 runtime. All first-party
+# `actions/*` used here are already pinned to Node-24-default majors.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # ---------------------------------------------------------------------------
 # Dependency graph (parallelism maximised, jobs run independently so a
 # failure in one branch never cancels siblings — we want to surface every
@@ -54,7 +61,7 @@ jobs:
     name: Validate diagrams
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - run: npm run validate:diagrams
 
@@ -62,11 +69,11 @@ jobs:
     name: Build library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - run: npm run build:library
       - name: Upload library dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: library-dist
           path: packages/*/dist
@@ -83,9 +90,9 @@ jobs:
     needs: build-library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
@@ -96,9 +103,9 @@ jobs:
     needs: build-library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
@@ -109,15 +116,15 @@ jobs:
     needs: build-library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
       - run: npm run build:docs
       - name: Upload docs gh-pages output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gh-pages-docs
           path: gh-pages
@@ -143,9 +150,9 @@ jobs:
           - { name: with-vanilla-ejs, out: gh-pages/examples/vanilla-ejs }
           - { name: with-vanilla-hbs, out: gh-pages/examples/vanilla-hbs }
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: library-dist
           path: packages
@@ -167,7 +174,7 @@ jobs:
           done
           exit $missing
       - name: Upload example gh-pages output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gh-pages-example-${{ matrix.example.name }}
           path: gh-pages
@@ -183,15 +190,15 @@ jobs:
     needs: build-docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: gh-pages-docs
           path: gh-pages
       - name: Cache Playwright browsers
         id: pw-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -211,15 +218,15 @@ jobs:
     needs: build-docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: gh-pages-docs
           path: gh-pages
       - name: Cache Playwright browsers
         id: pw-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -238,15 +245,15 @@ jobs:
     needs: [build-docs, build-examples]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: gh-pages-docs
           path: gh-pages
       # Pull every example artifact so the static scan covers every page
       # the deploy job would publish, not just the docs site.
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: gh-pages-example-*
           merge-multiple: true
@@ -302,7 +309,7 @@ jobs:
     needs: ci-success
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: gh-pages-*
           merge-multiple: true
