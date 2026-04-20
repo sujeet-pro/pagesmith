@@ -272,8 +272,20 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
 | `sitemap`                   | `boolean`                      | `true`                                   | Generate sitemap.xml (when origin is set)                                                                                                                                                                                                                     |
 | `theme.socialImage`         | `string`                       | auto-detect                              | Default OG image for social sharing                                                                                                                                                                                                                           |
 | `markdown`                  | `MarkdownConfig`               | —                                        | JSON-safe markdown config (`allowDangerousHtml`, `math`, and `shiki`)                                                                                                                                                                                         |
-| `server.host`               | `string`                       | `'127.0.0.1'`                            | Interface for dev/preview binding. Use `0.0.0.0` only when you intentionally want LAN exposure.                                                                                                                                                               |
+| `server`                    | `DocsServerConfig`             | see below                                | Dev/preview server settings (see [Server](#server)).                                                                                                                                                                                                          |
 | `packages`                  | `Record<string, { label }>`    | —                                        | Multi-package section labels                                                                                                                                                                                                                                  |
+
+#### Server
+
+A single `server` block configures both `pagesmith-docs dev` and `pagesmith-docs preview`. Every field is optional.
+
+| Field         | Type                                                   | Default       | Description                                                                                                                                                                                           |
+| ------------- | ------------------------------------------------------ | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `host`        | `string`                                               | `'127.0.0.1'` | Interface to bind to. Use `0.0.0.0` only when you intentionally want LAN exposure.                                                                                                                    |
+| `devPort`     | `number \| 'auto'`                                     | `3000`        | Port for `pagesmith-docs dev`. Pass a number, or `'auto'` to scan upward from `4000` for the first available port. Any string that is not `'auto'` and not a valid port number throws a config error. |
+| `previewPort` | `number \| 'auto'`                                     | `4000`        | Port for `pagesmith-docs preview`. Pass a number, or `'auto'` to scan upward from `4000` for the first available port.                                                                                |
+| `strictPort`  | `boolean`                                              | `false`       | When the resolved port is a number and is already in use, fail instead of scanning. Ignored when the port is `'auto'`.                                                                                |
+| `logLevel`    | `'silent' \| 'error' \| 'warn' \| 'info' \| 'verbose'` | `'info'`      | Log level for the dev and preview servers. CLI `--log-level` overrides this value at startup.                                                                                                         |
 
 ### Example Configuration
 
@@ -326,8 +338,10 @@ Pages not listed in `items` appear after listed pages. When `series` is present,
 Start a development server with live reload. Uses incremental rebuilds -- content changes trigger a fast content-only rebuild, while config or theme changes trigger a full rebuild. Shows a startup summary with page/section counts and clickable section URLs.
 
 ```bash
-pagesmith-docs dev [--port N] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
+pagesmith-docs dev [--port N|auto] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
 ```
+
+`--port` accepts a number or the literal `auto` (scan upward from 4000 for the first free port). When omitted, the resolved `server.devPort` is used (default `3000`). `--log-level` defaults to `server.logLevel` (default `info`).
 
 ### `pagesmith-docs build`
 
@@ -342,8 +356,10 @@ pagesmith-docs build [--out-dir path] [--base-path path] [--config path]
 Preview the built site locally. The dev and preview servers bind to `127.0.0.1` by default; set `server.host` if you intentionally want a different interface.
 
 ```bash
-pagesmith-docs preview [--port N] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
+pagesmith-docs preview [--port N|auto] [--open] [--config path] [--out-dir path] [--base-path path] [--log-level level]
 ```
+
+`--port` accepts a number or the literal `auto` (scan upward from 4000 for the first free port). When omitted, the resolved `server.previewPort` is used (default `4000`). `--log-level` defaults to `server.logLevel` (default `info`).
 
 ### `pagesmith-docs mcp`
 

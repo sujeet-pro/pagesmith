@@ -25,7 +25,7 @@ npm add @pagesmith/docs
 
 - Use `@pagesmith/docs` for convention-based docs sites.
 - Keep docs structure in your content directory (defaults to `docs/` if it exists, otherwise `content/`) with `README.md` as home.
-- Configure **`home`**, **`server`** (dev/preview ports; **preview default port 4000**, not Vite’s 4173), **`icon`**, **`maintainer`**, **`footerLinks`**, **`footerText`**, **`copyright`**, **`editLink`**, and **`lastUpdated`** in `pagesmith.config.json5` as needed.
+- Configure **`home`**, **`server`** (`host`, `devPort` default **3000**, `previewPort` default **4000** — both accept the literal `"auto"` to scan upward from 4000 for the first available port, `strictPort` honored only when the resolved port is a number, `logLevel` default **`info`**), **`icon`**, **`maintainer`**, **`footerLinks`**, **`footerText`**, **`copyright`**, **`editLink`**, and **`lastUpdated`** in `pagesmith.config.json5` as needed.
 - Use `meta.json5` and frontmatter for ordering and labels, not hardcoded nav lists.
 - Keep search configuration inside `pagesmith.config.json5`; Pagefind is built in, and layout overrides should scope `data-pagefind-body` to the content-only wrapper rather than the full shell.
 - Use `theme.layouts` keys (`home`, `page`, `listing`, `notFound`) for layout overrides.

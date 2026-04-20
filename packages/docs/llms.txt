@@ -50,7 +50,7 @@ npm add @pagesmith/docs
 
 ## Config and paths (`pagesmith.config.json5`)
 
-- Top-level fields include **`home`**, **`server`** (e.g. `devPort`, **`previewPort`** default **4000**, `strictPort`), **`icon`**, **`maintainer`**, **`footerLinks`**, **`footerText`**, **`copyright`**, **`editLink`**, **`lastUpdated`**, plus `contentDir`, `outDir`, `basePath`, `theme`, etc.
+- Top-level fields include **`home`**, **`server`** (`host`, `devPort` default **3000**, `previewPort` default **4000** — both accept the literal **`"auto"`** to scan upward from 4000, `strictPort`, `logLevel` default **`info`**), **`icon`**, **`maintainer`**, **`footerLinks`**, **`footerText`**, **`copyright`**, **`editLink`**, **`lastUpdated`**, plus `contentDir`, `outDir`, `basePath`, `theme`, etc.
 - **`contentDir`**: defaults to **`docs/`** if that directory exists in the project root, otherwise **`content/`**.
 - For GitHub repos, bootstrap flows should prefer GitHub Pages defaults: `basePath` as `/<repo-name>` and `origin` from `https://<owner>.github.io`, following redirects when possible.
 - When overriding layouts with search enabled, keep `data-pagefind-body` on the content-only wrapper (page article or home body), not the full shell.

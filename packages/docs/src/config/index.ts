@@ -26,6 +26,7 @@ export type {
   DocsLogLevel,
   DocsBuildOptions,
   DocsDevOptions,
+  DocsServerPort,
   DocsUserConfig,
   FooterLink,
   FooterLinkGroup,

@@ -98,7 +98,55 @@ describe("resolveDocsConfig", () => {
     expect(resolved.search.showImages).toBe(false);
     expect(resolved.search.showSubResults).toBe(true);
     expect(resolved.sidebar.collapsible).toBe(true);
-    expect(resolved.server.host).toBe("127.0.0.1");
+    expect(resolved.server).toEqual({
+      host: "127.0.0.1",
+      devPort: 3000,
+      previewPort: 4000,
+      strictPort: false,
+      logLevel: "info",
+    });
+  });
+
+  it("preserves user-supplied server fields", () => {
+    const configPath = setupTmpConfig(
+      "{ server: { host: '0.0.0.0', devPort: 5000, previewPort: 5050, strictPort: true, logLevel: 'verbose' } }",
+    );
+    const resolved = resolveDocsConfig(configPath);
+
+    expect(resolved.server).toEqual({
+      host: "0.0.0.0",
+      devPort: 5000,
+      previewPort: 5050,
+      strictPort: true,
+      logLevel: "verbose",
+    });
+  });
+
+  it("accepts the literal 'auto' for devPort and previewPort", () => {
+    const configPath = setupTmpConfig("{ server: { devPort: 'auto', previewPort: 'auto' } }");
+    const resolved = resolveDocsConfig(configPath);
+
+    expect(resolved.server.devPort).toBe("auto");
+    expect(resolved.server.previewPort).toBe("auto");
+  });
+
+  it("throws when devPort is a string that is not a number and not 'auto'", () => {
+    const configPath = setupTmpConfig("{ server: { devPort: 'random' } }");
+    expect(() => resolveDocsConfig(configPath)).toThrow(/server\.devPort.*"auto".*1.*65535/);
+  });
+
+  it("throws when previewPort is out of range", () => {
+    const configPath = setupTmpConfig("{ server: { previewPort: 70000 } }");
+    expect(() => resolveDocsConfig(configPath)).toThrow(/server\.previewPort.*1.*65535/);
+  });
+
+  it("defaults logLevel to 'info' and accepts overrides", () => {
+    const defaultPath = setupTmpConfig("{}");
+    expect(resolveDocsConfig(defaultPath).server.logLevel).toBe("info");
+
+    rmSync(tmpDir, { recursive: true, force: true });
+    const overridePath = setupTmpConfig("{ server: { logLevel: 'warn' } }");
+    expect(resolveDocsConfig(overridePath).server.logLevel).toBe("warn");
   });
 
   it("uses docs and gh-pages defaults when the config file is missing", () => {
@@ -314,7 +362,13 @@ describe("validateConfig", () => {
       appleTouchIcon: false,
       lastUpdated: true,
       sitemap: true,
-      server: { host: "127.0.0.1", devPort: 3000, previewPort: 4000, strictPort: false },
+      server: {
+        host: "127.0.0.1",
+        devPort: 3000,
+        previewPort: 4000,
+        strictPort: false,
+        logLevel: "info",
+      },
       assets: new Map(),
       ...overrides,
     };

@@ -4,7 +4,47 @@ import { tmpdir } from "os";
 import JSON5 from "json5";
 import { basename, dirname, join, resolve } from "path";
 import { loadPagesmithConfig } from "@pagesmith/core/cli-kit";
-import type { DocsUserConfig, GitOriginInfo, ResolvedDocsConfig } from "./types";
+import type {
+  DocsLogLevel,
+  DocsServerPort,
+  DocsUserConfig,
+  GitOriginInfo,
+  ResolvedDocsConfig,
+} from "./types";
+
+const DEFAULT_SERVER_HOST = "127.0.0.1";
+const DEFAULT_DEV_PORT = 3000;
+const DEFAULT_PREVIEW_PORT = 4000;
+const DEFAULT_SERVER_LOG_LEVEL: DocsLogLevel = "info";
+
+/**
+ * Validate and normalize a port value coming from user config. Accepts
+ * `"auto"`, a number, or a numeric string and rejects everything else with a
+ * helpful message that points at the offending config field.
+ */
+function normalizePort(value: unknown, field: string): DocsServerPort {
+  if (value === "auto") return "auto";
+  if (typeof value === "number") {
+    if (!Number.isFinite(value) || !Number.isInteger(value) || value < 1 || value > 65535) {
+      throw new Error(
+        `${field} must be "auto" or an integer between 1 and 65535 (got ${JSON.stringify(value)}).`,
+      );
+    }
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isFinite(parsed) && String(parsed) === value && parsed >= 1 && parsed <= 65535) {
+      return parsed;
+    }
+    throw new Error(
+      `${field} must be "auto" or an integer between 1 and 65535 (got ${JSON.stringify(value)}).`,
+    );
+  }
+  throw new Error(
+    `${field} must be "auto" or an integer between 1 and 65535 (got ${JSON.stringify(value)}).`,
+  );
+}
 
 export function defineDocsConfig<T extends DocsUserConfig>(config: T): T {
   return config;
@@ -425,10 +465,17 @@ function resolveDocsConfigFromUser(
       : resolve(rootDir, contentDir, "home.json5"),
     packages: userConfig.packages,
     server: {
-      host: userConfig.server?.host ?? "127.0.0.1",
-      devPort: userConfig.server?.devPort ?? 3000,
-      previewPort: userConfig.server?.previewPort ?? 4000,
+      host: userConfig.server?.host ?? DEFAULT_SERVER_HOST,
+      devPort:
+        userConfig.server?.devPort !== undefined
+          ? normalizePort(userConfig.server.devPort, "server.devPort")
+          : DEFAULT_DEV_PORT,
+      previewPort:
+        userConfig.server?.previewPort !== undefined
+          ? normalizePort(userConfig.server.previewPort, "server.previewPort")
+          : DEFAULT_PREVIEW_PORT,
       strictPort: userConfig.server?.strictPort ?? false,
+      logLevel: userConfig.server?.logLevel ?? DEFAULT_SERVER_LOG_LEVEL,
     },
     assets,
     _userConfig: userConfig,

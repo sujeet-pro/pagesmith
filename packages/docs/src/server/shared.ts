@@ -5,7 +5,15 @@ import { extname, join, resolve, sep } from "path";
 import type { ServerResponse } from "http";
 import { createLogger as createCoreLogger, type Logger } from "@pagesmith/core/log";
 import type { SiteModel } from "../content";
-import type { DocsLogLevel, ResolvedDocsConfig } from "../config";
+import type { DocsLogLevel, DocsServerPort, ResolvedDocsConfig } from "../config";
+
+/**
+ * Lower bound for `port: "auto"` resolution. Both the dev and preview servers
+ * scan upward from this number for the first available port.
+ */
+export const AUTO_PORT_BASE = 4000;
+const AUTO_PORT_MAX_ATTEMPTS = 100;
+const STRICT_FALLBACK_MAX_ATTEMPTS = 20;
 
 const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -207,12 +215,54 @@ export async function findAvailablePort(
       `Port ${startPort} is already in use (${label}). Disable strictPort to auto-find an available port.`,
     );
   }
-  const maxAttempts = 20;
-  for (let port = startPort + 1; port < startPort + maxAttempts; port++) {
+  for (
+    let port = startPort + 1;
+    port < startPort + STRICT_FALLBACK_MAX_ATTEMPTS && port <= 65535;
+    port++
+  ) {
     if (await isPortAvailable(port)) {
-      logger.info(`  Port ${startPort} in use, using ${port}`);
+      logger.info(`  Port ${startPort} in use, using ${port} (${label})`);
       return port;
     }
   }
-  throw new Error(`No available port found in range ${startPort}–${startPort + maxAttempts - 1}`);
+  throw new Error(
+    `No available port found in range ${startPort}–${startPort + STRICT_FALLBACK_MAX_ATTEMPTS - 1} for ${label}`,
+  );
+}
+
+/**
+ * Scan upward from `startPort` and return the first port whose bind succeeds.
+ * Used when `port: "auto"` is in effect — `strictPort` does not apply.
+ */
+export async function findFirstAvailablePort(
+  startPort: number,
+  label: string,
+  logger: ReturnType<typeof createLogger> = createLogger("warn"),
+): Promise<number> {
+  for (let port = startPort; port < startPort + AUTO_PORT_MAX_ATTEMPTS && port <= 65535; port++) {
+    if (await isPortAvailable(port)) {
+      logger.info(`  Auto-selected port ${port} for ${label}`);
+      return port;
+    }
+  }
+  throw new Error(
+    `No available port found in range ${startPort}–${startPort + AUTO_PORT_MAX_ATTEMPTS - 1} for ${label}`,
+  );
+}
+
+/**
+ * Resolve a `DocsServerPort` (number or `"auto"`) to a concrete bindable port.
+ * `"auto"` always scans upward from {@link AUTO_PORT_BASE}; numeric ports honor
+ * `strictPort` (throw vs scan upward).
+ */
+export async function resolveServerPort(
+  port: DocsServerPort,
+  strictPort: boolean,
+  label: string,
+  logger: ReturnType<typeof createLogger> = createLogger("warn"),
+): Promise<number> {
+  if (port === "auto") {
+    return findFirstAvailablePort(AUTO_PORT_BASE, label, logger);
+  }
+  return findAvailablePort(port, strictPort, label, logger);
 }

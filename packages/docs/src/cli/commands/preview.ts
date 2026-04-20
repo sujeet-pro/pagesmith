@@ -14,11 +14,17 @@ type PreviewOpts = {
 
 export function registerPreviewCommand(command: Command): Command {
   return withConfigFlag(command)
-    .option("-p, --port <number>", "Server port (default: 4000)")
+    .option(
+      "-p, --port <number|auto>",
+      'Server port. Use a number, or "auto" to scan upward from 4000 for the first free port (default: server.previewPort, normally 4000).',
+    )
     .option("--open", "Open browser on server start")
     .option("--out-dir <path>", "Output directory (overrides config)")
     .option("--base-path <path>", "Base URL path prefix (overrides config)")
-    .option("--log-level <level>", "silent|error|warn|info|verbose (default: warn)")
+    .option(
+      "--log-level <level>",
+      "silent|error|warn|info|verbose (default: server.logLevel, normally info)",
+    )
     .action(async (options: PreviewOpts) => {
       const { configPath } = findPagesmithConfig({ explicitPath: options.config });
       await preview({

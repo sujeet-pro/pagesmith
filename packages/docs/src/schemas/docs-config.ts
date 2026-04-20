@@ -96,12 +96,44 @@ export const DocsHomeConfigSchema = z.object({
 
 export type DocsHomeConfig = z.infer<typeof DocsHomeConfigSchema>;
 
+export const DocsLogLevelSchema = z.enum(["silent", "error", "warn", "info", "verbose"]);
+
+export type DocsLogLevelValue = z.infer<typeof DocsLogLevelSchema>;
+
+/**
+ * Port value accepted in `server.devPort` and `server.previewPort`: either a
+ * positive integer (1-65535) or the literal `"auto"`, which makes the
+ * dev/preview server scan upward from 4000 for the first available port at
+ * startup.
+ */
+export const DocsServerPortSchema = z.union([
+  z.number().int().min(1).max(65535),
+  z.literal("auto"),
+]);
+
+export type DocsServerPort = z.infer<typeof DocsServerPortSchema>;
+
 export const DocsServerConfigSchema = z
   .object({
-    host: z.string().optional(),
-    devPort: z.number().optional(),
-    previewPort: z.number().optional(),
-    strictPort: z.boolean().optional(),
+    host: z
+      .string()
+      .optional()
+      .describe("Interface to bind the dev and preview servers to. Defaults to '127.0.0.1'."),
+    devPort: DocsServerPortSchema.optional().describe(
+      "Port for `pagesmith-docs dev`. Pass a number or the literal 'auto' to scan upward from 4000 for the first available port. Defaults to 3000.",
+    ),
+    previewPort: DocsServerPortSchema.optional().describe(
+      "Port for `pagesmith-docs preview`. Pass a number or the literal 'auto' to scan upward from 4000 for the first available port. Defaults to 4000.",
+    ),
+    strictPort: z
+      .boolean()
+      .optional()
+      .describe(
+        "When true and the resolved port is a number, fail instead of scanning for the next available port. Ignored when the port is 'auto'. Defaults to false.",
+      ),
+    logLevel: DocsLogLevelSchema.optional().describe(
+      "Log level for the dev and preview servers. Defaults to 'info'.",
+    ),
   })
   .strict();
 

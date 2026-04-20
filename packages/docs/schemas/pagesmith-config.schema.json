@@ -374,16 +374,45 @@
       "type": "object",
       "properties": {
         "host": {
+          "description": "Interface to bind the dev and preview servers to. Defaults to '127.0.0.1'.",
           "type": "string"
         },
         "devPort": {
-          "type": "number"
+          "description": "Port for `pagesmith-docs dev`. Pass a number or the literal 'auto' to scan upward from 4000 for the first available port. Defaults to 3000.",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            {
+              "type": "string",
+              "const": "auto"
+            }
+          ]
         },
         "previewPort": {
-          "type": "number"
+          "description": "Port for `pagesmith-docs preview`. Pass a number or the literal 'auto' to scan upward from 4000 for the first available port. Defaults to 4000.",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            {
+              "type": "string",
+              "const": "auto"
+            }
+          ]
         },
         "strictPort": {
+          "description": "When true and the resolved port is a number, fail instead of scanning for the next available port. Ignored when the port is 'auto'. Defaults to false.",
           "type": "boolean"
+        },
+        "logLevel": {
+          "description": "Log level for the dev and preview servers. Defaults to 'info'.",
+          "type": "string",
+          "enum": ["silent", "error", "warn", "info", "verbose"]
         }
       },
       "additionalProperties": false

@@ -27,10 +27,16 @@ describe("parsePort", () => {
     expect(parsePort("4000")).toBe(4000);
   });
 
+  it("accepts the literal 'auto' (case-insensitive)", () => {
+    expect(parsePort("auto")).toBe("auto");
+    expect(parsePort("AUTO")).toBe("auto");
+    expect(parsePort("Auto")).toBe("auto");
+  });
+
   it("rejects out-of-range or invalid values", () => {
     expect(() => parsePort("0")).toThrow(/between 1 and 65535/);
     expect(() => parsePort("65536")).toThrow(/between 1 and 65535/);
-    expect(() => parsePort("abc")).toThrow(/--port must be a valid number/);
+    expect(() => parsePort("abc")).toThrow(/valid number or "auto"/);
   });
 });
 

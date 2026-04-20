@@ -15,9 +15,9 @@ import { buildSiteModel } from "./navigation.js";
 import { build, rebuildContent } from "./build.js";
 import {
   createLogger,
-  findAvailablePort,
   logStartupSummary,
   openBrowser,
+  resolveServerPort,
   resolveStaticRequest,
   serveFile,
 } from "./server/shared";
@@ -35,7 +35,6 @@ async function loadSiteModel(config: ResolvedDocsConfig): Promise<SiteModel> {
 
 export async function startDev(options: DocsDevOptions = {}): Promise<void> {
   const configPath = resolve(options.configPath ?? join(process.cwd(), "pagesmith.config.json5"));
-  const logger = createLogger(options.logLevel ?? "warn");
   const buildOverrides: { configPath: string; outDir?: string; basePath?: string } = {
     configPath,
     outDir: options.outDir,
@@ -47,9 +46,13 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
     outDir: options.outDir,
     basePath: options.basePath,
   });
-  const requestedPort = options.port ?? config.server.devPort;
-  const strictPort = options.port !== undefined;
-  const port = await findAvailablePort(requestedPort, strictPort, "dev", logger);
+  const serverConfig = config.server;
+  const logger = createLogger(options.logLevel ?? serverConfig.logLevel);
+  // CLI port wins. A numeric CLI port forces strictPort so the user gets a
+  // clear failure if their requested port is busy; "auto" never throws.
+  const requestedPort = options.port ?? serverConfig.devPort;
+  const strictPort = options.port === undefined ? serverConfig.strictPort : options.port !== "auto";
+  const port = await resolveServerPort(requestedPort, strictPort, "dev", logger);
   const themeRoot = getThemeRoot();
   const watchTargets = [config.contentDir, configPath, themeRoot];
   if (existsSync(config.publicDir)) {
@@ -177,17 +180,18 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
     logger.warn(`  WS server error: ${error instanceof Error ? error.message : String(error)}`),
   );
 
-  const devUrl = `http://${getDisplayHost(config.server.host)}:${port}${base || ""}`;
+  const devUrl = `http://${getDisplayHost(serverConfig.host)}:${port}${base || ""}`;
 
   // Load site model for startup summary
   const model = await loadSiteModel(config);
 
-  server.listen(port, config.server.host, () => {
+  const shouldOpen = options.open ?? false;
+  server.listen(port, serverConfig.host, () => {
     logger.info("");
     logger.info(`  Docs dev: ${devUrl}`);
     logger.info("");
     logStartupSummary(config, model, devUrl, logger);
-    if (options.open) openBrowser(devUrl);
+    if (shouldOpen) openBrowser(devUrl);
   });
   server.on("error", (error) =>
     logger.error(`  Dev server error: ${error instanceof Error ? error.message : String(error)}`),
@@ -232,11 +236,12 @@ export async function startDev(options: DocsDevOptions = {}): Promise<void> {
 }
 
 export async function preview(options: DocsDevOptions = {}): Promise<void> {
-  const logger = createLogger(options.logLevel ?? "warn");
   const config = await resolveDocsConfigAsync(options.configPath, {
     outDir: options.outDir,
     basePath: options.basePath,
   });
+  const serverConfig = config.server;
+  const logger = createLogger(options.logLevel ?? serverConfig.logLevel);
 
   const { validateConfig: validate, reportConfigIssues: report } = await import("./config.js");
   const issues = validate(config);
@@ -247,9 +252,9 @@ export async function preview(options: DocsDevOptions = {}): Promise<void> {
     }
   }
 
-  const requestedPort = options.port ?? config.server.previewPort;
-  const strictPort = options.port !== undefined;
-  const port = await findAvailablePort(requestedPort, strictPort, "preview", logger);
+  const requestedPort = options.port ?? serverConfig.previewPort;
+  const strictPort = options.port === undefined ? serverConfig.strictPort : options.port !== "auto";
+  const port = await resolveServerPort(requestedPort, strictPort, "preview", logger);
   const previewBase = config.basePath.replace(/\/+$/, "");
 
   function logRequest(status: number, method: string, pathname: string): void {
@@ -293,17 +298,18 @@ export async function preview(options: DocsDevOptions = {}): Promise<void> {
     }
   });
 
-  const previewUrl = `http://${getDisplayHost(config.server.host)}:${port}${previewBase || ""}`;
+  const previewUrl = `http://${getDisplayHost(serverConfig.host)}:${port}${previewBase || ""}`;
 
   // Load site model for startup summary
   const model = await loadSiteModel(config);
 
-  server.listen(port, config.server.host, () => {
+  const shouldOpen = options.open ?? false;
+  server.listen(port, serverConfig.host, () => {
     logger.info("");
     logger.info(`  Docs preview: ${previewUrl}`);
     logger.info("");
     logStartupSummary(config, model, previewUrl, logger);
-    if (options.open) openBrowser(previewUrl);
+    if (shouldOpen) openBrowser(previewUrl);
   });
   server.on("error", (error) =>
     logger.error(

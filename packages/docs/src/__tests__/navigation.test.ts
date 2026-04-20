@@ -49,7 +49,13 @@ const mockConfig: ResolvedDocsConfig = {
   appleTouchIcon: false,
   lastUpdated: true,
   sitemap: true,
-  server: { host: "127.0.0.1", devPort: 3000, previewPort: 4000, strictPort: false },
+  server: {
+    host: "127.0.0.1",
+    devPort: 3000,
+    previewPort: 4000,
+    strictPort: false,
+    logLevel: "info",
+  },
   assets: new Map(),
 };
 

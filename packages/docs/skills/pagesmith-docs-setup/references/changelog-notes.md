@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added `server.logLevel` (default `'info'`) so dev and preview server log levels can be set in `pagesmith.config.json5`. The CLI `--log-level` flag continues to override this value at startup, and now also defaults to `info` instead of `warn`.
+- `server.devPort` and `server.previewPort` now also accept the literal `'auto'`, which scans upward from `4000` for the first available port at server startup. The CLI `--port` flag accepts the same value (`--port auto`); a numeric `--port` forces `strictPort` for that run, while `--port auto` always scans. Defaults remain `3000` for dev and `4000` for preview.
 - Added a dedicated `skills/setup-docs.md` bootstrap/retrofit prompt for AI agents working in existing repositories.
 - Added version-matched JSON schemas under `schemas/` for `pagesmith.config.json5`, `meta.json5`, and docs frontmatter, plus hosted copies on the docs site.
 - `pagesmith-docs init` now writes a config `$schema` pointer to the installed docs package schema and safely backfills missing scaffold fields when rerun against an existing config file.

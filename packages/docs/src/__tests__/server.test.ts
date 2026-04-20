@@ -4,9 +4,12 @@ import { createServer } from "net";
 import { join } from "path";
 import { tmpdir } from "os";
 import {
+  AUTO_PORT_BASE,
   createLogger,
   findAvailablePort,
+  findFirstAvailablePort,
   isPortAvailable,
+  resolveServerPort,
   resolveStaticRequest,
 } from "../server/shared.js";
 
@@ -48,6 +51,34 @@ describe("server shared port helpers", () => {
     const nextPort = await findAvailablePort(usedPort, false, "dev");
     expect(nextPort).toBeGreaterThan(usedPort);
     expect(await isPortAvailable(nextPort)).toBe(true);
+  });
+
+  it("scans upward from the auto base when port is 'auto'", async () => {
+    const port = await resolveServerPort("auto", false, "dev");
+    expect(port).toBeGreaterThanOrEqual(AUTO_PORT_BASE);
+    expect(port).toBeLessThan(AUTO_PORT_BASE + 100);
+    expect(await isPortAvailable(port)).toBe(true);
+  });
+
+  it("findFirstAvailablePort skips occupied ports", async () => {
+    const occupied = createServer();
+    await new Promise<void>((resolve) => occupied.listen(0, resolve));
+    servers.push(occupied);
+    const address = occupied.address();
+    const usedPort = typeof address === "object" && address ? address.port : 0;
+
+    const next = await findFirstAvailablePort(usedPort, "dev");
+    expect(next).toBeGreaterThan(usedPort);
+  });
+
+  it("resolveServerPort throws when strictPort is set and the port is busy", async () => {
+    const occupied = createServer();
+    await new Promise<void>((resolve) => occupied.listen(0, resolve));
+    servers.push(occupied);
+    const address = occupied.address();
+    const usedPort = typeof address === "object" && address ? address.port : 0;
+
+    await expect(resolveServerPort(usedPort, true, "dev")).rejects.toThrow(/already in use/);
   });
 });
 

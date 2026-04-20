@@ -94,9 +94,14 @@ type DocsUserConfig = {
   assets?: Record<string, string[]>;
   server?: {
     host?: string;
-    devPort?: number;
-    previewPort?: number;
+    /** Number, or 'auto' to scan upward from 4000 for the first free port. */
+    devPort?: number | "auto";
+    /** Number, or 'auto' to scan upward from 4000 for the first free port. */
+    previewPort?: number | "auto";
+    /** Honored only when the resolved port is a number. */
     strictPort?: boolean;
+    /** Defaults to 'info'. */
+    logLevel?: "silent" | "error" | "warn" | "info" | "verbose";
   };
 };
 ```
@@ -618,8 +623,31 @@ Here is a complete `pagesmith.config.json5` showing all available fields:
     core: { label: "@pagesmith/core" },
     docs: { label: "@pagesmith/docs" },
   },
+
+  // Server settings shared by `pagesmith-docs dev` and `pagesmith-docs preview`.
+  server: {
+    host: "127.0.0.1",
+    devPort: 3000, // number or 'auto' (scan upward from 4000)
+    previewPort: 4000,
+    strictPort: false,
+    logLevel: "info", // 'silent' | 'error' | 'warn' | 'info' | 'verbose'
+  },
 }
 ```
+
+## Server
+
+A single `server` block configures both `pagesmith-docs dev` and `pagesmith-docs preview`. Every field is optional.
+
+| Field         | Type                                                   | Default       | Description                                                                                                                                                                                                                  |
+| ------------- | ------------------------------------------------------ | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `host`        | `string`                                               | `'127.0.0.1'` | Interface to bind the dev and preview servers to. Use `0.0.0.0` only when you intentionally want LAN exposure.                                                                                                               |
+| `devPort`     | `number \| 'auto'`                                     | `3000`        | Port for `pagesmith-docs dev`. Pass a number, or the literal `'auto'` to scan upward from `4000` for the first available port at startup. Any string that is not `'auto'` and not a valid port number throws a config error. |
+| `previewPort` | `number \| 'auto'`                                     | `4000`        | Port for `pagesmith-docs preview`. Pass a number, or `'auto'` to scan upward from `4000` for the first available port.                                                                                                       |
+| `strictPort`  | `boolean`                                              | `false`       | When the resolved port is a number and is already in use, fail instead of scanning for the next available port. Ignored when the port is `'auto'`.                                                                           |
+| `logLevel`    | `'silent' \| 'error' \| 'warn' \| 'info' \| 'verbose'` | `'info'`      | Log level for the dev and preview servers. The CLI `--log-level` flag overrides this value.                                                                                                                                  |
+
+The `--port` CLI flag also accepts `auto`. A numeric `--port` forces `strictPort` for that run (so you get a clear failure if the port is busy); `--port auto` always scans for the next free port from `4000`.
 
 ## Resolved Configuration
 
@@ -680,9 +708,10 @@ type ResolvedDocsConfig = {
   assets: Map<string, string[]>; // Resolved asset mappings
   server: {
     host: string; // Defaults to '127.0.0.1'
-    devPort: number; // Defaults to 3000
-    previewPort: number; // Defaults to 4000
-    strictPort: boolean; // Defaults to false
+    devPort: number | "auto"; // Defaults to 3000
+    previewPort: number | "auto"; // Defaults to 4000
+    strictPort: boolean; // Defaults to false (ignored when port is 'auto')
+    logLevel: "silent" | "error" | "warn" | "info" | "verbose"; // Defaults to 'info'
   };
 };
 ```
@@ -702,3 +731,4 @@ The resolution logic in `resolveDocsConfig()` works as follows:
 - `search.enabled` defaults to `true`, `search.showImages` defaults to `false`, `search.showSubResults` defaults to `true`.
 - `editLink` is auto-detected from supported git remotes unless set to `false`.
 - `homeConfigFile` resolves to the absolute path of `home.configFile` or defaults to `content/home.json5` in the project root.
+- `server.host` defaults to `'127.0.0.1'`, `server.devPort` defaults to `3000`, `server.previewPort` defaults to `4000`, `server.strictPort` defaults to `false`, and `server.logLevel` defaults to `'info'`. Either port may be set to the literal `'auto'` to scan upward from `4000` for the first available port at server startup. A non-`'auto'` string that is not a valid port number throws a config error.

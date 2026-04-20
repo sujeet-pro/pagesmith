@@ -31,6 +31,13 @@ export type ResolvedCopyright = {
 
 export type DocsLogLevel = "silent" | "error" | "warn" | "info" | "verbose";
 
+/**
+ * Port value accepted in `server.devPort` and `server.previewPort`. Either an
+ * explicit port number or the literal `"auto"`, which makes the dev/preview
+ * server scan upward from 4000 for the first available port at startup.
+ */
+export type DocsServerPort = number | "auto";
+
 export type DocsUserConfig = {
   preset?: string;
   presets?: string[];
@@ -117,16 +124,18 @@ export type DocsUserConfig = {
    * Folders are copied recursively.
    */
   assets?: Record<string, string[]>;
-  /** Server port and behavior settings for dev and preview commands. */
+  /** Server settings shared by `pagesmith-docs dev` and `pagesmith-docs preview`. */
   server?: {
-    /** Interface to bind the dev and preview servers to. Default: '127.0.0.1'. */
+    /** Interface to bind the dev and preview servers to. Default: `'127.0.0.1'`. */
     host?: string;
-    /** Default port for the dev server (default: 3000). */
-    devPort?: number;
-    /** Default port for the preview server (default: 4000). */
-    previewPort?: number;
-    /** When true, fail if the configured port is in use instead of finding the next available port (default: false). */
+    /** Port for the dev server. Pass a number or `'auto'` to scan upward from 4000 for the first available port. Default: `3000`. */
+    devPort?: DocsServerPort;
+    /** Port for the preview server. Pass a number or `'auto'` to scan upward from 4000 for the first available port. Default: `4000`. */
+    previewPort?: DocsServerPort;
+    /** When true and the resolved port is a number, fail if it is in use instead of scanning for the next available port. Ignored when the port is `'auto'`. Default: `false`. */
     strictPort?: boolean;
+    /** Log level for the dev/preview servers. Default: `'info'`. */
+    logLevel?: DocsLogLevel;
   };
 };
 
@@ -191,12 +200,17 @@ export type ResolvedDocsConfig = {
   packages?: Record<string, { label: string }>;
   /** Resolved asset mappings: output path -> array of resolved absolute source paths. */
   assets: Map<string, string[]>;
-  /** Resolved server settings. */
+  /**
+   * Resolved server settings. `devPort` / `previewPort` may still be the
+   * literal `'auto'` until the server actually binds (auto resolution happens
+   * in `startDev` / `preview`).
+   */
   server: {
     host: string;
-    devPort: number;
-    previewPort: number;
+    devPort: DocsServerPort;
+    previewPort: DocsServerPort;
     strictPort: boolean;
+    logLevel: DocsLogLevel;
   };
   /** @internal Raw user config — used by validateConfig to distinguish explicit values from fallbacks. */
   _userConfig?: DocsUserConfig;
@@ -211,9 +225,10 @@ export type DocsBuildOptions = {
 };
 
 export type DocsDevOptions = DocsBuildOptions & {
-  port?: number;
+  /** Override the resolved port. Use `'auto'` to scan upward from 4000 for the first available port. */
+  port?: DocsServerPort;
   open?: boolean;
-  /** Logging level for dev/preview servers (default: warn). */
+  /** Logging level for the dev/preview server. Defaults to the value resolved from `server.logLevel` (which itself defaults to `'info'`). */
   logLevel?: DocsLogLevel;
 };
 

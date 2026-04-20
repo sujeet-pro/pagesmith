@@ -20,7 +20,13 @@ describe("docs schemas", () => {
         endYear: null,
       },
       footerLinks: [{ label: "Guide", path: "/guide" }],
-      server: { host: "127.0.0.1", devPort: 3000, previewPort: 4000 },
+      server: {
+        host: "127.0.0.1",
+        devPort: 3000,
+        previewPort: "auto",
+        strictPort: true,
+        logLevel: "verbose",
+      },
       markdown: {
         allowDangerousHtml: false,
         math: "auto",
@@ -35,7 +41,10 @@ describe("docs schemas", () => {
     expect(result.footerLinks).toEqual([{ label: "Guide", path: "/guide" }]);
     expect(result.copyright?.endYear).toBeNull();
     expect(result.server?.host).toBe("127.0.0.1");
-    expect(result.server?.previewPort).toBe(4000);
+    expect(result.server?.devPort).toBe(3000);
+    expect(result.server?.previewPort).toBe("auto");
+    expect(result.server?.strictPort).toBe(true);
+    expect(result.server?.logLevel).toBe("verbose");
     expect(result.markdown?.allowDangerousHtml).toBe(false);
     expect(result.markdown?.math).toBe("auto");
     expect(result.markdown?.shiki?.defaultShowLineNumbers).toBe(false);
