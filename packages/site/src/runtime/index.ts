@@ -191,6 +191,7 @@ export function getRuntimeJS(): string {
       "runtime/toc-highlight",
       "runtime/code-blocks",
       "runtime/code-tabs",
+      "runtime/image-zoom",
     ],
     [
       "initFooterCopyrightYear()",
@@ -202,6 +203,7 @@ export function getRuntimeJS(): string {
       "initTocHighlight()",
       "initCodeBlocks()",
       "initCodeTabs()",
+      "initImageZoom()",
     ],
   );
 }
@@ -218,8 +220,8 @@ export function getContentCSS(): string {
 }
 export function getContentJS(): string {
   return concatModuleSources(
-    ["runtime/code-blocks", "runtime/code-tabs", "runtime/themed-images"],
-    ["initCodeBlocks()", "initCodeTabs()", "initThemedImages()"],
+    ["runtime/code-blocks", "runtime/code-tabs", "runtime/themed-images", "runtime/image-zoom"],
+    ["initCodeBlocks()", "initCodeTabs()", "initThemedImages()", "initImageZoom()"],
   );
 }
 export function getContentCSSPath(): string {

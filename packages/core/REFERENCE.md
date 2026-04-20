@@ -248,6 +248,8 @@ type MarkdownConfig = {
 - `allowDangerousHtml` defaults to `true`. Disable it when rendering untrusted markdown content.
 - `math` defaults to `'auto'`, which only enables `remark-math` and `rehype-mathjax` for pages that contain math markers.
 - When Pagesmith knows the markdown source path, relative local images inherit intrinsic dimensions and relative JPEGs can emit `<picture>` fallbacks. `entry.render()` wires this automatically and keeps resolution inside the collection directory. `convert()` / `layer.convert()` can do the same when you pass `sourcePath`; by default refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
+- Every figure-wrapped image carries a hidden expand button (`<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>`) and the figure gets `ps-figure-zoomable`. The underlying `<img>` carries `data-zoom-src` (raster → `<stem>.zoom.webp`, SVG → original `src`). Themed light/dark pairs carry `data-zoom-src-light` / `data-zoom-src-dark` (plus matching `data-zoom-type-*`). Linked images skip the button. Pair with `@pagesmith/site/runtime/image-zoom` (`initImageZoom()`) to wire up the modal.
+- `emitGeneratedImageVariants` (in `@pagesmith/core/assets`) emits **three** files per convertible raster source: `<stem>.avif` and `<stem>.webp` capped at `DISPLAY_MAX_WIDTH` (1600px), plus `<stem>.zoom.webp` capped at `ZOOM_MAX_WIDTH` (4800px). Smaller sources keep their native dimensions (`withoutEnlargement: true`). Helpers: `getGeneratedImageVariantPath`, `getZoomImageVariantPath`, `renderGeneratedImageVariant({ maxWidth })`, `renderZoomImageVariant`.
 
 ### Code Block Meta Syntax (Built-in Renderer)
 

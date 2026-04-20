@@ -16,8 +16,9 @@
 - Layouts: `HomeLayout`, `ListingLayout`, `NotFoundLayout`
 - SEO: `SitePageMeta` with `ogType`, `publishedTime`, `modifiedTime`, `author`, `tags`; Twitter Card and article meta tags
 - Framework-hosted apps can use just `@pagesmith/site/css/content` and `@pagesmith/site/runtime/content`
-- Theme-aware images: `.ps-figure`/`.ps-figure-themed` on pipeline-generated figures, `.only-light`/`.only-dark` on `<img>`, `.show-on-light`/`.show-on-dark` on any element, `.invert-on-dark` for single-variant inversion
+- Theme-aware images: `.ps-figure`/`.ps-figure-themed`/`.ps-figure-zoomable` on pipeline-generated figures, `.only-light`/`.only-dark` on `<img>`, `.show-on-light`/`.show-on-dark` on any element, `.invert-on-dark` for single-variant inversion
 - Themed images runtime: `initThemedImages()` in chrome runtime for JS-enhanced theme switching
+- Image-zoom runtime: `initImageZoom()` in `@pagesmith/site/runtime/image-zoom` (also in content + standalone bundles) reveals the per-figure expand button and opens a singleton full-viewport modal (Ctrl/Cmd+wheel zoom, +/- step, 50%–400% raster / 50%–1000% SVG, theme-aware src swap)
 
 Read first:
 

@@ -87,7 +87,7 @@ function rewriteRawAssetAttributes(
 ): string {
   const rewriteRefAttribute = (value: string): string =>
     value.replace(
-      /\b(src|href)=("|')([^"']*)\2/gi,
+      /\b(src|href|data-zoom-src|data-zoom-src-light|data-zoom-src-dark)=("|')([^"']*)\2/gi,
       (match, attr: string, quote: string, ref: string) => {
         if (!(isRelativeRef(ref) && ASSET_EXTS.test(splitRef(ref).pathname))) {
           return match;
@@ -121,9 +121,32 @@ export function rehypeAssetTransform() {
       );
     });
 
+    const rewriteImgZoomDataAttr = (element: Element, name: string): void => {
+      const value = element.properties?.[name];
+      if (typeof value !== "string" || !isRelativeRef(value)) return;
+      if (!ASSET_EXTS.test(splitRef(value).pathname)) return;
+      const rewritten = toPublishedAssetUrl(
+        value,
+        context.basePath,
+        context.filePath,
+        context.contentDir,
+      );
+      if (rewritten) {
+        element.properties = element.properties || {};
+        element.properties[name] = rewritten;
+      }
+    };
+
     visit(tree, "element", (element: Element, index, parent) => {
       // Transform img src
       if (element.tagName === "img") {
+        // Always rewrite zoom data attrs even when src isn't local: themed
+        // <picture> imgs may carry data-zoom-src-light/dark with relative
+        // paths even though their fallback `src` is non-relative.
+        rewriteImgZoomDataAttr(element, "data-zoom-src");
+        rewriteImgZoomDataAttr(element, "data-zoom-src-light");
+        rewriteImgZoomDataAttr(element, "data-zoom-src-dark");
+
         const src = element.properties?.src;
         if (
           typeof src !== "string" ||

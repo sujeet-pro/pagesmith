@@ -3,6 +3,7 @@ import { dirname, extname, isAbsolute, relative, resolve } from "path";
 import {
   getGeneratedImageVariantPath,
   getLocalImageDimensions,
+  getZoomImageVariantPath,
   isConvertibleImagePath,
 } from "../../assets/images";
 
@@ -59,6 +60,19 @@ function resolveLocalImagePath(
 function buildVariantRef(ref: string, format: "avif" | "webp"): string {
   const { pathname, suffix } = splitRef(ref);
   return `${getGeneratedImageVariantPath(pathname, format)}${suffix}`;
+}
+
+/**
+ * Path to the high-resolution zoom variant for a raster source. SVG and other
+ * non-convertible refs return `undefined` — the zoom modal can use the
+ * displayed `<img>` `src` / `currentSrc` directly because those formats are
+ * already full quality.
+ */
+function buildZoomRef(ref: string): string | undefined {
+  if (isSvgRef(ref)) return undefined;
+  if (!isConvertibleImagePath(splitRef(ref).pathname)) return undefined;
+  const { pathname, suffix } = splitRef(ref);
+  return `${getZoomImageVariantPath(pathname)}${suffix}`;
 }
 
 function isSvgRef(ref: string): boolean {
@@ -227,7 +241,10 @@ function createThemedPictureElement(img: Element, lightSrc: string, darkSrc: str
   const darkIsSvg = isSvgRef(darkSrc);
 
   const sources: Element[] = [];
-  const darkMedia = { media: "(prefers-color-scheme: dark)", scheme: "dark" as const };
+  const darkMedia = {
+    media: "(prefers-color-scheme: dark)",
+    scheme: "dark" as const,
+  };
 
   if (darkIsSvg) {
     sources.push(createSourceElement(darkSrc, "image/svg+xml", darkMedia));
@@ -242,8 +259,12 @@ function createThemedPictureElement(img: Element, lightSrc: string, darkSrc: str
     sources.push(createSourceElement(lightSrc, "image/svg+xml", { scheme: "light" }));
   } else {
     sources.push(
-      createSourceElement(buildVariantRef(lightSrc, "avif"), "image/avif", { scheme: "light" }),
-      createSourceElement(buildVariantRef(lightSrc, "webp"), "image/webp", { scheme: "light" }),
+      createSourceElement(buildVariantRef(lightSrc, "avif"), "image/avif", {
+        scheme: "light",
+      }),
+      createSourceElement(buildVariantRef(lightSrc, "webp"), "image/webp", {
+        scheme: "light",
+      }),
     );
   }
 
@@ -266,10 +287,51 @@ function createThemedPictureElement(img: Element, lightSrc: string, darkSrc: str
   };
 }
 
+function createZoomButtonElement(): Element {
+  return {
+    type: "element",
+    tagName: "button",
+    properties: {
+      type: "button",
+      className: ["ps-img-zoom-btn"],
+      hidden: true,
+      "aria-label": "Zoom image",
+      "data-ps-img-zoom-btn": "",
+    },
+    children: [
+      {
+        type: "element",
+        tagName: "svg",
+        properties: {
+          className: ["ps-img-zoom-icon"],
+          viewBox: "0 0 24 24",
+          width: "16",
+          height: "16",
+          fill: "none",
+          stroke: "currentColor",
+          "stroke-width": "2",
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round",
+          "aria-hidden": "true",
+        },
+        children: [
+          {
+            type: "element",
+            tagName: "path",
+            properties: { d: "M3 9V3h6 M21 9V3h-6 M3 15v6h6 M21 15v6h-6" },
+            children: [],
+          },
+        ],
+      },
+    ],
+  };
+}
+
 function createFigureElement(
   content: Element,
   title: string | undefined,
   classNames: string[],
+  zoomButton?: Element,
 ): Element {
   const children: ElementContent[] = [content];
   if (title) {
@@ -280,6 +342,7 @@ function createFigureElement(
       children: [{ type: "text", value: title }],
     });
   }
+  if (zoomButton) children.push(zoomButton);
   return {
     type: "element",
     tagName: "figure",
@@ -441,12 +504,29 @@ async function detectAndMergePairs(
     const imgProps = { ...(lightImg.properties ?? {}) };
     delete imgProps.title;
 
+    // Themed raster pairs need the high-res zoom variant per scheme; themed SVG
+    // pairs use the displayed <picture> source directly, so we skip the attrs
+    // entirely when both variants are SVG (the runtime falls back to currentSrc).
+    const lightZoom = buildZoomRef(lightSrc);
+    const darkZoom = buildZoomRef(darkSrc);
+    if (lightZoom && darkZoom) {
+      imgProps["data-zoom-src-light"] = lightZoom;
+      imgProps["data-zoom-src-dark"] = darkZoom;
+      imgProps["data-zoom-type-light"] = "image/webp";
+      imgProps["data-zoom-type-dark"] = "image/webp";
+    }
+
     const themedPicture = createThemedPictureElement(
       { ...lightImg, properties: imgProps } as Element,
       lightSrc,
       darkSrc,
     );
-    const figure = createFigureElement(themedPicture, title, ["ps-figure", "ps-figure-themed"]);
+    const figure = createFigureElement(
+      themedPicture,
+      title,
+      ["ps-figure", "ps-figure-themed", "ps-figure-zoomable"],
+      createZoomButtonElement(),
+    );
 
     // Replace the first image with the merged figure, mark everything between for removal
     children[i] = figure as unknown as RootContent;
@@ -464,7 +544,10 @@ async function detectAndMergePairs(
 
 // ── Raw HTML helpers ──
 
-function parseHtmlAttributes(imgTag: string): { attrs: HtmlAttribute[]; selfClosing: boolean } {
+function parseHtmlAttributes(imgTag: string): {
+  attrs: HtmlAttribute[];
+  selfClosing: boolean;
+} {
   const selfClosing = /\/>\s*$/u.test(imgTag);
   const body = imgTag.replace(/^<img\b/i, "").replace(/\s*\/?>\s*$/u, "");
   const attrs: HtmlAttribute[] = [];
@@ -590,9 +673,21 @@ function shouldWrapHtmlTagInPicture(
   return true;
 }
 
+const ZOOM_BUTTON_HTML =
+  '<button type="button" class="ps-img-zoom-btn" hidden aria-label="Zoom image" data-ps-img-zoom-btn>' +
+  '<svg class="ps-img-zoom-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M3 9V3h6 M21 9V3h-6 M3 15v6h6 M21 15v6h-6"/>' +
+  "</svg>" +
+  "</button>";
+
 function buildHtmlPictureWithFigure(attrs: HtmlAttribute[], src: string): string {
   const title = getHtmlAttribute(attrs, "title")?.value;
   removeHtmlAttribute(attrs, "title");
+  const zoomRef = buildZoomRef(src);
+  if (zoomRef) {
+    setHtmlAttribute(attrs, "data-zoom-src", zoomRef);
+    setHtmlAttribute(attrs, "data-zoom-type", "image/webp");
+  }
   // Change img src to webp fallback
   setHtmlAttribute(attrs, "src", buildVariantRef(src, "webp"));
   const img = renderHtmlImgTag(attrs);
@@ -600,13 +695,14 @@ function buildHtmlPictureWithFigure(attrs: HtmlAttribute[], src: string): string
   const webpSrcset = escapeHtml(buildVariantRef(src, "webp"));
   const figcaption = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : "";
   return [
-    '<figure class="ps-figure">',
+    '<figure class="ps-figure ps-figure-zoomable">',
     "<picture>",
     `<source srcset="${avifSrcset}" type="image/avif">`,
     `<source srcset="${webpSrcset}" type="image/webp">`,
     img,
     "</picture>",
     figcaption,
+    ZOOM_BUTTON_HTML,
     "</figure>",
   ]
     .filter(Boolean)
@@ -616,9 +712,18 @@ function buildHtmlPictureWithFigure(attrs: HtmlAttribute[], src: string): string
 function buildHtmlSvgFigure(attrs: HtmlAttribute[]): string {
   const title = getHtmlAttribute(attrs, "title")?.value;
   removeHtmlAttribute(attrs, "title");
+  // SVG zoom uses the displayed src directly — no data-zoom-src needed.
   const img = renderHtmlImgTag(attrs);
   const figcaption = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : "";
-  return ['<figure class="ps-figure">', img, figcaption, "</figure>"].filter(Boolean).join("");
+  return [
+    '<figure class="ps-figure ps-figure-zoomable">',
+    img,
+    figcaption,
+    ZOOM_BUTTON_HTML,
+    "</figure>",
+  ]
+    .filter(Boolean)
+    .join("");
 }
 
 /**
@@ -648,6 +753,17 @@ async function enrichRawImageTag(
     if (!classes.includes("invert-on-dark")) {
       classes.push("invert-on-dark");
       setHtmlAttribute(attrs, "class", classes.join(" "));
+    }
+  }
+
+  // Stamp zoom data so the runtime can pick it up even when the author wrote
+  // the surrounding <picture>/<figure> by hand. Skip for SVG (the displayed src
+  // is already full quality).
+  if (!getHtmlAttribute(attrs, "data-zoom-src")?.value) {
+    const zoomRef = buildZoomRef(src);
+    if (zoomRef) {
+      setHtmlAttribute(attrs, "data-zoom-src", zoomRef);
+      setHtmlAttribute(attrs, "data-zoom-type", "image/webp");
     }
   }
 
@@ -693,9 +809,14 @@ async function transformRawImageTag(
   // Non-convertible raster or already inside picture — just figure wrap
   const title = getHtmlAttribute(attrs, "title")?.value;
   removeHtmlAttribute(attrs, "title");
+  const zoomRef = buildZoomRef(src);
+  if (zoomRef) {
+    setHtmlAttribute(attrs, "data-zoom-src", zoomRef);
+    setHtmlAttribute(attrs, "data-zoom-type", "image/webp");
+  }
   const img = renderHtmlImgTag(attrs);
   const figcaption = title ? `<figcaption>${escapeHtml(title)}</figcaption>` : "";
-  return `<figure class="ps-figure">${img}${figcaption}</figure>`;
+  return `<figure class="ps-figure ps-figure-zoomable">${img}${figcaption}${ZOOM_BUTTON_HTML}</figure>`;
 }
 
 async function transformRawHtmlImages(
@@ -771,6 +892,15 @@ async function processImageNode(
   // Remove title from img (it will go to figcaption)
   delete node.properties.title;
 
+  // For raster sources, stamp the dedicated zoom variant on the underlying
+  // <img>; SVG and other non-convertible formats use the displayed src directly
+  // and need no extra attribute.
+  const zoomRef = buildZoomRef(src);
+  if (zoomRef) {
+    node.properties["data-zoom-src"] = zoomRef;
+    node.properties["data-zoom-type"] = "image/webp";
+  }
+
   let innerContent: Element;
 
   if (shouldWrapInPicture(src, node.properties, insidePicture)) {
@@ -779,7 +909,12 @@ async function processImageNode(
     innerContent = node;
   }
 
-  const figure = createFigureElement(innerContent, title, ["ps-figure"]);
+  const figure = createFigureElement(
+    innerContent,
+    title,
+    ["ps-figure", "ps-figure-zoomable"],
+    createZoomButtonElement(),
+  );
   parent.children[index] = figure as unknown as RootContent;
 }
 

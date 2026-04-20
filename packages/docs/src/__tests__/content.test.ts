@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach } from "vite-plus/test";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
+import sharp from "sharp";
 import { resolveDocsConfig } from "../config.js";
 import {
   toContentSlug,
@@ -445,7 +446,11 @@ describe("loadDocsPages", () => {
       ["# Intro", "", "[Home](../README.md)", "", "![Diagram](./diagram.png)"].join("\n"),
       "utf-8",
     );
-    writeFileSync(join(rootDir, "content", "guide", "diagram.png"), "png", "utf-8");
+    await sharp({
+      create: { width: 40, height: 20, channels: 3, background: "#ff0066" },
+    })
+      .png()
+      .toFile(join(rootDir, "content", "guide", "diagram.png"));
 
     const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
     expect(config.basePath).toBe("/docs");
@@ -454,7 +459,48 @@ describe("loadDocsPages", () => {
 
     expect(intro).toBeDefined();
     expect(intro!.html).toContain('href="/docs/"');
-    expect(intro!.html).toContain('src="/docs/assets/guide/diagram.png"');
+    // The picture fallback img + the avif/webp sources go through the
+    // assets pipeline — the assertion is that the markdown-relative
+    // ./diagram.png never leaks into the rendered HTML.
+    expect(intro!.html).toContain("/docs/assets/guide/diagram.webp");
+    // The new image-zoom data-zoom-src attribute must be rewritten too,
+    // otherwise the modal would 404 on the markdown-relative path.
+    expect(intro!.html).toContain('data-zoom-src="/docs/assets/guide/diagram.zoom.webp"');
+  });
+
+  it("rewrites themed light/dark zoom data attrs to published asset URLs", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-pages-"));
+    mkdirSync(join(rootDir, "content", "guide"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      '{ basePath: "/docs", origin: "https://example.dev", search: { enabled: false } }',
+      "utf-8",
+    );
+    writeFileSync(join(rootDir, "content", "README.md"), "# Home\n", "utf-8");
+    writeFileSync(
+      join(rootDir, "content", "guide", "intro.md"),
+      ["# Intro", "", "![Chart](./chart-light.png)", "![Chart](./chart-dark.png)"].join("\n"),
+      "utf-8",
+    );
+    await sharp({
+      create: { width: 50, height: 25, channels: 3, background: "#ffffff" },
+    })
+      .png()
+      .toFile(join(rootDir, "content", "guide", "chart-light.png"));
+    await sharp({
+      create: { width: 50, height: 25, channels: 3, background: "#000000" },
+    })
+      .png()
+      .toFile(join(rootDir, "content", "guide", "chart-dark.png"));
+
+    const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
+    const pages = await loadDocsPages(config);
+    const intro = pages.find((page) => page.contentSlug === "guide/intro");
+
+    expect(intro).toBeDefined();
+    expect(intro!.html).toContain('data-zoom-src-light="/docs/assets/guide/chart-light.zoom.webp"');
+    expect(intro!.html).toContain('data-zoom-src-dark="/docs/assets/guide/chart-dark.zoom.webp"');
   });
 
   it("rewrites raw HTML figure asset references during markdown processing", async () => {

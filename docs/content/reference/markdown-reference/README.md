@@ -136,7 +136,7 @@ Any link pointing to an absolute URL (`http://` or `https://`) automatically rec
 
 ## Images
 
-All markdown images are automatically wrapped in `<figure class="ps-figure">`. Raster images (PNG, JPEG, WebP, GIF) also get a `<picture>` element with WebP and AVIF `<source>` variants. SVG images get figure wrapping but no `<picture>` element. Images inside links are not figure-wrapped.
+All markdown images are automatically wrapped in `<figure class="ps-figure ps-figure-zoomable">` and given a hidden expand button (`<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>`). Raster images (PNG, JPEG, WebP, GIF) also get a `<picture>` element with WebP and AVIF `<source>` variants. SVG images get figure wrapping but no `<picture>` element. Images inside links are not figure-wrapped and do not receive a zoom button. The image carries `data-zoom-src` (raster → `<stem>.zoom.webp`, SVG → original `src`); themed light/dark pairs carry `data-zoom-src-light` / `data-zoom-src-dark`. Pair with `@pagesmith/site/runtime/image-zoom` for the modal.
 
 The title attribute from markdown syntax becomes a `<figcaption>`:
 
@@ -147,13 +147,21 @@ The title attribute from markdown syntax becomes a `<figcaption>`:
 Produces:
 
 ```html
-<figure class="ps-figure">
+<figure class="ps-figure ps-figure-zoomable">
   <picture>
     <source srcset="./hero.avif" type="image/avif" />
     <source srcset="./hero.webp" type="image/webp" />
-    <img src="./hero.webp" alt="Dashboard metrics" width="..." height="..." />
+    <img
+      src="./hero.webp"
+      alt="Dashboard metrics"
+      width="..."
+      height="..."
+      data-zoom-src="./hero.zoom.webp"
+      data-zoom-type="image/webp"
+    />
   </picture>
   <figcaption>Production monitoring dashboard</figcaption>
+  <button type="button" class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>...</button>
 </figure>
 ```
 
@@ -166,7 +174,7 @@ Consecutive images whose filenames end with `-light` and `-dark` suffixes are au
 ![Architecture overview](./diagrams/arch-dark.svg)
 ```
 
-Produces a `<figure class="ps-figure ps-figure-themed">` with `<source media="(prefers-color-scheme: dark)">` so the correct variant displays without JavaScript.
+Produces a `<figure class="ps-figure ps-figure-themed ps-figure-zoomable">` with `<source media="(prefers-color-scheme: dark)">` so the correct variant displays without JavaScript. The inner `<img>` carries `data-zoom-src-light` and `data-zoom-src-dark` so the zoom modal swaps source on theme change.
 
 ## Theme-Aware Images
 

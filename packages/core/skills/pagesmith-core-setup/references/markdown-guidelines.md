@@ -150,7 +150,7 @@ The `role="img"` and `aria-label` attributes ensure screen readers announce the 
 
 When Pagesmith knows the markdown source path, relative local images automatically inherit intrinsic dimensions (`width`, `height`, `style="max-width:min({width}px,100%)"`) from the filesystem. All raster images (PNG, JPEG, WebP, GIF) render as a `<picture>` element with AVIF and WebP `<source>` variants, using the WebP variant as the `<img src>` fallback (broadest modern format support). SVG images are not wrapped in `<picture>` and receive no format conversion.
 
-Every markdown image is wrapped in `<figure class="ps-figure">`. The title attribute from markdown syntax (`![alt](src "title")`) becomes a `<figcaption>`. Images that appear inside `<a>` links are not figure-wrapped (to preserve the link structure). `.avif` source images are passed through as-is without re-wrapping in `<picture>`.
+Every markdown image is wrapped in `<figure class="ps-figure ps-figure-zoomable">` together with a hidden `<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>` for the JS-only image-zoom modal (see [Image Zoom](#image-zoom)). The title attribute from markdown syntax (`![alt](src "title")`) becomes a `<figcaption>`. Images that appear inside `<a>` links are not figure-wrapped (to preserve the link structure) and do not receive a zoom button. `.avif` source images are passed through as-is without re-wrapping in `<picture>`.
 
 ```md
 ![Hero](./hero.jpg)
@@ -160,7 +160,7 @@ Every markdown image is wrapped in `<figure class="ps-figure">`. The title attri
 The first example produces:
 
 ```html
-<figure class="ps-figure">
+<figure class="ps-figure ps-figure-zoomable">
   <picture>
     <source srcset="./hero.avif" type="image/avif" />
     <source srcset="./hero.webp" type="image/webp" />
@@ -170,12 +170,17 @@ The first example produces:
       width="1200"
       height="800"
       style="max-width:min(1200px,100%)"
+      data-zoom-src="./hero.zoom.webp"
+      data-zoom-type="image/webp"
     />
   </picture>
+  <button type="button" class="ps-img-zoom-btn" hidden aria-label="Zoom image" data-ps-img-zoom-btn>
+    <svg class="ps-img-zoom-icon" ...>...</svg>
+  </button>
 </figure>
 ```
 
-The second example produces a `<figcaption>Company Logo</figcaption>` inside the figure.
+The second example produces a `<figcaption>Company Logo</figcaption>` inside the figure (between the `<picture>` and the zoom button).
 
 `entry.render()` sets the source path automatically and keeps resolution inside the collection directory. For `convert()` or `layer.convert()`, pass `sourcePath` when you want the same behavior outside collections; by default relative refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
 
@@ -196,7 +201,7 @@ The generated `<picture>` element is format-aware:
 Produces (for SVG pairs):
 
 ```html
-<figure class="ps-figure ps-figure-themed">
+<figure class="ps-figure ps-figure-themed ps-figure-zoomable">
   <picture>
     <source
       srcset="./diagrams/arch-dark.svg"
@@ -210,9 +215,14 @@ Produces (for SVG pairs):
       width="879"
       height="771"
       style="max-width:min(879px,100%)"
+      data-zoom-src-light="./diagrams/arch-light.svg"
+      data-zoom-src-dark="./diagrams/arch-dark.svg"
+      data-zoom-type-light="image/svg+xml"
+      data-zoom-type-dark="image/svg+xml"
     />
   </picture>
   <figcaption>Build pipeline architecture</figcaption>
+  <button type="button" class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>...</button>
 </figure>
 ```
 
@@ -225,6 +235,29 @@ Images containing `.invert.` in their filename (e.g. `flow.invert.svg`) automati
 ```md
 ![Linear flow from input through validation to output](./simple-flow.invert.svg "Processing pipeline")
 ```
+
+### Image Zoom
+
+Every figure-wrapped image (single, themed pair, or raw HTML `<img>`) gets two extra hooks for the JS-only image-zoom modal shipped in `@pagesmith/site/runtime/image-zoom`:
+
+1. The figure carries the `ps-figure-zoomable` class and contains a `<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>` next to the image / picture / figcaption.
+2. The underlying `<img>` carries `data-zoom-src` (and `data-zoom-type`). For raster sources this points at a separate WebP variant generated alongside the display variants — see [Generated raster variants](#generated-raster-variants). For SVG it equals the original `src` (SVG is resolution-independent). Themed light/dark pairs instead carry `data-zoom-src-light`, `data-zoom-src-dark`, `data-zoom-type-light`, and `data-zoom-type-dark` so the modal swaps source as the user toggles `color-scheme-dark` / `color-scheme-light` on `<html>`.
+
+The button is `hidden` by default and only revealed when the JS runtime initializes (`@pagesmith/site/runtime/image-zoom` → `initImageZoom()`). With JS disabled the figure renders as before — no overlay, no modal. The runtime opens a singleton full-viewport modal whose image is sized to fit the constrained viewport axis at 100% (preserving aspect ratio); the toolbar `+` / `-` step zoom by 10% (clamps: `50%` min, `400%` max for raster, `1000%` max for SVG). `Ctrl/Cmd+wheel` zooms toward the pointer; plain wheel pans the modal. `Esc` / close button shuts the modal and restores focus to the trigger.
+
+Images wrapped in a link receive **no** zoom button — the link click is the primary action.
+
+### Generated raster variants
+
+`emitGeneratedImageVariants()` in `@pagesmith/core/assets` emits **three** files for every convertible raster source (PNG / JPEG / WebP / GIF):
+
+| Variant            | Format | Width cap (`withoutEnlargement: true`) | Used by                                                         |
+| ------------------ | ------ | -------------------------------------- | --------------------------------------------------------------- |
+| `<stem>.avif`      | AVIF   | `DISPLAY_MAX_WIDTH` = 1600px           | `<picture>` `<source type="image/avif">`                        |
+| `<stem>.webp`      | WebP   | `DISPLAY_MAX_WIDTH` = 1600px           | `<picture>` `<source type="image/webp">` + `<img src>` fallback |
+| `<stem>.zoom.webp` | WebP   | `ZOOM_MAX_WIDTH` = 4800px              | `data-zoom-src` for the image-zoom modal                        |
+
+The 1600px cap targets ~800px content columns at 2x DPR; the 4800px zoom variant covers most retina-class full-screen displays. Smaller-than-cap sources keep their native dimensions (no upscaling). SVG sources are not resized and have no zoom variant — `data-zoom-src` simply points at the original SVG.
 
 ## Theme-Aware Images
 
@@ -247,15 +280,17 @@ For light/dark pairs, place the light and dark variants consecutively:
 
 ### CSS classes
 
-| Class               | Purpose                                                                  |
-| ------------------- | ------------------------------------------------------------------------ |
-| `.ps-figure`        | Wrapper class on all pipeline-generated `<figure>` elements              |
-| `.ps-figure-themed` | Added when a light/dark pair is auto-merged                              |
-| `.invert-on-dark`   | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
-| `.only-light`       | Show element only in light mode (manual HTML)                            |
-| `.only-dark`        | Show element only in dark mode (manual HTML)                             |
-| `.show-on-light`    | Show any element only in light mode                                      |
-| `.show-on-dark`     | Show any element only in dark mode                                       |
+| Class                 | Purpose                                                                  |
+| --------------------- | ------------------------------------------------------------------------ |
+| `.ps-figure`          | Wrapper class on all pipeline-generated `<figure>` elements              |
+| `.ps-figure-themed`   | Added when a light/dark pair is auto-merged                              |
+| `.ps-figure-zoomable` | Added when a figure carries an image-zoom button                         |
+| `.ps-img-zoom-btn`    | Per-figure expand button (hidden until JS unhides it)                    |
+| `.invert-on-dark`     | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
+| `.only-light`         | Show element only in light mode (manual HTML)                            |
+| `.only-dark`          | Show element only in dark mode (manual HTML)                             |
+| `.show-on-light`      | Show any element only in light mode                                      |
+| `.show-on-dark`       | Show any element only in dark mode                                       |
 
 ### Generic show/hide helpers
 

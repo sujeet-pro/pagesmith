@@ -426,7 +426,7 @@ export function hashAssets(outDir: string, contentDir: string | string[]): void 
       let html = readFileSync(full, "utf-8");
 
       html = html.replace(
-        /\b(src|href)=("|')([^"']*)\2/g,
+        /\b(src|href|data-zoom-src|data-zoom-src-light|data-zoom-src-dark)=("|')([^"']*)\2/g,
         (match, attr: string, quote: string, ref: string) => {
           const rewrittenRef = rewriteAssetReference(ref);
           return rewrittenRef === ref ? match : `${attr}=${quote}${rewrittenRef}${quote}`;

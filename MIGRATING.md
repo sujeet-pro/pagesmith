@@ -4,6 +4,17 @@ Pagesmith is still pre-1.0, so breaking changes are expected between minor relea
 
 This guide covers the current split into `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs`.
 
+## 0.9.9 (next)
+
+Additive feature, with one image-asset behavior change worth knowing about:
+
+- `@pagesmith/core` — every figure-wrapped image now ships with a hidden expand button (`<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>`) and a `data-zoom-src` (or themed `data-zoom-src-light` / `data-zoom-src-dark`) attribute on the underlying `<img>`. The button stays hidden without JS — the new `@pagesmith/site/runtime/image-zoom` (`initImageZoom()`) reveals it and opens a singleton full-viewport zoom modal. The figure also gains the `ps-figure-zoomable` class.
+- `@pagesmith/core` — `emitGeneratedImageVariants` now emits **three** files per convertible raster source: `<stem>.avif` and `<stem>.webp` capped at `DISPLAY_MAX_WIDTH` (1600px), plus a new `<stem>.zoom.webp` capped at `ZOOM_MAX_WIDTH` (4800px). Smaller-than-cap sources keep their native dimensions (no upscaling). **If you previously hand-linked to the `.webp` file as a full-size source, it is now downsized to 1600px wide. Switch those links to `<stem>.zoom.webp` to keep the larger asset.** SVGs are unaffected.
+- `@pagesmith/site` — `getContentJS()` and `getRuntimeJS()` now include `initImageZoom()`. `@pagesmith/site/runtime/content` and `runtime/standalone` initialize it automatically. New CSS module `@pagesmith/site/styles/content/image-zoom.css` is bundled into both `content.css` and `standalone.css` (no consumer action needed).
+- `@pagesmith/site` — new export `@pagesmith/site/runtime/image-zoom` for sites that compose the runtime modules manually.
+
+No action is required for typical sites — the markup, CSS, and JS line up automatically. Audit only if you previously linked directly at `<stem>.webp` for full-size downloads.
+
 ## 0.9.7 (patch)
 
 Additive updates, no breaking changes. Highlights:

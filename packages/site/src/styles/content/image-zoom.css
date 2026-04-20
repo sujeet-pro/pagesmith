@@ -1,0 +1,173 @@
+/* ─── Image zoom (figure button + full-screen modal) ─── */
+
+/* Default state: button is hidden until JS removes the `hidden` attribute
+ * (progressive enhancement — no JS, no zoom button). */
+.ps-img-zoom-btn[hidden] {
+  display: none;
+}
+
+.ps-figure-zoomable {
+  position: relative;
+}
+
+.ps-img-zoom-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+  border-radius: var(--radius-md, 4px);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 120ms ease,
+    background-color 120ms ease;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.ps-img-zoom-btn:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #4d90fe);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.ps-img-zoom-btn:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.ps-img-zoom-icon {
+  display: block;
+}
+
+/* Reveal on hover/focus on devices that have a real hover capability;
+ * leave it always visible on touch devices once JS unhides it. */
+@media (hover: hover) {
+  .ps-figure-zoomable:hover .ps-img-zoom-btn,
+  .ps-figure-zoomable:focus-within .ps-img-zoom-btn {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .ps-img-zoom-btn {
+    opacity: 1;
+  }
+}
+
+/* ─── Full-screen modal ─── */
+
+.ps-img-zoom-modal {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.92);
+  color: #fff;
+  /* Both axes scroll independently when the image grows past the viewport. */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.ps-img-zoom-modal[hidden] {
+  display: none;
+}
+
+/* The stage is at least the viewport (so a small image stays centered) and
+ * grows to fit an oversized image (so the modal's `overflow: auto` produces
+ * visible H + V scrollbars). `place-items: safe center` keeps centering for
+ * smaller children but falls back to start-alignment when the child overflows,
+ * so the user can scroll to the top-left edge of an oversized image without
+ * losing it (the well-known centered-flex/grid overflow gotcha). */
+.ps-img-zoom-stage {
+  min-width: 100%;
+  min-height: 100%;
+  display: grid;
+  place-items: safe center;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ps-img-zoom-img {
+  display: block;
+  /* JS injects width/height inline based on the source aspect ratio + viewport,
+   * so the image fills the constrained axis at 100% zoom and grows from there. */
+  max-width: none;
+  max-height: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Toolbar pinned to the top-right of the viewport. */
+.ps-img-zoom-toolbar {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-md, 4px);
+  background: rgba(0, 0, 0, 0.65);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  z-index: 1;
+}
+
+.ps-img-zoom-toolbar button {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: var(--radius-md, 4px);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ps-img-zoom-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ps-img-zoom-toolbar button:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #4d90fe);
+  outline-offset: 2px;
+}
+
+.ps-img-zoom-toolbar button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ps-img-zoom-level {
+  min-width: 3rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  padding: 0 0.25rem;
+}
+
+/* Lock body scroll while the modal is open. */
+.ps-img-zoom-open,
+.ps-img-zoom-open body {
+  overflow: hidden;
+}

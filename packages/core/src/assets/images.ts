@@ -8,6 +8,21 @@ export const GENERATED_IMAGE_FORMATS = ["avif", "webp"] as const;
 
 export type GeneratedImageFormat = (typeof GENERATED_IMAGE_FORMATS)[number];
 
+/**
+ * Maximum width (in pixels) of the rendered display variants (avif/webp).
+ * Designed for ~800px content columns at 2x DPR.
+ */
+export const DISPLAY_MAX_WIDTH = 1600;
+
+/**
+ * Maximum width (in pixels) of the zoom variant served to the full-screen
+ * image-zoom modal. Smaller-than-cap sources keep their native width.
+ */
+export const ZOOM_MAX_WIDTH = 4800;
+
+/** File-name suffix used by the zoom variant: `<stem>.zoom.webp`. */
+export const ZOOM_VARIANT_SUFFIX = ".zoom.webp";
+
 export type LocalImageDimensions = {
   width: number;
   height: number;
@@ -160,14 +175,29 @@ export function getGeneratedImageVariantPath(
   return `${assetPath.slice(0, -ext.length)}.${format}`;
 }
 
+/**
+ * Path of the zoom variant generated next to the display variants:
+ * `path/to/foo.png` → `path/to/foo.zoom.webp`.
+ */
+export function getZoomImageVariantPath(assetPath: string): string {
+  const ext = extname(assetPath);
+  return `${assetPath.slice(0, -ext.length)}${ZOOM_VARIANT_SUFFIX}`;
+}
+
 export function resolveGeneratedImageSourceAssetPath(
   assetPath: string,
   assets: ContentAssetMap,
 ): string | undefined {
+  const lower = assetPath.toLowerCase();
   const ext = extname(assetPath).toLowerCase();
   if (ext !== ".avif" && ext !== ".webp") return undefined;
 
-  const stem = assetPath.slice(0, -ext.length);
+  // The high-resolution zoom variant (`<stem>.zoom.webp`) shares its source
+  // with the display webp variant. Strip the full `.zoom.webp` so we map
+  // back to the original raster (`.png` / `.jpg` / …).
+  const stem = lower.endsWith(ZOOM_VARIANT_SUFFIX)
+    ? assetPath.slice(0, -ZOOM_VARIANT_SUFFIX.length)
+    : assetPath.slice(0, -ext.length);
   for (const sourceExt of CONVERTIBLE_IMAGE_EXTS) {
     const candidate = `${stem}${sourceExt}`;
     const resolvedKey = findAssetPathKey(assets, candidate);
@@ -188,12 +218,31 @@ export function resolveGeneratedImageSourcePath(
 export async function renderGeneratedImageVariant(
   sourcePath: string,
   format: GeneratedImageFormat,
+  options?: { maxWidth?: number },
 ): Promise<Buffer> {
-  const pipeline = sharp(sourcePath).autoOrient();
+  let pipeline = sharp(sourcePath).autoOrient();
+  if (options?.maxWidth && options.maxWidth > 0) {
+    pipeline = pipeline.resize({
+      width: options.maxWidth,
+      withoutEnlargement: true,
+    });
+  }
   if (format === "avif") {
     return pipeline.avif().toBuffer();
   }
   return pipeline.webp().toBuffer();
+}
+
+/**
+ * Render the dedicated zoom variant for a convertible source image.
+ * Always webp; capped at `ZOOM_MAX_WIDTH` but never upscaled.
+ */
+export async function renderZoomImageVariant(sourcePath: string): Promise<Buffer> {
+  return sharp(sourcePath)
+    .autoOrient()
+    .resize({ width: ZOOM_MAX_WIDTH, withoutEnlargement: true })
+    .webp()
+    .toBuffer();
 }
 
 export async function emitGeneratedImageVariants(
@@ -209,7 +258,9 @@ export async function emitGeneratedImageVariants(
     for (const format of GENERATED_IMAGE_FORMATS) {
       const destPath = join(assetsDir, getGeneratedImageVariantPath(assetPath, format));
       pending.push(
-        renderGeneratedImageVariant(sourcePath, format)
+        renderGeneratedImageVariant(sourcePath, format, {
+          maxWidth: DISPLAY_MAX_WIDTH,
+        })
           .then((buffer) => {
             mkdirSync(dirname(destPath), { recursive: true });
             writeFileSync(destPath, buffer);
@@ -220,6 +271,19 @@ export async function emitGeneratedImageVariants(
           }),
       );
     }
+
+    const zoomDestPath = join(assetsDir, getZoomImageVariantPath(assetPath));
+    pending.push(
+      renderZoomImageVariant(sourcePath)
+        .then((buffer) => {
+          mkdirSync(dirname(zoomDestPath), { recursive: true });
+          writeFileSync(zoomDestPath, buffer);
+        })
+        .catch((error) => {
+          const msg = `zoom variant for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`;
+          failures.push(msg);
+        }),
+    );
   }
 
   await Promise.all(pending);

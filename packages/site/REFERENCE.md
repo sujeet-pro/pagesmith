@@ -550,6 +550,7 @@ Node-side helpers for reading packaged CSS and JS:
 - `@pagesmith/site/runtime/standalone`
 - `@pagesmith/site/runtime/code-blocks`
 - `@pagesmith/site/runtime/code-tabs`
+- `@pagesmith/site/runtime/image-zoom`
 - `@pagesmith/site/runtime/footer-year`
 - `@pagesmith/site/runtime/search-trigger`
 - `@pagesmith/site/runtime/sidebar`
@@ -559,9 +560,10 @@ Node-side helpers for reading packaged CSS and JS:
 
 Behavior:
 
-- `runtime/content` wires code-block UI
+- `runtime/content` wires code-block UI, themed images, and image-zoom
 - `runtime/chrome` wires the shared header/sidebar/footer/TOC/theme controls
-- `runtime/standalone` adds the chrome runtime plus the content/code-block behavior
+- `runtime/standalone` adds the chrome runtime plus the content/code-block/image-zoom behavior
+- `runtime/image-zoom` (`initImageZoom()`) unhides the per-figure expand button and opens a singleton full-viewport modal: fits the image to the constrained viewport axis at 100%, +/- toolbar steps 10%, Ctrl/Cmd+wheel zooms (plain wheel pans), Esc/close restores focus. Clamps: 50% min, 400% max for raster, 1000% max for SVG. Themed images (`data-zoom-src-light` / `data-zoom-src-dark`) swap on `<html>` `color-scheme-*` toggles via MutationObserver.
 - theme preferences persist in `localStorage('pagesmith-theme')`
 - TOC highlighting supports generic `[data-ps-toc]` selectors in addition to docs-theme selectors
 

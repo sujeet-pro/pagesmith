@@ -29,6 +29,7 @@ import {
   CONTENT_ASSET_EXTS,
   copyPublicFiles,
   getGeneratedImageVariantPath,
+  getZoomImageVariantPath,
   hashAssets,
   resolveGeneratedImageSourceAssetPath,
 } from "../assets/index.js";
@@ -169,15 +170,22 @@ function resolveGeneratedAssetPathByBasename(
   const requestedExt = extname(requestedAssetPath).toLowerCase();
   if (requestedExt !== ".avif" && requestedExt !== ".webp") return undefined;
 
+  const requestedLower = requestedAssetPath.toLowerCase();
+  const isZoomVariant = requestedLower.endsWith(".zoom.webp");
+  const stripLength = isZoomVariant ? ".zoom.webp".length : requestedExt.length;
+
   const basenameWithoutExt = (requestedAssetPath.split("/").pop() ?? requestedAssetPath).slice(
     0,
-    -requestedExt.length,
+    -stripLength,
   );
 
   for (const sourceExt of CONVERTIBLE_IMAGE_EXTS) {
     const sourceBasename = `${basenameWithoutExt}${sourceExt}`;
     const sourceAssetPath = resolveAssetPathByBasename(sourceBasename, assetMap, routeHint);
     if (sourceAssetPath) {
+      if (isZoomVariant) {
+        return getZoomImageVariantPath(sourceAssetPath);
+      }
       return getGeneratedImageVariantPath(
         sourceAssetPath,
         requestedExt.slice(1) as "avif" | "webp",
@@ -269,7 +277,7 @@ export function rewriteContentAssetRefs(
   const basePrefix = base.replace(/\/+$/u, "");
 
   return html.replace(
-    /(src|href|srcset)=(?:"([^"]+)"|'([^']+)')/g,
+    /(src|href|srcset|data-zoom-src|data-zoom-src-light|data-zoom-src-dark)=(?:"([^"]+)"|'([^']+)')/g,
     (match, attr: string, doubleRef: string | undefined, singleRef: string | undefined) => {
       const ref = doubleRef ?? singleRef ?? "";
       const quote = doubleRef !== undefined ? '"' : "'";

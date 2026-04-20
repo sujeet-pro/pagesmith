@@ -58,6 +58,7 @@ export default defineConfig({
       "runtime/standalone": "src/runtime/standalone.ts",
       "runtime/code-blocks": "src/runtime/code-blocks.ts",
       "runtime/code-tabs": "src/runtime/code-tabs.ts",
+      "runtime/image-zoom": "src/runtime/image-zoom.ts",
       "runtime/footer-year": "src/runtime/footer-year.ts",
       "runtime/search-trigger": "src/runtime/search-trigger.ts",
       "runtime/sidebar": "src/runtime/sidebar.ts",

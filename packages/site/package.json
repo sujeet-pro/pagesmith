@@ -131,6 +131,10 @@
       "types": "./dist/runtime/code-tabs.d.mts",
       "import": "./dist/runtime/code-tabs.mjs"
     },
+    "./runtime/image-zoom": {
+      "types": "./dist/runtime/image-zoom.d.mts",
+      "import": "./dist/runtime/image-zoom.mjs"
+    },
     "./runtime/toc-highlight": {
       "types": "./dist/runtime/toc-highlight.d.mts",
       "import": "./dist/runtime/toc-highlight.mjs"

@@ -77,6 +77,29 @@ When Pagesmith knows the markdown source path, relative local images inherit int
 
 Collection entries keep those refs inside the collection directory, and stock docs keeps them inside `contentDir`. If a relative ref escapes that allowed root, Pagesmith leaves the image tag unchanged instead of inferring dimensions or picture fallbacks. If you call `convert()` or `layer.convert()` outside a collection entry, pass `sourcePath` when you want the same behavior for local assets; add `assetRoot` when the allowed root should be broader than the markdown file's own directory.
 
+### Generated raster variants
+
+For every convertible raster source (PNG, JPEG, WebP, GIF) Pagesmith emits **three** files alongside the source:
+
+- `<stem>.avif` and `<stem>.webp` — display variants capped at 1600px wide (designed for ~800px content columns at 2x DPR).
+- `<stem>.zoom.webp` — high-resolution zoom variant capped at 4800px wide, used by the image-zoom modal.
+
+Smaller-than-cap sources keep their native dimensions (`withoutEnlargement: true`). SVGs are passed through unchanged.
+
+### Image zoom
+
+Every figure-wrapped image ships with a hidden expand button (`<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>`) and the figure carries the `ps-figure-zoomable` class. With JavaScript disabled the button stays hidden — no overlay, no modal.
+
+Load `@pagesmith/site/runtime/image-zoom` (also bundled into `@pagesmith/site/runtime/content` and `runtime/standalone`) and `initImageZoom()` will:
+
+- Reveal the per-figure expand button on hover (or always on touch devices).
+- Open a singleton full-viewport modal sized so the image fills the constrained viewport axis at 100% (preserving aspect ratio). For a 16:9 viewport and a square image, the image is sized to 100vh on both sides.
+- Step the zoom by 10% with the toolbar `+` / `-` buttons. Clamps: 50% min, 400% max for raster, 1000% max for SVG.
+- Zoom toward the pointer with **Ctrl/Cmd+wheel**; plain wheel pans the modal once the image is larger than the viewport.
+- Swap source on `<html>` `color-scheme-light` / `color-scheme-dark` toggles when the image carries `data-zoom-src-light` / `data-zoom-src-dark` (themed light/dark pairs).
+
+Images wrapped in a link intentionally skip the zoom button — the link click is the primary action.
+
 ## Heading IDs and Anchors
 
 All headings automatically receive:

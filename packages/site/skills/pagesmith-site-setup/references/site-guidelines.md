@@ -111,15 +111,18 @@ The shipped CSS bundles (`css/content`, `css/standalone`) include built-in suppo
 
 Available utility classes:
 
-| Class               | Purpose                                                                  |
-| ------------------- | ------------------------------------------------------------------------ |
-| `.ps-figure`        | Wrapper on all pipeline-generated `<figure>` elements                    |
-| `.ps-figure-themed` | Added when a light/dark pair is auto-merged                              |
-| `.invert-on-dark`   | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
-| `.only-light`       | Show element only in light mode (manual HTML)                            |
-| `.only-dark`        | Show element only in dark mode (manual HTML)                             |
-| `.show-on-light`    | Show any element only in light mode                                      |
-| `.show-on-dark`     | Show any element only in dark mode                                       |
+| Class                 | Purpose                                                                  |
+| --------------------- | ------------------------------------------------------------------------ |
+| `.ps-figure`          | Wrapper on all pipeline-generated `<figure>` elements                    |
+| `.ps-figure-themed`   | Added when a light/dark pair is auto-merged                              |
+| `.ps-figure-zoomable` | Added when a figure carries an image-zoom button                         |
+| `.ps-img-zoom-btn`    | Per-figure zoom button (hidden until JS unhides it)                      |
+| `.ps-img-zoom-modal`  | Singleton full-viewport zoom modal created on demand                     |
+| `.invert-on-dark`     | Invert image colors in dark mode (auto-applied for `.invert.` filenames) |
+| `.only-light`         | Show element only in light mode (manual HTML)                            |
+| `.only-dark`          | Show element only in dark mode (manual HTML)                             |
+| `.show-on-light`      | Show any element only in light mode                                      |
+| `.show-on-dark`       | Show any element only in dark mode                                       |
 
 Markdown images are automatically wrapped in `<figure class="ps-figure">` with `<picture>` for raster formats and intrinsic dimensions applied. Consecutive `-light`/`-dark` image pairs are auto-merged into `<figure class="ps-figure ps-figure-themed">` with `<source media="(prefers-color-scheme: dark)">`. SVG pairs use `image/svg+xml` sources directly; raster pairs use AVIF/WebP converted variants.
 
@@ -131,6 +134,10 @@ Use standard markdown image syntax for light/dark pairs:
 ```
 
 In `color-scheme-auto` mode, the browser natively evaluates the `<source media>` queries — zero JavaScript needed. In explicit light or dark mode, the themed-images runtime strips sources to the matching set.
+
+### Image zoom
+
+`@pagesmith/site/runtime/content` and `@pagesmith/site/runtime/standalone` (and the strings returned from `getContentJS()` / `getRuntimeJS()`) include the `initImageZoom()` runtime. It reveals the per-figure expand button that `@pagesmith/core` emits, and opens a singleton full-viewport modal sized to fit the constrained viewport axis at 100%. Toolbar `+` / `-` step zoom by 10% (clamps: 50% min, 400% max for raster, 1000% max for SVG); `Ctrl/Cmd+wheel` zooms; plain wheel pans. Themed images (`data-zoom-src-light` / `data-zoom-src-dark`) swap source as the user toggles `color-scheme-light` / `color-scheme-dark` on `<html>`. Without JS the figure renders unchanged — the button stays hidden via the [hidden] attribute.
 
 ## URL Strategy
 

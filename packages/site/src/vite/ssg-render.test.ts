@@ -45,6 +45,31 @@ describe("rewriteContentAssetRefs", () => {
     expect(rewritten).toContain('src="/docs/assets/guide/diagram.jpg"');
   });
 
+  it("rewrites image-zoom data attrs (data-zoom-src, data-zoom-src-light/dark) alongside src/srcset", () => {
+    const html = [
+      "<picture>",
+      '  <source srcset="./hero.avif" type="image/avif">',
+      '  <source srcset="./hero.webp" type="image/webp">',
+      '  <img src="./hero.jpg" alt="Hero" width="64" height="32"',
+      '    data-zoom-src="./hero.zoom.webp" data-zoom-type="image/webp">',
+      "</picture>",
+      '<img src="./chart.png" alt="Chart"',
+      '  data-zoom-src-light="./chart-light.zoom.webp"',
+      '  data-zoom-src-dark="./chart-dark.zoom.webp">',
+    ].join("");
+
+    const rewritten = rewriteContentAssetRefs(
+      html,
+      "/docs",
+      makeAssetMap(["guide/hero.jpg", "guide/chart.png"]),
+      "guide/intro",
+    );
+
+    expect(rewritten).toContain('data-zoom-src="/docs/assets/guide/hero.zoom.webp"');
+    expect(rewritten).toContain('data-zoom-src-light="/docs/assets/guide/chart-light.zoom.webp"');
+    expect(rewritten).toContain('data-zoom-src-dark="/docs/assets/guide/chart-dark.zoom.webp"');
+  });
+
   it("rewrites parent-directory image refs that stay inside the content root", () => {
     const html = [
       "<picture>",

@@ -4,6 +4,7 @@
 /* Content */
 @import "./content/prose.css";
 @import "./content/alerts.css";
+@import "./content/image-zoom.css";
 
 /* Code */
 @import "./code/block.css";

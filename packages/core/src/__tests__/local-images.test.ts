@@ -37,16 +37,22 @@ describe("local image markdown enhancements", () => {
       fileData: { pagesmithFilePath: markdownPath },
     });
 
-    expect(result.html).toContain('<figure class="ps-figure">');
+    expect(result.html).toContain('class="ps-figure ps-figure-zoomable"');
     expect(result.html).toContain("<picture>");
     expect(result.html).toContain('srcset="./hero.avif"');
     expect(result.html).toContain('type="image/avif"');
     expect(result.html).toContain('srcset="./hero.webp"');
     expect(result.html).toContain('type="image/webp"');
-    // Fallback img src uses webp
-    expect(result.html).toContain(
-      '<img src="./hero.webp" alt="Hero" width="40" height="20" style="max-width:min(40px,100%)">',
-    );
+    // Fallback img src uses webp + carries the zoom variant attrs.
+    expect(result.html).toContain('src="./hero.webp"');
+    expect(result.html).toContain('data-zoom-src="./hero.zoom.webp"');
+    expect(result.html).toContain('data-zoom-type="image/webp"');
+    expect(result.html).toContain('alt="Hero"');
+    expect(result.html).toContain('width="40"');
+    expect(result.html).toContain('height="20"');
+    expect(result.html).toContain('class="ps-img-zoom-btn"');
+    expect(result.html).toContain('data-ps-img-zoom-btn=""');
+    expect(result.html).toContain("hidden");
   });
 
   it("wraps local PNG images in figure+picture with avif/webp sources", async () => {
@@ -69,10 +75,11 @@ describe("local image markdown enhancements", () => {
       fileData: { pagesmithFilePath: markdownPath },
     });
 
-    expect(result.html).toContain('<figure class="ps-figure">');
+    expect(result.html).toContain('class="ps-figure ps-figure-zoomable"');
     expect(result.html).toContain('srcset="./chart.avif"');
     expect(result.html).toContain('srcset="./chart.webp"');
     expect(result.html).toContain('src="./chart.webp"');
+    expect(result.html).toContain('data-zoom-src="./chart.zoom.webp"');
   });
 
   it("adds figcaption from markdown title attribute", async () => {
@@ -120,10 +127,15 @@ describe("local image markdown enhancements", () => {
       fileData: { pagesmithFilePath: markdownPath },
     });
 
-    expect(result.html).toContain('<figure class="ps-figure">');
+    expect(result.html).toContain('class="ps-figure ps-figure-zoomable"');
     expect(result.html).toContain('src="./icon.svg"');
     expect(result.html).toContain('width="120"');
     expect(result.html).not.toContain("<picture>");
+    // SVG zoom uses the displayed src directly — no separate data-zoom-src needed.
+    expect(result.html).not.toContain("data-zoom-src");
+    expect(result.html).not.toContain("data-zoom-type");
+    // But the zoom button is still emitted so the runtime can open the modal.
+    expect(result.html).toContain('class="ps-img-zoom-btn"');
   });
 
   it("derives SVG intrinsic dimensions from viewBox for raw html img tags", async () => {
@@ -165,9 +177,11 @@ describe("local image markdown enhancements", () => {
       .jpeg()
       .toFile(imagePath);
 
-    const result = await convert("![Hero](./hero.jpg)", { sourcePath: markdownPath });
+    const result = await convert("![Hero](./hero.jpg)", {
+      sourcePath: markdownPath,
+    });
 
-    expect(result.html).toContain('<figure class="ps-figure">');
+    expect(result.html).toContain('class="ps-figure ps-figure-zoomable"');
     expect(result.html).toContain('srcset="./hero.avif"');
     expect(result.html).toContain('srcset="./hero.webp"');
     expect(result.html).toContain('src="./hero.webp"');
@@ -219,7 +233,7 @@ describe("local image markdown enhancements", () => {
       fileData: { pagesmithFilePath: markdownPath },
     });
 
-    expect(result.html).toContain('<figure class="ps-figure">');
+    expect(result.html).toContain('class="ps-figure ps-figure-zoomable"');
     expect(result.html).toContain('srcset="hero.avif"');
     expect(result.html).toContain('src="hero.webp"');
   });
@@ -314,7 +328,7 @@ describe("local image markdown enhancements", () => {
     expect(result.html).toContain('alt="Inside"');
     // Outside picture: gets figure + picture wrapping
     expect(result.html).toContain('alt="Outside"');
-    expect(result.html).toContain('<figure class="ps-figure">');
+    expect(result.html).toContain('class="ps-figure ps-figure-zoomable"');
   });
 
   it("never nests a <figure> inside a user-authored <picture> (diagramkit pattern)", async () => {
@@ -445,7 +459,82 @@ describe("local image markdown enhancements", () => {
     expect(result.html).toContain('srcset="./chart-dark.webp"');
     // Fallback img uses original light source (not a generated variant)
     expect(result.html).toContain('src="./chart-light.png"');
-    // Only one figure
-    expect(result.html.match(/ps-figure/g)?.length).toBe(2); // ps-figure + ps-figure-themed
+    // Themed images expose the per-scheme zoom variants on the inner img.
+    expect(result.html).toContain('data-zoom-src-light="./chart-light.zoom.webp"');
+    expect(result.html).toContain('data-zoom-src-dark="./chart-dark.zoom.webp"');
+    expect(result.html).toContain('data-zoom-type-light="image/webp"');
+    expect(result.html).toContain('data-zoom-type-dark="image/webp"');
+    // Only one figure (count of "ps-figure" substring across the three classes)
+    expect(result.html.match(/ps-figure/g)?.length).toBe(3);
+    // Themed figure also gets the zoom button.
+    expect(result.html).toContain('class="ps-img-zoom-btn"');
+  });
+
+  it("merges themed SVG pairs without data-zoom-src attrs (currentSrc fallback in the runtime)", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-core-images-"));
+    const contentDir = join(rootDir, "content");
+    mkdirSync(contentDir, { recursive: true });
+
+    const markdownPath = join(contentDir, "post.md");
+    writeFileSync(
+      join(contentDir, "arch-light.svg"),
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><rect width="100" height="50" fill="#fff"/></svg>',
+      "utf-8",
+    );
+    writeFileSync(
+      join(contentDir, "arch-dark.svg"),
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><rect width="100" height="50" fill="#000"/></svg>',
+      "utf-8",
+    );
+
+    const result = await processMarkdown(
+      "![Arch](./arch-light.svg)\n![Arch](./arch-dark.svg)",
+      undefined,
+      {
+        content: "![Arch](./arch-light.svg)\n![Arch](./arch-dark.svg)",
+        frontmatter: {},
+        fileData: { pagesmithFilePath: markdownPath },
+      },
+    );
+
+    // Themed figure with zoom button.
+    expect(result.html).toContain("ps-figure-themed");
+    expect(result.html).toContain("ps-figure-zoomable");
+    expect(result.html).toContain('class="ps-img-zoom-btn"');
+    // No data-zoom-src* on the inner img — SVG resolves through `<picture>` +
+    // currentSrc in the runtime.
+    expect(result.html).not.toContain("data-zoom-src-light");
+    expect(result.html).not.toContain("data-zoom-src-dark");
+  });
+
+  it("skips the zoom button for images wrapped in a link", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-core-images-"));
+    const contentDir = join(rootDir, "content");
+    mkdirSync(contentDir, { recursive: true });
+
+    const markdownPath = join(contentDir, "post.md");
+    const imagePath = join(contentDir, "thumb.jpg");
+
+    await sharp({
+      create: { width: 30, height: 15, channels: 3, background: "#446688" },
+    })
+      .jpeg()
+      .toFile(imagePath);
+
+    const result = await processMarkdown(
+      "[![Thumb](./thumb.jpg)](https://example.com)",
+      undefined,
+      {
+        content: "[![Thumb](./thumb.jpg)](https://example.com)",
+        frontmatter: {},
+        fileData: { pagesmithFilePath: markdownPath },
+      },
+    );
+
+    // No figure-wrap (link), no zoom button, no zoom data attrs.
+    expect(result.html).not.toContain("ps-figure");
+    expect(result.html).not.toContain("ps-img-zoom-btn");
+    expect(result.html).not.toContain("data-zoom-src");
+    expect(result.html).toContain('href="https://example.com"');
   });
 });

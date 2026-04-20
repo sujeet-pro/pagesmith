@@ -83,6 +83,8 @@ Framework-hosted apps that only need the shipped prose/code-block presentation l
 
 ## Recent changes
 
+- `rehype-local-images` now stamps every figure-wrapped image with a hidden zoom button (`<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>`), adds `ps-figure-zoomable` to the figure, and writes `data-zoom-src` (or themed `data-zoom-src-light` / `data-zoom-src-dark`) on the underlying `<img>`. Images inside `<a>` links skip the button. Pair with `@pagesmith/site/runtime/image-zoom` for the modal.
+- `emitGeneratedImageVariants` now emits `<stem>.zoom.webp` (capped at `ZOOM_MAX_WIDTH` 4800px) per convertible raster source, alongside the existing `.avif` / `.webp` display variants which are now capped at `DISPLAY_MAX_WIDTH` 1600px (no upscaling). New helpers: `getZoomImageVariantPath`, `renderZoomImageVariant`.
 - `ValidationIssue` now includes an optional `source` field (`'schema' | 'content' | 'plugin' | 'custom'`) to identify which validation phase produced the issue.
 - New `core_search_entries` MCP tool: search entries across collections by title, description, tags, and slug (case-insensitive, max 20 results).
 - `@pagesmith/core/mcp` now exports shared MCP utilities (`getPackageVersion`, `resolvePackageDocPath`, `asTextResource`) alongside the server factory.

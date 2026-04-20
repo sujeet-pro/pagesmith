@@ -88,14 +88,22 @@ SEO:
 Theme-aware content:
 
 The shipped CSS bundles include utility classes for color-scheme-responsive content:
-- `.ps-figure` / `.ps-figure-themed` on pipeline-generated figure elements
-- Markdown images are auto-wrapped in `<figure class="ps-figure">` with `<picture>` for raster formats
-- Consecutive `-light`/`-dark` image pairs are auto-merged into `<figure class="ps-figure ps-figure-themed">`
+- `.ps-figure` / `.ps-figure-themed` / `.ps-figure-zoomable` on pipeline-generated figure elements
+- Markdown images are auto-wrapped in `<figure class="ps-figure ps-figure-zoomable">` with `<picture>` for raster formats
+- Consecutive `-light`/`-dark` image pairs are auto-merged into `<figure class="ps-figure ps-figure-themed ps-figure-zoomable">`
 - `.only-light` / `.only-dark` on `<img>` for manual light/dark image pairs
 - `.show-on-light` / `.show-on-dark` for toggling any element by color scheme
 - `.invert-on-dark` for inverting a single image in dark mode
 - These respond to the `color-scheme-auto|light|dark` class on `<html>` (default: auto)
 - `initThemedImages()` in chrome runtime provides JS-enhanced theme switching with MutationObserver on `<html>` class, WeakMap-based source caching, and proper cleanup
+
+Image-zoom (JS-only progressive enhancement):
+
+- Every figure carries a hidden `<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>`. Without JS the button stays hidden via the `[hidden]` attribute.
+- `initImageZoom()` (in `@pagesmith/site/runtime/image-zoom`, also bundled into `runtime/content` and `runtime/standalone`) unhides every button on init and opens a singleton full-viewport `<div class="ps-img-zoom-modal" role="dialog" aria-modal="true">` on click.
+- The modal sizes the image to fit the constrained viewport axis at 100% zoom (preserves aspect ratio). Toolbar `+` / `-` step by 10%; clamps are 50% min, 400% max for raster, 1000% max for SVG. `Ctrl/Cmd+wheel` zooms; plain wheel pans (default scroll). `Esc` / close button shuts the modal and restores focus to the trigger button.
+- The runtime reads `data-zoom-src` (or themed `data-zoom-src-light` / `data-zoom-src-dark` with matching `data-zoom-type-*`) from the image and swaps source when `<html>` toggles `color-scheme-light` / `color-scheme-dark` (MutationObserver, attached only while the modal is open).
+- CSS lives in `@pagesmith/site/styles/content/image-zoom.css` — bundled into both `content.css` and `standalone.css`.
 
 Read:
 

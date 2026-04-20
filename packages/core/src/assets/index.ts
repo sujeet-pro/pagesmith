@@ -5,12 +5,17 @@ export { copyPublicFiles } from "./copier";
 export { hashAssets } from "./hasher";
 export {
   CONVERTIBLE_IMAGE_EXTS,
+  DISPLAY_MAX_WIDTH,
   GENERATED_IMAGE_FORMATS,
+  ZOOM_MAX_WIDTH,
+  ZOOM_VARIANT_SUFFIX,
   emitGeneratedImageVariants,
   getGeneratedImageVariantPath,
   getLocalImageDimensions,
+  getZoomImageVariantPath,
   isConvertibleImagePath,
   renderGeneratedImageVariant,
+  renderZoomImageVariant,
   resolveGeneratedImageSourceAssetPath,
   resolveGeneratedImageSourcePath,
   type GeneratedImageFormat,
