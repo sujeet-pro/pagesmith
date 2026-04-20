@@ -3,7 +3,7 @@
   "diagrams": {
     "cache-and-rebuilds.mermaid": {
       "hash": "sha256:6915f417ec621100",
-      "generatedAt": "2026-04-17T08:13:20.511Z",
+      "generatedAt": "2026-04-20T13:40:27.504Z",
       "outputs": [
         {
           "file": "cache-and-rebuilds-light.svg",
@@ -22,8 +22,56 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776413360298.8003,
+      "mtimeMs": 1776437360296.3286,
       "size": 1604
+    },
+    "cache-and-rebuilds-reuse.mermaid": {
+      "hash": "sha256:26bda9e55303567f",
+      "generatedAt": "2026-04-20T13:42:00.882Z",
+      "outputs": [
+        {
+          "file": "cache-and-rebuilds-reuse-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 528.5,
+          "height": 450
+        },
+        {
+          "file": "cache-and-rebuilds-reuse-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 528.5,
+          "height": 450
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776692510561.9954,
+      "size": 806
+    },
+    "cache-and-rebuilds-scope.mermaid": {
+      "hash": "sha256:dfebf991295a5286",
+      "generatedAt": "2026-04-20T13:42:01.818Z",
+      "outputs": [
+        {
+          "file": "cache-and-rebuilds-scope-light.svg",
+          "format": "svg",
+          "theme": "light",
+          "width": 537.65625,
+          "height": 315.79998779296875
+        },
+        {
+          "file": "cache-and-rebuilds-scope-dark.svg",
+          "format": "svg",
+          "theme": "dark",
+          "width": 537.65625,
+          "height": 315.79998779296875
+        }
+      ],
+      "formats": ["svg"],
+      "theme": "both",
+      "mtimeMs": 1776692516419.0854,
+      "size": 730
     }
   }
 }

@@ -1,0 +1,22 @@
+%% Diagram: Scope rebuilds narrowly
+%% Type: flowchart
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TB
+  classDef source fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333333
+  classDef build fill:#ffe6cc,stroke:#d6b656,stroke-width:2px,color:#333333
+
+  ContentChange["Content file change"]
+  ConfigChange["Config or theme change"]
+  ContentOnly["Content-only rebuild\nre-render pages only"]
+  Full["Full rebuild"]
+  Skip["Skip CSS bundling,\nJS bundling, and Pagefind"]
+  Rebundle["Rebundle CSS + JS,\nre-render pages, rerun Pagefind"]
+
+  ContentChange --> ContentOnly
+  ContentOnly --> Skip
+  ConfigChange --> Full
+  Full --> Rebundle
+
+  class ContentChange,ConfigChange source
+  class ContentOnly,Full,Skip,Rebundle build

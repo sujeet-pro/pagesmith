@@ -3,7 +3,7 @@
   "diagrams": {
     "collection-pipeline.dot": {
       "hash": "sha256:a957f9c03c487c44",
-      "generatedAt": "2026-04-17T08:13:20.501Z",
+      "generatedAt": "2026-04-20T13:47:44.765Z",
       "outputs": [
         {
           "file": "collection-pipeline-light.svg",
@@ -22,7 +22,7 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776413448998.8596,
+      "mtimeMs": 1776692859577.3909,
       "size": 1203
     }
   }

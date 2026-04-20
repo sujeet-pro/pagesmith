@@ -11,8 +11,15 @@ description: Root and section meta.json5 files for header and footer links, side
 
 This diagram shows which file controls each navigation surface. Notice that root `meta.json5` owns site-wide header and footer links, while section meta plus page frontmatter determine sidebar grouping, ordering, and the flattened sequence that powers `prev` and `next`.
 
-![Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs](./diagrams/navigation-sources-light.svg "Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs")
-![Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed header navigation, footer links, sidebar groups, and prev-next links in Pagesmith docs](./diagrams/navigation-sources-dark.svg)
+First, root meta and config feed the site-wide header and footer, with section meta and page frontmatter contributing labels:
+
+![Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed the header and footer navigation in Pagesmith docs](./diagrams/navigation-sources-chrome-light.svg "Root meta, section meta, page frontmatter, and pagesmith config feed the header and footer navigation in Pagesmith docs")
+![Diagram showing how root meta, section meta, page frontmatter, and pagesmith config feed the header and footer navigation in Pagesmith docs](./diagrams/navigation-sources-chrome-dark.svg)
+
+Second, section meta and page frontmatter determine sidebar grouping, ordering, and the flattened sequence that powers `prev` and `next`:
+
+![Diagram showing how section meta and page frontmatter feed sidebar groups, section ordering, and prev-next links in Pagesmith docs](./diagrams/navigation-sources-sidebar-light.svg "Section meta and page frontmatter feed sidebar groups, section ordering, and prev-next links in Pagesmith docs")
+![Diagram showing how section meta and page frontmatter feed sidebar groups, section ordering, and prev-next links in Pagesmith docs](./diagrams/navigation-sources-sidebar-dark.svg)
 
 ## Root meta.json5
 

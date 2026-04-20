@@ -1,0 +1,33 @@
+%% Diagram: Theme state flow - inputs to html state
+%% Type: flowchart
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  Server["Server defaults\nfrom config"]
+  Stored["Stored preference\nlocalStorage"]
+  Controls["Theme controls\nheader + footer"]
+  OS["OS color preference\nwhen scheme = auto"]
+
+  subgraph Html["State on <html>"]
+    direction TB
+    Scheme["color-scheme-*"]
+    Theme["theme-*"]
+    Size["data-text-size"]
+  end
+
+  Server --> Scheme
+  Server --> Theme
+  Server --> Size
+
+  Stored --> Scheme
+  Stored --> Theme
+  Stored --> Size
+
+  Controls --> Scheme
+  Controls --> Theme
+  Controls --> Size
+  Controls --> Stored
+
+  OS --> Scheme
+
+  style Html fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

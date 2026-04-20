@@ -7,10 +7,17 @@ description: Optimize build times and runtime performance
 
 This reference covers the performance characteristics of Pagesmith builds and the techniques used internally to keep things fast. Understanding these mechanisms helps you make informed decisions when working with large content collections or optimizing your CI/CD pipeline.
 
-At a high level, Pagesmith stays fast by reusing expensive work at several layers and by narrowing rebuild scope when only content changes:
+At a high level, Pagesmith stays fast by reusing expensive work at several layers and by narrowing rebuild scope when only content changes.
 
-![Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind](./diagrams/cache-and-rebuilds-light.svg "Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind")
-![Overview showing Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache, while distinguishing content-only rebuilds from full rebuilds that rebundle CSS and JS and rerun Pagefind](./diagrams/cache-and-rebuilds-dark.svg)
+First, Pagesmith reuses a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache so the heavy setup costs are paid once:
+
+![Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache feeding bounded page workers](./diagrams/cache-and-rebuilds-reuse-light.svg "Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache feeding bounded page workers")
+![Pagesmith reusing a shared MarkdownConfig, processor cache, ContentStore, and lazy render cache feeding bounded page workers](./diagrams/cache-and-rebuilds-reuse-dark.svg)
+
+Second, Pagesmith narrows rebuild scope: a content file change only re-renders pages, while a config or theme change triggers a full rebuild that also rebundles CSS and JS and reruns Pagefind:
+
+![Content-only rebuilds re-render pages and skip CSS, JS, and Pagefind work, while config or theme changes trigger a full rebuild that rebundles everything](./diagrams/cache-and-rebuilds-scope-light.svg "Content-only rebuilds re-render pages and skip CSS, JS, and Pagefind work, while config or theme changes trigger a full rebuild that rebundles everything")
+![Content-only rebuilds re-render pages and skip CSS, JS, and Pagefind work, while config or theme changes trigger a full rebuild that rebundles everything](./diagrams/cache-and-rebuilds-scope-dark.svg)
 
 Notice that the biggest wins come from paying setup costs once, caching loaded and rendered content, and skipping CSS, JS, and Pagefind work when a change only affects page content.
 

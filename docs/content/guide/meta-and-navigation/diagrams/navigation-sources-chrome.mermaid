@@ -1,0 +1,20 @@
+%% Diagram: Navigation sources - header and footer
+%% Type: flowchart
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  Root["Root meta.json5\nheaderLinks\nfooterLinks"]
+  Config["pagesmith.config.json5\nbasePath\nfooterLinks fallback\npackages[section].label"]
+  Section["Section meta.json5\ndisplayName"]
+  Page["Page frontmatter\nnavLabel"]
+
+  Header["Header nav\nexplicit links or\nauto-generated sections"]
+  Footer["Footer nav\nroot meta override or\nconfig fallback"]
+
+  Root --> Header
+  Section --> Header
+  Page --> Header
+  Config --> Header
+
+  Root --> Footer
+  Config --> Footer

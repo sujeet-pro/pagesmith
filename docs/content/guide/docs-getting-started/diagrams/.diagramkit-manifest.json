@@ -2,27 +2,27 @@
   "version": 2,
   "diagrams": {
     "docs-bootstrap-flow.mermaid": {
-      "hash": "sha256:2fce288faa4972d0",
-      "generatedAt": "2026-04-17T08:13:20.504Z",
+      "hash": "sha256:ebac059fdac65292",
+      "generatedAt": "2026-04-20T13:40:27.496Z",
       "outputs": [
         {
           "file": "docs-bootstrap-flow-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 1024.96875,
-          "height": 315.79998779296875
+          "width": 776.109375,
+          "height": 432.4000244140625
         },
         {
           "file": "docs-bootstrap-flow-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 1024.96875,
-          "height": 315.79998779296875
+          "width": 776.109375,
+          "height": 432.4000244140625
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776413229609.1567,
+      "mtimeMs": 1776692426052.969,
       "size": 503
     }
   }

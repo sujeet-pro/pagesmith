@@ -21,8 +21,15 @@ The theme system sits on two independent CSS class axes applied to `<html>`:
 
 This state-flow view shows how server defaults, stored preferences, and theme controls all feed the `<html>` state. Notice that color scheme drives light/dark asset switching and code themes, while theme variant and text size change token resolution and typography.
 
-![Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size](./diagrams/theme-state-flow-light.svg "Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size")
-![Theme state flow showing config defaults, stored preferences, theme controls, and OS color preference feeding html classes and data attributes that control tokens, image switching, code themes, and text size](./diagrams/theme-state-flow-dark.svg)
+First, server defaults, stored preferences, theme controls, and OS color preference all feed the `<html>` state classes and data attributes:
+
+![Theme state inputs: config defaults, stored preferences, theme controls, and OS color preference feed color-scheme, theme variant, and text-size on html](./diagrams/theme-state-flow-inputs-light.svg "Server defaults, stored preferences, theme controls, and OS color preference feed the color-scheme, theme variant, and text-size state on the html element.")
+![Theme state inputs: config defaults, stored preferences, theme controls, and OS color preference feed color-scheme, theme variant, and text-size on html](./diagrams/theme-state-flow-inputs-dark.svg)
+
+Second, those `<html>` classes and data attributes drive token resolution, image switching, code themes, and typography that compose the rendered site:
+
+![Theme state effects: color-scheme, theme variant, and text-size on html drive light-dark token values, only-light/only-dark image switching, Shiki code themes, and root font-size scaling](./diagrams/theme-state-flow-effects-light.svg "Color-scheme, theme variant, and text-size on the html element drive token resolution, image switching, Shiki code themes, and root font-size scaling on the rendered site.")
+![Theme state effects: color-scheme, theme variant, and text-size on html drive light-dark token values, only-light/only-dark image switching, Shiki code themes, and root font-size scaling](./diagrams/theme-state-flow-effects-dark.svg)
 
 The server-rendered default is:
 

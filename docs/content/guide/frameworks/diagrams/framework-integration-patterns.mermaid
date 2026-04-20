@@ -2,19 +2,15 @@
 %% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 
-flowchart LR
-  subgraph foundation["Pagesmith packages"]
-    core["@pagesmith/core\nHeadless content layer\nand markdown pipeline"]
-    site["@pagesmith/site\nApp-facing package for sites:\nre-exported content APIs,\nJSX/CSS/runtime, Vite SSG"]
-    docs["@pagesmith/docs\nDocs preset with nav,\nsearch, and theme"]
-  end
+flowchart TB
+  core["@pagesmith/core\nHeadless content layer\nand markdown pipeline"]
+  site["@pagesmith/site\nApp-facing package:\ncontent APIs, JSX/CSS/runtime,\nVite SSG"]
+  docs["@pagesmith/docs\nDocs preset with nav,\nsearch, and theme"]
 
-  subgraph patterns["Integration patterns"]
-    vite["Virtual content modules\nReact, Solid, Svelte"]
-    programmatic["Programmatic content layer\nEJS, Handlebars, Blog Site"]
-    hosted["Framework-hosted rendering\nNext.js App Router"]
-    convention["Convention-based docs\nDoc Site"]
-  end
+  vite["Virtual content modules\nReact, Solid, Svelte"]
+  programmatic["Programmatic content layer\nEJS, Handlebars, Blog Site"]
+  hosted["Framework-hosted rendering\nNext.js App Router"]
+  convention["Convention-based docs\nDoc Site"]
 
   core --> site
   core --> docs
@@ -22,8 +18,5 @@ flowchart LR
   site --> programmatic
   site --> hosted
   site --> docs
-  core -. "advanced headless path" .-> hosted
+  core -. "advanced headless" .-> hosted
   docs --> convention
-
-  style foundation fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
-  style patterns fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

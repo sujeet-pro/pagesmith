@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "package-layering.mermaid": {
-      "hash": "sha256:011be3fb06cf6d07",
-      "generatedAt": "2026-04-17T08:13:20.509Z",
+      "hash": "sha256:2b66c11e27bca92a",
+      "generatedAt": "2026-04-20T13:52:25.844Z",
       "outputs": [
         {
           "file": "package-layering-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 868.09375,
-          "height": 578.5999755859375
+          "width": 675.60546875,
+          "height": 508.20001220703125
         },
         {
           "file": "package-layering-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 868.09375,
-          "height": 578.5999755859375
+          "width": 675.60546875,
+          "height": 508.20001220703125
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776413239222.6707,
-      "size": 986
+      "mtimeMs": 1776693140847.9458,
+      "size": 912
     }
   }
 }

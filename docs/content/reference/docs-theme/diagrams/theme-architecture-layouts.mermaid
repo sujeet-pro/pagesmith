@@ -1,0 +1,33 @@
+%% Diagram: Docs theme - layouts and document
+%% Type: flowchart
+%%{init: {'htmlLabels': false}}%%
+
+flowchart TB
+  Config["Resolved docs config\ntheme, search, links, metadata"]
+  PageData["Resolved docs page data\nbreadcrumbs, sidebarSections,\nheadings, prev/next, listings"]
+
+  subgraph Layouts["Docs-owned layouts"]
+    direction TB
+    Home["DocHome"]
+    Page["DocPage"]
+    Listing["DocListing"]
+    NotFound["DocNotFound"]
+  end
+
+  Html["theme/components/Html.tsx\nre-export -> SiteDocument"]
+  Runtime["theme/runtime/main.ts\nstandalone runtime"]
+  Styles["theme/styles/main.css\nsite + docs overrides"]
+  Markdown["Rendered markdown\nhtml body"]
+
+  Config --> Layouts
+  PageData --> Layouts
+  Layouts --> Html
+  Page --> Markdown
+  Listing --> Markdown
+  Home --> Markdown
+
+  Html -. loads .-> Runtime
+  Html -. loads .-> Styles
+  Styles -. styles .-> Markdown
+
+  style Layouts fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

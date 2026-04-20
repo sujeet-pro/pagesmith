@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "frontmatter-schema-families.mermaid": {
-      "hash": "sha256:45195b2ee4ea99ea",
-      "generatedAt": "2026-04-17T08:13:20.511Z",
+      "hash": "sha256:1ad3b7fa322a8fe8",
+      "generatedAt": "2026-04-20T13:51:29.800Z",
       "outputs": [
         {
           "file": "frontmatter-schema-families-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 1015.453125,
-          "height": 234
+          "width": 623.56640625,
+          "height": 438
         },
         {
           "file": "frontmatter-schema-families-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 1015.453125,
-          "height": 234
+          "width": 623.56640625,
+          "height": 438
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776413353581.1929,
-      "size": 562
+      "mtimeMs": 1776693083008.4834,
+      "size": 579
     }
   }
 }

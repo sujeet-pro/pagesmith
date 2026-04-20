@@ -2,13 +2,14 @@
 %% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 
-flowchart TD
-    assistant["AI assistant or MCP client"]
-    assistant -->|"stdio"| docs["pagesmith-docs mcp --stdio\nReady-made docs MCP server"]
-    assistant -->|"stdio"| core["Custom wrapper script\ncalls startCoreMcpServer()"]
+flowchart LR
+    assistant["AI assistant\nor MCP client"]
 
-    docs --> docsFiles["Reads pagesmith.config.json5\nand docs content files"]
-    docs --> docsTools["Docs tools\ndocs_validate_config\ndocs_resolve_config\ndocs_list_pages / docs_get_page / docs_search_pages"]
+    assistant -->|"stdio"| docs["pagesmith-docs mcp\nReady-made docs server"]
+    assistant -->|"stdio"| core["Custom wrapper\nstartCoreMcpServer()"]
 
-    core --> coreLayer["Uses a live ContentLayer\nbuilt from your collections"]
+    docs --> docsFiles["Reads config\nand docs files"]
+    docs --> docsTools["Docs tools\ndocs_validate_config\ndocs_resolve_config\ndocs_list_pages\ndocs_get_page\ndocs_search_pages"]
+
+    core --> coreLayer["Live ContentLayer\nfrom your collections"]
     core --> coreTools["Core tools\ncore_list_collections\ncore_list_entries\ncore_get_entry\ncore_validate"]

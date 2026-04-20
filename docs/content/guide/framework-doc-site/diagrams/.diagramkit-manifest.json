@@ -2,27 +2,27 @@
   "version": 2,
   "diagrams": {
     "doc-site-assembly.mermaid": {
-      "hash": "sha256:06da137c8db8834c",
-      "generatedAt": "2026-04-17T08:13:20.505Z",
+      "hash": "sha256:b65e9ac2b271cab0",
+      "generatedAt": "2026-04-20T13:40:27.497Z",
       "outputs": [
         {
           "file": "doc-site-assembly-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 805.03125,
-          "height": 298.1999816894531
+          "width": 763.796875,
+          "height": 280.6000061035156
         },
         {
           "file": "doc-site-assembly-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 805.03125,
-          "height": 298.1999816894531
+          "width": 763.796875,
+          "height": 280.6000061035156
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776318346310.34,
+      "mtimeMs": 1776692426050.085,
       "size": 452
     }
   }

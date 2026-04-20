@@ -2,15 +2,15 @@
 %% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 
-flowchart LR
+flowchart TB
   content["content entries"]
-  siteConfig["content/site.json5"]
-  entry["entry-server scans files and builds routes"]
-  layouts["Custom layouts and styles"]
+  siteConfig["site.json5"]
+  entry["entry-server\nscans files,\nbuilds routes"]
+  layouts["Custom layouts\nand styles"]
   markdown["processMarkdown"]
-  jsx["@pagesmith/site/jsx-runtime"]
+  jsx["jsx-runtime"]
   ssg["pagesmithSsg"]
-  pages["Generated site pages"]
+  pages["Generated pages"]
   derived["Series and tag pages"]
   search["Pagefind search"]
 

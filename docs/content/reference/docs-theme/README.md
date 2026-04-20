@@ -11,8 +11,15 @@ description: Default @pagesmith/docs theme — layouts, shared site chrome, runt
 
 The main pattern is: docs layouts shape docs-specific page data, then hand off to the shared site shell for document markup, chrome, styles, and progressive enhancement.
 
-![Docs theme architecture showing resolved docs config and page data flowing into docs layouts, then into the shared SiteDocument and PageShell from @pagesmith/site, with shared header sidebar TOC and footer components plus runtime and styles](./diagrams/theme-architecture-light.svg "The docs preset shapes docs-specific data, then composes the shared `@pagesmith/site` shell for document markup, chrome, CSS, and runtime behavior.")
-![Docs theme architecture showing resolved docs config and page data flowing into docs layouts, then into the shared SiteDocument and PageShell from @pagesmith/site, with shared header sidebar TOC and footer components plus runtime and styles](./diagrams/theme-architecture-dark.svg)
+First, resolved docs config and page data flow through the docs-owned layouts into the shared SiteDocument, runtime, and stylesheet:
+
+![Docs theme layouts: resolved config and page data feed DocHome, DocPage, DocListing, and DocNotFound, which compose the shared SiteDocument, runtime, and stylesheet](./diagrams/theme-architecture-layouts-light.svg "Resolved docs config and page data flow through the docs-owned layouts into the shared SiteDocument, runtime, and stylesheet.")
+![Docs theme layouts: resolved config and page data feed DocHome, DocPage, DocListing, and DocNotFound, which compose the shared SiteDocument, runtime, and stylesheet](./diagrams/theme-architecture-layouts-dark.svg)
+
+Second, the article and listing layouts hand off to `PageShell`, which composes the shared header, sidebar, mobile sidebar modal, table of contents, and footer:
+
+![Docs theme shell: DocPage and DocListing hand off to PageShell, which composes the shared header, sidebar, mobile sidebar modal, table of contents, and footer](./diagrams/theme-architecture-shell-light.svg "DocPage and DocListing delegate to the shared PageShell, which composes the site header, sidebar, mobile sidebar modal, TOC, and footer.")
+![Docs theme shell: DocPage and DocListing hand off to PageShell, which composes the shared header, sidebar, mobile sidebar modal, table of contents, and footer](./diagrams/theme-architecture-shell-dark.svg)
 
 ## Ownership Split
 

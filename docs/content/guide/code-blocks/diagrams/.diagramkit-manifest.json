@@ -2,27 +2,27 @@
   "version": 2,
   "diagrams": {
     "code-block-rendering-pipeline.dot": {
-      "hash": "sha256:0e25e79041a04c65",
-      "generatedAt": "2026-04-17T08:13:20.500Z",
+      "hash": "sha256:54a5831862436453",
+      "generatedAt": "2026-04-20T13:52:42.581Z",
       "outputs": [
         {
           "file": "code-block-rendering-pipeline-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 857,
-          "height": 200
+          "width": 457,
+          "height": 474
         },
         {
           "file": "code-block-rendering-pipeline-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 857,
-          "height": 200
+          "width": 457,
+          "height": 474
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776413451805.8105,
+      "mtimeMs": 1776693157401.2117,
       "size": 780
     }
   }

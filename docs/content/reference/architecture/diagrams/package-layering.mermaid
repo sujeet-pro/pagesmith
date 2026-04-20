@@ -7,13 +7,13 @@ flowchart TB
   classDef consumer fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333333
   classDef optional stroke-dasharray: 6 4
 
-  Docs["@pagesmith/docs\nDocs preset, theme, search,\nbuild/dev/preview pipeline"]
-  Site["@pagesmith/site\nCLI, JSX runtime,\nCSS/runtime bundles, SSG helpers"]
-  Core["@pagesmith/core\nContent layer, markdown pipeline,\nvalidation, Vite content plugin"]
+  Docs["@pagesmith/docs\nDocs preset, theme, search,\nbuild pipeline"]
+  Site["@pagesmith/site\nCLI, JSX runtime,\nCSS/runtime, SSG"]
+  Core["@pagesmith/core\nContent layer, markdown,\nvalidation, Vite plugin"]
 
   DocsSite["Docs sites"]
-  CustomSites["Custom sites and examples"]
-  FrameworkApps["Framework-hosted apps"]
+  CustomSites["Custom sites\nand examples"]
+  FrameworkApps["Framework-hosted\napps"]
 
   Docs --> Site
   Docs --> Core
@@ -23,7 +23,7 @@ flowchart TB
   CustomSites --> Site
   CustomSites --> Core
   FrameworkApps --> Core
-  FrameworkApps -. Optional shared content styling/runtime .-> Site
+  FrameworkApps -. optional .-> Site
 
   class Docs,Site,Core package
   class DocsSite,CustomSites,FrameworkApps consumer

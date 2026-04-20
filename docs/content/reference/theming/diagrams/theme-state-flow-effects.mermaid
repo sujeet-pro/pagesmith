@@ -1,0 +1,28 @@
+%% Diagram: Theme state flow - html state to effects
+%% Type: flowchart
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  subgraph Html["State on <html>"]
+    direction TB
+    Scheme["color-scheme-*"]
+    Theme["theme-*"]
+    Size["data-text-size"]
+  end
+
+  Tokens["light-dark() token values\nand theme variant overrides"]
+  Images[".only-light / .only-dark\nimage switching"]
+  Code["Light and dark\nShiki code themes"]
+  Type["Root font-size scaling"]
+  Site["Rendered site chrome\nand content"]
+
+  Scheme --> Tokens
+  Theme --> Tokens
+  Size --> Type
+  Scheme --> Images
+  Scheme --> Code
+
+  Tokens --> Site
+  Type --> Site
+
+  style Html fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

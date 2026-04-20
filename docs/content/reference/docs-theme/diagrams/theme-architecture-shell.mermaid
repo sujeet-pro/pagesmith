@@ -1,0 +1,41 @@
+%% Diagram: Docs theme - shared site shell
+%% Type: flowchart
+%%{init: {'htmlLabels': false}}%%
+
+flowchart LR
+  subgraph Layouts["Docs-owned layouts"]
+    Home["DocHome"]
+    Page["DocPage"]
+    Listing["DocListing"]
+    NotFound["DocNotFound"]
+  end
+
+  Shell["PageShell\nshared site shell"]
+
+  subgraph Shared["Shared site surface"]
+    direction TB
+    Header["SiteHeader"]
+    Sidebar["SiteSidebar"]
+    SidebarModal["SiteSidebarModal"]
+    TOC["TableOfContents"]
+    Footer["SiteFooter"]
+  end
+
+  Runtime["theme/runtime/main.ts\nstandalone runtime"]
+
+  Page --> Shell
+  Listing --> Shell
+  Shell --> Header
+  Shell --> Sidebar
+  Shell --> SidebarModal
+  Shell --> TOC
+  Shell --> Footer
+  Home --> Header
+  Home --> SidebarModal
+  Home --> Footer
+  NotFound --> Header
+
+  Runtime -. enhances .-> Shell
+
+  style Layouts fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
+  style Shared fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

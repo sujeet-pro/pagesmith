@@ -1,11 +1,12 @@
 %% Diagram: Frontmatter schema families
 %% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
-flowchart TD
+flowchart LR
   subgraph DocsSite["Docs site"]
     docsSchema["DocsFrontmatterSchema"]
   end
   subgraph Collections["defineCollection markdown"]
+    direction TB
     baseSchema["BaseFrontmatterSchema"]
     blogSchema["BlogFrontmatterSchema"]
     projectSchema["ProjectFrontmatterSchema"]
