@@ -1,0 +1,109 @@
+name: Feature Request
+description: Suggest a new feature, enhancement, or new export for any @pagesmith/* package
+title: "[feat]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature!
+
+        Before opening this request please:
+
+        - [Search existing issues and PRs](https://github.com/sujeet-pro/pagesmith/issues?q=is%3Aissue) so we don't duplicate work.
+        - Check the [docs](https://projects.sujeet.pro/pagesmith/) — the feature may already exist behind a flag.
+
+  - type: checkboxes
+    id: pre-checks
+    attributes:
+      label: Pre-submission checklist
+      options:
+        - label: I searched the existing issues and did not find a duplicate proposal.
+          required: true
+        - label: This is a single, focused proposal (not a wish list).
+          required: true
+
+  - type: checkboxes
+    id: packages
+    attributes:
+      label: Affected package(s)
+      description: |
+        Select every Pagesmith package this proposal touches. Leave all unchecked for cross-cutting / repo-wide proposals.
+        Selections are converted into `pkg:core` / `pkg:docs` / `pkg:site` labels automatically.
+      options:
+        - label: "`@pagesmith/core`"
+        - label: "`@pagesmith/docs`"
+        - label: "`@pagesmith/site`"
+        - label: "Examples / templates (`examples/*`)"
+        - label: "Cross-cutting / repo-wide"
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Which area is this about?
+      multiple: true
+      options:
+        - CLI (`pagesmith-docs`, `pagesmith-site`, `pagesmith-core`)
+        - Programmatic API
+        - Markdown / content layer
+        - Themes / layouts / components
+        - Pagefind search
+        - Validator
+        - Init / scaffolding
+        - MCP server
+        - Schemas
+        - Documentation site
+        - New package or framework integration
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem does this feature solve? Who is it for?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like this to work? Concrete API, CLI flags, config keys, or example output if you have it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any alternative solutions, workarounds, or existing tools you've evaluated.
+
+  - type: dropdown
+    id: breaking
+    attributes:
+      label: Would this be a breaking change?
+      options:
+        - "No"
+        - "Yes"
+        - "I'm not sure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Are you willing to send a pull request?
+      options:
+        - "Yes — I plan to send a PR."
+        - "Yes — with guidance."
+        - "No — I am only proposing."
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context (optional)
+      description: Mockups, references to similar features in other tools, prior art, etc.

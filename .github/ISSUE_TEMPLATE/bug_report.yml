@@ -1,0 +1,158 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in any @pagesmith/* package
+title: "[bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report.
+
+        Before opening this issue please:
+
+        - [Search existing issues](https://github.com/sujeet-pro/pagesmith/issues?q=is%3Aissue) to avoid duplicates.
+        - Skim the [docs](https://projects.sujeet.pro/pagesmith/) — your scenario may already be documented.
+        - Try with the latest version (`npm i @pagesmith/<package>@latest`) — many fixes ship between minor releases.
+
+  - type: checkboxes
+    id: pre-checks
+    attributes:
+      label: Pre-submission checklist
+      options:
+        - label: I searched the existing issues and did not find a duplicate.
+          required: true
+        - label: I reproduced the bug on the latest published version of the affected package(s).
+          required: true
+        - label: I can share a minimal reproduction (snippet, repo, or steps).
+          required: true
+
+  - type: checkboxes
+    id: packages
+    attributes:
+      label: Affected package(s)
+      description: |
+        Select every Pagesmith package the bug touches. Leave all unchecked only if you cannot tell which package is responsible.
+        Selections are converted into `pkg:core` / `pkg:docs` / `pkg:site` labels automatically.
+      options:
+        - label: "`@pagesmith/core`"
+        - label: "`@pagesmith/docs`"
+        - label: "`@pagesmith/site`"
+        - label: "Examples / templates (`examples/*`)"
+        - label: "Not sure / I can't tell"
+
+  - type: input
+    id: versions
+    attributes:
+      label: Package version(s)
+      description: Versions of the affected packages (output of `npm ls @pagesmith/core @pagesmith/docs @pagesmith/site`).
+      placeholder: e.g. @pagesmith/docs 0.9.8, @pagesmith/core 0.9.8
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js version
+      description: Output of `node --version`.
+      placeholder: e.g. v24.4.0
+    validations:
+      required: true
+
+  - type: input
+    id: package-manager
+    attributes:
+      label: Package manager
+      description: Name and version (e.g. `npm 11.x`, `pnpm 9.x`, `yarn 4.x`, `bun 1.x`).
+      placeholder: e.g. npm 11.12.1
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did you hit the bug?
+      multiple: true
+      options:
+        - Build (`pagesmith-docs build` / `pagesmith-site build`)
+        - Dev server (`pagesmith-docs dev` / `pagesmith-site dev`)
+        - Preview (`pagesmith-docs preview` / `pagesmith-site preview`)
+        - Validator (`pagesmith-docs validate`, `validateDocs`)
+        - Init / scaffolding (`pagesmith-docs init`)
+        - MCP server (`pagesmith-docs mcp --stdio`)
+        - Markdown rendering / content layer
+        - Theme / layout overrides
+        - Pagefind search
+        - Schemas / config validation
+        - Programmatic API
+        - Documentation site
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Minimal, ordered steps. A repo link or paste of a small `pagesmith.config.json5` + content snippet is ideal.
+      placeholder: |
+        1. `npx pagesmith-docs init --yes`
+        2. Edit `docs/guide/README.md` to …
+        3. Run `npx pagesmith-docs build`
+        4. …
+      render: bash
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction-link
+    attributes:
+      label: Reproduction link (optional)
+      description: Link to a minimal repo, gist, StackBlitz, or CodeSandbox that reproduces the bug.
+      placeholder: https://github.com/your-name/pagesmith-repro
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include error messages, stack traces, build output, or screenshots if relevant. Paste verbatim.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      description: Paste any relevant CLI output, browser console output, or diagnostic logs.
+      render: text
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context (optional)
+      description: Screenshots, related issues, links to discussions, anything else that helps.

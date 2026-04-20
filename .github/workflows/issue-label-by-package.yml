@@ -1,0 +1,108 @@
+name: Issue — label by package
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: issue-label-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  apply-package-labels:
+    if: ${{ github.event.issue && !github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply pkg:* labels from "Affected package(s)" checkboxes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || ''
+
+            // The issue forms render checkbox selections as Markdown task lists.
+            // Lines look like:
+            //   - [x] `@pagesmith/core`
+            //   - [ ] `@pagesmith/docs`
+            // We map the checked entries to repo labels.
+            const PACKAGE_TO_LABEL = [
+              { match: /@pagesmith\/core/i, label: 'pkg:core' },
+              { match: /@pagesmith\/docs/i, label: 'pkg:docs' },
+              { match: /@pagesmith\/site/i, label: 'pkg:site' },
+              { match: /examples\s*\/\s*templates|examples\/\*/i, label: 'pkg:examples' },
+              { match: /cross-cutting|repo-wide/i, label: 'scope:repo' },
+            ]
+
+            const checkedLines = body
+              .split('\n')
+              .filter((line) => /^\s*-\s*\[[xX]\]/.test(line))
+
+            const labelsToAdd = new Set()
+            for (const line of checkedLines) {
+              for (const { match, label } of PACKAGE_TO_LABEL) {
+                if (match.test(line)) labelsToAdd.add(label)
+              }
+            }
+
+            // Ensure every label exists before assigning. Issues in fresh repos
+            // would otherwise fail with 422.
+            const colorByLabel = {
+              'pkg:core': '0e8a16',
+              'pkg:docs': '1d76db',
+              'pkg:site': '5319e7',
+              'pkg:examples': 'd4c5f9',
+              'scope:repo': 'fef2c0',
+            }
+
+            for (const label of labelsToAdd) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label,
+                })
+              } catch (err) {
+                if (err.status === 404) {
+                  await github.rest.issues.createLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label,
+                    color: colorByLabel[label] ?? 'ededed',
+                    description: `Auto-applied from issue templates for ${label}`,
+                  })
+                } else {
+                  throw err
+                }
+              }
+            }
+
+            // Reconcile: keep existing non-pkg labels, replace pkg:* with the new set.
+            // We deliberately don't strip pkg:* labels added by maintainers manually
+            // when the form is left untouched (labelsToAdd is empty).
+            if (labelsToAdd.size === 0) {
+              core.info('No "Affected package(s)" checkboxes were ticked. No label changes.')
+              return
+            }
+
+            const current = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const keep = current.data
+              .map((l) => l.name)
+              .filter((n) => !n.startsWith('pkg:') && n !== 'scope:repo')
+
+            const finalLabels = Array.from(new Set([...keep, ...labelsToAdd]))
+
+            await github.rest.issues.setLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: finalLabels,
+            })
+
+            core.info(`Set labels: ${finalLabels.join(', ')}`)

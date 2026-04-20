@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://projects.sujeet.pro/pagesmith/
+    about: Guides, configuration reference, API reference, and recipes for every @pagesmith/* package.
+  - name: 💬 GitHub Discussions
+    url: https://github.com/sujeet-pro/pagesmith/discussions
+    about: Ask questions, share ideas, and get help from the community.
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/sujeet-pro/pagesmith/security/advisories/new
+    about: Privately disclose a security issue. Please do NOT open a public issue for security bugs.
