@@ -36,12 +36,12 @@ That alone gives you:
 
 The `search` object is validated against `packages/docs/schemas/pagesmith-config.schema.json`. Supported keys (everything else is rejected at build time):
 
-| Key              | Type       | Default | Purpose                                                                |
-| ---------------- | ---------- | ------- | ---------------------------------------------------------------------- |
-| `enabled`        | `boolean`  | `true`  | Toggle the whole search integration (index + trigger + UI).            |
-| `showImages`     | `boolean`  | `false` | Show images inside result tiles.                                       |
-| `showSubResults` | `boolean`  | `true`  | Show per-heading sub-results for long pages.                           |
-| `pagefindFlags`  | `string[]` | `[]`    | Extra CLI flags forwarded to `pagefind` during `pagesmith-docs build`. |
+| Key              | Type       | Default | Purpose                                                                                                                                                                                                                                                                                     |
+| ---------------- | ---------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`        | `boolean`  | `true`  | Toggle the whole integration. When `false`: skip the Pagefind binary at build, drop the Pagefind UI script + stylesheet from every page, omit the modal and trigger markup, and do not emit `<outDir>/pagefind/`. Use this to shave the WASM + index + UI bundle when search is not needed. |
+| `showImages`     | `boolean`  | `false` | Show images inside result tiles.                                                                                                                                                                                                                                                            |
+| `showSubResults` | `boolean`  | `true`  | Show per-heading sub-results for long pages.                                                                                                                                                                                                                                                |
+| `pagefindFlags`  | `string[]` | `[]`    | Extra CLI flags forwarded to `pagefind` during `pagesmith-docs build`.                                                                                                                                                                                                                      |
 
 ```json5
 {
@@ -119,7 +119,8 @@ After a `build`, verify:
 - Pagefind runs during `pagesmith-docs build`. `dev` uses a lightweight fallback — minor ranking differences between dev and build are expected.
 - Do not run `pagefind` CLI separately. Pagesmith orchestrates build + index + runtime together; a manual run produces an index that does not match Pagesmith's asset hashing.
 - When `basePath` is set, client JS fetches `<basePath>/pagefind/...`. Do not hand-assemble that URL; rely on the runtime + `data-ps-search-trigger` hook.
-- Disabling search does not remove Pagefind from `node_modules`. That is expected — it is a transitive dependency.
+- The Pagefind component-UI script is loaded as a `<script type="module">`, so `document.currentScript` is `null` and Pagefind cannot auto-detect its bundle path. Pagesmith sidesteps this by emitting an explicit `<pagefind-config bundle-path="<basePath>/pagefind/">` element directly before the loader script. You should not set the bundle path yourself — overriding it would shadow the auto-derived value and break sub-path deploys.
+- Disabling search does not remove Pagefind from `node_modules`. That is expected — it is a transitive dependency. Build output, however, contains zero Pagefind assets when `enabled: false`.
 
 ## Reference
 

@@ -414,4 +414,79 @@ Body.`,
     expect(pageHtml).not.toContain('class="doc-footer"');
     expect(pageHtml).toContain('id="doc-main-content"');
   });
+
+  it("emits an explicit pagefind-config bundle-path that includes basePath", async () => {
+    // Regression: Pagefind's component-ui auto-detects bundlePath from
+    // `document.currentScript.src`, but `currentScript` is null for module
+    // scripts, so detection silently falls back to "/pagefind/" — which 404s
+    // on any sub-path deploy. Ensure we always emit <pagefind-config>.
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-pagefind-config-"));
+    mkdirSync(join(rootDir, "content"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      '{ name: "Search Bundle Test", origin: "https://example.dev", basePath: "/docs", search: { enabled: true } }',
+      "utf-8",
+    );
+    writeFileSync(join(rootDir, "content", "README.md"), "# Home\n\nWelcome!", "utf-8");
+
+    const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
+    mkdirSync(config.outDir, { recursive: true });
+
+    await renderDocs(config);
+
+    const homeHtml = readFileSync(join(config.outDir, "index.html"), "utf-8");
+    expect(homeHtml).toContain('<pagefind-config bundle-path="/docs/pagefind/">');
+    // The pagefind-config element must precede the loader script so detection
+    // never runs against a module script (where currentScript is null).
+    const configIdx = homeHtml.indexOf("<pagefind-config");
+    const scriptIdx = homeHtml.indexOf("/docs/pagefind/pagefind-component-ui.js");
+    expect(configIdx).toBeGreaterThan(-1);
+    expect(scriptIdx).toBeGreaterThan(configIdx);
+    expect(homeHtml).toContain('href="/docs/pagefind/pagefind-component-ui.css"');
+  });
+
+  it("emits pagefind-config with the root bundle-path when basePath is unset", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-pagefind-root-"));
+    mkdirSync(join(rootDir, "content"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      '{ name: "Root Search Test", origin: "https://example.dev", search: { enabled: true } }',
+      "utf-8",
+    );
+    writeFileSync(join(rootDir, "content", "README.md"), "# Home\n", "utf-8");
+
+    const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
+    mkdirSync(config.outDir, { recursive: true });
+
+    await renderDocs(config);
+
+    const homeHtml = readFileSync(join(config.outDir, "index.html"), "utf-8");
+    expect(homeHtml).toContain('<pagefind-config bundle-path="/pagefind/">');
+  });
+
+  it("omits every pagefind surface when search.enabled is false", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-search-disabled-"));
+    mkdirSync(join(rootDir, "content"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      '{ name: "No Search", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
+      "utf-8",
+    );
+    writeFileSync(join(rootDir, "content", "README.md"), "# Home\n", "utf-8");
+
+    const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
+    mkdirSync(config.outDir, { recursive: true });
+
+    await renderDocs(config);
+
+    const homeHtml = readFileSync(join(config.outDir, "index.html"), "utf-8");
+    expect(homeHtml).not.toContain("<pagefind-config");
+    expect(homeHtml).not.toContain("pagefind-component-ui.js");
+    expect(homeHtml).not.toContain("pagefind-component-ui.css");
+    expect(homeHtml).not.toContain("<pagefind-modal");
+    expect(homeHtml).not.toContain("<pagefind-modal-trigger");
+  });
 });

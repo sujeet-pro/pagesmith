@@ -103,7 +103,7 @@ The shared shell then decides when to render the header, left sidebar, right TOC
 - stylesheet and script tags
 - font preloading
 - Google Analytics injection when configured
-- the Pagefind UI assets and `<pagefind-modal>` markup when `search.enabled !== false`
+- when `search.enabled !== false`: the Pagefind UI script + stylesheet, the `<pagefind-modal>` markup, and an explicit `<pagefind-config bundle-path="<basePath>/pagefind/">` element rendered before the loader script (so the bundle path resolves correctly under any sub-path deploy — `document.currentScript` is `null` for module scripts and Pagefind's auto-detection silently falls back to `/pagefind/` without it)
 
 ### PageShell
 

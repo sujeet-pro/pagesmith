@@ -250,12 +250,12 @@ When collapsible sidebars are enabled, each section's `meta.json5` can control i
 
 Search is powered by [Pagefind](https://pagefind.app/), which indexes your built HTML pages for fast client-side full-text search.
 
-| Field                   | Type       | Default | Description                                                                                                                                                                                      |
-| ----------------------- | ---------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `search.enabled`        | `boolean`  | `true`  | Enable or disable the built-in Pagefind search. When enabled, the search index is built during `pagesmith-docs build` and the search UI (modal with `Ctrl+K` / `Cmd+K` shortcut) is included.    |
-| `search.showImages`     | `boolean`  | `false` | Whether to display page thumbnail images in search results.                                                                                                                                      |
-| `search.showSubResults` | `boolean`  | `true`  | Whether to show sub-results (individual sections within a page) in search results. When enabled, Pagefind breaks pages into sections by heading and shows matching sections as separate results. |
-| `search.pagefindFlags`  | `string[]` | `[]`    | Extra CLI flags passed directly to the Pagefind binary during the build step. Useful for advanced configuration like custom selectors or exclusion rules.                                        |
+| Field                   | Type       | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ----------------------- | ---------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `search.enabled`        | `boolean`  | `true`  | Toggle the built-in Pagefind integration. When `true`, the search index is built during `pagesmith-docs build` and the search UI (modal with `Ctrl+K` / `Cmd+K`) is included on every page. When `false`, the Pagefind binary is never invoked, the `<outDir>/pagefind/` directory is not emitted, and every page is rendered without the Pagefind UI script, stylesheet, modal markup, or trigger button — useful for shaving the index, WASM, and UI bundle when search is not needed. |
+| `search.showImages`     | `boolean`  | `false` | Whether to display page thumbnail images in search results.                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `search.showSubResults` | `boolean`  | `true`  | Whether to show sub-results (individual sections within a page) in search results. When enabled, Pagefind breaks pages into sections by heading and shows matching sections as separate results.                                                                                                                                                                                                                                                                                         |
+| `search.pagefindFlags`  | `string[]` | `[]`    | Extra CLI flags passed directly to the Pagefind binary during the build step. Useful for advanced configuration like custom selectors or exclusion rules.                                                                                                                                                                                                                                                                                                                                |
 
 Example:
 
@@ -267,6 +267,8 @@ search: {
   pagefindFlags: ['--verbose'],
 }
 ```
+
+The Pagefind component-UI script is loaded as a `<script type="module">` and would normally auto-detect its bundle path from the script's URL — except `document.currentScript` is `null` for module scripts, so detection silently falls back to `/pagefind/` and breaks every sub-path deploy. To keep search working under any `basePath`, Pagesmith emits an explicit `<pagefind-config bundle-path="<basePath>/pagefind/">` element directly before the loader script. You never need to set this manually.
 
 ### Theme Configuration
 

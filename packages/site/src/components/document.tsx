@@ -178,7 +178,18 @@ export function SiteDocument({
         ))}
         <script innerHTML="document.documentElement.classList.remove('no-js')" />
         {searchEnabled ? (
-          <script src={`${base}/pagefind/pagefind-component-ui.js`} type="module" />
+          <Fragment>
+            {/*
+              Pagefind's component-ui auto-detects its bundle path from
+              `document.currentScript.src`, but `document.currentScript` is
+              `null` for `<script type="module">` per the HTML spec. Emit an
+              explicit <pagefind-config> so the bundle path matches the
+              site's basePath instead of falling back to "/pagefind/".
+              See: https://pagefind.app/docs/components/config/
+            */}
+            <pagefind-config bundle-path={`${base}/pagefind/`} />
+            <script src={`${base}/pagefind/pagefind-component-ui.js`} type="module" />
+          </Fragment>
         ) : null}
         {gaId ? (
           <Fragment>

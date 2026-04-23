@@ -50,6 +50,11 @@ Error solutions specific to the docs package. See also: `node_modules/@pagesmith
 **Pattern:** Pagefind returns no results
 **Fix:** Ensure `search.enabled: true` in config, the layout includes `data-pagefind-body` on the content-only wrapper (not the full shell), and pages have sufficient text content. Rebuild with `npx pagesmith-docs build`.
 
+### Search modal shows "Could not load search bundle. Bundle path: /pagefind/"
+
+**Pattern:** Site is deployed under a sub-path (e.g. `/docs/`, `https://user.github.io/repo/`) and opening search shows a Pagefind error pointing at `/pagefind/` instead of `<basePath>/pagefind/`.
+**Fix:** Upgrade `@pagesmith/docs` to a version that emits the explicit `<pagefind-config bundle-path="...">` element ahead of the loader script. Pagefind's component-UI auto-detects its bundle path from `document.currentScript.src`, but `currentScript` is `null` for `<script type="module">` per the HTML spec, so detection silently falls back to `/pagefind/`. Older Pagesmith builds did not emit `<pagefind-config>`. After upgrading, rebuild and confirm `<pagefind-config bundle-path="<basePath>/pagefind/">` appears in `index.html`.
+
 ## CLI Errors
 
 ### Unknown command

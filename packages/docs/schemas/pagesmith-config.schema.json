@@ -163,15 +163,19 @@
       "type": "object",
       "properties": {
         "enabled": {
+          "description": "Toggle the entire Pagefind integration. Defaults to true. Setting this to false skips the pagefind binary at build time, omits the pagefind UI script, stylesheet, modal markup, and trigger button from every rendered page, and does not emit a `pagefind/` directory in the build output — useful for shaving the index, WASM, and UI bundle when search is not needed.",
           "type": "boolean"
         },
         "showImages": {
+          "description": "Show images in search results. Defaults to false.",
           "type": "boolean"
         },
         "showSubResults": {
+          "description": "Show per-heading sub-results within long pages. Defaults to true.",
           "type": "boolean"
         },
         "pagefindFlags": {
+          "description": "Extra CLI flags forwarded to the `pagefind` binary during `pagesmith-docs build`.",
           "type": "array",
           "items": {
             "type": "string"

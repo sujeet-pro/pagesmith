@@ -56,10 +56,21 @@ export const DocsSidebarConfigSchema = z.object({
 export type DocsSidebarConfig = z.infer<typeof DocsSidebarConfigSchema>;
 
 export const DocsSearchConfigSchema = z.object({
-  enabled: z.boolean().optional(),
-  showImages: z.boolean().optional(),
-  showSubResults: z.boolean().optional(),
-  pagefindFlags: z.array(z.string()).optional(),
+  enabled: z
+    .boolean()
+    .optional()
+    .describe(
+      "Toggle the entire Pagefind integration. Defaults to true. Setting this to false skips the pagefind binary at build time, omits the pagefind UI script, stylesheet, modal markup, and trigger button from every rendered page, and does not emit a `pagefind/` directory in the build output — useful for shaving the index, WASM, and UI bundle when search is not needed.",
+    ),
+  showImages: z.boolean().optional().describe("Show images in search results. Defaults to false."),
+  showSubResults: z
+    .boolean()
+    .optional()
+    .describe("Show per-heading sub-results within long pages. Defaults to true."),
+  pagefindFlags: z
+    .array(z.string())
+    .optional()
+    .describe("Extra CLI flags forwarded to the `pagefind` binary during `pagesmith-docs build`."),
 });
 
 export type DocsSearchConfig = z.infer<typeof DocsSearchConfigSchema>;

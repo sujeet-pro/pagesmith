@@ -100,6 +100,44 @@ describe("build", () => {
     ).rejects.toThrow("Config validation failed");
   });
 
+  it("skips Pagefind indexing entirely when search.enabled is false", async () => {
+    // Even with a flag the pagefind binary would reject, the build must
+    // succeed when search is disabled — the binary is never invoked, the
+    // pagefind/ directory is not created, and no pagefind asset is emitted.
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-build-no-search-"));
+    mkdirSync(join(rootDir, "content"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      [
+        "{",
+        '  name: "Build Test",',
+        '  origin: "https://example.dev",',
+        // Flag would explode if pagefind ran — proves the binary is skipped.
+        '  search: { enabled: false, pagefindFlags: ["--definitely-invalid-pagefind-flag"] },',
+        "}",
+      ].join("\n"),
+      "utf-8",
+    );
+    writeFileSync(join(rootDir, "content", "README.md"), "# Home\n\nNo search.", "utf-8");
+
+    await build({ configPath: join(rootDir, "pagesmith.config.json5"), basePath: "/docs" });
+
+    const outDir = join(rootDir, "gh-pages");
+    expect(existsSync(join(outDir, "index.html"))).toBe(true);
+    expect(existsSync(join(outDir, "pagefind"))).toBe(false);
+
+    const html = readFileSync(join(outDir, "index.html"), "utf-8");
+    // The pagefind UI surfaces must all be omitted. Layout markers like
+    // `data-pagefind-body=""` are harmless without a Pagefind runtime, so we
+    // only assert that the runtime, modal, trigger, and config element are gone.
+    expect(html).not.toContain("pagefind-component-ui");
+    expect(html).not.toContain("pagefind-config");
+    expect(html).not.toContain("<pagefind-modal");
+    expect(html).not.toContain("<pagefind-modal-trigger");
+    expect(html).not.toContain("/pagefind/");
+  });
+
   it("fails builds when Pagefind indexing errors with search enabled", async () => {
     rootDir = mkdtempSync(join(tmpdir(), "ps-docs-build-"));
     mkdirSync(join(rootDir, "content"), { recursive: true });
