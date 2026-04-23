@@ -13,6 +13,13 @@ export type PagefindIndexOptions = {
   logPrefix?: string;
   logStart?: boolean;
   logger?: PagefindLogger;
+  /**
+   * Control how the pagefind child process's stdio is connected. Defaults to
+   * `"inherit"` so CLI users see live indexing output. Tests that exercise
+   * pagefind failure paths can pass `"ignore"` to keep the runner output
+   * focused on real assertions instead of inheriting the binary's stderr.
+   */
+  stdio?: "inherit" | "ignore" | "pipe";
 };
 
 function resolvePackageRoot(startPath: string): string {
@@ -77,8 +84,13 @@ export function runPagefindIndexing(outDir: string, options: PagefindIndexOption
 
   try {
     const pagefindBin = resolvePagefindBinaryPath();
+    // Default the pagefind child stdio to `"inherit"` for CLI users, but
+    // automatically demote to `"ignore"` when running under Vitest so tests
+    // that intentionally trigger pagefind failures do not pollute the
+    // runner output with the binary's own stderr.
+    const defaultStdio = process.env.VITEST ? "ignore" : "inherit";
     execFileSync(process.execPath, [pagefindBin, "--site", outDir, ...(options.extraFlags ?? [])], {
-      stdio: "inherit",
+      stdio: options.stdio ?? defaultStdio,
     });
   } catch (error) {
     if (isMissingPagefindDependency(error)) {

@@ -1,5 +1,6 @@
 import {
   createHighlighter,
+  getSingletonHighlighter,
   type BundledLanguage,
   type BundledTheme,
   type LanguageInput,
@@ -63,7 +64,12 @@ function rehypePagesmithCodeRenderer(config: MarkdownConfig) {
   const lightTheme = config.shiki?.themes?.light || DEFAULT_LIGHT_THEME;
   const darkTheme = config.shiki?.themes?.dark || DEFAULT_DARK_THEME;
   const defaultShowLineNumbers = config.shiki?.defaultShowLineNumbers ?? true;
-  const highlighterPromise = createHighlighter({
+  // Use Shiki's singleton highlighter so repeated processor builds (one per
+  // markdown pipeline instance, every test render, every dev-server rebuild)
+  // share a single grammar/theme registry. `createHighlighter` instead spins
+  // up a fresh instance each call and Shiki itself warns once 10+ live
+  // instances accumulate.
+  const highlighterPromise = getSingletonHighlighter({
     themes: [lightTheme, darkTheme],
     langs: [],
   });

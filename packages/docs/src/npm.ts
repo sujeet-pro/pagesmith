@@ -18,8 +18,9 @@ import { join } from "path";
 const REGISTRY_BASE = "https://registry.npmjs.org";
 /** Cache window for resolved versions (1 hour). Keeps dev/build fast without going stale for long. */
 const CACHE_TTL_MS = 60 * 60 * 1000;
-/** Per-request hard ceiling so a slow registry can never block a build for long. */
-const REQUEST_TIMEOUT_MS = 4_000;
+/** Per-request hard ceiling so a slow registry can never block a build for long.
+ *  Generous enough to absorb a cold DNS+TLS handshake on a fresh CI runner. */
+const REQUEST_TIMEOUT_MS = 10_000;
 
 type CacheEntry = {
   version: string | null;
@@ -71,13 +72,41 @@ async function fetchVersionFromRegistry(packageName: string): Promise<string | n
       headers: { accept: "application/json" },
       signal: controller.signal,
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.warn(
+        `[pagesmith] npm registry returned ${response.status} for ${packageName}; will fall back to local node_modules if available.`,
+      );
+      return null;
+    }
     const json = (await response.json()) as { version?: unknown };
     return typeof json.version === "string" ? json.version : null;
-  } catch {
+  } catch (error) {
+    const reason = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.warn(
+      `[pagesmith] npm registry fetch failed for ${packageName} (${reason}); will fall back to local node_modules if available.`,
+    );
     return null;
   } finally {
     clearTimeout(timer);
+  }
+}
+
+/**
+ * Read the installed version of a package from `node_modules/<name>/package.json`.
+ *
+ * Used as a fallback when the registry is unreachable (cold CI runners, offline
+ * builds) so the NPM badge still renders with the correct version. Returns
+ * `undefined` when the package is not installed locally.
+ */
+function resolveLocalPackageVersion(packageName: string, rootDir: string): string | undefined {
+  try {
+    const pkgPath = join(rootDir, "node_modules", packageName, "package.json");
+    if (!existsSync(pkgPath)) return undefined;
+    const raw = readFileSync(pkgPath, "utf-8");
+    const parsed = JSON.parse(raw) as { version?: unknown };
+    return typeof parsed.version === "string" ? parsed.version : undefined;
+  } catch {
+    return undefined;
   }
 }
 
@@ -115,10 +144,25 @@ export async function getLatestNpmVersion(
   if (existing) return existing;
 
   const promise = (async () => {
-    const version = await fetchVersionFromRegistry(packageName);
-    cache[packageName] = { version, fetchedAt: Date.now() };
+    const registryVersion = await fetchVersionFromRegistry(packageName);
+    if (registryVersion) {
+      cache[packageName] = { version: registryVersion, fetchedAt: Date.now() };
+      persistCache();
+      return registryVersion;
+    }
+    // Registry failed or returned nothing — fall back to the locally installed
+    // version. This keeps the badge correct on CI runners where the first
+    // outbound HTTPS call is slow enough to hit the abort, and in fully
+    // offline builds.
+    const localVersion = resolveLocalPackageVersion(packageName, rootDir);
+    if (localVersion) {
+      cache[packageName] = { version: localVersion, fetchedAt: Date.now() };
+      persistCache();
+      return localVersion;
+    }
+    cache[packageName] = { version: null, fetchedAt: Date.now() };
     persistCache();
-    return version ?? undefined;
+    return undefined;
   })();
   inFlight.set(packageName, promise);
   try {

@@ -1,5 +1,5 @@
 import { join } from "path";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { z } from "zod";
 import { ContentStore } from "../store";
 import type { ContentLayerConfig } from "../schemas/content-config";
@@ -386,23 +386,36 @@ describe("ContentStore", () => {
     });
 
     it("warns instead of throwing in non-strict mode", async () => {
-      const config = makeConfig({
-        strict: false,
-        collections: {
-          bad: {
-            loader: "json",
-            directory: "content",
-            include: ["**/*.md"],
-            schema: z.object({ title: z.string() }),
+      // The store deliberately calls `console.warn` for each loader failure
+      // when not in strict mode — silence the expected output here so it
+      // does not pollute the test runner stderr, and assert the warnings
+      // were actually emitted.
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      try {
+        const config = makeConfig({
+          strict: false,
+          collections: {
+            bad: {
+              loader: "json",
+              directory: "content",
+              include: ["**/*.md"],
+              schema: z.object({ title: z.string() }),
+            },
           },
-        },
-      });
-      const store = new ContentStore(config);
-      const entries = await store.loadCollection("bad", config.collections.bad);
+        });
+        const store = new ContentStore(config);
+        const entries = await store.loadCollection("bad", config.collections.bad);
 
-      expect(entries.length).toBe(3);
-      const issues = store.getIssues("bad");
-      expect(issues.size).toBeGreaterThan(0);
+        expect(entries.length).toBe(3);
+        const issues = store.getIssues("bad");
+        expect(issues.size).toBeGreaterThan(0);
+        expect(warnSpy).toHaveBeenCalled();
+        for (const call of warnSpy.mock.calls) {
+          expect(String(call[0])).toMatch(/\[pagesmith\] \[bad\] Failed to load/);
+        }
+      } finally {
+        warnSpy.mockRestore();
+      }
     });
   });
 

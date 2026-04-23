@@ -18,6 +18,7 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   golang: "go",
   htm: "html",
   javascript: "js",
+  json5: "json",
   jsonc: "json",
   jsx: "jsx",
   markdown: "md",
@@ -104,8 +105,12 @@ function getFallbackColors(key: string): { background: string; foreground: strin
     hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   }
   const hue = hash % 360;
+  // Lightness 30% keeps the badge readable across all hues — even the
+  // brightest yellow/green hues clear WCAG 2.2 AA 4.5:1 against the white
+  // foreground. The previous 42% lightness landed around ~3.2:1 for
+  // hues in the 40–80 range (e.g. json5 → hsl(45 62% 42%)).
   return {
-    background: `hsl(${hue} 62% 42%)`,
+    background: `hsl(${hue} 62% 30%)`,
     foreground: "#ffffff",
   };
 }

@@ -41,18 +41,14 @@ const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
  * failures. The static `validate:a11y` job + jsx-a11y oxlint rules already
  * catch every structural issue (no-alt, missing labels, invalid ARIA).
  *
- * Color contrast still has known holes inside the bundled Shiki theme
- * tokens (`#D73A49` keyword on a `.ps-code-line--mark` highlighted line,
- * `#E36209` orange property names) — both are upstream theme defaults
- * that we can only fix by swapping Shiki themes. The shared
- * `@pagesmith/site` color tokens (`--color-text-muted`, etc.) have already
- * been tuned to clear ≥4.5:1 against every documented background.
+ * Empty by design: the shared `@pagesmith/site` color tokens
+ * (`--color-text-muted`, etc.) and the Shiki theme overrides in
+ * `packages/site/src/styles/code/block.css` have been tuned to clear
+ * ≥4.5:1 against every documented background — including the warm overlay
+ * `.ps-code-line--mark` lays over highlighted lines. Any new color-contrast
+ * regression should fail the test, not silently warn.
  */
-const RULES_TO_WARN_ONLY = new Set<string>([
-  // TODO(a11y): swap the bundled Shiki light/dark themes for variants that
-  // keep the highlighted-line keyword tokens at ≥4.5:1.
-  "color-contrast",
-]);
+const RULES_TO_WARN_ONLY = new Set<string>([]);
 
 function partitionViolations(violations: AxeResult[]): {
   blocking: AxeResult[];
@@ -70,10 +66,26 @@ function partitionViolations(violations: AxeResult[]): {
 async function runAxeScan(page: Page, themeOverride?: "light" | "dark") {
   if (themeOverride) {
     await page.emulateMedia({ colorScheme: themeOverride });
+    // Force the page's color-scheme class so `light-dark()` and theme JS
+    // both resolve to the requested side without depending on storage.
+    // The pagesmith theme runtime keys off `color-scheme-{auto,light,dark}`.
     await page.evaluate((scheme) => {
-      document.documentElement.dataset.theme = scheme;
+      const root = document.documentElement;
+      root.classList.remove("color-scheme-auto", "color-scheme-light", "color-scheme-dark");
+      root.classList.add(`color-scheme-${scheme}`);
     }, themeOverride);
   }
+  // Disable CSS transitions/animations so axe sees final-state colors instead
+  // of intermediate values during the color-scheme switch.
+  await page.addStyleTag({
+    content: `*, *::before, *::after {
+      transition: none !important;
+      animation: none !important;
+    }`,
+  });
+  // Yield once so the recalc that flushes the disabled transitions lands
+  // before axe's color-contrast pass reads computed styles.
+  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   return results;
 }
@@ -82,7 +94,14 @@ function formatViolations(violations: AxeResult[]): string {
   return violations
     .map((v) => {
       const targets = v.nodes
-        .map((n) => `    - ${n.target.join(" ")} :: ${n.html.slice(0, 200)}`)
+        .map((n) => {
+          const detail = n.any
+            .map((check) => check.message)
+            .filter(Boolean)
+            .join(" | ");
+          const detailSuffix = detail ? `\n        ${detail}` : "";
+          return `    - ${n.target.join(" ")} :: ${n.html.slice(0, 200)}${detailSuffix}`;
+        })
         .join("\n");
       return `  • ${v.id} [${v.impact ?? "unknown"}] — ${v.help}\n    ${v.helpUrl}\n${targets}`;
     })

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { execSync } from "child_process";
 import {
   existsSync,
@@ -33,8 +33,16 @@ function initGitHistory(cwd: string) {
 
 describe("renderDocs", () => {
   let rootDir = "";
+  // `renderDocs` logs `Rendering N pages...` for human CLI feedback. Silence
+  // it during tests so the runner output only carries real failures.
+  let infoSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+  });
 
   afterEach(() => {
+    infoSpy.mockRestore();
     if (rootDir && existsSync(rootDir)) {
       rmSync(rootDir, { recursive: true, force: true });
     }

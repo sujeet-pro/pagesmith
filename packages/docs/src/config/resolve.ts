@@ -278,7 +278,9 @@ export function resolveDocsConfig(
 ): ResolvedDocsConfig {
   const resolvedConfigPath = resolve(configPath ?? join(process.cwd(), "pagesmith.config.json5"));
   const userConfig = loadDocsConfig(resolvedConfigPath);
-  return resolveDocsConfigFromUser(resolvedConfigPath, userConfig, overrides);
+  return resolveDocsConfigFromUser(resolvedConfigPath, userConfig, overrides, {
+    zeroConfig: !existsSync(resolvedConfigPath),
+  });
 }
 
 /**
@@ -292,13 +294,16 @@ export async function resolveDocsConfigAsync(
 ): Promise<ResolvedDocsConfig> {
   const resolvedConfigPath = resolve(configPath ?? join(process.cwd(), "pagesmith.config.json5"));
   const userConfig = await loadDocsConfigAsync(resolvedConfigPath);
-  return resolveDocsConfigFromUser(resolvedConfigPath, userConfig, overrides);
+  return resolveDocsConfigFromUser(resolvedConfigPath, userConfig, overrides, {
+    zeroConfig: !existsSync(resolvedConfigPath),
+  });
 }
 
 function resolveDocsConfigFromUser(
   resolvedConfigPath: string,
   userConfig: DocsUserConfig,
   overrides?: { outDir?: string; basePath?: string },
+  meta: { zeroConfig?: boolean } = {},
 ): ResolvedDocsConfig {
   const rootDir = dirname(resolvedConfigPath);
   const packageName = basename(rootDir);
@@ -479,5 +484,6 @@ function resolveDocsConfigFromUser(
     },
     assets,
     _userConfig: userConfig,
+    _zeroConfig: meta.zeroConfig === true,
   };
 }

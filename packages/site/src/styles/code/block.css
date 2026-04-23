@@ -392,3 +392,40 @@
     color: var(--ps-code-comment-dark, #9aa3ab) !important;
   }
 }
+
+/* Same WCAG 2.2 AA shimming for the GitHub Shiki theme tokens that fail
+   contrast against the default code-block backgrounds AND the warm overlay
+   that `.ps-code-line--mark` lays over highlighted lines.
+
+   - Keyword red `#D73A49` (light) hits 4.79:1 on white but only 4.16:1 on
+     the highlighted-line background `#fef3e2` — below the 4.5:1 floor. Bump
+     to `#B31D28` which clears 6:1 on both backgrounds.
+   - Keyword red `#F97583` (dark) hits 6.5:1 on `#24292e` but only 4.44:1 on
+     the dark mark overlay `#3d372a`. Bump to `#FF8A95` which clears 5.2:1.
+   - Orange `#E36209` (light) hits 3.48:1 on white. Bump to `#B85100` which
+     clears ~5:1 on white and ~4.6:1 on the mark overlay.
+
+   Dark orange `#FFAB70` already clears ≥6:1 against both `#24292e` and the
+   dark mark overlay, so no override is needed. */
+
+.ps-code-pre span[style*="#D73A49"],
+.ps-code-pre span[style*="#d73a49"] {
+  color: var(--ps-code-keyword-light, #b31d28) !important;
+}
+
+.color-scheme-dark .ps-code-pre span[style*="#F97583"],
+.color-scheme-dark .ps-code-pre span[style*="#f97583"] {
+  color: var(--ps-code-keyword-dark, #ff8a95) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .color-scheme-auto .ps-code-pre span[style*="#F97583"],
+  .color-scheme-auto .ps-code-pre span[style*="#f97583"] {
+    color: var(--ps-code-keyword-dark, #ff8a95) !important;
+  }
+}
+
+.ps-code-pre span[style*="#E36209"],
+.ps-code-pre span[style*="#e36209"] {
+  color: var(--ps-code-orange-light, #b85100) !important;
+}

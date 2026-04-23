@@ -214,6 +214,13 @@ export type ResolvedDocsConfig = {
   };
   /** @internal Raw user config — used by validateConfig to distinguish explicit values from fallbacks. */
   _userConfig?: DocsUserConfig;
+  /**
+   * @internal True when no `pagesmith.config.*` file exists on disk and the
+   * resolver is operating in zero-config mode. validateConfig uses this to
+   * suppress `name`/`title`/`description`/`origin` "missing field" warnings,
+   * since the user has not opted into a config file at all.
+   */
+  _zeroConfig?: boolean;
 };
 
 export type DocsBuildOptions = {

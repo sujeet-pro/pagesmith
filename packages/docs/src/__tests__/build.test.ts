@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import {
   existsSync,
   mkdirSync,
@@ -29,8 +29,26 @@ function findHashedAsset(outDir: string, prefix: string, ext: string): string {
 
 describe("build", () => {
   let rootDir = "";
+  // The docs build pipeline is intentionally chatty for human users running
+  // the CLI (rendering progress, validation issue reporting, build summary).
+  // Silence those streams for every build test so the runner output stays
+  // focused on real failures, and so negative-path tests that exercise
+  // `validateConfig` failures or pagefind errors do not leak expected
+  // diagnostic text into stdout/stderr.
+  let infoSpy: ReturnType<typeof vi.spyOn>;
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
 
   afterEach(() => {
+    infoSpy.mockRestore();
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
     if (rootDir && existsSync(rootDir)) {
       rmSync(rootDir, { recursive: true, force: true });
     }
@@ -43,7 +61,7 @@ describe("build", () => {
 
     writeFileSync(
       join(rootDir, "pagesmith.config.json5"),
-      '{ name: "Build Test", origin: "https://example.dev", search: { enabled: false } }',
+      '{ name: "Build Test", description: "Build test docs site", origin: "https://example.dev", search: { enabled: false } }',
       "utf-8",
     );
     writeFileSync(join(rootDir, "content", "README.md"), "# Home\n\nBuild test.", "utf-8");
@@ -88,6 +106,7 @@ describe("build", () => {
       [
         "{",
         '  name: "Build Test",',
+        '  description: "Build test docs site",',
         '  origin: "https://example.dev",',
         '  contentDir: "./missing-content"',
         "}",
@@ -112,6 +131,7 @@ describe("build", () => {
       [
         "{",
         '  name: "Build Test",',
+        '  description: "Build test docs site",',
         '  origin: "https://example.dev",',
         // Flag would explode if pagefind ran — proves the binary is skipped.
         '  search: { enabled: false, pagefindFlags: ["--definitely-invalid-pagefind-flag"] },',
@@ -147,6 +167,7 @@ describe("build", () => {
       [
         "{",
         '  name: "Build Test",',
+        '  description: "Build test docs site",',
         '  origin: "https://example.dev",',
         '  search: { enabled: true, pagefindFlags: ["--definitely-invalid-pagefind-flag"] },',
         "}",
@@ -166,7 +187,7 @@ describe("build", () => {
 
     writeFileSync(
       join(rootDir, "pagesmith.config.json5"),
-      '{ name: "Build Test", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
+      '{ name: "Build Test", description: "Build test docs site", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
       "utf-8",
     );
     writeFileSync(join(rootDir, "content", "README.md"), "# Home\n\nBuild test.", "utf-8");
@@ -239,7 +260,7 @@ describe("build", () => {
 
     writeFileSync(
       join(rootDir, "pagesmith.config.json5"),
-      '{ name: "Build Test", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
+      '{ name: "Build Test", description: "Build test docs site", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
       "utf-8",
     );
     writeFileSync(join(rootDir, "content", "README.md"), "# Home\n\nBuild test.", "utf-8");
@@ -313,7 +334,7 @@ describe("build", () => {
 
     writeFileSync(
       join(rootDir, "pagesmith.config.json5"),
-      '{ name: "Build Test", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
+      '{ name: "Build Test", description: "Build test docs site", origin: "https://example.dev", basePath: "/docs", search: { enabled: false } }',
       "utf-8",
     );
     writeFileSync(join(rootDir, "content", "README.md"), "# Home\n\nBuild test.", "utf-8");
@@ -342,7 +363,7 @@ describe("build", () => {
 
     writeFileSync(
       join(rootDir, "pagesmith.config.json5"),
-      '{ name: "Build Test", origin: "https://example.dev", search: { enabled: false } }',
+      '{ name: "Build Test", description: "Build test docs site", origin: "https://example.dev", search: { enabled: false } }',
       "utf-8",
     );
     writeFileSync(join(rootDir, "content", "README.md"), "# Home\n\nBuild test.", "utf-8");

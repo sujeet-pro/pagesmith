@@ -22,40 +22,48 @@ export function validateConfig(config: ResolvedDocsConfig): ConfigValidationIssu
       });
     }
   }
-  const hasExplicitName = uc ? !!(uc.name || uc.title) : config.name !== basename(config.rootDir);
-  const hasExplicitTitle = uc ? !!(uc.title || uc.name) : config.title !== basename(config.rootDir);
+  // In zero-config mode (no `pagesmith.config.*` file on disk) skip the
+  // "missing field" warnings — the user has not opted into a config file at
+  // all, so nagging about specific fields is just noise. Real users get the
+  // warnings as soon as they create even an empty config file.
+  if (!config._zeroConfig) {
+    const hasExplicitName = uc ? !!(uc.name || uc.title) : config.name !== basename(config.rootDir);
+    const hasExplicitTitle = uc
+      ? !!(uc.title || uc.name)
+      : config.title !== basename(config.rootDir);
 
-  if (!hasExplicitName) {
-    issues.push({
-      field: "name",
-      message: 'Missing "name" in pagesmith.config.json5 — using directory name as fallback.',
-      severity: "warn",
-    });
-  }
+    if (!hasExplicitName) {
+      issues.push({
+        field: "name",
+        message: 'Missing "name" in pagesmith.config.json5 — using directory name as fallback.',
+        severity: "warn",
+      });
+    }
 
-  if (!hasExplicitTitle) {
-    issues.push({
-      field: "title",
-      message: 'Missing "title" in pagesmith.config.json5 — using directory name as fallback.',
-      severity: "warn",
-    });
-  }
+    if (!hasExplicitTitle) {
+      issues.push({
+        field: "title",
+        message: 'Missing "title" in pagesmith.config.json5 — using directory name as fallback.',
+        severity: "warn",
+      });
+    }
 
-  if (config.description === "Documentation site powered by @pagesmith/docs") {
-    issues.push({
-      field: "description",
-      message: 'Missing "description" in pagesmith.config.json5 — using default placeholder.',
-      severity: "warn",
-    });
-  }
+    if (config.description === "Documentation site powered by @pagesmith/docs") {
+      issues.push({
+        field: "description",
+        message: 'Missing "description" in pagesmith.config.json5 — using default placeholder.',
+        severity: "warn",
+      });
+    }
 
-  if (config.origin === "https://example.com") {
-    issues.push({
-      field: "origin",
-      message:
-        'Missing "origin" in pagesmith.config.json5 — canonical URLs will use https://example.com. Set this to your production URL.',
-      severity: "warn",
-    });
+    if (config.origin === "https://example.com") {
+      issues.push({
+        field: "origin",
+        message:
+          'Missing "origin" in pagesmith.config.json5 — canonical URLs will use https://example.com. Set this to your production URL.',
+        severity: "warn",
+      });
+    }
   }
 
   if (!existsSync(config.contentDir)) {
