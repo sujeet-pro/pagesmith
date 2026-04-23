@@ -3,7 +3,7 @@
   "diagrams": {
     "template-ssg-pipeline.mermaid": {
       "hash": "sha256:7dd937f7bd947ea1",
-      "generatedAt": "2026-04-20T13:40:27.498Z",
+      "generatedAt": "2026-04-23T16:50:19.123Z",
       "outputs": [
         {
           "file": "template-ssg-pipeline-light.svg",

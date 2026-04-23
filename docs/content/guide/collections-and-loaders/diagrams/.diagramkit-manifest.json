@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "collection-pipeline.dot": {
-      "hash": "sha256:a957f9c03c487c44",
-      "generatedAt": "2026-04-20T13:47:44.765Z",
+      "hash": "sha256:fc21565f8e8c8829",
+      "generatedAt": "2026-04-23T16:50:19.116Z",
       "outputs": [
         {
           "file": "collection-pipeline-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 388,
-          "height": 980
+          "width": 583,
+          "height": 331
         },
         {
           "file": "collection-pipeline-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 388,
-          "height": 980
+          "width": 583,
+          "height": 331
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692859577.3909,
-      "size": 1203
+      "mtimeMs": 1776962832996.3167,
+      "size": 1272
     }
   }
 }

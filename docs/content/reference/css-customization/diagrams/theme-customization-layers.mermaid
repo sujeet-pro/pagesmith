@@ -2,22 +2,23 @@
 %% Type: flowchart
 %%{init: {'htmlLabels': false}}%%
 
-flowchart LR
-  Root[":root base tokens\nplus your global token overrides"]
-  Scheme["color-scheme-* on <html>\npicks the light or dark branch"]
-  Variant["theme-* on <html>\napplies theme-variant token overrides"]
-  Scoped["Scoped selector overrides\ntarget one component or region"]
-  Meta["theme.lightColor / theme.darkColor\nconfig values"]
+flowchart TB
+  Root[":root tokens"]
+  Scheme["color-scheme-*"]
+  Variant["theme-*"]
 
-  Tokens["Resolved custom properties\nincluding light-dark() values"]
-  Css["Pagesmith CSS bundles\ncontent, layout, code, and components"]
-  Ui["Rendered site UI"]
-  Chrome["Browser chrome color only"]
+  Tokens["Resolved CSS vars"]
+  Scoped["Scoped overrides"]
+
+  Css["Pagesmith CSS"]
+  Ui["Rendered UI"]
+
+  Meta["theme.lightColor /\ntheme.darkColor"]
+  Chrome["Browser chrome"]
 
   Root --> Tokens
   Scheme --> Tokens
   Variant --> Tokens
-  Tokens --> Css
-  Css --> Ui
+  Tokens --> Css --> Ui
   Scoped --> Ui
   Meta --> Chrome

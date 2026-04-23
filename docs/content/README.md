@@ -2,7 +2,15 @@
 title: Pagesmith
 tagline: Filesystem-first content for docs, static sites, and framework apps
 description: Typed content collections, convention-based docs, and configurable assistant artifacts for Vite builds or framework-hosted markdown.
-install: npm install @pagesmith/docs
+badge: v0.9 — convention-based docs preset
+install:
+  code: |
+    npm install @pagesmith/docs
+    npx pagesmith-docs init --yes --ai
+  lang: bash
+  title: Terminal
+  frame: terminal
+  showLineNumbers: true
 actions:
   - text: Start with AI
     link: /guide/choose-your-path
@@ -16,6 +24,14 @@ actions:
   - text: API Reference
     link: /reference/api
     theme: alt
+codeExample:
+  label: Quick Start
+  title: pagesmith.config.json5
+  code: |
+    {
+      $schema: "./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json",
+      contentDir: "docs",
+    }
 features:
   - icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
     title: Filesystem-First CMS

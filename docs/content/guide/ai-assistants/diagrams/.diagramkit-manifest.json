@@ -3,7 +3,7 @@
   "diagrams": {
     "ai-artifact-install-flow.mermaid": {
       "hash": "sha256:f29c69cd0d78535b",
-      "generatedAt": "2026-04-20T13:40:27.495Z",
+      "generatedAt": "2026-04-23T16:50:19.118Z",
       "outputs": [
         {
           "file": "ai-artifact-install-flow-light.svg",

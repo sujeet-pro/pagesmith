@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "nextjs-pagesmith-boundary.mermaid": {
-      "hash": "sha256:5751434653edfdec",
-      "generatedAt": "2026-04-20T13:48:34.347Z",
+      "hash": "sha256:066dc9d25e6c91c5",
+      "generatedAt": "2026-04-23T16:50:19.122Z",
       "outputs": [
         {
           "file": "nextjs-pagesmith-boundary-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 1283.109375,
-          "height": 573
+          "width": 571.4453125,
+          "height": 525.7999877929688
         },
         {
           "file": "nextjs-pagesmith-boundary-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 1283.109375,
-          "height": 573
+          "width": 571.4453125,
+          "height": 525.7999877929688
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692908980.0063,
-      "size": 973
+      "mtimeMs": 1776962621203.9487,
+      "size": 551
     }
   }
 }

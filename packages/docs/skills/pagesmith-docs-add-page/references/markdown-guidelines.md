@@ -439,15 +439,15 @@ Docs pages support these additional frontmatter fields beyond what your schema d
 ### Home Page Frontmatter (docs only)
 
 
-| Field         | Type     | Description                                        |
-| ------------- | -------- | -------------------------------------------------- |
-| `layout`      | `string` | `DocHome` for the home layout                      |
-| `tagline`     | `string` | Short description below title                      |
-| `install`     | `string` | Install command snippet                            |
-| `actions`     | `array`  | CTA buttons (`{ text, link, theme: 'brand'         |
-| `features`    | `array`  | Feature cards (`{ icon, title, details }`)         |
-| `packages`    | `array`  | Package cards (`{ name, description, href, tag }`) |
-| `codeExample` | `object` | Code example (`{ label, title, code }`)            |
+| Field         | Type               | Description                                        |
+| ------------- | ------------------ | -------------------------------------------------- |
+| `layout`      | `string`           | `DocHome` for the home layout                      |
+| `tagline`     | `string`           | Short description below title                      |
+| `install`     | `string \| object` | Quick-start snippet — string for a single-line `bash` command, or `{ code, lang?, title?, frame?, showLineNumbers? }` for multi-line scripts and any Shiki-supported language. Rendered through the same markdown code pipeline as ` ``` ` blocks |
+| `actions`     | `array`            | CTA buttons (`{ text, link, theme: 'brand'         |
+| `features`    | `array`            | Feature cards (`{ icon, title, details }`)         |
+| `packages`    | `array`            | Package cards (`{ name, description, href, tag }`) |
+| `codeExample` | `object`           | Code example (`{ label, title, code }`)            |
 
 
 ## Built-in Content Validators

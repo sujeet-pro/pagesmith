@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "basepath-resolution-priority.mermaid": {
-      "hash": "sha256:731e49e0ea883570",
-      "generatedAt": "2026-04-20T13:40:27.494Z",
+      "hash": "sha256:d91fc507c5b3f703",
+      "generatedAt": "2026-04-23T16:50:19.118Z",
       "outputs": [
         {
           "file": "basepath-resolution-priority-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 243.0625,
-          "height": 570.5999755859375
+          "width": 589.046875,
+          "height": 616.2000122070312
         },
         {
           "file": "basepath-resolution-priority-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 243.0625,
-          "height": 570.5999755859375
+          "width": 589.046875,
+          "height": 616.2000122070312
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776437360250.4692,
-      "size": 417
+      "mtimeMs": 1776962478502.7712,
+      "size": 591
     }
   }
 }

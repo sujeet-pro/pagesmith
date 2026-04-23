@@ -47,7 +47,9 @@ Use this file when writing or reorganizing docs content. For bootstrap or retrof
 - Keep onboarding and getting-started content first in manual section order.
 - Remember that nested markdown pages stay in their top-level section and section sidebars remain flat.
 - Use docs frontmatter deliberately: `title`, `description`, `navLabel`, `sidebarLabel`, `order`, `draft`.
-- Use the `DocHome` fields only on the home page: `layout`, `tagline`, `install`, `actions`, `features`, `packages`, `codeExample`.
+- Use the `DocHome` fields only on the home page: `layout`, `tagline`, `badge`, `actions`, `hero`, `features`, `install`, `packages`, `codeExample`. See `pagesmith-docs-add-page` for the full field reference (correct names: `actions[].text`/`.link`, `features[].title`/`.details`, `hero.name`/`.text`).
+- For `install`, prefer the object form (`{ code, lang, title, frame, showLineNumbers }`) so the snippet renders through the same Shiki / frame-chrome / copy pipeline as fenced code blocks elsewhere on the site.
+- For `packages[]`, let the docs build auto-fetch the latest version from the npm registry and inline an NPM badge SVG (no CLS). Set `npmPackage: false` to opt out per card; pin `version: "x.y.z"` to override manually. Lookups are cached for 1h under `node_modules/.cache/pagesmith-docs-npm/versions.json` and degrade silently when offline — they never fail the build.
 
 ## Use Built-In Docs Features
 

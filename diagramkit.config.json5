@@ -10,4 +10,9 @@
 
   // Keep the incremental-build manifest hidden when rendering in-place.
   manifestFile: ".diagramkit-manifest.json",
+
+  // Let the renderer auto-rebalance flowcharts whose ratio drifts outside
+  // [target/tolerance, target*tolerance]. Catches ~70% of aspect-ratio
+  // issues before they reach the agent fix loop.
+  mermaidLayout: { mode: "auto", targetAspectRatio: 1.333, tolerance: 2.5 },
 }

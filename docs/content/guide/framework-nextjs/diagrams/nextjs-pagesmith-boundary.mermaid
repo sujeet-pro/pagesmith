@@ -3,29 +3,15 @@
 %%{init: {'htmlLabels': false}}%%
 
 flowchart TB
-    subgraph next["Next.js App Router"]
-        routes["Routes layouts metadata\nstatic export shell"]
-    end
+  routes["Next.js App Router\nroutes / layouts /\nstatic export shell"]
 
-    subgraph site["@pagesmith/site app-facing package"]
-        layer["createContentLayer()\ndefineCollection() + defineConfig()"]
-        render["entry.render()\nHTML headings readTime"]
-        css["@pagesmith/site/css/content"]
-        runtime["@pagesmith/site/runtime/content"]
-    end
+  layer["createContentLayer()\ndefineCollection() +\ndefineConfig()"]
+  render["entry.render()\nHTML / headings /\nreadTime"]
+  assets["@pagesmith/site\ncss/content +\nruntime/content"]
 
-    subgraph core["@pagesmith/core implementation"]
-        engine["Collections markdown validation"]
-    end
+  engine["@pagesmith/core\nCollections, markdown,\nvalidation"]
 
-    routes --> layer
-    layer --> render
-    render --> routes
-    css --> routes
-    runtime --> routes
-    engine -. powers .-> layer
-    engine -. powers .-> render
-
-    style next fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
-    style site fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
-    style core fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
+  routes --> layer --> render --> routes
+  assets --> routes
+  engine -. powers .-> layer
+  engine -. powers .-> render

@@ -189,16 +189,16 @@ Markdown content below frontmatter is rendered after the structured sections.
 
 The default `DocHome` layout accepts either a structured `hero` object or the flatter top-level fields shown above (`title`, `tagline`, `description`, `badge`, `actions`). The layout normalizes both shapes into the same hero UI.
 
-| Field         | Type     | Description                                                                                                     |
-| ------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
-| `hero`        | `object` | Hero section with `name`, `text`, `tagline`, `badge`, `actions`                                                 |
-| `tagline`     | `string` | Flat hero subtitle; normalized into the default hero when `hero` is omitted                                     |
-| `badge`       | `string` | Flat hero badge; normalized into the default hero when `hero` is omitted                                        |
-| `install`     | `string` | Installation command snippet shown below hero                                                                   |
-| `features`    | `array`  | Feature cards with `icon` (SVG string), `title`, `details`                                                      |
-| `packages`    | `array`  | Package cards with `name`, `description`, `href`, `tag`, `version`                                              |
-| `codeExample` | `object` | Code example section with `label`, `title`, `code`                                                              |
-| `actions`     | `array`  | Call-to-action buttons with `text`, `link`, `theme` (`brand` or `alt`) either at the top level or inside `hero` |
+| Field         | Type               | Description                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `hero`        | `object`           | Hero section with `name`, `text`, `tagline`, `badge`, `actions`                                                                                                                                                                                                                                                                                                                                                        |
+| `tagline`     | `string`           | Flat hero subtitle; normalized into the default hero when `hero` is omitted                                                                                                                                                                                                                                                                                                                                            |
+| `badge`       | `string`           | Flat hero badge; normalized into the default hero when `hero` is omitted                                                                                                                                                                                                                                                                                                                                               |
+| `install`     | `string \| object` | Quick-start snippet below the hero. String shorthand renders as a single-line `bash` command; object form (`{ code, lang?, title?, frame?, showLineNumbers? }`) supports multi-line scripts and any Shiki-supported language. Either form is rendered through the same markdown code pipeline as `\`\`\`<lang>` blocks elsewhere on the site, so the chrome (toolbar, copy button, line numbers, frame) always matches |
+| `features`    | `array`            | Feature cards with `icon` (SVG string), `title`, `details`                                                                                                                                                                                                                                                                                                                                                             |
+| `packages`    | `array`            | Package cards with `name`, `description`, `href`, `tag`, `version`                                                                                                                                                                                                                                                                                                                                                     |
+| `codeExample` | `object`           | Code example section with `label`, `title`, `code`                                                                                                                                                                                                                                                                                                                                                                     |
+| `actions`     | `array`            | Call-to-action buttons with `text`, `link`, `theme` (`brand` or `alt`) either at the top level or inside `hero`                                                                                                                                                                                                                                                                                                        |
 
 ### Section Meta (`meta.json5`)
 
@@ -453,12 +453,13 @@ export default function DocPage(props) {
 
 **Home layout** additionally receives:
 
-| Prop                   | Type     | Description       |
-| ---------------------- | -------- | ----------------- |
-| `frontmatter.hero`     | `object` | Hero section data |
-| `frontmatter.features` | `array`  | Feature cards     |
-| `frontmatter.packages` | `array`  | Package cards     |
-| `frontmatter.install`  | `string` | Install command   |
+| Prop                      | Type               | Description                                                                                                                                                                                                     |
+| ------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontmatter.hero`        | `object`           | Hero section data                                                                                                                                                                                               |
+| `frontmatter.features`    | `array`            | Feature cards                                                                                                                                                                                                   |
+| `frontmatter.packages`    | `array`            | Package cards                                                                                                                                                                                                   |
+| `frontmatter.install`     | `string \| object` | Raw install snippet from frontmatter (string shorthand or `{ code, lang?, title?, frame?, showLineNumbers? }`)                                                                                                  |
+| `frontmatter.installHtml` | `string`           | Pre-rendered HTML for the install snippet, produced by piping `install` through the markdown code pipeline; the default `DocHome` layout injects it via `innerHTML`, and custom home layouts should do the same |
 
 ### Export Resolution
 

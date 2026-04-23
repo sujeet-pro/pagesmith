@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "theme-customization-layers.mermaid": {
-      "hash": "sha256:60be3b58acfa00c1",
-      "generatedAt": "2026-04-20T13:47:29.386Z",
+      "hash": "sha256:4be7908a8781284b",
+      "generatedAt": "2026-04-23T16:50:19.127Z",
       "outputs": [
         {
           "file": "theme-customization-layers-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 1072.609375,
-          "height": 502.79998779296875
+          "width": 793.484375,
+          "height": 379.6000061035156
         },
         {
           "file": "theme-customization-layers-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 1072.609375,
-          "height": 502.79998779296875
+          "width": 793.484375,
+          "height": 379.6000061035156
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692843108.0781,
-      "size": 765
+      "mtimeMs": 1776962848699.8599,
+      "size": 473
     }
   }
 }

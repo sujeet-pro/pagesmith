@@ -1,69 +1,53 @@
 {
   "version": 2,
   "diagrams": {
-    "theme-architecture.mermaid": {
-      "hash": "sha256:7ee86da711965074",
-      "generatedAt": "2026-04-20T13:40:27.503Z",
-      "outputs": [
-        {
-          "file": "theme-architecture-light.svg",
-          "format": "svg",
-          "theme": "light"
-        },
-        {
-          "file": "theme-architecture-dark.svg",
-          "format": "svg",
-          "theme": "dark"
-        }
-      ],
-      "formats": ["svg"],
-      "theme": "both",
-      "mtimeMs": 1776437360292.2434,
-      "size": 1596
-    },
     "theme-architecture-layouts.mermaid": {
-      "hash": "sha256:b8a4128e68066dbf",
-      "generatedAt": "2026-04-20T13:44:48.248Z",
+      "hash": "sha256:8e266f417d056bb2",
+      "generatedAt": "2026-04-23T16:50:19.127Z",
       "outputs": [
         {
           "file": "theme-architecture-layouts-light.svg",
           "format": "svg",
-          "theme": "light"
+          "theme": "light",
+          "width": 596.18359375,
+          "height": 718.199951171875
         },
         {
           "file": "theme-architecture-layouts-dark.svg",
           "format": "svg",
-          "theme": "dark"
+          "theme": "dark",
+          "width": 596.18359375,
+          "height": 718.199951171875
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692682166.7668,
-      "size": 934
+      "mtimeMs": 1776962553654.8767,
+      "size": 701
     },
     "theme-architecture-shell.mermaid": {
-      "hash": "sha256:44d2f0dc47e47713",
-      "generatedAt": "2026-04-20T13:44:18.232Z",
+      "hash": "sha256:86226e16c742fc8d",
+      "generatedAt": "2026-04-23T16:50:19.127Z",
       "outputs": [
         {
           "file": "theme-architecture-shell-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 878.765625,
-          "height": 684.4000244140625
+          "width": 758.046875,
+          "height": 321.20001220703125
         },
         {
           "file": "theme-architecture-shell-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 878.765625,
-          "height": 684.4000244140625
+          "width": 758.046875,
+          "height": 321.20001220703125
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692652602.1462,
-      "size": 930
+      "mtimeMs": 1776962758775.4841,
+      "size": 469
     }
   }
 }

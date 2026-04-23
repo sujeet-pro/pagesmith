@@ -123,6 +123,36 @@ describe("docs schemas", () => {
     expect(result.codeExample?.title).toBe("Getting started");
   });
 
+  it("parses the rich install snippet shape", () => {
+    const result = DocsHomeFrontmatterSchema.parse({
+      title: "Acme",
+      install: {
+        code: "npm add @pagesmith/docs\nnpx pagesmith-docs init",
+        lang: "bash",
+        title: "Install",
+        frame: "code",
+        showLineNumbers: true,
+      },
+    });
+
+    expect(typeof result.install).toBe("object");
+    if (typeof result.install === "object" && result.install != null) {
+      expect(result.install.code).toContain("pagesmith-docs init");
+      expect(result.install.lang).toBe("bash");
+      expect(result.install.frame).toBe("code");
+      expect(result.install.showLineNumbers).toBe(true);
+    }
+  });
+
+  it("rejects an install object that omits its required code field", () => {
+    expect(() =>
+      DocsHomeFrontmatterSchema.parse({
+        title: "Acme",
+        install: { lang: "ts" },
+      }),
+    ).toThrow();
+  });
+
   it("keeps committed JSON schema files in sync", () => {
     for (const schemaFile of buildDocsJsonSchemas()) {
       const filePath = join(import.meta.dirname, "..", "..", "schemas", schemaFile.fileName);

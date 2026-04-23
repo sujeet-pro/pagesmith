@@ -71,7 +71,20 @@ export const DocsPackageCardSchema = z
     description: z.string(),
     href: z.string().optional(),
     tag: z.string().optional(),
+    /**
+     * Manually pinned version. Usually omitted — when the package is
+     * published to npm, the docs build resolves the latest version at build
+     * time and injects it (along with the inline NPM badge SVG) before the
+     * home layout renders.
+     */
     version: z.string().optional(),
+    /**
+     * Override the npm package identifier used to fetch the latest version
+     * and build the npm badge link. Defaults to `name` when it looks like an
+     * npm package (`my-pkg` or `@scope/my-pkg`). Set to `false` to opt out of
+     * registry lookup and the inline NPM badge entirely.
+     */
+    npmPackage: z.union([z.string(), z.literal(false)]).optional(),
   })
   .passthrough();
 
@@ -84,6 +97,30 @@ export const DocsCodeExampleSchema = z.object({
 });
 
 export type DocsCodeExample = z.infer<typeof DocsCodeExampleSchema>;
+
+/**
+ * Rich install snippet description for the home page hero region.
+ *
+ * The home install block is rendered through the same Pagesmith markdown
+ * code pipeline as fenced code blocks in `.md` content, so any language
+ * Shiki supports works here, multi-line scripts are highlighted line-by-line,
+ * and frame chrome (terminal traffic-lights vs. plain code header) follows
+ * the same defaults as `\`\`\`<lang>` blocks in markdown.
+ */
+export const DocsInstallObjectSchema = z
+  .object({
+    code: z.string(),
+    lang: z.string().optional(),
+    title: z.string().optional(),
+    frame: z.enum(["code", "terminal", "plain"]).optional(),
+    showLineNumbers: z.boolean().optional(),
+  })
+  .passthrough();
+
+export const DocsInstallSchema = z.union([z.string(), DocsInstallObjectSchema]);
+
+export type DocsInstallObject = z.infer<typeof DocsInstallObjectSchema>;
+export type DocsInstall = z.infer<typeof DocsInstallSchema>;
 
 /** Optional shell chrome toggles for built-in docs layouts (all default to true when omitted). */
 export const DocsChromeSchema = z
@@ -125,7 +162,7 @@ const DocsHomeFrontmatterShape = {
   actions: z.array(DocsActionSchema).optional(),
   hero: DocsHeroSchema.optional(),
   features: z.array(DocsFeatureSchema).optional(),
-  install: z.string().optional(),
+  install: DocsInstallSchema.optional(),
   packages: z.array(DocsPackageCardSchema).optional(),
   codeExample: DocsCodeExampleSchema.optional(),
 };

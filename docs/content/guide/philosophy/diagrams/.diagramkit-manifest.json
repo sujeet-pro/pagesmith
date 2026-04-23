@@ -3,7 +3,7 @@
   "diagrams": {
     "principles-overview.mermaid": {
       "hash": "sha256:426675934cfdb8fb",
-      "generatedAt": "2026-04-20T13:43:03.398Z",
+      "generatedAt": "2026-04-23T16:50:19.125Z",
       "outputs": [
         {
           "file": "principles-overview-light.svg",
@@ -22,7 +22,7 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692577166.2046,
+      "mtimeMs": 1776873080354.0527,
       "size": 903
     }
   }

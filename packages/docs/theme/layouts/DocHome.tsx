@@ -14,7 +14,6 @@ import { DocFooter } from "../components/DocFooter";
 import { DocHeader } from "../components/DocHeader";
 import { DocSidebar } from "../components/DocSidebar";
 import { Html } from "../components/Html";
-import { InstallSnippet } from "../components/InstallSnippet";
 import { resolveChrome } from "../utils/chrome";
 
 type Props = {
@@ -42,7 +41,7 @@ export default function DocHome(props: Props) {
         }
       : undefined);
   const features = frontmatter.features;
-  const install = frontmatter.install;
+  const installHtml: string | undefined = frontmatter.installHtml;
   const packages = frontmatter.packages;
   const codeExample = frontmatter.codeExample;
 
@@ -121,11 +120,12 @@ export default function DocHome(props: Props) {
             </section>
           ) : null}
 
-          {/* Install snippet — uses the same chrome as markdown terminal blocks */}
-          {install ? (
-            <div class="doc-home-section doc-home-install">
-              <InstallSnippet command={install} />
-            </div>
+          {/* Install snippet — pre-rendered through the markdown code pipeline
+              (see `renderInstallHtml` in @pagesmith/docs/src/install.ts) so it
+              shares Shiki highlighting, frame chrome, and copy/line-number
+              behavior with `\`\`\`<lang>` blocks elsewhere on the site. */}
+          {installHtml ? (
+            <div class="doc-home-section doc-home-install" innerHTML={installHtml} />
           ) : null}
 
           {/* Features grid */}
@@ -146,20 +146,42 @@ export default function DocHome(props: Props) {
             </section>
           ) : null}
 
-          {/* Packages grid (monorepo) */}
+          {/* Packages grid (monorepo). The NPM badge is pre-rendered as inline
+              SVG with explicit width/height by `enrichedPackages` in
+              `loadDocsPages` (see `renderNpmBadge`), so the card reserves
+              exact space and there is no CLS once the page paints. */}
           {packages && packages.length > 0 ? (
             <section class="doc-home-section">
               <p class="doc-home-section-label">Packages</p>
               <div class="doc-packages">
                 {packages.map((pkg: any) => {
                   const Tag = pkg.href ? "a" : "div";
+                  const hasMeta = Boolean(pkg.npmBadgeSvg || pkg.version || pkg.tag);
+                  // When the whole card is an `<a>`, keep the badge as a
+                  // non-interactive `<span>` to avoid nested anchors. When the
+                  // card is a `<div>`, the badge becomes its own link to the
+                  // npmjs.com package page.
+                  const cardIsLink = Boolean(pkg.href);
+                  const BadgeTag = cardIsLink ? "span" : "a";
+                  const badgeProps: Record<string, unknown> = {
+                    class: "doc-package-npm",
+                    style: `--ps-npm-badge-w:${pkg.npmBadgeWidth}px;--ps-npm-badge-h:${pkg.npmBadgeHeight}px`,
+                    innerHTML: pkg.npmBadgeSvg,
+                  };
+                  if (!cardIsLink) {
+                    badgeProps.href = pkg.npmHref;
+                    badgeProps.target = "_blank";
+                    badgeProps.rel = "noopener noreferrer";
+                    badgeProps["aria-label"] = `View ${pkg.name} on npm`;
+                  }
                   return (
                     <Tag class="doc-package-card" href={pkg.href || undefined}>
                       <div class="doc-package-name">{pkg.name}</div>
                       <p class="doc-package-desc">{pkg.description}</p>
-                      {pkg.version || pkg.tag ? (
+                      {hasMeta ? (
                         <div class="doc-package-meta">
-                          {pkg.version ? (
+                          {pkg.npmBadgeSvg ? <BadgeTag {...badgeProps} /> : null}
+                          {pkg.version && !pkg.npmBadgeSvg ? (
                             <span class="doc-package-version">{pkg.version}</span>
                           ) : null}
                           {pkg.tag ? <span class="doc-package-tag">{pkg.tag}</span> : null}

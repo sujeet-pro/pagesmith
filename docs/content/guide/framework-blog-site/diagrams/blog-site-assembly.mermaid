@@ -5,23 +5,19 @@
 flowchart TB
   content["content entries"]
   siteConfig["site.json5"]
-  entry["entry-server\nscans files,\nbuilds routes"]
   layouts["Custom layouts\nand styles"]
-  markdown["processMarkdown"]
-  jsx["jsx-runtime"]
+
+  entry["entry-server\nscans files,\nbuilds routes"]
+  pipelines["processMarkdown\n+ jsx-runtime\n+ derived series/tag pages"]
+
   ssg["pagesmithSsg"]
   pages["Generated pages"]
-  derived["Series and tag pages"]
   search["Pagefind search"]
 
   content --> entry
   siteConfig --> entry
-  entry --> markdown
-  entry --> jsx
-  layouts --> jsx
-  entry --> ssg
-  markdown --> pages
-  jsx --> pages
-  entry --> derived
+  layouts --> pipelines
+  entry --> pipelines
+  pipelines --> ssg
   ssg --> pages
   ssg --> search

@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "vite-framework-shared-flow.mermaid": {
-      "hash": "sha256:126efff9caf822f2",
-      "generatedAt": "2026-04-20T13:40:27.498Z",
+      "hash": "sha256:234617662581f2ac",
+      "generatedAt": "2026-04-23T16:50:19.123Z",
       "outputs": [
         {
           "file": "vite-framework-shared-flow-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 266.34375,
-          "height": 810.7999877929688
+          "width": 783.390625,
+          "height": 508.199951171875
         },
         {
           "file": "vite-framework-shared-flow-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 266.34375,
-          "height": 810.7999877929688
+          "width": 783.390625,
+          "height": 508.199951171875
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692426056.164,
-      "size": 477
+      "mtimeMs": 1776962731729.2283,
+      "size": 735
     }
   }
 }

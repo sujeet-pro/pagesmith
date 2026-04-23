@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Home page `install` frontmatter now accepts an object (`{ code, lang?, title?, frame?, showLineNumbers? }`) in addition to the existing single-line string. The snippet is rendered through the same Pagesmith markdown code pipeline as `\`\`\`<lang>` blocks, so multi-line scripts, arbitrary languages, and any of the standard frame styles (`code`, `terminal`, `plain`) all work and look identical to fenced code blocks elsewhere on the site. Existing string `install`values continue to render as a`bash` terminal block.
 - Added `server.logLevel` (default `'info'`) so dev and preview server log levels can be set in `pagesmith.config.json5`. The CLI `--log-level` flag continues to override this value at startup, and now also defaults to `info` instead of `warn`.
 - `server.devPort` and `server.previewPort` now also accept the literal `'auto'`, which scans upward from `4000` for the first available port at server startup. The CLI `--port` flag accepts the same value (`--port auto`); a numeric `--port` forces `strictPort` for that run, while `--port auto` always scans. Defaults remain `3000` for dev and `4000` for preview.
 - Added a dedicated `skills/setup-docs.md` bootstrap/retrofit prompt for AI agents working in existing repositories.

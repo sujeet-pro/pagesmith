@@ -13,6 +13,9 @@ import { availableParallelism } from "os";
 import { extname, join, relative, resolve } from "path";
 import { collectContentAssets as collectAssets, CONTENT_ASSET_EXTS } from "@pagesmith/core/assets";
 import { readJson5File, toTitleCase, type ResolvedDocsConfig } from "./config.js";
+import { renderInstallHtml } from "./install.js";
+import { renderNpmBadge } from "./npm-badge.js";
+import { getLatestNpmVersion } from "./npm.js";
 import { runWithDocsTransformContext } from "./markdown/plugins/context.js";
 import { rehypeAssetTransform, rehypeLinkTransform } from "./markdown/plugins/index.js";
 import {
@@ -202,6 +205,30 @@ function wrapMarkdownFileError(
 }
 
 /**
+ * Determine which npm package identifier to use when fetching the latest
+ * version and building the NPM badge for a home-page package card.
+ *
+ * Resolution rules:
+ * - If `npmPackage` is `false`, opt out of registry lookup entirely.
+ * - If `npmPackage` is a non-empty string, use it verbatim.
+ * - Otherwise fall back to `name` only when it looks like an npm package
+ *   identifier (`my-pkg` or `@scope/my-pkg`) — this avoids hitting the
+ *   registry for human-readable names like `"My CLI"`.
+ */
+function resolveNpmIdentifier(pkg: { name: string; npmPackage?: string | false }): string | null {
+  if (pkg.npmPackage === false) return null;
+  if (typeof pkg.npmPackage === "string") {
+    const trimmed = pkg.npmPackage.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  const name = pkg.name.trim();
+  if (!name) return null;
+  // Conservative npm-name pattern: optional `@scope/`, then lower-case identifier.
+  if (/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/i.test(name)) return name;
+  return null;
+}
+
+/**
  * Run async tasks with bounded concurrency.
  * Prevents memory blowup when processing thousands of pages.
  */
@@ -315,6 +342,49 @@ export async function loadDocsPages(
     const frontmatter =
       isHome && homeConfig ? { ...homeConfig, ...earlyFrontmatter } : earlyFrontmatter;
     if (frontmatter.draft) return null;
+
+    if (isHome && frontmatter.install != null) {
+      try {
+        const installHtml = await renderInstallHtml(frontmatter.install, sharedMarkdownConfig);
+        if (installHtml) {
+          (frontmatter as Record<string, unknown>).installHtml = installHtml;
+        }
+      } catch (error) {
+        throw wrapMarkdownFileError(
+          filePath,
+          config.rootDir,
+          "Failed to render `install` snippet",
+          error,
+        );
+      }
+    }
+
+    if (isHome && Array.isArray(frontmatter.packages) && frontmatter.packages.length > 0) {
+      // Resolve npm versions in parallel — registry calls are cached on disk so
+      // repeated builds and the dev server's incremental rebuilds reuse them.
+      // The inline NPM badge SVG is computed at build time with explicit
+      // `width`/`height`, so the rendered card reserves space and avoids any
+      // CLS when the home page paints.
+      const enrichedPackages = await Promise.all(
+        frontmatter.packages.map(async (pkg) => {
+          const npmIdentifier = resolveNpmIdentifier(pkg);
+          if (!npmIdentifier) return pkg;
+          const resolvedVersion =
+            pkg.version ?? (await getLatestNpmVersion(npmIdentifier, config.rootDir));
+          if (!resolvedVersion) return pkg;
+          const badge = renderNpmBadge(npmIdentifier, resolvedVersion);
+          return {
+            ...pkg,
+            version: resolvedVersion,
+            npmHref: badge.href,
+            npmBadgeSvg: badge.svg,
+            npmBadgeWidth: badge.width,
+            npmBadgeHeight: badge.height,
+          };
+        }),
+      );
+      (frontmatter as Record<string, unknown>).packages = enrichedPackages;
+    }
 
     let result: Awaited<ReturnType<typeof processMarkdown>>;
     try {

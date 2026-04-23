@@ -256,6 +256,9 @@
   display: flex;
   align-items: center;
   gap: 0.625rem;
+  /* Reserve vertical space matching the inline NPM badge height (20px) so the
+     row never reflows, even when no badge has been resolved for a card. */
+  min-height: 20px;
 }
 
 .doc-package-version {
@@ -273,6 +276,30 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+/* NPM badge — inline SVG sized at build time. The container locks the box to
+   the badge dimensions so first paint is the final paint (no CLS). */
+.doc-package-npm {
+  display: inline-flex;
+  align-items: center;
+  width: var(--ps-npm-badge-w);
+  height: var(--ps-npm-badge-h);
+  flex: 0 0 auto;
+  line-height: 0;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.doc-package-npm:hover {
+  opacity: 0.85;
+}
+
+.doc-package-npm > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* ═══════════════════════════════════════════════════════════════

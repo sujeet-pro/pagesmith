@@ -139,26 +139,51 @@ If the user also wants GitHub Pages deployment, run `pagesmith-docs-deploy-gh-pa
 
 ### Home (`docs/README.md`)
 
+The home page uses the richer `docs-home-frontmatter` shape — see
+`pagesmith-docs-add-page` for the full field reference. The names are easy to
+get wrong (`actions[].text`/`.link`, `features[].details`, not `label`/`href`/`description`).
+
 ```md
 ---
 $schema: ../node_modules/@pagesmith/docs/schemas/docs-home-frontmatter.schema.json
 title: <Project>
-description: <one-line value prop for SEO>
-hero:
-  title: <Project>
-  tagline: <short tagline>
-  actions:
-    - label: Quickstart
-      href: /guide/quickstart
-    - label: GitHub
-      href: https://github.com/<owner>/<repo>
+tagline: <short value prop, becomes the big H1>
+description: <one-line SEO blurb>
+badge: <optional release pill, e.g. "v1.0 — stable">
+actions:
+  - text: Quickstart
+    link: /guide/quickstart
+    theme: brand
+  - text: GitHub
+    link: https://github.com/<owner>/<repo>
+    theme: alt
+install:
+  code: npm install <package>
+  lang: bash
+  title: Terminal
+  frame: terminal
 features:
   - title: <pillar 1>
-    description: <one sentence>
+    details: <one sentence>
+    icon: <inline 24x24 SVG using currentColor>
   - title: <pillar 2>
-    description: <one sentence>
+    details: <one sentence>
   - title: <pillar 3>
+    details: <one sentence>
+packages:
+  # Cards for monorepo projects. Drop this block for single-package repos.
+  # When `name` is a published npm package, the build auto-fetches the latest
+  # version and inlines an NPM badge SVG (cached 1h, never fails the build).
+  # Set `npmPackage: false` to opt out, or `version: "x.y.z"` to pin manually.
+  - name: "@<scope>/<pkg>"
     description: <one sentence>
+    href: /reference/api
+    tag: Core
+codeExample:
+  label: Quick Start
+  title: <config-file or first-call snippet>
+  code: |
+    <smallest meaningful config or call>
 ---
 
 # <Project>

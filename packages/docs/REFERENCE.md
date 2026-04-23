@@ -539,15 +539,30 @@ content/
 
 ### Home Page Frontmatter
 
-| Field         | Type     | Description                                                        |
-| ------------- | -------- | ------------------------------------------------------------------ |
-| `layout`      | `string` | Built-in layouts include `home`, `page`, `listing`, and `notFound` |
-| `tagline`     | `string` | Short description below title                                      |
-| `install`     | `string` | Install command snippet                                            |
-| `actions`     | `array`  | CTA buttons (`{ text, link, theme: 'brand' \| 'alt' }`)            |
-| `features`    | `array`  | Feature cards (`{ icon?, title, details }`)                        |
-| `packages`    | `array`  | Package cards (`{ name, description, href, tag }`)                 |
-| `codeExample` | `object` | Code example (`{ label, title, code }`)                            |
+| Field         | Type               | Description                                                                                                                                             |
+| ------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layout`      | `string`           | Built-in layouts include `home`, `page`, `listing`, and `notFound`                                                                                      |
+| `tagline`     | `string`           | Short description below title                                                                                                                           |
+| `install`     | `string \| object` | Install / quick-start snippet — string shorthand for a one-line `bash` command, or an object (see below) for multi-line scripts and arbitrary languages |
+| `actions`     | `array`            | CTA buttons (`{ text, link, theme: 'brand' \| 'alt' }`)                                                                                                 |
+| `features`    | `array`            | Feature cards (`{ icon?, title, details }`)                                                                                                             |
+| `packages`    | `array`            | Package cards (`{ name, description, href, tag }`)                                                                                                      |
+| `codeExample` | `object`           | Code example (`{ label, title, code }`)                                                                                                                 |
+
+The home `install` block is rendered through the same Pagesmith markdown code pipeline as fenced ` ``` ` blocks elsewhere — Shiki highlighting, language badge, copy button, line numbers, and frame chrome all match. Use the object form for multi-line scripts or non-shell languages:
+
+```yaml
+install:
+  code: |
+    npm add @pagesmith/docs
+    npx pagesmith-docs init
+  lang: bash # any Shiki-supported language; defaults to `bash`
+  title: Quick start # optional toolbar label
+  frame: code # `code` (default for non-shell), `terminal` (default for shell), or `plain`
+  showLineNumbers: true # optional override; defaults follow the markdown pipeline
+```
+
+When `install` is a plain string the snippet is treated as a single-line `bash` command — the shorthand is preserved for backward compatibility and yields the same terminal chrome as a markdown ` ```bash ` block.
 
 ## Section Meta (meta.json5)
 
@@ -633,7 +648,9 @@ export default function DocPage(props) {
 
 **Listing layout** additionally: `listingCards`, `listingGroups`, `listingTotal`.
 
-**Home layout** additionally: `frontmatter.hero`, `frontmatter.features`, `frontmatter.packages`, `frontmatter.install`.
+**Home layout** additionally: `frontmatter.hero`, `frontmatter.features`, `frontmatter.packages`, `frontmatter.install`, `frontmatter.installHtml`.
+
+`frontmatter.installHtml` is the pre-rendered HTML produced by piping the user-supplied `install` field through the Pagesmith markdown code pipeline. The default `DocHome` layout injects it via `innerHTML`. Custom home layout overrides should do the same instead of re-implementing chrome by hand — that way the install snippet always matches the rest of the site's code blocks.
 
 Layouts use `@pagesmith/docs/jsx-runtime`:
 

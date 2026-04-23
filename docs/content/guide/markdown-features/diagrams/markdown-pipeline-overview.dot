@@ -2,18 +2,25 @@
 // Type: graphviz
 digraph MarkdownPipelineOverview {
   bgcolor="transparent"
-  graph [rankdir=TB, nodesep=0.5, ranksep=0.8, pad=0.2]
-  node [shape=box, style="rounded,filled", fillcolor="#dae8fc", color="#6c8ebf", fontcolor="#333333", margin="0.18,0.12"]
-  edge [fontsize=10, color="#AAAAAA", fontcolor="#333333"]
+  graph [rankdir=TB, nodesep=0.25, ranksep=0.4, pad=0.1, fontsize=10, dpi=72]
+  node [shape=box, style="rounded,filled", fillcolor="#dae8fc", color="#6c8ebf", fontcolor="#333333", fontsize=10, margin="0.12,0.07"]
+  edge [fontsize=9, color="#AAAAAA", fontcolor="#333333"]
 
   source [label="Markdown source"]
-  remark [label="Built-in remark stage\nparse, GFM, frontmatter,\nalerts, smartypants,\noptional math"]
-  userRemark [label="Custom remark plugins\n(@pagesmith/core only)"]
-  alias [label="Language alias transform"]
-  bridge [label="remark-rehype\nMarkdown AST -> HTML AST"]
-  rehype [label="Built-in rehype stage\nMathJax, code renderer,\ncode tabs, tables, slug,\nautolinks, external links,\nemoji, local images,\nheading extraction"]
-  post [label="Post-processing\n@pagesmith/core: custom rehype plugins\n@pagesmith/docs: docs link/asset transforms"]
+  remark [label="Built-in remark\nGFM, frontmatter, alerts,\nsmartypants, optional math"]
+  userRemark [label="Custom remark\nplugins\n(@pagesmith/core)"]
+
+  alias [label="Language alias\ntransform"]
+  bridge [label="remark-rehype\nMD AST -> HTML AST"]
+  rehype [label="Built-in rehype\nMathJax, code, tables,\nslug, autolinks, emoji,\nimages, headings"]
+
+  post [label="Post-processing\ncore: custom rehype\ndocs: link/asset transforms"]
   output [label="HTML string"]
 
-  source -> remark -> userRemark -> alias -> bridge -> rehype -> post -> output
+  { rank=same; source; remark; userRemark }
+  { rank=same; alias; bridge; rehype }
+  { rank=same; post; output }
+
+  source -> remark -> userRemark -> alias
+  alias -> bridge -> rehype -> post -> output
 }

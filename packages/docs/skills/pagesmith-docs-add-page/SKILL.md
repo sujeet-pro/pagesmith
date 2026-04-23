@@ -65,34 +65,183 @@ Path to the schema is relative to the markdown file.
 
 ## Home page
 
-The home page accepts extra frontmatter (hero, features, CTAs). Use the home schema:
+The home page (`<contentDir>/README.md` or `home.md`) is rendered by the
+default `DocHome` layout, which understands a richer frontmatter shape than a
+regular page. Every block below is optional — omit the key and the section is
+skipped. Pin the schema so editors auto-complete and the build catches typos:
 
 ```md
 ---
 $schema: ../node_modules/@pagesmith/docs/schemas/docs-home-frontmatter.schema.json
-title: My Docs
-description: Short blurb used for SEO.
-hero:
-  title: My Project
-  tagline: Short value prop.
-  actions:
-    - label: Quickstart
-      href: /guide/quickstart
-    - label: GitHub
-      href: https://github.com/...
-features:
-  - title: Fast
-    description: ...
-  - title: Typed
-    description: ...
+title: My Project
+description: Short blurb used for SEO and the hero subtitle fallback.
 ---
-
-# My Docs
-
-Optional markdown body below the hero.
 ```
 
-If a home frontmatter field is missing (for example `description`), Pagesmith fails the build with a schema error. Fill all required fields.
+### Field reference
+
+| Field         | Type                                                                                           | Renders as                                                                   |
+| ------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `title`       | string                                                                                         | Hero `name` line + `<title>`.                                                |
+| `description` | string                                                                                         | Hero `tagline` fallback + `<meta name="description">`.                       |
+| `tagline`     | string                                                                                         | Hero `text` line (the big H1).                                               |
+| `badge`       | string                                                                                         | Pill above the hero (e.g. `v0.9 — preview`).                                 |
+| `actions`     | `{ text, link, theme?: "brand" \| "alt", icon? }[]`                                            | Hero CTA buttons.                                                            |
+| `hero`        | `{ name?, text?, tagline?, badge?, actions? }`                                                 | Full hero override; wins over the top-level shorthands.                      |
+| `features`    | `{ title, details, icon? }[]`                                                                  | Feature card grid. `icon` is inlined as raw SVG (`innerHTML`).               |
+| `install`     | string \| `{ code, lang?, title?, frame?: "code" \| "terminal" \| "plain", showLineNumbers? }` | Install snippet under the hero, rendered through the markdown code pipeline. |
+| `packages`    | `{ name, description, href?, tag?, version?, npmPackage?: string \| false }[]`                 | Package card grid with optional NPM badge per card.                          |
+| `codeExample` | `{ code, label?, title? }`                                                                     | Quick-start `<pre>` in terminal chrome at the bottom.                        |
+
+> [!IMPORTANT]
+> Field names are easy to get wrong:
+>
+> - `actions[]` use **`text`** and **`link`** (not `label`/`href`).
+> - `features[]` use **`title`** and **`details`** (not `description`).
+> - `hero.text` is the big H1, `hero.name` is the small line above it.
+
+### Hero shorthands
+
+The layout synthesizes a hero from `title` + `tagline` + `actions` + `badge` if
+no `hero:` block is given — so for most sites you only need the shorthands:
+
+```md
+---
+$schema: ../node_modules/@pagesmith/docs/schemas/docs-home-frontmatter.schema.json
+title: My Project
+tagline: Filesystem-first content for docs and static sites.
+description: Typed content collections, convention-based docs, and assistant artifacts.
+badge: v0.9 — preview
+actions:
+  - text: Quickstart
+    link: /guide/quickstart
+    theme: brand
+  - text: GitHub
+    link: https://github.com/<owner>/<repo>
+    theme: alt
+---
+```
+
+Override the synthesized hero with an explicit `hero:` block when you need a
+different `name` line or a hero-only `badge`/`actions`.
+
+### Install snippet (`install`)
+
+The home install block is rendered through the same Pagesmith markdown code
+pipeline as fenced code blocks elsewhere on the site (Shiki highlighting,
+multi-line line numbers, frame chrome, copy button, tab grouping). Two forms
+are accepted:
+
+```md
+---
+install: npm install @pagesmith/docs
+---
+```
+
+```md
+---
+install:
+  code: |
+    npm install @pagesmith/docs
+    npx pagesmith-docs init --yes --ai
+  lang: bash # any Shiki language; defaults to `bash`
+  title: Terminal # toolbar label
+  frame: terminal # `terminal` (traffic lights) | `code` | `plain`
+  showLineNumbers: true
+---
+```
+
+Use `frame: terminal` for shell input, `frame: code` for source snippets, and
+`frame: plain` for a borderless block. `showLineNumbers` defaults to `true` for
+multi-line input and `false` for single-line.
+
+### Package cards with auto-fetched npm badges (`packages`)
+
+Each entry renders as a card. When a card looks like an npm package (a name
+of the form `my-pkg` or `@scope/my-pkg`), the docs build automatically fetches
+the latest published version from the npm registry at build time and inlines a
+ready-to-paint NPM badge SVG (with explicit width/height — no CLS):
+
+```md
+---
+packages:
+  - name: "@pagesmith/core"
+    description: Headless content layer with collections, loaders, schemas.
+    href: /reference/api
+    tag: Core
+  - name: "@pagesmith/site"
+    description: Site toolkit, JSX runtime, CSS/runtime bundles, Vite SSG helpers.
+    href: /guide/frameworks
+    tag: Site
+  - name: "@pagesmith/docs"
+    description: Convention-based docs preset built on core and site.
+    href: /guide/docs-getting-started
+    tag: Docs
+    version: "0.9.9" # pin manually instead of fetching
+    npmPackage: false # opt out of registry lookup + badge entirely
+---
+```
+
+Notes:
+
+- `name` doubles as the displayed title and the default registry lookup key.
+- `npmPackage: "<other-name>"` overrides the registry lookup key without changing the displayed `name`.
+- `npmPackage: false` skips the registry call and the inline badge, leaving only the manual `version` pill (if set) and `tag` chip.
+- Registry lookups are cached for 1 hour under `node_modules/.cache/pagesmith-docs-npm/versions.json`. Network failures, timeouts (4s), and unpublished packages degrade silently to "no badge" — they never fail the build.
+- Cards become clickable when `href` is set; otherwise the card is a static `<div>`.
+
+### Quick-start code block (`codeExample`)
+
+Renders one final `<pre>` in terminal chrome below the packages grid. Use it
+for the smallest config or first-call snippet:
+
+```md
+---
+codeExample:
+  label: Quick Start # section header above the block
+  title: pagesmith.config.json5 # toolbar label
+  code: |
+    {
+      $schema: "./node_modules/@pagesmith/docs/schemas/pagesmith-config.schema.json",
+      contentDir: "docs",
+    }
+---
+```
+
+Unlike `install`, `codeExample.code` is **not** run through the Shiki pipeline
+— it's injected as raw HTML into the `<pre>`. Pre-format it (or use `install`
+instead) if you want syntax highlighting.
+
+### Features grid (`features`)
+
+```md
+---
+features:
+  - title: Filesystem-First CMS
+    details: Markdown, JSON, JSONC, JSON5, YAML, TOML, and custom loaders with Zod-backed schemas.
+    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+  - title: Built-in Code Renderer
+    details: Dual-theme syntax highlighting, line numbers, file titles, diff markers, and copy buttons — zero config.
+---
+```
+
+`icon` accepts a raw inline SVG string (rendered via `innerHTML`). Keep icons
+square, ~24px, and use `currentColor` so they pick up the theme palette.
+
+### Body content
+
+Markdown content below the frontmatter renders inside a `.prose` section under
+all home modules — use it for a longer "Philosophy" or "Why this exists"
+block. Leave it empty if the hero + grids are enough.
+
+### Validation
+
+The home schema marks every field as optional and falls back gracefully to
+`pagesmith.config.json5` (`name`, `title`, `description`) when fields are
+missing — so the build does not fail on omissions. But the editor / IDE will
+flag wrong field names (`label` instead of `text`, `description` instead of
+`details`) the moment `$schema` is pinned. Always pin `$schema` and treat any
+schema warning as an error to fix before commit.
 
 ## Section landing pages
 
@@ -138,6 +287,9 @@ Draft pages:
 - The auto-generated listing page for a section uses each child page's `title` and `description` frontmatter — keep them short and self-contained.
 - If a new page is missing from the sidebar, check the section's `meta.json5` `pages` array first (not the frontmatter).
 - Relative image paths work: `![diagram](./diagrams/flow.svg)` resolves correctly for both dev and build.
+- Home `actions[]` use `text`/`link` and `features[]` use `title`/`details` — `label`/`href`/`description` will silently render as empty strings.
+- Home `install` (object form) is rendered through the markdown code pipeline; `codeExample.code` is **not** — pre-format it or move it into `install` if you want Shiki highlighting.
+- Home `packages[]` NPM badges depend on a successful npm-registry lookup at build time. Offline or air-gapped builds silently drop the badge (and fall back to the manual `version` pill if set) — they do not fail the build.
 
 ## Reference
 

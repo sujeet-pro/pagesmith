@@ -3,13 +3,23 @@
 %%{init: {'htmlLabels': false}}%%
 
 flowchart TB
-  config["content.config.ts collections"]
-  content["pagesmithContent"]
-  virtual["virtual:content modules"]
-  entry["SSR entry getRoutes and render"]
-  renderer["React, SolidJS, or Svelte renderer"]
-  html["HTML document"]
-  ssg["pagesmithSsg"]
-  output["Built site and search index"]
+  subgraph load["Load"]
+    direction LR
+    config["content.config.ts"] --> content["pagesmithContent"] --> virtual["virtual:content"]
+  end
 
-  config --> content --> virtual --> entry --> renderer --> html --> ssg --> output
+  subgraph render["Render"]
+    direction LR
+    entry["SSR entry\ngetRoutes / render"] --> renderer["React, Solid,\nor Svelte"] --> html["HTML document"]
+  end
+
+  subgraph build["Build"]
+    direction LR
+    ssg["pagesmithSsg"] --> output["Built site +\nsearch index"]
+  end
+
+  load --> render --> build
+
+  style load fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
+  style render fill:none,stroke:#5A5A5A,stroke-dasharray:3 3
+  style build fill:none,stroke:#5A5A5A,stroke-dasharray:3 3

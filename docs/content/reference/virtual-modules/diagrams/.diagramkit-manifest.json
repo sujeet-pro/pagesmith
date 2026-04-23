@@ -3,7 +3,7 @@
   "diagrams": {
     "virtual-module-flow.mermaid": {
       "hash": "sha256:eacc2e5ec886fcd9",
-      "generatedAt": "2026-04-20T13:40:27.505Z",
+      "generatedAt": "2026-04-23T16:50:19.129Z",
       "outputs": [
         {
           "file": "virtual-module-flow-light.svg",

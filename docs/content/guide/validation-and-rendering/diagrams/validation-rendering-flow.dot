@@ -2,24 +2,37 @@
 // Type: graphviz
 digraph ValidationRenderingFlow {
   bgcolor="transparent"
-  graph [rankdir=TB, nodesep=0.45, ranksep=0.65, pad=0.2]
-  node [shape=box, style="rounded,filled", fillcolor="#dae8fc", color="#6c8ebf", fontcolor="#333333", margin="0.18,0.12"]
-  edge [fontsize=10, color="#AAAAAA", fontcolor="#333333"]
+  graph [rankdir=TB, nodesep=0.25, ranksep=0.4, pad=0.1, fontsize=10]
+  node [shape=box, style="rounded,filled", fillcolor="#dae8fc", color="#6c8ebf", fontcolor="#333333", fontsize=10, margin="0.12,0.07"]
+  edge [fontsize=9, color="#AAAAAA", fontcolor="#333333"]
 
-  start [label="getCollection()\nload collection files"]
-  schema [label="Phase 1\nschema validation\nZod safeParse + coercion"]
-  mdast [label="Parse markdown once\ninto shared MDAST"]
-  validators [label="Phase 2\nbuilt-in + custom\ncontent validators"]
-  plugins [label="Phase 3\nplugin validate() hooks"]
-  entry [label="Return ContentEntry\nwith data, rawContent,\nand validation issues"]
+  start [label="getCollection()\nload files"]
+  schema [label="Phase 1\nschema validation\n(Zod)"]
+
+  mdast [label="Parse markdown\nshared MDAST"]
+  validators [label="Phase 2\ncontent validators"]
+
+  plugins [label="Phase 3\nplugin validate()"]
+  entry [label="Return ContentEntry\n+ issues"]
+
   render [shape=diamond, label="entry.render()\ncalled?"]
-  wait [label="Keep loading fast\nuntil HTML is needed"]
-  pipeline [label="Run markdown pipeline\nand build HTML"]
-  headings [label="Extract headings\nand compute read time"]
-  cache [label="Cache RenderedContent"]
-  reuse [label="Later render() calls\nreuse cached output"]
+  wait [label="Loading stays fast\nuntil HTML needed"]
 
-  start -> schema -> mdast -> validators -> plugins -> entry -> render
+  pipeline [label="Run markdown pipeline\nbuild HTML"]
+  headings [label="Extract headings\n+ read time"]
+
+  cache [label="Cache RenderedContent"]
+  reuse [label="Later calls\nreuse cache"]
+
+  { rank=same; start; schema }
+  { rank=same; mdast; validators }
+  { rank=same; plugins; entry }
+  { rank=same; render; wait }
+  { rank=same; pipeline; headings }
+  { rank=same; cache; reuse }
+
+  start -> schema -> mdast -> validators
+  validators -> plugins -> entry -> render
   render -> wait [label="No"]
   render -> pipeline [label="Yes"]
   pipeline -> headings -> cache -> reuse

@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "markdown-pipeline-overview.dot": {
-      "hash": "sha256:c8e4854f421144e0",
-      "generatedAt": "2026-04-20T13:45:33.011Z",
+      "hash": "sha256:30d297b408a8b444",
+      "generatedAt": "2026-04-23T16:50:19.117Z",
       "outputs": [
         {
           "file": "markdown-pipeline-overview-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 308,
-          "height": 915
+          "width": 710,
+          "height": 223
         },
         {
           "file": "markdown-pipeline-overview-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 308,
-          "height": 915
+          "width": 710,
+          "height": 223
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692729761.7224,
-      "size": 1058
+      "mtimeMs": 1776962778934.043,
+      "size": 1098
     }
   }
 }

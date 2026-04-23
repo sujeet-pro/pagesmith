@@ -3,14 +3,14 @@
 %%{init: {'htmlLabels': false}}%%
 
 flowchart TB
-  core["@pagesmith/core\nHeadless content layer\nand markdown pipeline"]
-  site["@pagesmith/site\nApp-facing package:\ncontent APIs, JSX/CSS/runtime,\nVite SSG"]
-  docs["@pagesmith/docs\nDocs preset with nav,\nsearch, and theme"]
+  core["@pagesmith/core"]
+  site["@pagesmith/site"]
+  docs["@pagesmith/docs"]
 
-  vite["Virtual content modules\nReact, Solid, Svelte"]
-  programmatic["Programmatic content layer\nEJS, Handlebars, Blog Site"]
-  hosted["Framework-hosted rendering\nNext.js App Router"]
-  convention["Convention-based docs\nDoc Site"]
+  vite["Virtual modules\nReact / Solid /\nSvelte"]
+  programmatic["Programmatic\nEJS, HBS,\nBlog Site"]
+  hosted["Framework-hosted\nNext.js"]
+  convention["Convention docs\nDoc Site"]
 
   core --> site
   core --> docs
@@ -18,5 +18,8 @@ flowchart TB
   site --> programmatic
   site --> hosted
   site --> docs
-  core -. "advanced headless" .-> hosted
   docs --> convention
+
+  vite ~~~ hosted
+  programmatic ~~~ convention
+  core -. headless .-> hosted

@@ -1,12 +1,16 @@
 /**
- * InstallSnippet — renders an install command using the same DOM contract
- * as the Pagesmith markdown code renderer's `terminal` frame, so the home
- * page install block is visually identical to terminal code blocks that
- * appear inside markdown content.
+ * InstallSnippet — legacy JSX wrapper that renders an install command using
+ * the same DOM contract as the Pagesmith markdown code renderer's frame chrome.
  *
- * The markup intentionally mirrors `applyPagesmithCodeRenderer` output in
- * `@pagesmith/core/markdown/code` so the existing `.ps-code-block` styles
- * and `initCodeBlocks()` runtime (copy button) work without modification.
+ * The default `DocHome` layout no longer uses this component — it now
+ * pre-renders the home `install` block through `processMarkdown` (see
+ * `@pagesmith/docs/src/install.ts`) so the home snippet shares Shiki
+ * highlighting, multi-line line numbers, frame chrome, and copy behavior with
+ * `\`\`\`<lang>` blocks elsewhere on the site.
+ *
+ * This component is retained for downstream consumers that import it directly
+ * and was extended to accept multi-line scripts and a configurable frame so
+ * its visual contract can match the new pipeline output.
  */
 
 import { h } from "@pagesmith/docs/jsx-runtime";
@@ -14,6 +18,12 @@ import { h } from "@pagesmith/docs/jsx-runtime";
 type Props = {
   command: string;
   title?: string;
+  /** Defaults to `bash` so the legacy single-line install case stays a shell command. */
+  lang?: string;
+  /** Defaults to `terminal` to preserve the legacy chrome — switch to `code` for non-shell snippets. */
+  frame?: "terminal" | "code" | "plain";
+  /** Defaults to `true` for multi-line scripts and `false` for single-line input. */
+  showLineNumbers?: boolean;
 };
 
 const TERMINAL_ICON = (
@@ -64,35 +74,56 @@ const COPIED_ICON = (
   </svg>
 );
 
-export function InstallSnippet({ command, title = "Terminal" }: Props) {
+function splitLines(command: string): string[] {
+  const normalized = command.replace(/\r\n/g, "\n").replace(/\s+$/, "");
+  return normalized.length > 0 ? normalized.split("\n") : [""];
+}
+
+export function InstallSnippet({
+  command,
+  title = "Terminal",
+  lang = "bash",
+  frame = "terminal",
+  showLineNumbers,
+}: Props) {
+  const lines = splitLines(command);
+  const includeLineNumbers = showLineNumbers ?? lines.length > 1;
+  const isTerminal = frame === "terminal";
+
   return (
     <figure
       class="ps-code-block"
-      data-ps-code-lang="bash"
+      data-ps-code-lang={lang}
       data-ps-code-wrap="false"
-      data-ps-code-line-numbers="true"
+      data-ps-code-line-numbers={includeLineNumbers ? "true" : "false"}
       data-ps-code-renderer="pagesmith"
       data-ps-code-title={title}
-      data-ps-code-frame="terminal"
+      data-ps-code-frame={frame}
       style="--ps-code-light-bg:#fff;--ps-code-dark-bg:#24292e;--ps-code-light-fg:#24292e;--ps-code-dark-fg:#e1e4e8"
     >
-      <div class="ps-code-toolbar ps-code-toolbar--terminal">
-        <div class="ps-code-toolbar-main ps-code-toolbar-main--terminal">
-          <span class="ps-code-traffic-lights" aria-hidden="true">
-            <span class="ps-code-traffic-light" />
-            <span class="ps-code-traffic-light" />
-            <span class="ps-code-traffic-light" />
-          </span>
-          <span class="ps-code-toolbar-chip">
-            <span
-              class="ps-code-language-badge ps-code-language-badge--icon"
-              data-ps-code-language="bash"
-              style="--ps-code-language-badge-bg:#111827;--ps-code-language-badge-fg:#86efac"
-              aria-hidden="true"
-              title="Shell"
-            >
-              {TERMINAL_ICON}
+      <div class={`ps-code-toolbar ps-code-toolbar--${frame}`}>
+        <div
+          class={`ps-code-toolbar-main ps-code-toolbar-main--${isTerminal ? "terminal" : "code"}`}
+        >
+          {isTerminal ? (
+            <span class="ps-code-traffic-lights" aria-hidden="true">
+              <span class="ps-code-traffic-light" />
+              <span class="ps-code-traffic-light" />
+              <span class="ps-code-traffic-light" />
             </span>
+          ) : null}
+          <span class="ps-code-toolbar-chip">
+            {isTerminal ? (
+              <span
+                class="ps-code-language-badge ps-code-language-badge--icon"
+                data-ps-code-language={lang}
+                style="--ps-code-language-badge-bg:#111827;--ps-code-language-badge-fg:#86efac"
+                aria-hidden="true"
+                title="Shell"
+              >
+                {TERMINAL_ICON}
+              </span>
+            ) : null}
             <span class="ps-code-toolbar-label">{title}</span>
           </span>
         </div>
@@ -115,16 +146,20 @@ export function InstallSnippet({ command, title = "Terminal" }: Props) {
           class="ps-code-pre shiki shiki-themes"
           tabindex="0"
           role="region"
-          aria-label="Install command"
+          aria-label={title}
           style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8"
         >
-          <code class="ps-code-code language-bash">
-            <span class="ps-code-line" data-ps-code-line="1">
-              <span class="ps-code-line-number" aria-hidden="true">
-                1
+          <code class={`ps-code-code language-${lang}`}>
+            {lines.map((line, index) => (
+              <span class="ps-code-line" data-ps-code-line={String(index + 1)}>
+                {includeLineNumbers ? (
+                  <span class="ps-code-line-number" aria-hidden="true">
+                    {String(index + 1)}
+                  </span>
+                ) : null}
+                <span class="ps-code-line-content">{line}</span>
               </span>
-              <span class="ps-code-line-content">{command}</span>
-            </span>
+            ))}
           </code>
         </pre>
       </div>

@@ -3,7 +3,7 @@
   "diagrams": {
     "site-css-bundle-layers.mermaid": {
       "hash": "sha256:8163d7033869e697",
-      "generatedAt": "2026-04-20T13:40:27.504Z",
+      "generatedAt": "2026-04-23T16:50:19.129Z",
       "outputs": [
         {
           "file": "site-css-bundle-layers-light.svg",

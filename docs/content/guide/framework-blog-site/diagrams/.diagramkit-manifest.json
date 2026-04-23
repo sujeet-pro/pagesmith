@@ -2,28 +2,28 @@
   "version": 2,
   "diagrams": {
     "blog-site-assembly.mermaid": {
-      "hash": "sha256:f54a1d4a9185098b",
-      "generatedAt": "2026-04-20T13:51:10.613Z",
+      "hash": "sha256:2f43f3d75698802a",
+      "generatedAt": "2026-04-23T16:50:19.120Z",
       "outputs": [
         {
           "file": "blog-site-assembly-light.svg",
           "format": "svg",
           "theme": "light",
-          "width": 887.55859375,
-          "height": 397.20001220703125
+          "width": 490.296875,
+          "height": 531.4000244140625
         },
         {
           "file": "blog-site-assembly-dark.svg",
           "format": "svg",
           "theme": "dark",
-          "width": 887.55859375,
-          "height": 397.20001220703125
+          "width": 490.296875,
+          "height": 531.4000244140625
         }
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776693065464.9702,
-      "size": 614
+      "mtimeMs": 1776962614369.1577,
+      "size": 543
     }
   }
 }

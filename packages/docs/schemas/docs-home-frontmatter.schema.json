@@ -149,7 +149,34 @@
       }
     },
     "install": {
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "lang": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "frame": {
+              "type": "string",
+              "enum": ["code", "terminal", "plain"]
+            },
+            "showLineNumbers": {
+              "type": "boolean"
+            }
+          },
+          "required": ["code"],
+          "additionalProperties": {}
+        }
+      ]
     },
     "packages": {
       "type": "array",
@@ -170,6 +197,17 @@
           },
           "version": {
             "type": "string"
+          },
+          "npmPackage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean",
+                "const": false
+              }
+            ]
           }
         },
         "required": ["name", "description"],

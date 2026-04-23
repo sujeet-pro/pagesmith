@@ -446,6 +446,140 @@ Body.`,
     expect(homeHtml).toContain('href="/docs/pagefind/pagefind-component-ui.css"');
   });
 
+  it("renders the home install snippet through the markdown code pipeline", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-install-"));
+    mkdirSync(join(rootDir, "content"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      '{ name: "Install Test", origin: "https://example.dev", search: { enabled: false } }',
+      "utf-8",
+    );
+    writeFileSync(
+      join(rootDir, "content", "README.md"),
+      `---
+title: Home
+install:
+  code: |
+    npm add @pagesmith/docs
+    npx pagesmith-docs init
+  lang: bash
+  frame: code
+  showLineNumbers: true
+---
+
+# Home
+`,
+      "utf-8",
+    );
+
+    const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
+    mkdirSync(config.outDir, { recursive: true });
+
+    await renderDocs(config);
+
+    const homeHtml = readFileSync(join(config.outDir, "index.html"), "utf-8");
+    // Wrapper section is preserved so existing CSS hooks keep working.
+    expect(homeHtml).toContain('class="doc-home-section doc-home-install"');
+    // Pre-rendered figure goes through the standard Pagesmith code renderer.
+    expect(homeHtml).toMatch(
+      /<figure class="ps-code-block"[^>]*data-ps-code-lang="bash"[^>]*data-ps-code-frame="code"/,
+    );
+    // Multi-line script is split into individual highlighted lines with line
+    // numbers — the legacy single-line `<span class="ps-code-line">` wrapper
+    // around the raw command is gone.
+    expect(homeHtml).toContain('data-ps-code-line="1"');
+    expect(homeHtml).toContain('data-ps-code-line="2"');
+    // Shiki tokenizes the script — verify each line's tokens are present.
+    expect(homeHtml).toContain(">npm<");
+    expect(homeHtml).toContain(">@pagesmith/docs<");
+    expect(homeHtml).toContain(">pagesmith-docs<");
+    expect(homeHtml).toContain(">init<");
+    expect(homeHtml).toContain('class="ps-code-line-number"');
+  });
+
+  it("supports any language for the home install snippet, not just shell", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-install-ts-"));
+    mkdirSync(join(rootDir, "content"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      '{ name: "Install Lang Test", origin: "https://example.dev", search: { enabled: false } }',
+      "utf-8",
+    );
+    writeFileSync(
+      join(rootDir, "content", "README.md"),
+      `---
+title: Home
+install:
+  code: |
+    import { defineConfig } from "@pagesmith/docs";
+    export default defineConfig({ name: "Acme" });
+  lang: ts
+  title: pagesmith.config.ts
+---
+
+# Home
+`,
+      "utf-8",
+    );
+
+    const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
+    mkdirSync(config.outDir, { recursive: true });
+
+    await renderDocs(config);
+
+    const homeHtml = readFileSync(join(config.outDir, "index.html"), "utf-8");
+    expect(homeHtml).toMatch(
+      /<figure class="ps-code-block"[^>]*data-ps-code-lang="ts"[^>]*data-ps-code-frame="code"/,
+    );
+    expect(homeHtml).toContain('data-ps-code-title="pagesmith.config.ts"');
+    // No terminal traffic-lights for non-shell snippets.
+    const installSection = homeHtml.slice(
+      homeHtml.indexOf('class="doc-home-section doc-home-install"'),
+    );
+    const installEnd = installSection.indexOf("</div>", installSection.indexOf("</figure>"));
+    const installFragment = installSection.slice(0, installEnd);
+    expect(installFragment).not.toContain("ps-code-traffic-lights");
+  });
+
+  it("preserves the legacy single-line install string shorthand", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-install-string-"));
+    mkdirSync(join(rootDir, "content"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      '{ name: "Legacy Install", origin: "https://example.dev", search: { enabled: false } }',
+      "utf-8",
+    );
+    writeFileSync(
+      join(rootDir, "content", "README.md"),
+      `---
+title: Home
+install: npm add @pagesmith/docs
+---
+
+# Home
+`,
+      "utf-8",
+    );
+
+    const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
+    mkdirSync(config.outDir, { recursive: true });
+
+    await renderDocs(config);
+
+    const homeHtml = readFileSync(join(config.outDir, "index.html"), "utf-8");
+    // Bash defaults to the terminal frame in the markdown pipeline so the
+    // single-line shorthand keeps the same visual chrome it had before.
+    expect(homeHtml).toMatch(
+      /<figure class="ps-code-block"[^>]*data-ps-code-lang="bash"[^>]*data-ps-code-frame="terminal"/,
+    );
+    expect(homeHtml).toContain(">npm<");
+    expect(homeHtml).toContain(">@pagesmith/docs<");
+    expect(homeHtml).toContain("ps-code-traffic-lights");
+  });
+
   it("emits pagefind-config with the root bundle-path when basePath is unset", async () => {
     rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-pagefind-root-"));
     mkdirSync(join(rootDir, "content"), { recursive: true });

@@ -1,33 +1,9 @@
 {
   "version": 2,
   "diagrams": {
-    "navigation-sources.mermaid": {
-      "hash": "sha256:6280dee79ffab3ce",
-      "generatedAt": "2026-04-20T13:40:27.500Z",
-      "outputs": [
-        {
-          "file": "navigation-sources-light.svg",
-          "format": "svg",
-          "theme": "light",
-          "width": 1661.546875,
-          "height": 598.7999877929688
-        },
-        {
-          "file": "navigation-sources-dark.svg",
-          "format": "svg",
-          "theme": "dark",
-          "width": 1661.546875,
-          "height": 598.7999877929688
-        }
-      ],
-      "formats": ["svg"],
-      "theme": "both",
-      "mtimeMs": 1776437360279.2368,
-      "size": 1400
-    },
     "navigation-sources-chrome.mermaid": {
       "hash": "sha256:f73983155593dd3c",
-      "generatedAt": "2026-04-20T13:46:24.590Z",
+      "generatedAt": "2026-04-23T16:50:19.125Z",
       "outputs": [
         {
           "file": "navigation-sources-chrome-light.svg",
@@ -46,12 +22,12 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692778419.4556,
+      "mtimeMs": 1776873080357.018,
       "size": 592
     },
     "navigation-sources-sidebar.mermaid": {
       "hash": "sha256:f90f0e03fa3d63e0",
-      "generatedAt": "2026-04-20T13:46:07.813Z",
+      "generatedAt": "2026-04-23T16:50:19.125Z",
       "outputs": [
         {
           "file": "navigation-sources-sidebar-light.svg",
@@ -70,7 +46,7 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692760311.8474,
+      "mtimeMs": 1776873080356.9512,
       "size": 618
     }
   }
