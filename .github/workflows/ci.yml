@@ -305,7 +305,7 @@ jobs:
 
   assemble-pages:
     name: Assemble gh-pages artifact
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: ci-success
     runs-on: ubuntu-latest
     steps:
@@ -320,7 +320,7 @@ jobs:
 
   deploy-pages:
     name: Deploy Pages
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: assemble-pages
     runs-on: ubuntu-latest
     permissions:
