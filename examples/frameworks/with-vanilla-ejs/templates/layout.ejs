@@ -248,6 +248,8 @@
   <script src="<%= jsPath %>" type="module"></script>
   <% } %>
   <% if (searchOn) { %>
+  <%# Explicit <pagefind-config> sets the bundle path so Pagefind loads under the Vite `base` instead of falling back to `/pagefind/` (component-ui can't auto-detect from a module script). %>
+  <pagefind-config bundle-path="<%= basePath %>pagefind/"></pagefind-config>
   <script src="<%= basePath %>pagefind/pagefind-component-ui.js" type="module"></script>
   <% } %>
   <script>

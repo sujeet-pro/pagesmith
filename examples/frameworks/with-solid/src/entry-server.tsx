@@ -646,7 +646,12 @@ function renderDocument(props: {
     ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ""}
     <link rel="stylesheet" href="${cssPath}" />
     <script>document.documentElement.classList.remove('no-js')</script>
-    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ""}
+    ${
+      searchEnabled
+        ? `<pagefind-config bundle-path="${base}/pagefind/"></pagefind-config>
+    <script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>`
+        : ""
+    }
   </head>
   <body>
     ${bodyHtml}

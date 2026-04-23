@@ -2,7 +2,7 @@
 title: Pagesmith
 tagline: Filesystem-first content for docs, static sites, and framework apps
 description: Typed content collections, convention-based docs, and configurable assistant artifacts for Vite builds or framework-hosted markdown.
-badge: v0.9 — convention-based docs preset
+# badge: v0.9 — convention-based docs preset
 install:
   code: |
     npm install @pagesmith/docs

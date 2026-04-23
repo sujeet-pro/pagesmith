@@ -227,7 +227,8 @@
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   transition: all var(--transition-fast);
-  display: block;
+  display: flex;
+  flex-direction: column;
   text-decoration: none;
   color: inherit;
 }
@@ -259,6 +260,9 @@
   /* Reserve vertical space matching the inline NPM badge height (20px) so the
      row never reflows, even when no badge has been resolved for a card. */
   min-height: 20px;
+  /* Pin the meta row to the bottom so npm badges align across cards even when
+     descriptions differ in length. */
+  margin-top: auto;
 }
 
 .doc-package-version {

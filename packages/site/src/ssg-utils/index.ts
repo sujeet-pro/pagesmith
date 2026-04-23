@@ -192,7 +192,12 @@ export function renderDocumentShell(options: DocumentShellOptions): string {
     <link rel="stylesheet" href="${cssPath}" />
     ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ""}
     <script>document.documentElement.classList.remove('no-js')</script>
-    ${searchEnabled ? `<script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>` : ""}
+    ${
+      searchEnabled
+        ? `<pagefind-config bundle-path="${base}/pagefind/"></pagefind-config>
+    <script src="${base}/pagefind/pagefind-component-ui.js" type="module"></script>`
+        : ""
+    }
     ${headHtml ?? ""}
   </head>
   <body>
