@@ -36,6 +36,9 @@ npm add @pagesmith/docs
 - Prefer AI-first setup with `pagesmith-docs init --ai` so docs structure + assistant context stay aligned from day one.
 - Prefer `node_modules/@pagesmith/docs/skills/pagesmith-docs-setup/references/migration.md` when the repo already uses `@pagesmith/docs` and the task is to upgrade or adopt newer guidance.
 - Keep onboarding first in manual nav order (for example `getting-started` first in `guide/meta.json5`).
+- `markdown.images.lazyLoading` (default `true`) and `markdown.images.eagerCount` (default `1`) control lazy/eager loading hints on content images; both are JSON-safe and validated by `schemas/pagesmith-config.schema.json`.
+- Sitemap generation (the `sitemap: true` config default) delegates to `@pagesmith/site/ssg-utils`'s `generateSitemap` — output is unchanged, but any custom tooling that imported the old in-package serializer should switch to that shared export.
+- Install/refresh consumer Agent Skills with `npx pagesmith skills install` (the umbrella command ships from `@pagesmith/site`; `pagesmith-docs` has no `skills` subcommand of its own). `--check` verifies without writing, for CI.
 
 ## Package files
 

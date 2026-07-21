@@ -47,10 +47,10 @@ After `npm install @pagesmith/site`, pick one of:
 1. **Pagesmith's bundled installer** (preferred — no extra tooling required):
 
    ```bash
-   npx pagesmith-core skills --package @pagesmith/site
+   npx pagesmith skills install --package @pagesmith/site
    ```
 
-   Copies every shipped skill to a canonical `.agents/skills/<name>/SKILL.md` and writes thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point at the canonical file. Drop `--package` to pull skills from `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` together. Add `--dry-run` or `--no-overwrite` as needed.
+   Writes a version-pinned **pointer stub** (not a copy) at `.agents/skills/<name>/SKILL.md` for every skill `@pagesmith/site` ships, plus thin mirror stubs under each detected/requested harness (`.claude/skills/`, `.cursor/skills/`, `.codex/skills/`, `.continue/skills/`) that point back at the canonical stub. Every stub links to `node_modules/@pagesmith/site/skills/<name>/SKILL.md` and carries an HTML-comment version marker, so re-running after an upgrade refreshes stale stubs instead of leaving an outdated copy behind. Drop `--package` to pull skills from `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` together. Add `--check` (verify-only, nonzero exit on missing/stale/orphaned stubs — wire into CI), `--dry-run`, `--only <name>`, or `--json` as needed. `pagesmith-core skills` still works as a deprecated alias for this same installer.
 
 2. **Copy the skill folder** into the agent directory your tool watches (`.agents/skills/`, `.claude/skills/`, or `.cursor/skills/`):
 
@@ -136,7 +136,7 @@ type SiteUserConfig = {
     layouts?: Record<string, string>;
     socialImage?: string;
   };
-  seo?: { locale?: string; twitterHandle?: string; defaultOgType?: string };
+  seo?: { locale?: string; twitterHandle?: string; defaultOgType?: string; jsonLd?: boolean };
   analytics?: { googleAnalytics?: string };
   socialImage?: string;
   favicon?: string | false;
@@ -383,16 +383,27 @@ type SsgPluginOptions = {
   contentDirs?: string[];
   cssEntry?: string;
   trailingSlash?: boolean;
+  beforeBuild?: (ctx: SsgBeforeBuildContext) => void | Promise<void>;
+};
+
+type SsgBeforeBuildContext = {
+  rootDir: string;
+  outDir: string;
+  config: ResolvedConfig; // Vite's resolved config
+  logger: Logger; // prefixed `pagesmith:ssg`
 };
 ```
 
 Responsibilities:
 
 - dev SSR middleware
+- optional `beforeBuild` hook, run once before the SSR/prerender pipeline (a thrown error aborts the build with `pagesmithSsg beforeBuild hook failed: …`)
 - production static rendering after the Vite build
 - preview serving from the built output on disk (supports both `path.html` and `path/index.html`)
 - content companion asset copying
 - Pagefind indexing after build unless `pagefind: false`
+
+`beforeBuild` is a typed, generator-agnostic extension point for project-specific pre-build steps (content generation, asset sync). The runner is exported as `runBeforeBuildHook(hook, ctx)` for unit testing.
 
 The `trailingSlash` option controls the output file format: `false` (default) emits `path.html` for direct resolution on GitHub Pages without 301 redirects; `true` emits `path/index.html` for trailing-slash URLs.
 
@@ -432,6 +443,19 @@ Dev-only helper that serves packaged font assets from `@pagesmith/site/assets`.
 ### `prerenderRoutes(options)`
 
 Lower-level prerender helper for custom pipelines. Use this when you want explicit route-driven prerendering outside the main `pagesmithSsg` flow.
+
+```ts
+type PrerenderOptions = {
+  outDir: string;
+  serverEntry: string;
+  routes: string[];
+  placeholder?: string; // default '<!--ssr-outlet-->'
+  cleanup?: boolean; // default true
+  concurrency?: number; // default: host available parallelism
+};
+```
+
+Routes render through the shared bounded worker-pool (`mapWithConcurrency` from `@pagesmith/core`) — the same primitive the built-in `pagesmithSsg` flow uses. Each route writes an independent file, so output is identical regardless of `concurrency`; only render throughput changes. Pass `concurrency: 1` to force fully-serial rendering.
 
 ## JSX Runtime
 
@@ -507,6 +531,8 @@ Primary exports include:
 - shared prop types such as `SiteNavItem`, `SiteSidebarSection`, `SiteFooterLinks`, `SiteListingCard`, and `SiteDocumentData`
 - component asset bundle metadata via `SITE_CHROME_ASSETS`, `SITE_CONTENT_ASSETS`, and `SITE_STANDALONE_ASSETS`
 
+`SiteDocument` emits schema.org JSON-LD built from the already-resolved OG/meta data: an `Article`/`BlogPosting` block when `meta.ogType === "article"` (type overridable via `meta.articleType`), or a `WebSite` block when `isHome` is set. Values are escaped for safe inline embedding (`<` → `<`). Disable it with `seo.jsonLd: false`. The builders are also exported from the package root as `buildArticleStructuredData`, `buildWebsiteStructuredData`, and `serializeJsonLd`.
+
 ### `@pagesmith/site/layouts`
 
 Reusable layout wrappers:
@@ -580,6 +606,8 @@ Includes:
 - content helpers: `estimateReadTime`, `escapeHtml`, `buildNavEntries`, `groupByField`
 - search helper: `runPagefindIndexing(outDir, options?)`
 - HTML helper: `renderDocumentShell`
+- feed helper: `generateFeed(entries, config)` — RSS 2.0 with RFC-822 dates, absolute item/channel URLs from `origin` + `basePath`, newest-first, capped at `config.limit` (default 50)
+- sitemap helper: `generateSitemap(routes, config)` — `urlset` document; the home route is `""` (or `"/"`), other routes are joined onto `origin` + `basePath`. Callers exclude drafts/redirects first.
 
 ## Export Map
 

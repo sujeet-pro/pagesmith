@@ -94,6 +94,8 @@ export type SiteDocumentSeo = {
   locale?: string;
   twitterHandle?: string;
   defaultOgType?: string;
+  /** Emit schema.org JSON-LD (Article/BlogPosting + WebSite). Default: true. */
+  jsonLd?: boolean;
 };
 
 export type SiteDocumentTheme = {

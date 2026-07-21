@@ -70,6 +70,10 @@
       "types": "./dist/cli-kit/index.d.mts",
       "import": "./dist/cli-kit/index.mjs"
     },
+    "./skills-install": {
+      "types": "./dist/cli/skills-install.d.mts",
+      "import": "./dist/cli/skills-install.mjs"
+    },
     "./mcp": {
       "types": "./dist/mcp/index.d.mts",
       "import": "./dist/mcp/index.mjs"

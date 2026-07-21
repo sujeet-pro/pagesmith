@@ -173,6 +173,26 @@ export const DocsMarkdownConfigSchema = z
       .describe(
         'Math processing mode. Use "auto" to enable remark-math and MathJax only for pages that contain math markers.',
       ),
+    images: z
+      .object({
+        lazyLoading: z
+          .boolean()
+          .optional()
+          .describe(
+            "Emit lazy/eager loading hints (loading, decoding, fetchpriority) on content images. Defaults to true.",
+          ),
+        eagerCount: z
+          .number()
+          .int()
+          .nonnegative()
+          .optional()
+          .describe(
+            "Count of leading images loaded eagerly with fetchpriority=high (the LCP hero). Defaults to 1; use 0 to make every image lazy.",
+          ),
+      })
+      .strict()
+      .optional()
+      .describe("Loading-hint behavior applied to in-flow content images during markdown render."),
     shiki: z
       .object({
         themes: z

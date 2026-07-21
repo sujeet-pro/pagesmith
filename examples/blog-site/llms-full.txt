@@ -6,15 +6,19 @@ This directory is the monorepo’s **@pagesmith/site** static site: no React/Sol
 
 - `README.md` — quick start, how this differs from `examples/frameworks/with-*`
 - `content/guide/overview.md` — Vite/SSG vs framework flow
-- `src/entry-server.tsx` — collections, `entry.render()`, JSX shell, `getRoutes` / `render`
+- `src/content.ts` — collections, content layer, helpers (`buildLayer`, `renderEntries`, `routeFor`, `toIso`)
+- `src/components.tsx` — JSX components, document shell, footer RSS link
+- `src/entry-server.tsx` — routing, `getRoutes` / `render`
+- `src/feed.ts` — `pagesmithSsg({ beforeBuild })` hook that writes `rss.xml` via `generateFeed`
 
 ## Implementation seams
 
-1. **Vite** — `vite.config.ts` uses `sharedAssetsPlugin()` + `pagesmithSsg({ entry, contentDirs })` from `@pagesmith/site/vite` only. `jsx.importSource` is `@pagesmith/site` so TSX compiles to the site JSX runtime.
-2. **Content** — `createContentLayer(defineConfig({ collections }))` in `entry-server.tsx`. Paths resolve from `config.root` (SSG passes project root) so builds work from the correct cwd.
+1. **Vite** — `vite.config.ts` uses `sharedAssetsPlugin()` + `pagesmithSsg({ entry, contentDirs, beforeBuild })` from `@pagesmith/site/vite` only. `jsx.importSource` is `@pagesmith/site` so TSX compiles to the site JSX runtime.
+2. **Content** — `createContentLayer(defineConfig({ collections }))` in `src/content.ts`. Paths resolve from `config.root` (SSG passes project root) so builds work from the correct cwd.
 3. **Markdown** — Do not hand-roll `processMarkdown` in this example. Load entries with `layer.getCollection(...)`, then `await entry.render()` for HTML, headings, and read time (same pipeline as other examples).
 4. **SSR entry contract** — Export `getRoutes(config)` and `render(url, config)` for `pagesmithSsg`. Return full HTML documents (this example builds strings in `renderDocument` and uses `String(<Component />)` for JSX fragments).
-5. **Theme/runtime** — `client.js` pulls `src/theme.css` (imports `@pagesmith/site/css/standalone`) and `src/runtime.ts` (shared standalone runtime plus one small example-specific sidebar scroll enhancement).
+5. **RSS feed** — `src/feed.ts`'s `writeRssFeed(ctx)` reads `ctx.rootDir` and `ctx.config.base`, loads the `guide` collection, maps entries to `FeedEntry` (`title`, `path`, `publishedDate`, `description`, `tags`), and calls `generateFeed()` from `@pagesmith/site/ssg-utils` to write `<outDir>/rss.xml`. Wired via `pagesmithSsg({ beforeBuild: writeRssFeed })` in `vite.config.ts`, so it runs once before routes pre-render. `src/components.tsx`'s `renderDocument()` emits `<link rel="alternate" type="application/rss+xml">` and `ExampleFooter` links to `${basePath}/rss.xml`.
+6. **Theme/runtime** — `client.js` pulls `src/theme.css` (imports `@pagesmith/site/css/standalone`) and `src/runtime.ts` (shared standalone runtime plus one small example-specific sidebar scroll enhancement).
 
 ## Markdown in this repo
 

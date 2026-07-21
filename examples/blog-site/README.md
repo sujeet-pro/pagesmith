@@ -24,9 +24,14 @@ vp run dev:eg:blog-site
 
 - `vite.config.ts` wires `pagesmithSsg` and `sharedAssetsPlugin`
 - `src/content.ts` defines collections and the content layer; `src/components.tsx` provides JSX components; `src/entry-server.tsx` implements `getRoutes()` and `render()`
+- `src/feed.ts` writes `rss.xml` from a `pagesmithSsg({ beforeBuild })` hook, using `generateFeed` from `@pagesmith/site/ssg-utils`
 - `client.js` and `src/runtime.ts` add the shared standalone runtime plus one small site-specific enhancement
 - `content/guide/` explains the setup and includes `guide/kitchen-sink.md` for markdown regression coverage
 - `llms.txt` is the compact AI map for this example; `llms-full.txt` is the fuller file-pointer variant
+
+## RSS Feed
+
+`vite.config.ts` passes `beforeBuild: writeRssFeed` to `pagesmithSsg`. The hook runs once before route pre-rendering, loads the `guide` collection, and calls `generateFeed()` to write `rss.xml` into the build output (linked from `<head>` and the footer). See `src/feed.ts`.
 
 ## When To Use This Shape
 

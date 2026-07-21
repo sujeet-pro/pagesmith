@@ -1,35 +1,5 @@
 import { defineConfig } from "vite-plus";
-
-function fixPostcssDtsImports() {
-  const DTS_RE = /node_modules\/(postcss|lightningcss|vite)\/.*\.d\.(ts|mts|cts)$/;
-  return {
-    name: "pagesmith:fix-postcss-dts-imports",
-    transform: {
-      filter: { id: { include: [DTS_RE] } },
-      handler(code: string, id: string) {
-        let result = code;
-        result = result.replace(
-          /^import\s+(\w+)\s*,\s*\{([^}]+)\}\s*from\s*(['"][^'"]+['"])/gm,
-          (_, defaultName, named, source) =>
-            `import type { default as ${defaultName}, ${named} } from ${source}`,
-        );
-        if (/node_modules\/(postcss|lightningcss)\//.test(id)) {
-          result = result.replace(
-            /^(export\s+)(?!type\s)(\{[^}]+\}\s*from\s*['"][^'"]+['"])/gm,
-            "$1type $2",
-          );
-        }
-        if (/node_modules\/vite\//.test(id)) {
-          result = result.replace(
-            /^(import\s+)(?!type\s)(.+from\s+['"](?:postcss|lightningcss)['"])/gm,
-            "import type $2",
-          );
-        }
-        return result;
-      },
-    },
-  };
-}
+import { fixPostcssDtsImports } from "../../scripts/vite/fix-postcss-dts-imports.ts";
 
 export default defineConfig({
   resolve: {

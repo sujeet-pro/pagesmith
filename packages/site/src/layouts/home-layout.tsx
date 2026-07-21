@@ -49,6 +49,7 @@ function HomeLayoutComponent({
       url={slug}
       socialImage={socialImage}
       site={site}
+      isHome={true}
     >
       <SiteHeader
         siteName={site.name}

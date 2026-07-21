@@ -10,6 +10,7 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
 4. Use `node_modules/@pagesmith/docs/llms.txt` or `node_modules/@pagesmith/core/llms.txt` for quick context, and load `llms-full.txt` only when deeper reference is needed.
 5. If MCP is enabled, use `pagesmith-docs mcp --stdio` for docs projects and `@pagesmith/core/mcp` for collection-aware inspection and validation in custom core/site integrations.
 6. For upgrades across pre-1.0 versions, review `MIGRATING.md` before proposing refactors.
+7. Run `npx pagesmith skills install` to write versioned-pointer skill stubs into `.agents/skills/` (plus harness mirrors); `--check` verifies without writing, for CI.
 
 ## Packages
 
@@ -43,10 +44,25 @@ Pagesmith is a filesystem-first content toolkit organized as a multi-package wor
   - Auto-generates TypeScript declarations
   - Hot reload on content/config changes
 - `pagesmithSsg(options?)` from `@pagesmith/site/vite` — SSG plugin with dev server, Pagefind, and asset handling
-  - Options: `entry`, `pagefind` (default: true), `contentDirs`
+  - Options: `entry`, `pagefind` (default: true), `contentDirs`, `beforeBuild` (`(ctx: { rootDir, outDir, config, logger }) => void | Promise<void>`, runs once before the SSR/prerender pipeline; a thrown error aborts the build)
   - SSR entry exports: `getRoutes(config) → string[] | Promise<string[]>`, `render(url, config) → string | Promise<string>`
   - Config provided: `SsgRenderConfig` with `base`, `root`, `cssPath`, `jsPath`, `searchEnabled`, `isDev`
+  - Route pre-rendering runs through the shared `mapWithConcurrency` pool; `prerenderRoutes()` (lower-level, for custom pipelines) accepts an explicit `concurrency` option
 - `sharedAssetsPlugin()` from `@pagesmith/site/vite` — serves bundled fonts (Open Sans, JetBrains Mono)
+
+### SSG Utilities (`@pagesmith/site/ssg-utils`)
+- `generateFeed(entries, config)` — RSS 2.0 feed; entries need `title`, `path`, optional `publishedDate`/`description`/`tags`; config takes `origin`, `basePath`, `title`, `description`, `language`, `limit` (default 50)
+- `generateSitemap(routes, config)` — `urlset` sitemap.xml from route paths (`""`/`"/"` for home) plus `origin`/`basePath`; `@pagesmith/docs` now delegates its own sitemap generation to this same serializer
+- `runPagefindIndexing(outDir, options?)` — search index generation
+
+### Build Validator (`@pagesmith/site/build-validator`)
+- `validateBuildOutput(options)` / `runBuildValidation(options)` — post-build checks over emitted HTML
+- `checkSitemap` (default false) — every `sitemap.xml` `<loc>` must resolve to an emitted file (error); every indexable HTML page should be listed (warning)
+- `checkBundledAssets` (default false) — entry `index.html` must reference a resolvable CSS bundle and JS bundle
+
+### SEO / Structured Data
+- `SiteDocument` emits schema.org JSON-LD unless `seo.jsonLd === false` (default true): `Article`/`BlogPosting` when `meta.ogType === 'article'` (override via `meta.articleType`), or `WebSite` when `isHome` is passed
+- Exports: `buildArticleStructuredData(input)`, `buildWebsiteStructuredData(input)`, `serializeJsonLd(data)` (escapes `<` for safe inline `<script>` embedding)
 
 ### Markdown Pipeline
 - `processMarkdown(raw, config?, preExtracted?)` → `{ html, headings, frontmatter }`
@@ -82,8 +98,13 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 - `BlogFrontmatterSchema` — extends base with category, featured, coverImage
 - `ProjectFrontmatterSchema` — extends base with gitRepo, links
 - `HeadingSchema` — depth, text, slug
-- `MarkdownConfigSchema` — remarkPlugins, rehypePlugins, allowDangerousHtml, math, shiki (themes, langAlias, defaultShowLineNumbers)
+- `MarkdownConfigSchema` — remarkPlugins, rehypePlugins, allowDangerousHtml, math, shiki (themes, langAlias, defaultShowLineNumbers), images (`MarkdownImagesConfigSchema`: `lazyLoading` default `true`, `eagerCount` default `1`)
 - `z` re-exported from Zod for convenience
+
+### Concurrency Utilities
+- `mapWithConcurrency(items, mapper, concurrency?)` — order-preserving bounded worker pool; defaults to `defaultConcurrency()`; a thrown `mapper` rejects the batch like `Promise.all`
+- `defaultConcurrency()` — `max(1, os.availableParallelism())`
+- Shared across the packages: content loading, `emitGeneratedImageVariants`, and `@pagesmith/site`'s route pre-rendering
 
 ### Validation
 - `builtinMarkdownValidators` — linkValidator, headingValidator, codeBlockValidator, imageStructureValidator
@@ -250,7 +271,8 @@ Syntax highlighting via the built-in Pagesmith renderer on top of Shiki with dua
 | `@pagesmith/site/css/fonts` | Bundled font faces |
 | `@pagesmith/site/runtime` | Pre-built CSS/JS accessors |
 | `@pagesmith/site/vite` | App-facing Vite barrel (`pagesmithContent`, SSG, shared assets) |
-| `@pagesmith/site/ssg-utils` | Shared SSG helpers |
+| `@pagesmith/site/ssg-utils` | Shared SSG helpers (`generateFeed`, `generateSitemap`, `runPagefindIndexing`) |
+| `@pagesmith/site/build-validator` | `validateBuildOutput`, `runBuildValidation` and types for post-build checks |
 | `@pagesmith/docs` | Main API (`build`, `startDev`, `preview`, `defineDocsConfig`, `validateConfig`, `resolveDocsConfig`, `loadDocsConfig`, `reportConfigIssues`, `withBase`, `docsPreset`, `Html`, `buildSiteModel`, `getPrevNext`, `getSitePayload`) |
 | `@pagesmith/docs/components` | Reusable docs UI components |
 | `@pagesmith/docs/layouts` | Stock docs layouts for composition/override work |

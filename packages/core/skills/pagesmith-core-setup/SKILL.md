@@ -1,6 +1,7 @@
 ---
 name: pagesmith-core-setup
 description: Bootstrap or retrofit @pagesmith/core (the headless content layer) into an existing repository. Use when the user wants typed content collections, schema validation, markdown rendering, and custom loaders inside an existing app or framework, and does NOT want @pagesmith/site's CLI, JSX runtime, or SSG layer.
+allowed-tools: Bash(npx pagesmith-core *)
 ---
 
 # Bootstrap @pagesmith/core

@@ -7,7 +7,11 @@ export {
   ProjectFrontmatterSchema,
 } from "./frontmatter";
 export { type Heading, HeadingSchema } from "./heading";
-export { type MarkdownConfig, MarkdownConfigSchema } from "./markdown-config";
+export {
+  type MarkdownConfig,
+  MarkdownConfigSchema,
+  MarkdownImagesConfigSchema,
+} from "./markdown-config";
 export type {
   CollectionComputed,
   CollectionDef,

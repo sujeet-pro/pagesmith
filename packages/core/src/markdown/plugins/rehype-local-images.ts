@@ -999,7 +999,148 @@ async function walk(
   }
 }
 
-export function rehypeLocalImages() {
+// ── Loading-hint stamping ──
+
+/**
+ * Running document-order state for the loading-hint pass. `assigned` counts how
+ * many content images have been seen so far; the first `eagerCount` are eager.
+ */
+type LoadingHintState = { assigned: number; eagerCount: number };
+
+const IMG_HINT_ATTR_PATTERN = /\b(?:loading|fetchpriority)\s*=/i;
+const IMG_DECODING_ATTR_PATTERN = /\bdecoding\s*=/i;
+const CLASS_ATTR_PATTERN = /\bclass\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
+
+/**
+ * Classes marking the *dark* half of a CSS-toggled light/dark image pair
+ * (`<img class="only-light">` + `<img class="only-dark">`, the docs diagram
+ * embed convention). Both images live in the DOM but only one is ever visible,
+ * so the pair is a single logical image and must consume a single slot in the
+ * eager/lazy budget.
+ */
+const DARK_TOGGLE_CLASSES = new Set(["only-dark", "show-on-dark"]);
+
+function classListHasDarkToggle(classValue: unknown): boolean {
+  const classes = Array.isArray(classValue)
+    ? classValue.map((c) => String(c))
+    : typeof classValue === "string"
+      ? classValue.split(/\s+/)
+      : [];
+  return classes.some((c) => DARK_TOGGLE_CLASSES.has(c));
+}
+
+function rawImgHasDarkToggle(imgTag: string): boolean {
+  const match = CLASS_ATTR_PATTERN.exec(imgTag);
+  return classListHasDarkToggle(match ? (match[1] ?? match[2] ?? "") : "");
+}
+
+/**
+ * Advance the counter and report whether this image should load eagerly.
+ *
+ * `pairedSecondary` marks the dark half of a themed toggle pair: it mirrors the
+ * eager/lazy decision of the immediately-preceding primary (light) image and
+ * does **not** advance the counter, so a light/dark pair counts as one logical
+ * image. A leading dark-toggle with no preceding image falls back to normal
+ * counting.
+ */
+function takeIsEager(state: LoadingHintState, pairedSecondary = false): boolean {
+  if (pairedSecondary && state.assigned > 0) {
+    return state.assigned - 1 < state.eagerCount;
+  }
+  const eager = state.assigned < state.eagerCount;
+  state.assigned += 1;
+  return eager;
+}
+
+/** Stamp loading hints onto a HAST `<img>` element (skips if author set hints). */
+function stampHastImageHints(node: Element, state: LoadingHintState): void {
+  const properties = (node.properties = node.properties ?? {});
+  const eager = takeIsEager(state, classListHasDarkToggle(properties.className));
+  // Respect any author-provided loading strategy.
+  if (properties.loading != null || properties.fetchpriority != null) return;
+  if (eager) {
+    properties.fetchpriority = "high";
+  } else {
+    properties.loading = "lazy";
+    if (properties.decoding == null) properties.decoding = "async";
+  }
+}
+
+/** Inject loading-hint attributes just before the closing bracket of an `<img>` tag. */
+function stampRawImageTag(imgTag: string, state: LoadingHintState): string {
+  const eager = takeIsEager(state, rawImgHasDarkToggle(imgTag));
+  // Respect any author-provided loading strategy.
+  if (IMG_HINT_ATTR_PATTERN.test(imgTag)) return imgTag;
+
+  const parts: string[] = [];
+  if (eager) {
+    parts.push('fetchpriority="high"');
+  } else {
+    parts.push('loading="lazy"');
+    if (!IMG_DECODING_ATTR_PATTERN.test(imgTag)) parts.push('decoding="async"');
+  }
+  const injection = parts.join(" ");
+
+  if (/\/>\s*$/u.test(imgTag)) {
+    return imgTag.replace(/\s*\/>\s*$/u, ` ${injection} />`);
+  }
+  return imgTag.replace(/\s*>\s*$/u, ` ${injection}>`);
+}
+
+/** Stamp loading hints onto every `<img>` inside a raw HTML string, in order. */
+function stampRawImageHints(html: string, state: LoadingHintState): string {
+  let output = "";
+  let lastIndex = 0;
+  for (const match of html.matchAll(IMG_TAG_PATTERN)) {
+    const index = match.index ?? 0;
+    output += html.slice(lastIndex, index);
+    output += stampRawImageTag(match[0], state);
+    lastIndex = index + match[0].length;
+  }
+  output += html.slice(lastIndex);
+  return output;
+}
+
+/**
+ * Walk the fully-transformed tree in document order and stamp loading hints on
+ * every content `<img>` — both HAST elements (including the `<img>` inside a
+ * generated `<picture>`) and images embedded in raw HTML nodes. Runs after all
+ * structural transforms so the counter reflects final document order.
+ */
+function stampLoadingHints(node: Root | RootContent, state: LoadingHintState): void {
+  if (node.type === "raw") {
+    node.value = stampRawImageHints(node.value, state);
+    return;
+  }
+  if (node.type === "element" && node.tagName === "img") {
+    stampHastImageHints(node, state);
+    return;
+  }
+  if ("children" in node && Array.isArray(node.children)) {
+    for (const child of node.children) {
+      stampLoadingHints(child as RootContent, state);
+    }
+  }
+}
+
+export type LocalImagesOptions = {
+  /**
+   * Emit browser loading hints on content images. When `true` (default), all
+   * but the first `eagerCount` images get `loading="lazy" decoding="async"` and
+   * the leading images get `fetchpriority="high"`. Set `false` to opt out.
+   */
+  lazyLoading?: boolean;
+  /**
+   * Number of leading images (document order) marked eager with
+   * `fetchpriority="high"` instead of lazy. Defaults to `1`.
+   */
+  eagerCount?: number;
+};
+
+export function rehypeLocalImages(options: LocalImagesOptions = {}) {
+  const lazyLoading = options.lazyLoading ?? true;
+  const eagerCount = Math.max(0, Math.trunc(options.eagerCount ?? 1));
+
   return async (tree: Root, file: { data?: Record<string, unknown> }) => {
     const currentFilePath =
       typeof file.data?.pagesmithFilePath === "string" ? file.data.pagesmithFilePath : undefined;
@@ -1009,8 +1150,16 @@ export function rehypeLocalImages() {
         : currentFilePath
           ? dirname(currentFilePath)
           : undefined;
-    if (!currentFilePath) return;
-    if (!assetRoot) return;
-    await walk(tree, currentFilePath, assetRoot);
+
+    // Local-image enhancement (dimensions, picture wrapping, themed pairs) needs
+    // the source path; skip it when unavailable but still apply loading hints,
+    // which are independent of filesystem resolution.
+    if (currentFilePath && assetRoot) {
+      await walk(tree, currentFilePath, assetRoot);
+    }
+
+    if (lazyLoading) {
+      stampLoadingHints(tree, { assigned: 0, eagerCount });
+    }
   };
 }

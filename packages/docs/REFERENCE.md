@@ -32,10 +32,10 @@ After `npm install @pagesmith/docs`, pick one of:
 1. **Pagesmith's bundled installer** (preferred — no extra tooling required):
 
    ```bash
-   npx pagesmith-core skills --package @pagesmith/docs
+   npx pagesmith skills install --package @pagesmith/docs
    ```
 
-   This copies every shipped skill to a canonical `.agents/skills/<name>/SKILL.md` and writes thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point at the canonical file. Drop `--package` to install skills from `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` together. Add `--dry-run` to preview, or `--no-overwrite` to leave existing canonical files untouched.
+   This writes a version-pinned **pointer stub** (not a copy) at `.agents/skills/<name>/SKILL.md` for every skill `@pagesmith/docs` ships, plus thin mirror stubs under each detected/requested harness (`.claude/skills/`, `.cursor/skills/`, `.codex/skills/`, `.continue/skills/`) that point back at the canonical stub. Every stub links to `node_modules/@pagesmith/docs/skills/<name>/SKILL.md` and carries an HTML-comment version marker, so re-running after an upgrade refreshes stale stubs instead of leaving an outdated copy behind. Drop `--package` to install skills from `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` together. Add `--check` (verify-only, nonzero exit on missing/stale/orphaned stubs — wire into CI) to preview drift, `--dry-run` to preview writes, or `--json` for machine-readable output. `pagesmith-core skills` still works as a deprecated alias for this same installer.
 
 2. **Copy the skill folder** into the agent directory your tool watches (`.agents/skills/`, `.claude/skills/`, or `.cursor/skills/`):
 

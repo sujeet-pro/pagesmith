@@ -11,6 +11,12 @@
  *   - The published-package guidance files referenced in
  *     `pagesmith.config.json5#assets./prompts/` must each exist on disk so
  *     `/prompts/<name>.md` URLs really resolve at runtime.
+ *   - Release gate: `MIGRATING.md`'s top-most `## X.Y.Z (...)` heading must
+ *     cover `packages/core/package.json`'s version — see
+ *     `scripts/migrating-version-gate.ts`. Runs in the publish workflow
+ *     after `sync:versions` bumps package.json to the release version, so a
+ *     release with no matching MIGRATING.md entry fails loudly instead of
+ *     shipping silently undocumented.
  *
  * Usage:
  *   npm run validate:pagesmith              full check
@@ -22,6 +28,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "fs";
 import { basename, join, relative, resolve } from "path";
 import { validateDocs } from "@pagesmith/docs";
+import { checkMigratingCoversVersion } from "./migrating-version-gate.ts";
 
 const repoRoot = resolve(import.meta.dirname, "..");
 const args = process.argv.slice(2);
@@ -124,6 +131,30 @@ if (!skipContent) {
   }
   totalErrors += missing.length;
 }
+
+// ── release gate: MIGRATING.md must cover the version being published ──
+//
+// The publish workflow (`.github/workflows/publish.yml`) syncs the release
+// version into `packages/*/package.json` via `sync:versions` *before*
+// running `npm run validate:pagesmith`, so by the time this runs in CI,
+// `packages/core/package.json` already reflects the version about to ship.
+// Locally (pre-release) it still reflects the last released version, which
+// the "(next)" section at the top of MIGRATING.md is expected to be ahead
+// of — see `checkMigratingCoversVersion` for the exact semantics.
+console.info(`\n[migrating-heading]`);
+const packageVersion = (
+  JSON.parse(readFileSync(resolve(repoRoot, "packages/core/package.json"), "utf8")) as {
+    version: string;
+  }
+).version;
+const migratingContent = readFileSync(resolve(repoRoot, "MIGRATING.md"), "utf8");
+const migratingCheck = checkMigratingCoversVersion(migratingContent, packageVersion);
+if (migratingCheck.ok) {
+  console.info(`  ${migratingCheck.message}`);
+} else {
+  console.error(`  \u2717 ${migratingCheck.message}`);
+}
+totalErrors += migratingCheck.ok ? 0 : 1;
 
 console.info(
   `\nSummary: ${totalErrors} error(s), ${totalWarnings} warning(s) — ${

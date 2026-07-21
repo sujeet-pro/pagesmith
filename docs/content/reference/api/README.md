@@ -32,7 +32,7 @@ Complete API reference for the public Pagesmith package surfaces.
 | `@pagesmith/site/theme`           | Theme defaults + `resolveThemeControls()`                                                                                                                                                |
 | `@pagesmith/site/css`             | `buildCss()` via LightningCSS                                                                                                                                                            |
 | `@pagesmith/site/css/*`           | Shared CSS bundles (`chrome`, `standalone`, `content`, `code-block`, `code-inline`, `tabs`, `viewport`, `fonts`)                                                                         |
-| `@pagesmith/site/ssg-utils`       | Shared SSG utility helpers (`runPagefindIndexing`, route/date helpers, `renderDocumentShell`)                                                                                            |
+| `@pagesmith/site/ssg-utils`       | Shared SSG utility helpers (`generateFeed`, `generateSitemap`, `runPagefindIndexing`, route/date helpers, `renderDocumentShell`)                                                         |
 | `@pagesmith/site/build-validator` | `validateBuildOutput`, `runBuildValidation` and types for post-build checks                                                                                                              |
 | `@pagesmith/docs`                 | Main docs barrel -- config helpers, build/dev/preview APIs, navigation helpers, theme exports, and MCP entrypoints                                                                       |
 | `@pagesmith/docs/preset`          | `docsPreset()` -- docs-package preset entry                                                                                                                                              |
@@ -218,12 +218,31 @@ type MarkdownConfig = {
   rehypePlugins?: any[];
   allowDangerousHtml?: boolean;
   math?: boolean | "auto";
+  images?: {
+    lazyLoading?: boolean; // default true
+    eagerCount?: number; // default 1
+  };
   shiki?: {
     themes: { light: string; dark: string };
     langAlias?: Record<string, string>;
     defaultShowLineNumbers?: boolean;
   };
 };
+```
+
+`images` (validated by `MarkdownImagesConfigSchema`, also exported from `@pagesmith/core/schemas`) controls loading-hint attributes on in-flow content images. With `lazyLoading` enabled (the default), Pagesmith walks the rendered images in document order: the first `eagerCount` images (default `1`, tuned for the Largest Contentful Paint hero) get `fetchpriority="high"`, and every image after that gets `loading="lazy" decoding="async"`. The hint applies to the `<img>` inside a generated `<picture>` as well as to plain images. Set `lazyLoading: false` to add no loading attributes at all, or `eagerCount: 0` to make every image lazy. An `<img>` that already carries an author-set `loading` or `fetchpriority` is left untouched.
+
+```ts title="content.config.ts"
+import { defineConfig } from "@pagesmith/core";
+
+export default defineConfig({
+  collections: {
+    /* ... */
+  },
+  markdown: {
+    images: { eagerCount: 2 }, // treat the first two images as eager
+  },
+});
 ```
 
 #### ContentLayerConfig
@@ -407,6 +426,31 @@ const schema = z.object({
 });
 ```
 
+### Concurrency Utilities
+
+Exported from the main `@pagesmith/core` entry -- the single shared bounded worker-pool primitive used across the packages (content loading, image-variant emission, and `@pagesmith/site`'s route pre-rendering). Prefer this over an unbounded `Promise.all(items.map(...))` anywhere fan-out scales with content or asset count.
+
+```ts
+function defaultConcurrency(): number; // max(1, os.availableParallelism())
+
+function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  mapper: (item: T, index: number) => Promise<R>,
+  concurrency?: number, // defaults to defaultConcurrency(); values < 1 clamp to 1
+): Promise<R[]>;
+```
+
+```ts
+import { mapWithConcurrency } from "@pagesmith/core";
+
+const sizes = await mapWithConcurrency(imagePaths, (path) => statImage(path), 4);
+// sizes[i] corresponds to imagePaths[i], regardless of completion order
+```
+
+- Results preserve input order regardless of completion order.
+- A thrown `mapper` rejects the whole batch, mirroring `Promise.all` -- handle partial failures inside the `mapper` if a failed item should not fail the batch.
+- An empty `items` array resolves to `[]` without invoking `mapper`.
+
 ---
 
 ## `@pagesmith/core/vite`
@@ -517,13 +561,51 @@ export default defineConfig({
 
 **Options** (`SsgPluginOptions`):
 
-| Option          | Type       | Default             | Description                                                                                 |
-| --------------- | ---------- | ------------------- | ------------------------------------------------------------------------------------------- |
-| `entry`         | `string`   | Required            | Path to the SSR entry module                                                                |
-| `pagefind`      | `boolean`  | `true`              | Run Pagefind indexer after build                                                            |
-| `contentDirs`   | `string[]` | `[]`                | Content directories whose companion assets should be served in dev and copied at build time |
-| `cssEntry`      | `string`   | `'./src/theme.css'` | Dev-only CSS entry injected into rendered HTML                                              |
-| `trailingSlash` | `boolean`  | `false`             | When `true`, dev server resolves clean URLs to `path/index.html`; otherwise to `path.html`  |
+| Option          | Type                                                    | Default             | Description                                                                                                                                                                                                                                                       |
+| --------------- | ------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entry`         | `string`                                                | Required            | Path to the SSR entry module                                                                                                                                                                                                                                      |
+| `pagefind`      | `boolean`                                               | `true`              | Run Pagefind indexer after build                                                                                                                                                                                                                                  |
+| `contentDirs`   | `string[]`                                              | `[]`                | Content directories whose companion assets should be served in dev and copied at build time                                                                                                                                                                       |
+| `cssEntry`      | `string`                                                | `'./src/theme.css'` | Dev-only CSS entry injected into rendered HTML                                                                                                                                                                                                                    |
+| `trailingSlash` | `boolean`                                               | `false`             | When `true`, dev server resolves clean URLs to `path/index.html`; otherwise to `path.html`                                                                                                                                                                        |
+| `beforeBuild`   | `(ctx: SsgBeforeBuildContext) => void \| Promise<void>` | `undefined`         | Runs once, before the SSR build + route pre-rendering. Use it for project-specific pre-build steps (writing `rss.xml`/`sitemap.xml`, generating content, syncing assets). A thrown error aborts the build with `pagesmithSsg beforeBuild hook failed: <message>`. |
+
+**`SsgBeforeBuildContext`** (passed to `beforeBuild`):
+
+```ts
+type SsgBeforeBuildContext = {
+  rootDir: string; // Absolute path to the project root (Vite's resolved `root`)
+  outDir: string; // Absolute path to the build output directory
+  config: ResolvedConfig; // Vite's fully resolved config for this build
+  logger: Logger; // Prefixed `pagesmith:ssg` logger (from @pagesmith/core)
+};
+```
+
+`beforeBuild` runs in the client build's `closeBundle` hook, after the client's hashed CSS/JS assets already exist in `outDir` but before any route HTML is written -- a safe place to drop additional static files that route pre-rendering will not touch:
+
+```ts title="vite.config.ts"
+import { writeFileSync } from "fs";
+import { generateFeed } from "@pagesmith/site/ssg-utils";
+import { pagesmithSsg } from "@pagesmith/site/vite";
+
+pagesmithSsg({
+  entry: "./src/entry-server.tsx",
+  async beforeBuild({ outDir, config, logger }) {
+    const posts = await loadPublishedPosts();
+    const xml = generateFeed(posts, {
+      origin: "https://example.com",
+      basePath: config.base.replace(/\/+$/, ""),
+      title: "Example Blog",
+      description: "Latest posts",
+      language: "en",
+    });
+    writeFileSync(`${outDir}/rss.xml`, xml);
+    logger.info(`rss.xml written with ${posts.length} item(s)`);
+  },
+});
+```
+
+The runner is also exported standalone as `runBeforeBuildHook(hook, ctx)` (from `@pagesmith/site/vite`) for unit testing a `beforeBuild` hook in isolation.
 
 **SSR Entry Module** must export:
 
@@ -567,8 +649,12 @@ type PrerenderOptions = {
   placeholder?: string;
   /** Remove the server build directory after pre-rendering (default: true) */
   cleanup?: boolean;
+  /** Maximum routes rendered in parallel (default: host available parallelism) */
+  concurrency?: number;
 };
 ```
+
+Routes render through `@pagesmith/core`'s shared bounded worker pool (`mapWithConcurrency`) -- the same primitive the built-in `pagesmithSsg` route rendering uses. Each route writes an independent file, so output is identical regardless of `concurrency`; only render throughput changes. Pass `concurrency: 1` to force the previous fully-serial behavior.
 
 Returns `Promise<{ pages: number }>` with the count of rendered pages.
 
@@ -591,6 +677,164 @@ await prerenderRoutes({
   routes: ["/", "/about", "/posts/hello-world"],
 });
 ```
+
+---
+
+## `@pagesmith/site/ssg-utils`
+
+Shared serializers used both internally (`@pagesmith/docs`'s own sitemap generation) and by custom `@pagesmith/site` builds -- typically called from a `pagesmithSsg({ beforeBuild })` hook (see above).
+
+### `generateFeed(entries, config)`
+
+Generate an RSS 2.0 feed document.
+
+```ts
+type FeedEntry = {
+  title: string;
+  /** Route path; may already carry the base path (`withBasePath` is idempotent) */
+  path: string;
+  /** Entries without one are excluded from the feed */
+  publishedDate?: string | Date;
+  /** Falls back to `title` when omitted */
+  description?: string;
+  /** Emitted as `<category>` elements */
+  tags?: string[];
+};
+
+type FeedConfig = {
+  origin: string; // e.g. 'https://example.com'
+  basePath?: string; // e.g. '/blog'
+  title: string; // channel <title>
+  description: string; // channel <description>
+  language: string; // channel <language>, e.g. 'en'
+  limit?: number; // max items, default 50
+  buildDate?: Date; // <lastBuildDate>; defaults to now
+};
+
+function generateFeed(entries: FeedEntry[], config: FeedConfig): string;
+```
+
+Items are filtered to those with a `publishedDate`, sorted newest-first, and capped at `limit`. Dates render as RFC-822 (`toUTCString()`); text fields are XML-escaped.
+
+```ts
+import { writeFileSync } from "fs";
+import { generateFeed } from "@pagesmith/site/ssg-utils";
+
+const xml = generateFeed(posts, {
+  origin: "https://example.com",
+  basePath: "/blog",
+  title: "Example",
+  description: "Latest posts",
+  language: "en",
+});
+writeFileSync("dist/rss.xml", xml);
+```
+
+### `generateSitemap(routes, config)`
+
+Generate a `sitemap.xml` document.
+
+```ts
+type SitemapConfig = {
+  origin: string;
+  basePath?: string;
+};
+
+function generateSitemap(routes: string[], config: SitemapConfig): string;
+```
+
+`routes` are paths relative to the base URL -- use `''` or `'/'` for the home page. Callers are responsible for excluding non-indexable routes (draft pages, redirect stubs) before calling; this stays a pure serializer.
+
+```ts
+import { generateSitemap } from "@pagesmith/site/ssg-utils";
+
+const xml = generateSitemap(["", "/about", "/blog/hello"], {
+  origin: "https://example.com",
+  basePath: "/docs",
+});
+```
+
+`@pagesmith/docs` delegates its own `sitemap: true` output to this exact function, so custom `@pagesmith/site` sites get an identical sitemap format for free.
+
+### `runPagefindIndexing(outDir, options?)`
+
+Runs the Pagefind indexer over a built output directory. Used internally by `pagesmithSsg`; see the [Runtime Reference](../runtime/README.md) for full details.
+
+---
+
+## `@pagesmith/site/build-validator`
+
+Post-build structural checks over emitted static HTML. Typically run from a `postbuild` script or the `pagesmith-docs validate --build` flow.
+
+```ts
+import { runBuildValidation } from "@pagesmith/site/build-validator";
+
+const exitCode = runBuildValidation({
+  outDir: resolve("dist"),
+  basePath: "/my-site",
+  checkSitemap: true,
+  checkBundledAssets: true,
+});
+process.exit(exitCode);
+```
+
+Relevant `BuildValidatorOptions` (in addition to the existing internal-link, image-structure, and trailing-slash checks):
+
+| Option               | Type      | Default | Description                                                                                                                                                                                                                                                                  |
+| -------------------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checkSitemap`       | `boolean` | `false` | Cross-checks `sitemap.xml` against emitted HTML: every `<loc>` must resolve to an emitted file (**error** if not), and every indexable HTML page (non-redirect, excluding `404.html`) should appear in the sitemap (**warning** if not). No-op when `sitemap.xml` is absent. |
+| `checkBundledAssets` | `boolean` | `false` | Verifies the entry `index.html` references at least one bundled CSS asset and one bundled JS asset, and that each referenced bundle resolves on disk. Catches an empty or broken production bundle.                                                                          |
+
+`validateBuildOutput(options)` returns the full `{ errors, warnings, ... }` result if you want to inspect issues programmatically instead of exiting the process; `runBuildValidation(options)` prints a report and returns the process exit code.
+
+`pagesmith-docs validate --build` does not yet pass `checkSitemap` or `checkBundledAssets` (it already requires `sitemap.xml` to _exist_ via `requiredFiles`, just not the deeper cross-check) -- opt in yourself by calling `validateBuildOutput`/`runBuildValidation` directly in a custom validation script if you want the stronger guarantee today.
+
+---
+
+## SEO And Structured Data
+
+`SiteDocument` (from `@pagesmith/site/components`) emits Open Graph/Twitter meta tags and, unless explicitly disabled, a schema.org JSON-LD `<script type="application/ld+json">` block built from the same already-resolved page metadata.
+
+```ts
+type SiteDocumentSeo = {
+  locale?: string;
+  twitterHandle?: string;
+  defaultOgType?: string;
+  jsonLd?: boolean; // default true
+};
+```
+
+Pass `isHome` to `SiteDocument` on the home page and set `meta.ogType = 'article'` (with an optional `meta.articleType`, default `'Article'`) on content pages:
+
+- `meta.ogType === 'article'` -> an `Article` (or `BlogPosting` / `NewsArticle` / `TechArticle` via `meta.articleType`) JSON-LD block, using `headline`, `description`, `datePublished`/`dateModified`, `author`, canonical `url`, and the resolved OG image.
+- `isHome` (and not an article) -> a `WebSite` JSON-LD block with `name`, `url`, `description`.
+- Set `seo.jsonLd: false` (site config) to opt out entirely.
+
+The builders are also exported standalone for a hand-rolled document shell:
+
+```ts
+import {
+  buildArticleStructuredData,
+  buildWebsiteStructuredData,
+  serializeJsonLd,
+} from "@pagesmith/site";
+
+const data = buildArticleStructuredData({
+  type: "BlogPosting",
+  headline: "Hello, world",
+  description: "An example post",
+  datePublished: "2026-01-15",
+  author: "Ada Lovelace",
+  url: "https://example.com/blog/hello",
+  image: "https://example.com/og/hello.png",
+});
+
+const script = `<script type="application/ld+json">${serializeJsonLd(data)}</script>`;
+```
+
+`serializeJsonLd` escapes `<` as `\u003c` so a stray `</script>` (or `<!--`) inside a string value cannot terminate the script element or open an HTML comment -- the escaped output is still valid JSON and parses back to the original string.
+
+`@pagesmith/docs` wires this through its own theme (`Html.tsx` re-exports `Html`, the docs wrapper that renders `SiteDocument`): `DocHome` passes `isHome`, so every docs site gets a `WebSite` block on its home page, and `DocPage` passes `meta={{ ogType: 'article', ... }}`, so every content page gets an `Article` block automatically -- no config needed. See [Docs Theme Reference](../docs-theme/README.md) for the full layout-to-component wiring.
 
 ---
 

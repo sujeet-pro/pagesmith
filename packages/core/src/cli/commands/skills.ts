@@ -1,76 +1,52 @@
 import type { Command } from "cac";
-import {
-  intro,
-  note,
-  outro,
-  promptMultiselect,
-  resolveInteractive,
-  withInteractivityFlags,
-} from "../../cli-kit/index.js";
-import { readCoreCliDefaults } from "../defaults.js";
-import { installPackageSkills } from "../skills-install.js";
+import { runSkillsInstallCli, toList } from "../skills-install.js";
 
 type SkillsOpts = {
   package?: string | string[];
+  dir?: string;
   cwd?: string;
+  harness?: string | string[];
+  only?: string | string[];
+  check?: boolean;
   dryRun?: boolean;
-  overwrite?: boolean;
-  yes?: boolean;
-  nonInteractive?: boolean;
-  interactive?: boolean;
+  json?: boolean;
 };
 
-function normalize(input: SkillsOpts["package"]): string[] | undefined {
-  if (!input) return undefined;
-  return Array.isArray(input) ? input : [input];
-}
+const DEPRECATION_NOTE =
+  '[deprecated] "pagesmith-core skills" is deprecated and will be removed in a future ' +
+  'minor. Use "pagesmith skills install" instead. Forwarding to the pointer installer.';
 
+/**
+ * Deprecated alias for the umbrella `pagesmith skills install`. It forwards to
+ * the exact same versioned-pointer installer, printing a one-line deprecation
+ * note to stderr first. Retained for one minor version of back-compat.
+ */
 export function registerSkillsCommand(command: Command): Command {
-  return withInteractivityFlags(command)
+  return command
     .option(
       "--package <pkg>",
-      "Pagesmith package to pull skills from (repeatable; default: core, site, docs)",
+      "Pagesmith package to install skills from (repeatable; default: all resolvable)",
     )
-    .option("--cwd <path>", "Project directory (default: cwd)")
-    .option("--dry-run", "Show planned writes without changing files")
-    .option("--no-overwrite", "Keep existing canonical skills unchanged")
-    .action(async (options: SkillsOpts) => {
-      const defaults = (await readCoreCliDefaults()).skills ?? {};
-      const { interactive } = resolveInteractive(options);
-      let packages = normalize(options.package) ?? defaults.packages;
-
-      if (interactive && (!packages || packages.length === 0)) {
-        intro("Pagesmith — install package skills");
-        packages = await promptMultiselect<string>({
-          message: "Which packages?",
-          options: [
-            { value: "@pagesmith/core", label: "@pagesmith/core" },
-            { value: "@pagesmith/site", label: "@pagesmith/site" },
-            { value: "@pagesmith/docs", label: "@pagesmith/docs" },
-          ],
-          initialValues: ["@pagesmith/core", "@pagesmith/site", "@pagesmith/docs"],
-          required: true,
-        });
-      }
-
-      const results = installPackageSkills({
-        packages,
-        cwd: options.cwd,
+    .option("--dir <path>", "Target repo directory (default: cwd)")
+    .option(
+      "--harness <list>",
+      "Harnesses to mirror into: claude,cursor,codex,continue (default: auto-detect)",
+    )
+    .option("--only <name>", "Restrict to specific skills (repeatable or comma-separated)")
+    .option("--check", "Verify only — nonzero exit on missing/stale/orphaned stubs")
+    .option("--dry-run", "Show planned changes without writing")
+    .option("--json", "Emit a machine-readable result")
+    .action((options: SkillsOpts) => {
+      const code = runSkillsInstallCli({
+        cwd: options.dir ?? options.cwd,
+        packages: toList(options.package),
+        harnesses: toList(options.harness),
+        only: toList(options.only),
+        check: options.check,
         dryRun: options.dryRun,
-        overwriteCanonical: options.overwrite,
+        json: options.json,
+        deprecationNote: DEPRECATION_NOTE,
       });
-
-      const summary = results
-        .map((result) => `${result.status}: ${result.label} -> ${result.path}`)
-        .join("\n");
-
-      if (interactive) {
-        note(summary || "(no skills)", options.dryRun ? "Dry run summary" : "Installed");
-        outro(options.dryRun ? "Dry run complete." : "Skills installed.");
-      } else {
-        for (const result of results) {
-          console.info(`${result.status}: ${result.label} -> ${result.path}`);
-        }
-      }
+      if (code !== 0) process.exit(code);
     });
 }

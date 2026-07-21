@@ -1,5 +1,11 @@
 import { Fragment, h } from "../jsx-runtime/index.js";
-import { normalizeOrigin } from "../config.js";
+import { normalizeOrigin, withBasePath } from "../config.js";
+import {
+  buildArticleStructuredData,
+  buildWebsiteStructuredData,
+  serializeJsonLd,
+  type ArticleSchemaType,
+} from "./structured-data.js";
 import type { SiteDocumentData, SiteDocumentScript } from "./types.js";
 
 export type SitePageMeta = {
@@ -13,6 +19,8 @@ export type SitePageMeta = {
   author?: string;
   /** Tags for article:tag */
   tags?: string[];
+  /** schema.org `@type` for the article JSON-LD block. Default: 'Article'. */
+  articleType?: ArticleSchemaType;
 };
 
 export type SiteDocumentProps = {
@@ -22,10 +30,25 @@ export type SiteDocumentProps = {
   socialImage?: string;
   site: SiteDocumentData;
   meta?: SitePageMeta;
+  /** When true, emit WebSite JSON-LD (unless the page is an article). */
+  isHome?: boolean;
   headChildren?: unknown;
   bodyEnd?: unknown;
   children?: unknown;
 };
+
+/**
+ * Resolve an image reference to an absolute URL for social/JSON-LD metadata.
+ * Already-absolute (`http(s)://…`) and protocol-relative (`//host/…`) URLs are
+ * returned untouched — a protocol-relative URL is already absolute (the browser
+ * supplies the page scheme), so prefixing it with `origin` would corrupt it
+ * (`https://site.com//cdn/x.png`). Only root-relative/relative paths get the
+ * origin prefix.
+ */
+function toAbsoluteImageUrl(image: string, origin: string): string {
+  if (/^https?:\/\//i.test(image) || image.startsWith("//")) return image;
+  return `${origin}${image}`;
+}
 
 function buildCsp(gaId?: string): string {
   const scriptSrc = ["'self'", "'unsafe-inline'"];
@@ -67,6 +90,7 @@ export function SiteDocument({
   socialImage,
   site,
   meta,
+  isHome,
   headChildren,
   bodyEnd,
   children,
@@ -82,6 +106,33 @@ export function SiteDocument({
   const ogType = meta?.ogType || site.seo?.defaultOgType || "website";
   const isArticle = ogType === "article";
   const articleAuthor = meta?.author || (isArticle ? site.maintainer?.name : undefined);
+  const absoluteOgImage = ogImage ? toAbsoluteImageUrl(ogImage, origin) : undefined;
+  const jsonLdEnabled = site.seo?.jsonLd !== false;
+  const articleType: ArticleSchemaType = meta?.articleType ?? "Article";
+  const jsonLd = !jsonLdEnabled
+    ? undefined
+    : isArticle
+      ? serializeJsonLd(
+          buildArticleStructuredData({
+            type: articleType,
+            headline: title,
+            description,
+            datePublished: meta?.publishedTime,
+            dateModified: meta?.modifiedTime,
+            author: articleAuthor,
+            url: canonicalUrl,
+            image: absoluteOgImage,
+          }),
+        )
+      : isHome
+        ? serializeJsonLd(
+            buildWebsiteStructuredData({
+              name: site.name,
+              url: canonicalUrl ?? `${origin}${withBasePath(base, "/")}`,
+              description,
+            }),
+          )
+        : undefined;
   const twitterHandle = site.seo?.twitterHandle;
   const searchEnabled = site.search?.enabled !== false;
   const favicon = site.favicon;
@@ -128,12 +179,7 @@ export function SiteDocument({
         {canonicalUrl ? <meta property="og:url" content={canonicalUrl} /> : null}
         <meta property="og:title" content={title} />
         {description ? <meta property="og:description" content={description} /> : null}
-        {ogImage ? (
-          <meta
-            property="og:image"
-            content={ogImage.startsWith("http") ? ogImage : `${origin}${ogImage}`}
-          />
-        ) : null}
+        {ogImage ? <meta property="og:image" content={absoluteOgImage} /> : null}
         <meta property="og:locale" content={locale} />
         <meta property="og:site_name" content={site.name} />
         {isArticle && articleAuthor ? (
@@ -151,12 +197,7 @@ export function SiteDocument({
         <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
         <meta name="twitter:title" content={title} />
         {description ? <meta name="twitter:description" content={description} /> : null}
-        {ogImage ? (
-          <meta
-            name="twitter:image"
-            content={ogImage.startsWith("http") ? ogImage : `${origin}${ogImage}`}
-          />
-        ) : null}
+        {ogImage ? <meta name="twitter:image" content={absoluteOgImage} /> : null}
         {twitterHandle ? <meta name="twitter:site" content={twitterHandle} /> : null}
         <meta name="theme-color" content={lightColor} media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content={darkColor} media="(prefers-color-scheme: dark)" />
@@ -199,6 +240,7 @@ export function SiteDocument({
             />
           </Fragment>
         ) : null}
+        {jsonLd ? <script type="application/ld+json" innerHTML={jsonLd} /> : null}
         {headChildren}
       </head>
       <body>

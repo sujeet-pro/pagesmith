@@ -1,6 +1,7 @@
 ---
 name: pagesmith-core-add-collection
 description: Register a new content collection (markdown, JSON, JSON5, JSONC, YAML, TOML) with a Zod schema in a Pagesmith project. Use when the user wants to model a new content type — blog posts, authors, products, case studies, changelog entries — or when they ask how to validate frontmatter against a schema.
+allowed-tools: Bash(npx pagesmith-core *)
 ---
 
 # Add A Pagesmith Content Collection

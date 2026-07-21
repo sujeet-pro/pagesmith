@@ -1,6 +1,9 @@
 import { copyPublicFiles, emitGeneratedImageVariants, hashAssets } from "@pagesmith/core/assets";
 import { buildCss } from "@pagesmith/site/css";
-import { runPagefindIndexing } from "@pagesmith/site/ssg-utils";
+import {
+  generateSitemap as generateSitemapXml,
+  runPagefindIndexing,
+} from "@pagesmith/site/ssg-utils";
 import {
   copyFileSync,
   existsSync,
@@ -145,30 +148,24 @@ async function copyContentAssetsToOutput(
   await emitGeneratedImageVariants(assetsDir, assets);
 }
 
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
-
+/**
+ * Build the docs sitemap by delegating to the shared `@pagesmith/site`
+ * serializer. Draft pages are excluded; the home page is expressed as the
+ * empty route so it maps to the base URL.
+ *
+ * Output matches the previous in-package implementation byte-for-byte for a
+ * well-formed `origin` (no trailing slash — the common case). The one
+ * behavioral delta: the shared serializer runs `normalizeOrigin`, so an
+ * `origin` that ends in `/` now yields clean `<loc>`s instead of the doubled
+ * slash the old string concatenation produced (`https://x.com//docs/…`). Docs
+ * config does not normalize `origin`, so this is an improvement, not a
+ * regression.
+ */
 function generateSitemap(pages: DocsPage[], config: ResolvedDocsConfig): string {
-  const base = `${config.origin}${config.basePath}`;
-  const urls = pages
+  const routes = pages
     .filter((p) => !p.frontmatter.draft)
-    .map((p) => {
-      const loc = p.isHome ? base : `${base}${p.routePath}`;
-      return `  <url><loc>${escapeXml(loc)}</loc></url>`;
-    });
-
-  return [
-    '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...urls,
-    "</urlset>",
-  ].join("\n");
+    .map((p) => (p.isHome ? "" : p.routePath));
+  return generateSitemapXml(routes, { origin: config.origin, basePath: config.basePath });
 }
 
 const LLMS_FILES = ["llms.txt", "llms-full.txt"];

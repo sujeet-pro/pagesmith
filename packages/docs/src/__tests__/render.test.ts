@@ -92,6 +92,39 @@ describe("renderDocs", () => {
     expect(notFoundHtml).toContain("Page Not Found");
   });
 
+  it("emits WebSite JSON-LD on the home page and Article JSON-LD on content pages", async () => {
+    rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-"));
+    mkdirSync(join(rootDir, "content", "guide"), { recursive: true });
+
+    writeFileSync(
+      join(rootDir, "pagesmith.config.json5"),
+      '{ name: "Render Test", origin: "https://example.dev", search: { enabled: false } }',
+      "utf-8",
+    );
+    writeFileSync(join(rootDir, "content", "README.md"), "# Home\n\nWelcome!", "utf-8");
+    writeFileSync(
+      join(rootDir, "content", "guide", "intro.md"),
+      "---\ntitle: Intro\n---\n\n# Intro\n\nGuide page.",
+      "utf-8",
+    );
+
+    const config = resolveDocsConfig(join(rootDir, "pagesmith.config.json5"));
+    mkdirSync(config.outDir, { recursive: true });
+
+    await renderDocs(config);
+
+    const homeHtml = readFileSync(join(config.outDir, "index.html"), "utf-8");
+    const introHtml = readFileSync(join(config.outDir, "guide", "intro.html"), "utf-8");
+
+    expect(homeHtml).toContain('<script type="application/ld+json">');
+    expect(homeHtml).toContain('"@type":"WebSite"');
+    expect(homeHtml).not.toContain('"@type":"Article"');
+
+    expect(introHtml).toContain('<script type="application/ld+json">');
+    expect(introHtml).toContain('"@type":"Article"');
+    expect(introHtml).toContain('"headline":"Intro');
+  });
+
   it("spreads flat footer links evenly across up to four columns", async () => {
     rootDir = mkdtempSync(join(tmpdir(), "ps-docs-render-"));
     mkdirSync(join(rootDir, "content", "guide"), { recursive: true });

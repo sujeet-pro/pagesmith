@@ -54,8 +54,9 @@
     "validate:pagesmith": "node --strip-types --no-warnings scripts/validate-pagesmith.ts",
     "validate:pagesmith:full": "node --strip-types --no-warnings scripts/validate-pagesmith.ts --full",
     "validate:a11y": "node --strip-types --no-warnings scripts/validate-a11y.ts",
-    "validate": "npm run build:library && npm run build:docs && npm run validate:examples && npm run validate:pagesmith && npm run validate:a11y && npm run check && npm run test",
-    "cicd": "npm run check && npm run build && npm run validate:diagrams && npm run validate:examples && npm run test && npm run e2e",
+    "validate:skills": "node --strip-types --no-warnings scripts/validate-skills.ts",
+    "validate": "npm run build:library && npm run build:docs && npm run validate:examples && npm run validate:pagesmith && npm run validate:skills && npm run validate:a11y && npm run check && npm run test",
+    "cicd": "npm run check && npm run build && npm run validate:diagrams && npm run validate:examples && npm run validate:skills && npm run test && npm run e2e",
     "test": "vp test run",
     "test:watch": "vp test",
     "test:coverage": "vp test run --coverage",
@@ -69,19 +70,20 @@
     "check:fix": "vp check --fix",
     "prepare": "vp config"
   },
-  "dependencies": {
-    "diagramkit": "^0.3.3"
-  },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.2",
     "@playwright/test": "^1.59.1",
     "@types/jsdom": "^28.0.1",
     "@vitest/coverage-v8": "^4.1.5",
     "axe-core": "^4.11.3",
+    "diagramkit": "^0.4.0",
     "jsdom": "^29.0.2",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
     "vite-plus": "^0.1.19"
+  },
+  "overrides": {
+    "@xmldom/xmldom": "^0.9.10"
   },
   "engines": {
     "node": ">=24"

@@ -11,13 +11,13 @@ For @pagesmith/core setup and follow-up prompts, read: node_modules/@pagesmith/c
 
 ## Agent Skills
 
-Each Pagesmith package ships its skill folder inside the npm tarball at `node_modules/@pagesmith/<pkg>/skills/`. Install them into the consumer project with the bundled installer so AI coding agents can drive content tasks end-to-end:
+Each Pagesmith package ships its skill folder inside the npm tarball at `node_modules/@pagesmith/<pkg>/skills/`. Install them into the consumer project with the bundled installer so AI coding agents can drive content tasks end-to-end. In a `@pagesmith/core` install, use the core-scoped command (the umbrella `pagesmith` bin ships from `@pagesmith/site`, so it is not present in a core-only project):
 
 ```bash
-npx pagesmith-core skills --package @pagesmith/core
+npx pagesmith-core skills
 ```
 
-This copies every shipped skill to a canonical `.agents/skills/<name>/SKILL.md` and writes thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point at the canonical file. Drop `--package` to install skills from `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` together. Useful flags: `--cwd <dir>`, `--dry-run`, `--no-overwrite`.
+This writes a version-pinned **pointer stub** (not a copy) at `.agents/skills/<name>/SKILL.md` for every skill each resolvable `@pagesmith/*` ships, plus thin mirror stubs under each detected/requested harness (`.claude/skills/`, `.cursor/skills/`, `.codex/skills/`, `.continue/skills/`). Every stub links back to `node_modules/@pagesmith/<pkg>/skills/<name>/SKILL.md` and carries an HTML-comment version marker, so re-running after an upgrade refreshes stale stubs instead of leaving an outdated copy behind. Pass `--package @pagesmith/core` to restrict installation to a single package. Useful flags: `--dir <path>`, `--harness <list>`, `--only <name>` (repeatable), `--check` (verify-only, nonzero exit on missing/stale/orphaned stubs — wire into CI), `--dry-run`, `--json`. If the project also installs `@pagesmith/site` or `@pagesmith/docs`, the umbrella `npx pagesmith skills install` is the forward-looking equivalent; `pagesmith-core skills` forwards to the same pointer installer (printing a deprecation note) and stays available for core-only installs.
 
 Core ships the following skills (each self-contained with its own `references/` folder):
 
@@ -237,6 +237,10 @@ type MarkdownConfig = {
   rehypePlugins?: any[];
   allowDangerousHtml?: boolean;
   math?: boolean | "auto";
+  images?: {
+    lazyLoading?: boolean; // default true
+    eagerCount?: number; // default 1
+  };
   shiki?: {
     themes: { light: string; dark: string };
     langAlias?: Record<string, string>;
@@ -247,6 +251,7 @@ type MarkdownConfig = {
 
 - `allowDangerousHtml` defaults to `true`. Disable it when rendering untrusted markdown content.
 - `math` defaults to `'auto'`, which only enables `remark-math` and `rehype-mathjax` for pages that contain math markers.
+- `images` controls loading hints on in-flow content images (validated by `MarkdownImagesConfigSchema`). With `lazyLoading` enabled (default), images are walked in document order: the first `eagerCount` (default `1`, tuned for the LCP hero) are marked `fetchpriority="high"` and the rest get `loading="lazy" decoding="async"`. Set `lazyLoading: false` to add no loading attributes, or `eagerCount: 0` to make every image lazy. Author-provided `loading`/`fetchpriority` on an image are always respected. Applies to the `<img>` inside a generated `<picture>` as well as plain images.
 - When Pagesmith knows the markdown source path, relative local images inherit intrinsic dimensions and relative JPEGs can emit `<picture>` fallbacks. `entry.render()` wires this automatically and keeps resolution inside the collection directory. `convert()` / `layer.convert()` can do the same when you pass `sourcePath`; by default refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
 - Every figure-wrapped image carries a hidden expand button (`<button class="ps-img-zoom-btn" hidden data-ps-img-zoom-btn>`) and the figure gets `ps-figure-zoomable`. The underlying `<img>` carries `data-zoom-src` (raster → `<stem>.zoom.webp`, SVG → original `src`). Themed light/dark pairs carry `data-zoom-src-light` / `data-zoom-src-dark` (plus matching `data-zoom-type-*`). Linked images skip the button. Pair with `@pagesmith/site/runtime/image-zoom` (`initImageZoom()`) to wire up the modal.
 - `emitGeneratedImageVariants` (in `@pagesmith/core/assets`) emits **three** files per convertible raster source: `<stem>.avif` and `<stem>.webp` capped at `DISPLAY_MAX_WIDTH` (1600px), plus `<stem>.zoom.webp` capped at `ZOOM_MAX_WIDTH` (4800px). Smaller sources keep their native dimensions (`withoutEnlargement: true`). Helpers: `getGeneratedImageVariantPath`, `getZoomImageVariantPath`, `renderGeneratedImageVariant({ maxWidth })`, `renderZoomImageVariant`.
@@ -304,29 +309,46 @@ import { pagesmithSsg, sharedAssetsPlugin } from "@pagesmith/site/vite";
 
 ## Export Map
 
-| Import Path                                                | Purpose                                                   |
-| ---------------------------------------------------------- | --------------------------------------------------------- |
-| `@pagesmith/core`                                          | Main API (defineCollection, createContentLayer, z, etc.)  |
-| `@pagesmith/core/markdown`                                 | `processMarkdown`                                         |
-| `@pagesmith/core/schemas`                                  | Zod schemas and types                                     |
-| `@pagesmith/core/loaders`                                  | Loader classes and registry                               |
-| `@pagesmith/core/assets`                                   | Asset copying and hashing                                 |
-| `@pagesmith/core/vite`                                     | Vite content plugin (`pagesmithContent`)                  |
-| `@pagesmith/core/ai`                                       | AI assistant artifact generator                           |
-| `@pagesmith/core/create`                                   | Project scaffolding                                       |
-| `@pagesmith/core/mcp`                                      | Core MCP server and helper utilities                      |
-| `@pagesmith/core/log`                                      | Logger factory (`createLogger`, `defaultLogger`)          |
-| `@pagesmith/core/cli-kit`                                  | Shared CLI helpers (`loadPagesmithConfig`, prompts, etc.) |
-| `@pagesmith/core/llms`                                     | Compact AI context index                                  |
-| `@pagesmith/core/llms-full`                                | Full AI context reference                                 |
-| `@pagesmith/core/skills/pagesmith-core-setup/references/*` | Package-shipped AI guidance files                         |
-| `@pagesmith/core/agents/setup-core`                        | Bootstrap prompt for project agents                       |
-| `@pagesmith/core/agents/usage`                             | Agent operating rules and prompts                         |
-| `@pagesmith/core/agents/recipes`                           | Task-specific recipes                                     |
-| `@pagesmith/core/agents/changelog-notes`                   | Version highlights for agents                             |
-| `@pagesmith/core/agents/errors`                            | Error catalog for agent workflows                         |
-| `@pagesmith/core/agents/migration`                         | Upgrade playbook for existing integrations                |
-| `@pagesmith/core/agents/template`                          | Project memory template                                   |
+| Import Path                                                | Purpose                                                                       |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `@pagesmith/core`                                          | Main API (defineCollection, createContentLayer, z, concurrency helpers, etc.) |
+| `@pagesmith/core/markdown`                                 | `processMarkdown`                                                             |
+| `@pagesmith/core/schemas`                                  | Zod schemas and types                                                         |
+| `@pagesmith/core/loaders`                                  | Loader classes and registry                                                   |
+| `@pagesmith/core/assets`                                   | Asset copying and hashing                                                     |
+| `@pagesmith/core/vite`                                     | Vite content plugin (`pagesmithContent`)                                      |
+| `@pagesmith/core/ai`                                       | AI assistant artifact generator                                               |
+| `@pagesmith/core/create`                                   | Project scaffolding                                                           |
+| `@pagesmith/core/mcp`                                      | Core MCP server and helper utilities                                          |
+| `@pagesmith/core/log`                                      | Logger factory (`createLogger`, `defaultLogger`)                              |
+| `@pagesmith/core/cli-kit`                                  | Shared CLI helpers (`loadPagesmithConfig`, prompts, etc.)                     |
+| `@pagesmith/core/llms`                                     | Compact AI context index                                                      |
+| `@pagesmith/core/llms-full`                                | Full AI context reference                                                     |
+| `@pagesmith/core/skills/pagesmith-core-setup/references/*` | Package-shipped AI guidance files                                             |
+| `@pagesmith/core/agents/setup-core`                        | Bootstrap prompt for project agents                                           |
+| `@pagesmith/core/agents/usage`                             | Agent operating rules and prompts                                             |
+| `@pagesmith/core/agents/recipes`                           | Task-specific recipes                                                         |
+| `@pagesmith/core/agents/changelog-notes`                   | Version highlights for agents                                                 |
+| `@pagesmith/core/agents/errors`                            | Error catalog for agent workflows                                             |
+| `@pagesmith/core/agents/migration`                         | Upgrade playbook for existing integrations                                    |
+| `@pagesmith/core/agents/template`                          | Project memory template                                                       |
+
+### Concurrency Utilities
+
+Exported from the main `@pagesmith/core` entry; the single shared bounded worker-pool primitive used across the packages (content loading, image-variant emission, and `@pagesmith/site`'s route pre-rendering).
+
+```ts
+function defaultConcurrency(): number; // max(1, os.availableParallelism())
+function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  mapper: (item: T, index: number) => Promise<R>,
+  concurrency?: number, // defaults to defaultConcurrency(); values < 1 clamp to 1
+): Promise<R[]>;
+```
+
+- Results preserve input order regardless of completion order.
+- A thrown `mapper` rejects the whole batch, mirroring `Promise.all`; handle partial failures inside the `mapper` if needed.
+- Prefer this over an unbounded `Promise.all(items.map(...))` anywhere fan-out scales with content/asset count.
 
 ## MCP Server
 

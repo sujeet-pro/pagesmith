@@ -1,6 +1,7 @@
 ---
 name: pagesmith-docs-customize-theme
 description: Customize layouts, components, footer, CSS variables, and header of a @pagesmith/docs site without forking the package. Use when the user wants to restyle the docs, add a custom header or footer, swap the sidebar, change colors, override typography, add a branded banner, or wire project-specific components into the docs theme.
+allowed-tools: Bash(npx pagesmith-docs *)
 ---
 
 # Customize The @pagesmith/docs Theme

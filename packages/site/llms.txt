@@ -2,13 +2,16 @@
 
 > Pagesmith site toolkit on top of `@pagesmith/core`.
 
-- Canonical CLI: `pagesmith-site` (`pagesmith` remains a compatibility alias)
+- Canonical CLI: `pagesmith-site` (`pagesmith` remains a compatibility alias, and is also the umbrella name for `pagesmith skills install`)
+- Skills install: `npx pagesmith skills install` writes versioned-pointer skill stubs from every resolvable `@pagesmith/*` package into `.agents/skills/` plus harness mirrors; `--check` verifies without writing (CI). `pagesmith-core skills` is a deprecated alias for the same installer.
 - Default preset fallback: `@pagesmith/site/preset`
 - JSX runtime: `@pagesmith/site/jsx-runtime`
 - CSS bundles: `@pagesmith/site/css/*`
 - Runtime JS: `@pagesmith/site/runtime/*`
-- Vite SSG: `@pagesmith/site/vite`
-- Shared helpers: `@pagesmith/site/ssg-utils`
+- Vite SSG: `@pagesmith/site/vite` — `pagesmithSsg({ beforeBuild })` runs a project hook once before SSR/prerender; route rendering and `prerenderRoutes()` use the shared `mapWithConcurrency` pool (`concurrency` option, default: host parallelism)
+- Shared helpers: `@pagesmith/site/ssg-utils` — `generateFeed(entries, config)` (RSS 2.0), `generateSitemap(routes, config)` (also used internally by `@pagesmith/docs`), `runPagefindIndexing`
+- Build validation: `@pagesmith/site/build-validator` — `checkSitemap` and `checkBundledAssets` opt-in checks alongside the existing structural checks
+- SEO: `seo.jsonLd` (default `true`) emits schema.org JSON-LD (`Article`/`BlogPosting` + `WebSite`) from `SiteDocument`; also exported standalone as `buildArticleStructuredData`, `buildWebsiteStructuredData`, `serializeJsonLd`
 - Config helpers: `defineSiteConfig`, `loadSiteConfig`, `parseSiteConfig`, `normalizeBasePath`, `withBasePath`, `stripBasePath`, `formatPath`, `normalizeOrigin`
 - URL strategy: `trailingSlash` config option (default: `false`); `formatPath()` replaces `withTrailingSlash()`
 - Schemas: `@pagesmith/site/schemas` exports `SiteUserConfigSchema`, `SitePageMeta` plus the core schemas

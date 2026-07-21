@@ -21,12 +21,36 @@
  * ```
  */
 
+import { createLogger, type Logger } from "@pagesmith/core";
 import { existsSync, readFileSync } from "fs";
 import { extname, join, resolve } from "path";
 import type { Plugin, ResolvedConfig } from "vite";
 import { configureSsgDevServer } from "./ssg-hmr";
 import { resolveContentDirs, renderStaticSite } from "./ssg-render";
 import { runPagefindIndexing } from "./ssg-pagefind";
+
+/**
+ * Context passed to a {@link SsgBeforeBuildHook}. Intentionally minimal and
+ * generator-agnostic so hooks can run arbitrary pre-build work (generating
+ * content, syncing assets, emitting diagrams) without coupling to any
+ * specific tool.
+ */
+export type SsgBeforeBuildContext = {
+  /** Absolute path to the project root (Vite's resolved `root`). */
+  rootDir: string;
+  /** Absolute path to the build output directory. */
+  outDir: string;
+  /** Vite's fully resolved config for this build. */
+  config: ResolvedConfig;
+  /** Prefixed logger (`pagesmith:ssg`) for hook diagnostics. */
+  logger: Logger;
+};
+
+/**
+ * Hook invoked once, before the SSR/prerender pipeline runs. May be async;
+ * a thrown error aborts the build with a clear message.
+ */
+export type SsgBeforeBuildHook = (ctx: SsgBeforeBuildContext) => void | Promise<void>;
 
 export type SsgPluginOptions = {
   /** Path to the SSR entry module (e.g., './src/entry-server.tsx') */
@@ -35,6 +59,12 @@ export type SsgPluginOptions = {
   pagefind?: boolean;
   /** Content roots used for copying companion assets. */
   contentDirs?: string[];
+  /**
+   * Extension point run once before the SSR build + route pre-rendering.
+   * Use it for project-specific pre-build steps (content generation, asset
+   * sync, etc.). Errors abort the build.
+   */
+  beforeBuild?: SsgBeforeBuildHook;
   /**
    * CSS entry file served in dev mode (default: './src/theme.css').
    * Vite transforms this on-the-fly during development.
@@ -86,9 +116,26 @@ function pagesmithCssLightningOptions() {
   };
 }
 
+/**
+ * Invoke a {@link SsgBeforeBuildHook}, wrapping any failure in a clear,
+ * build-aborting error. Exported for unit testing.
+ */
+export async function runBeforeBuildHook(
+  hook: SsgBeforeBuildHook,
+  ctx: SsgBeforeBuildContext,
+): Promise<void> {
+  try {
+    await hook(ctx);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`pagesmithSsg beforeBuild hook failed: ${message}`, { cause: error });
+  }
+}
+
 export function pagesmithSsg(options: SsgPluginOptions): Plugin[] {
   const enablePagefind = options.pagefind !== false;
   const cssEntry = options.cssEntry ?? DEFAULT_CSS_ENTRY;
+  const logger = createLogger({ prefix: "pagesmith:ssg" });
   let config: ResolvedConfig;
   let projectRoot: string;
   let base: string; // e.g., '/my-site'
@@ -206,6 +253,16 @@ export function pagesmithSsg(options: SsgPluginOptions): Plugin[] {
     async closeBundle() {
       // Skip SSG during the SSR build itself (detected by ssr option)
       if (config.build.ssr) return;
+
+      // Run the user's pre-build hook before any SSR/prerender work.
+      if (options.beforeBuild) {
+        await runBeforeBuildHook(options.beforeBuild, {
+          rootDir: projectRoot,
+          outDir,
+          config,
+          logger,
+        });
+      }
 
       const pageCount = await renderStaticSite({
         config,

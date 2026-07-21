@@ -74,10 +74,15 @@ export function SidebarNav(props: {
   );
 }
 
-export function ExampleFooter() {
+export function ExampleFooter(props: { basePath: string }) {
+  const { basePath } = props;
   return (
     <SharedSiteFooter
       links={[
+        {
+          label: "RSS Feed",
+          path: `${basePath}/rss.xml`,
+        },
         {
           label: "GitHub",
           path: "https://github.com/sujeet-pro/pagesmith/tree/main/examples/blog-site",
@@ -179,7 +184,7 @@ export function HomeBody(props: {
         </section>
 
         <div class="doc-home-footer">
-          <ExampleFooter />
+          <ExampleFooter basePath={basePath} />
         </div>
       </main>
     </Fragment>
@@ -253,7 +258,7 @@ export function PageBody(props: {
             <div class="prose" innerHTML={content} />
           </article>
 
-          <ExampleFooter />
+          <ExampleFooter basePath={basePath} />
         </main>
 
         <aside class="doc-aside">
@@ -294,6 +299,7 @@ export function renderDocument(props: {
     <meta property="og:title" content="${escapeHtml(title)}" />
     ${description ? `<meta property="og:description" content="${escapeHtml(description)}" />` : ""}
     <link rel="icon" href="${base}/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Pagesmith + Site JSX -- Guide" href="${base}/rss.xml" />
     <link rel="stylesheet" href="${base}/assets/fonts.css" />
     ${searchEnabled ? `<link rel="stylesheet" href="${base}/pagefind/pagefind-component-ui.css" />` : ""}
     <link rel="stylesheet" href="${cssPath}" />

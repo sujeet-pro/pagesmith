@@ -155,7 +155,11 @@ function createProcessor(config: MarkdownConfig, options: { enableMath: boolean 
     .use(rehypeA11y)
     // Fill intrinsic image dimensions from the local filesystem and wrap JPEGs
     // in <picture> so browsers can prefer AVIF/WebP while keeping JPEG fallback.
-    .use(rehypeLocalImages);
+    // Also stamps loading hints (lazy/eager + fetchpriority) on content images.
+    .use(rehypeLocalImages, {
+      lazyLoading: config.images?.lazyLoading ?? true,
+      eagerCount: config.images?.eagerCount ?? 1,
+    });
 
   processor.use(() => (tree: any, file: any) => {
     const headings: Heading[] = [];

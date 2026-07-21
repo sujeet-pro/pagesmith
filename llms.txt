@@ -13,7 +13,9 @@
 - Built-in JSX runtime, shared CSS/runtime bundles, theme + text-size controls, and TOC highlighting from `@pagesmith/site`
 - Docs defaults from `pagesmith.config.json5`, including listing pages, shell overrides, and layout overrides through `theme.layouts.*`
 - Bundled Pagefind search with Cmd+K keyboard shortcut
-- Assistant artifact helpers exposed from `@pagesmith/core/ai`
+- Assistant artifact helpers exposed from `@pagesmith/core/ai`; versioned-pointer skill stubs via `npx pagesmith skills install` (`--check` for CI)
+- RSS/sitemap/JSON-LD from `@pagesmith/site`: `generateFeed`, `generateSitemap`, and `SiteDocument`'s schema.org output (`seo.jsonLd`, default true)
+- Shared bounded-concurrency worker pool (`mapWithConcurrency`, `defaultConcurrency`) from `@pagesmith/core`, reused for content loading, image variants, and SSG route rendering
 
 ## Quick Start
 

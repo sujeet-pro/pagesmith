@@ -184,6 +184,15 @@ The second example produces a `<figcaption>Company Logo</figcaption>` inside the
 
 `entry.render()` sets the source path automatically and keeps resolution inside the collection directory. For `convert()` or `layer.convert()`, pass `sourcePath` when you want the same behavior outside collections; by default relative refs stay inside that markdown file's directory, and you can pass `assetRoot` when the safe root should be broader (for example the collection directory).
 
+### Image loading hints
+
+The `markdown.images` config controls browser loading hints on in-flow content images (`MarkdownImagesConfigSchema` in `@pagesmith/core/schemas`):
+
+- `lazyLoading` (default `true`) — walk images in document order, mark the first `eagerCount` as `fetchpriority="high"` (the LCP hero) and give the rest `loading="lazy" decoding="async"`. Set to `false` to add no Pagesmith loading attributes at all.
+- `eagerCount` (default `1`) — how many leading images stay eager. Use `0` to make every image lazy.
+
+Hints apply to the `<img>` inside a generated `<picture>` as well as plain images. Author-provided `loading`/`fetchpriority` on an image are always respected and never overwritten.
+
 ### Automatic Light/Dark Pair Merging
 
 Consecutive images whose filenames end with `-light` and `-dark` suffixes (e.g. `diagram-light.svg` and `diagram-dark.svg`) are automatically merged into a single `<figure class="ps-figure ps-figure-themed">`. The merged image inherits intrinsic dimensions from the light variant. When using `-light`/`-dark` suffixes, **both variants must be present** as consecutive images — a lone `-light` or `-dark` image without its counterpart will throw an error.

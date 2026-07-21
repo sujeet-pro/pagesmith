@@ -1,6 +1,7 @@
 ---
 name: pagesmith-docs-add-page
 description: Add a new page (guide, reference, or home) to an existing @pagesmith/docs site with correct frontmatter, file placement, and sidebar ordering. Use when the user wants to write a new doc page, document a feature in their Pagesmith site, add a quickstart, or extend an existing docs section — even if they don't mention "Pagesmith" explicitly.
+allowed-tools: Bash(npx pagesmith-docs *)
 ---
 
 # Add A Page To A Pagesmith Docs Site

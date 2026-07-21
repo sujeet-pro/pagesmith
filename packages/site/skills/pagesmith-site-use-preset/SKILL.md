@@ -1,6 +1,7 @@
 ---
 name: pagesmith-site-use-preset
 description: Point the pagesmith-site CLI at a bundled preset (for example @pagesmith/docs/preset or an internal preset) to consume its init, dev, build, preview, and MCP hooks. Use when the user wants to share a site template across projects, switch between Pagesmith presets, or swap the default preset for an internal one.
+allowed-tools: Bash(npx pagesmith-site *)
 ---
 
 # Use A Site Preset
@@ -113,7 +114,7 @@ export default {
 
 Export both a module entry (so `preset: '@your-scope/pagesmith-preset-x'` resolves) and a `bin/` wrapper (so `your-preset-name init` works like `pagesmith-site init --preset <x>`).
 
-Publish it with the `skills/` folder shipped the same way `@pagesmith/docs` ships skills, so downstream agents can install them with `npx pagesmith-core skills --package <your-preset-package>`.
+Publish it with the `skills/` folder shipped the same way `@pagesmith/docs` ships skills (a `skills/<name>/SKILL.md` per task). `pagesmith skills install` only auto-discovers `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` by name — a third-party preset package is not scanned by `--package <your-preset-package>`. Tell downstream users to read `node_modules/<your-preset-package>/skills/<name>/SKILL.md` directly, or copy it into their own `.agents/skills/` by hand.
 
 ## Verify
 

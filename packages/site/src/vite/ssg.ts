@@ -9,6 +9,7 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { dirname, resolve } from "path";
 import { pathToFileURL } from "url";
+import { mapWithConcurrency } from "@pagesmith/core";
 
 export type PrerenderOptions = {
   /** Absolute path to the client build output directory (e.g., `dist/`) */
@@ -21,6 +22,20 @@ export type PrerenderOptions = {
   placeholder?: string;
   /** Remove the server build directory after pre-rendering (default: true) */
   cleanup?: boolean;
+  /**
+   * Maximum routes rendered in parallel. Defaults to the host's available
+   * parallelism via `@pagesmith/core`'s shared `mapWithConcurrency` — the same
+   * bounded worker-pool the built-in SSG plugin uses. Pass `1` to force the
+   * previous fully-serial behavior.
+   *
+   * Each route writes its own independent file (`<outDir>/<route>/index.html`),
+   * so for distinct routes the set of generated files and their contents are
+   * identical regardless of this value — only render throughput and the order
+   * files are written change. The one caveat introduced by the new parallel
+   * default: `render` is now invoked concurrently, so a `render` that relies on
+   * shared mutable state or must run serially should pass `concurrency: 1`.
+   */
+  concurrency?: number;
 };
 
 /**
@@ -77,16 +92,23 @@ export async function prerenderRoutes(options: PrerenderOptions): Promise<{ page
     );
   }
 
-  // Pre-render each route
-  for (const route of options.routes) {
-    const rendered = await render(route);
-    const html = template.replace(placeholder, rendered);
+  // Pre-render each route with bounded concurrency (the shared
+  // `mapWithConcurrency` worker-pool from `@pagesmith/core`). Distinct routes
+  // write independent files, so the emitted files match a serial loop; only the
+  // write order and throughput differ (pass `concurrency: 1` for a serial run).
+  await mapWithConcurrency(
+    options.routes,
+    async (route) => {
+      const rendered = await render(route);
+      const html = template.replace(placeholder, rendered);
 
-    const routePath = route === "/" ? "" : route.replace(/^\//, "");
-    const outPath = resolve(options.outDir, routePath, "index.html");
-    mkdirSync(dirname(outPath), { recursive: true });
-    writeFileSync(outPath, html);
-  }
+      const routePath = route === "/" ? "" : route.replace(/^\//, "");
+      const outPath = resolve(options.outDir, routePath, "index.html");
+      mkdirSync(dirname(outPath), { recursive: true });
+      writeFileSync(outPath, html);
+    },
+    options.concurrency,
+  );
 
   // Clean up server build
   if (cleanup) {

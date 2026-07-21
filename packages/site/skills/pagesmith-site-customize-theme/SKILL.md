@@ -1,6 +1,7 @@
 ---
 name: pagesmith-site-customize-theme
 description: Customize layouts, CSS bundles, runtime JS, and components shipped by @pagesmith/site while keeping the defaults for everything untouched. Use when the user wants full control over a non-docs Pagesmith site's look and feel, needs to swap individual components, restyle with CSS variables, or opt out of specific runtime behaviors.
+allowed-tools: Bash(npx pagesmith-site *)
 ---
 
 # Customize The @pagesmith/site Theme

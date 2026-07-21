@@ -33,6 +33,12 @@ npm add @pagesmith/core
 
 Fields: `collections`, optional `root`, `markdown`, `assets`, `plugins`, optional **`strict`** (fail fast on loader errors). There is no `cache` or `eager` field on `ContentLayerConfig`.
 
+`markdown` (`MarkdownConfig`): `remarkPlugins`, `rehypePlugins`, `allowDangerousHtml` (default `true`), `math` (`boolean | 'auto'`, default `'auto'`), `shiki`, and `images`. `markdown.images` (`MarkdownImagesConfigSchema`): `lazyLoading` (default `true`) walks content images in document order, marking the first `eagerCount` (default `1`, the LCP hero) `fetchpriority="high"` and the rest `loading="lazy" decoding="async"`; set `lazyLoading: false` for no added loading attributes or `eagerCount: 0` to make every image lazy. Author-provided `loading`/`fetchpriority` are always respected.
+
+## Concurrency utilities
+
+Exported from the main `@pagesmith/core` entry: `defaultConcurrency()` returns `max(1, os.availableParallelism())`; `mapWithConcurrency(items, mapper, concurrency?)` runs an order-preserving bounded worker pool (defaults to `defaultConcurrency()`, clamps `< 1` to `1`, a thrown `mapper` rejects the batch like `Promise.all`). It is the single shared fan-out primitive used by content loading, image-variant emission, and `@pagesmith/site`'s route pre-rendering — prefer it over an unbounded `Promise.all(items.map(...))`.
+
 ## ContentLayer methods
 
 | Method | Purpose |

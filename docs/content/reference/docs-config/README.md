@@ -350,7 +350,7 @@ When enabled, each page displays a "Last updated: January 15, 2026" line below t
 | --------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sitemap` | `boolean` | `true`  | Generate `sitemap.xml` during build. Skipped when `origin` is still the placeholder value (`https://example.com`). Set to `false` to disable. |
 
-The sitemap is generated from all non-draft pages and placed at the build output root.
+The sitemap is generated from all non-draft pages and placed at the build output root. Generation delegates to `@pagesmith/site/ssg-utils`'s `generateSitemap()` serializer -- the same one custom `@pagesmith/site` sites can call directly -- so the emitted XML format is identical either way.
 
 ### Analytics Configuration
 
@@ -374,6 +374,9 @@ The `markdown` field accepts a JSON-safe subset of `MarkdownConfig` for the docs
 | --------------------------------------- | --------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `markdown.allowDangerousHtml`           | `boolean`                         | `true`                                           | Preserve raw HTML from markdown. Disable this when rendering untrusted content.                                                                           |
 | `markdown.math`                         | `boolean \| 'auto'`               | `'auto'`                                         | Always enable math plugins, disable them, or auto-enable them only for markdown that contains math markers.                                               |
+| `markdown.images`                       | `object`                          | `undefined`                                      | Loading-hint behavior for in-flow content images (validated by the docs package's `.strict()` `DocsMarkdownConfigSchema` -- no other keys allowed).       |
+| `markdown.images.lazyLoading`           | `boolean`                         | `true`                                           | Emit `loading`/`decoding`/`fetchpriority` hints on content images. `false` adds no loading attributes at all.                                             |
+| `markdown.images.eagerCount`            | `number`                          | `1`                                              | Leading images (document order) marked eager with `fetchpriority="high"` instead of lazy. `0` makes every image lazy.                                     |
 | `markdown.shiki`                        | `object`                          | `undefined`                                      | Configuration for syntax highlighting in the built-in code renderer.                                                                                      |
 | `markdown.shiki.themes`                 | `{ light: string; dark: string }` | `{ light: "github-light", dark: "github-dark" }` | Dual theme names for light and dark mode syntax highlighting. Any Shiki-supported theme name is accepted.                                                 |
 | `markdown.shiki.langAlias`              | `Record<string, string>`          | `undefined`                                      | Map of custom language aliases to language identifiers. For example, `{ "dockerfile": "docker" }` lets you use `dockerfile` as a code block language tag. |
@@ -387,6 +390,9 @@ Example:
 markdown: {
   allowDangerousHtml: true,
   math: 'auto',
+  images: {
+    eagerCount: 2, // treat the first two images as eager instead of the default 1
+  },
   shiki: {
     themes: { light: 'github-light', dark: 'github-dark-dimmed' },
     langAlias: { hbs: 'handlebars' },

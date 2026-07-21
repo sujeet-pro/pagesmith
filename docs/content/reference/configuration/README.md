@@ -96,6 +96,10 @@ type MarkdownConfig = {
   rehypePlugins?: any[];
   allowDangerousHtml?: boolean;
   math?: boolean | "auto";
+  images?: {
+    lazyLoading?: boolean;
+    eagerCount?: number;
+  };
   shiki?: {
     themes: { light: string; dark: string };
     langAlias?: Record<string, string>;
@@ -104,15 +108,31 @@ type MarkdownConfig = {
 };
 ```
 
-| Field                          | Type                              | Default                                          | Description                                                                                                 |
-| ------------------------------ | --------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `remarkPlugins`                | `any[]`                           | `[]`                                             | Additional remark plugins, injected after built-in plugins and before remark-to-rehype conversion           |
-| `rehypePlugins`                | `any[]`                           | `[]`                                             | Additional rehype plugins, injected after built-in plugins and before HTML serialization                    |
-| `allowDangerousHtml`           | `boolean`                         | `true`                                           | Preserve raw HTML from markdown. Disable this when rendering untrusted content.                             |
-| `math`                         | `boolean \| 'auto'`               | `'auto'`                                         | Always enable math plugins, disable them, or auto-enable them only for markdown that contains math markers. |
-| `shiki.themes`                 | `{ light: string; dark: string }` | `{ light: 'github-light', dark: 'github-dark' }` | Dual theme names for built-in code renderer syntax highlighting                                             |
-| `shiki.langAlias`              | `Record<string, string>`          | `undefined`                                      | Map of custom language aliases to language identifiers (e.g., `{ dockerfile: 'docker' }`)                   |
-| `shiki.defaultShowLineNumbers` | `boolean`                         | `true`                                           | Show line numbers on code blocks by default. Individual blocks can override with `showLineNumbers=false`.   |
+| Field                          | Type                              | Default                                          | Description                                                                                                           |
+| ------------------------------ | --------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `remarkPlugins`                | `any[]`                           | `[]`                                             | Additional remark plugins, injected after built-in plugins and before remark-to-rehype conversion                     |
+| `rehypePlugins`                | `any[]`                           | `[]`                                             | Additional rehype plugins, injected after built-in plugins and before HTML serialization                              |
+| `allowDangerousHtml`           | `boolean`                         | `true`                                           | Preserve raw HTML from markdown. Disable this when rendering untrusted content.                                       |
+| `math`                         | `boolean \| 'auto'`               | `'auto'`                                         | Always enable math plugins, disable them, or auto-enable them only for markdown that contains math markers.           |
+| `images.lazyLoading`           | `boolean`                         | `true`                                           | Emit `loading`/`decoding`/`fetchpriority` loading hints on content images. `false` adds no loading attributes at all. |
+| `images.eagerCount`            | `number`                          | `1`                                              | Leading images (document order) marked eager with `fetchpriority="high"` instead of lazy. `0` makes every image lazy. |
+| `shiki.themes`                 | `{ light: string; dark: string }` | `{ light: 'github-light', dark: 'github-dark' }` | Dual theme names for built-in code renderer syntax highlighting                                                       |
+| `shiki.langAlias`              | `Record<string, string>`          | `undefined`                                      | Map of custom language aliases to language identifiers (e.g., `{ dockerfile: 'docker' }`)                             |
+| `shiki.defaultShowLineNumbers` | `boolean`                         | `true`                                           | Show line numbers on code blocks by default. Individual blocks can override with `showLineNumbers=false`.             |
+
+### Image loading hints
+
+When `images.lazyLoading` is enabled (the default), Pagesmith walks the rendered images in document order: the first `eagerCount` images get `fetchpriority="high"` (tuned for the Largest Contentful Paint hero image), and every image after that gets `loading="lazy" decoding="async"`. The hint applies to the `<img>` inside a generated `<picture>` as well as to a plain image, and an `<img>` that already carries an author-set `loading` or `fetchpriority` attribute is left untouched.
+
+```ts title="content.config.ts"
+markdown: {
+  images: {
+    eagerCount: 2, // treat the first two images (e.g. a hero + immediate follow-up) as eager
+  },
+}
+```
+
+Set `images.lazyLoading: false` to opt out entirely and leave content images without any Pagesmith-added loading attributes.
 
 Plugins can be passed as bare functions or `[plugin, options]` tuples:
 

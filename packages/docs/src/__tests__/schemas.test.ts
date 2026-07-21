@@ -30,6 +30,10 @@ describe("docs schemas", () => {
       markdown: {
         allowDangerousHtml: false,
         math: "auto",
+        images: {
+          lazyLoading: true,
+          eagerCount: 2,
+        },
         shiki: {
           themes: { light: "github-light", dark: "github-dark" },
           defaultShowLineNumbers: false,
@@ -47,7 +51,15 @@ describe("docs schemas", () => {
     expect(result.server?.logLevel).toBe("verbose");
     expect(result.markdown?.allowDangerousHtml).toBe(false);
     expect(result.markdown?.math).toBe("auto");
+    expect(result.markdown?.images?.lazyLoading).toBe(true);
+    expect(result.markdown?.images?.eagerCount).toBe(2);
     expect(result.markdown?.shiki?.defaultShowLineNumbers).toBe(false);
+  });
+
+  it("rejects unknown keys inside markdown.images (strict)", () => {
+    expect(() =>
+      DocsConfigSchema.parse({ markdown: { images: { eagerCount: 0, bogus: true } } }),
+    ).toThrow();
   });
 
   it("parses grouped footer links", () => {

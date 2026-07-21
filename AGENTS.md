@@ -2,7 +2,7 @@
 
 Single source of truth for AI agents working **inside** the Pagesmith monorepo. If you are maintaining, extending, or reviewing this repository, read this file top to bottom.
 
-`CLAUDE.md` is a thin pointer → this file. **Contributor** Agent Skills are canonical under [`.agents/skills/`](./.agents/skills/) only; [`.claude/skills/`](./.claude/skills/) and [`.cursor/skills/`](./.cursor/skills/) are **reference-only mirrors** (same folder names, each `SKILL.md` points at the matching canonical file). Never treat `.claude/skills/` or `.cursor/skills/` as the place to author or edit skill bodies.
+`CLAUDE.md` uses Claude Code's native `@AGENTS.md` import as its first line, so this file loads automatically as memory — do not duplicate guidance there beyond a small Claude-specific addendum below the import. `.claude/settings.json` pre-approves `Bash(npm run *)`, `Bash(npx pagesmith *)`, and `Bash(npx diagramkit *)` for Claude Code. **Contributor** Agent Skills are canonical under [`.agents/skills/`](./.agents/skills/) only; [`.claude/skills/`](./.claude/skills/) and [`.cursor/skills/`](./.cursor/skills/) are **reference-only mirrors** (same folder names, each `SKILL.md` points at the matching canonical file). Never treat `.claude/skills/` or `.cursor/skills/` as the place to author or edit skill bodies.
 
 ## Scope Split
 
@@ -26,7 +26,7 @@ Each `skills/pagesmith-<pkg>-<action>/` folder is a self-contained Agent Skill w
 ```
 pagesmith/
 ├── AGENTS.md                 # this file (contributor guide)
-├── CLAUDE.md                 # thin pointer → AGENTS.md
+├── CLAUDE.md                 # @AGENTS.md native import + Claude-only addendum
 ├── README.md
 ├── MIGRATING.md
 ├── LICENSE
@@ -41,6 +41,7 @@ pagesmith/
 ├── .agents/skills/prj-*/                # canonical contributor skills (edit here)
 ├── .agents/skills/prj-diagramkit-{auto,review}/  # repo-local diagramkit pointers (+ Pagesmith notes); engines → node_modules/diagramkit/skills/
 ├── .claude/skills/prj-*/                # mirror: thin wrappers → read .agents/skills/prj-*
+├── .claude/settings.json      # pre-approved Bash permissions (npm run *, npx pagesmith *, npx diagramkit *)
 ├── .cursor/skills/prj-*/                # mirror: thin wrappers → read .agents/skills/prj-*
 ├── .github/                  # workflows, templates
 ├── .gitignore
@@ -159,6 +160,7 @@ Consumer Agent Skills live inside each package and ship in the npm tarball under
 - **Self-contained.** Every reference file a skill needs lives inside its own `references/` folder as a duplicated copy. Do NOT share a single `references/` across skills. If two skills need the same reference, duplicate it. If a skill needs a reference from a different package, it reads it through the dependency tree at `node_modules/@pagesmith/<other-pkg>/skills/<other-skill>/references/<file>`.
 - Body stays under ~500 lines / ~5,000 tokens.
 - Only cite paths the consumer's project actually has: `node_modules/@pagesmith/*/REFERENCE.md`, `node_modules/@pagesmith/*/llms.txt`, `node_modules/@pagesmith/*/skills/**/references/`, `node_modules/@pagesmith/docs/schemas/`.
+- `allowed-tools` frontmatter grants only the owning package's own CLI (`Bash(npx pagesmith-core *)` under `packages/core/skills/`, `Bash(npx pagesmith-site *)` under `packages/site/skills/`, `Bash(npx pagesmith-docs *)` under `packages/docs/skills/`) so Claude Code can run it without a permission prompt.
 
 When public behavior changes, update the matching `packages/<pkg>/skills/pagesmith-<pkg>-*/SKILL.md` (and their `references/`) in the same branch. Run `prj-maintain-docs` to keep per-package `skills/`, `schemas/`, `llms.txt`, `llms-full.txt`, root docs, and diagrams version-aligned with the implementation.
 
@@ -228,6 +230,8 @@ Any public behavior change updates, in the same branch:
 - Markdown/code-renderer changes must update implementation plus `packages/core/skills/pagesmith-core-setup/references/markdown-guidelines.md`, `packages/docs/skills/pagesmith-docs-setup/references/markdown-guidelines.md`, root docs pages covering markdown/code, example feature pages across all examples, and markdown tests.
 - Docs-package changes must update `packages/docs/skills/pagesmith-docs-setup/references/setup-docs.md`, `docs-guidelines.md`, `schemas/*.schema.json`, root docs pages for config/frontmatter/navigation/deployment, and `examples/doc-site/`.
 - When writing or updating docs, follow `prj-maintain-docs` and add diagrams wherever they materially simplify the explanation. Keep diagram sources plus rendered light/dark SVGs in sibling `diagrams/` folders and render them with `npm run render:diagrams`.
+- Every release needs a `MIGRATING.md` entry for the version being published. `npm run validate:pagesmith` gates on it (`scripts/migrating-version-gate.ts`): the top-most `## X.Y.Z (...)` heading must be at or ahead of `packages/core/package.json`'s version, so a release with no matching entry fails the check instead of shipping silently undocumented.
+- Example `llms.txt` / `llms-full.txt` (per `prj-maintain-examples`) are hand-authored, not generated. `npm run validate:examples` still cross-checks every backtick-quoted file reference each one makes and fails if a referenced file no longer exists — a cheap, deterministic stand-in for full regeneration (see `scripts/llms-reference-check.ts`) that catches drift after a rename, move, or delete.
 
 ## Hosting And Routing Rules
 
@@ -257,7 +261,7 @@ Maintainer rules:
 
 Repo defaults:
 
-- Use `diagramkit` for diagram rendering (`diagramkit.config.json5`, `package.json` scripts).
+- Use `diagramkit` for diagram rendering (`diagramkit.config.json5`, `package.json` scripts). It lives in root `devDependencies` — it drives the docs build/validate pipeline only, and the root `package.json` is `private` and never published.
 - Put editable source files in a `diagrams/` folder next to the markdown that references them.
 - Render light and dark SVG variants as direct siblings of the source file (`sameFolder: true`).
 - Prefer SVG. Add PNG only when another surface explicitly needs a raster.
@@ -297,10 +301,12 @@ vp run build
 vp run build:docs              # transitively runs `npm run validate:diagrams`
 vp run build:examples
 vp run validate:examples
+npm run validate:pagesmith     # docs content/build + repo cross-refs + MIGRATING.md release gate
+npm run validate:skills        # consumer skill frontmatter (name/allowed-tools) + umbrella-CLI checks
 npm run diagramkit:warmup
 npm run render:diagrams        # render + validate every project diagram SVG
 npm run validate:diagrams      # validate-only (structure + embed-safety + WCAG 2.2 AA contrast)
-npm run validate
+npm run validate               # full suite: build + validate:{examples,pagesmith,skills,a11y} + check + test
 ```
 
-`npm run validate:diagrams` is wired into `build:docs`, so any docs build fails fast on broken or low-contrast diagram SVGs. It scopes to project-owned `**/diagrams/**/*-{light,dark}.svg` files (skipping `gh-pages/`, `node_modules/`, and other generated/vendored locations). Fatal classes: any `severity: error`, plus `LOW_CONTRAST_TEXT`, `CONTAINS_FOREIGN_OBJECT`, `CONTAINS_SCRIPT`, and `EXTERNAL_RESOURCE` warnings — because the docs site embeds SVGs via `<img>` / `<figure>` / `<picture>`, all four silently degrade in those embeds.
+`npm run validate:diagrams` is wired into `build:docs`, so any docs build fails fast on broken or low-contrast diagram SVGs. `scripts/render-diagrams.ts` is a thin wrapper over diagramkit's own CLI: it scopes both render and validate to project-owned diagrams via `diagramkit validate . --recursive --scope-dir diagrams` (skipping `gh-pages/`, `node_modules/`, and other generated/vendored locations by diagramkit's own default ignore list) and promotes fatal classes via `--fail-on`: any `severity: error`, plus `LOW_CONTRAST_TEXT`, `CONTAINS_FOREIGN_OBJECT`, `CONTAINS_SCRIPT`, and `EXTERNAL_RESOURCE` warnings — because the docs site embeds SVGs via `<img>` / `<figure>` / `<picture>`, all four silently degrade in those embeds.

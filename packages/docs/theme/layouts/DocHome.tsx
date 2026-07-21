@@ -73,6 +73,7 @@ export default function DocHome(props: Props) {
           : undefined
       }
       site={site}
+      isHome
     >
       {chrome.header ? (
         <DocHeader

@@ -5,7 +5,6 @@
  * Not exported directly — used internally by ContentLayer.
  */
 
-import { availableParallelism } from "os";
 import { resolve } from "path";
 import type { MarkdownConfig } from "./schemas/markdown-config";
 import type { ZodType } from "zod";
@@ -15,33 +14,16 @@ import type { Loader } from "./loaders/types";
 import { collectRehypePlugins, collectRemarkPlugins, runPluginValidators } from "./plugins";
 import type { CollectionDef, RawEntry } from "./schemas/collection";
 import type { ContentLayerConfig } from "./schemas/content-config";
+import { defaultConcurrency, mapWithConcurrency } from "./utils/concurrency";
 import { discoverFiles } from "./utils/glob";
 import { toSlug } from "./utils/slug";
 import { validateSchema, type ValidationIssue } from "./validation";
 import { builtinMarkdownValidators, runValidators } from "./validation/runner";
 import type { ContentValidator } from "./validation/types";
 
-const MAX_CONCURRENCY = availableParallelism() * 2;
-
-async function mapWithConcurrency<T, R>(
-  items: T[],
-  concurrency: number,
-  fn: (item: T) => Promise<R>,
-): Promise<R[]> {
-  const results: R[] = Array.from({ length: items.length });
-  let index = 0;
-
-  async function worker(): Promise<void> {
-    while (index < items.length) {
-      const i = index++;
-      results[i] = await fn(items[i]);
-    }
-  }
-
-  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker());
-  await Promise.all(workers);
-  return results;
-}
+// Collection loading is IO-bound (filesystem reads + parsing), so allow twice
+// the CPU parallelism in flight to keep the disk busy while some workers await.
+const MAX_CONCURRENCY = defaultConcurrency() * 2;
 
 type CacheEntry = {
   entry: ContentEntry;
@@ -100,37 +82,41 @@ export class ContentStore {
 
     const entries = new Map<string, CacheEntry>();
     const strict = this.config.strict ?? false;
-    const results = await mapWithConcurrency(files, MAX_CONCURRENCY, async (filePath) => {
-      try {
-        return await this.loadEntry(name, filePath, directory, loader, def);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        const loadError = new Error(`[${name}] Failed to load ${filePath}: ${message}`, {
-          cause: err,
-        });
+    const results = await mapWithConcurrency(
+      files,
+      async (filePath) => {
+        try {
+          return await this.loadEntry(name, filePath, directory, loader, def);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          const loadError = new Error(`[${name}] Failed to load ${filePath}: ${message}`, {
+            cause: err,
+          });
 
-        if (strict) {
-          throw loadError;
+          if (strict) {
+            throw loadError;
+          }
+
+          console.warn(`[pagesmith] ${loadError.message}`);
+          const slug = def.slugify ? def.slugify(filePath, directory) : toSlug(filePath, directory);
+          return {
+            entry: new ContentEntry(
+              slug,
+              name,
+              filePath,
+              {},
+              undefined,
+              this.markdownConfig,
+              directory,
+            ),
+            issues: [
+              { message: loadError.message, severity: "error" as const, source: "schema" as const },
+            ],
+          };
         }
-
-        console.warn(`[pagesmith] ${loadError.message}`);
-        const slug = def.slugify ? def.slugify(filePath, directory) : toSlug(filePath, directory);
-        return {
-          entry: new ContentEntry(
-            slug,
-            name,
-            filePath,
-            {},
-            undefined,
-            this.markdownConfig,
-            directory,
-          ),
-          issues: [
-            { message: loadError.message, severity: "error" as const, source: "schema" as const },
-          ],
-        };
-      }
-    });
+      },
+      MAX_CONCURRENCY,
+    );
 
     for (const result of results) {
       if (result) {

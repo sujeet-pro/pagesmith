@@ -1,6 +1,7 @@
 ---
 name: pagesmith-docs-configure-nav
 description: Configure sidebar, top-nav, and section ordering in a @pagesmith/docs site using meta.json5 files and page frontmatter. Use when the user wants to reorder, hide, rename, group, pin, or add external links to docs navigation, or when a page is missing from the sidebar.
+allowed-tools: Bash(npx pagesmith-docs *)
 ---
 
 # Configure Pagesmith Docs Navigation

@@ -78,6 +78,49 @@ export function render(url: string, config: SsgRenderConfig): string | Promise<s
 }
 ```
 
+### RSS feed and sitemap
+
+`pagesmithSsg`'s optional `beforeBuild` hook runs once before the SSR/prerender pipeline -- a good place to write generated static files like `rss.xml` or `sitemap.xml` using the shared `@pagesmith/site/ssg-utils` serializers:
+
+```ts title="vite.config.ts"
+import { writeFileSync } from "fs";
+import { generateFeed, generateSitemap } from "@pagesmith/site/ssg-utils";
+import { pagesmithSsg } from "@pagesmith/site/vite";
+
+pagesmithSsg({
+  entry: "./src/entry-server.tsx",
+  async beforeBuild({ outDir, config }) {
+    const basePath = config.base.replace(/\/+$/, "");
+    const posts = await loadPosts(); // however this project loads dated entries
+
+    writeFileSync(
+      `${outDir}/rss.xml`,
+      generateFeed(posts, {
+        origin: "https://example.com",
+        basePath,
+        title: "Example Blog",
+        description: "Latest posts",
+        language: "en",
+      }),
+    );
+
+    writeFileSync(
+      `${outDir}/sitemap.xml`,
+      generateSitemap(["", ...posts.map((p) => p.path)], {
+        origin: "https://example.com",
+        basePath,
+      }),
+    );
+  },
+});
+```
+
+A thrown error inside `beforeBuild` aborts the build with a clear `pagesmithSsg beforeBuild hook failed: ...` message. `@pagesmith/docs` uses the same `generateSitemap` internally, so custom `@pagesmith/site` builds get an identical sitemap format for free.
+
+### SEO structured data
+
+`SiteDocument` emits schema.org JSON-LD alongside its existing Open Graph/Twitter tags whenever `seo.jsonLd` is not explicitly `false` (the default is `true`): an `Article`/`BlogPosting` block for article pages, or a `WebSite` block when you pass `isHome`. Use `buildArticleStructuredData`, `buildWebsiteStructuredData`, and `serializeJsonLd` directly if you render your own document shell instead of `SiteDocument`.
+
 ### JSX runtime
 
 For Pagesmith's server-side JSX runtime:
@@ -178,6 +221,15 @@ Commands:
 - `pagesmith-site preview`
 - `pagesmith-site init`
 - `pagesmith-site mcp` (only when the active preset implements MCP; use `pagesmith-docs mcp` for the built-in docs server)
+- `pagesmith skills install` — umbrella command (uses the `pagesmith` alias) that writes versioned-pointer skill stubs from every resolvable `@pagesmith/*` package; see [Install consumer Agent Skills](#install-consumer-agent-skills) below
+
+### Install consumer Agent Skills
+
+```bash
+npx pagesmith skills install
+```
+
+Writes a canonical pointer stub — not a copy — at `.agents/skills/<name>/SKILL.md` for every skill each resolvable `@pagesmith/*` package ships, plus thin mirror stubs under detected/requested harnesses (`.claude/skills/`, `.cursor/skills/`, `.codex/skills/`, `.continue/skills/`). Each stub links back to the version-pinned original in `node_modules` and carries an HTML-comment version marker, so re-running after an upgrade refreshes stale stubs. Useful flags: `--package <pkg>` (repeatable), `--dir <path>`, `--harness <list>`, `--only <name>`, `--check` (verify-only, nonzero exit on a missing/stale/orphaned stub — good for CI), `--dry-run`, `--json`. `pagesmith-core skills` still works as a deprecated alias for the same installer.
 
 Important behavior:
 
@@ -258,6 +310,7 @@ For typed custom-site config, `@pagesmith/site/schemas` exports `SiteUserConfigS
 
 - `@pagesmith/site/vite`
 - `@pagesmith/site/ssg-utils`
+- `@pagesmith/site/build-validator`
 
 ## Further Reading
 

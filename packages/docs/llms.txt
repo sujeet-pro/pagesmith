@@ -85,6 +85,9 @@ Built-in theme toggle (header dropdown) and theme selector (footer). Config opti
 
 ## Recent changes
 
+- `markdown.images` config (`lazyLoading` default `true`, `eagerCount` default `1`) adds automatic `loading="lazy" decoding="async"` / `fetchpriority="high"` hints on content images; passed through from `pagesmith.config.json5` and reflected in `schemas/pagesmith-config.schema.json`.
+- Sitemap generation now delegates to `@pagesmith/site/ssg-utils`'s `generateSitemap`; emitted `sitemap.xml` output is unchanged.
+- Install skill stubs across every resolvable `@pagesmith/*` package with `npx pagesmith skills install` (`--check` for CI). `pagesmith-docs` has no `skills` subcommand of its own -- use the umbrella command from `@pagesmith/site`.
 - Multi-theme system with header toggle, footer selector, and config options for default color scheme/theme.
 - Footer links now support two modes: a flat link grid or grouped columns with optional headers. On wide screens they use up to 4 evenly spaced columns, and prev/next navigation now renders between page metadata and the footer link area. Footer links still fall back to the top-level nav links when `footerLinks` is omitted.
 - `DocHome` now uses the same main content-column width and inline padding as `DocPage`, so the landing page and content pages stay visually aligned while sidebars appear or disappear around the content.

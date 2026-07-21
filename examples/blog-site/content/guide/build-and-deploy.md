@@ -73,3 +73,17 @@ For GitHub Pages, the site is deployed under `/pagesmith/examples/blog-site/`.
 ## Search
 
 Search is powered by Pagefind, which runs at build time to index the generated HTML. During development, search is unavailable since Pagefind needs a completed build. The `searchEnabled` flag in the render config controls whether search UI elements are included.
+
+## RSS feed
+
+`vite.config.ts` passes a `beforeBuild` hook to `pagesmithSsg` (`src/feed.ts`'s `writeRssFeed`). It runs once, after the client build's assets are already in `outDir` but before `getRoutes()` / `render()` pre-render any HTML:
+
+```ts title="vite.config.ts (excerpt)"
+...pagesmithSsg({
+  entry: './src/entry-server.tsx',
+  contentDirs: ['./content'],
+  beforeBuild: writeRssFeed,
+});
+```
+
+`writeRssFeed` loads the `guide` collection, maps each entry to a `FeedEntry` (`title`, `path`, `publishedDate`, `description`, `tags`), and calls `generateFeed()` from `@pagesmith/site/ssg-utils` -- the same RSS 2.0 serializer used elsewhere in Pagesmith -- to write `rss.xml` straight into `outDir`. Entries without a `publishedDate` are skipped and the feed is capped at 50 items by default (see `generateFeed`'s `limit` option). The generated file is linked from `<head>` (`rel="alternate"`) and the site footer.

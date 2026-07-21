@@ -540,7 +540,10 @@ describe("docs quality guards", () => {
 
     for (const file of mdFiles) {
       const src = readFileSync(file, "utf-8").replace(FENCED, (m) => m.replace(/[^\n]/g, " "));
-      const linkRe = /(!?)\[[^\]]*\]\(([^)\s]+)\)/g;
+      // The label may itself contain a nested image (`[![alt](img)](url)`, the
+      // linked-image pattern). Allow one level of nested brackets so the outer
+      // link's href — not the inner image's src — is what gets captured.
+      const linkRe = /(!?)\[(?:[^[\]]|\[[^\]]*\])*\]\(([^)\s]+)\)/g;
       let m: RegExpExecArray | null;
       while ((m = linkRe.exec(src)) !== null) {
         if (m[1] === "!") continue;

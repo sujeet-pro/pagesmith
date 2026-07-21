@@ -52,33 +52,23 @@ Processor creation takes 200-500ms depending on the number of themes and plugins
 
 ## Parallel Page Building
 
-`@pagesmith/docs` processes markdown files with bounded concurrency using a worker pool pattern:
+Both `@pagesmith/core` (collection loading) and `@pagesmith/docs` (its own page tree) process markdown files with bounded concurrency using a worker-pool pattern, so a large site never fans out one in-flight operation per file.
 
-```ts title="Bounded concurrency"
-const concurrency = Math.max(1, availableParallelism() * 2);
+`@pagesmith/core`'s `ContentStore` uses the shared, publicly exported primitive:
 
-async function mapWithConcurrency<T, R>(
-  items: T[],
-  concurrency: number,
-  fn: (item: T) => Promise<R>,
-): Promise<R[]> {
-  const results: R[] = new Array(items.length);
-  let index = 0;
+```ts title="@pagesmith/core"
+function defaultConcurrency(): number; // max(1, os.availableParallelism())
 
-  async function worker(): Promise<void> {
-    while (index < items.length) {
-      const i = index++;
-      results[i] = await fn(items[i]);
-    }
-  }
-
-  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker());
-  await Promise.all(workers);
-  return results;
-}
+function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  mapper: (item: T, index: number) => Promise<R>,
+  concurrency?: number, // defaults to defaultConcurrency()
+): Promise<R[]>;
 ```
 
-The concurrency limit is `os.availableParallelism() * 2`. On an 8-core machine, this means 16 concurrent page renders. The `* 2` factor accounts for the fact that markdown processing is I/O-bound (file reads) mixed with CPU-bound work (syntax highlighting), so oversubscription improves throughput.
+Collection loading calls it with `defaultConcurrency() * 2` (I/O-bound file reads mixed with CPU-bound parsing, so oversubscription improves throughput). It is the single shared fan-out primitive across the packages -- also used by `emitGeneratedImageVariants` (image variant rendering in `@pagesmith/core/assets`) and by `@pagesmith/site`'s route pre-rendering (`pagesmithSsg` and the lower-level `prerenderRoutes({ concurrency })`). Import it directly whenever your own code would otherwise run an unbounded `Promise.all(items.map(...))` over a large collection or asset set.
+
+`@pagesmith/docs` keeps its own equivalent worker pool for its page tree (markdown files are read and rendered directly, not through a `ContentLayer` collection), using the same `os.availableParallelism() * 2` policy. On an 8-core machine, this means 16 concurrent page renders.
 
 ### Why bounded concurrency matters
 
@@ -88,7 +78,21 @@ Without a concurrency limit, processing 1000+ pages simultaneously would:
 - Overwhelm the event loop with concurrent Shiki highlighting operations
 - Risk out-of-memory errors on CI runners with limited RAM
 
-The bounded approach keeps memory usage proportional to the concurrency limit, not the total page count.
+The bounded approach keeps memory usage proportional to the concurrency limit, not the total page count. Results always preserve input order regardless of completion order, and a thrown mapper/worker rejects the whole batch (mirroring `Promise.all`), so partial-failure handling stays inside each call site.
+
+## Image Loading Hints (Lazy / Eager)
+
+Content images get automatic browser loading hints during markdown rendering, tuned for the Largest Contentful Paint (LCP): the first `markdown.images.eagerCount` images (default `1`) in document order get `fetchpriority="high"`, and every image after that gets `loading="lazy" decoding="async"`. This applies to the `<img>` inside a generated `<picture>` as well as to a plain image, and an author-set `loading`/`fetchpriority` on an `<img>` always wins over the automatic hint.
+
+```json5 title="pagesmith.config.json5 / content.config.ts markdown block"
+markdown: {
+  images: {
+    eagerCount: 2, // treat a hero image plus one immediate follow-up as eager
+  },
+}
+```
+
+Set `markdown.images.lazyLoading: false` to opt out entirely if a page's own layout already manages image loading strategy. There is no runtime cost to this feature -- the hints are stamped once during the same rehype pass that already wraps images in `<picture>`, not at request time.
 
 ## Incremental Dev Rebuilds
 

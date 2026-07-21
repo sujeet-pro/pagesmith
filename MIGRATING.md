@@ -4,7 +4,33 @@ Pagesmith is still pre-1.0, so breaking changes are expected between minor relea
 
 This guide covers the current split into `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs`.
 
-## 0.9.9 (next)
+## 0.11.0 (next)
+
+Additive updates, no breaking changes. Highlights:
+
+- `@pagesmith/core` / `@pagesmith/site` — unified `pagesmith skills install` command (mirrors diagramkit's own `skills install` UX): auto-detects which of `@pagesmith/core` / `@pagesmith/site` / `@pagesmith/docs` are installed, writes versioned-pointer stubs under `.agents/skills/` plus mirrors for the harnesses you use (`--harness claude,cursor,codex,continue`, auto-detected by default from existing `.claude/`/`.cursor/`/etc. folders), and supports `--check` (nonzero exit on missing/stale/orphaned stubs, for CI), `--dry-run`, `--only <skill>` (repeatable), and `--json`. `pagesmith-core skills` still works but is deprecated in favor of `pagesmith skills install` and will be removed in a future minor.
+- `@pagesmith/core` — new `markdown.images` config (`lazyLoading`, default `true`; `eagerCount`, default `1`). Content images now get automatic `loading="lazy" decoding="async"` (or `fetchpriority="high"` for the first `eagerCount` images in document order — typically the LCP hero) unless the author already set a loading strategy. Set `markdown.images.lazyLoading: false` to opt out entirely.
+- `@pagesmith/site` — `pagesmithSsg({ beforeBuild })`: a new optional hook that runs once before the SSR/prerender pipeline, receiving `{ rootDir, outDir, config, logger }`. Use it for project-specific pre-build steps (content generation, asset sync); a thrown error aborts the build with a clear message.
+- `@pagesmith/site` — `validateBuildOutput` / `runBuildValidation` gain two opt-in checks: `checkSitemap` (cross-checks `sitemap.xml` against emitted HTML — every `<loc>` must resolve, every indexable page should be listed) and `checkBundledAssets` (the entry page must reference a resolvable CSS bundle and JS bundle). Both default to `false`.
+- `@pagesmith/site` — new `seo.jsonLd` option (default `true`) emits schema.org JSON-LD (`Article`/`BlogPosting` + `WebSite`) alongside the existing Open Graph/Twitter meta tags. New exports `buildArticleStructuredData`, `buildWebsiteStructuredData`, `serializeJsonLd`. Set `seo.jsonLd: false` to opt out.
+- `@pagesmith/docs` — sitemap generation now delegates to the shared `@pagesmith/site/ssg-utils` serializer instead of an in-package implementation. Emitted `sitemap.xml` is byte-identical for a well-formed `origin` (no trailing slash — the common case); the only change is that a trailing-slash `origin` (e.g. `https://example.com/`) is now normalized, so `<loc>` values no longer contain a doubled slash before the base path.
+- `@pagesmith/core` — new exports `mapWithConcurrency(items, mapper, concurrency?)` and `defaultConcurrency()` on the main entry: the single shared order-preserving bounded worker pool used across the packages (content loading, image-variant emission, and `@pagesmith/site` route pre-rendering). `defaultConcurrency()` returns `max(1, os.availableParallelism())`.
+- `@pagesmith/site` — `prerenderRoutes` now renders through that shared bounded pool and accepts an optional `concurrency` (default: host available parallelism; pass `1` for the previous serial behavior). For distinct routes the emitted files and their contents are unchanged — each route writes its own file — so only throughput and file-write order change; because `render` now runs concurrently by default, a `render` that depends on shared mutable state or serial execution should pass `concurrency: 1`. The built-in `pagesmithSsg` route rendering was consolidated onto the same primitive (previously a hardcoded 8-way pool).
+- `@pagesmith/docs` — the `markdown.images` config above is now accepted by `pagesmith.config.json5` (`markdown.images.lazyLoading` / `markdown.images.eagerCount`) and reflected in the published `schemas/pagesmith-config.schema.json`.
+
+No action required to upgrade.
+
+## 0.10.0 (minor)
+
+Fix release for docs search under a `basePath`, plus a docs home-page refactor. Highlights:
+
+- `@pagesmith/site` / `@pagesmith/docs` — fixed a real bug: the Pagefind search UI loads as a `<script type="module">`, so `document.currentScript` is always `null` and Pagefind's auto-detected `bundlePath` silently fell back to `/pagefind/`, 404ing on every sub-path deploy (GitHub Pages project sites, any non-root `basePath`). `SiteDocument` now emits an explicit `<pagefind-config bundle-path="<basePath>/pagefind/">` element before the loader script whenever search is enabled, so bundle discovery works under any `basePath` with no consumer action needed. Disabling `search.enabled` keeps its existing behavior (no pagefind binary, no UI/CSS/JS/modal/trigger, no `pagefind/` output directory).
+- `@pagesmith/docs` — the generated docs home page now renders an npm install snippet and a self-contained, no-CLS npm version badge (backed by new `npm.ts` / `npm-badge.ts` helpers) as part of a broader home-page layout refactor.
+- Repo-level — every example workspace picked up the same Pagefind `basePath` fix, and the root docs home page (`docs/content/README.md`) was updated to match the refactored layout.
+
+No action required to upgrade. If you hand-rolled a `<pagefind-config>` element yourself, remove it — the runtime now injects one automatically and a duplicate can confuse Pagefind's bundle-path detection.
+
+## 0.9.9 (patch)
 
 Additive feature, with one image-asset behavior change worth knowing about:
 
@@ -99,7 +125,7 @@ Subpath exports in `package.json` followed the same rename:
 
 1. Search your `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and any custom agent prompts for `@pagesmith/<pkg>/ai-guidelines/` and replace with the new paths from the table above (or run `npx pagesmith-core ai --profile default` to regenerate the AI scaffolding with the latest pointers).
 2. If you hand-rolled any tooling that globs `node_modules/@pagesmith/<pkg>/ai-guidelines/**`, point it at `node_modules/@pagesmith/<pkg>/skills/**/references/**` instead.
-3. The root `skills/pagesmith-*` folder that used to live at the Pagesmith repo root is gone — each skill now ships with its owning package. Use `npx pagesmith-core skills` (optionally with `--package @pagesmith/<pkg>`) to install skills into `.agents/skills/`, `.claude/skills/`, and `.cursor/skills/`. Or read the skill directly from its owning package path (e.g. `node_modules/@pagesmith/core/skills/pagesmith-core-add-loader/SKILL.md`).
+3. The root `skills/pagesmith-*` folder that used to live at the Pagesmith repo root is gone — each skill now ships with its owning package. Use `npx pagesmith-core skills` (optionally with `--package @pagesmith/<pkg>`) to install skills into `.agents/skills/`, `.claude/skills/`, and `.cursor/skills/`. Or read the skill directly from its owning package path (e.g. `node_modules/@pagesmith/core/skills/pagesmith-core-add-loader/SKILL.md`). (See the 0.11.0 entry above — `pagesmith skills install` is now the recommended command; `pagesmith-core skills` still works as a deprecated alias.)
 
 ## Other high-impact changes
 

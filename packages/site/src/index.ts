@@ -117,7 +117,15 @@ export type {
   SiteThemeConfig,
   SiteUserConfig,
 } from "./config.js";
-export type { SitePageMeta } from "./components/document.js";
+export type { SitePageMeta, SiteDocumentProps } from "./components/document.js";
+export {
+  buildArticleStructuredData,
+  buildWebsiteStructuredData,
+  serializeJsonLd,
+  type ArticleSchemaType,
+  type ArticleStructuredDataInput,
+  type WebsiteStructuredDataInput,
+} from "./components/structured-data.js";
 export type {
   SiteBuildOptions,
   SiteDevOptions,

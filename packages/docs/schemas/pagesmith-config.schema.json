@@ -300,6 +300,23 @@
             }
           ]
         },
+        "images": {
+          "description": "Loading-hint behavior applied to in-flow content images during markdown render.",
+          "type": "object",
+          "properties": {
+            "lazyLoading": {
+              "description": "Emit lazy/eager loading hints (loading, decoding, fetchpriority) on content images. Defaults to true.",
+              "type": "boolean"
+            },
+            "eagerCount": {
+              "description": "Count of leading images loaded eagerly with fetchpriority=high (the LCP hero). Defaults to 1; use 0 to make every image lazy.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "additionalProperties": false
+        },
         "shiki": {
           "type": "object",
           "properties": {

@@ -60,25 +60,54 @@ This scaffolds `pagesmith.config.json5`, content, and the same AI artifacts in o
 | `.pagesmith/markdown-guidelines.md`   | Shared markdown authoring rules for Pagesmith content                                           |
 | `llms.txt` / `llms-full.txt`          | Compact and expanded LLM context files                                                          |
 
-## Install Consumer Agent Skills With `pagesmith-core skills`
+## Install Consumer Agent Skills With `pagesmith skills install`
 
-In addition to the assistant-specific commands above, each Pagesmith package ships its own `skills/` folder inside the npm package (not as separate npm packages). Use the bundled installer to copy them into the project:
+In addition to the assistant-specific commands above, each Pagesmith package ships its own `skills/` folder inside the npm package (not as separate npm packages). Install versioned-pointer stubs for them with the umbrella command. The `pagesmith` bin ships from `@pagesmith/site`, so it resolves whenever `@pagesmith/site` or `@pagesmith/docs` (which depends on site) is installed:
+
+```bash
+npx pagesmith skills install
+```
+
+In a **core-only** install (`@pagesmith/core` without `@pagesmith/site`), the `pagesmith` bin is not present — use the package-scoped command instead, which installs from every resolvable `@pagesmith/*`:
 
 ```bash
 npx pagesmith-core skills
 ```
 
-By default this scans `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` for `skills/<name>/SKILL.md` files and writes them in two places:
+### What gets written (pointers, not copies)
 
-- A canonical copy at `.agents/skills/<name>/SKILL.md` (the source of truth).
-- Thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point Claude Code and Cursor at the canonical file.
+Unlike a naive "copy the skill folder in" installer, `pagesmith skills install` never duplicates a skill body into your repo. For every skill shipped by a resolvable `@pagesmith/core` / `@pagesmith/site` / `@pagesmith/docs`, it writes:
 
-Useful flags:
+- A canonical **pointer stub** at `.agents/skills/<name>/SKILL.md` — frontmatter (`name`, `description`) plus a link straight back to the version-pinned original at `node_modules/@pagesmith/<pkg>/skills/<name>/SKILL.md`.
+- Thin **mirror stubs** at `.claude/skills/<name>/SKILL.md`, `.cursor/skills/<name>/SKILL.md`, `.codex/skills/<name>/SKILL.md`, and/or `.continue/skills/<name>/SKILL.md` for whichever harnesses you use — each one points back at the canonical `.agents/skills/<name>/SKILL.md` stub, not at `node_modules` directly.
 
-- `--package <pkg>` (repeatable) — limit the install to specific packages.
-- `--cwd <dir>` — install into a different project directory.
-- `--dry-run` — print what would change without writing files.
-- `--no-overwrite` — leave existing canonical skills untouched (wrappers always refresh).
+Every stub carries an HTML-comment marker recording the owning package and its installed version, for example:
+
+```md
+<!-- pagesmith-skill-pointer: pkg=@pagesmith/core version=0.11.0 generator=@pagesmith/core@0.11.0 -->
+```
+
+That marker is what makes re-runs safe: bump `@pagesmith/core` and run the command again, and every stub whose marker version is behind the installed package refreshes automatically (reported as `updated`); nothing changes and it reports `unchanged` otherwise. A skill folder outside the `pagesmith-*` namespace, or a hand-authored `pagesmith-*` folder that never carried the marker, is never touched or swept.
+
+### Flags
+
+| Flag               | Effect                                                                                                                                                                                                           |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--package <pkg>`  | Repeatable. Limit the install to specific packages (default: every resolvable package).                                                                                                                          |
+| `--dir <path>`     | Install into a different project directory (default: cwd).                                                                                                                                                       |
+| `--harness <list>` | Comma-separated harnesses to mirror into: `claude,cursor,codex,continue` (default: auto-detected from existing `.claude/`, `.cursor/`, etc. folders).                                                            |
+| `--only <name>`    | Repeatable or comma-separated. Restrict to specific skills, with or without the `pagesmith-` prefix.                                                                                                             |
+| `--check`          | Verify only, write nothing. Exits nonzero if any stub is missing, stale (behind the installed version), or orphaned (shipped skill removed or no longer installed). Wire this into CI after upgrading Pagesmith. |
+| `--dry-run`        | Show planned `created` / `updated` / `unchanged` / `removed` actions without writing.                                                                                                                            |
+| `--json`           | Emit a machine-readable `{ schemaVersion, command: "skills-install", ... }` envelope instead of the human report.                                                                                                |
+
+`--check` in CI looks like:
+
+```bash
+npx pagesmith skills install --check
+```
+
+A green exit means every stub matches the installed package version and no shipped skill or package went missing since the last install; a nonzero exit means someone upgraded `@pagesmith/*` (or deleted/hand-edited a stub) without re-running the installer.
 
 Available skills (all live inside the package they document):
 
@@ -88,9 +117,15 @@ Available skills (all live inside the package they document):
 | `@pagesmith/site` | `pagesmith-site-setup`, `pagesmith-site-use-preset`, `pagesmith-site-customize-theme`                                                                                                                         |
 | `@pagesmith/core` | `pagesmith-core-setup`, `pagesmith-core-add-collection`, `pagesmith-core-add-loader`, `pagesmith-core-customize-markdown`, `pagesmith-core-write-validator`                                                   |
 
-Each skill always reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the agent uses the CLI flags and config schema that match the version actually installed in the project, instead of relying on globally cached or generic guidance.
+Each skill always reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the agent uses the CLI flags and config schema that match the version actually installed in the project, instead of relying on globally cached or generic guidance. Every skill's `SKILL.md` also carries `allowed-tools` frontmatter scoped to its own package's CLI (for example `Bash(npx pagesmith-core *)`), so an assistant that honors that frontmatter can run it without an extra permission prompt.
 
-Browse the full set in the [pagesmith repo `packages/<pkg>/skills/` folders](https://github.com/sujeet-pro/pagesmith/tree/main/packages). Each folder is self-contained, so you can also copy one into `.cursor/skills/`, `.claude/skills/`, or `.agents/skills/` by hand.
+Browse the full set in the [pagesmith repo `packages/<pkg>/skills/` folders](https://github.com/sujeet-pro/pagesmith/tree/main/packages). You can still copy a skill folder into `.agents/skills/`, `.claude/skills/`, or `.cursor/skills/` by hand instead of running the installer — the copy just will not auto-update on upgrade the way a pointer stub does.
+
+### Migrating from the old copy-based installer
+
+Earlier releases (`pagesmith-core skills`, pre-0.11.0) **copied** each skill's full `SKILL.md` body into `.agents/skills/<name>/SKILL.md`, so upgrading `@pagesmith/*` left the copied bodies silently behind the newly installed version until you re-ran the installer with `--no-overwrite`-aware judgement calls. `pagesmith skills install` replaces that with the pointer stubs described above: nothing is duplicated, drift is detectable (`--check`), and upgrades update themselves.
+
+`pagesmith-core skills` still works — it forwards to the exact same pointer installer and prints a one-line deprecation notice to stderr — but it is deprecated in favor of `pagesmith skills install` and will be removed in a future minor. If a repo has leftover full-body copies from the old installer, just re-run `pagesmith skills install`: it overwrites each `.agents/skills/<name>/SKILL.md` with the new pointer stub (a copy and a stub never happen to be byte-identical, so the first run after upgrading always reports `updated`, not `unchanged`).
 
 ## Version-Matched Package Files
 

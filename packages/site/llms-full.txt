@@ -4,13 +4,15 @@
 
 It owns:
 
-- the `pagesmith-site` CLI (`pagesmith` remains a compatibility alias)
+- the `pagesmith-site` CLI (`pagesmith` remains a compatibility alias, and is the umbrella name for `pagesmith skills install`)
 - preset loading
 - server-side JSX (`@pagesmith/site/jsx-runtime`)
 - CSS bundles (`@pagesmith/site/css/*`)
 - browser runtime helpers (`@pagesmith/site/runtime/*`)
 - Vite SSG helpers (`@pagesmith/site/vite`)
 - shared SSG utilities (`@pagesmith/site/ssg-utils`)
+- post-build validation (`@pagesmith/site/build-validator`)
+- the shared bounded-concurrency worker pool re-exported from `@pagesmith/core` (`mapWithConcurrency`, `defaultConcurrency`), used by route pre-rendering
 
 It builds on `@pagesmith/core` internally and re-exports the content-layer APIs that site consumers typically need.
 
@@ -80,10 +82,33 @@ Components and layouts:
 
 SEO:
 
-- `SitePageMeta` type with `ogType`, `publishedTime`, `modifiedTime`, `author`, `tags`
+- `SitePageMeta` type with `ogType`, `publishedTime`, `modifiedTime`, `author`, `tags`, `articleType` (schema.org `@type` override, default `'Article'`)
 - Twitter Card tags: `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:site`
 - Article meta: `article:author`, `article:published_time`, `article:modified_time`, `article:tag`
+- JSON-LD: `SiteDocument` emits schema.org structured data unless `seo.jsonLd === false` (default `true`) -- an `Article`/`BlogPosting`/etc. block when `meta.ogType === 'article'`, or a `WebSite` block when `isHome` is passed. Values come from data already resolved for OG/meta tags (headline, description, dates, author, canonical URL, absolute image). Also exported standalone: `buildArticleStructuredData(input)`, `buildWebsiteStructuredData(input)`, `serializeJsonLd(data)` (escapes `<` so the JSON safely embeds in an inline `<script type="application/ld+json">`).
 - `SiteFooter` accepts an `extraContent` slot
+
+SSG utilities (`@pagesmith/site/ssg-utils`):
+
+- `generateFeed(entries, config)` -- RSS 2.0 feed. Entries: `title`, `path`, optional `publishedDate` (excluded from the feed when absent), `description` (falls back to `title`), `tags` (-> `<category>`). Config: `origin`, `basePath`, `title`, `description`, `language`, `limit` (default 50, newest-first by `publishedDate`), `buildDate` (defaults to now; pass an explicit `Date` for deterministic tests).
+- `generateSitemap(routes, config)` -- `urlset` sitemap.xml. Routes are paths relative to the base URL; use `''` or `'/'` for home. Config: `origin`, `basePath`. `@pagesmith/docs` delegates its own sitemap generation to this same function; output is unchanged from its previous in-package implementation.
+- `runPagefindIndexing(outDir, options?)` -- search index generation after build.
+
+Build validation (`@pagesmith/site/build-validator`):
+
+- `validateBuildOutput(options)` / `runBuildValidation(options)` -- structural checks over emitted HTML (internal links, image structure, theme variants, trailing-slash consistency, etc.)
+- `checkSitemap` (default `false`) -- cross-checks `sitemap.xml` against emitted HTML: every `<loc>` must resolve to a file (error) and every indexable non-redirect HTML page (excluding `404.html`) should appear in the sitemap (warning). No-op when `sitemap.xml` is absent.
+- `checkBundledAssets` (default `false`) -- verifies the entry `index.html` references at least one resolvable bundled CSS asset and one bundled JS asset (catches empty/broken production bundles).
+
+pagesmithSsg `beforeBuild` hook:
+
+- `pagesmithSsg({ beforeBuild })` accepts an optional `SsgBeforeBuildHook`: `(ctx) => void | Promise<void>` where `ctx` is `{ rootDir, outDir, config, logger }` (`config` is Vite's resolved config; `logger` is prefixed `pagesmith:ssg`). Runs once in `closeBundle`, after the client build's assets already exist in `outDir` but before route pre-rendering -- a safe place to write additional static files (feeds, sitemaps, generated content) that the route renderer will not overwrite. A thrown error aborts the build with `pagesmithSsg beforeBuild hook failed: <message>`. The runner is separately exported as `runBeforeBuildHook(hook, ctx)` for unit testing.
+
+Skills install (`pagesmith skills install`, umbrella CLI shipped from this package):
+
+- Auto-detects which of `@pagesmith/core` / `@pagesmith/site` / `@pagesmith/docs` are installed and writes, for every skill each ships, a canonical pointer stub at `.agents/skills/<name>/SKILL.md` (links back to `node_modules/@pagesmith/<pkg>/skills/<name>/SKILL.md`, carries an HTML-comment version marker) plus thin mirror stubs under detected/requested harness dirs (`.claude/skills/`, `.cursor/skills/`, `.codex/skills/`, `.continue/skills/`).
+- Flags: `--package <pkg>` (repeatable), `--dir <path>`, `--harness <list>`, `--only <name>` (repeatable), `--check` (verify-only; nonzero exit on missing/stale/orphaned stubs -- wire into CI), `--dry-run`, `--json`.
+- `pagesmith-core skills` is a deprecated alias that forwards to the identical installer and prints a one-line deprecation note to stderr; it will be removed in a future minor.
 
 Theme-aware content:
 

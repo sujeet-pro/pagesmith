@@ -6,6 +6,7 @@ import { registerDevCommand } from "./commands/dev.js";
 import { registerInitCommand } from "./commands/init.js";
 import { registerMcpCommand } from "./commands/mcp.js";
 import { registerPreviewCommand } from "./commands/preview.js";
+import { registerSkillsCommand } from "./commands/skills.js";
 import { registerValidateCommand } from "./commands/validate.js";
 import {
   defaultPresetSpecifier,
@@ -64,6 +65,12 @@ registerInitCommand(cli.command("init", "Preset-defined init flow"), getPresetSp
 );
 registerMcpCommand(cli.command("mcp", "Preset-defined MCP server"), getPresetSpecifier, () =>
   strippedArgv.slice(1),
+);
+registerSkillsCommand(
+  cli.command(
+    "skills [action]",
+    "Install versioned-pointer skill stubs from installed @pagesmith/* packages",
+  ),
 );
 
 const exitCode = await cliInstance.run({ argv: strippedArgv });

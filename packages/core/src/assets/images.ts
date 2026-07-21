@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { dirname, extname, join } from "path";
 import sharp from "sharp";
+import { mapWithConcurrency } from "../utils/concurrency";
 import type { ContentAssetMap } from "./index";
 
 export const CONVERTIBLE_IMAGE_EXTS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
@@ -245,48 +246,55 @@ export async function renderZoomImageVariant(sourcePath: string): Promise<Buffer
     .toBuffer();
 }
 
+/** A single image-variant render + write unit of work. */
+type ImageVariantTask = {
+  destPath: string;
+  label: string;
+  render: () => Promise<Buffer>;
+};
+
 export async function emitGeneratedImageVariants(
   assetsDir: string,
   assets: ContentAssetMap,
 ): Promise<void> {
-  const pending: Promise<void>[] = [];
-  const failures: string[] = [];
+  // Flatten every convertible source into individual render tasks up front so
+  // they can be run through the shared bounded worker pool. Sharp spins up
+  // native threads per call, so an unbounded `Promise.all` over a large asset
+  // set can oversubscribe CPU and memory; capping in-flight renders keeps peak
+  // resource use proportional to the host's parallelism.
+  const tasks: ImageVariantTask[] = [];
 
   for (const [assetPath, sourcePath] of assets.byPath) {
     if (!isConvertibleImagePath(assetPath)) continue;
 
     for (const format of GENERATED_IMAGE_FORMATS) {
       const destPath = join(assetsDir, getGeneratedImageVariantPath(assetPath, format));
-      pending.push(
-        renderGeneratedImageVariant(sourcePath, format, {
-          maxWidth: DISPLAY_MAX_WIDTH,
-        })
-          .then((buffer) => {
-            mkdirSync(dirname(destPath), { recursive: true });
-            writeFileSync(destPath, buffer);
-          })
-          .catch((error) => {
-            const msg = `${format} variant for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`;
-            failures.push(msg);
-          }),
-      );
+      tasks.push({
+        destPath,
+        label: `${format} variant for ${sourcePath}`,
+        render: () =>
+          renderGeneratedImageVariant(sourcePath, format, { maxWidth: DISPLAY_MAX_WIDTH }),
+      });
     }
 
     const zoomDestPath = join(assetsDir, getZoomImageVariantPath(assetPath));
-    pending.push(
-      renderZoomImageVariant(sourcePath)
-        .then((buffer) => {
-          mkdirSync(dirname(zoomDestPath), { recursive: true });
-          writeFileSync(zoomDestPath, buffer);
-        })
-        .catch((error) => {
-          const msg = `zoom variant for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`;
-          failures.push(msg);
-        }),
-    );
+    tasks.push({
+      destPath: zoomDestPath,
+      label: `zoom variant for ${sourcePath}`,
+      render: () => renderZoomImageVariant(sourcePath),
+    });
   }
 
-  await Promise.all(pending);
+  const failures: string[] = [];
+  await mapWithConcurrency(tasks, async (task) => {
+    try {
+      const buffer = await task.render();
+      mkdirSync(dirname(task.destPath), { recursive: true });
+      writeFileSync(task.destPath, buffer);
+    } catch (error) {
+      failures.push(`${task.label}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  });
 
   if (failures.length > 0) {
     console.warn(

@@ -72,6 +72,21 @@ export type BuildValidatorOptions = {
    * variant is typically emitted as a redirect. Default: false.
    */
   requireBothTrailingSlashForms?: boolean;
+  /**
+   * When true, cross-check `sitemap.xml` against the emitted HTML: every
+   * sitemap `<loc>` must resolve to an emitted HTML file (error if not), and
+   * every indexable HTML page (non-redirect, excluding `404.html`) must
+   * appear in the sitemap (warning if not). No-op when `sitemap.xml` is
+   * absent. Default: false.
+   */
+  checkSitemap?: boolean;
+  /**
+   * When true, verify the entry `index.html` references at least one bundled
+   * CSS asset and one bundled JS asset, and that each referenced bundle
+   * resolves on disk. Catches empty or broken production bundles. Default:
+   * false.
+   */
+  checkBundledAssets?: boolean;
 };
 
 export type BuildValidationIssue = {
@@ -326,6 +341,123 @@ function collectIds(html: string): Set<string> {
   return ids;
 }
 
+// ── Bundled-asset + sitemap consistency ──
+
+/**
+ * Verify the entry `index.html` references bundled CSS and JS, and that each
+ * referenced bundle resolves on disk. Ported from the standalone
+ * `validate-dist` script's bundled-asset discovery.
+ */
+function checkBundledAssetRefs(
+  outDir: string,
+  basePath: string,
+  trailingSlash: boolean,
+): BuildValidationIssue[] {
+  const issues: BuildValidationIssue[] = [];
+  const entryHtmlPath = join(outDir, "index.html");
+  if (!fileExists(entryHtmlPath)) return issues;
+
+  const html = readFileSync(entryHtmlPath, "utf-8");
+  const assetRefs = Array.from(
+    // The `.css`/`.js` extension may be followed by a query string or fragment
+    // (`style.css?v=1`, `app.js#x`); capture those suffixes too so hashed/
+    // cache-busted bundle refs are discovered rather than silently skipped.
+    html.matchAll(/\b(?:href|src)=["']([^"']+\.(?:css|js)(?:[?#][^"']*)?)["']/gi),
+    (m) => m[1]!,
+  );
+  const cssRefs = assetRefs.filter((ref) => /\.css(?:[?#].*)?$/i.test(ref));
+  const jsRefs = assetRefs.filter((ref) => /\.js(?:[?#].*)?$/i.test(ref));
+
+  if (cssRefs.length === 0) {
+    issues.push({
+      file: "index.html",
+      message: "No bundled CSS asset discovered",
+      severity: "error",
+    });
+  }
+  if (jsRefs.length === 0) {
+    issues.push({
+      file: "index.html",
+      message: "No bundled JS asset discovered",
+      severity: "error",
+    });
+  }
+
+  for (const ref of [...cssRefs, ...jsRefs]) {
+    const resolved = resolveLocalHref(ref, entryHtmlPath, outDir, basePath);
+    if (!resolved) continue;
+    if (!resolvedPathExists(resolved, trailingSlash)) {
+      issues.push({
+        file: "index.html",
+        message: `Bundled asset missing: ${ref}`,
+        severity: "error",
+      });
+    }
+  }
+
+  return issues;
+}
+
+/**
+ * Cross-check `sitemap.xml` against emitted HTML files: every sitemap
+ * `<loc>` must resolve to a file, and every indexable HTML page must appear
+ * in the sitemap. Ported from the standalone `validate-dist` script.
+ */
+function checkSitemapConsistency(
+  outDir: string,
+  basePath: string,
+  htmlFiles: Map<string, string>,
+): BuildValidationIssue[] {
+  const issues: BuildValidationIssue[] = [];
+  const sitemapPath = join(outDir, "sitemap.xml");
+  if (!fileExists(sitemapPath)) return issues;
+
+  const sitemap = readFileSync(sitemapPath, "utf-8");
+  const locPattern = /<loc>([^<]+)<\/loc>/g;
+  const sitemapPaths = new Set<string>();
+
+  let m: RegExpExecArray | null;
+  while ((m = locPattern.exec(sitemap)) !== null) {
+    const loc = m[1]!;
+    try {
+      const parsed = new URL(loc);
+      let p = parsed.pathname.replace(/\/+$/, "") || "/";
+      if (basePath && p.startsWith(basePath)) {
+        p = p.slice(basePath.length) || "/";
+      }
+      sitemapPaths.add(p);
+    } catch {
+      issues.push({ file: "sitemap.xml", message: `Invalid URL: ${loc}`, severity: "warn" });
+    }
+  }
+
+  for (const p of sitemapPaths) {
+    const indexPath = p === "/" ? join(outDir, "index.html") : join(outDir, p, "index.html");
+    const flatPath = p === "/" ? null : join(outDir, `${p}.html`);
+    if (!fileExists(indexPath) && !(flatPath && fileExists(flatPath))) {
+      issues.push({
+        file: "sitemap.xml",
+        message: `No file for sitemap entry: ${p}`,
+        severity: "error",
+      });
+    }
+  }
+
+  const notFoundPath = join(outDir, "404.html");
+  for (const [path, content] of htmlFiles) {
+    if (isRedirect(content)) continue;
+    if (path === notFoundPath) continue;
+    const rel = relative(outDir, path);
+    const slug =
+      rel === "index.html" ? "/" : "/" + rel.replace(/\/index\.html$/, "").replace(/\.html$/, "");
+    if (!sitemapPaths.has(slug)) {
+      issues.push({ file: rel, message: `HTML file not in sitemap: ${slug}`, severity: "warn" });
+    }
+  }
+
+  return issues;
+}
+
 // ── Main validator ──
 
 /**
@@ -346,6 +478,8 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
     checkInPageAnchors = false,
     requiredFiles = [],
     requireBothTrailingSlashForms = false,
+    checkSitemap = false,
+    checkBundledAssets = false,
   } = options;
 
   const basePath = rawBasePath?.replace(/\/+$/, "") ?? "";
@@ -623,6 +757,20 @@ export function validateBuildOutput(options: BuildValidatorOptions): BuildValida
     }
   }
 
+  // Bundled-asset discovery ────────────────────────────────────────────────
+  if (checkBundledAssets) {
+    for (const issue of checkBundledAssetRefs(outDir, basePath, trailingSlash)) {
+      (issue.severity === "error" ? errors : warnings).push(issue);
+    }
+  }
+
+  // Sitemap ↔ HTML consistency ──────────────────────────────────────────────
+  if (checkSitemap) {
+    for (const issue of checkSitemapConsistency(outDir, basePath, htmlFiles)) {
+      (issue.severity === "error" ? errors : warnings).push(issue);
+    }
+  }
+
   return {
     errors,
     warnings,
@@ -648,6 +796,8 @@ export function runBuildValidation(options: BuildValidatorOptions): number {
     checkInPageAnchors,
     requiredFiles,
     requireBothTrailingSlashForms,
+    checkSitemap,
+    checkBundledAssets,
   } = options;
 
   console.info(`Validating build output: ${outDir}`);
@@ -657,6 +807,8 @@ export function runBuildValidation(options: BuildValidatorOptions): number {
   if (requireThemeVariants) console.info(`  requireThemeVariants: true`);
   if (checkInPageAnchors) console.info(`  checkInPageAnchors: true`);
   if (requireBothTrailingSlashForms) console.info(`  requireBothTrailingSlashForms: true`);
+  if (checkSitemap) console.info(`  checkSitemap: true`);
+  if (checkBundledAssets) console.info(`  checkBundledAssets: true`);
   if (requireAssetHash === false) console.info(`  requireAssetHash: false`);
   if (requiredFiles && requiredFiles.length > 0) {
     console.info(

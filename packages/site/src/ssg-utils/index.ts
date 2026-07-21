@@ -8,6 +8,8 @@
 
 import type { Heading } from "../schemas/index.js";
 export { runPagefindIndexing, type PagefindIndexOptions, type PagefindLogger } from "./pagefind.js";
+export { generateFeed, type FeedEntry, type FeedConfig } from "./feed.js";
+export { generateSitemap, type SitemapConfig } from "./sitemap.js";
 
 // ── Types ──
 

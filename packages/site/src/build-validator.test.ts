@@ -281,6 +281,147 @@ describe("validateBuildOutput", () => {
     );
   });
 
+  it("checkSitemap: errors on sitemap entries with no emitted file", () => {
+    const outDir = makeTempDir();
+    writeFileSync(join(outDir, "index.html"), "<!DOCTYPE html><html><body>Home</body></html>");
+    writeFileSync(
+      join(outDir, "sitemap.xml"),
+      '<?xml version="1.0"?><urlset><url><loc>https://ex.com/</loc></url>' +
+        "<url><loc>https://ex.com/ghost</loc></url></urlset>",
+    );
+
+    const result = validateBuildOutput({ outDir, checkSitemap: true });
+    expect(result.passed).toBe(false);
+    expect(result.errors.some((e) => e.message.includes("No file for sitemap entry: /ghost"))).toBe(
+      true,
+    );
+  });
+
+  it("checkSitemap: warns when an indexable HTML page is missing from the sitemap", () => {
+    const outDir = makeTempDir();
+    writeFileSync(join(outDir, "index.html"), "<!DOCTYPE html><html><body>Home</body></html>");
+    writeFileSync(join(outDir, "about.html"), "<!DOCTYPE html><html><body>About</body></html>");
+    writeFileSync(
+      join(outDir, "sitemap.xml"),
+      '<?xml version="1.0"?><urlset><url><loc>https://ex.com/</loc></url></urlset>',
+    );
+
+    const result = validateBuildOutput({ outDir, checkSitemap: true });
+    expect(result.passed).toBe(true);
+    expect(
+      result.warnings.some((w) => w.message.includes("HTML file not in sitemap: /about")),
+    ).toBe(true);
+  });
+
+  it("checkSitemap: passes when sitemap and HTML fully agree (with basePath)", () => {
+    const outDir = makeTempDir();
+    writeFileSync(join(outDir, "index.html"), "<!DOCTYPE html><html><body>Home</body></html>");
+    writeFileSync(join(outDir, "about.html"), "<!DOCTYPE html><html><body>About</body></html>");
+    writeFileSync(join(outDir, "404.html"), "<!DOCTYPE html><html><body>Not found</body></html>");
+    writeFileSync(
+      join(outDir, "sitemap.xml"),
+      '<?xml version="1.0"?><urlset>' +
+        "<url><loc>https://ex.com/docs</loc></url>" +
+        "<url><loc>https://ex.com/docs/about</loc></url></urlset>",
+    );
+
+    const result = validateBuildOutput({ outDir, basePath: "/docs", checkSitemap: true });
+    expect(result.passed).toBe(true);
+    expect(result.warnings.some((w) => w.message.includes("not in sitemap"))).toBe(false);
+  });
+
+  it("checkBundledAssets: errors when the entry HTML has no CSS or JS bundle", () => {
+    const outDir = makeTempDir();
+    writeFileSync(join(outDir, "index.html"), "<!DOCTYPE html><html><body>Home</body></html>");
+
+    const result = validateBuildOutput({ outDir, checkBundledAssets: true });
+    expect(result.passed).toBe(false);
+    expect(result.errors.some((e) => e.message.includes("No bundled CSS asset discovered"))).toBe(
+      true,
+    );
+    expect(result.errors.some((e) => e.message.includes("No bundled JS asset discovered"))).toBe(
+      true,
+    );
+  });
+
+  it("checkBundledAssets: errors when a referenced bundle is missing on disk", () => {
+    const outDir = makeTempDir();
+    mkdirSync(join(outDir, "assets"), { recursive: true });
+    writeFileSync(join(outDir, "assets", "main.deadbeef.js"), "console.log(1)");
+    writeFileSync(
+      join(outDir, "index.html"),
+      "<!DOCTYPE html><html><head>" +
+        '<link rel="stylesheet" href="/assets/style.deadbeef.css">' +
+        '<script src="/assets/main.deadbeef.js"></script>' +
+        "</head><body>Home</body></html>",
+    );
+
+    const result = validateBuildOutput({ outDir, checkBundledAssets: true });
+    expect(result.passed).toBe(false);
+    expect(
+      result.errors.some((e) =>
+        e.message.includes("Bundled asset missing: /assets/style.deadbeef.css"),
+      ),
+    ).toBe(true);
+  });
+
+  it("checkBundledAssets: passes when both bundles resolve", () => {
+    const outDir = makeTempDir();
+    mkdirSync(join(outDir, "assets"), { recursive: true });
+    writeFileSync(join(outDir, "assets", "style.deadbeef.css"), "body{}");
+    writeFileSync(join(outDir, "assets", "main.deadbeef.js"), "console.log(1)");
+    writeFileSync(
+      join(outDir, "index.html"),
+      "<!DOCTYPE html><html><head>" +
+        '<link rel="stylesheet" href="/assets/style.deadbeef.css">' +
+        '<script src="/assets/main.deadbeef.js"></script>' +
+        "</head><body>Home</body></html>",
+    );
+
+    const result = validateBuildOutput({ outDir, checkBundledAssets: true });
+    expect(result.passed).toBe(true);
+  });
+
+  it("checkBundledAssets: discovers and resolves bundle refs that carry a query string", () => {
+    const outDir = makeTempDir();
+    mkdirSync(join(outDir, "assets"), { recursive: true });
+    writeFileSync(join(outDir, "assets", "style.css"), "body{}");
+    writeFileSync(join(outDir, "assets", "main.js"), "console.log(1)");
+    writeFileSync(
+      join(outDir, "index.html"),
+      "<!DOCTYPE html><html><head>" +
+        '<link rel="stylesheet" href="/assets/style.css?v=1">' +
+        '<script src="/assets/main.js?v=1"></script>' +
+        "</head><body>Home</body></html>",
+    );
+
+    const result = validateBuildOutput({ outDir, checkBundledAssets: true });
+    // The query-stringed refs must be discovered (no "No bundled … discovered")
+    // and resolve to the on-disk files (no "Bundled asset missing").
+    expect(result.errors.some((e) => e.message.includes("No bundled"))).toBe(false);
+    expect(result.errors.some((e) => e.message.includes("Bundled asset missing"))).toBe(false);
+    expect(result.passed).toBe(true);
+  });
+
+  it("checkBundledAssets: still flags a query-stringed bundle that is missing on disk", () => {
+    const outDir = makeTempDir();
+    mkdirSync(join(outDir, "assets"), { recursive: true });
+    writeFileSync(join(outDir, "assets", "main.js"), "console.log(1)");
+    writeFileSync(
+      join(outDir, "index.html"),
+      "<!DOCTYPE html><html><head>" +
+        '<link rel="stylesheet" href="/assets/style.css?v=1">' +
+        '<script src="/assets/main.js?v=1"></script>' +
+        "</head><body>Home</body></html>",
+    );
+
+    const result = validateBuildOutput({ outDir, checkBundledAssets: true });
+    expect(result.passed).toBe(false);
+    expect(
+      result.errors.some((e) => e.message.includes("Bundled asset missing: /assets/style.css?v=1")),
+    ).toBe(true);
+  });
+
   it("warns when raster pictures miss modern formats", () => {
     const outDir = makeTempDir();
     writeFileSync(

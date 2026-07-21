@@ -218,15 +218,15 @@ Or copy the AGENTS.md template from the package:
 - `node_modules/@pagesmith/site/skills/pagesmith-site-setup/references/AGENTS.md.template`
 - `node_modules/@pagesmith/core/skills/pagesmith-core-setup/references/AGENTS.md.template`
 
-### Install consumer Agent Skills with `pagesmith-core skills`
+### Install consumer Agent Skills with `pagesmith skills install`
 
-Each Pagesmith package ships its own `skills/` folder inside the npm tarball (they are not separate npm packages). The bundled installer copies them into the project:
+Each Pagesmith package ships its own `skills/` folder inside the npm tarball (they are not separate npm packages). The umbrella installer writes versioned-pointer stubs for them into the project:
 
 ```bash
-npx pagesmith-core skills
+npx pagesmith skills install
 ```
 
-By default this scans `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` for `skills/<name>/SKILL.md` files, writes the canonical copy at `.agents/skills/<name>/SKILL.md`, and adds thin wrappers at `.claude/skills/<name>/SKILL.md` and `.cursor/skills/<name>/SKILL.md` that point at the canonical file. Pass `--package <pkg>` (repeatable) to limit the install, `--cwd <dir>` to install into a different project, `--dry-run` to preview, or `--no-overwrite` to leave existing canonical skills untouched.
+By default this scans `@pagesmith/core`, `@pagesmith/site`, and `@pagesmith/docs` for `skills/<name>/SKILL.md` files and writes, for each one, a canonical **pointer stub** — not a copy — at `.agents/skills/<name>/SKILL.md` (frontmatter plus a link back to `node_modules/@pagesmith/<pkg>/skills/<name>/SKILL.md`, carrying an HTML-comment marker with the installed package version), plus thin mirror stubs under each detected/requested harness (`.claude/skills/`, `.cursor/skills/`, `.codex/skills/`, `.continue/skills/`) that point back at the canonical stub. Pass `--package <pkg>` (repeatable) to limit the install, `--dir <path>` to target a different project, `--harness <list>` to pick harnesses explicitly, `--only <name>` to restrict to specific skills, `--dry-run` to preview, `--json` for machine-readable output, or `--check` to verify without writing — it exits nonzero if a stub is missing, stale (behind the installed package version), or orphaned (its skill or package is no longer shipped), which is exactly the signal to wire into CI after bumping `@pagesmith/*`. `pagesmith-core skills` still works but is a deprecated alias that forwards to this same installer and prints a one-line notice to stderr; it will be removed in a future minor. Older releases copied the full skill body instead of writing a pointer — re-running the installer after upgrading replaces any leftover copy with a stub.
 
 Each skill reads `node_modules/@pagesmith/<pkg>/REFERENCE.md` first so the CLI flags and config schema match the version actually installed in the project, not a globally cached one.
 

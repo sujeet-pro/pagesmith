@@ -58,6 +58,8 @@ export const SiteSeoConfigSchema = z
     locale: z.string().optional(),
     twitterHandle: z.string().optional(),
     defaultOgType: z.string().optional(),
+    /** Emit schema.org JSON-LD (Article/BlogPosting + WebSite). Default: true. Set false to disable. */
+    jsonLd: z.boolean().optional(),
   })
   .catchall(z.unknown());
 

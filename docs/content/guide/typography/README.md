@@ -72,11 +72,11 @@ See the [Text Formatting](#text-formatting) section above for details on bold an
 
 Images use the standard Markdown syntax with alt text for accessibility.
 
-![Pagesmith favicon rendered through standard Markdown image syntax](/favicon.svg)
+![Pagesmith favicon rendered through standard Markdown image syntax](./favicon.svg)
 
 Images can also be wrapped in links:
 
-[![Pagesmith favicon linked to the GitHub repository](/favicon.svg)](https://github.com/sujeet-pro/pagesmith)
+[![Pagesmith favicon linked to the GitHub repository](./favicon.svg)](https://github.com/sujeet-pro/pagesmith)
 
 ## Blockquotes
 

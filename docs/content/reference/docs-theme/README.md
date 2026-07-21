@@ -100,6 +100,7 @@ The shared shell then decides when to render the header, left sidebar, right TOC
 
 - `<html lang>` and default theme classes
 - SEO, canonical, OpenGraph, theme-color, and CSP meta tags
+- schema.org JSON-LD: `DocHome` passes `isHome`, so the generated home page gets a `WebSite` block; `DocPage` passes `meta={{ ogType: 'article', publishedTime, modifiedTime, tags }}`, so every content page gets an `Article` block (`headline` from the page title, `description`, canonical `url`, and the resolved social image). Disable entirely with `seo.jsonLd: false` on `SiteDocumentData` -- there is no `pagesmith.config.json5` field that maps to it yet, so a docs theme override is currently the only way to turn it off for a docs site.
 - stylesheet and script tags
 - font preloading
 - Google Analytics injection when configured

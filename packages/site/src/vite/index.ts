@@ -50,8 +50,13 @@ export function pagesmithContent<TCollections extends CollectionMap>(
 export { prerenderRoutes } from "./ssg";
 export type { PrerenderOptions } from "./ssg";
 export { sharedAssetsPlugin } from "./shared-assets.js";
-export { pagesmithSsg } from "./ssg-plugin.js";
-export type { SsgPluginOptions, SsgRenderConfig } from "./ssg-plugin.js";
+export { pagesmithSsg, runBeforeBuildHook } from "./ssg-plugin.js";
+export type {
+  SsgPluginOptions,
+  SsgRenderConfig,
+  SsgBeforeBuildContext,
+  SsgBeforeBuildHook,
+} from "./ssg-plugin.js";
 export { pagesmithSite } from "./site-plugin.js";
 export type { PagesmithSitePluginOptions } from "./site-plugin.js";
 export type { ContentAssetMap } from "../assets/index.js";

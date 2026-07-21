@@ -120,5 +120,8 @@ export {
   type Logger,
 } from "./log";
 
+// ── Concurrency ──
+export { defaultConcurrency, mapWithConcurrency } from "./utils/concurrency";
+
 // ── Re-export zod for consumer convenience ──
 export { z } from "zod";

@@ -537,4 +537,163 @@ describe("local image markdown enhancements", () => {
     expect(result.html).not.toContain("data-zoom-src");
     expect(result.html).toContain('href="https://example.com"');
   });
+
+  describe("image loading hints", () => {
+    async function writeJpegs(dir: string, names: string[]): Promise<void> {
+      for (const name of names) {
+        await sharp({
+          create: { width: 40, height: 20, channels: 3, background: "#3366cc" },
+        })
+          .jpeg()
+          .toFile(join(dir, name));
+      }
+    }
+
+    function countMatches(html: string, pattern: RegExp): number {
+      return html.match(pattern)?.length ?? 0;
+    }
+
+    it("marks the first image eager (fetchpriority=high) and the rest lazy", async () => {
+      rootDir = mkdtempSync(join(tmpdir(), "ps-core-images-"));
+      const contentDir = join(rootDir, "content");
+      mkdirSync(contentDir, { recursive: true });
+      const markdownPath = join(contentDir, "post.md");
+      await writeJpegs(contentDir, ["a.jpg", "b.jpg", "c.jpg"]);
+
+      const md = "![A](./a.jpg)\n\n![B](./b.jpg)\n\n![C](./c.jpg)";
+      const result = await processMarkdown(md, undefined, {
+        content: md,
+        frontmatter: {},
+        fileData: { pagesmithFilePath: markdownPath },
+      });
+
+      // First image is eager, the other two are lazy.
+      expect(countMatches(result.html, /fetchpriority="high"/g)).toBe(1);
+      expect(countMatches(result.html, /loading="lazy"/g)).toBe(2);
+      expect(countMatches(result.html, /decoding="async"/g)).toBe(2);
+      // The eager (first) image must not also be lazy.
+      const firstImg = result.html.slice(0, result.html.indexOf('src="./b.webp"'));
+      expect(firstImg).toContain('fetchpriority="high"');
+      expect(firstImg).not.toContain('loading="lazy"');
+    });
+
+    it("honors images.eagerCount to mark multiple leading images eager", async () => {
+      rootDir = mkdtempSync(join(tmpdir(), "ps-core-images-"));
+      const contentDir = join(rootDir, "content");
+      mkdirSync(contentDir, { recursive: true });
+      const markdownPath = join(contentDir, "post.md");
+      await writeJpegs(contentDir, ["a.jpg", "b.jpg", "c.jpg"]);
+
+      const md = "![A](./a.jpg)\n\n![B](./b.jpg)\n\n![C](./c.jpg)";
+      const result = await processMarkdown(
+        md,
+        { images: { eagerCount: 2 } },
+        { content: md, frontmatter: {}, fileData: { pagesmithFilePath: markdownPath } },
+      );
+
+      expect(countMatches(result.html, /fetchpriority="high"/g)).toBe(2);
+      expect(countMatches(result.html, /loading="lazy"/g)).toBe(1);
+    });
+
+    it("opts out of all loading hints when images.lazyLoading is false", async () => {
+      rootDir = mkdtempSync(join(tmpdir(), "ps-core-images-"));
+      const contentDir = join(rootDir, "content");
+      mkdirSync(contentDir, { recursive: true });
+      const markdownPath = join(contentDir, "post.md");
+      await writeJpegs(contentDir, ["a.jpg", "b.jpg"]);
+
+      const md = "![A](./a.jpg)\n\n![B](./b.jpg)";
+      const result = await processMarkdown(
+        md,
+        { images: { lazyLoading: false } },
+        { content: md, frontmatter: {}, fileData: { pagesmithFilePath: markdownPath } },
+      );
+
+      expect(result.html).not.toContain('loading="lazy"');
+      expect(result.html).not.toContain("fetchpriority");
+      // Structural transforms still run (picture wrapping is unaffected).
+      expect(result.html).toContain("<picture>");
+    });
+
+    it("stamps the lazy hint on the <img> inside a generated <picture>", async () => {
+      rootDir = mkdtempSync(join(tmpdir(), "ps-core-images-"));
+      const contentDir = join(rootDir, "content");
+      mkdirSync(contentDir, { recursive: true });
+      const markdownPath = join(contentDir, "post.md");
+      writeFileSync(
+        join(contentDir, "icon.svg"),
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="#111"/></svg>',
+        "utf-8",
+      );
+      await writeJpegs(contentDir, ["hero.jpg"]);
+
+      // SVG first (eager), JPEG second — the JPEG becomes a <picture> whose
+      // fallback <img> must carry the lazy hint.
+      const md = "![Icon](./icon.svg)\n\n![Hero](./hero.jpg)";
+      const result = await processMarkdown(md, undefined, {
+        content: md,
+        frontmatter: {},
+        fileData: { pagesmithFilePath: markdownPath },
+      });
+
+      expect(result.html).toContain("<picture>");
+      expect(countMatches(result.html, /fetchpriority="high"/g)).toBe(1);
+      // The picture's webp fallback img is the 2nd image → lazy.
+      const pictureImg = result.html.slice(result.html.indexOf('src="./hero.webp"'));
+      expect(pictureImg).toContain('loading="lazy"');
+    });
+
+    it("stamps loading hints on raw HTML images in document order", async () => {
+      rootDir = mkdtempSync(join(tmpdir(), "ps-core-images-"));
+      const contentDir = join(rootDir, "content");
+      mkdirSync(contentDir, { recursive: true });
+      const markdownPath = join(contentDir, "post.md");
+
+      // External refs are left structurally untouched but still get hints.
+      const md =
+        '<img src="https://cdn.example.com/a.png" alt="A">\n\n<img src="https://cdn.example.com/b.png" alt="B">';
+      const result = await processMarkdown(md, undefined, {
+        content: md,
+        frontmatter: {},
+        fileData: { pagesmithFilePath: markdownPath },
+      });
+
+      expect(countMatches(result.html, /fetchpriority="high"/g)).toBe(1);
+      expect(countMatches(result.html, /loading="lazy"/g)).toBe(1);
+      expect(countMatches(result.html, /decoding="async"/g)).toBe(1);
+    });
+
+    it("counts a light/dark CSS-toggle pair as one logical image for the eager budget", async () => {
+      rootDir = mkdtempSync(join(tmpdir(), "ps-core-images-"));
+      const contentDir = join(rootDir, "content");
+      mkdirSync(contentDir, { recursive: true });
+      const markdownPath = join(contentDir, "post.md");
+
+      // A themed toggle pair (`only-light` + `only-dark`, the docs diagram embed
+      // convention) is one logical image — only one is ever visible — followed
+      // by a second, separate image. With eagerCount=1 both halves of the pair
+      // must share the eager slot (mirrored), leaving the trailing image lazy.
+      const md = [
+        '<img src="https://cdn.example.com/x-light.svg" class="only-light" alt="light">',
+        '<img src="https://cdn.example.com/x-dark.svg" class="only-dark" alt="dark">',
+        '<img src="https://cdn.example.com/other.png" alt="other">',
+      ].join("\n\n");
+      const result = await processMarkdown(md, undefined, {
+        content: md,
+        frontmatter: {},
+        fileData: { pagesmithFilePath: markdownPath },
+      });
+
+      // Both toggle halves are eager (the pair = one slot), only `other` is lazy.
+      expect(countMatches(result.html, /fetchpriority="high"/g)).toBe(2);
+      expect(countMatches(result.html, /loading="lazy"/g)).toBe(1);
+      // The dark half specifically mirrors the light half (eager, not lazy).
+      const darkImg = result.html.slice(
+        result.html.indexOf("x-dark.svg"),
+        result.html.indexOf("other.png"),
+      );
+      expect(darkImg).toContain('fetchpriority="high"');
+      expect(darkImg).not.toContain('loading="lazy"');
+    });
+  });
 });

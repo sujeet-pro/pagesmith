@@ -1,15 +1,9 @@
-# Pagesmith — Claude Memory
+@AGENTS.md
 
-All AI contributor guidance for this repository lives in a single file: [`AGENTS.md`](./AGENTS.md).
+## Claude Code addendum
 
-Read `AGENTS.md` in full before acting. It covers:
+Everything above this line is loaded automatically from `AGENTS.md` via Claude Code's native `@file` import — it is the single source of truth for repo-wide contributor guidance. Do not duplicate it here.
 
-- Repo layout and module boundaries.
-- The split between **contributor** guidance (this repo) and **consumer** guidance (projects that install `@pagesmith/*`).
-- Scratch-space rules (`.temp/`).
-- Canonical locations for contributor skills (`.agents/skills/prj-*`) and consumer skills (`skills/pagesmith-*`).
-- Locked principles, repo rules, and the commands you will most often run.
-
-The `.claude/skills/` and `.cursor/skills/` trees mirror `.agents/skills/` (same folder names only): each `SKILL.md` points at the canonical file under `.agents/skills/<name>/SKILL.md`. Edit skill bodies only under `.agents/skills/`; when you add, remove, rename, or change canonical frontmatter (`name` / `description`), update both `.claude/skills/` and `.cursor/skills/` wrappers in the same commit per `AGENTS.md`.
-
-Do not duplicate guidance here — if you need to change Claude-specific behavior, either update `AGENTS.md` (if it applies to all agents) or add a Claude-only addendum at the bottom of this file.
+- `.claude/settings.json` pre-approves `Bash(npm run *)`, `Bash(npx pagesmith *)`, and `Bash(npx diagramkit *)` so the common validate/build/render workflows in `AGENTS.md#Commands` do not need a permission prompt per call.
+- `.claude/skills/` mirrors `.agents/skills/` (thin pointers only, per `AGENTS.md`'s Contributor Skills Contract). Edit skill bodies under `.agents/skills/`, never here.
+- If a behavior is genuinely Claude-Code-specific (not applicable to other agents), add it below this line instead of folding it into `AGENTS.md`.

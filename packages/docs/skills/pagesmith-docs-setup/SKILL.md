@@ -1,6 +1,7 @@
 ---
 name: pagesmith-docs-setup
 description: Bootstrap a new documentation site with @pagesmith/docs in an existing repository. Use when the user wants to add Pagesmith docs to a project, start a docs from scratch, scaffold a docs folder, initialize pagesmith.config.json5, wire the GitHub Pages workflow, or ask an agent to "set up docs" with Pagesmith — even if they don't explicitly name the package.
+allowed-tools: Bash(npx pagesmith-docs *)
 ---
 
 # Set Up A Pagesmith Docs Site
@@ -143,13 +144,13 @@ Only declare the setup done when all four succeed.
 
 ## Install the full consumer skill pack
 
-After setup, make the other Pagesmith skills discoverable to the user's agent by running the bundled installer (it copies every shipped skill from the installed packages into `.agents/skills/<name>/SKILL.md` with thin wrappers in `.claude/skills/<name>/` and `.cursor/skills/<name>/`):
+After setup, make the other Pagesmith skills discoverable to the user's agent by running the umbrella installer (it writes a version-pinned pointer stub — not a copy — for every shipped skill from the installed packages into `.agents/skills/<name>/SKILL.md`, with thin mirror stubs in `.claude/skills/<name>/` and `.cursor/skills/<name>/`):
 
 ```bash
-npx pagesmith-core skills
+npx pagesmith skills install
 ```
 
-Pass `--package @pagesmith/docs` (repeatable) to scope the install to specific packages, `--dry-run` to preview, or `--no-overwrite` to leave existing canonical skills untouched.
+Pass `--package @pagesmith/docs` (repeatable) to scope the install to specific packages, `--dry-run` to preview, `--check` to verify without writing (nonzero exit on a missing/stale/orphaned stub — good for CI), or `--json` for machine-readable output. `pagesmith-core skills` still works but is a deprecated alias for this same installer.
 
 Or copy the `skills/pagesmith-*` folders from `node_modules/@pagesmith/<pkg>/skills/` directly into the user's `.agents/skills/`.
 

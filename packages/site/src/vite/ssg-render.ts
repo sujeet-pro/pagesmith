@@ -20,6 +20,7 @@ import {
 } from "fs";
 import { basename, dirname, extname, join, resolve } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
+import { mapWithConcurrency } from "@pagesmith/core";
 import type { ResolvedConfig } from "vite";
 import {
   type ContentAssetMap,
@@ -380,11 +381,11 @@ export async function renderStaticSite(context: SsgBuildContext): Promise<number
 
   // SSR build — use child process to avoid nested Vite resolution issues
   console.info("SSG: Building SSR bundle...");
-  await buildSsrBundle(config, projectRoot, outDir, entry);
+  await buildSsrBundle(config, projectRoot, entry);
 
   // Load SSR module — derive output filename from the configured entry path
   const entryBaseName = basename(entry).replace(/\.(c|m)?[jt]sx?$/u, ".js");
-  const serverDir = join(outDir, ".server");
+  const serverDir = ssrServerDir(projectRoot);
   const serverEntry = join(serverDir, entryBaseName);
   const ssrMod = await import(pathToFileURL(serverEntry).href);
 
@@ -397,40 +398,34 @@ export async function renderStaticSite(context: SsgBuildContext): Promise<number
     isDev: false,
   };
 
-  // Get routes and render with bounded concurrency
+  // Get routes and render with bounded concurrency. Uses the shared
+  // `mapWithConcurrency` worker-pool primitive from `@pagesmith/core` (the
+  // same one that bounds content loading and image-variant emission) instead
+  // of a hand-rolled pool, so the fan-out cap derives from the host's
+  // available parallelism rather than a hardcoded number.
   const routes: string[] = await ssrMod.getRoutes(renderConfig);
   console.info(`SSG: Rendering ${routes.length} pages...`);
 
-  const concurrency = Math.min(routes.length, 8);
-  let routeIndex = 0;
+  await mapWithConcurrency(routes, async (route) => {
+    const routePath = route === "/" ? "" : route.replace(/^\//, "");
+    const html = rewriteContentAssetRefs(
+      await ssrMod.render(route, renderConfig),
+      base,
+      contentAssets,
+      routePath,
+    );
+    const content = `<!DOCTYPE html>\n${html}`;
+    const outputPath =
+      route === "/" || trailingSlash
+        ? join(outDir, routePath, "index.html")
+        : join(outDir, `${routePath}.html`);
+    mkdirSync(dirname(outputPath), { recursive: true });
+    writeFileSync(outputPath, content);
 
-  async function renderWorker(): Promise<void> {
-    while (routeIndex < routes.length) {
-      const i = routeIndex++;
-      const route = routes[i];
-      const routePath = route === "/" ? "" : route.replace(/^\//, "");
-      const html = rewriteContentAssetRefs(
-        await ssrMod.render(route, renderConfig),
-        base,
-        contentAssets,
-        routePath,
-      );
-      const content = `<!DOCTYPE html>\n${html}`;
-      const outputPath =
-        route === "/" || trailingSlash
-          ? join(outDir, routePath, "index.html")
-          : join(outDir, `${routePath}.html`);
-      mkdirSync(dirname(outputPath), { recursive: true });
-      writeFileSync(outputPath, content);
-
-      if (route === "/404") {
-        writeFileSync(join(outDir, "404.html"), content);
-      }
+    if (route === "/404") {
+      writeFileSync(join(outDir, "404.html"), content);
     }
-  }
-
-  const workers = Array.from({ length: concurrency }, () => renderWorker());
-  await Promise.all(workers);
+  });
 
   await copyContentAssetsToOutDir(outDir, contentAssets);
 
@@ -473,14 +468,28 @@ export function discoverBuiltAssets(
   return { cssPath, jsPath };
 }
 
+/**
+ * Directory the SSR bundle is emitted to. Deliberately kept *inside* the
+ * project root (under the gitignored `node_modules/.cache`) rather than under
+ * `outDir`: `outDir` frequently points outside the project tree (e.g. a repo-
+ * root `gh-pages/`), and Node resolves a bundle's externalized bare specifiers
+ * (`react-dom`, `solid-js`, …) relative to the bundle's own location. Emitting
+ * here lets those externals resolve from the project's own `node_modules`
+ * (falling back up to the workspace root), which is where the SSR build already
+ * resolved them, so runtime resolution matches build-time resolution even when
+ * a dependency is not hoisted to the workspace root.
+ */
+function ssrServerDir(projectRoot: string): string {
+  return join(projectRoot, "node_modules", ".cache", "pagesmith-ssg", ".server");
+}
+
 async function buildSsrBundle(
   config: ResolvedConfig,
   projectRoot: string,
-  outDir: string,
   entry: string,
 ): Promise<void> {
   const { execFileSync } = await import("child_process");
-  const serverDir = join(outDir, ".server");
+  const serverDir = ssrServerDir(projectRoot);
   const ssrEntry = resolve(projectRoot, entry);
 
   // Resolve string aliases to absolute paths so the child SSR build
