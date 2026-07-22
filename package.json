@@ -79,11 +79,13 @@
     "diagramkit": "^0.4.0",
     "jsdom": "^29.0.2",
     "typescript": "^6.0.3",
-    "vite": "^8.0.10",
+    "vite": "~8.0.16",
     "vite-plus": "^0.1.19"
   },
   "overrides": {
-    "@xmldom/xmldom": "^0.9.10"
+    "@xmldom/xmldom": "^0.9.10",
+    "sharp": "^0.35.3",
+    "vite": "~8.0.16"
   },
   "engines": {
     "node": ">=24"
