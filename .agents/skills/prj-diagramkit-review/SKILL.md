@@ -17,5 +17,6 @@ Pagesmith-specific notes:
 - `prj-review-repo` and `prj-maintain-docs` call this skill. Run it before release and any time diagram sources or rendered assets may be stale.
 - Write the review report under `.temp/diagram-review/<timestamp>/report.md` (repo-wide rule: all scratch output goes in `.temp/`).
 - Use `npm run render:diagrams` for force re-renders — it already passes the right flags for this repo and runs `validate:diagrams` afterwards.
-- `npm run validate:diagrams` runs the SVG-only audit (structure + `<img>`-embed safety + WCAG 2.2 AA contrast) without re-rendering and is wired into `npm run build:docs`. It treats `LOW_CONTRAST_TEXT`, `CONTAINS_FOREIGN_OBJECT`, `CONTAINS_SCRIPT`, and `EXTERNAL_RESOURCE` warnings as fatal.
+- `npm run validate:diagrams` runs the SVG-only audit (structure + `<img>`-embed safety + WCAG 2.2 AA contrast) without re-rendering and is wired into `npm run build:docs`. It treats `LOW_CONTRAST_TEXT`, `LOW_CONTRAST_SHAPE`, `LOW_CONTRAST_STROKE`, `CONTAINS_FOREIGN_OBJECT`, `CONTAINS_SCRIPT`, and `EXTERNAL_RESOURCE` warnings as fatal.
+- Contrast codes cover non-text geometry too (`LOW_CONTRAST_SHAPE`, `LOW_CONTRAST_STROKE`), so after any `LOW_CONTRAST_*` fix render the light and dark PNGs and eyeball both themes — labels legible, and every box, line, and arrow visible against the canvas. Delegate the per-engine repair to `diagramkit-review` above.
 - After fixes, also run `vp check` to confirm nothing else regressed.

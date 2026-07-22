@@ -32,7 +32,7 @@ Prioritize:
 - Missing updates to `packages/*/skills/pagesmith-*-setup/references/`, `packages/docs/schemas/`, or root `skills/pagesmith-*`
 - Drift in `docs/content/` or `examples/` relative to implementation
 - Missing tests or validation for the change surface
-- Diagrams that are outdated, missing for new complex flows, or lacking rendered assets / broken embeds
+- Diagrams that are outdated, missing for new complex flows, lacking rendered assets / broken embeds, or unreadable in light or dark (invisible labels/boxes/lines/arrows)
 
 ## Checklist
 

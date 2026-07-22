@@ -88,7 +88,7 @@ GitHub-facing markdown (`README.md`, `REFERENCE.md`):
 
 - Does the visual still match the implementation and docs **after** your change?
 - If flows, components, or ownership changed, **update the source** and re-render; do not patch old SVGs.
-- Per-page: engine fit, sibling sources + renders, correct embed pattern, descriptive alt text, `npm run render:diagrams` after edits.
+- Per-page: engine fit, sibling sources + renders, correct embed pattern, descriptive alt text, readable in light AND dark (labels legible; boxes, lines, and arrows visible), `npm run render:diagrams` after edits.
 - Before release or after broad diagram edits, hand off to [`prj-diagramkit-review`](../prj-diagramkit-review/SKILL.md) for a full-repo pass.
 
 ## Verification

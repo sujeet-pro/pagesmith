@@ -36,8 +36,14 @@ const validateOnly = process.argv.includes("--validate-only");
 const forwardedArgs = process.argv.slice(2).filter((arg) => arg !== "--validate-only");
 
 const SCOPE_DIR = "diagrams";
+// LOW_CONTRAST_SHAPE / LOW_CONTRAST_STROKE: a box, line, or arrow effectively
+// invisible against the canvas — a readability regression like LOW_CONTRAST_TEXT.
+// The docs site embeds SVGs via <img>/<figure>/<picture>, so a diagram that is
+// unreadable in light or dark must fail the build, not ship.
 const FATAL_VALIDATE_CODES = [
   "LOW_CONTRAST_TEXT",
+  "LOW_CONTRAST_SHAPE",
+  "LOW_CONTRAST_STROKE",
   "CONTAINS_FOREIGN_OBJECT",
   "CONTAINS_SCRIPT",
   "EXTERNAL_RESOURCE",
