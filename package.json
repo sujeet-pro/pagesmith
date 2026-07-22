@@ -54,7 +54,7 @@
     "validate:pagesmith": "node --strip-types --no-warnings scripts/validate-pagesmith.ts",
     "validate:pagesmith:full": "node --strip-types --no-warnings scripts/validate-pagesmith.ts --full",
     "validate:a11y": "node --strip-types --no-warnings scripts/validate-a11y.ts",
-    "validate:skills": "node --strip-types --no-warnings scripts/validate-skills.ts",
+    "validate:skills": "node --strip-types --no-warnings scripts/validate-skills.ts && diagramkit skills install --check",
     "validate": "npm run build:library && npm run build:docs && npm run validate:examples && npm run validate:pagesmith && npm run validate:skills && npm run validate:a11y && npm run check && npm run test",
     "cicd": "npm run check && npm run build && npm run validate:diagrams && npm run validate:examples && npm run validate:skills && npm run test && npm run e2e",
     "test": "vp test run",

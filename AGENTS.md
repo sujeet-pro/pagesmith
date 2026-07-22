@@ -40,6 +40,7 @@ pagesmith/
 │
 ├── .agents/skills/prj-*/                # canonical contributor skills (edit here)
 ├── .agents/skills/prj-diagramkit-{auto,review}/  # repo-local diagramkit pointers (+ Pagesmith notes); engines → node_modules/diagramkit/skills/
+├── .agents/skills/diagramkit-*/         # installer-managed stubs → node_modules/diagramkit/skills/ (regenerate: npx diagramkit skills install; checked by validate:skills — never hand-edit)
 ├── .claude/skills/prj-*/                # mirror: thin wrappers → read .agents/skills/prj-*
 ├── .claude/settings.json      # pre-approved Bash permissions (npm run *, npx pagesmith *, npx diagramkit *)
 ├── .cursor/skills/prj-*/                # mirror: thin wrappers → read .agents/skills/prj-*
