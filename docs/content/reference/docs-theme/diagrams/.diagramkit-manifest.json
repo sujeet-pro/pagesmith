@@ -3,7 +3,7 @@
   "diagrams": {
     "theme-architecture-layouts.mermaid": {
       "hash": "sha256:8e266f417d056bb2",
-      "generatedAt": "2026-04-23T16:50:19.127Z",
+      "generatedAt": "2026-07-22T15:37:12.867Z",
       "outputs": [
         {
           "file": "theme-architecture-layouts-light.svg",
@@ -22,12 +22,13 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776962553654.8767,
-      "size": 701
+      "mtimeMs": 1784560571374.8591,
+      "size": 701,
+      "optimizeKey": "opt:9fed79a301b4"
     },
     "theme-architecture-shell.mermaid": {
       "hash": "sha256:86226e16c742fc8d",
-      "generatedAt": "2026-04-23T16:50:19.127Z",
+      "generatedAt": "2026-07-22T15:37:12.867Z",
       "outputs": [
         {
           "file": "theme-architecture-shell-light.svg",
@@ -46,8 +47,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776962758775.4841,
-      "size": 469
+      "mtimeMs": 1784560571375.226,
+      "size": 469,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

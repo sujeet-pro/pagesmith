@@ -3,7 +3,7 @@
   "diagrams": {
     "mcp-surfaces-overview.mermaid": {
       "hash": "sha256:1c6d531df4a0471b",
-      "generatedAt": "2026-04-23T16:50:19.124Z",
+      "generatedAt": "2026-07-22T15:37:12.864Z",
       "outputs": [
         {
           "file": "mcp-surfaces-overview-light.svg",
@@ -22,8 +22,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776873080357.0996,
-      "size": 662
+      "mtimeMs": 1784560571364.9841,
+      "size": 662,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

@@ -3,7 +3,7 @@
   "diagrams": {
     "layout-resolution.dot": {
       "hash": "sha256:41023ac22cf0ccaf",
-      "generatedAt": "2026-04-23T16:50:19.116Z",
+      "generatedAt": "2026-07-22T15:37:12.856Z",
       "outputs": [
         {
           "file": "layout-resolution-light.svg",
@@ -22,8 +22,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776692426047.4407,
-      "size": 1949
+      "mtimeMs": 1784560571363.3384,
+      "size": 1949,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

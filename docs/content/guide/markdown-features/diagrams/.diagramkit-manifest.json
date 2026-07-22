@@ -3,7 +3,7 @@
   "diagrams": {
     "markdown-pipeline-overview.dot": {
       "hash": "sha256:30d297b408a8b444",
-      "generatedAt": "2026-04-23T16:50:19.117Z",
+      "generatedAt": "2026-07-22T15:37:12.856Z",
       "outputs": [
         {
           "file": "markdown-pipeline-overview-light.svg",
@@ -22,8 +22,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776962778934.043,
-      "size": 1098
+      "mtimeMs": 1784560571364.0432,
+      "size": 1098,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

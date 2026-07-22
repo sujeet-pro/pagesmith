@@ -76,7 +76,7 @@
     "@types/jsdom": "^28.0.1",
     "@vitest/coverage-v8": "^4.1.5",
     "axe-core": "^4.11.3",
-    "diagramkit": "^0.4.0",
+    "diagramkit": "^0.5.0",
     "jsdom": "^29.0.2",
     "typescript": "^6.0.3",
     "vite": "~8.0.16",

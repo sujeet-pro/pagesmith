@@ -3,7 +3,7 @@
   "diagrams": {
     "vite-framework-shared-flow.mermaid": {
       "hash": "sha256:234617662581f2ac",
-      "generatedAt": "2026-04-23T16:50:19.123Z",
+      "generatedAt": "2026-07-22T15:37:12.862Z",
       "outputs": [
         {
           "file": "vite-framework-shared-flow-light.svg",
@@ -22,8 +22,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776962731729.2283,
-      "size": 735
+      "mtimeMs": 1784560571360.9412,
+      "size": 735,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

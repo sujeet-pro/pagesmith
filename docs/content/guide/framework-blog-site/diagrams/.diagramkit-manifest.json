@@ -3,7 +3,7 @@
   "diagrams": {
     "blog-site-assembly.mermaid": {
       "hash": "sha256:2f43f3d75698802a",
-      "generatedAt": "2026-04-23T16:50:19.120Z",
+      "generatedAt": "2026-07-22T15:37:12.860Z",
       "outputs": [
         {
           "file": "blog-site-assembly-light.svg",
@@ -22,8 +22,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776962614369.1577,
-      "size": 543
+      "mtimeMs": 1784560571357.7922,
+      "size": 543,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

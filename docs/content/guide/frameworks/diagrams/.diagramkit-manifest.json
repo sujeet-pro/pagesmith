@@ -3,7 +3,7 @@
   "diagrams": {
     "framework-integration-patterns.mermaid": {
       "hash": "sha256:5c306aa0e90a2d95",
-      "generatedAt": "2026-04-23T16:50:19.123Z",
+      "generatedAt": "2026-07-22T15:37:12.863Z",
       "outputs": [
         {
           "file": "framework-integration-patterns-light.svg",
@@ -22,8 +22,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776963006613.6006,
-      "size": 581
+      "mtimeMs": 1784560571361.7727,
+      "size": 581,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

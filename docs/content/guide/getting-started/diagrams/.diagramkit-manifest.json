@@ -3,7 +3,7 @@
   "diagrams": {
     "core-integration-paths.mermaid": {
       "hash": "sha256:0ac8fd7089600f37",
-      "generatedAt": "2026-04-23T16:50:19.124Z",
+      "generatedAt": "2026-07-22T15:37:12.863Z",
       "outputs": [
         {
           "file": "core-integration-paths-light.svg",
@@ -22,8 +22,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776873080311.2036,
-      "size": 791
+      "mtimeMs": 1784560571362.4158,
+      "size": 791,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

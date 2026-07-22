@@ -3,7 +3,7 @@
   "diagrams": {
     "command-lifecycle.mermaid": {
       "hash": "sha256:779073ba2392e5af",
-      "generatedAt": "2026-04-23T16:50:19.127Z",
+      "generatedAt": "2026-07-22T15:37:12.866Z",
       "outputs": [
         {
           "file": "command-lifecycle-light.svg",
@@ -22,8 +22,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776437360290.4302,
-      "size": 642
+      "mtimeMs": 1784560571373.392,
+      "size": 642,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }

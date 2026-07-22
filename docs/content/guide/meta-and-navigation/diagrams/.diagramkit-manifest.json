@@ -3,7 +3,7 @@
   "diagrams": {
     "navigation-sources-chrome.mermaid": {
       "hash": "sha256:f73983155593dd3c",
-      "generatedAt": "2026-04-23T16:50:19.125Z",
+      "generatedAt": "2026-07-22T15:37:12.864Z",
       "outputs": [
         {
           "file": "navigation-sources-chrome-light.svg",
@@ -22,12 +22,13 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776873080357.018,
-      "size": 592
+      "mtimeMs": 1784560571365.7012,
+      "size": 592,
+      "optimizeKey": "opt:9fed79a301b4"
     },
     "navigation-sources-sidebar.mermaid": {
       "hash": "sha256:f90f0e03fa3d63e0",
-      "generatedAt": "2026-04-23T16:50:19.125Z",
+      "generatedAt": "2026-07-22T15:37:12.864Z",
       "outputs": [
         {
           "file": "navigation-sources-sidebar-light.svg",
@@ -46,8 +47,9 @@
       ],
       "formats": ["svg"],
       "theme": "both",
-      "mtimeMs": 1776873080356.9512,
-      "size": 618
+      "mtimeMs": 1784560571366.0881,
+      "size": 618,
+      "optimizeKey": "opt:9fed79a301b4"
     }
   }
 }
